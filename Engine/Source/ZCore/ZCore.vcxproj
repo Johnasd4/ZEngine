@@ -82,21 +82,49 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)Binaries\bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Binaries\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)_$(Platform)_$(Configuration)</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)Binaries\bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Binaries\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)_$(Platform)_$(Configuration)</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)Binaries\bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Binaries\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)_$(Platform)_$(Configuration)</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)Binaries\bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Binaries\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)_$(Platform)_$(Configuration)</TargetName>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;ZCORE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>$(SolutionDir)Source/Include/code;$(SolutionDir)Source/Include/code/z_core</AdditionalIncludeDirectories>
+      <PrecompiledHeaderOutputFile />
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalLibraryDirectories>$(SolutionDir)Binaries\bin\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>mkdir "$(SolutionDir)Release\$(Platform)\$(Configuration)\bin" &amp; copy /Y "$(SolutionDir)Binaries\bin\$(Platform)\$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).dll" "$(SolutionDir)Release\$(Platform)\$(Configuration)\bin\$(ProjectName)_$(Platform)_$(Configuration).dll";
+mkdir "$(SolutionDir)Release\$(Platform)\$(Configuration)\lib" &amp; copy /Y "$(SolutionDir)Binaries\bin\$(Platform)\$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).lib" "$(SolutionDir)Release\$(Platform)\$(Configuration)\lib\$(ProjectName)_$(Platform)_$(Configuration).lib"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -106,9 +134,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;ZCORE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>$(SolutionDir)Source/Include/code;$(SolutionDir)Source/Include/code/z_core</AdditionalIncludeDirectories>
+      <PrecompiledHeaderOutputFile />
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -116,7 +147,12 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalLibraryDirectories>$(SolutionDir)Binaries\bin\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>mkdir "$(SolutionDir)Release\$(Platform)\$(Configuration)\bin" &amp; copy /Y "$(SolutionDir)Binaries\bin\$(Platform)\$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).dll" "$(SolutionDir)Release\$(Platform)\$(Configuration)\bin\$(ProjectName)_$(Platform)_$(Configuration).dll";
+mkdir "$(SolutionDir)Release\$(Platform)\$(Configuration)\lib" &amp; copy /Y "$(SolutionDir)Binaries\bin\$(Platform)\$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).lib" "$(SolutionDir)Release\$(Platform)\$(Configuration)\lib\$(ProjectName)_$(Platform)_$(Configuration).lib"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -128,18 +164,18 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile />
-      <AdditionalIncludeDirectories>$(SolutionDir)\include\code\z_core</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Source/Include/code;$(SolutionDir)Source/Include/code/z_core</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Binaries\bin\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>mkdir "$(SolutionDir)Release\$(Platform)\$(Configuration)\bin" &amp; copy /Y "$(SolutionDir)Binaries\bin\$(Platform)\$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).dll" "$(SolutionDir)Release\$(Platform)\$(Configuration)\bin\$(ProjectName)_$(Platform)_$(Configuration).dll";
+mkdir "$(SolutionDir)Release\$(Platform)\$(Configuration)\lib" &amp; copy /Y "$(SolutionDir)Binaries\bin\$(Platform)\$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).lib" "$(SolutionDir)Release\$(Platform)\$(Configuration)\lib\$(ProjectName)_$(Platform)_$(Configuration).lib"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -154,7 +190,7 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile />
-      <AdditionalIncludeDirectories>$(SolutionDir)\include\z_core</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Source/Include/code;$(SolutionDir)Source/Include/code/z_core</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -163,8 +199,12 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Binaries\bin\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>mkdir "$(SolutionDir)Release\$(Platform)\$(Configuration)\bin" &amp; copy /Y "$(SolutionDir)Binaries\bin\$(Platform)\$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).dll" "$(SolutionDir)Release\$(Platform)\$(Configuration)\bin\$(ProjectName)_$(Platform)_$(Configuration).dll";
+mkdir "$(SolutionDir)Release\$(Platform)\$(Configuration)\lib" &amp; copy /Y "$(SolutionDir)Binaries\bin\$(Platform)\$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).lib" "$(SolutionDir)Release\$(Platform)\$(Configuration)\lib\$(ProjectName)_$(Platform)_$(Configuration).lib"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

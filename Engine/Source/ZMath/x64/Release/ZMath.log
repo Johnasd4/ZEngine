@@ -1,8 +1,0 @@
-﻿  f_fourier.cpp
-     Creating library E:\ZEngine1.0\x64\Release\ZMath.lib and object E:\ZEngine1.0\x64\Release\ZMath.exp
-  Generating code
-  20 of 115 functions (17.4%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    3 functions had inline decision re-evaluated but remain unchanged
-  Finished generating code
-  ZMath.vcxproj -> E:\ZEngine1.0\x64\Release\ZMath.dll
