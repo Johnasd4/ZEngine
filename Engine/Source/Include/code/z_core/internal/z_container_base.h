@@ -76,6 +76,10 @@ protected:
     */
     __forceinline Void CreateObjectAtIndex(const IndexType index);
     /*
+        Copies an object at the certain index. Will Call Constrctor if needed.
+    */
+    __forceinline Void CreateAndCopyObjectAtIndex(const IndexType index, const ObjectType& object);
+    /*
         Destroys an object at the certain index. Will Call Destrctor if needed.
     */
     __forceinline Void DestroyObjectAtIndex(const IndexType index);
@@ -244,6 +248,18 @@ __forceinline Void ZContainerBase<ObjectType, kIfInitializeObject>::CreateObject
     //The object class has member kIfInitializeObject.
     if constexpr (kIfInitializeObject) {
         new(reinterpret_cast<Address>(&((*this)(index)))) ObjectType();
+    }
+}
+
+template<typename ObjectType, Bool kIfInitializeObject>
+__forceinline Void ZContainerBase<ObjectType, kIfInitializeObject>::CreateAndCopyObjectAtIndex(
+        const IndexType index, const ObjectType& object) {
+    //The object class has member kIfInitializeObject.
+    if constexpr (kIfInitializeObject) {
+        new(reinterpret_cast<Address>(&((*this)(index)))) ObjectType(object);
+    }
+    else {
+        (*this)(index) = object;
     }
 }
 

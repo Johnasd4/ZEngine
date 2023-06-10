@@ -13,7 +13,8 @@ void test(int a) {
 
 
 int main(){
-
+    std::initializer_list<int> numbers = { 1, 2, 3, 4 };
+    auto a = { 1, 2, 3, 4 };
     //Size32Type test_number(0xff800000U);
     //Float32 asd = test_number.float_32;
     //if (asd == test_number.float_32) {

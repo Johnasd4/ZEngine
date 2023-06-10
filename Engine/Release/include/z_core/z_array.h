@@ -187,10 +187,10 @@ const Bool ZArray<ObjectType, kIfInitializeObject>::Insert(const IndexType inser
     }
     SuperType::change_size(1);
     //Move the objects forward to insert.
-    for (IndexType index = SuperType::size() - 1; index > insert_index; index--) {
-        (*this)(index) = (*this)(index - 1);
+    for (IndexType index = SuperType::size() - 1; index > insert_index; --index) {
+        (*this)(index) = std::move((*this)(index - 1));
     }
-    (*this)(insert_index) = object;
+    SuperType::CreateAndCopyObjectAtIndex(insert_index, object);
     SuperType::set_end_data_ptr(SuperType::end_data_ptr() + 1);
     return true;
 }
