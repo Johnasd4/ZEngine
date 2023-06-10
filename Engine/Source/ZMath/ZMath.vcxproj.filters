@@ -18,25 +18,8 @@
     <ClCompile Include="code\f_fourier.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="code\f_basic.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="code\f_digital_signal.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="code\basic\f_pow.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="code\basic\f_numeral.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="code\basic\f_triganometric.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="code\basic\f_log.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

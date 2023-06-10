@@ -2,8 +2,7 @@
 
 #include "f_digital_signal.h"
 
-#include "basic/f_numeral.h"
-#include "basic/f_triganometric.h"
+#include "f_basic.h"
 
 namespace zengine {
 namespace math {

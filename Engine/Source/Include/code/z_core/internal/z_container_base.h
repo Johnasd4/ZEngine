@@ -219,6 +219,9 @@ ZContainerBase<ObjectType, kIfInitializeObject>& ZContainerBase<ObjectType, kIfI
 
 template<typename ObjectType, Bool kIfInitializeObject>
 ZContainerBase<ObjectType, kIfInitializeObject>::~ZContainerBase() noexcept {
+    if (data_ptr_ == nullptr) {
+        return;
+    }
     DestroyObjects(data_ptr_, capacity_);
     memory_pool::ReleaseMemory(reinterpret_cast<Address>(data_ptr_));
 }

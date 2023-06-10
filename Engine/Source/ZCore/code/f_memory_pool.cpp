@@ -38,9 +38,6 @@ CORE_DLLAPI const Address ApplyMemory(const MemoryType size, const Address addre
 }
 
 CORE_DLLAPI Void ReleaseMemory(const Address address) noexcept{
-    if (address == nullptr) {
-        return;
-    }
     MemoryPoolBase* owner_memory_pool_ptr =
         *reinterpret_cast<MemoryPoolBase**>(reinterpret_cast<AddressType>(address) - sizeof(Address));
     switch (owner_memory_pool_ptr->memory_pool_type())
@@ -57,8 +54,7 @@ CORE_DLLAPI Void ReleaseMemory(const Address address) noexcept{
     }
 }
 
-CORE_DLLAPI const Bool CheckMemory(const MemoryType size, const Address address) noexcept
-{
+CORE_DLLAPI const Bool CheckMemory(const MemoryType size, const Address address) noexcept {
     MemoryPoolBase* owner_memory_pool_ptr =
         *reinterpret_cast<MemoryPoolBase**>(reinterpret_cast<AddressType>(address) - sizeof(Address));
     switch (owner_memory_pool_ptr->memory_pool_type())

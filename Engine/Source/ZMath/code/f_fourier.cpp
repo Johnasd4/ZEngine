@@ -2,9 +2,8 @@
 
 #include "f_fourier.h"
 
-#include "z_interpolation_table.h"
+#include "f_basic.h"
 
-#include "basic/f_triganometric.h"
 
 namespace zengine {
 namespace math {

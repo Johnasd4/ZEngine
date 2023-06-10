@@ -55,6 +55,8 @@ private:
     Int32 current_node_address_num_;
 };
 
+#pragma warning(disable : 6011)
+
 template<Bool kIsThreadSafe>
 const Address ZHeapMemoryPool<kIsThreadSafe>::ApplyMemory(const MemoryType size) noexcept {
     Address heap_memory_address = malloc(size);
@@ -70,6 +72,8 @@ const Address ZHeapMemoryPool<kIsThreadSafe>::ApplyMemory(const MemoryType size)
     return heap_memory_address;
 }
 
+#pragma warning(default : 6011)
+
 template<Bool kIsThreadSafe>
 const Address ZHeapMemoryPool<kIsThreadSafe>::ApplyBigMemory(const SizeType size) noexcept {
     Address heap_memory_address = malloc(size);
@@ -84,6 +88,8 @@ const Address ZHeapMemoryPool<kIsThreadSafe>::ApplyBigMemory(const SizeType size
     MutexType::unlock();
     return heap_memory_address;
 }
+
+#pragma warning(disable : 6001)
 
 template<Bool kIsThreadSafe>
 ZHeapMemoryPool<kIsThreadSafe>::~ZHeapMemoryPool() noexcept {
@@ -104,6 +110,8 @@ ZHeapMemoryPool<kIsThreadSafe>::~ZHeapMemoryPool() noexcept {
     }
     free(head_node_ptr_);
 }
+
+#pragma warning(disable : 6011)
 
 }//memory_pool
 }//zengine

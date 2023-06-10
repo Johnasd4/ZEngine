@@ -22,6 +22,9 @@ public:
         return memory_pool::ApplyMemory(static_cast<MemoryType>(size));
     }
     __forceinline static void operator delete(void* address) {
+        if (address == nullptr) {
+            return;
+        }
         memory_pool::ReleaseMemory(reinterpret_cast<Address>(address));
     }
 

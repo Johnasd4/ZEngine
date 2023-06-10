@@ -29,6 +29,7 @@ CORE_DLLAPI extern const Address ApplyMemory(const MemoryType size, const Addres
  /*
     Release the memory by address, it's a value parameter,
     so remember to set the pointer to null.
+    WARNING : WILL CRASH IF ADDRESS IS NULLPTR.
 */
 CORE_DLLAPI extern Void ReleaseMemory(const Address address) noexcept;
 

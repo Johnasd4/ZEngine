@@ -94,12 +94,12 @@ public:
     __forceinline ZArray() : SuperType() {}
     __forceinline ZArray(const IndexType init_capacity) : SuperType(init_capacity) {}
     __forceinline ZArray(const ZArray& array) : SuperType(array) {}
-    __forceinline ZArray(const ZArray&& array) : SuperType(std::forward<ZArray>(array)) {}
+    __forceinline ZArray(ZArray&& array) : SuperType(std::forward<ZArray>(array)) {}
 
     __forceinline ZArray& operator=(const ZArray& array) { 
         return reinterpret_cast<ZArray&>(SuperType::operator=(array));
     }
-    __forceinline ZArray& operator=(const ZArray&& array) { 
+    __forceinline ZArray& operator=(ZArray&& array) { 
         return reinterpret_cast<ZArray&>(SuperType::operator=(std::forward<ZArray>(array)));
     }
 
@@ -137,9 +137,9 @@ public:
     /*
         Returns false if the array is empty.
     */
-    const Bool Pop(ObjectType* object_ptr);
-    Void Push(const ObjectType& object);
-    Void PushEmpty(const IndexType data_num);
+    const Bool Pop(ObjectType* object_ptr) noexcept;
+    Void Push(const ObjectType& object) noexcept;
+    Void PushEmpty(const IndexType data_num) noexcept;
 
     /*
         Returns false if out of bounds. Takes a lot of performance.
@@ -157,7 +157,7 @@ protected:
 };
 
 template<typename ObjectType, Bool kIfInitializeObject>
-const Bool ZArray<ObjectType, kIfInitializeObject>::Pop(ObjectType* object_ptr) {
+const Bool ZArray<ObjectType, kIfInitializeObject>::Pop(ObjectType* object_ptr) noexcept {
     if (SuperType::size() == 0) {
         return false;
     }
@@ -167,14 +167,14 @@ const Bool ZArray<ObjectType, kIfInitializeObject>::Pop(ObjectType* object_ptr) 
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
-Void ZArray<ObjectType, kIfInitializeObject>::Push(const ObjectType& object) {
+Void ZArray<ObjectType, kIfInitializeObject>::Push(const ObjectType& object) noexcept {
     SuperType::change_size(1);
     *SuperType::end_data_ptr() = object;
     SuperType::set_end_data_ptr(SuperType::end_data_ptr() + 1);
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
-Void ZArray<ObjectType, kIfInitializeObject>::PushEmpty(const IndexType data_num) {
+Void ZArray<ObjectType, kIfInitializeObject>::PushEmpty(const IndexType data_num) noexcept {
     SuperType::change_size(data_num);
     SuperType::set_end_data_ptr(SuperType::end_data_ptr() + data_num);
 }

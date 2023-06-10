@@ -20,14 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\f_digital_signal.cpp" />
-    <ClCompile Include="code\f_basic.cpp" />
     <ClCompile Include="code\f_fourier.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="code\basic\f_pow.h" />
-    <ClInclude Include="code\basic\f_numeral.h" />
-    <ClInclude Include="code\basic\f_triganometric.h" />
-    <ClInclude Include="code\basic\f_log.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -118,8 +111,7 @@
       <AdditionalLibraryDirectories>$(SolutionDir)Binaries\bin\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>mkdir "$(SolutionDir)Release\$(Platform)\$(Configuration)\bin" &amp; copy /Y "$(SolutionDir)Binaries\bin\$(Platform)\$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).dll" "$(SolutionDir)Release\$(Platform)\$(Configuration)\bin\$(ProjectName)_$(Platform)_$(Configuration).dll";
-mkdir "$(SolutionDir)Release\$(Platform)\$(Configuration)\lib" &amp; copy /Y "$(SolutionDir)Binaries\bin\$(Platform)\$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).lib" "$(SolutionDir)Release\$(Platform)\$(Configuration)\lib\$(ProjectName)_$(Platform)_$(Configuration).lib"</Command>
+      <Command>mkdir "$(SolutionDir)Release\$(Platform)\$(Configuration)\lib" &amp; copy /Y "$(SolutionDir)Binaries\bin\$(Platform)\$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).lib" "$(SolutionDir)Release\$(Platform)\$(Configuration)\lib\$(ProjectName)_$(Platform)_$(Configuration).lib"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -143,8 +135,7 @@ mkdir "$(SolutionDir)Release\$(Platform)\$(Configuration)\lib" &amp; copy /Y "$(
       <AdditionalLibraryDirectories>$(SolutionDir)Binaries\bin\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>mkdir "$(SolutionDir)Release\$(Platform)\$(Configuration)\bin" &amp; copy /Y "$(SolutionDir)Binaries\bin\$(Platform)\$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).dll" "$(SolutionDir)Release\$(Platform)\$(Configuration)\bin\$(ProjectName)_$(Platform)_$(Configuration).dll";
-mkdir "$(SolutionDir)Release\$(Platform)\$(Configuration)\lib" &amp; copy /Y "$(SolutionDir)Binaries\bin\$(Platform)\$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).lib" "$(SolutionDir)Release\$(Platform)\$(Configuration)\lib\$(ProjectName)_$(Platform)_$(Configuration).lib"</Command>
+      <Command>mkdir "$(SolutionDir)Release\$(Platform)\$(Configuration)\lib" &amp; copy /Y "$(SolutionDir)Binaries\bin\$(Platform)\$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).lib" "$(SolutionDir)Release\$(Platform)\$(Configuration)\lib\$(ProjectName)_$(Platform)_$(Configuration).lib"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -164,8 +155,7 @@ mkdir "$(SolutionDir)Release\$(Platform)\$(Configuration)\lib" &amp; copy /Y "$(
       <AdditionalLibraryDirectories>$(SolutionDir)Binaries\bin\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>mkdir "$(SolutionDir)Release\$(Platform)\$(Configuration)\bin" &amp; copy /Y "$(SolutionDir)Binaries\bin\$(Platform)\$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).dll" "$(SolutionDir)Release\$(Platform)\$(Configuration)\bin\$(ProjectName)_$(Platform)_$(Configuration).dll";
-mkdir "$(SolutionDir)Release\$(Platform)\$(Configuration)\lib" &amp; copy /Y "$(SolutionDir)Binaries\bin\$(Platform)\$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).lib" "$(SolutionDir)Release\$(Platform)\$(Configuration)\lib\$(ProjectName)_$(Platform)_$(Configuration).lib"</Command>
+      <Command>mkdir "$(SolutionDir)Release\$(Platform)\$(Configuration)\lib" &amp; copy /Y "$(SolutionDir)Binaries\bin\$(Platform)\$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).lib" "$(SolutionDir)Release\$(Platform)\$(Configuration)\lib\$(ProjectName)_$(Platform)_$(Configuration).lib"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -189,8 +179,7 @@ mkdir "$(SolutionDir)Release\$(Platform)\$(Configuration)\lib" &amp; copy /Y "$(
       <AdditionalLibraryDirectories>$(SolutionDir)Binaries\bin\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>mkdir "$(SolutionDir)Release\$(Platform)\$(Configuration)\bin" &amp; copy /Y "$(SolutionDir)Binaries\bin\$(Platform)\$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).dll" "$(SolutionDir)Release\$(Platform)\$(Configuration)\bin\$(ProjectName)_$(Platform)_$(Configuration).dll";
-mkdir "$(SolutionDir)Release\$(Platform)\$(Configuration)\lib" &amp; copy /Y "$(SolutionDir)Binaries\bin\$(Platform)\$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).lib" "$(SolutionDir)Release\$(Platform)\$(Configuration)\lib\$(ProjectName)_$(Platform)_$(Configuration).lib"</Command>
+      <Command>mkdir "$(SolutionDir)Release\$(Platform)\$(Configuration)\lib" &amp; copy /Y "$(SolutionDir)Binaries\bin\$(Platform)\$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).lib" "$(SolutionDir)Release\$(Platform)\$(Configuration)\lib\$(ProjectName)_$(Platform)_$(Configuration).lib"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
