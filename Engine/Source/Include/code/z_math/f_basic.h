@@ -504,7 +504,6 @@ constexpr const Float64 ExpCalculateA(const NumberType exponent_number) noexcept
 
 }//internal
 
-
 /*
     Calculate Exp(logarithm_number).
 */

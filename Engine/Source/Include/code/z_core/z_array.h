@@ -180,7 +180,8 @@ Void ZArray<ObjectType, kIfInitializeObject>::PushEmpty(const IndexType data_num
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
-const Bool ZArray<ObjectType, kIfInitializeObject>::Insert(const IndexType insert_index, const ObjectType& object) noexcept {
+const Bool ZArray<ObjectType, kIfInitializeObject>::Insert(
+        const IndexType insert_index, const ObjectType& object) noexcept {
     //Out of bounds.
     if (insert_index > SuperType::size()) {
         return false;
