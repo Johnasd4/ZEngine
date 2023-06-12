@@ -10,11 +10,14 @@ using namespace zengine::math;
 void test(int a) {
 
 }
-
+#include <iomanip>
 
 int main(){
-    std::initializer_list<int> numbers = { 1, 2, 3, 4 };
-    auto a = { 1, 2, 3, 4 };
+    std::cout << std::setprecision(20);  // 设置输出的精度为18位有效数字
+    double factorial_inverse = 1.0;
+    for (Int32 index = 500; index <= 1000; ++index) {
+        cout << index << "  " << CosA(k2PI32 * 0.001 * index) << endl;
+    }
     //Size32Type test_number(0xff800000U);
     //Float32 asd = test_number.float_32;
     //if (asd == test_number.float_32) {
