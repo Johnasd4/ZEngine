@@ -14,9 +14,9 @@ void test(int a) {
 
 int main(){
     std::cout << std::setprecision(20);  // 设置输出的精度为18位有效数字
-    double factorial_inverse = 1.0;
-    for (Int32 index = 500; index <= 1000; ++index) {
-        cout << index << "  " << CosA(k2PI32 * 0.001 * index) << endl;
+    Int32 a = 1.0;
+    for (Int32 index = 1; index <= 200; ++index) {
+        cout << index << "  " << FactorialReciprocal<Float64>(index) * pow(LnA(2.0), index) << endl;
     }
     //Size32Type test_number(0xff800000U);
     //Float32 asd = test_number.float_32;

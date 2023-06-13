@@ -134,6 +134,22 @@ __forceinline constexpr const NumberType InfN() {
 }
 
 /*
+    If number is not NaN or inf or -inf.
+*/
+template<typename NumberType>
+requires std::is_floating_point_v<NumberType>
+__forceinline constexpr const Bool IsValid(const NumberType number) {
+    if constexpr (std::is_same_v<NumberType, Float64>) {
+        Size64Type temp_number(number);
+        return (temp_number.u_int_64 & internal::kFloat64MantissaMask) != internal::kFloat64MantissaInvalidValueBinary;
+    }
+    else if constexpr (std::is_same_v<NumberType, Float32>) {
+        Size32Type temp_number(number);
+        return (temp_number.u_int_32 & internal::kFloat32MantissaMask) != internal::kFloat32MantissaInvalidValueBinary;
+    }
+}
+
+/*
     If number is NaN or inf or -inf.
 */
 template<typename NumberType>
@@ -204,7 +220,7 @@ __forceinline constexpr const Bool IsInfN(const NumberType number) {
 */
 template<typename NumberType>
 requires std::is_arithmetic_v<NumberType>
-__forceinline constexpr NumberType Sgn2State(const NumberType number) {
+__forceinline constexpr NumberType Sgn2(const NumberType number) {
     if constexpr (std::is_unsigned_v<NumberType>) {
         return static_cast<NumberType>(1);
     }
@@ -220,7 +236,7 @@ __forceinline constexpr NumberType Sgn2State(const NumberType number) {
 */
 template<typename NumberType>
 requires std::is_arithmetic_v<NumberType>
-__forceinline constexpr NumberType Sgn3State(const NumberType number) {
+__forceinline constexpr NumberType Sgn3(const NumberType number) {
     if constexpr (std::is_unsigned_v<NumberType>) {
         return number == static_cast<NumberType>(0) ? static_cast<NumberType>(0) : static_cast<NumberType>(1);
     }
@@ -256,6 +272,88 @@ __forceinline constexpr const NumberType Min(const NumberType number_1, const Nu
 }
 
 #pragma endregion //numeral
+#pragma region factorial
+
+namespace internal {
+
+constexpr IndexType kFactorialTableSize = 171;
+constexpr Float64 kFactorialTableRadianStepDistance = 1.0;
+constexpr Float64 kFactorialTableOffset = 0.0;
+
+/*
+    Contains the value of factorial 1 - 170.
+*/
+constexpr ZInterpolationTable<Float64, kFactorialTableSize,true> kFactorialTable = 
+    ZInterpolationTable<Float64, kFactorialTableSize, true>(
+        [](ZInterpolationTable<Float64, kFactorialTableSize, true>* table_ptr) {
+            (*table_ptr)(0) = 1.0;
+            for (IndexType index = 1; index < table_ptr->size(); ++index) {
+                (*table_ptr)(index) = (*table_ptr)(index - 1) * static_cast<Float64>(index);
+            }
+        });
+
+/*
+    Contains the value of the reciprocal of factorial 1 - 170.
+*/
+constexpr ZInterpolationTable<Float64, kFactorialTableSize, true> kFactorialReciprocalTable =
+ZInterpolationTable<Float64, kFactorialTableSize, true>(
+    [](ZInterpolationTable<Float64, kFactorialTableSize, true>* table_ptr) {
+        for (IndexType index = 0; index < table_ptr->size(); ++index) {
+            (*table_ptr)(index) = 1.0 / kFactorialTable(index);
+        }
+    });
+
+constexpr IndexType kFactorialFloat64MaxIndex = 170;
+constexpr IndexType kFactorialFloat32MaxIndex = 34;
+
+}//internal
+
+/*
+    Returns  1 when number >= 0.
+    Returns -1 when number < 0.
+*/
+template<typename NumberType>
+requires std::is_arithmetic_v<NumberType>
+__forceinline constexpr NumberType Factorial(const IndexType order) {
+    if constexpr (std::is_same_v<NumberType, Float64>) {
+        if (order > internal::kFactorialFloat64MaxIndex) {
+            return InfP<Float64>();
+        }
+    }
+    else if constexpr (std::is_same_v<NumberType, Float32>) {
+        if (order > internal::kFactorialFloat32MaxIndex) {
+            return InfP<Float64>();
+        }
+    }
+    else{
+        if (order > internal::kFactorialFloat64MaxIndex) {
+            return static_cast<NumberType>(0);
+        }
+    }
+    return static_cast<NumberType>(internal::kFactorialTable.At(order));
+}
+
+/*
+    Returns  1 when number >= 0.
+    Returns -1 when number < 0.
+*/
+template<typename NumberType>
+requires std::is_floating_point_v<NumberType>
+__forceinline constexpr NumberType FactorialReciprocal(const IndexType order) {
+    if constexpr (std::is_same_v<NumberType, Float64>) {
+        if (order > internal::kFactorialFloat64MaxIndex) {
+            return static_cast<NumberType>(0);
+        }
+    }
+    else if constexpr (std::is_same_v<NumberType, Float32>) {
+        if (order > internal::kFactorialFloat32MaxIndex) {
+            return static_cast<NumberType>(0);
+        }
+    }
+    return static_cast<NumberType>(internal::kFactorialReciprocalTable.At(order));
+}
+
+#pragma endregion //factorial
 #pragma region triganometric
 
 namespace internal {
@@ -295,13 +393,16 @@ constexpr Float64 kSinCosFactorTaylorSeries26 = 2.4795962632247968721e-27;
 
 }//internal
 
+/*
+    Calculate the accurate Sin.
+*/
 template<typename NumberType>
 requires std::is_floating_point_v<NumberType>
 constexpr const NumberType SinA(const NumberType radian) noexcept {
     //Makes sure the value is between [-PI,PI] 
     NumberType calculate_radian = radian - 
         static_cast<NumberType>(
-            static_cast<Int32>((radian + Sgn2State(radian) * static_cast<NumberType>(kPI64)) / 
+            static_cast<Int32>((radian + Sgn2(radian) * static_cast<NumberType>(kPI64)) / 
                 static_cast<NumberType>(k2PI64))) * 
         static_cast<NumberType>(k2PI64);
     NumberType calculate_radian_2 = calculate_radian * calculate_radian;
@@ -337,14 +438,16 @@ constexpr const NumberType SinA(const NumberType radian) noexcept {
     }
 }
 
-
+/*
+    Calculate the accurate Cos.
+*/
 template<typename NumberType>
 requires std::is_floating_point_v<NumberType>
 constexpr const NumberType CosA(const NumberType radian) noexcept {
     //Makes sure the value is between [-PI,PI] 
     NumberType calculate_radian = radian -
         static_cast<NumberType>(
-            static_cast<Int32>((radian + Sgn2State(radian) * static_cast<NumberType>(kPI64)) /
+            static_cast<Int32>((radian + Sgn2(radian) * static_cast<NumberType>(kPI64)) /
                 static_cast<NumberType>(k2PI64))) *
         static_cast<NumberType>(k2PI64);
     NumberType calculate_radian_2 = calculate_radian * calculate_radian;
@@ -383,42 +486,69 @@ constexpr const NumberType CosA(const NumberType radian) noexcept {
 
 namespace internal {
 
-constexpr IndexType kTriganometricTableSize = 1024;
-constexpr Float64 kTriganometricTableRadianStepDistance = k2PI64 / static_cast<Float64>(kTriganometricTableSize);
-
-constexpr Float64 kInterpolationTableOffset = 0.0;
+constexpr IndexType kSinCosTableSize = 1024;
+constexpr Float64 kSinCosTableRadianStepDistance = k2PI64 / static_cast<Float64>(kSinCosTableSize);
+constexpr Float64 kSinCosTableOffset = 0.0;
 
 /*
     Contains the value of sin.
 */
-constexpr ZInterpolationTable<Float64, kTriganometricTableSize> kSinCosTable =
-    ZInterpolationTable<Float64, kTriganometricTableSize>(
-        kInterpolationTableOffset, kTriganometricTableRadianStepDistance,
-        [](ZInterpolationTable<Float64, kTriganometricTableSize>* table_ptr) {
-            for (IndexType index = 0; index < table_ptr->size(); ++index) {
-                (*table_ptr)(index) = 
-                    SinA<Float64>(static_cast<Float64>(index * kTriganometricTableRadianStepDistance));
-            }
-        });
+constexpr ZInterpolationTable<Float64, kSinCosTableSize> kSinCosTable = ZInterpolationTable<Float64, kSinCosTableSize>(
+    kSinCosTableOffset, kSinCosTableRadianStepDistance,
+    [](ZInterpolationTable<Float64, kSinCosTableSize>* table_ptr) {
+        for (IndexType index = 0; index < table_ptr->size(); ++index) {
+            (*table_ptr)(index) =
+                SinA<Float64>(static_cast<Float64>(index * kSinCosTableRadianStepDistance));
+        }
+    });
 
-constexpr Float64 kSinFastSinOffset = 0.0;
-constexpr Float64 kCosFastCosOffset = kHalfPI64;
+constexpr Float64 kSinSearchOffset = 0.0;
+constexpr Float64 kCosSearchOffset = kHalfPI64;
+constexpr Float64 kSinFastSearchOffset = 0.5;
+constexpr Float64 kCosFastSearchOffset = kHalfPI64 + 0.5;
 
 }//internal
 
+/*
+    Calculate Sin, use calculate SinA() for more accurate answer.
+*/
 template<typename NumberType>
 requires std::is_floating_point_v<NumberType>
 __forceinline constexpr const NumberType Sin(const NumberType radian) {
     return static_cast<NumberType>(
-        internal::kSinCosTable.LoopLinearSearchTable(radian + static_cast<NumberType>(internal::kSinFastSinOffset)));
+        internal::kSinCosTable.LoopLinearSearchTable(radian + static_cast<NumberType>(internal::kSinSearchOffset)));
 }
 
+/*
+    Calculate Cos, use calculate CosA() for more accurate answer.
+*/
 template<typename NumberType>
 requires std::is_floating_point_v<NumberType>
 __forceinline constexpr const NumberType Cos(const NumberType radian) {
     return static_cast<NumberType>(
-        internal::kSinCosTable.LoopLinearSearchTable(radian + static_cast<NumberType>(internal::kCosFastCosOffset)));
+        internal::kSinCosTable.LoopLinearSearchTable(radian + static_cast<NumberType>(internal::kCosSearchOffset)));
 }
+
+/*
+    The fastest Sin.
+*/
+template<typename NumberType>
+requires std::is_floating_point_v<NumberType>
+__forceinline constexpr const NumberType SinF(const NumberType radian) {
+    return static_cast<NumberType>(
+        internal::kSinCosTable.LoopSearchTable(radian + static_cast<NumberType>(internal::kSinSearchOffset)));
+}
+
+/*
+    The fastest Cos.
+*/
+template<typename NumberType>
+requires std::is_floating_point_v<NumberType>
+__forceinline constexpr const NumberType CosF(const NumberType radian) {
+    return static_cast<NumberType>(
+        internal::kSinCosTable.LoopSearchTable(radian + static_cast<NumberType>(internal::kCosSearchOffset)));
+}
+
 
 #pragma endregion //triganometric
 #pragma region log
@@ -548,16 +678,16 @@ constexpr const NumberType LogA(const NumberType logarithm_number, const NumberT
 
 namespace internal {
 
-constexpr Float64 kExpParameterLn2Reciprocal = 1.4426950408889634074;
-//constexpr Int32 kSin64TaylorSeriesFactor = 12;
-//constexpr Int32 kSin32TaylorSeriesFactor = 7;
+constexpr Float64 kExpFactorLn2Reciprocal = 1.4426950408889634074;
+constexpr Float64 kExpFactorTaylorSeries0 = 6.666666666666735130E-01;
+
 /*
     Calculate exp(x).
 */
 template<typename NumberType>
 requires std::is_floating_point_v<NumberType>
 constexpr const Float64 ExpCalculateA(const NumberType exponent) noexcept {
-    NumberType pow_2_exponent = exponent * static_cast<NumberType>(kExpParameterLn2Reciprocal);
+    NumberType pow_2_exponent = exponent * static_cast<NumberType>(kExpFactorLn2Reciprocal);
 
     if constexpr (std::is_same_v<NumberType, Float64>) {
         Int64 int_part = static_cast<Int64>(pow_2_exponent) + kFloat64MantissaOffset;
