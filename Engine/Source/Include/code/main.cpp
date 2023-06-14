@@ -13,11 +13,17 @@ void test(int a) {
 #include <iomanip>
 
 int main(){
-    std::cout << std::setprecision(20);  // 设置输出的精度为18位有效数字
-    Int32 a = 1.0;
-    for (Int32 index = 1; index <= 200; ++index) {
-        cout << index << "  " << FactorialReciprocal<Float64>(index) * pow(LnA(2.0), index) << endl;
+    std::cout << std::setprecision(18);  // 设置输出的精度为18位有效数字
+    Float64 b = 0.01;
+    for (Int32 index = 1; index <= 100; ++index) {
+        if (CosB(kPI32 * 0.01F * index) != CosA(kPI32 * 0.01f * index)) {
+            cout << index <<"  " << CosB(kPI32 * 0.01F * index) << "  " << CosA(kPI32 * 0.01F * index) << endl;
+        }
     }
+    //Int32 a = 1.0;
+    //for (Int32 index = 1; index <= 200; ++index) {
+    //    cout << index << "  " << FactorialReciprocal<Float64>(index) * pow(LnA(2.0), index) << endl;
+    //}
     //Size32Type test_number(0xff800000U);
     //Float32 asd = test_number.float_32;
     //if (asd == test_number.float_32) {

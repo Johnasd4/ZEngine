@@ -371,25 +371,25 @@ constexpr Float64 kSinCosFactorTaylorSeries4 = 0.041666666666666664354;
 constexpr Float64 kSinCosFactorTaylorSeries5 = 0.0083333333333333332177;
 constexpr Float64 kSinCosFactorTaylorSeries6 = 0.0013888888888888889419;
 constexpr Float64 kSinCosFactorTaylorSeries7 = 0.00019841269841269838542;
-constexpr Float64 kSinCosFactorTaylorSeries8 = 2.4801587301587298178e-05;
-constexpr Float64 kSinCosFactorTaylorSeries9 = 2.7557319223985888276e-06;
-constexpr Float64 kSinCosFactorTaylorSeries10 = 2.755731922398589357e-07;
-constexpr Float64 kSinCosFactorTaylorSeries11 = 2.5052108385441720224e-08;
-constexpr Float64 kSinCosFactorTaylorSeries12 = 2.0876756987868096051e-09;
-constexpr Float64 kSinCosFactorTaylorSeries13 = 1.6059043836821618511e-10;
-constexpr Float64 kSinCosFactorTaylorSeries14 = 1.1470745597729724507e-11;
-constexpr Float64 kSinCosFactorTaylorSeries15 = 7.6471637318198153958e-13;
-constexpr Float64 kSinCosFactorTaylorSeries16 = 4.7794773323873846224e-14;
-constexpr Float64 kSinCosFactorTaylorSeries17 = 2.8114572543455198092e-15;
-constexpr Float64 kSinCosFactorTaylorSeries18 = 1.5619206968586227736e-16;
-constexpr Float64 kSinCosFactorTaylorSeries19 = 8.2206352466243294955e-18;
-constexpr Float64 kSinCosFactorTaylorSeries20 = 4.1103176233121648441e-19;
-constexpr Float64 kSinCosFactorTaylorSeries21 = 1.9572941063391259586e-20;
-constexpr Float64 kSinCosFactorTaylorSeries22 = 8.8967913924505759587e-22;
-constexpr Float64 kSinCosFactorTaylorSeries23 = 3.8681701706306835384e-23;
-constexpr Float64 kSinCosFactorTaylorSeries24 = 1.6117375710961183859e-24;
-constexpr Float64 kSinCosFactorTaylorSeries25 = 6.4469502843844735895e-26;
-constexpr Float64 kSinCosFactorTaylorSeries26 = 2.4795962632247968721e-27;
+constexpr Float64 kSinCosFactorTaylorSeries8 = 2.4801587301587298178E-05;
+constexpr Float64 kSinCosFactorTaylorSeries9 = 2.7557319223985888276E-06;
+constexpr Float64 kSinCosFactorTaylorSeries10 = 2.755731922398589357E-07;
+constexpr Float64 kSinCosFactorTaylorSeries11 = 2.5052108385441720224E-08;
+constexpr Float64 kSinCosFactorTaylorSeries12 = 2.0876756987868096051E-09;
+constexpr Float64 kSinCosFactorTaylorSeries13 = 1.6059043836821618511E-10;
+constexpr Float64 kSinCosFactorTaylorSeries14 = 1.1470745597729724507E-11;
+constexpr Float64 kSinCosFactorTaylorSeries15 = 7.6471637318198153958E-13;
+constexpr Float64 kSinCosFactorTaylorSeries16 = 4.7794773323873846224E-14;
+constexpr Float64 kSinCosFactorTaylorSeries17 = 2.8114572543455198092E-15;
+constexpr Float64 kSinCosFactorTaylorSeries18 = 1.5619206968586227736E-16;
+constexpr Float64 kSinCosFactorTaylorSeries19 = 8.2206352466243294955E-18;
+constexpr Float64 kSinCosFactorTaylorSeries20 = 4.1103176233121648441E-19;
+constexpr Float64 kSinCosFactorTaylorSeries21 = 1.9572941063391259586E-20;
+constexpr Float64 kSinCosFactorTaylorSeries22 = 8.8967913924505759587E-22;
+constexpr Float64 kSinCosFactorTaylorSeries23 = 3.8681701706306835384E-23;
+constexpr Float64 kSinCosFactorTaylorSeries24 = 1.6117375710961183859E-24;
+constexpr Float64 kSinCosFactorTaylorSeries25 = 6.4469502843844735895E-26;
+constexpr Float64 kSinCosFactorTaylorSeries26 = 2.4795962632247968721E-27;
 
 }//internal
 
@@ -405,37 +405,48 @@ constexpr const NumberType SinA(const NumberType radian) noexcept {
             static_cast<Int32>((radian + Sgn2(radian) * static_cast<NumberType>(kPI64)) / 
                 static_cast<NumberType>(k2PI64))) * 
         static_cast<NumberType>(k2PI64);
+    NumberType ans;
+    if (calculate_radian > static_cast<NumberType>(kPI64 * 0.5)) {
+        ans = static_cast<NumberType>(-1);
+        calculate_radian -= static_cast<NumberType>(kPI64);
+    }
+    else if (calculate_radian < static_cast<NumberType>(-kPI64 * 0.5)) {
+        ans = static_cast<NumberType>(-1);
+        calculate_radian += static_cast<NumberType>(kPI64);
+    }
+    else {
+        ans = static_cast<NumberType>(1);
+    }
     NumberType calculate_radian_2 = calculate_radian * calculate_radian;
     NumberType calculate_radian_4 = calculate_radian_2 * calculate_radian_2;
+    NumberType ans_1, ans_2;
     //Calculate the taylor expansion.
     if constexpr (std::is_same_v<NumberType, Float64>) {
-        NumberType ans_1, ans_2;
-        ans_1 = static_cast<NumberType>(internal::kSinCosFactorTaylorSeries1) + 
-            calculate_radian_4 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries5) + 
+        ans_1 = static_cast<NumberType>(internal::kSinCosFactorTaylorSeries1) +
+            calculate_radian_4 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries5) +
                 calculate_radian_4 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries9) +
                     calculate_radian_4 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries13) +
                         calculate_radian_4 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries17) +
-                            calculate_radian_4 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries21) +
-                                calculate_radian_4 * static_cast<NumberType>(internal::kSinCosFactorTaylorSeries25))))));
-        ans_2 = 
+                            calculate_radian_4 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries21))))));
+        ans_2 =
             calculate_radian_2 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries3) +
                 calculate_radian_4 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries7) +
                     calculate_radian_4 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries11) +
                         calculate_radian_4 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries15) +
-                            calculate_radian_4 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries19) +
-                                calculate_radian_4 * static_cast<NumberType>(internal::kSinCosFactorTaylorSeries23))))));
-        return (ans_1 - ans_2) * calculate_radian;
+                            calculate_radian_4 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries19))))));
+
     }
     else if constexpr (std::is_same_v<NumberType, Float32>) {
-        NumberType ans_1, ans_2;
         ans_1 = static_cast<NumberType>(internal::kSinCosFactorTaylorSeries1) +
             calculate_radian_4 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries5) +
-                calculate_radian_4 * static_cast<NumberType>(internal::kSinCosFactorTaylorSeries9));
+                calculate_radian_4 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries9)));
         ans_2 =
             calculate_radian_2 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries3) +
-                calculate_radian_4 * static_cast<NumberType>(internal::kSinCosFactorTaylorSeries7));
-        return (ans_1 - ans_2) * calculate_radian;
+                calculate_radian_4 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries7) +
+                    calculate_radian_4 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries11))));
     }
+    ans *= (ans_1 - ans_2) * calculate_radian;
+    return ans;
 }
 
 /*
@@ -450,11 +461,79 @@ constexpr const NumberType CosA(const NumberType radian) noexcept {
             static_cast<Int32>((radian + Sgn2(radian) * static_cast<NumberType>(kPI64)) /
                 static_cast<NumberType>(k2PI64))) *
         static_cast<NumberType>(k2PI64);
+    NumberType ans;
+    if (calculate_radian > static_cast<NumberType>(kPI64 * 0.5)) {
+        ans = static_cast<NumberType>(-1);
+        calculate_radian -= static_cast<NumberType>(kPI64);
+    }
+    else if (calculate_radian < static_cast<NumberType>(-kPI64 * 0.5)) {
+        ans = static_cast<NumberType>(-1);
+        calculate_radian += static_cast<NumberType>(kPI64);
+    }
+    else {
+        ans = static_cast<NumberType>(1);
+    }
     NumberType calculate_radian_2 = calculate_radian * calculate_radian;
     NumberType calculate_radian_4 = calculate_radian_2 * calculate_radian_2;
+    NumberType ans_1, ans_2;
     //Calculate the taylor expansion.
     if constexpr (std::is_same_v<NumberType, Float64>) {
-        NumberType ans_1, ans_2;
+        ans_1 = static_cast<NumberType>(internal::kSinCosFactorTaylorSeries0) +
+            calculate_radian_4 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries4) +
+                calculate_radian_4 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries8) +
+                    calculate_radian_4 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries12) +
+                        calculate_radian_4 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries16) +
+                            calculate_radian_4 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries20))))));
+        ans_2 =
+            calculate_radian_2 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries2) +
+                calculate_radian_4 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries6) +
+                    calculate_radian_4 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries10) +
+                        calculate_radian_4 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries14) +
+                            calculate_radian_4 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries18) +
+                                calculate_radian_4 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries22)))))));
+    }
+    else if constexpr (std::is_same_v<NumberType, Float32>) {
+        ans_1 = static_cast<NumberType>(internal::kSinCosFactorTaylorSeries0) +
+            calculate_radian_4 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries4) +
+                calculate_radian_4 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries8)));
+        ans_2 =
+            calculate_radian_2 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries2) +
+                calculate_radian_4 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries6) +
+                    calculate_radian_4 * static_cast<NumberType>(internal::kSinCosFactorTaylorSeries10)));
+    }
+    ans *= (ans_1 - ans_2) * calculate_radian;
+    return ans;
+}
+
+/*
+    Calculate the accurate Cos.
+*/
+template<typename NumberType>
+    requires std::is_floating_point_v<NumberType>
+constexpr const NumberType CosB(const NumberType radian) noexcept {
+    //Makes sure the value is between [-PI,PI] 
+    NumberType calculate_radian = radian -
+        static_cast<NumberType>(
+            static_cast<Int32>((radian + Sgn2(radian) * static_cast<NumberType>(kPI64)) /
+                static_cast<NumberType>(k2PI64))) *
+        static_cast<NumberType>(k2PI64);
+    NumberType ans;
+    if (calculate_radian > static_cast<NumberType>(kPI64 * 0.5)) {
+        ans = static_cast<NumberType>(-1);
+        calculate_radian -= static_cast<NumberType>(kPI64);
+    }
+    else if (calculate_radian < static_cast<NumberType>(-kPI64 * 0.5)) {
+        ans = static_cast<NumberType>(-1);
+        calculate_radian += static_cast<NumberType>(kPI64);
+    }
+    else {
+        ans = static_cast<NumberType>(1);
+    }
+    NumberType calculate_radian_2 = calculate_radian * calculate_radian;
+    NumberType calculate_radian_4 = calculate_radian_2 * calculate_radian_2;
+    NumberType ans_1, ans_2;
+    //Calculate the taylor expansion.
+    if constexpr (std::is_same_v<NumberType, Float64>) {
         ans_1 = static_cast<NumberType>(internal::kSinCosFactorTaylorSeries0) +
             calculate_radian_4 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries4) +
                 calculate_radian_4 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries8) +
@@ -470,18 +549,19 @@ constexpr const NumberType CosA(const NumberType radian) noexcept {
                             calculate_radian_4 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries18) +
                                 calculate_radian_4 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries22) +
                                     calculate_radian_4 * static_cast<NumberType>(internal::kSinCosFactorTaylorSeries26)))))));
-        return ans_1 - ans_2;
     }
     else if constexpr (std::is_same_v<NumberType, Float32>) {
-        NumberType ans_1, ans_2;
-        ans_1 = static_cast<NumberType>(internal::kSinCosFactorTaylorSeries1) +
-            calculate_radian_4 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries5) +
-                calculate_radian_4 * static_cast<NumberType>(internal::kSinCosFactorTaylorSeries9));
+        ans_1 = static_cast<NumberType>(internal::kSinCosFactorTaylorSeries0) +
+            calculate_radian_4 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries4) +
+                calculate_radian_4 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries8) +
+                    calculate_radian_4 * static_cast<NumberType>(internal::kSinCosFactorTaylorSeries12)));
         ans_2 =
-            calculate_radian_2 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries3) +
-                calculate_radian_4 * static_cast<NumberType>(internal::kSinCosFactorTaylorSeries7));
-        return ans_1 - ans_2;
+            calculate_radian_2 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries2) +
+                calculate_radian_4 * (static_cast<NumberType>(internal::kSinCosFactorTaylorSeries6) +
+                    calculate_radian_4 * static_cast<NumberType>(internal::kSinCosFactorTaylorSeries10)));
     }
+    ans *= (ans_1 - ans_2) * calculate_radian;
+    return ans;
 }
 
 namespace internal {
@@ -679,8 +759,21 @@ constexpr const NumberType LogA(const NumberType logarithm_number, const NumberT
 namespace internal {
 
 constexpr Float64 kExpFactorLn2Reciprocal = 1.4426950408889634074;
-constexpr Float64 kExpFactorTaylorSeries0 = 6.666666666666735130E-01;
-
+constexpr Float64 kExpFactorTaylorSeries0 = 1;
+constexpr Float64 kExpFactorTaylorSeries1 = 0.69314718055994528623;
+constexpr Float64 kExpFactorTaylorSeries2 = 0.24022650695910069407;
+constexpr Float64 kExpFactorTaylorSeries3 = 0.055504108664821569241;
+constexpr Float64 kExpFactorTaylorSeries4 = 0.009618129107628475144;
+constexpr Float64 kExpFactorTaylorSeries5 = 0.0013333558146428441116;
+constexpr Float64 kExpFactorTaylorSeries6 = 0.00015403530393381608776;
+constexpr Float64 kExpFactorTaylorSeries7 = 1.5252733804059837695E-05;
+constexpr Float64 kExpFactorTaylorSeries8 = 1.3215486790144305273E-06;
+constexpr Float64 kExpFactorTaylorSeries9 = 1.0178086009239697275E-07;
+constexpr Float64 kExpFactorTaylorSeries10 = 7.0549116208011200503E-09;
+constexpr Float64 kExpFactorTaylorSeries11 = 4.4455382718708100739E-10;
+constexpr Float64 kExpFactorTaylorSeries12 = 2.5678435993488195818E-11;
+constexpr Float64 kExpFactorTaylorSeries13 = 1.3691488853904122045E-12;
+//13 and 5
 /*
     Calculate exp(x).
 */
