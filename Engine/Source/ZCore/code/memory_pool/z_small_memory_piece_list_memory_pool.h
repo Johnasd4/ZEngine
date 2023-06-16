@@ -4,17 +4,21 @@
 #include"internal/drive.h"
 
 #include"f_console.h"
+#include"z_fixed_array.h"
 
 #include"z_list_memory_pool_base.h"
-#include"z_heap_memory_pool.h"
-#include"z_fixed_array.h"
+#include"z_memory_piece_base.h"
 
 namespace zengine {
 namespace memory_pool {
 
 template<Bool kIsThreadSafe>
-struct ZSmallMemoryPiece {
+struct ZSmallMemoryPiece : ZMemoryPieceBase{
     ZMemoryPoolBase<kIsThreadSafe>* owner_memory_pool_ptr;
+
+    FORCEINLINE Void Init(const Address pool_ptr) { 
+        owner_memory_pool_ptr = reinterpret_cast<ZMemoryPoolBase<kIsThreadSafe>*>(pool_ptr);
+    }
 };
 
 /*
@@ -27,11 +31,9 @@ struct ZSmallMemoryPiece {
 */
 template<Bool kIsThreadSafe>
 class ZSmallMemoryPieceListMemoryPool : public ZListMemoryPoolBase<ZSmallMemoryPiece<kIsThreadSafe>, 
-                                                             sizeof(ZSmallMemoryPiece<kIsThreadSafe>), kIsThreadSafe>{
+                                                             sizeof(ZSmallMemoryPiece<kIsThreadSafe>), kIsThreadSafe> {
 public:
-    static const Address ApplyMemory(
-        const MemoryType size, 
-        ZSmallMemoryPieceListMemoryPool* memory_pool_ptr = &ZSmallMemoryPieceListMemoryPool::Instance()) noexcept;
+    static const Address ApplyMemory(const MemoryType size) noexcept;
 
     static Void ReleaseMemory(const Address address, ZSmallMemoryPieceListMemoryPool* memory_pool_ptr) noexcept;
 
@@ -39,19 +41,18 @@ public:
         Checks if the memory can extend without moving to a new Address, If can
         then it will auto extend and return true.
     */
-    __forceinline static const Bool CheckMemory(const MemoryType size,
-                                                ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>* memory_pool_ptr) {
-        return memory_pool_ptr->kMemoryPieceMemorySize >= size;
+    FORCEINLINE static const Bool CheckMemory(const MemoryType size, ZSmallMemoryPieceListMemoryPool* memory_pool_ptr) {
+        return memory_pool_ptr->memory_piece_memory_size() >= size;
     }
 
-    static constexpr MemoryType memory_piece_memory_max_size() { return kMemoryPieceMemoryMaxSize; }
+    FORCEINLINE static constexpr MemoryType memory_piece_memory_max_size() { return kMemoryPieceMemoryMaxSize; }
 
 protected:
     using SuperType = 
         ZListMemoryPoolBase<ZSmallMemoryPiece<kIsThreadSafe>, sizeof(ZSmallMemoryPiece<kIsThreadSafe>), kIsThreadSafe>;
 
 private:
-   static constexpr MemoryType kMemoryPieceHeadSize = SuperType::kNodeHeadOffset;
+   static constexpr MemoryType kMemoryPieceHeadSize = SuperType::node_head_offset();
 
     //The sizes of the memory pieces(includes the memory size).
     static constexpr IndexType kMemoryPieceTypeNum = 20;
@@ -77,8 +78,7 @@ private:
             }
         });
 
-    static constexpr MemoryType kApplyHeapMemoryMaxSizePurTime = 4 * kMB;
-    static constexpr MemoryType kApplyHeapMemoryUnitSize = 4 * kHeapMemoryUnitSize;
+
 
     /*
         Returns the first(smallest memeory pool) instance.
@@ -96,27 +96,18 @@ private:
     explicit ZSmallMemoryPieceListMemoryPool(const MemoryType memory_piece_size, const IndexType capacity) noexcept;
     ~ZSmallMemoryPieceListMemoryPool() noexcept;
 
-    /*
-        The function that extends the memory pool.
-    */
-    virtual Void Extend(const IndexType memory_piece_added_num) noexcept;
-
 #ifdef USE_MEMORY_POOL_TEST
     mutable IndexType memory_piece_used_current_num_ = 0;
     mutable IndexType momory_piece_applyed_num_ = 0;
     mutable IndexType momory_piece_peak_num_ = 0;
 #endif //USE_MEMORY_POOL_TEST
     ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>* next_memory_pool_ptr_;
-    //The size of the useable memory.
-    const MemoryType kMemoryPieceMemorySize;
-    //The size of the memory piece(include the usable memory size)
-    const MemoryType kMemoryPieceSize;
+
 
 };
 
 template<Bool kIsThreadSafe>
-const Address ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::ApplyMemory(
-        const MemoryType size, ZSmallMemoryPieceListMemoryPool* memory_pool_ptr) noexcept {
+const Address ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::ApplyMemory(const MemoryType size) noexcept {
     while (size > memory_pool_ptr->kMemoryPieceMemorySize) {
         memory_pool_ptr = memory_pool_ptr->next_memory_pool_ptr_;
     }
@@ -194,46 +185,7 @@ ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::~ZSmallMemoryPieceListMemoryPool
 #endif //USE_MEMORY_POOL_TEST        
 }
 
-template<Bool kIsThreadSafe>
-Void ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::Extend(const IndexType memory_piece_added_num) noexcept {
-    if (memory_piece_added_num == 0) {
-        return;
-    }
-    //Calculates the size that needs to apply. Rounds up to the unit size's multiple.
-    MemoryType apply_heap_memory_size = memory_piece_added_num * kMemoryPieceSize;
-    if (apply_heap_memory_size >= kApplyHeapMemoryMaxSizePurTime) {
-        apply_heap_memory_size = kApplyHeapMemoryMaxSizePurTime;
-    }
-    else if ((apply_heap_memory_size & (kApplyHeapMemoryUnitSize - 1)) != 0) {
-        apply_heap_memory_size = (apply_heap_memory_size & (~(kApplyHeapMemoryUnitSize - 1))) 
-                                 + kApplyHeapMemoryUnitSize;
-    }
-    //Apply heap memory.
-    Address apply_memory_address = ZHeapMemoryPool<kIsThreadSafe>::Instance().ApplyMemory(apply_heap_memory_size);
-    AddressType temp_memory_address = reinterpret_cast<AddressType>(apply_memory_address);
-    ZMemoryPoolBase<kIsThreadSafe>* this_memory_pool_ptr = static_cast<ZMemoryPoolBase<kIsThreadSafe>*>(this);
-    //Recaculate the real memory piece num added. 
-    IndexType apply_memory_piece_num = apply_heap_memory_size / kMemoryPieceSize;
-    SuperType::set_capacity(SuperType::capacity() + apply_memory_piece_num);
-    //Initialize the memory piece.
-    for (IndexType count = 1; count < apply_memory_piece_num; count++) {
-        //Links the pieces into a list.
-        reinterpret_cast<typename SuperType::Node*>(temp_memory_address)->next_node_ptr =
-            reinterpret_cast<typename SuperType::Node*>(temp_memory_address + kMemoryPieceSize);
-        //Set the owner pool of the memory piece.
-        reinterpret_cast<typename SuperType::Node*>(temp_memory_address)->memory_piece.owner_memory_pool_ptr =
-            this_memory_pool_ptr;
-        //Next memory piece start address.
-        temp_memory_address += kMemoryPieceSize;
-    }
-    //Initialize the last memory piece.
-    reinterpret_cast<typename SuperType::Node*>(temp_memory_address)->memory_piece.owner_memory_pool_ptr =
-        this_memory_pool_ptr;
-    //Puts the pieces into the memory pool.
-    reinterpret_cast<typename SuperType::Node*>(temp_memory_address)->next_node_ptr = 
-        const_cast<typename SuperType::Node*>(SuperType::head_node_ptr());
-    SuperType::set_head_node_ptr(reinterpret_cast<typename SuperType::Node*>(apply_memory_address));
-}
+
 
 }//memory_pool
 }//zengine

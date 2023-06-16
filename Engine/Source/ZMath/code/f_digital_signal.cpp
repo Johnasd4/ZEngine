@@ -44,7 +44,7 @@ constexpr IndexType kLowPassFilterSecondOrderMinCalculateSize = 3;
         a_2 = e_1 * e_2                                     b_2 = b_0
 */
 template<typename NumberType>
-__forceinline Void DigitalSignalLPF2Calculate(ZArray<NumberType>* ans_array_ptr, const ZArray<NumberType>& src_array, 
+FORCEINLINE Void DigitalSignalLPF2Calculate(ZArray<NumberType>* ans_array_ptr, const ZArray<NumberType>& src_array, 
                                               const NumberType sample_period, const NumberType pole_frequency,
                                               const NumberType pole_damping) noexcept {
     /***** Prepare for calculation *****/

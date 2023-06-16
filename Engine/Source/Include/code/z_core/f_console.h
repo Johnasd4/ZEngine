@@ -61,14 +61,14 @@ public:
         return instance;
     }
 
-    __forceinline Void set_text_colour(const ConsoleTextColour test_colour) { text_colour_ = test_colour; }
-    __forceinline Void set_background_colour(const ConsoleBackgroundColour background_colour) { 
+    FORCEINLINE Void set_text_colour(const ConsoleTextColour test_colour) { text_colour_ = test_colour; }
+    FORCEINLINE Void set_background_colour(const ConsoleBackgroundColour background_colour) { 
         background_colour_ = background_colour; 
     }
 
-    __forceinline const ConsoleTextColour text_colour() { return text_colour_; }
-    __forceinline const ConsoleBackgroundColour background_colour() { return background_colour_; }
-    __forceinline ZMutex& console_output_mutex() { return console_output_mutex_; }
+    FORCEINLINE const ConsoleTextColour text_colour() { return text_colour_; }
+    FORCEINLINE const ConsoleBackgroundColour background_colour() { return background_colour_; }
+    FORCEINLINE ZMutex& console_output_mutex() { return console_output_mutex_; }
 
 private:
     ZConsoleSettings() : text_colour_(ConsoleTextColour::kConsoleTextColourLightWhite)
@@ -90,7 +90,7 @@ CORE_DLLAPI const Void SetConsoleOutputColour(const ConsoleTextColour test_colou
     output.
 */
 template<typename FormatType, typename... ArgsType>
-__forceinline Void Print(FormatType&& format, ArgsType&&... args) {
+FORCEINLINE Void Print(FormatType&& format, ArgsType&&... args) {
     internal::ZConsoleSettings::Instance().console_output_mutex().lock();
     printf(std::forward<FormatType>(format), std::forward<ArgsType>(args)...);
     internal::ZConsoleSettings::Instance().console_output_mutex().unlock();
@@ -102,7 +102,7 @@ __forceinline Void Print(FormatType&& format, ArgsType&&... args) {
     output.
 */
 template<typename FormatType, typename... ArgsType>
-__forceinline Void Print(const ConsoleTextColour text_colour,
+FORCEINLINE Void Print(const ConsoleTextColour text_colour,
                          const ConsoleBackgroundColour background_colour, 
                          FormatType&& format, ArgsType&&... args) {
     internal::ZConsoleSettings::Instance().console_output_mutex().lock();

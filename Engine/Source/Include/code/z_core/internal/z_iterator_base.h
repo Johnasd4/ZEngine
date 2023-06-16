@@ -14,23 +14,23 @@ namespace internal {
 template<typename ObjectType>
 class IteratorBase {
 public:
-    __forceinline IteratorBase(const ObjectType* object_ptr) :object_ptr_(const_cast<ObjectType*>(object_ptr)) {}
+    FORCEINLINE IteratorBase(const ObjectType* object_ptr) :object_ptr_(const_cast<ObjectType*>(object_ptr)) {}
 
-    __forceinline IteratorBase& operator=(const IteratorBase& iterator) {
+    FORCEINLINE IteratorBase& operator=(const IteratorBase& iterator) {
         object_ptr_ = iterator.object_ptr_;
         return *this;
     }
 
-    __forceinline const Bool operator==(const IteratorBase& iterator) { return object_ptr_ == iterator.object_ptr_; }
-    __forceinline const Bool operator!=(const IteratorBase& iterator) { return object_ptr_ != iterator.object_ptr_; }
+    FORCEINLINE const Bool operator==(const IteratorBase& iterator) { return object_ptr_ == iterator.object_ptr_; }
+    FORCEINLINE const Bool operator!=(const IteratorBase& iterator) { return object_ptr_ != iterator.object_ptr_; }
 
-    __forceinline ObjectType& operator*() { return *object_ptr_; }
-    __forceinline ObjectType* operator->() { return object_ptr_; }
+    FORCEINLINE ObjectType& operator*() { return *object_ptr_; }
+    FORCEINLINE ObjectType* operator->() { return object_ptr_; }
 
-    __forceinline ~IteratorBase() {}
+    FORCEINLINE ~IteratorBase() {}
 
-    __forceinline ObjectType* object_ptr() const { return object_ptr_; }
-    __forceinline Void set_object_ptr(ObjectType* object_ptr) { object_ptr_ = object_ptr; }
+    FORCEINLINE ObjectType* object_ptr() const { return object_ptr_; }
+    FORCEINLINE Void set_object_ptr(ObjectType* object_ptr) { object_ptr_ = object_ptr; }
 
 private:
     ObjectType* object_ptr_;

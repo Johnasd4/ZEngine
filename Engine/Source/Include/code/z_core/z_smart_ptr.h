@@ -31,7 +31,7 @@ struct ZSmartPtrCounter {};
 template<>
 class ZSmartPtrCounter<true> {
 public:
-    __forceinline ZSmartPtrCounter() : used_count(1), weak_count(1) {}
+    FORCEINLINE ZSmartPtrCounter() : used_count(1), weak_count(1) {}
 
     std::atomic<IndexType> used_count;
     std::atomic<IndexType> weak_count;
@@ -40,7 +40,7 @@ public:
 template<>
 class ZSmartPtrCounter<false> {
 public:
-    __forceinline ZSmartPtrCounter() : used_count(1), weak_count(1) {}
+    FORCEINLINE ZSmartPtrCounter() : used_count(1), weak_count(1) {}
 
     IndexType used_count;
     IndexType weak_count;
@@ -58,9 +58,9 @@ protected:
         Calls the object's constructor
     */
     template<typename... Args>
-    __forceinline ZSmartPtrBase(Args&&... args);
+    FORCEINLINE ZSmartPtrBase(Args&&... args);
 
-    __forceinline ~ZSmartPtrBase();
+    FORCEINLINE ~ZSmartPtrBase();
 
 private:
     ZSmartPtrCounter<kCounterThreadSafe>* counter_ptr_;
@@ -69,7 +69,7 @@ private:
 
 template<typename ObjectType>
 template<typename... Args>
-__forceinline ZSmartPtrBase<ObjectType>::ZSmartPtrBase(Args&&... args)
+FORCEINLINE ZSmartPtrBase<ObjectType>::ZSmartPtrBase(Args&&... args)
         : object_ptr_(reinterpret_cast<ObjectType*>(memory_pool::ApplyMemory(sizeof(ObjectType)))) {
     //Only calls the constructor if it's a class object.
     if constexpr (std::is_class_v<ObjectType>) {
@@ -78,7 +78,7 @@ __forceinline ZSmartPtrBase<ObjectType>::ZSmartPtrBase(Args&&... args)
 }
 
 template<typename ObjectType>
-__forceinline ZSmartPtrBase<ObjectType>::~ZSmartPtrBase() {
+FORCEINLINE ZSmartPtrBase<ObjectType>::~ZSmartPtrBase() {
     //Only calls the desturctor if it's a class object.
     if constexpr (std::is_class_v<ObjectType>) {
         object_ptr_->~ObjectType();

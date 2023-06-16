@@ -19,17 +19,16 @@ enum MemoryPoolType : IndexType {
     - kIsThreadSafe: thread safe or not.
 */
 template<Bool kIsThreadSafe>
-class ZMemoryPoolBase :public ZMemoryPoolThreadSafeBase<kIsThreadSafe>
-{
+class ZMemoryPoolBase :public ZMemoryPoolThreadSafeBase<kIsThreadSafe> {
 public:
-    __forceinline const MemoryPoolType memory_pool_type() const { return kMemoryPoolType; }
+    FORCEINLINE const MemoryPoolType memory_pool_type() const { return kMemoryPoolType; }
 
 protected:
     static constexpr MemoryPoolType RegisterMemoryPoolType() { 
         return ZMemoryPoolBase<kIsThreadSafe>::kMemoryPoolTypeCounter.next();
     }
 
-    __forceinline explicit ZMemoryPoolBase(const MemoryPoolType memory_pool_type) :kMemoryPoolType(memory_pool_type) {}
+    FORCEINLINE explicit ZMemoryPoolBase(const MemoryPoolType memory_pool_type) :kMemoryPoolType(memory_pool_type) {}
 
 private:
     const MemoryPoolType kMemoryPoolType;
