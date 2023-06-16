@@ -2,6 +2,8 @@
 
 #include "f_fourier.h"
 
+#include "z_core/z_lookup_table.h"
+
 #include "f_basic.h"
 
 
@@ -14,17 +16,14 @@ constexpr IndexType FourierFFTButterflyTramsformOneDigitMask = 0x00000001;
 
 //The max order of the butterfly tramsform index pre-calculated.
 constexpr IndexType kButterflyTransformMaxOrder = 10;
-constexpr IndexType kButterflyTransformTableOffset = 0;
-constexpr IndexType kButterflyTransformTableStepSize = 1;
 constexpr IndexType kButterflyTransformTableSize = 0x1 << (kButterflyTransformMaxOrder + 1);
 
 /*
     Contains the butterfly tramsform index arrays.
 */
-constexpr ZInterpolationTable<IndexType, kButterflyTransformTableSize> kButterflyTransformTable =
-    ZInterpolationTable<IndexType, kButterflyTransformTableSize>(
-        kButterflyTransformTableOffset, kButterflyTransformTableStepSize,
-        [](ZInterpolationTable<IndexType, kButterflyTransformTableSize>* table_ptr) {
+constexpr ZLookupTable<IndexType, kButterflyTransformTableSize> kButterflyTransformTable =
+    ZLookupTable<IndexType, kButterflyTransformTableSize>(
+        [](ZLookupTable<IndexType, kButterflyTransformTableSize>* table_ptr) {
             (*table_ptr)(0) = 0;
             (*table_ptr)(1) = 0;
             for (IndexType order = 0; order < kButterflyTransformMaxOrder; ++order) {
@@ -65,7 +64,7 @@ static __forceinline Void FourierFFTAndIFFTCalculate(ZArray<ZComplex<NumberType>
         IndexType index_offset = 1 << (best_calculate_size_log2_m_1 + 2);
         //Puts the number into the array by butterfly_transform_index_array.
         for (IndexType index = 0; index < src_array.size(); ++index) {
-            (*ans_array_ptr)(kButterflyTransformTable.SearchTable(index + index_offset)) = src_array(index);
+            (*ans_array_ptr)(kButterflyTransformTable.At(index + index_offset)) = src_array(index);
         }
     }
     //Calculate the bufferfly transform array.

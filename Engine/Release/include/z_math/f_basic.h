@@ -3,6 +3,8 @@
 
 #include "internal/drive.h"
 
+#include "z_core/z_lookup_table.h"
+
 #include "z_interpolation_table.h"
 
 namespace zengine {
@@ -283,21 +285,20 @@ constexpr Float64 kFactorialTableOffset = 0.0;
 /*
     Contains the value of factorial 1 - 170.
 */
-constexpr ZInterpolationTable<Float64, kFactorialTableSize,true> kFactorialTable = 
-    ZInterpolationTable<Float64, kFactorialTableSize, true>(
-        [](ZInterpolationTable<Float64, kFactorialTableSize, true>* table_ptr) {
-            (*table_ptr)(0) = 1.0;
-            for (IndexType index = 1; index < table_ptr->size(); ++index) {
-                (*table_ptr)(index) = (*table_ptr)(index - 1) * static_cast<Float64>(index);
-            }
-        });
+constexpr ZLookupTable<Float64, kFactorialTableSize> kFactorialTable = ZLookupTable<Float64, kFactorialTableSize>(
+    [](ZLookupTable<Float64, kFactorialTableSize>* table_ptr) {
+        (*table_ptr)(0) = 1.0;
+        for (IndexType index = 1; index < table_ptr->size(); ++index) {
+            (*table_ptr)(index) = (*table_ptr)(index - 1) * static_cast<Float64>(index);
+        }
+    });
 
 /*
     Contains the value of the reciprocal of factorial 1 - 170.
 */
-constexpr ZInterpolationTable<Float64, kFactorialTableSize, true> kFactorialReciprocalTable =
-ZInterpolationTable<Float64, kFactorialTableSize, true>(
-    [](ZInterpolationTable<Float64, kFactorialTableSize, true>* table_ptr) {
+constexpr ZLookupTable<Float64, kFactorialTableSize> kFactorialReciprocalTable =
+ZLookupTable<Float64, kFactorialTableSize>(
+    [](ZLookupTable<Float64, kFactorialTableSize>* table_ptr) {
         for (IndexType index = 0; index < table_ptr->size(); ++index) {
             (*table_ptr)(index) = 1.0 / kFactorialTable(index);
         }
@@ -463,8 +464,6 @@ constexpr ZInterpolationTable<Float64, kSinCosTableSize> kSinCosTable = ZInterpo
 
 constexpr Float64 kSinSearchOffset = 0.0;
 constexpr Float64 kCosSearchOffset = kHalfPI64;
-constexpr Float64 kSinFastSearchOffset = 0.5;
-constexpr Float64 kCosFastSearchOffset = kHalfPI64 + 0.5;
 
 }//internal
 
@@ -540,7 +539,7 @@ constexpr Float64 kLogFactorLn10Reciprocal = 4.3429448190325182765E-01;
 */
 template<typename NumberType>
 requires std::is_floating_point_v<NumberType>
-constexpr const Float64 LnCalculateA(const NumberType number) noexcept {
+constexpr const NumberType LnCalculateA(const NumberType number) noexcept {
     Int32 k;
     NumberType f, ff_d_2;
     NumberType s, s_2, s_4;
@@ -649,26 +648,26 @@ namespace internal {
 constexpr Float64 kExpFactorLn2Reciprocal = 1.4426950408889634074;
 constexpr Float64 kExpFactorTaylorSeries0 = 1;
 constexpr Float64 kExpFactorTaylorSeries1 = 0.69314718055994528623;
-constexpr Float64 kExpFactorTaylorSeries2 = 0.69314718055994528623;
-constexpr Float64 kExpFactorTaylorSeries3 = 0.3465735902799725876;
+constexpr Float64 kExpFactorTaylorSeries2 = 0.24022650695910069407;
+constexpr Float64 kExpFactorTaylorSeries3 = 0.055504108664821569241;
 constexpr Float64 kExpFactorTaylorSeries4 = 0.009618129107628475144;
 constexpr Float64 kExpFactorTaylorSeries5 = 0.0013333558146428441116;
 constexpr Float64 kExpFactorTaylorSeries6 = 0.00015403530393381608776;
-constexpr Float64 kExpFactorTaylorSeries7 = 1.5252733804059837695E-05;
-constexpr Float64 kExpFactorTaylorSeries8 = 1.3215486790144305273E-06;
-constexpr Float64 kExpFactorTaylorSeries9 = 1.0178086009239697275E-07;
-constexpr Float64 kExpFactorTaylorSeries10 = 7.0549116208011200503E-09;
-constexpr Float64 kExpFactorTaylorSeries11 = 4.4455382718708100739E-10;
-constexpr Float64 kExpFactorTaylorSeries12 = 2.5678435993488195818E-11;
-constexpr Float64 kExpFactorTaylorSeries13 = 1.3691488853904122045E-12;
-constexpr Float64 kExpFactorTaylorSeries14 = 6.77872635482254254e-14;
-constexpr Float64 kExpFactorTaylorSeries15 = 3.13243670708842708e-15;
-constexpr Float64 kExpFactorTaylorSeries16 = 1.35702479487551409e-16;
-constexpr Float64 kExpFactorTaylorSeries17 = 5.53304653245823832e-18;
-constexpr Float64 kExpFactorTaylorSeries18 = 2.13067533548911659e-19;
-constexpr Float64 kExpFactorTaylorSeries19 = 7.77300842885735062e-21;
-constexpr Float64 kExpFactorTaylorSeries20 = 1.3691488853904122045E-12;
-constexpr Float64 kExpFactorTaylorSeries21 = 1.3691488853904122045E-12;
+constexpr Float64 kExpFactorTaylorSeries7 = 1.5252733804059837695e-05;
+constexpr Float64 kExpFactorTaylorSeries8 = 1.3215486790144305273e-06;
+constexpr Float64 kExpFactorTaylorSeries9 = 1.0178086009239697275e-07;
+constexpr Float64 kExpFactorTaylorSeries10 = 7.0549116208011200503e-09;
+constexpr Float64 kExpFactorTaylorSeries11 = 4.4455382718708100739e-10;
+constexpr Float64 kExpFactorTaylorSeries12 = 2.5678435993488195818e-11;
+constexpr Float64 kExpFactorTaylorSeries13 = 1.3691488853904122045e-12;
+constexpr Float64 kExpFactorTaylorSeries14 = 6.7787263548225425375e-14;
+constexpr Float64 kExpFactorTaylorSeries15 = 3.1324367070884270832e-15;
+constexpr Float64 kExpFactorTaylorSeries16 = 1.3570247948755140855e-16;
+constexpr Float64 kExpFactorTaylorSeries17 = 5.5330465324582383199e-18;
+constexpr Float64 kExpFactorTaylorSeries18 = 2.1306753354891165899e-19;
+constexpr Float64 kExpFactorTaylorSeries19 = 7.7730084288573506188e-21;
+constexpr Float64 kExpFactorTaylorSeries20 = 2.6939194384655817623e-22;
+constexpr Float64 kExpFactorTaylorSeries21 = 8.8918222068002340135e-24;
 
 //13 and 5
 /*
@@ -676,19 +675,46 @@ constexpr Float64 kExpFactorTaylorSeries21 = 1.3691488853904122045E-12;
 */
 template<typename NumberType>
 requires std::is_floating_point_v<NumberType>
-constexpr const Float64 ExpCalculateA(const NumberType exponent) noexcept {
+constexpr const NumberType ExpCalculateA(const NumberType exponent) noexcept {
     NumberType pow_2_exponent = exponent * static_cast<NumberType>(kExpFactorLn2Reciprocal);
-
+    NumberType ans_1, ans_2;
     if constexpr (std::is_same_v<NumberType, Float64>) {
-        Int64 int_part = static_cast<Int64>(pow_2_exponent) + kFloat64MantissaOffset;
+        Int64 int_part = static_cast<Int64>(pow_2_exponent);
         NumberType decimal_part = pow_2_exponent - int_part;
+        NumberType decimal_part_2 = decimal_part * decimal_part;
+        ans_1 =
+            decimal_part * (static_cast<NumberType>(kExpFactorTaylorSeries1) +
+                decimal_part_2 * (static_cast<NumberType>(kExpFactorTaylorSeries3) +
+                    decimal_part_2 * (static_cast<NumberType>(kExpFactorTaylorSeries3) +
+                        decimal_part_2 * (static_cast<NumberType>(kExpFactorTaylorSeries5) +
+                            decimal_part_2 * (static_cast<NumberType>(kExpFactorTaylorSeries7) +
+                                decimal_part_2 * (static_cast<NumberType>(kExpFactorTaylorSeries9) +
+                                    decimal_part_2 * (static_cast<NumberType>(kExpFactorTaylorSeries11) +
+                                        decimal_part_2 * (static_cast<NumberType>(kExpFactorTaylorSeries13) +
+                                            decimal_part_2 * (static_cast<NumberType>(kExpFactorTaylorSeries15) +
+                                                decimal_part_2 * (static_cast<NumberType>(kExpFactorTaylorSeries17) +
+                                                    decimal_part_2 * (static_cast<NumberType>(kExpFactorTaylorSeries19) +
+                                                        decimal_part_2 * static_cast<NumberType>(kExpFactorTaylorSeries21))))))))))));
+        ans_2 = static_cast<NumberType>(kExpFactorTaylorSeries0) +
+            decimal_part_2 * (static_cast<NumberType>(kExpFactorTaylorSeries2) +
+                decimal_part_2 * (static_cast<NumberType>(kExpFactorTaylorSeries4) +
+                    decimal_part_2 * (static_cast<NumberType>(kExpFactorTaylorSeries6) +
+                        decimal_part_2 * (static_cast<NumberType>(kExpFactorTaylorSeries8) +
+                            decimal_part_2 * (static_cast<NumberType>(kExpFactorTaylorSeries10) +
+                                decimal_part_2 * (static_cast<NumberType>(kExpFactorTaylorSeries12) +
+                                    decimal_part_2 * (static_cast<NumberType>(kExpFactorTaylorSeries14) +
+                                        decimal_part_2 * (static_cast<NumberType>(kExpFactorTaylorSeries16) +
+                                            decimal_part_2 * (static_cast<NumberType>(kExpFactorTaylorSeries18) +
+                                                decimal_part_2 * static_cast<NumberType>(kExpFactorTaylorSeries20))))))))));
+        Size64Type ans(ans_1 + ans_2);
+        ans.u_int_64 += int_part << kFloat64ExponentSize;
+        return ans.float_64;
     }
     else if constexpr (std::is_same_v<NumberType, Float32>) {
         Int32 int_part = static_cast<Int32>(pow_2_exponent) + kFloat32MantissaOffset;
         NumberType decimal_part = pow_2_exponent - int_part;
+        
     }
-
-    return  0.0;
 }
 
 }//internal

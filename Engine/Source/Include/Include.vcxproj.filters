@@ -84,6 +84,9 @@
     <ClInclude Include="code\z_math\f_basic.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="code\z_core\z_lookup_table.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\main.cpp">

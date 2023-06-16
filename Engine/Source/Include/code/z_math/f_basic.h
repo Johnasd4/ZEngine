@@ -3,6 +3,8 @@
 
 #include "internal/drive.h"
 
+#include "z_core/z_lookup_table.h"
+
 #include "z_interpolation_table.h"
 
 namespace zengine {
@@ -283,21 +285,20 @@ constexpr Float64 kFactorialTableOffset = 0.0;
 /*
     Contains the value of factorial 1 - 170.
 */
-constexpr ZInterpolationTable<Float64, kFactorialTableSize,true> kFactorialTable = 
-    ZInterpolationTable<Float64, kFactorialTableSize, true>(
-        [](ZInterpolationTable<Float64, kFactorialTableSize, true>* table_ptr) {
-            (*table_ptr)(0) = 1.0;
-            for (IndexType index = 1; index < table_ptr->size(); ++index) {
-                (*table_ptr)(index) = (*table_ptr)(index - 1) * static_cast<Float64>(index);
-            }
-        });
+constexpr ZLookupTable<Float64, kFactorialTableSize> kFactorialTable = ZLookupTable<Float64, kFactorialTableSize>(
+    [](ZLookupTable<Float64, kFactorialTableSize>* table_ptr) {
+        (*table_ptr)(0) = 1.0;
+        for (IndexType index = 1; index < table_ptr->size(); ++index) {
+            (*table_ptr)(index) = (*table_ptr)(index - 1) * static_cast<Float64>(index);
+        }
+    });
 
 /*
     Contains the value of the reciprocal of factorial 1 - 170.
 */
-constexpr ZInterpolationTable<Float64, kFactorialTableSize, true> kFactorialReciprocalTable =
-ZInterpolationTable<Float64, kFactorialTableSize, true>(
-    [](ZInterpolationTable<Float64, kFactorialTableSize, true>* table_ptr) {
+constexpr ZLookupTable<Float64, kFactorialTableSize> kFactorialReciprocalTable =
+ZLookupTable<Float64, kFactorialTableSize>(
+    [](ZLookupTable<Float64, kFactorialTableSize>* table_ptr) {
         for (IndexType index = 0; index < table_ptr->size(); ++index) {
             (*table_ptr)(index) = 1.0 / kFactorialTable(index);
         }
@@ -463,8 +464,6 @@ constexpr ZInterpolationTable<Float64, kSinCosTableSize> kSinCosTable = ZInterpo
 
 constexpr Float64 kSinSearchOffset = 0.0;
 constexpr Float64 kCosSearchOffset = kHalfPI64;
-constexpr Float64 kSinFastSearchOffset = 0.5;
-constexpr Float64 kCosFastSearchOffset = kHalfPI64 + 0.5;
 
 }//internal
 
@@ -678,7 +677,7 @@ template<typename NumberType>
 requires std::is_floating_point_v<NumberType>
 constexpr const NumberType ExpCalculateA(const NumberType exponent) noexcept {
     NumberType pow_2_exponent = exponent * static_cast<NumberType>(kExpFactorLn2Reciprocal);
-    NumberType ans1, ans2;
+    NumberType ans_1, ans_2;
     if constexpr (std::is_same_v<NumberType, Float64>) {
         Int64 int_part = static_cast<Int64>(pow_2_exponent);
         NumberType decimal_part = pow_2_exponent - int_part;

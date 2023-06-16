@@ -21,14 +21,14 @@ int main(){
     //        cout << index <<"  " << zengine::math::internal::LnCalculateA(0.01F * index) << "  " << zengine::math::internal::LnCalculateB(0.01F * index) << endl;
     //    }
     //}
-    Int32 a = 1.0;
+    Float64 a = 1.0;
     for (Int32 index = 1; index <= 200; ++index) {
         cout << index << "  " << FactorialReciprocal<Float64>(index) * pow(LnA(2.0), index) << endl;
     }
     //Size32Type test_number(0xff800000U);
     //Float32 asd = test_number.float_32;
     //if (asd == test_number.float_32) {
-    //    cout << 1;
+    //    cout << 1;s
     //}
     //const int a = 1;
     //test(a);

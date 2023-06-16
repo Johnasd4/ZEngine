@@ -8,7 +8,7 @@
 namespace zengine {
 namespace math {
 
-template<typename NumberType, IndexType kTableSize, Bool kIsSimpleTable = false> 
+template<typename NumberType, IndexType kTableSize> 
 class ZInterpolationTable :public ZFixedArray<NumberType, kTableSize> {
 public:
     /*
@@ -41,15 +41,6 @@ public:
     }
     __forceinline constexpr NumberType step_distance_reciprocal() const { return step_distance_reciprocal_; }
     /*
-        Find the object at the certain index.
-    */
-    __forceinline constexpr const NumberType At(const IndexType index) const;
-    /*
-        Find the object at the certain index. 
-        Will search the table over again if the index is bigger then the table size.
-    */
-    __forceinline constexpr const NumberType LoopAt(const IndexType index) const;
-    /*
         Search the table.
     */
     __forceinline constexpr const NumberType SearchTable(const NumberType index) const;
@@ -78,48 +69,8 @@ private:
 };
 
 template<typename NumberType, IndexType kTableSize>
-class ZInterpolationTable<NumberType, kTableSize, true> : public ZFixedArray<NumberType, kTableSize> {
-public:
-    /*
-        The work is done at compile time.
-        Tne first parameter is added to the index when using the table.
-        Tne second parameter is distance between the table values.
-        The Constructor's third parameter is the initial funtion of the table.
-        The first parameter of the initial funtion must be ZFixedArray*.
-        Constructor Template Parameters:
-        - InitFunction: The function type that initial the array.
-        - ArgsType...: The parameters type.
-        Constructor Parameters:
-        - init_function: The function to initial the array.
-        - ArgsType...: The parameters of the function except for the fisrt.
-        Example:
-        constexpr auto init_function = [](ZInterpolationTable<Float32, 10, true>* table_ptr) {
-            for (IndexType index = 0; index < table_ptr->size(); ++index) {
-                (*table_ptr)(index) = 1.0F;
-            }
-        };
-        constexpr ZInterpolationTable<Int32, 10, true> test(init_function);
-    */
-    template<typename InitFunction, typename... ArgsType>
-    __forceinline constexpr ZInterpolationTable(InitFunction&& init_function, ArgsType&&... args);
-
-    /*
-        Find the object at the certain index.
-    */
-    __forceinline constexpr const NumberType At(const IndexType index) const;
-    /*
-        Find the object at the certain index.
-        Will search the table over again if the index is bigger then the table size.
-    */
-    __forceinline constexpr const NumberType LoopAt(const IndexType index) const;
-
-protected:
-    using SuperType = ZFixedArray<NumberType, kTableSize>;
-};
-
-template<typename NumberType, IndexType kTableSize, Bool kIsSimpleTable> 
 template<typename InitFunction, typename... ArgsType>
-__forceinline constexpr ZInterpolationTable<NumberType, kTableSize, kIsSimpleTable>::ZInterpolationTable(
+__forceinline constexpr ZInterpolationTable<NumberType, kTableSize>::ZInterpolationTable(
     const NumberType index_offset, const NumberType step_distance, 
     InitFunction&& init_function, ArgsType&&... args)
         : SuperType()
@@ -129,39 +80,19 @@ __forceinline constexpr ZInterpolationTable<NumberType, kTableSize, kIsSimpleTab
 }
 
 template<typename NumberType, IndexType kTableSize>
-template<typename InitFunction, typename... ArgsType>
-__forceinline constexpr ZInterpolationTable<NumberType, kTableSize, true>::ZInterpolationTable(
-        InitFunction&& init_function, ArgsType&&... args)
-        : SuperType() {
-    init_function(this, std::forward<ArgsType>(args)...);
+__forceinline constexpr const NumberType ZInterpolationTable<NumberType, kTableSize>::SearchTable(
+        const NumberType index) const {
+    return (*this)(static_cast<IndexType>(index * step_distance_reciprocal_ + 0.5));
 }
 
 template<typename NumberType, IndexType kTableSize>
-__forceinline constexpr const NumberType ZInterpolationTable<NumberType, kTableSize, true>::At(
-        const IndexType index) const {
-    return (*this)(index);
+__forceinline constexpr const NumberType ZInterpolationTable<NumberType, kTableSize>::LoopSearchTable(
+        const NumberType index) const {
+    return (*this)(static_cast<IndexType>(index * step_distance_reciprocal_ + 0.5) % SuperType::size());
 }
 
 template<typename NumberType, IndexType kTableSize>
-__forceinline constexpr const NumberType ZInterpolationTable<NumberType, kTableSize, true>::LoopAt(
-        const IndexType index) const {
-    return (*this)(index % SuperType::size());
-}
-
-template<typename NumberType, IndexType kTableSize, Bool kIsSimpleTable> 
-__forceinline constexpr const NumberType ZInterpolationTable<NumberType, kTableSize, kIsSimpleTable>::SearchTable(
-        const NumberType index) const {
-    return (*this)(static_cast<IndexType>(index * step_distance_reciprocal_));
-}
-
-template<typename NumberType, IndexType kTableSize, Bool kIsSimpleTable> 
-__forceinline constexpr const NumberType ZInterpolationTable<NumberType, kTableSize, kIsSimpleTable>::LoopSearchTable(
-        const NumberType index) const {
-    return (*this)(static_cast<IndexType>(index * step_distance_reciprocal_) % SuperType::size());
-}
-
-template<typename NumberType, IndexType kTableSize, Bool kIsSimpleTable> 
-__forceinline constexpr const NumberType ZInterpolationTable<NumberType, kTableSize, kIsSimpleTable>::LinearSearchTable(
+__forceinline constexpr const NumberType ZInterpolationTable<NumberType, kTableSize>::LinearSearchTable(
         const NumberType index) const {
     NumberType table_index = (index - index_offset_) * step_distance_reciprocal_;
     IndexType array_index = static_cast<IndexType>(table_index);
@@ -170,8 +101,8 @@ __forceinline constexpr const NumberType ZInterpolationTable<NumberType, kTableS
         (table_index - static_cast<NumberType>(array_index));
 }
 
-template<typename NumberType, IndexType kTableSize, Bool kIsSimpleTable> 
-__forceinline constexpr const NumberType ZInterpolationTable<NumberType, kTableSize, kIsSimpleTable>::LoopLinearSearchTable(
+template<typename NumberType, IndexType kTableSize>
+__forceinline constexpr const NumberType ZInterpolationTable<NumberType, kTableSize>::LoopLinearSearchTable(
     const NumberType index) const {
     NumberType table_index = (index - index_offset_) * step_distance_reciprocal_;
     IndexType int_table_index = static_cast<IndexType>(table_index);
