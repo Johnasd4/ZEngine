@@ -31,7 +31,7 @@ CORE_DLLAPI NODISCARD extern const Address ApplyMemory(const MemoryType size, co
     so remember to set the pointer to null.
     WARNING : WILL CRASH IF ADDRESS IS NULLPTR.
 */
-CORE_DLLAPI NODISCARD extern Void ReleaseMemory(const Address address) noexcept;
+CORE_DLLAPI extern Void ReleaseMemory(const Address address) noexcept;
 
 /*
     Check if the memory can be extended to the given size without changing address,

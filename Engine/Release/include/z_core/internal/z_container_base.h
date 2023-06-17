@@ -39,16 +39,16 @@ protected:
     ZContainerBase& operator=(const ZContainerBase& container);
     ZContainerBase& operator=(ZContainerBase&& container);
 
-    FORCEINLINE ObjectType& operator()(const IndexType index) { return data_ptr_[index]; }
-    FORCEINLINE const ObjectType& operator()(const IndexType index) const { return data_ptr_[index]; }
+    NODISCARD FORCEINLINE ObjectType& operator()(const IndexType index) { return data_ptr_[index]; }
+    NODISCARD FORCEINLINE const ObjectType& operator()(const IndexType index) const { return data_ptr_[index]; }
 
     ~ZContainerBase() noexcept;
 
-    FORCEINLINE ObjectType* data_ptr() const { return data_ptr_; }
-    FORCEINLINE ObjectType* end_data_ptr() const { return end_data_ptr_; }
+    NODISCARD FORCEINLINE ObjectType* data_ptr() const { return data_ptr_; }
+    NODISCARD FORCEINLINE ObjectType* end_data_ptr() const { return end_data_ptr_; }
 
-    FORCEINLINE const IndexType size() const { return size_; }
-    FORCEINLINE const IndexType capacity() const { return capacity_; }
+    NODISCARD FORCEINLINE const IndexType size() const { return size_; }
+    NODISCARD FORCEINLINE const IndexType capacity() const { return capacity_; }
 
     FORCEINLINE Void set_end_data_ptr(ObjectType* end_data_ptr) { end_data_ptr_ = end_data_ptr; }
 
@@ -68,7 +68,7 @@ protected:
     */
     Void set_capacity(const IndexType capacity) noexcept;
 
-    FORCEINLINE const Bool IfEmpty() { return size_ == 0; }
+    NODISCARD FORCEINLINE const Bool IfEmpty() { return size_ == 0; }
 
     FORCEINLINE Void Clear() { 
         size_ = 0; 

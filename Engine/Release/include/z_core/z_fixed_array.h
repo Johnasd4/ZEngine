@@ -48,12 +48,14 @@ public:
     ZFixedArray& operator=(const ZFixedArray& array) noexcept;
     ZFixedArray& operator=(ZFixedArray&& array) noexcept;
 
-    FORCEINLINE constexpr ObjectType& operator()(const IndexType index) { return this->data_[index]; }
-    FORCEINLINE constexpr const ObjectType& operator()(const IndexType index) const { return this->data_[index]; }
+    NODISCARD FORCEINLINE constexpr ObjectType& operator()(const IndexType index) { return this->data_[index]; }
+    NODISCARD FORCEINLINE constexpr const ObjectType& operator()(const IndexType index) const { 
+        return this->data_[index]; 
+    }
 
-    static constexpr const IndexType size() { return kCapacity; }
-    constexpr ObjectType* data_ptr() { return data_; }
-    constexpr const ObjectType* data_ptr() const { return data_; }
+    NODISCARD FORCEINLINE static constexpr const IndexType size() { return kCapacity; }
+    NODISCARD FORCEINLINE constexpr ObjectType* data_ptr() { return data_; }
+    NODISCARD FORCEINLINE constexpr const ObjectType* data_ptr() const { return data_; }
 
 protected:
     using SuperType = ZObject;
