@@ -45,8 +45,8 @@ public:
     public:
         FORCEINLINE ConstIterator(const ObjectType* data_ptr) :SuperType(data_ptr) {}
 
-        FORCEINLINE const ObjectType& operator*() { return SuperType::SuperType::operator*(); }
-        FORCEINLINE const ObjectType* operator->() { return SuperType::SuperType::operator->(); }
+        NODISCARD FORCEINLINE const ObjectType& operator*() { return SuperType::SuperType::operator*(); }
+        NODISCARD FORCEINLINE const ObjectType* operator->() { return SuperType::SuperType::operator->(); }
 
     protected:
         using SuperType = Iterator;
@@ -84,8 +84,8 @@ public:
     public:
         FORCEINLINE ConstReverseIterator(const ObjectType* data_ptr) :SuperType(data_ptr) {}
 
-        FORCEINLINE const ObjectType& operator*() { return SuperType::SuperType::operator*(); }
-        FORCEINLINE const ObjectType* operator->() { return SuperType::SuperType::operator->(); }
+        NODISCARD FORCEINLINE const ObjectType& operator*() { return SuperType::SuperType::operator*(); }
+        NODISCARD FORCEINLINE const ObjectType* operator->() { return SuperType::SuperType::operator->(); }
 
     protected:
         using SuperType = ReverseIterator;
@@ -103,52 +103,54 @@ public:
         return reinterpret_cast<ZArray&>(SuperType::operator=(std::forward<ZArray>(array)));
     }
 
-    FORCEINLINE ObjectType& operator()(const IndexType index) { return SuperType::operator()(index); }
-    FORCEINLINE const ObjectType& operator()(const IndexType index) const { return SuperType::operator()(index); }
+    NODISCARD FORCEINLINE ObjectType& operator()(const IndexType index) { return SuperType::operator()(index); }
+    NODISCARD FORCEINLINE const ObjectType& operator()(const IndexType index) const { 
+        return SuperType::operator()(index); 
+    }
 
     FORCEINLINE ~ZArray() {}
 
     /*
         The iterator funcions.
     */
-    FORCEINLINE Iterator Begin() { return Iterator(SuperType::data_ptr()); }
-    FORCEINLINE ConstIterator ConstBegin() const { return ConstIterator(SuperType::data_ptr()); }
-    FORCEINLINE ReverseIterator ReverseBegin() { return ReverseIterator(SuperType::end_data_ptr() - 1); }
-    FORCEINLINE ConstReverseIterator ConstReverseBegin() const {
+    NODISCARD FORCEINLINE Iterator Begin() { return Iterator(SuperType::data_ptr()); }
+    NODISCARD FORCEINLINE ConstIterator ConstBegin() const { return ConstIterator(SuperType::data_ptr()); }
+    NODISCARD FORCEINLINE ReverseIterator ReverseBegin() { return ReverseIterator(SuperType::end_data_ptr() - 1); }
+    NODISCARD FORCEINLINE ConstReverseIterator ConstReverseBegin() const {
         return ConstReverseIterator(SuperType::end_data_ptr() - 1);
     }
-    FORCEINLINE Iterator End() { return Iterator(SuperType::end_data_ptr()); }
-    FORCEINLINE ConstIterator ConstEnd() const { return ConstIterator(SuperType::end_data_ptr()); }
-    FORCEINLINE ReverseIterator ReverseEnd() { return ReverseIterator(SuperType::data_ptr() - 1); }
-    FORCEINLINE ConstReverseIterator ConstReverseEnd() const {
+    NODISCARD FORCEINLINE Iterator End() { return Iterator(SuperType::end_data_ptr()); }
+    NODISCARD FORCEINLINE ConstIterator ConstEnd() const { return ConstIterator(SuperType::end_data_ptr()); }
+    NODISCARD FORCEINLINE ReverseIterator ReverseEnd() { return ReverseIterator(SuperType::data_ptr() - 1); }
+    NODISCARD FORCEINLINE ConstReverseIterator ConstReverseEnd() const {
         return ConstReverseIterator(SuperType::data_ptr() - 1);
     }
 
-    FORCEINLINE const IndexType size() const { return SuperType::size(); }
-    FORCEINLINE const IndexType capacity() const { return SuperType::capacity(); }
+    NODISCARD FORCEINLINE const IndexType size() const { return SuperType::size(); }
+    NODISCARD FORCEINLINE const IndexType capacity() const { return SuperType::capacity(); }
     FORCEINLINE Void set_size(const IndexType need_size) { 
         SuperType::set_size(need_size); 
         SuperType::set_end_data_ptr(SuperType::data_ptr() + need_size);
     }
     FORCEINLINE Void set_capacity(const IndexType need_capacity) { SuperType::set_capacity(need_capacity); }
 
-    FORCEINLINE const Bool IfEmpty() { return SuperType::IfEmpty(); }
+    NODISCARD FORCEINLINE const Bool IfEmpty() { return SuperType::IfEmpty(); }
 
     /*
         Returns false if the array is empty.
     */
-    const Bool Pop(ObjectType* object_ptr) noexcept;
+    NODISCARD const Bool Pop(ObjectType* object_ptr) noexcept;
     Void Push(const ObjectType& object) noexcept;
     Void PushEmpty(const IndexType data_num) noexcept;
 
     /*
         Returns false if out of bounds. Takes a lot of performance.
     */
-    const Bool Insert(const IndexType insert_index, const ObjectType& object) noexcept;
+    NODISCARD const Bool Insert(const IndexType insert_index, const ObjectType& object) noexcept;
     /*
         Returns false if out of bounds. Takes a lot of performance.
     */
-    const Bool Remove(const IndexType remove_index) noexcept;
+    NODISCARD const Bool Remove(const IndexType remove_index) noexcept;
 
     FORCEINLINE Void Clear() { SuperType::Clear(); }
 
@@ -157,7 +159,7 @@ protected:
 };
 
 template<typename ObjectType, Bool kIfInitializeObject>
-const Bool ZArray<ObjectType, kIfInitializeObject>::Pop(ObjectType* object_ptr) noexcept {
+NODISCARD const Bool ZArray<ObjectType, kIfInitializeObject>::Pop(ObjectType* object_ptr) noexcept {
     if (SuperType::size() == 0) {
         return false;
     }
@@ -180,7 +182,7 @@ Void ZArray<ObjectType, kIfInitializeObject>::PushEmpty(const IndexType data_num
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
-const Bool ZArray<ObjectType, kIfInitializeObject>::Insert(
+NODISCARD const Bool ZArray<ObjectType, kIfInitializeObject>::Insert(
         const IndexType insert_index, const ObjectType& object) noexcept {
     //Out of bounds.
     if (insert_index > SuperType::size()) {
@@ -197,7 +199,7 @@ const Bool ZArray<ObjectType, kIfInitializeObject>::Insert(
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
-const Bool ZArray<ObjectType, kIfInitializeObject>::Remove(const IndexType remove_index) noexcept {
+NODISCARD const Bool ZArray<ObjectType, kIfInitializeObject>::Remove(const IndexType remove_index) noexcept {
     //Out of bounds.
     if (remove_index >= SuperType::size()) {
         return false;

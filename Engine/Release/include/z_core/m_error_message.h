@@ -22,13 +22,13 @@ namespace internal {
 /*
     Console error message and error location.
 */
-CORE_DLLAPI Void ConsoleErrorMessage(const CChar* error_file, const CChar* error_funcion, const Int32 error_line,
+CORE_DLLAPI extern Void ConsoleErrorMessage(const CChar* error_file, const CChar* error_funcion, const Int32 error_line,
     const CChar* error_message) noexcept;
 
 /*
     Log error message and error location.
 */
-CORE_DLLAPI Void LogErrorMessage(const CChar* error_file, const CChar* error_funcion, const Int32 error_line,
+CORE_DLLAPI extern Void LogErrorMessage(const CChar* error_file, const CChar* error_funcion, const Int32 error_line,
     const CChar* error_message) noexcept;
 
 }//internal

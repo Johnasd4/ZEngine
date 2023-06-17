@@ -9,12 +9,6 @@ namespace zengine {
 namespace internal {
 
 /*
-    Tests if the type is a kind of char.
-*/
-template<typename CharType>
-concept kIsChar = std::is_same_v<CharType, char> || std::is_same_v<CharType, wchar_t>;
-
-/*
     The string type.
 */
 template<typename CharType>
@@ -27,13 +21,13 @@ public:
     */
     class ZTempString :public ZString<CharType> {
     public:
-        FORCEINLINE ZTempString& operator+(const CharType* string) { 
+        NODISCARD FORCEINLINE ZTempString& operator+(const CharType* string) {
             return reinterpret_cast<ZTempString&>(ZString<CharType>::Append(string));
         }
-        FORCEINLINE ZTempString& operator+(const ZString& string) {
+        NODISCARD FORCEINLINE ZTempString& operator+(const ZString& string) {
             return reinterpret_cast<ZTempString&>(ZString<CharType>::Append(string));
         }
-        FORCEINLINE ZTempString& operator+(const ZTempString& string) {
+        NODISCARD FORCEINLINE ZTempString& operator+(const ZTempString& string) {
             return reinterpret_cast<ZTempString&>(ZString<CharType>::Append(string));
         }
     };
@@ -56,19 +50,21 @@ public:
         return reinterpret_cast<ZString&>(SuperType::operator=(string));
     }
 
-    FORCEINLINE CharType& operator()(const IndexType index) { return SuperType::operator()(index); }
-    FORCEINLINE const CharType& operator()(const IndexType index) const { return SuperType::operator()(index); }
+    NODISCARD FORCEINLINE CharType& operator()(const IndexType index) { return SuperType::operator()(index); }
+    NODISCARD FORCEINLINE const CharType& operator()(const IndexType index) const { 
+        return SuperType::operator()(index); 
+    }
 
-    FORCEINLINE ZTempString operator+(const CharType* string) const;
-    FORCEINLINE ZTempString operator+(const ZString& string) const;
-    FORCEINLINE ZTempString operator+(const ZTempString& string) const;
+    NODISCARD FORCEINLINE ZTempString operator+(const CharType* string) const;
+    NODISCARD FORCEINLINE ZTempString operator+(const ZString& string) const;
+    NODISCARD FORCEINLINE ZTempString operator+(const ZTempString& string) const;
 
     FORCEINLINE ~ZString() {}
 
-    const CharType* char_string() const noexcept;
-    FORCEINLINE const IndexType& size() const { return SuperType::size(); }
-    FORCEINLINE const IndexType& length() const { return SuperType::size(); }
-    FORCEINLINE const IndexType& capacity() const { return SuperType::capacity(); }
+    NODISCARD const CharType* char_string() const noexcept;
+    NODISCARD FORCEINLINE const IndexType& size() const { return SuperType::size(); }
+    NODISCARD FORCEINLINE const IndexType& length() const { return SuperType::size(); }
+    NODISCARD FORCEINLINE const IndexType& capacity() const { return SuperType::capacity(); }
 
     FORCEINLINE Void set_size(const IndexType need_size) { SuperType::set_size(need_size); }
     FORCEINLINE Void set_length(const IndexType need_length) noexcept { SuperType::set_size(need_length); }
@@ -91,35 +87,35 @@ protected:
 
 template<typename CharType>
 requires kIsChar<CharType>
-FORCEINLINE ZString<CharType>::ZTempString operator+(const CharType* dst_string, 
+NODISCARD FORCEINLINE ZString<CharType>::ZTempString operator+(const CharType* dst_string,
                                                        const ZString<CharType>& src_string) {
     typename ZString<CharType>::ZTempString temp_string(dst_string);
     return temp_string.Append(src_string);
 }
 template<typename CharType>
 requires kIsChar<CharType>
-FORCEINLINE ZString<CharType>::ZTempString operator+(const CharType* dst_string,
+NODISCARD FORCEINLINE ZString<CharType>::ZTempString operator+(const CharType* dst_string,
                                                        const typename ZString<CharType>::ZTempString& src_string) {
     typename ZString<CharType>::ZTempString temp_string(dst_string);
     return temp_string.Append(src_string);
 }
 template<typename CharType>
 requires kIsChar<CharType>
-FORCEINLINE ZString<CharType>::ZTempString ZString<CharType>::operator+(const CharType* string) const {
+NODISCARD FORCEINLINE ZString<CharType>::ZTempString ZString<CharType>::operator+(const CharType* string) const {
     ZString::ZTempString temp_string(*this);
     temp_string.Append(string);
     return temp_string;
 }
 template<typename CharType>
 requires kIsChar<CharType>
-FORCEINLINE ZString<CharType>::ZTempString ZString<CharType>::operator+(const ZString& string) const {
+NODISCARD FORCEINLINE ZString<CharType>::ZTempString ZString<CharType>::operator+(const ZString& string) const {
     ZString::ZTempString temp_string(*this);
     temp_string.Append(string);
     return temp_string;
 }
 template<typename CharType>
 requires kIsChar<CharType>
-FORCEINLINE ZString<CharType>::ZTempString ZString<CharType>::operator+(const ZTempString& string) const {
+NODISCARD FORCEINLINE ZString<CharType>::ZTempString ZString<CharType>::operator+(const ZTempString& string) const {
     ZString::ZTempString temp_string(*this);
     temp_string.Append(string);
     return temp_string;
@@ -144,7 +140,7 @@ ZString<CharType>& ZString<CharType>::operator=(const CharType* string) noexcept
 
 template<typename CharType>
 requires kIsChar<CharType>
-const CharType* ZString<CharType>::char_string() const noexcept {
+NODISCARD const CharType* ZString<CharType>::char_string() const noexcept {
     //Adds \0 to the end of the stirng, makes sure the container is big enough.
     if (SuperType::capacity() <= SuperType::size()) {
         (const_cast<ZString*>(this))->SuperType::set_capacity(SuperType::capacity() + 1);

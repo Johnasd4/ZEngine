@@ -21,7 +21,7 @@ enum MemoryPoolType : IndexType {
 template<Bool kIsThreadSafe>
 class ZMemoryPoolBase :public ZMemoryPoolThreadSafeBase<kIsThreadSafe> {
 public:
-    FORCEINLINE const MemoryPoolType memory_pool_type() const { return memory_pool_type_; }
+    NODISCARD FORCEINLINE const MemoryPoolType memory_pool_type() const { return memory_pool_type_; }
 
 protected:
     FORCEINLINE explicit ZMemoryPoolBase() {}

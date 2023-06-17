@@ -10,7 +10,7 @@ namespace memory_pool {
 using SmallMemoryPieceListMemoryPool = ZSmallMemoryPieceListMemoryPool<MEMORY_POOL_THREAD_SAFE>;
 using MemoryPoolBase = ZMemoryPoolBase<MEMORY_POOL_THREAD_SAFE>;
 
-CORE_DLLAPI const Address ApplyMemory(const MemoryType size) noexcept {
+CORE_DLLAPI NODISCARD const Address ApplyMemory(const MemoryType size) noexcept {
     //small memory piece
     if (size <= SmallMemoryPieceListMemoryPool::memory_piece_memory_max_size()){
         return SmallMemoryPieceListMemoryPool::ApplyMemory(size);
@@ -22,7 +22,7 @@ CORE_DLLAPI const Address ApplyMemory(const MemoryType size) noexcept {
     return nullptr;
 }
 
-CORE_DLLAPI const Address ApplyMemory(const MemoryType size, const Address address) noexcept {
+CORE_DLLAPI NODISCARD const Address ApplyMemory(const MemoryType size, const Address address) noexcept {
     MemoryPoolBase* owner_memory_pool_ptr = 
         *reinterpret_cast<MemoryPoolBase**>(reinterpret_cast<AddressType>(address) - sizeof(Address));
     //small memory piece
@@ -53,7 +53,7 @@ CORE_DLLAPI Void ReleaseMemory(const Address address) noexcept{
     }
 }
 
-CORE_DLLAPI const Bool CheckMemory(const MemoryType size, const Address address) noexcept {
+CORE_DLLAPI NODISCARD const Bool CheckMemory(const MemoryType size, const Address address) noexcept {
     MemoryPoolBase* owner_memory_pool_ptr =
         *reinterpret_cast<MemoryPoolBase**>(reinterpret_cast<AddressType>(address) - sizeof(Address));
     switch (owner_memory_pool_ptr->memory_pool_type())

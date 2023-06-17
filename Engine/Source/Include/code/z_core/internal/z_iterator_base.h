@@ -21,15 +21,19 @@ public:
         return *this;
     }
 
-    FORCEINLINE const Bool operator==(const IteratorBase& iterator) { return object_ptr_ == iterator.object_ptr_; }
-    FORCEINLINE const Bool operator!=(const IteratorBase& iterator) { return object_ptr_ != iterator.object_ptr_; }
+    NODISCARD FORCEINLINE const Bool operator==(const IteratorBase& iterator) { 
+        return object_ptr_ == iterator.object_ptr_; 
+    }
+    NODISCARD FORCEINLINE const Bool operator!=(const IteratorBase& iterator) { 
+        return object_ptr_ != iterator.object_ptr_; 
+    }
 
-    FORCEINLINE ObjectType& operator*() { return *object_ptr_; }
-    FORCEINLINE ObjectType* operator->() { return object_ptr_; }
+    NODISCARD FORCEINLINE ObjectType& operator*() { return *object_ptr_; }
+    NODISCARD FORCEINLINE ObjectType* operator->() { return object_ptr_; }
 
     FORCEINLINE ~IteratorBase() {}
 
-    FORCEINLINE ObjectType* object_ptr() const { return object_ptr_; }
+    NODISCARD FORCEINLINE ObjectType* object_ptr() const { return object_ptr_; }
     FORCEINLINE Void set_object_ptr(ObjectType* object_ptr) { object_ptr_ = object_ptr; }
 
 private:

@@ -28,8 +28,16 @@
 #include<iostream>
 #include<windows.h>
 
+#ifndef DLLEXPORT
 #define DLLEXPORT __declspec(dllexport)
+#endif
+#ifndef DLLIMPORT
 #define DLLIMPORT __declspec(dllimport)
+#endif
+
+#ifndef NODISCARD
+#define NODISCARD [[nodiscard]]
+#endif
 
 //Define if at the start of the z_math cpp file.
 #ifdef CORE_DLLFILE
@@ -132,6 +140,16 @@ FORCEINLINE constexpr Void Swap(ObjectType* object_1, ObjectType* object_2) {
 }
 
 #pragma endregion basic function
+
+#pragma region basic concept
+
+/*
+    Tests if the type is a kind of char.
+*/
+template<typename CharType>
+concept kIsChar = std::is_same_v<CharType, char> || std::is_same_v<CharType, wchar_t>;
+
+#pragma endregion basic concept
 
 #pragma region basic constant
 

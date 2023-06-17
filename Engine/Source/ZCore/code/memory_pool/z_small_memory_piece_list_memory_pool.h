@@ -40,9 +40,10 @@ private:
     static constexpr MemoryType kMemoryPieceSizeMulGrowFactor = 2;
 
 public:
-    static const Address ApplyMemory(const MemoryType size) noexcept;
+    NODISCARD static const Address ApplyMemory(const MemoryType size) noexcept;
 
-    static Void ReleaseMemory(const Address address, ZSmallMemoryPieceListMemoryPool* memory_pool_ptr) noexcept;
+    static Void ReleaseMemory(const Address address, 
+                                        ZSmallMemoryPieceListMemoryPool* memory_pool_ptr) noexcept;
 
     /*
         Checks if the memory can extend without moving to a new Address, If can
@@ -54,9 +55,6 @@ public:
 
     FORCEINLINE static constexpr MemoryType memory_piece_memory_max_size() { return kMemoryPieceMemoryMaxSize; }
     FORCEINLINE static constexpr IndexType memory_piece_type_num() { return kMemoryPieceTypeNum; }
-
-    static Void MemoryPoolArrayInitFunction(
-        ZFixedArray<ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>, kMemoryPieceTypeNum>* array_ptr) noexcept;
 
 protected:
     using SuperType = 
@@ -112,6 +110,9 @@ private:
                 }
             });
 
+    static Void MemoryPoolArrayInitFunction(
+        ZFixedArray<ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>, kMemoryPieceTypeNum>* array_ptr) noexcept;
+
     explicit FORCEINLINE ZSmallMemoryPieceListMemoryPool() noexcept : SuperType() {}
     explicit FORCEINLINE ZSmallMemoryPieceListMemoryPool(const MemoryType memory_piece_size,
                                                          const MemoryType memory_piece_memory_size,
@@ -128,7 +129,7 @@ private:
 };
 
 template<Bool kIsThreadSafe>
-const Address ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::ApplyMemory(const MemoryType size) noexcept {
+NODISCARD const Address ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::ApplyMemory(const MemoryType size) noexcept {
     static ZFixedArray<ZSmallMemoryPieceListMemoryPool<kIsThreadSafe> , kMemoryPieceTypeNum> memory_pool_array(
         MemoryPoolArrayInitFunction);
 

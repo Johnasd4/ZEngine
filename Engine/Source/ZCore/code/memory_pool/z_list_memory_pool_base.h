@@ -47,16 +47,16 @@ protected:
     FORCEINLINE Void set_head_node_ptr(Node* head_node_ptr) { head_node_ptr_ = head_node_ptr; }
     
     FORCEINLINE static constexpr MemoryType node_head_offset() { return kNodeHeadOffset; }
-    FORCEINLINE const IndexType capacity() { return capacity_; }
-    FORCEINLINE const MemoryType memory_piece_size() { return memory_piece_size_; }
-    FORCEINLINE const MemoryType memory_piece_memory_size() { return memory_piece_memory_size_; }
-    FORCEINLINE Node* head_node_ptr() { return head_node_ptr_; }
+    NODISCARD FORCEINLINE const IndexType capacity() { return capacity_; }
+    NODISCARD FORCEINLINE const MemoryType memory_piece_size() { return memory_piece_size_; }
+    NODISCARD FORCEINLINE const MemoryType memory_piece_memory_size() { return memory_piece_memory_size_; }
+    NODISCARD FORCEINLINE Node* head_node_ptr() { return head_node_ptr_; }
 
     /*
         It returns the memory's address(not the memory piece).It's inlined
         cause it's only used a few times.
     */
-    FORCEINLINE const Address ApplyMemory();
+    NODISCARD FORCEINLINE const Address ApplyMemory();
 
     /*
         Release the memory to this memory pool. It's inlinedcause it's only 

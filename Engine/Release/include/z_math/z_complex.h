@@ -44,18 +44,18 @@ struct ZComplex {
 
         template<typename CalculateNumberType>
         requires kCanCalculateWithComplex<CalculateNumberType>
-        FORCEINLINE constexpr ZTempComplex& operator+(const CalculateNumberType number);
+        NODISCARD FORCEINLINE constexpr ZTempComplex& operator+(const CalculateNumberType number);
         template<typename CalculateNumberType>
         requires kCanCalculateWithComplex<CalculateNumberType>
-        FORCEINLINE constexpr ZTempComplex& operator-(const CalculateNumberType number);
+        NODISCARD FORCEINLINE constexpr ZTempComplex& operator-(const CalculateNumberType number);
         template<typename CalculateNumberType>
         requires kCanCalculateWithComplex<CalculateNumberType>
-        FORCEINLINE constexpr ZTempComplex& operator*(const CalculateNumberType number);
+        NODISCARD FORCEINLINE constexpr ZTempComplex& operator*(const CalculateNumberType number);
         template<typename CalculateNumberType>
         requires kCanCalculateWithComplex<CalculateNumberType>
-        constexpr ZTempComplex& operator/(const CalculateNumberType number) noexcept;
+        NODISCARD constexpr ZTempComplex& operator/(const CalculateNumberType number) noexcept;
 
-        FORCEINLINE constexpr ZTempComplex& conjugate();
+        NODISCARD FORCEINLINE constexpr ZTempComplex& conjugate();
 
     protected:
         using SuperType = ZComplex<NumberType>;
@@ -79,20 +79,20 @@ struct ZComplex {
 
     template<typename CalculateNumberType>
     requires kCanCalculateWithComplex<CalculateNumberType>
-    FORCEINLINE constexpr const Bool operator==(const CalculateNumberType number) const;
+    NODISCARD FORCEINLINE constexpr const Bool operator==(const CalculateNumberType number) const;
 
     template<typename CalculateNumberType>
     requires kCanCalculateWithComplex<CalculateNumberType>
-    FORCEINLINE constexpr ZTempComplex operator+(const CalculateNumberType number) const;
+    NODISCARD FORCEINLINE constexpr ZTempComplex operator+(const CalculateNumberType number) const;
     template<typename CalculateNumberType>
     requires kCanCalculateWithComplex<CalculateNumberType>
-    FORCEINLINE constexpr ZTempComplex operator-(const CalculateNumberType number) const;
+    NODISCARD FORCEINLINE constexpr ZTempComplex operator-(const CalculateNumberType number) const;
     template<typename CalculateNumberType>
     requires kCanCalculateWithComplex<CalculateNumberType>
-    FORCEINLINE constexpr ZTempComplex operator*(const CalculateNumberType number) const;
+    NODISCARD FORCEINLINE constexpr ZTempComplex operator*(const CalculateNumberType number) const;
     template<typename CalculateNumberType>
     requires kCanCalculateWithComplex<CalculateNumberType>
-    constexpr ZTempComplex operator/(const CalculateNumberType number) const noexcept;
+    NODISCARD constexpr ZTempComplex operator/(const CalculateNumberType number) const noexcept;
 
     template<typename CalculateNumberType>
         requires kCanCalculateWithComplex<CalculateNumberType>
@@ -107,9 +107,9 @@ struct ZComplex {
         requires kCanCalculateWithComplex<CalculateNumberType>
     constexpr ZComplex& operator/=(const CalculateNumberType number) noexcept;
 
-    FORCEINLINE constexpr ZTempComplex conjugate();
+    NODISCARD FORCEINLINE constexpr ZTempComplex conjugate();
 
-    FORCEINLINE constexpr const NumberType magnitude();
+    NODISCARD FORCEINLINE constexpr const NumberType magnitude();
 
     NumberType real;
     NumberType imag;
@@ -173,7 +173,7 @@ template<typename NumberType>
 requires std::is_arithmetic_v<NumberType>
 template<typename CalculateNumberType>
 requires kCanCalculateWithComplex<CalculateNumberType>
-FORCEINLINE constexpr const Bool ZComplex<NumberType>::operator==(const CalculateNumberType number) const {
+NODISCARD FORCEINLINE constexpr const Bool ZComplex<NumberType>::operator==(const CalculateNumberType number) const {
     if constexpr (std::is_arithmetic_v<CalculateNumberType>) {
         return real == static_cast<NumberType>(number) && imag == static_cast<NumberType>(0);
     }
@@ -186,7 +186,7 @@ template<typename NumberType>
 requires std::is_arithmetic_v<NumberType>
 template<typename CalculateNumberType>
 requires kCanCalculateWithComplex<CalculateNumberType>
-FORCEINLINE constexpr ZComplex<NumberType>::ZTempComplex ZComplex<NumberType>::operator+(
+NODISCARD FORCEINLINE constexpr ZComplex<NumberType>::ZTempComplex ZComplex<NumberType>::operator+(
         const CalculateNumberType number) const {
     if constexpr (std::is_arithmetic_v<CalculateNumberType>) {
         ZTempComplex complex(real + static_cast<NumberType>(number), imag);
@@ -202,7 +202,7 @@ template<typename NumberType>
 requires std::is_arithmetic_v<NumberType>
 template<typename CalculateNumberType>
 requires kCanCalculateWithComplex<CalculateNumberType>
-FORCEINLINE constexpr ZComplex<NumberType>::ZTempComplex ZComplex<NumberType>::operator-(
+NODISCARD FORCEINLINE constexpr ZComplex<NumberType>::ZTempComplex ZComplex<NumberType>::operator-(
         const CalculateNumberType number) const {
     if constexpr (std::is_arithmetic_v<CalculateNumberType>) {
         ZTempComplex complex(real - static_cast<NumberType>(number), imag);
@@ -218,7 +218,7 @@ template<typename NumberType>
 requires std::is_arithmetic_v<NumberType>
 template<typename CalculateNumberType>
 requires kCanCalculateWithComplex<CalculateNumberType>
-FORCEINLINE constexpr ZComplex<NumberType>::ZTempComplex ZComplex<NumberType>::operator*(
+NODISCARD FORCEINLINE constexpr ZComplex<NumberType>::ZTempComplex ZComplex<NumberType>::operator*(
         const CalculateNumberType number) const {
     if constexpr (std::is_arithmetic_v<CalculateNumberType>) {
         ZTempComplex complex(real * static_cast<NumberType>(number), imag * static_cast<NumberType>(number));
@@ -235,7 +235,8 @@ template<typename NumberType>
 requires std::is_arithmetic_v<NumberType>
 template<typename CalculateNumberType>
 requires kCanCalculateWithComplex<CalculateNumberType>
-constexpr ZComplex<NumberType>::ZTempComplex ZComplex<NumberType>::operator/(const CalculateNumberType number) const noexcept {
+NODISCARD constexpr ZComplex<NumberType>::ZTempComplex ZComplex<NumberType>::operator/(
+        const CalculateNumberType number) const noexcept {
     if constexpr (std::is_arithmetic_v<CalculateNumberType>) {
         ZTempComplex complex(real / static_cast<NumberType>(number), imag / static_cast<NumberType>(number));
         return complex;
@@ -339,7 +340,7 @@ template<typename NumberType>
 requires std::is_arithmetic_v<NumberType>
 template<typename CalculateNumberType>
 requires kCanCalculateWithComplex<CalculateNumberType>
-FORCEINLINE constexpr ZComplex<NumberType>::ZTempComplex& ZComplex<NumberType>::ZTempComplex::operator+(
+NODISCARD FORCEINLINE constexpr ZComplex<NumberType>::ZTempComplex& ZComplex<NumberType>::ZTempComplex::operator+(
         const CalculateNumberType number) {
     if constexpr (std::is_arithmetic_v<CalculateNumberType>) {
         real += static_cast<NumberType>(number);
@@ -355,7 +356,7 @@ template<typename NumberType>
 requires std::is_arithmetic_v<NumberType>
 template<typename CalculateNumberType>
 requires kCanCalculateWithComplex<CalculateNumberType>
-FORCEINLINE constexpr ZComplex<NumberType>::ZTempComplex& ZComplex<NumberType>::ZTempComplex::operator-(
+NODISCARD FORCEINLINE constexpr ZComplex<NumberType>::ZTempComplex& ZComplex<NumberType>::ZTempComplex::operator-(
     const CalculateNumberType number) {
     if constexpr (std::is_arithmetic_v<CalculateNumberType>) {
         real -= static_cast<NumberType>(number);
@@ -371,7 +372,7 @@ template<typename NumberType>
 requires std::is_arithmetic_v<NumberType>
 template<typename CalculateNumberType>
 requires kCanCalculateWithComplex<CalculateNumberType>
-FORCEINLINE constexpr ZComplex<NumberType>::ZTempComplex& ZComplex<NumberType>::ZTempComplex::operator*(
+NODISCARD FORCEINLINE constexpr ZComplex<NumberType>::ZTempComplex& ZComplex<NumberType>::ZTempComplex::operator*(
     const CalculateNumberType number) {
     if constexpr (std::is_arithmetic_v<CalculateNumberType>) {
         real = real * static_cast<NumberType>(number);
@@ -390,7 +391,7 @@ template<typename NumberType>
 requires std::is_arithmetic_v<NumberType>
 template<typename CalculateNumberType>
 requires kCanCalculateWithComplex<CalculateNumberType>
-constexpr ZComplex<NumberType>::ZTempComplex& ZComplex<NumberType>::ZTempComplex::operator/(
+NODISCARD constexpr ZComplex<NumberType>::ZTempComplex& ZComplex<NumberType>::ZTempComplex::operator/(
     const CalculateNumberType number) noexcept {
     if constexpr (std::is_arithmetic_v<CalculateNumberType>) {
         real = real / static_cast<NumberType>(number);
@@ -410,7 +411,7 @@ constexpr ZComplex<NumberType>::ZTempComplex& ZComplex<NumberType>::ZTempComplex
 
 template<typename NumberType>
 requires std::is_arithmetic_v<NumberType>
-FORCEINLINE constexpr ZComplex<NumberType>::ZTempComplex& ZComplex<NumberType>::ZTempComplex::conjugate() {
+NODISCARD FORCEINLINE constexpr ZComplex<NumberType>::ZTempComplex& ZComplex<NumberType>::ZTempComplex::conjugate() {
     imag = -imag;
     return *this;
 }

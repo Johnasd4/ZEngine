@@ -81,8 +81,8 @@ private:
 
 }//internal
 
-CORE_DLLAPI const Void SetConsoleOutputColour(const ConsoleTextColour test_colour,
-                                              const ConsoleBackgroundColour background_colour) noexcept;
+CORE_DLLAPI extern const Void SetConsoleOutputColour(const ConsoleTextColour test_colour,
+                                                     const ConsoleBackgroundColour background_colour) noexcept;
 
 /*
     Use it as the same as printf, it's thread safe. You can add text colour and 

@@ -35,28 +35,28 @@ public:
     FORCEINLINE constexpr ZInterpolationTable(const NumberType index_offset, const NumberType step_distance, 
                                                 InitFunction&& init_function, ArgsType&&... args);    
 
-    FORCEINLINE constexpr NumberType index_offset() const { return index_offset_; }
-    FORCEINLINE constexpr NumberType step_distance() const {
+    NODISCARD FORCEINLINE constexpr NumberType index_offset() const { return index_offset_; }
+    NODISCARD FORCEINLINE constexpr NumberType step_distance() const {
         return static_cast<NumberType>(1.0) / step_distance_reciprocal_; 
     }
-    FORCEINLINE constexpr NumberType step_distance_reciprocal() const { return step_distance_reciprocal_; }
+    NODISCARD FORCEINLINE constexpr NumberType step_distance_reciprocal() const { return step_distance_reciprocal_; }
     /*
         Search the table.
     */
-    FORCEINLINE constexpr const NumberType SearchTable(const NumberType index) const;
+    NODISCARD FORCEINLINE constexpr const NumberType SearchTable(const NumberType index) const;
     /*
         Search the table.Will search the table over again if the index is bigger then the table size.
     */
-    FORCEINLINE constexpr const NumberType LoopSearchTable(const NumberType index) const;
+    NODISCARD FORCEINLINE constexpr const NumberType LoopSearchTable(const NumberType index) const;
     /*
         Sereah the table with a linear compensation.
     */
-    FORCEINLINE constexpr const NumberType LinearSearchTable(const NumberType index) const;
+    NODISCARD FORCEINLINE constexpr const NumberType LinearSearchTable(const NumberType index) const;
     /*
         Sereah the table with a linear compensation.
         Will search the table over again if the index is bigger then the table size.
     */
-    FORCEINLINE constexpr const NumberType LoopLinearSearchTable(const NumberType index) const;
+    NODISCARD FORCEINLINE constexpr const NumberType LoopLinearSearchTable(const NumberType index) const;
 
 protected:
     using SuperType = ZFixedArray<NumberType, kTableSize>;

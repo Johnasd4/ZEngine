@@ -31,41 +31,25 @@ public:
         constexpr ZLookupTable<Int32, 10, true> test(init_function);
     */
     template<typename InitFunction, typename... ArgsType>
-    FORCEINLINE constexpr ZLookupTable(InitFunction&& init_function, ArgsType&&... args);
+    FORCEINLINE constexpr ZLookupTable(InitFunction&& init_function, ArgsType&&... args) : SuperType() {
+        init_function(this, std::forward<ArgsType>(args)...);
+    }
 
     /*
         Find the object at the certain index.
     */
-    FORCEINLINE constexpr const ObjectType At(const IndexType index) const;
+    NODISCARD FORCEINLINE constexpr const ObjectType At(const IndexType index) const { return (*this)(index); }
     /*
         Find the object at the certain index.
         Will search the table over again if the index is bigger then the table size.
     */
-    FORCEINLINE constexpr const ObjectType LoopAt(const IndexType index) const;
+    NODISCARD FORCEINLINE constexpr const ObjectType LoopAt(const IndexType index) const { 
+        return (*this)(index % SuperType::size()); 
+    }
 
 protected:
     using SuperType = ZFixedArray<ObjectType, kTableSize>;
 };
-
-template<typename ObjectType, IndexType kTableSize>
-template<typename InitFunction, typename... ArgsType>
-FORCEINLINE constexpr ZLookupTable<ObjectType, kTableSize>::ZLookupTable(InitFunction&& init_function, 
-                                                                           ArgsType&&... args)
-        : SuperType() {
-    init_function(this, std::forward<ArgsType>(args)...);
-}
-
-template<typename ObjectType, IndexType kTableSize>
-FORCEINLINE constexpr const ObjectType ZLookupTable<ObjectType, kTableSize>::At(
-        const IndexType index) const {
-    return (*this)(index);
-}
-
-template<typename ObjectType, IndexType kTableSize>
-FORCEINLINE constexpr const ObjectType ZLookupTable<ObjectType, kTableSize>::LoopAt(
-        const IndexType index) const {
-    return (*this)(index % SuperType::size());
-}
 
 }//zengine
 

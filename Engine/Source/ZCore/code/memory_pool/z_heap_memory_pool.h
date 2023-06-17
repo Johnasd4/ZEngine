@@ -28,8 +28,8 @@ public:
     /*
         Use ApplyBigMemory to apply memory bigger then 2^32.
     */
-    const Address ApplyMemory(const MemoryType size) noexcept;
-    const Address ApplyBigMemory(const SizeType size) noexcept;
+    NODISCARD const Address ApplyMemory(const MemoryType size) noexcept;
+    NODISCARD const Address ApplyBigMemory(const SizeType size) noexcept;
 
 protected:
     using MutexType = ZMemoryPoolThreadSafeBase<kIsThreadSafe>;
@@ -59,7 +59,7 @@ private:
 #pragma warning(disable : 6011)
 
 template<Bool kIsThreadSafe>
-const Address ZHeapMemoryPool<kIsThreadSafe>::ApplyMemory(const MemoryType size) noexcept {
+NODISCARD const Address ZHeapMemoryPool<kIsThreadSafe>::ApplyMemory(const MemoryType size) noexcept {
     Address heap_memory_address = malloc(size);
     MutexType::lock();
     //applys new node when the memory runs out.
@@ -76,7 +76,7 @@ const Address ZHeapMemoryPool<kIsThreadSafe>::ApplyMemory(const MemoryType size)
 #pragma warning(default : 6011)
 
 template<Bool kIsThreadSafe>
-const Address ZHeapMemoryPool<kIsThreadSafe>::ApplyBigMemory(const SizeType size) noexcept {
+NODISCARD const Address ZHeapMemoryPool<kIsThreadSafe>::ApplyBigMemory(const SizeType size) noexcept {
     Address heap_memory_address = malloc(size);
     MutexType::lock();
     //applys new node when the memory runs out.
