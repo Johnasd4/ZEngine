@@ -35,8 +35,9 @@ protected:
     using MutexType = ZMemoryPoolThreadSafeBase<kIsThreadSafe>;
 
 private:
-    static constexpr Int32 kAddressNumPurNode = (kHeapMemoryUnitSize - sizeof(Address)) / sizeof(Address);
     struct AddressArrayNode {
+        static constexpr Int32 kAddressNumPurNode = (kHeapMemoryUnitSize - sizeof(Address)) / sizeof(Address);
+
         Address address[kAddressNumPurNode];
         AddressArrayNode* next_node_ptr;
     };
@@ -62,7 +63,7 @@ const Address ZHeapMemoryPool<kIsThreadSafe>::ApplyMemory(const MemoryType size)
     Address heap_memory_address = malloc(size);
     MutexType::lock();
     //applys new node when the memory runs out.
-    if (current_node_address_num_ == kAddressNumPurNode) {
+    if (current_node_address_num_ == AddressArrayNode::kAddressNumPurNode) {
         current_node_address_num_ = 0;
         current_node_ptr_->next_node_ptr = static_cast<AddressArrayNode*>(malloc(sizeof(AddressArrayNode)));
         current_node_ptr_ = current_node_ptr_->next_node_ptr;
@@ -79,7 +80,7 @@ const Address ZHeapMemoryPool<kIsThreadSafe>::ApplyBigMemory(const SizeType size
     Address heap_memory_address = malloc(size);
     MutexType::lock();
     //applys new node when the memory runs out.
-    if (current_node_address_num_ == kAddressNumPurNode) {
+    if (current_node_address_num_ == AddressArrayNode::kAddressNumPurNode) {
         current_node_address_num_ = 0;
         current_node_ptr_->next_node_ptr = static_cast<AddressArrayNode*>(malloc(sizeof(AddressArrayNode)));
         current_node_ptr_ = current_node_ptr_->next_node_ptr;
@@ -98,7 +99,7 @@ ZHeapMemoryPool<kIsThreadSafe>::~ZHeapMemoryPool() noexcept {
         AddressArrayNode* delete_node = head_node_ptr_;
         head_node_ptr_ = head_node_ptr_->next_node_ptr;
         //Delete the heap memory inside the node.
-        for (IndexType index = 0; index < kAddressNumPurNode; ++index) {
+        for (IndexType index = 0; index < AddressArrayNode::kAddressNumPurNode; ++index) {
             free(delete_node->address[index]);
         }
         //Delete the node itself.

@@ -1,13 +1,14 @@
 #ifndef Z_CORE_MEMORY_POOL_Z_SMALL_MEMORY_PIECE_LIST_MEMORY_POOL_H_
 #define Z_CORE_MEMORY_POOL_Z_SMALL_MEMORY_PIECE_LIST_MEMORY_POOL_H_
 
-#include"internal/drive.h"
+#include "internal/drive.h"
 
-#include"f_console.h"
-#include"z_fixed_array.h"
+#include "f_console.h"
+#include "z_fixed_array.h"
+#include "z_lookup_table.h"
 
-#include"z_list_memory_pool_base.h"
-#include"z_memory_piece_base.h"
+#include "z_list_memory_pool_base.h"
+#include "z_memory_piece_base.h"
 
 namespace zengine {
 namespace memory_pool {
@@ -32,6 +33,12 @@ struct ZSmallMemoryPiece : ZMemoryPieceBase{
 template<Bool kIsThreadSafe>
 class ZSmallMemoryPieceListMemoryPool : public ZListMemoryPoolBase<ZSmallMemoryPiece<kIsThreadSafe>, 
                                                              sizeof(ZSmallMemoryPiece<kIsThreadSafe>), kIsThreadSafe> {
+private:
+    //The sizes of the memory pieces(includes the memory size).
+    static constexpr IndexType kMemoryPieceTypeNum = 10;
+    static constexpr MemoryType kMemoryPieceMinSize = 64;
+    static constexpr MemoryType kMemoryPieceSizeMulGrowFactor = 2;
+
 public:
     static const Address ApplyMemory(const MemoryType size) noexcept;
 
@@ -42,22 +49,23 @@ public:
         then it will auto extend and return true.
     */
     FORCEINLINE static const Bool CheckMemory(const MemoryType size, ZSmallMemoryPieceListMemoryPool* memory_pool_ptr) {
-        return memory_pool_ptr->memory_piece_memory_size() >= size;
+        return memory_pool_ptr->SuperType::memory_piece_memory_size() >= size;
     }
 
     FORCEINLINE static constexpr MemoryType memory_piece_memory_max_size() { return kMemoryPieceMemoryMaxSize; }
+    FORCEINLINE static constexpr IndexType memory_piece_type_num() { return kMemoryPieceTypeNum; }
+
+    static Void MemoryPoolArrayInitFunction(
+        ZFixedArray<ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>, kMemoryPieceTypeNum>* array_ptr) noexcept;
 
 protected:
     using SuperType = 
         ZListMemoryPoolBase<ZSmallMemoryPiece<kIsThreadSafe>, sizeof(ZSmallMemoryPiece<kIsThreadSafe>), kIsThreadSafe>;
 
 private:
-   static constexpr MemoryType kMemoryPieceHeadSize = SuperType::node_head_offset();
+    friend class ZFixedArray<ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>, kMemoryPieceTypeNum>;
 
-    //The sizes of the memory pieces(includes the memory size).
-    static constexpr IndexType kMemoryPieceTypeNum = 20;
-    static constexpr MemoryType kMemoryPieceMinSize = 64;
-    static constexpr MemoryType kMemoryPieceSizeMulGrowFactor = 2;
+    static constexpr MemoryType kMemoryPieceHeadSize = SuperType::node_head_offset();
     static constexpr ZFixedArray<MemoryType, kMemoryPieceTypeNum> kMemoryPieceSizeArray =
         ZFixedArray<MemoryType, kMemoryPieceTypeNum>([](ZFixedArray<MemoryType, kMemoryPieceTypeNum>* array_ptr) {
             (*array_ptr)(0) = kMemoryPieceMinSize;
@@ -66,34 +74,49 @@ private:
             }
         });
     static constexpr MemoryType kMemoryPieceMaxSize = kMemoryPieceSizeArray(kMemoryPieceTypeNum - 1);
-    static constexpr MemoryType kMemoryPieceMemoryMaxSize = kMemoryPieceSizeArray(kMemoryPieceTypeNum - 1) 
-                                                            - kMemoryPieceHeadSize;
+    static constexpr MemoryType kMemoryPieceMemoryMaxSize = kMemoryPieceSizeArray(kMemoryPieceTypeNum - 1)
+        - kMemoryPieceHeadSize;
+
+    //The sizes of the memorys that can be uesd.
+    static constexpr ZFixedArray<MemoryType, kMemoryPieceTypeNum> kMemoryPieceMemorySizeArray =
+        ZFixedArray<MemoryType, kMemoryPieceTypeNum>([](ZFixedArray<MemoryType, kMemoryPieceTypeNum>* array_ptr) {
+            for (IndexType index = 0; index < ZFixedArray<Int32, kMemoryPieceTypeNum>::size(); ++index) {
+                (*array_ptr)(index) = kMemoryPieceSizeArray(index) - SuperType::node_head_offset();
+            }
+        });
 
     //The number of the pieces that the memory pool contains when created.
     static constexpr Int32 kMemoryPieceDefaultNum = 0;
-    static constexpr ZFixedArray<IndexType, kMemoryPieceTypeNum> KMemoryPieceDefaultNumArray =
+    static constexpr ZFixedArray<IndexType, kMemoryPieceTypeNum> kMemoryPieceDefaultNumArray =
         ZFixedArray<IndexType, kMemoryPieceTypeNum>([](ZFixedArray<IndexType, kMemoryPieceTypeNum>* array_ptr) {
             for (IndexType index = 0; index < ZFixedArray<Int32, kMemoryPieceTypeNum>::size(); ++index) {
                 (*array_ptr)(index) = kMemoryPieceDefaultNum;
             }
         });
 
+    //The lookup table that links the memory size to the memory pool index.
+    //mamory alignment
+    static constexpr IndexType kkMemorySize2MemoryPoolTableSize = kMemoryPieceMemoryMaxSize + 1;
+    static constexpr ZLookupTable<UInt8, kkMemorySize2MemoryPoolTableSize> kMemorySize2MemoryPoolTable =
+        ZLookupTable<UInt8, kkMemorySize2MemoryPoolTableSize>(
+            [](ZLookupTable<UInt8, kkMemorySize2MemoryPoolTableSize>* array_ptr) {
+                UInt8 current_pool_index = 0;
+                for (IndexType index = 0; index < array_ptr->size(); ++index) {
+                    if (index <= static_cast<IndexType>(kMemoryPieceMemorySizeArray(current_pool_index))) {
+                        (*array_ptr)(index) = current_pool_index;
+                    }
+                    else {
+                        ++current_pool_index;
+                        (*array_ptr)(index) = current_pool_index;
+                    }
+                }
+            });
 
+    explicit FORCEINLINE ZSmallMemoryPieceListMemoryPool() noexcept : SuperType() {}
+    explicit FORCEINLINE ZSmallMemoryPieceListMemoryPool(const MemoryType memory_piece_size,
+                                                         const MemoryType memory_piece_memory_size,
+                                                         const Int32 capacity) noexcept;
 
-    /*
-        Returns the first(smallest memeory pool) instance.
-    */
-    static ZSmallMemoryPieceListMemoryPool& Instance() noexcept {
-        static ZSmallMemoryPieceListMemoryPool& memory_pool = CreateInstance();
-        return memory_pool;
-    }
-    /*
-        Used to create all the memory pool instance.
-    */
-    template<IndexType kInstanceCount = 0>
-    static ZSmallMemoryPieceListMemoryPool& CreateInstance() noexcept;
-
-    explicit ZSmallMemoryPieceListMemoryPool(const MemoryType memory_piece_size, const IndexType capacity) noexcept;
     ~ZSmallMemoryPieceListMemoryPool() noexcept;
 
 #ifdef USE_MEMORY_POOL_TEST
@@ -102,67 +125,57 @@ private:
     mutable IndexType momory_piece_peak_num_ = 0;
 #endif //USE_MEMORY_POOL_TEST
     ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>* next_memory_pool_ptr_;
-
-
 };
 
 template<Bool kIsThreadSafe>
 const Address ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::ApplyMemory(const MemoryType size) noexcept {
-    while (size > memory_pool_ptr->kMemoryPieceMemorySize) {
-        memory_pool_ptr = memory_pool_ptr->next_memory_pool_ptr_;
-    }
+    static ZFixedArray<ZSmallMemoryPieceListMemoryPool<kIsThreadSafe> , kMemoryPieceTypeNum> memory_pool_array(
+        MemoryPoolArrayInitFunction);
+
 #ifdef USE_MEMORY_POOL_TEST
-    memory_pool_ptr->memory_piece_used_current_num_ += 1;
-    memory_pool_ptr->momory_piece_applyed_num_ += 1;
-    if (memory_pool_ptr->memory_piece_used_current_num_ > memory_pool_ptr->momory_piece_peak_num_) {
-        memory_pool_ptr->momory_piece_peak_num_ = memory_pool_ptr->memory_piece_used_current_num_;
+    memory_pool_array(kMemorySize2MemoryPoolTable(size)).memory_piece_used_current_num_ += 1;
+    memory_pool_array(kMemorySize2MemoryPoolTable(size)).momory_piece_applyed_num_ += 1;
+    if (memory_pool_array(kMemorySize2MemoryPoolTable(size)).memory_piece_used_current_num_ > 
+        memory_pool_array(kMemorySize2MemoryPoolTable(size)).momory_piece_peak_num_) {
+        memory_pool_array(kMemorySize2MemoryPoolTable(size)).momory_piece_peak_num_ = 
+            memory_pool_array(kMemorySize2MemoryPoolTable(size)).memory_piece_used_current_num_;
     }
 #endif //USE_MEMORY_POOL_TEST
-    return memory_pool_ptr->SuperType::ApplyMemory();
+
+    return memory_pool_array(kMemorySize2MemoryPoolTable(size)).SuperType::ApplyMemory();
 }
 
 template<Bool kIsThreadSafe>
-Void ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::ReleaseMemory(const Address address, 
-                                                             ZSmallMemoryPieceListMemoryPool* memory_pool_ptr) noexcept {
+Void ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::ReleaseMemory(
+        const Address address, ZSmallMemoryPieceListMemoryPool* memory_pool_ptr) noexcept {
 #ifdef USE_MEMORY_POOL_TEST
     memory_pool_ptr->memory_piece_used_current_num_ -= 1;
 #endif //USE_MEMORY_POOL_TEST
     memory_pool_ptr->SuperType::ReleaseMemory(address);
 }
 
-/*
-    Generates all the memory pools at once. 
-*/
 template<Bool kIsThreadSafe>
-template<IndexType kInstanceCount>
-ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>& ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::CreateInstance() noexcept {
-    static ZSmallMemoryPieceListMemoryPool memory_pool(kMemoryPieceSizeArray(kInstanceCount), 
-                                                 KMemoryPieceDefaultNumArray(kInstanceCount));
-    //Generates new memory pool until all memory pools are generated.
-    if constexpr (kInstanceCount != kMemoryPieceTypeNum - 1) {
-        memory_pool.next_memory_pool_ptr_ = &CreateInstance<kInstanceCount + 1>();
+Void ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::MemoryPoolArrayInitFunction(
+    ZFixedArray<ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>, kMemoryPieceTypeNum>* array_ptr) noexcept {
+    for (IndexType index = 0; index < array_ptr->size(); ++index) {
+        new(reinterpret_cast<Address>(&(*array_ptr)(index)))
+            ZSmallMemoryPieceListMemoryPool(kMemoryPieceSizeArray(index), kMemoryPieceMemorySizeArray(index),
+                                            kMemoryPieceDefaultNumArray(index));
     }
-    else{
-        memory_pool.next_memory_pool_ptr_ = nullptr;
-    }
-    return memory_pool;
+
 }
 
 template<Bool kIsThreadSafe>
-ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::ZSmallMemoryPieceListMemoryPool(const MemoryType memory_piece_size,
-                                                                    const Int32 capacity) noexcept 
-        : SuperType(MemoryPoolType::kZSmallMemoryPieceListMemoryPool)
-        , kMemoryPieceMemorySize(memory_piece_size - kMemoryPieceHeadSize)
-        , kMemoryPieceSize(memory_piece_size) {
-    Extend(capacity);
-}
+FORCEINLINE ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::ZSmallMemoryPieceListMemoryPool(
+        const MemoryType memory_piece_size, const MemoryType memory_piece_memory_size, const Int32 capacity) noexcept
+        : SuperType(MemoryPoolType::kZSmallMemoryPieceListMemoryPool, memory_piece_size, memory_piece_memory_size, 
+                    capacity) {}
 
 template<Bool kIsThreadSafe>
 ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::~ZSmallMemoryPieceListMemoryPool() noexcept {
 #ifdef USE_MEMORY_POOL_TEST
-
     //The first pool realsed.
-    if (kMemoryPieceSize == kMemoryPieceMaxSize) {
+    if (SuperType::memory_piece_size() == kMemoryPieceMaxSize) {
         zengine::console::Print(
             zengine::console::ConsoleTextColour::kConsoleTextColourLightGreen,
             zengine::console::ConsoleBackgroundColour::kConsoleBackgroundColourDarkBlack,
@@ -176,16 +189,14 @@ ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::~ZSmallMemoryPieceListMemoryPool
         zengine::console::ConsoleTextColour::kConsoleTextColourLightYellow,
         zengine::console::ConsoleBackgroundColour::kConsoleBackgroundColourDarkBlack,
         "  %8u  |  %9u  |  %9d  |   %9d   |   %9d   |  %8d\n",
-        kMemoryPieceSize,
-        kMemoryPieceMemorySize,
+        SuperType::memory_piece_size(),
+        SuperType::memory_piece_memory_size(),
         SuperType::capacity(),
         momory_piece_applyed_num_,
         momory_piece_peak_num_,
         memory_piece_used_current_num_);
 #endif //USE_MEMORY_POOL_TEST        
 }
-
-
 
 }//memory_pool
 }//zengine

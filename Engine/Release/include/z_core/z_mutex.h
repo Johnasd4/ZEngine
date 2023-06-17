@@ -10,11 +10,11 @@ namespace zengine {
 */
 class ZMutex {
 public:
-    __forceinline ZMutex() :handle_(CreateMutex(nullptr, FALSE, nullptr)) {}
-    __forceinline ~ZMutex() { CloseHandle(handle_); }
+    FORCEINLINE ZMutex() :handle_(CreateMutex(nullptr, FALSE, nullptr)) {}
+    FORCEINLINE ~ZMutex() { CloseHandle(handle_); }
 
-    __forceinline Void lock() { WaitForSingleObject(handle_, INFINITE); }   
-    __forceinline Void unlock() { ReleaseMutex(handle_); }
+    FORCEINLINE Void lock() { WaitForSingleObject(handle_, INFINITE); }   
+    FORCEINLINE Void unlock() { ReleaseMutex(handle_); }
 
 private:
     Handle handle_;

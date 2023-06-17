@@ -27,8 +27,7 @@ CORE_DLLAPI const Address ApplyMemory(const MemoryType size, const Address addre
         *reinterpret_cast<MemoryPoolBase**>(reinterpret_cast<AddressType>(address) - sizeof(Address));
     //small memory piece
     if (size <= SmallMemoryPieceListMemoryPool::memory_piece_memory_max_size()) {
-        return SmallMemoryPieceListMemoryPool::ApplyMemory(
-            size, static_cast<SmallMemoryPieceListMemoryPool*>(owner_memory_pool_ptr));
+        return SmallMemoryPieceListMemoryPool::ApplyMemory(size);
     }
     else {
         //TODO(Johnasd4):Apply memory from other memory pools.

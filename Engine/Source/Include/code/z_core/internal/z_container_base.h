@@ -20,6 +20,10 @@ namespace internal {
 */
 template<typename ObjectType, Bool kIfInitializeObject>
 class ZContainerBase : public ZObject {
+private:
+    static constexpr IndexType kDefaultCapacity = 10;
+    static constexpr Float32 kAutoExtendMulFactor = 1.2F;
+
 protected:
     using SuperType = ZObject;
 
@@ -118,9 +122,6 @@ protected:
     FORCEINLINE Void AutoExtend() noexcept;
 
 private:
-    static constexpr IndexType kDefaultCapacity = 10;
-    static constexpr Float32 kAutoExtendMulFactor = 1.2F;
-
     /*
         Only extends the memory piece's memory that the container uses. Do
         nothing to the caontainer.

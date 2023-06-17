@@ -41,5 +41,8 @@
     <ClInclude Include="code\memory_pool\z_memory_pool_thread_safe_base.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="code\memory_pool\z_memory_piece_base.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
