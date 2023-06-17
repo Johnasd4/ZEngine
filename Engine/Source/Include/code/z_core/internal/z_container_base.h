@@ -20,6 +20,10 @@ namespace internal {
 */
 template<typename ObjectType, Bool kIfInitializeObject>
 class ZContainerBase : public ZObject {
+private:
+    static constexpr IndexType kDefaultCapacity = 10;
+    static constexpr Float32 kAutoExtendMulFactor = 1.2F;
+
 protected:
     using SuperType = ZObject;
 
@@ -35,18 +39,18 @@ protected:
     ZContainerBase& operator=(const ZContainerBase& container);
     ZContainerBase& operator=(ZContainerBase&& container);
 
-    __forceinline ObjectType& operator()(const IndexType index) { return data_ptr_[index]; }
-    __forceinline const ObjectType& operator()(const IndexType index) const { return data_ptr_[index]; }
+    FORCEINLINE ObjectType& operator()(const IndexType index) { return data_ptr_[index]; }
+    FORCEINLINE const ObjectType& operator()(const IndexType index) const { return data_ptr_[index]; }
 
     ~ZContainerBase() noexcept;
 
-    __forceinline ObjectType* data_ptr() const { return data_ptr_; }
-    __forceinline ObjectType* end_data_ptr() const { return end_data_ptr_; }
+    FORCEINLINE ObjectType* data_ptr() const { return data_ptr_; }
+    FORCEINLINE ObjectType* end_data_ptr() const { return end_data_ptr_; }
 
-    __forceinline const IndexType size() const { return size_; }
-    __forceinline const IndexType capacity() const { return capacity_; }
+    FORCEINLINE const IndexType size() const { return size_; }
+    FORCEINLINE const IndexType capacity() const { return capacity_; }
 
-    __forceinline Void set_end_data_ptr(ObjectType* end_data_ptr) { end_data_ptr_ = end_data_ptr; }
+    FORCEINLINE Void set_end_data_ptr(ObjectType* end_data_ptr) { end_data_ptr_ = end_data_ptr; }
 
     /*
         Change the size to a cetain size. This will auto extend the container
@@ -64,9 +68,9 @@ protected:
     */
     Void set_capacity(const IndexType capacity) noexcept;
 
-    __forceinline const Bool IfEmpty() { return size_ == 0; }
+    FORCEINLINE const Bool IfEmpty() { return size_ == 0; }
 
-    __forceinline Void Clear() { 
+    FORCEINLINE Void Clear() { 
         size_ = 0; 
         end_data_ptr_ = data_ptr_;
     }
@@ -74,27 +78,27 @@ protected:
     /*
         Creates an object at the certain index. Will Call Constrctor if needed.
     */
-    __forceinline Void CreateObjectAtIndex(const IndexType index);
+    FORCEINLINE Void CreateObjectAtIndex(const IndexType index);
     /*
         Copies an object at the certain index. Will Call Constrctor if needed.
     */
-    __forceinline Void CreateAndCopyObjectAtIndex(const IndexType index, const ObjectType& object);
+    FORCEINLINE Void CreateAndCopyObjectAtIndex(const IndexType index, const ObjectType& object);
     /*
         Destroys an object at the certain index. Will Call Destrctor if needed.
     */
-    __forceinline Void DestroyObjectAtIndex(const IndexType index);
+    FORCEINLINE Void DestroyObjectAtIndex(const IndexType index);
     /*
         Initialize the address memory by the num given. Will call the constructor
         if this object class's member kIfInitializeObject is
         true.
     */
-    __forceinline Void CreateObjects(ObjectType* start_ptr, const IndexType create_object_num);
+    FORCEINLINE Void CreateObjects(ObjectType* start_ptr, const IndexType create_object_num);
     /*
         Initialize the address by the num given. Will call the copy constructor
         if this object class's member kIfInitializeObject is
         true. Otherwise, will use memcpy instead.
     */
-    __forceinline Void CreateAndCopyObjects(ObjectType* dst_ptr, const ObjectType* src_ptr, 
+    FORCEINLINE Void CreateAndCopyObjects(ObjectType* dst_ptr, const ObjectType* src_ptr, 
                                             const IndexType copy_object_num);
     /*
         Copy objects by the address given.Will call the copy assignment operator
@@ -103,24 +107,21 @@ protected:
         will call the copy constrctor instrad, make sure the memory is big
         enough before calling this function. Otherwise, will use memcpy instead.
     */
-    __forceinline Void CopyObjects(ObjectType* dst_ptr, const ObjectType* src_ptr, const IndexType copy_object_num);
+    FORCEINLINE Void CopyObjects(ObjectType* dst_ptr, const ObjectType* src_ptr, const IndexType copy_object_num);
     /*
         Destroy the objects by the num given, starts at the address given. Will
         call the destrctor if this object class's member
         kIfInitializeObject is true.
     */
-    __forceinline Void DestroyObjects(ObjectType* start_ptr, const IndexType destroy_object_num);
+    FORCEINLINE Void DestroyObjects(ObjectType* start_ptr, const IndexType destroy_object_num);
 
     /*
         Extends the capacity of the container. Will extend more the the capacity
         needed.
     */
-    __forceinline Void AutoExtend() noexcept;
+    FORCEINLINE Void AutoExtend() noexcept;
 
 private:
-    static constexpr IndexType kDefaultCapacity = 10;
-    static constexpr Float32 kAutoExtendMulFactor = 1.2F;
-
     /*
         Only extends the memory piece's memory that the container uses. Do
         nothing to the caontainer.
@@ -130,7 +131,7 @@ private:
     /*
         Called when the container is moved.
     */
-    __forceinline Void MoveDestroy();
+    FORCEINLINE Void MoveDestroy();
 
     ObjectType* data_ptr_;
     ObjectType* end_data_ptr_;
@@ -244,7 +245,7 @@ Void ZContainerBase<ObjectType, kIfInitializeObject>::set_capacity(const IndexTy
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
-__forceinline Void ZContainerBase<ObjectType, kIfInitializeObject>::CreateObjectAtIndex(const IndexType index) {
+FORCEINLINE Void ZContainerBase<ObjectType, kIfInitializeObject>::CreateObjectAtIndex(const IndexType index) {
     //The object class has member kIfInitializeObject.
     if constexpr (kIfInitializeObject) {
         new(reinterpret_cast<Address>(&((*this)(index)))) ObjectType();
@@ -252,7 +253,7 @@ __forceinline Void ZContainerBase<ObjectType, kIfInitializeObject>::CreateObject
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
-__forceinline Void ZContainerBase<ObjectType, kIfInitializeObject>::CreateAndCopyObjectAtIndex(
+FORCEINLINE Void ZContainerBase<ObjectType, kIfInitializeObject>::CreateAndCopyObjectAtIndex(
         const IndexType index, const ObjectType& object) {
     //The object class has member kIfInitializeObject.
     if constexpr (kIfInitializeObject) {
@@ -264,7 +265,7 @@ __forceinline Void ZContainerBase<ObjectType, kIfInitializeObject>::CreateAndCop
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
-__forceinline Void ZContainerBase<ObjectType, kIfInitializeObject>::DestroyObjectAtIndex(const IndexType index) {
+FORCEINLINE Void ZContainerBase<ObjectType, kIfInitializeObject>::DestroyObjectAtIndex(const IndexType index) {
     //The object class has member kIfInitializeObject.
     if constexpr (kIfInitializeObject) {
         (*this)(index).~ObjectType();
@@ -272,7 +273,7 @@ __forceinline Void ZContainerBase<ObjectType, kIfInitializeObject>::DestroyObjec
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
-__forceinline Void ZContainerBase<ObjectType, kIfInitializeObject>::CreateObjects(ObjectType* start_ptr, 
+FORCEINLINE Void ZContainerBase<ObjectType, kIfInitializeObject>::CreateObjects(ObjectType* start_ptr, 
                                                                                   const IndexType create_object_num) {
     //The object class has member kIfInitializeObject.
     if constexpr (kIfInitializeObject) {
@@ -281,7 +282,7 @@ __forceinline Void ZContainerBase<ObjectType, kIfInitializeObject>::CreateObject
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
-__forceinline Void ZContainerBase<ObjectType, kIfInitializeObject>::CreateAndCopyObjects(
+FORCEINLINE Void ZContainerBase<ObjectType, kIfInitializeObject>::CreateAndCopyObjects(
         ObjectType* dst_ptr, const ObjectType* src_ptr, const IndexType copy_object_num) {
     //The object class has member kIfInitializeObject.
     if constexpr (kIfInitializeObject) {
@@ -299,7 +300,7 @@ __forceinline Void ZContainerBase<ObjectType, kIfInitializeObject>::CreateAndCop
     }
 }
 template<typename ObjectType, Bool kIfInitializeObject>
-__forceinline Void ZContainerBase<ObjectType, kIfInitializeObject>::CopyObjects(
+FORCEINLINE Void ZContainerBase<ObjectType, kIfInitializeObject>::CopyObjects(
         ObjectType* dst_ptr, const ObjectType* src_ptr, const IndexType copy_object_num) {
     //The object class has member kIfInitializeObject.
     if constexpr (kIfInitializeObject) {
@@ -332,7 +333,7 @@ __forceinline Void ZContainerBase<ObjectType, kIfInitializeObject>::CopyObjects(
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
-__forceinline Void ZContainerBase<ObjectType, kIfInitializeObject>::DestroyObjects(
+FORCEINLINE Void ZContainerBase<ObjectType, kIfInitializeObject>::DestroyObjects(
         ObjectType* start_ptr, const IndexType destroy_object_num) {
     //The object class has member kIfInitializeObject.
     if constexpr (kIfInitializeObject) {
@@ -344,7 +345,7 @@ __forceinline Void ZContainerBase<ObjectType, kIfInitializeObject>::DestroyObjec
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
-__forceinline Void ZContainerBase<ObjectType, kIfInitializeObject>::AutoExtend() noexcept {
+FORCEINLINE Void ZContainerBase<ObjectType, kIfInitializeObject>::AutoExtend() noexcept {
     Float32 temp_capacity = static_cast<Float32>(capacity_);
     do {
         temp_capacity *= kAutoExtendMulFactor;
@@ -367,7 +368,7 @@ Void ZContainerBase<ObjectType, kIfInitializeObject>::ExtendMemory(const MemoryT
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
-__forceinline Void ZContainerBase<ObjectType, kIfInitializeObject>::MoveDestroy() {
+FORCEINLINE Void ZContainerBase<ObjectType, kIfInitializeObject>::MoveDestroy() {
     data_ptr_ = nullptr;
     end_data_ptr_ = nullptr;
     capacity_ = 0;

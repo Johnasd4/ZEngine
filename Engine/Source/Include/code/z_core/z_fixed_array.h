@@ -17,7 +17,7 @@ class ZFixedArray : public ZObject {
 public:
 
 #pragma warning(disable : 26495)
-    __forceinline constexpr ZFixedArray() :SuperType() {}
+    FORCEINLINE constexpr ZFixedArray() :SuperType() {}
 #pragma warning(default : 26495)
     ZFixedArray(const ZFixedArray& array) noexcept;
     ZFixedArray(ZFixedArray&& array) noexcept;
@@ -41,15 +41,15 @@ public:
         constexpr ZFixedArray<Int32, 10> test(init_function);
     */
     template<typename InitFunction, typename... ArgsType>
-    __forceinline constexpr ZFixedArray(InitFunction&& init_function, ArgsType&&... args) :SuperType() {
+    FORCEINLINE constexpr ZFixedArray(InitFunction&& init_function, ArgsType&&... args) :SuperType() {
         init_function(this, std::forward<ArgsType>(args)...);
     }
 
     ZFixedArray& operator=(const ZFixedArray& array) noexcept;
     ZFixedArray& operator=(ZFixedArray&& array) noexcept;
 
-    __forceinline constexpr ObjectType& operator()(const IndexType index) { return this->data_[index]; }
-    __forceinline constexpr const ObjectType& operator()(const IndexType index) const { return this->data_[index]; }
+    FORCEINLINE constexpr ObjectType& operator()(const IndexType index) { return this->data_[index]; }
+    FORCEINLINE constexpr const ObjectType& operator()(const IndexType index) const { return this->data_[index]; }
 
     static constexpr const IndexType size() { return kCapacity; }
     constexpr ObjectType* data_ptr() { return data_; }

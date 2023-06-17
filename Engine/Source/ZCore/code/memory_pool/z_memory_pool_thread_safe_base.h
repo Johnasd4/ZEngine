@@ -15,10 +15,10 @@ namespace memory_pool {
     - kIsThreadSafe: thread safe or not.  
 */
 template<Bool kIsThreadSafe>
-class ZMemoryPoolThreadSafeBase{
+class ZMemoryPoolThreadSafeBase {
 protected:
-    __forceinline const Void lock() { if constexpr (kIsThreadSafe) { mutex_.lock(); } }
-    __forceinline const Void unlock() { if constexpr (kIsThreadSafe) { mutex_.unlock(); } }
+    FORCEINLINE const Void lock() { if constexpr (kIsThreadSafe) { mutex_.lock(); } }
+    FORCEINLINE const Void unlock() { if constexpr (kIsThreadSafe) { mutex_.unlock(); } }
 
 private:
     ZMutex mutex_;

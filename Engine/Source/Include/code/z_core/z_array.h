@@ -15,26 +15,26 @@ class ZArray :public internal::ZContainerBase<ObjectType, kIfInitializeObject> {
 public:
     class Iterator : public internal::IteratorBase<ObjectType> {
     public:
-        __forceinline Iterator(const ObjectType* data_ptr) :SuperType(data_ptr) {} 
+        FORCEINLINE Iterator(const ObjectType* data_ptr) :SuperType(data_ptr) {} 
 
-        __forceinline Iterator& operator+(const IndexType data_num) {
+        FORCEINLINE Iterator& operator+(const IndexType data_num) {
             SuperType::set_data_ptr(SuperType::data_ptr() + data_num);
             return *this;
         }
-        __forceinline Iterator& operator-(const IndexType data_num) { 
+        FORCEINLINE Iterator& operator-(const IndexType data_num) { 
             SuperType::set_data_ptr(SuperType::data_ptr() - data_num);
             return *this;
         }
-        __forceinline Iterator& operator++() {
+        FORCEINLINE Iterator& operator++() {
             SuperType::set_data_ptr(SuperType::data_ptr() + 1);
             return *this;
         }
-        __forceinline Iterator& operator--() {
+        FORCEINLINE Iterator& operator--() {
             SuperType::set_data_ptr(SuperType::data_ptr() - 1);
             return *this;
         }
 
-        __forceinline Iterator& operator-(const Iterator iterator) {
+        FORCEINLINE Iterator& operator-(const Iterator iterator) {
             return SuperType::data_ptr() - iterator.SuperType::data_ptr();
         }
 
@@ -43,10 +43,10 @@ public:
     };
     class ConstIterator : public Iterator {
     public:
-        __forceinline ConstIterator(const ObjectType* data_ptr) :SuperType(data_ptr) {}
+        FORCEINLINE ConstIterator(const ObjectType* data_ptr) :SuperType(data_ptr) {}
 
-        __forceinline const ObjectType& operator*() { return SuperType::SuperType::operator*(); }
-        __forceinline const ObjectType* operator->() { return SuperType::SuperType::operator->(); }
+        FORCEINLINE const ObjectType& operator*() { return SuperType::SuperType::operator*(); }
+        FORCEINLINE const ObjectType* operator->() { return SuperType::SuperType::operator->(); }
 
     protected:
         using SuperType = Iterator;
@@ -54,26 +54,26 @@ public:
 
     class ReverseIterator : public internal::IteratorBase<ObjectType> {
     public:
-        __forceinline ReverseIterator(const ObjectType* data_ptr) :SuperType(data_ptr) {}
+        FORCEINLINE ReverseIterator(const ObjectType* data_ptr) :SuperType(data_ptr) {}
 
-        __forceinline ReverseIterator& operator+(const IndexType data_num) {
+        FORCEINLINE ReverseIterator& operator+(const IndexType data_num) {
             SuperType::set_data_ptr(SuperType::data_ptr() - data_num);
             return *this;
         }
-        __forceinline ReverseIterator& operator-(const IndexType data_num) {
+        FORCEINLINE ReverseIterator& operator-(const IndexType data_num) {
             SuperType::set_data_ptr(SuperType::data_ptr() + data_num);
             return *this;
         }
-        __forceinline ReverseIterator& operator++() {
+        FORCEINLINE ReverseIterator& operator++() {
             SuperType::set_data_ptr(SuperType::data_ptr() - 1);
             return *this;
         }
-        __forceinline ReverseIterator& operator--() {
+        FORCEINLINE ReverseIterator& operator--() {
             SuperType::set_data_ptr(SuperType::data_ptr() + 1);
             return *this;
         }
 
-        __forceinline Iterator& operator-(const Iterator iterator) {
+        FORCEINLINE Iterator& operator-(const Iterator iterator) {
             return iterator.SuperType::data_ptr() - SuperType::data_ptr();
         }
 
@@ -82,57 +82,57 @@ public:
     };
     class ConstReverseIterator : public ReverseIterator {
     public:
-        __forceinline ConstReverseIterator(const ObjectType* data_ptr) :SuperType(data_ptr) {}
+        FORCEINLINE ConstReverseIterator(const ObjectType* data_ptr) :SuperType(data_ptr) {}
 
-        __forceinline const ObjectType& operator*() { return SuperType::SuperType::operator*(); }
-        __forceinline const ObjectType* operator->() { return SuperType::SuperType::operator->(); }
+        FORCEINLINE const ObjectType& operator*() { return SuperType::SuperType::operator*(); }
+        FORCEINLINE const ObjectType* operator->() { return SuperType::SuperType::operator->(); }
 
     protected:
         using SuperType = ReverseIterator;
     };
 
-    __forceinline ZArray() : SuperType() {}
-    __forceinline ZArray(const IndexType init_capacity) : SuperType(init_capacity) {}
-    __forceinline ZArray(const ZArray& array) : SuperType(array) {}
-    __forceinline ZArray(ZArray&& array) : SuperType(std::forward<ZArray>(array)) {}
+    FORCEINLINE ZArray() : SuperType() {}
+    FORCEINLINE ZArray(const IndexType init_capacity) : SuperType(init_capacity) {}
+    FORCEINLINE ZArray(const ZArray& array) : SuperType(array) {}
+    FORCEINLINE ZArray(ZArray&& array) : SuperType(std::forward<ZArray>(array)) {}
 
-    __forceinline ZArray& operator=(const ZArray& array) { 
+    FORCEINLINE ZArray& operator=(const ZArray& array) { 
         return reinterpret_cast<ZArray&>(SuperType::operator=(array));
     }
-    __forceinline ZArray& operator=(ZArray&& array) { 
+    FORCEINLINE ZArray& operator=(ZArray&& array) { 
         return reinterpret_cast<ZArray&>(SuperType::operator=(std::forward<ZArray>(array)));
     }
 
-    __forceinline ObjectType& operator()(const IndexType index) { return SuperType::operator()(index); }
-    __forceinline const ObjectType& operator()(const IndexType index) const { return SuperType::operator()(index); }
+    FORCEINLINE ObjectType& operator()(const IndexType index) { return SuperType::operator()(index); }
+    FORCEINLINE const ObjectType& operator()(const IndexType index) const { return SuperType::operator()(index); }
 
-    __forceinline ~ZArray() {}
+    FORCEINLINE ~ZArray() {}
 
     /*
         The iterator funcions.
     */
-    __forceinline Iterator Begin() { return Iterator(SuperType::data_ptr()); }
-    __forceinline ConstIterator ConstBegin() const { return ConstIterator(SuperType::data_ptr()); }
-    __forceinline ReverseIterator ReverseBegin() { return ReverseIterator(SuperType::end_data_ptr() - 1); }
-    __forceinline ConstReverseIterator ConstReverseBegin() const {
+    FORCEINLINE Iterator Begin() { return Iterator(SuperType::data_ptr()); }
+    FORCEINLINE ConstIterator ConstBegin() const { return ConstIterator(SuperType::data_ptr()); }
+    FORCEINLINE ReverseIterator ReverseBegin() { return ReverseIterator(SuperType::end_data_ptr() - 1); }
+    FORCEINLINE ConstReverseIterator ConstReverseBegin() const {
         return ConstReverseIterator(SuperType::end_data_ptr() - 1);
     }
-    __forceinline Iterator End() { return Iterator(SuperType::end_data_ptr()); }
-    __forceinline ConstIterator ConstEnd() const { return ConstIterator(SuperType::end_data_ptr()); }
-    __forceinline ReverseIterator ReverseEnd() { return ReverseIterator(SuperType::data_ptr() - 1); }
-    __forceinline ConstReverseIterator ConstReverseEnd() const {
+    FORCEINLINE Iterator End() { return Iterator(SuperType::end_data_ptr()); }
+    FORCEINLINE ConstIterator ConstEnd() const { return ConstIterator(SuperType::end_data_ptr()); }
+    FORCEINLINE ReverseIterator ReverseEnd() { return ReverseIterator(SuperType::data_ptr() - 1); }
+    FORCEINLINE ConstReverseIterator ConstReverseEnd() const {
         return ConstReverseIterator(SuperType::data_ptr() - 1);
     }
 
-    __forceinline const IndexType size() const { return SuperType::size(); }
-    __forceinline const IndexType capacity() const { return SuperType::capacity(); }
-    __forceinline Void set_size(const IndexType need_size) { 
+    FORCEINLINE const IndexType size() const { return SuperType::size(); }
+    FORCEINLINE const IndexType capacity() const { return SuperType::capacity(); }
+    FORCEINLINE Void set_size(const IndexType need_size) { 
         SuperType::set_size(need_size); 
         SuperType::set_end_data_ptr(SuperType::data_ptr() + need_size);
     }
-    __forceinline Void set_capacity(const IndexType need_capacity) { SuperType::set_capacity(need_capacity); }
+    FORCEINLINE Void set_capacity(const IndexType need_capacity) { SuperType::set_capacity(need_capacity); }
 
-    __forceinline const Bool IfEmpty() { return SuperType::IfEmpty(); }
+    FORCEINLINE const Bool IfEmpty() { return SuperType::IfEmpty(); }
 
     /*
         Returns false if the array is empty.
@@ -150,7 +150,7 @@ public:
     */
     const Bool Remove(const IndexType remove_index) noexcept;
 
-    __forceinline Void Clear() { SuperType::Clear(); }
+    FORCEINLINE Void Clear() { SuperType::Clear(); }
 
 protected:
     using SuperType = internal::ZContainerBase<ObjectType, kIfInitializeObject>;

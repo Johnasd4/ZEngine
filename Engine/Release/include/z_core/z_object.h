@@ -18,10 +18,10 @@ public:
     /*
         Overwrite the new and delete operator to use the memory from the memorypool.
     */
-    __forceinline static void* operator new(size_t size) {
+    FORCEINLINE static void* operator new(size_t size) {
         return memory_pool::ApplyMemory(static_cast<MemoryType>(size));
     }
-    __forceinline static void operator delete(void* address) {
+    FORCEINLINE static void operator delete(void* address) {
         if (address == nullptr) {
             return;
         }
@@ -29,24 +29,24 @@ public:
     }
 
 protected:
-    __forceinline constexpr ZObject() {}
-    __forceinline constexpr ZObject(const ZObject& object) {}
-    __forceinline constexpr ZObject(ZObject&& object) { object.MoveDestroy(); }
+    FORCEINLINE constexpr ZObject() {}
+    FORCEINLINE constexpr ZObject(const ZObject& object) {}
+    FORCEINLINE constexpr ZObject(ZObject&& object) { object.MoveDestroy(); }
 
-    __forceinline constexpr const ZObject& operator=(const ZObject& object) { return *this; }
-    __forceinline constexpr const ZObject& operator=(ZObject&& object) {
+    FORCEINLINE constexpr const ZObject& operator=(const ZObject& object) { return *this; }
+    FORCEINLINE constexpr const ZObject& operator=(ZObject&& object) {
         object.MoveDestroy();
         return *this;
     }
 
-    __forceinline constexpr ~ZObject() {}
+    FORCEINLINE constexpr ~ZObject() {}
 
 private:
 
     /*
         Reset the member to null when moved.
     */
-    __forceinline constexpr Void MoveDestroy() {}
+    FORCEINLINE constexpr Void MoveDestroy() {}
 };
 
 }//zengine

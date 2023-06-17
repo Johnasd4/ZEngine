@@ -101,9 +101,9 @@ using Handle = void*;
 #pragma region basic union
 
 union Size32Type {
-    __forceinline constexpr Size32Type(const Int32 int_32) : int_32(int_32) {}
-    __forceinline constexpr Size32Type(const UInt32 u_int_32) : u_int_32(u_int_32) {}
-    __forceinline constexpr Size32Type(const Float32 float_32) : float_32(float_32) {}
+    FORCEINLINE constexpr Size32Type(const Int32 int_32) : int_32(int_32) {}
+    FORCEINLINE constexpr Size32Type(const UInt32 u_int_32) : u_int_32(u_int_32) {}
+    FORCEINLINE constexpr Size32Type(const Float32 float_32) : float_32(float_32) {}
 
     Int32 int_32;
     UInt32 u_int_32;
@@ -111,9 +111,9 @@ union Size32Type {
 };
 
 union Size64Type {
-    __forceinline constexpr Size64Type(const Int64 int_64) : int_64(int_64) {}
-    __forceinline constexpr Size64Type(const UInt64 u_int_64) : u_int_64(u_int_64) {}
-    __forceinline constexpr Size64Type(const Float64 float_64) : float_64(float_64) {}
+    FORCEINLINE constexpr Size64Type(const Int64 int_64) : int_64(int_64) {}
+    FORCEINLINE constexpr Size64Type(const UInt64 u_int_64) : u_int_64(u_int_64) {}
+    FORCEINLINE constexpr Size64Type(const Float64 float_64) : float_64(float_64) {}
 
     Int64 int_64;
     UInt64 u_int_64;
@@ -125,7 +125,7 @@ union Size64Type {
 #pragma region basic function
 
 template<typename ObjectType>
-__forceinline constexpr Void Swap(ObjectType* object_1, ObjectType* object_2) {
+FORCEINLINE constexpr Void Swap(ObjectType* object_1, ObjectType* object_2) {
     ObjectType temp_object = std::move(*object_1);
     *object_1 = std::move(*object_2);
     *object_2 = std::move(temp_object);

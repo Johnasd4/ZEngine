@@ -45,7 +45,7 @@ constexpr UInt32 kFloat32InfNegativeBinary = 0Xff800000U;
 */
 template<typename NumberType>
 requires std::is_floating_point_v<NumberType>
-__forceinline constexpr const Int32 FloatMantissa(const NumberType number) {
+FORCEINLINE constexpr const Int32 FloatMantissa(const NumberType number) {
     if constexpr (std::is_same_v<NumberType, Float64>) {
         Size64Type temp_number(number);
         return 
@@ -67,7 +67,7 @@ __forceinline constexpr const Int32 FloatMantissa(const NumberType number) {
 */
 template<typename NumberType>
 requires std::is_floating_point_v<NumberType>
-__forceinline constexpr const NumberType FloatExponent(const NumberType number) {
+FORCEINLINE constexpr const NumberType FloatExponent(const NumberType number) {
     if constexpr (std::is_same_v<NumberType, Float64>) {
         Size64Type temp_number(number);
         if (temp_number.int_64 != 0) {
@@ -92,7 +92,7 @@ __forceinline constexpr const NumberType FloatExponent(const NumberType number) 
 */
 template<typename NumberType>
 requires std::is_floating_point_v<NumberType>
-__forceinline constexpr const NumberType NaN() {
+FORCEINLINE constexpr const NumberType NaN() {
     if constexpr (std::is_same_v<NumberType, Float64>) {
         Size64Type temp_number(internal::kFloat64NaNBinary);
         return temp_number.float_64;
@@ -108,7 +108,7 @@ __forceinline constexpr const NumberType NaN() {
 */
 template<typename NumberType>
 requires std::is_floating_point_v<NumberType>
-__forceinline constexpr const NumberType InfP() {
+FORCEINLINE constexpr const NumberType InfP() {
     if constexpr (std::is_same_v<NumberType, Float64>) {
         Size64Type temp_number(internal::kFloat64InfPositiveBinary);
         return temp_number.float_64;
@@ -124,7 +124,7 @@ __forceinline constexpr const NumberType InfP() {
 */
 template<typename NumberType>
 requires std::is_floating_point_v<NumberType>
-__forceinline constexpr const NumberType InfN() {
+FORCEINLINE constexpr const NumberType InfN() {
     if constexpr (std::is_same_v<NumberType, Float64>) {
         Size64Type temp_number(internal::kFloat64InfNegativeBinary);
         return temp_number.float_64;
@@ -140,7 +140,7 @@ __forceinline constexpr const NumberType InfN() {
 */
 template<typename NumberType>
 requires std::is_floating_point_v<NumberType>
-__forceinline constexpr const Bool IsValid(const NumberType number) {
+FORCEINLINE constexpr const Bool IsValid(const NumberType number) {
     if constexpr (std::is_same_v<NumberType, Float64>) {
         Size64Type temp_number(number);
         return (temp_number.u_int_64 & internal::kFloat64MantissaMask) != internal::kFloat64MantissaInvalidValueBinary;
@@ -156,7 +156,7 @@ __forceinline constexpr const Bool IsValid(const NumberType number) {
 */
 template<typename NumberType>
 requires std::is_floating_point_v<NumberType>
-__forceinline constexpr const Bool IsInvalid(const NumberType number) {
+FORCEINLINE constexpr const Bool IsInvalid(const NumberType number) {
     if constexpr (std::is_same_v<NumberType, Float64>) {
         Size64Type temp_number(number);
         return (temp_number.u_int_64 & internal::kFloat64MantissaMask) == internal::kFloat64MantissaInvalidValueBinary;
@@ -172,7 +172,7 @@ __forceinline constexpr const Bool IsInvalid(const NumberType number) {
 */
 template<typename NumberType>
 requires std::is_floating_point_v<NumberType>
-__forceinline constexpr const Bool IsNaN(const NumberType number) {
+FORCEINLINE constexpr const Bool IsNaN(const NumberType number) {
     if constexpr (std::is_same_v<NumberType, Float64>) {
         Size64Type temp_number(number);
         return
@@ -194,7 +194,7 @@ __forceinline constexpr const Bool IsNaN(const NumberType number) {
 */
 template<typename NumberType>
 requires std::is_floating_point_v<NumberType>
-__forceinline constexpr const Bool IsInf(const NumberType number) {
+FORCEINLINE constexpr const Bool IsInf(const NumberType number) {
     return number == InfP<NumberType>() || number == InfN<NumberType>();
 }
 
@@ -203,7 +203,7 @@ __forceinline constexpr const Bool IsInf(const NumberType number) {
 */
 template<typename NumberType>
 requires std::is_floating_point_v<NumberType>
-__forceinline constexpr const Bool IsInfP(const NumberType number) {
+FORCEINLINE constexpr const Bool IsInfP(const NumberType number) {
     return number == InfP<NumberType>();
 }
 
@@ -212,7 +212,7 @@ __forceinline constexpr const Bool IsInfP(const NumberType number) {
 */
 template<typename NumberType>
 requires std::is_floating_point_v<NumberType>
-__forceinline constexpr const Bool IsInfN(const NumberType number) {
+FORCEINLINE constexpr const Bool IsInfN(const NumberType number) {
     return number == InfN<NumberType>();
 }
 
@@ -222,7 +222,7 @@ __forceinline constexpr const Bool IsInfN(const NumberType number) {
 */
 template<typename NumberType>
 requires std::is_arithmetic_v<NumberType>
-__forceinline constexpr NumberType Sgn2(const NumberType number) {
+FORCEINLINE constexpr NumberType Sgn2(const NumberType number) {
     if constexpr (std::is_unsigned_v<NumberType>) {
         return static_cast<NumberType>(1);
     }
@@ -238,7 +238,7 @@ __forceinline constexpr NumberType Sgn2(const NumberType number) {
 */
 template<typename NumberType>
 requires std::is_arithmetic_v<NumberType>
-__forceinline constexpr NumberType Sgn3(const NumberType number) {
+FORCEINLINE constexpr NumberType Sgn3(const NumberType number) {
     if constexpr (std::is_unsigned_v<NumberType>) {
         return number == static_cast<NumberType>(0) ? static_cast<NumberType>(0) : static_cast<NumberType>(1);
     }
@@ -252,7 +252,7 @@ __forceinline constexpr NumberType Sgn3(const NumberType number) {
 */
 template<typename NumberType>
 requires std::is_arithmetic_v<NumberType>
-__forceinline constexpr NumberType Abs(const NumberType number) {
+FORCEINLINE constexpr NumberType Abs(const NumberType number) {
     if constexpr (std::is_unsigned_v<NumberType>) {
         return number;
     }
@@ -263,13 +263,13 @@ __forceinline constexpr NumberType Abs(const NumberType number) {
 
 template<typename NumberType>
 requires std::is_arithmetic_v<NumberType>
-__forceinline constexpr const NumberType Max(const NumberType number_1, const NumberType number_2) {
+FORCEINLINE constexpr const NumberType Max(const NumberType number_1, const NumberType number_2) {
     return number_1 > number_2 ? number_1 : number_2;
 }
 
 template<typename NumberType>
 requires std::is_arithmetic_v<NumberType>
-__forceinline constexpr const NumberType Min(const NumberType number_1, const NumberType number_2) {
+FORCEINLINE constexpr const NumberType Min(const NumberType number_1, const NumberType number_2) {
     return number_1 < number_2 ? number_1 : number_2;
 }
 
@@ -315,7 +315,7 @@ constexpr IndexType kFactorialFloat32MaxIndex = 34;
 */
 template<typename NumberType>
 requires std::is_arithmetic_v<NumberType>
-__forceinline constexpr NumberType Factorial(const IndexType order) {
+FORCEINLINE constexpr NumberType Factorial(const IndexType order) {
     if constexpr (std::is_same_v<NumberType, Float64>) {
         if (order > internal::kFactorialFloat64MaxIndex) {
             return InfP<Float64>();
@@ -340,9 +340,9 @@ __forceinline constexpr NumberType Factorial(const IndexType order) {
 */
 template<typename NumberType>
 requires std::is_floating_point_v<NumberType>
-__forceinline constexpr NumberType FactorialReciprocal(const IndexType order) {
+FORCEINLINE constexpr NumberType FactorialReciprocal(const IndexType order) {
     if constexpr (std::is_same_v<NumberType, Float64>) {
-        if (order > internal::kFactorialFloat64MaxIndex) {
+        if (order > internal::kFactorialFloat64MaxIndex) { 
             return static_cast<NumberType>(0);
         }
     }
@@ -472,7 +472,7 @@ constexpr Float64 kCosSearchOffset = kHalfPI64;
 */
 template<typename NumberType>
 requires std::is_floating_point_v<NumberType>
-__forceinline constexpr const NumberType Sin(const NumberType radian) {
+FORCEINLINE constexpr const NumberType Sin(const NumberType radian) {
     return static_cast<NumberType>(
         internal::kSinCosTable.LoopLinearSearchTable(radian + static_cast<NumberType>(internal::kSinSearchOffset)));
 }
@@ -482,7 +482,7 @@ __forceinline constexpr const NumberType Sin(const NumberType radian) {
 */
 template<typename NumberType>
 requires std::is_floating_point_v<NumberType>
-__forceinline constexpr const NumberType Cos(const NumberType radian) {
+FORCEINLINE constexpr const NumberType Cos(const NumberType radian) {
     return static_cast<NumberType>(
         internal::kSinCosTable.LoopLinearSearchTable(radian + static_cast<NumberType>(internal::kCosSearchOffset)));
 }
@@ -492,7 +492,7 @@ __forceinline constexpr const NumberType Cos(const NumberType radian) {
 */
 template<typename NumberType>
 requires std::is_floating_point_v<NumberType>
-__forceinline constexpr const NumberType SinF(const NumberType radian) {
+FORCEINLINE constexpr const NumberType SinF(const NumberType radian) {
     return static_cast<NumberType>(
         internal::kSinCosTable.LoopSearchTable(radian + static_cast<NumberType>(internal::kSinSearchOffset)));
 }
@@ -502,7 +502,7 @@ __forceinline constexpr const NumberType SinF(const NumberType radian) {
 */
 template<typename NumberType>
 requires std::is_floating_point_v<NumberType>
-__forceinline constexpr const NumberType CosF(const NumberType radian) {
+FORCEINLINE constexpr const NumberType CosF(const NumberType radian) {
     return static_cast<NumberType>(
         internal::kSinCosTable.LoopSearchTable(radian + static_cast<NumberType>(internal::kCosSearchOffset)));
 }
