@@ -38,7 +38,7 @@ constexpr ZLookupTable<IndexType, kButterflyTransformTableSize> kButterflyTransf
         });
 
 template<typename NumberType, Bool kIsFFT>
-static FORCEINLINE Void FourierFFTAndIFFTCalculate(ZArray<ZComplex<NumberType>>* ans_array_ptr,
+FORCEINLINE static Void FourierFFTAndIFFTCalculate(ZArray<ZComplex<NumberType>>* ans_array_ptr,
                                                      const ZArray<ZComplex<NumberType>>& src_array) {
     /***** Calculate the best size of the array. *****/
     IndexType index_type_temp;

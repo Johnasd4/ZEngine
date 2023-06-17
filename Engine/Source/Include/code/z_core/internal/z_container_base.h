@@ -94,13 +94,6 @@ protected:
     */
     FORCEINLINE Void CreateObjects(ObjectType* start_ptr, const IndexType create_object_num);
     /*
-        Initialize the address by the num given. Will call the copy constructor
-        if this object class's member kIfInitializeObject is
-        true. Otherwise, will use memcpy instead.
-    */
-    FORCEINLINE Void CreateAndCopyObjects(ObjectType* dst_ptr, const ObjectType* src_ptr, 
-                                            const IndexType copy_object_num);
-    /*
         Copy objects by the address given.Will call the copy assignment operator
         if this object class's member kIfInitializeObject is
         true, if the copy num is bigger then the current capacity ,the extras
@@ -108,6 +101,13 @@ protected:
         enough before calling this function. Otherwise, will use memcpy instead.
     */
     FORCEINLINE Void CopyObjects(ObjectType* dst_ptr, const ObjectType* src_ptr, const IndexType copy_object_num);
+    /*
+        Initialize the address by the num given. Will call the copy constructor
+        if this object class's member kIfInitializeObject is
+        true. Otherwise, will use memcpy instead.
+    */
+    FORCEINLINE Void CreateAndCopyObjects(ObjectType* dst_ptr, const ObjectType* src_ptr, 
+                                            const IndexType copy_object_num);
     /*
         Destroy the objects by the num given, starts at the address given. Will
         call the destrctor if this object class's member
@@ -282,26 +282,8 @@ FORCEINLINE Void ZContainerBase<ObjectType, kIfInitializeObject>::CreateObjects(
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
-FORCEINLINE Void ZContainerBase<ObjectType, kIfInitializeObject>::CreateAndCopyObjects(
-        ObjectType* dst_ptr, const ObjectType* src_ptr, const IndexType copy_object_num) {
-    //The object class has member kIfInitializeObject.
-    if constexpr (kIfInitializeObject) {
-        for (IndexType index = 0; index < copy_object_num; ++index) {
-            //Calls the copy constructor. 
-            new(reinterpret_cast<Address>(dst_ptr))
-                ObjectType(reinterpret_cast<Address>(const_cast<ObjectType*>(src_ptr)));
-            dst_ptr += 1;
-            src_ptr += 1;
-        }
-    }
-    else {
-        memcpy(reinterpret_cast<Address>(dst_ptr), reinterpret_cast<Address>(const_cast<ObjectType*>(src_ptr)),
-               static_cast<SizeType>(copy_object_num) * sizeof(ObjectType));
-    }
-}
-template<typename ObjectType, Bool kIfInitializeObject>
 FORCEINLINE Void ZContainerBase<ObjectType, kIfInitializeObject>::CopyObjects(
-        ObjectType* dst_ptr, const ObjectType* src_ptr, const IndexType copy_object_num) {
+    ObjectType* dst_ptr, const ObjectType* src_ptr, const IndexType copy_object_num) {
     //The object class has member kIfInitializeObject.
     if constexpr (kIfInitializeObject) {
         if (capacity_ >= copy_object_num) {
@@ -329,6 +311,25 @@ FORCEINLINE Void ZContainerBase<ObjectType, kIfInitializeObject>::CopyObjects(
     else {
         memcpy(reinterpret_cast<Address>(dst_ptr), reinterpret_cast<Address>(const_cast<ObjectType*>(src_ptr)),
             static_cast<SizeType>(copy_object_num * sizeof(ObjectType)));
+    }
+}
+
+template<typename ObjectType, Bool kIfInitializeObject>
+FORCEINLINE Void ZContainerBase<ObjectType, kIfInitializeObject>::CreateAndCopyObjects(
+        ObjectType* dst_ptr, const ObjectType* src_ptr, const IndexType copy_object_num) {
+    //The object class has member kIfInitializeObject.
+    if constexpr (kIfInitializeObject) {
+        for (IndexType index = 0; index < copy_object_num; ++index) {
+            //Calls the copy constructor. 
+            new(reinterpret_cast<Address>(dst_ptr))
+                ObjectType(reinterpret_cast<Address>(const_cast<ObjectType*>(src_ptr)));
+            dst_ptr += 1;
+            src_ptr += 1;
+        }
+    }
+    else {
+        memcpy(reinterpret_cast<Address>(dst_ptr), reinterpret_cast<Address>(const_cast<ObjectType*>(src_ptr)),
+               static_cast<SizeType>(copy_object_num) * sizeof(ObjectType));
     }
 }
 
