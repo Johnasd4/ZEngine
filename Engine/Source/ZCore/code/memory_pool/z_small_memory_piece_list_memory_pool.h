@@ -125,7 +125,6 @@ private:
     mutable IndexType momory_piece_applyed_num_ = 0;
     mutable IndexType momory_piece_peak_num_ = 0;
 #endif //USE_MEMORY_POOL_TEST
-    ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>* next_memory_pool_ptr_;
 };
 
 template<Bool kIsThreadSafe>
@@ -143,7 +142,7 @@ NODISCARD const Address ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::ApplyMem
     }
 #endif //USE_MEMORY_POOL_TEST
 
-    return memory_pool_array(kMemorySize2MemoryPoolTable(size)).SuperType::ApplyMemory();
+    return memory_pool_array(kMemorySize2MemoryPoolTable.At(size)).SuperType::ApplyMemory();
 }
 
 template<Bool kIsThreadSafe>

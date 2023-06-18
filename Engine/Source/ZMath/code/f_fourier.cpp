@@ -23,7 +23,7 @@ constexpr IndexType kButterflyTransformTableSize = 0x1 << (kButterflyTransformMa
 */
 constexpr ZLookupTable<IndexType, kButterflyTransformTableSize> kButterflyTransformTable =
     ZLookupTable<IndexType, kButterflyTransformTableSize>(
-        [](ZLookupTable<IndexType, kButterflyTransformTableSize>* table_ptr) {
+        [](ZFixedArray<IndexType, kButterflyTransformTableSize>* table_ptr) {
             (*table_ptr)(0) = 0;
             (*table_ptr)(1) = 0;
             for (IndexType order = 0; order < kButterflyTransformMaxOrder; ++order) {
