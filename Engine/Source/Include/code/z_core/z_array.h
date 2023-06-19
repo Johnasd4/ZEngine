@@ -139,8 +139,16 @@ public:
     /*
         Returns false if the array is empty.
     */
-    NODISCARD const Bool Pop(ObjectType* object_ptr) noexcept;
-    Void Push(const ObjectType& object) noexcept;
+    NODISCARD const Bool PopBack(ObjectType* object_ptr) noexcept;
+    Void PushBack(const ObjectType& object) noexcept;
+    /*
+        Calls the constructor with the arguements.
+        TODO(Johnasd4)
+    */
+    template<typename... ArgsType>
+    Void EmplaceBack(ArgsType&&... args) noexcept;
+
+
     Void PushEmpty(const IndexType data_num) noexcept;
 
     /*
@@ -159,7 +167,7 @@ protected:
 };
 
 template<typename ObjectType, Bool kIfInitializeObject>
-NODISCARD const Bool ZArray<ObjectType, kIfInitializeObject>::Pop(ObjectType* object_ptr) noexcept {
+NODISCARD const Bool ZArray<ObjectType, kIfInitializeObject>::PopBack(ObjectType* object_ptr) noexcept {
     if (SuperType::size() == 0) {
         return false;
     }
@@ -169,7 +177,7 @@ NODISCARD const Bool ZArray<ObjectType, kIfInitializeObject>::Pop(ObjectType* ob
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
-Void ZArray<ObjectType, kIfInitializeObject>::Push(const ObjectType& object) noexcept {
+Void ZArray<ObjectType, kIfInitializeObject>::PushBack(const ObjectType& object) noexcept {
     SuperType::change_size(1);
     *SuperType::end_data_ptr() = object;
     SuperType::set_end_data_ptr(SuperType::end_data_ptr() + 1);
