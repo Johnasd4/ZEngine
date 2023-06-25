@@ -18,7 +18,7 @@ namespace internal {
         size_; The num of the objects in the container.
         capacity_; The max num of object the container can contain.  
 */
-template<typename ObjectType, Bool kIfInitializeObject>
+template<typename ObjectType, Bool kIfInitializeObject, typename Allocator>
 class ZContainerBase : public ZObject {
 private:
     static constexpr IndexType kDefaultCapacity = 10;
@@ -360,7 +360,7 @@ Void ZContainerBase<ObjectType, kIfInitializeObject>::ExtendMemory(const MemoryT
         return;
     }
     ObjectType* temp_data_ptr = reinterpret_cast<ObjectType*>(
-        memory_pool::ApplyMemory(memory_size));
+        memory_pool::ApplyMemory(memory_size, reinterpret_cast<Address>(data_ptr_)));
     memcpy(reinterpret_cast<Address>(temp_data_ptr), reinterpret_cast<Address>(data_ptr_), 
            memory_size);
     memory_pool::ReleaseMemory(data_ptr_);

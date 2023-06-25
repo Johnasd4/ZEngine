@@ -24,7 +24,13 @@ namespace memory_pool {
     Can be speeded up if there is a reference address.
 */
 CORE_DLLAPI NODISCARD extern const Address ApplyMemory(const MemoryType size) noexcept;
-CORE_DLLAPI NODISCARD extern const Address ApplyMemory(const MemoryType size, const Address address) noexcept;
+/*
+    Applys memory by the size given and returns the address of the memory.
+    Also returns the max memory size of the memory piece.
+    Can be speeded up if there is a reference address.
+*/
+CORE_DLLAPI NODISCARD extern const Address ApplyMemory(const MemoryType size, MemoryType* max_size_ptr) noexcept;
+
 
  /*
     Release the memory by address, it's a value parameter,

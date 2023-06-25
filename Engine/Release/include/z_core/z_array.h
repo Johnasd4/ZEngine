@@ -141,6 +141,14 @@ public:
     */
     NODISCARD const Bool PopBack(ObjectType* object_ptr) noexcept;
     Void PushBack(const ObjectType& object) noexcept;
+    /*
+        Calls the constructor with the arguements.
+        TODO(Johnasd4)
+    */
+    template<typename... ArgsType>
+    Void EmplaceBack(ArgsType&&... args) noexcept;
+
+
     Void PushEmpty(const IndexType data_num) noexcept;
 
     /*

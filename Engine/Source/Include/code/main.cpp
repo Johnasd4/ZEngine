@@ -1,7 +1,5 @@
 ﻿#include"z_engine.h"
 
-
-
 using namespace zengine;
 using namespace std;
 using namespace zengine::math;
@@ -11,7 +9,7 @@ void test(int a) {
 
 }
 #include <iomanip>
-
+#include <vector>
 int main(){
     std::cout << std::setprecision(20);  // 设置输出的精度为18位有效数字
     //Float64 b = 0.01;

@@ -360,7 +360,7 @@ Void ZContainerBase<ObjectType, kIfInitializeObject>::ExtendMemory(const MemoryT
         return;
     }
     ObjectType* temp_data_ptr = reinterpret_cast<ObjectType*>(
-        memory_pool::ApplyMemory(memory_size, reinterpret_cast<Address>(data_ptr_)));
+        memory_pool::ApplyMemory(memory_size));
     memcpy(reinterpret_cast<Address>(temp_data_ptr), reinterpret_cast<Address>(data_ptr_), 
            memory_size);
     memory_pool::ReleaseMemory(data_ptr_);

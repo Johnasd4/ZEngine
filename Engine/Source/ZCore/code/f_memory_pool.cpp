@@ -22,12 +22,10 @@ CORE_DLLAPI NODISCARD const Address ApplyMemory(const MemoryType size) noexcept 
     return nullptr;
 }
 
-CORE_DLLAPI NODISCARD const Address ApplyMemory(const MemoryType size, const Address address) noexcept {
-    MemoryPoolBase* owner_memory_pool_ptr = 
-        *reinterpret_cast<MemoryPoolBase**>(reinterpret_cast<AddressType>(address) - sizeof(Address));
+CORE_DLLAPI NODISCARD const Address ApplyMemory(const MemoryType size, MemoryType* max_size_ptr) noexcept {
     //small memory piece
     if (size <= SmallMemoryPieceListMemoryPool::memory_piece_memory_max_size()) {
-        return SmallMemoryPieceListMemoryPool::ApplyMemory(size);
+        return SmallMemoryPieceListMemoryPool::ApplyMemory(size, max_size_ptr);
     }
     else {
         //TODO(Johnasd4):Apply memory from other memory pools.
@@ -35,6 +33,8 @@ CORE_DLLAPI NODISCARD const Address ApplyMemory(const MemoryType size, const Add
     }
     return nullptr;
 }
+
+
 
 CORE_DLLAPI Void ReleaseMemory(const Address address) noexcept{
     MemoryPoolBase* owner_memory_pool_ptr =
