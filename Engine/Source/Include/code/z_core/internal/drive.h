@@ -143,11 +143,12 @@ FORCEINLINE constexpr Void Swap(ObjectType* object_1, ObjectType* object_2) {
 
 #pragma region basic concept
 
-/*
-    Tests if the type is a kind of char.
-*/
 template<typename CharType>
 concept kIsChar = std::is_same_v<CharType, char> || std::is_same_v<CharType, wchar_t>;
+
+template<typename ObjectType>
+concept kIsClass = std::is_class_v<ObjectType>;
+
 
 #pragma endregion basic concept
 
