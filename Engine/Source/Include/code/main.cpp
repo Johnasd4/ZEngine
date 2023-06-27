@@ -4,8 +4,12 @@ using namespace zengine;
 using namespace std;
 using namespace zengine::math;
 
+constexpr CChar kTestString[] = "123";
 
-void test(int a) {
+
+template<typename ObjectType,typename CompareFunction>
+requires kIsCompareFunction<CompareFunction, ObjectType>
+void test(ObjectType&& object, CompareFunction&& compare_function) {
 
 }
 #include <iomanip>
@@ -23,8 +27,11 @@ int main(){
     for (Int32 index = 1; index <= 200; ++index) {
         cout << index << "  " << FactorialReciprocal<Float64>(index) * pow(LnA(2.0), index) << endl;
     }
-
     ZArray<Int32> array(1000);
+    test<Int32>(1,
+        [](Int32 a, Int32 b) -> Bool {
+        return a > b;
+        });
     //Size32Type test_number(0xff800000U);
     //Float32 asd = test_number.float_32;
     //if (asd == test_number.float_32) {

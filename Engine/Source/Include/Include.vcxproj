@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="code\z_core\z_array_new.h" />
+    <ClInclude Include="code\z_core\z_vector.h" />
     <ClInclude Include="code\z_core\z_lookup_table.h" />
     <ClInclude Include="code\z_math.h" />
     <ClInclude Include="code\z_core\internal\z_iterator_base.h" />

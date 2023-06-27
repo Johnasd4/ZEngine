@@ -10,33 +10,22 @@ namespace memory_pool {
 using SmallMemoryPieceListMemoryPool = ZSmallMemoryPieceListMemoryPool<MEMORY_POOL_THREAD_SAFE>;
 using MemoryPoolBase = ZMemoryPoolBase<MEMORY_POOL_THREAD_SAFE>;
 
-CORE_DLLAPI NODISCARD const Address ApplyMemory(const MemoryType size) noexcept {
+CORE_DLLAPI NODISCARD const MemoryType ApplyMemory(Address* address_ptr, const MemoryType size) noexcept {
     //small memory piece
     if (size <= SmallMemoryPieceListMemoryPool::memory_piece_memory_max_size()){
-        return SmallMemoryPieceListMemoryPool::ApplyMemory(size);
+        return SmallMemoryPieceListMemoryPool::ApplyMemory(address_ptr, size);
     }
     else{
         //TODO(Johnasd4):Apply memory from other memory pools.
         exit(EXIT_FAILURE);
     }
-    return nullptr;
+    return 0;
 }
-
-CORE_DLLAPI NODISCARD const Address ApplyMemory(const MemoryType size, MemoryType* max_size_ptr) noexcept {
-    //small memory piece
-    if (size <= SmallMemoryPieceListMemoryPool::memory_piece_memory_max_size()) {
-        return SmallMemoryPieceListMemoryPool::ApplyMemory(size, max_size_ptr);
-    }
-    else {
-        //TODO(Johnasd4):Apply memory from other memory pools.
-        exit(EXIT_FAILURE);
-    }
-    return nullptr;
-}
-
-
 
 CORE_DLLAPI Void ReleaseMemory(const Address address) noexcept{
+    if (address == nullptr) {
+        return;
+    }
     MemoryPoolBase* owner_memory_pool_ptr =
         *reinterpret_cast<MemoryPoolBase**>(reinterpret_cast<AddressType>(address) - sizeof(Address));
     switch (owner_memory_pool_ptr->memory_pool_type())
@@ -53,7 +42,10 @@ CORE_DLLAPI Void ReleaseMemory(const Address address) noexcept{
     }
 }
 
-CORE_DLLAPI NODISCARD const Bool CheckMemory(const MemoryType size, const Address address) noexcept {
+CORE_DLLAPI NODISCARD const Bool CheckMemory(const Address address, const MemoryType size) noexcept {
+    if (address == nullptr) {
+        return false;
+    }
     MemoryPoolBase* owner_memory_pool_ptr =
         *reinterpret_cast<MemoryPoolBase**>(reinterpret_cast<AddressType>(address) - sizeof(Address));
     switch (owner_memory_pool_ptr->memory_pool_type())

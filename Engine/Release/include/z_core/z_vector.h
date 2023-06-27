@@ -1,17 +1,17 @@
-#ifndef Z_CORE_Z_ARRAY_H_
-#define Z_CORE_Z_ARRAY_H_
+#ifndef Z_CORE_Z_VECTOR_H_
+#define Z_CORE_Z_VECTOR_H_
 
 #include"internal/drive.h"
-#include"internal/z_container_base.h"
 #include"internal/z_iterator_base.h"
 
 namespace zengine {
 
 /*
-    An unfixed array, will auto extend size when used up.
+    Vector caintainer,
+    If kIfInitializeObject is true, will call the constuctor when the object is created.
 */
 template<typename ObjectType, Bool kIfInitializeObject = kIsClass<ObjectType>>
-class ZArray :public ZObject {
+class ZVector :public ZObject {
 public:
     class Iterator : public internal::IteratorBase<ObjectType> {};
     class ConstIterator : public Iterator {};
@@ -19,18 +19,18 @@ public:
     class ReverseIterator : public internal::IteratorBase<ObjectType> {};
     class ConstReverseIterator : public ReverseIterator {};
 
-    FORCEINLINE ZArray();
-    ZArray(const IndexType capacity) noexcept;
-    ZArray(const ZArray& array) noexcept;
-    ZArray(ZArray&& array) noexcept;
+    FORCEINLINE ZVector();
+    ZVector(const IndexType capacity) noexcept;
+    ZVector(const ZVector& array) noexcept;
+    ZVector(ZVector&& array) noexcept;
 
-    ZArray& operator=(const ZArray& array) noexcept;
-    ZArray& operator=(ZArray&& array) noexcept;
+    ZVector& operator=(const ZVector& array) noexcept;
+    ZVector& operator=(ZVector&& array) noexcept;
 
     NODISCARD FORCEINLINE ObjectType& operator[](const IndexType index);
     NODISCARD FORCEINLINE const ObjectType& operator[](const IndexType index) const;
 
-    ~ZArray() noexcept;
+    ~ZVector() noexcept;
 
     /*
         The iterator funcions.
@@ -49,6 +49,9 @@ public:
 
     Void resize(const IndexType size);
     Void resize(const IndexType size, const ObjectType& object);
+    /*
+        
+    */
     Void set_capacity(const IndexType capacity);
 
     NODISCARD FORCEINLINE ObjectType& At(const IndexType index);
@@ -87,7 +90,6 @@ public:
     Void Erase(const IndexType index) noexcept;
     Void Erase(const IndexType index, const IndexType num) noexcept;
     Void Erase(const Iterator begin, const Iterator end) noexcept;
-    Void Erase(const ReverseIterator begin, const ReverseIterator end) noexcept;
 
     /*
         Calls the constructor with the arguements.
@@ -97,7 +99,18 @@ public:
 
     Void Assign(const IndexType num, const ObjectType& object) noexcept;
     Void Assign(const Iterator begin, const Iterator end) noexcept;
-    Void Assign(const ReverseIterator begin, const ReverseIterator end) noexcept;
+
+    Void Sort();
+
+    template<typename CompareFunction>
+    requires kIsCompareFunction<CompareFunction, ObjectType>
+    Void Sort(CompareFunction&& compare_function);
+        
+    Void Sort(const Iterator begin, const Iterator end);
+
+    template<typename CompareFunction>
+    requires kIsCompareFunction<CompareFunction, ObjectType>
+    Void Sort(const Iterator begin, const Iterator end, CompareFunction&& compare_function);
 
     FORCEINLINE Void Clear();
 
@@ -165,6 +178,21 @@ private:
     IndexType capacity_;
 };
 
+template<typename ObjectType, Bool kIfInitializeObject>
+FORCEINLINE ZVector<ObjectType, kIfInitializeObject>::ZVector()
+    : data_ptr_(nullptr)
+    , size_(0)
+    , capacity_(0)
+{}
+
+/*
+    Creates an object at the certain index. Will Call Constrctor if needed.
+*/
+template<typename ObjectType, Bool kIfInitializeObject>
+FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObjectAtIndex(const IndexType index) {
+
+}
+
 }//zengine
 
-#endif // !Z_CORE_Z_ARRAY_H_
+#endif // !Z_CORE_Z_VECTOR_H_

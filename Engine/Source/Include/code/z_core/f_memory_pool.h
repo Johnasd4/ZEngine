@@ -21,21 +21,14 @@ namespace memory_pool {
 
 /*
     Applys memory by the size given and returns the address of the memory.
-    Can be speeded up if there is a reference address.
+    Returns the memory size of the memory piece.
 */
-CORE_DLLAPI NODISCARD extern const Address ApplyMemory(const MemoryType size) noexcept;
-/*
-    Applys memory by the size given and returns the address of the memory.
-    Also returns the max memory size of the memory piece.
-    Can be speeded up if there is a reference address.
-*/
-CORE_DLLAPI NODISCARD extern const Address ApplyMemory(const MemoryType size, MemoryType* max_size_ptr) noexcept;
-
+CORE_DLLAPI extern const MemoryType ApplyMemory(Address* address_ptr, const MemoryType size) noexcept;
 
  /*
     Release the memory by address, it's a value parameter,
     so remember to set the pointer to null.
-    WARNING : WILL CRASH IF ADDRESS IS NULLPTR.
+    nullptr is allowed to release.
 */
 CORE_DLLAPI extern Void ReleaseMemory(const Address address) noexcept;
 
@@ -43,7 +36,7 @@ CORE_DLLAPI extern Void ReleaseMemory(const Address address) noexcept;
     Check if the memory can be extended to the given size without changing address,
     if can then the memeory will extend and return true.
 */
-CORE_DLLAPI NODISCARD extern const Bool CheckMemory(const MemoryType size, const Address address) noexcept;
+CORE_DLLAPI NODISCARD extern const Bool CheckMemory(const Address address, const MemoryType size) noexcept;
 
 }//system_memory
 }//zengine

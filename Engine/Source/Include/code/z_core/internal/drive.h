@@ -143,12 +143,20 @@ FORCEINLINE constexpr Void Swap(ObjectType* object_1, ObjectType* object_2) {
 
 #pragma region basic concept
 
-template<typename CharType>
-concept kIsChar = std::is_same_v<CharType, char> || std::is_same_v<CharType, wchar_t>;
+template<typename ObjectType1,typename ObjectType2>
+concept kSameType = std::is_same_v<ObjectType1, ObjectType2>;
 
 template<typename ObjectType>
 concept kIsClass = std::is_class_v<ObjectType>;
 
+template<typename CharType>
+concept kIsChar = kSameType<CharType, CChar> || kSameType<CharType, TChar>;
+
+
+template<typename Function, typename ObjectType>
+concept kIsCompareFunction = requires(Function function, ObjectType object) {
+    { function(object, object) } -> kSameType<Bool>;
+};
 
 #pragma endregion basic concept
 

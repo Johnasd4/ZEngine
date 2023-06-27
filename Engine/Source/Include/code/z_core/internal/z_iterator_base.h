@@ -31,6 +31,8 @@ public:
     NODISCARD FORCEINLINE ObjectType& operator*() { return *object_ptr_; }
     NODISCARD FORCEINLINE ObjectType* operator->() { return object_ptr_; }
 
+    NODISCARD FORCEINLINE operator ObjectType*() { return object_ptr_; }
+
     FORCEINLINE ~IteratorBase() {}
 
     NODISCARD FORCEINLINE ObjectType* object_ptr() const { return object_ptr_; }
@@ -39,9 +41,6 @@ public:
 private:
     ObjectType* object_ptr_;
 };
-
-
-
 
 }//internal
 }//zengine

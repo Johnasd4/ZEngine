@@ -87,7 +87,7 @@
     <ClInclude Include="code\z_core\z_lookup_table.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\z_core\z_array_new.h">
+    <ClInclude Include="code\z_core\z_vector.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

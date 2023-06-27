@@ -102,7 +102,7 @@ ZListMemoryPoolBase<MemoryPieceType, kMemoryPieceHeadOffset, kIsThreadSafe>::ZLi
 
 
 template<typename MemoryPieceType, AddressType kMemoryPieceHeadOffset, Bool kIsThreadSafe>
-FORCEINLINE const Address ZListMemoryPoolBase<MemoryPieceType, kMemoryPieceHeadOffset, kIsThreadSafe>::ApplyMemory() {
+NODISCARD FORCEINLINE const Address ZListMemoryPoolBase<MemoryPieceType, kMemoryPieceHeadOffset, kIsThreadSafe>::ApplyMemory() {
     MutexType::lock();
     if (head_node_ptr_ == nullptr) {
         AutoExtend();
