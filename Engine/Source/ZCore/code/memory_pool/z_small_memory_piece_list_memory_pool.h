@@ -40,7 +40,7 @@ private:
     static constexpr MemoryType kMemoryPieceSizeMulGrowFactor = 2;
 
 public:
-    NODISCARD static const MemoryType ApplyMemory(Address* address_ptr, const MemoryType size) noexcept;
+    NODISCARD static const Address ApplyMemory(const MemoryType size, MemoryType* memory_size_ptr) noexcept;
 
     static Void ReleaseMemory(const Address address, 
                                         ZSmallMemoryPieceListMemoryPool* memory_pool_ptr) noexcept;
@@ -128,8 +128,8 @@ private:
 };
 
 template<Bool kIsThreadSafe>
-NODISCARD const MemoryType ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::ApplyMemory(Address* address_ptr,
-                                                                                    const MemoryType size) noexcept {
+NODISCARD const Address ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::ApplyMemory(
+        const MemoryType size, MemoryType* memory_size_ptr) noexcept {
     static ZFixedArray<ZSmallMemoryPieceListMemoryPool<kIsThreadSafe> , kMemoryPieceTypeNum> memory_pool_array(
         MemoryPoolArrayInitFunction);
 
@@ -142,8 +142,8 @@ NODISCARD const MemoryType ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::Apply
             memory_pool_array(kMemorySize2MemoryPoolTable(size)).memory_piece_used_current_num_;
     }
 #endif //USE_MEMORY_POOL_TEST
-    (*address_ptr) = memory_pool_array(kMemorySize2MemoryPoolTable.At(size)).SuperType::ApplyMemory();
-    return memory_pool_array(kMemorySize2MemoryPoolTable.At(size)).SuperType::memory_piece_memory_size();
+    (*memory_size_ptr) = memory_pool_array(kMemorySize2MemoryPoolTable.At(size)).SuperType::memory_piece_memory_size();
+    return memory_pool_array(kMemorySize2MemoryPoolTable.At(size)).SuperType::ApplyMemory();
 }
 
 template<Bool kIsThreadSafe>

@@ -23,7 +23,7 @@ namespace memory_pool {
     Applys memory by the size given and returns the address of the memory.
     Returns the memory size of the memory piece.
 */
-CORE_DLLAPI extern const MemoryType ApplyMemory(Address* address_ptr, const MemoryType size) noexcept;
+CORE_DLLAPI extern const Address ApplyMemory(const MemoryType size, MemoryType* memory_size_ptr) noexcept;
 
  /*
     Release the memory by address, it's a value parameter,

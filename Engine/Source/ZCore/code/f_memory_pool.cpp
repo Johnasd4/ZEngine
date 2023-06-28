@@ -10,10 +10,10 @@ namespace memory_pool {
 using SmallMemoryPieceListMemoryPool = ZSmallMemoryPieceListMemoryPool<MEMORY_POOL_THREAD_SAFE>;
 using MemoryPoolBase = ZMemoryPoolBase<MEMORY_POOL_THREAD_SAFE>;
 
-CORE_DLLAPI NODISCARD const MemoryType ApplyMemory(Address* address_ptr, const MemoryType size) noexcept {
+CORE_DLLAPI NODISCARD const Address ApplyMemory(const MemoryType size, MemoryType* memory_size_ptr) noexcept {
     //small memory piece
     if (size <= SmallMemoryPieceListMemoryPool::memory_piece_memory_max_size()){
-        return SmallMemoryPieceListMemoryPool::ApplyMemory(address_ptr, size);
+        return SmallMemoryPieceListMemoryPool::ApplyMemory(size, memory_size_ptr);
     }
     else{
         //TODO(Johnasd4):Apply memory from other memory pools.

@@ -47,12 +47,27 @@ public:
     NODISCARD FORCEINLINE const IndexType size() const;
     NODISCARD FORCEINLINE const IndexType capacity() const;
 
-    Void resize(const IndexType size);
-    Void resize(const IndexType size, const ObjectType& object);
     /*
-        
+        Resize the vector, If the given size is smaller then the current size,
+        the function will cut remove the extra objects. If the given size is
+        bigger then the current size, the function will fill the extra size with
+        the default value of ObjectType.
     */
-    Void set_capacity(const IndexType capacity);
+    Void Resize(const IndexType size);
+    /*
+        Resize the vector, If the given size is smaller then the current size,
+        the function will cut remove the extra objects. If the given size is
+        bigger then the current size, the function will fill the extra size with
+        the given object type.
+    */
+    Void Resize(const IndexType size, const ObjectType& object);
+
+    /*
+        Will extend the capacity by the given capacity, if the smaller then the
+        given capacity, this function will do nothing, other the capacity will
+        entend to a size that equals or bigger then the given capacity.
+    */
+    Void Reserve(const IndexType capacity);
 
     NODISCARD FORCEINLINE ObjectType& At(const IndexType index);
     NODISCARD FORCEINLINE const ObjectType& At(const IndexType index) const;
@@ -64,9 +79,11 @@ public:
     NODISCARD FORCEINLINE const Bool IfEmpty();
 
     Void PopBack(ObjectType* object_ptr) noexcept;
+
     Void PushBack(const ObjectType& object) noexcept;
     Void PushBack(const IndexType num, const ObjectType& object) noexcept;
     Void PushBack(ObjectType&& object) noexcept;
+
     Void PushBackEmpty(const IndexType object) noexcept;
     /*
         Calls the constructor with the arguements.
@@ -86,9 +103,23 @@ public:
         Inserts before the index. Returns the interator that points at the newest object.
     */
     Iterator Insert(const IndexType index, ObjectType&& object) noexcept;
+    /*
+        Inserts before the iterator. Returns the interator that points at the newest object.
+    */
+    Iterator Insert(const Iterator iterator, const ObjectType& object) noexcept;
+    /*
+        Inserts before the iterator. Returns the interator that points at the newest object.
+    */
+    Iterator Insert(const Iterator iterator, const IndexType num, const ObjectType& object) noexcept;
+    /*
+        Inserts before the iterator. Returns the interator that points at the newest object.
+    */
+    Iterator Insert(const Iterator iterator, ObjectType&& object) noexcept;
 
     Void Erase(const IndexType index) noexcept;
     Void Erase(const IndexType index, const IndexType num) noexcept;
+    Void Erase(const Iterator iterator) noexcept;
+    Void Erase(const Iterator iterator, const IndexType num) noexcept;
     Void Erase(const Iterator begin, const Iterator end) noexcept;
 
     /*
@@ -96,18 +127,20 @@ public:
     */
     template<typename... ArgsType>
     Void Emplace(const IndexType index, ArgsType&&... args) noexcept;
+    /*
+        Calls the constructor with the arguements.
+    */
+    template<typename... ArgsType>
+    Void Emplace(const Iterator iterator, ArgsType&&... args) noexcept;
 
     Void Assign(const IndexType num, const ObjectType& object) noexcept;
     Void Assign(const Iterator begin, const Iterator end) noexcept;
 
     Void Sort();
-
     template<typename CompareFunction>
     requires kIsCompareFunction<CompareFunction, ObjectType>
-    Void Sort(CompareFunction&& compare_function);
-        
+    Void Sort(CompareFunction&& compare_function);        
     Void Sort(const Iterator begin, const Iterator end);
-
     template<typename CompareFunction>
     requires kIsCompareFunction<CompareFunction, ObjectType>
     Void Sort(const Iterator begin, const Iterator end, CompareFunction&& compare_function);
@@ -119,9 +152,19 @@ protected:
 
 private:
     /*
-        Auto extends the capacity of the container.
+        Changes the size, checks if the vector is full.
     */
-    FORCEINLINE Void AutoExtend() noexcept;
+    FORCEINLINE Void ChangeSize(const IndexType offset) noexcept;
+
+    /*
+        Auto extends the memory by the current size.
+    */
+    Void AutoExtend() noexcept;
+
+    /*
+        Extends the memory to the given size.
+    */
+    Void ExtendMemory(const MemoryType size) noexcept;
 
     /*
         Called when the container is moved.
@@ -129,11 +172,11 @@ private:
     FORCEINLINE Void MoveDestroy();
 
     /*
-        Creates an object at the certain index. Will Call Constrctor if needed.
+        Creates an object at the certain index. Will call the Constrctor if needed.
     */
     FORCEINLINE Void CreateObjectAtIndex(const IndexType index);
     /*
-        Creates an object at the certain index. Will Call Constrctor if needed.
+        Creates an object at the certain index. Will always call the Constrctor.
     */
     template<typename... ArgsType>
     FORCEINLINE Void CreateObjectAtIndex(const IndexType index, ArgsType&&... args);
@@ -144,34 +187,27 @@ private:
     FORCEINLINE Void DestroyObjectAtIndex(const IndexType index);
 
     /*
-        Initialize the address memory by the num given. Will call the constructor
-        if this object class's member kIfInitializeObject is
-        true.
+        Initialize the address memory by the given address([begin,end)). 
+        Will call the constructor if this object class's member kIfInitializeObject is true.
     */
-    FORCEINLINE Void CreateObjects(ObjectType* start_ptr, const IndexType num);
+    FORCEINLINE Void CreateObjects(ObjectType* begin_ptr, ObjectType* end_ptr);
 
     /*
-        Initialize the address memory by the num given. Will call the constructor
-        if this object class's member kIfInitializeObject is
-        true.
+        Initialize the address memory by the given address([begin,end)) and object.
     */
-    template<typename... ArgsType>
-    FORCEINLINE Void CreateObjects(ObjectType* start_ptr, const IndexType num, ArgsType&&... args);
+    FORCEINLINE Void CreateObjects(ObjectType* begin_ptr, ObjectType* end_ptr, const ObjectType& object);
 
     /*
-        Copy objects by the address given.Will call the copy assignment operator
-        if this object class's member kIfInitializeObject is true, 
-        if the copy num is bigger then the current capacity ,the extras
-        will call the copy constrctor instrad, make sure the memory is big
-        enough before calling this function. Otherwise, will use memcpy instead.
+        Copy objects by the address given. Will call the copy assignment operator
+        if this object class's member kIfInitializeObject is true. 
     */
     FORCEINLINE Void CopyObjects(ObjectType* dst_ptr, const ObjectType* src_ptr, const IndexType num);
 
     /*
-        Destroy the objects by the num given, starts at the address given. Will
-        call the destrctor if this object class's member kIfInitializeObject is true.
+        Destroy the objects by the given address([begin,end)). 
+        Will call the destrctor if this object class's member kIfInitializeObject is true.
     */
-    FORCEINLINE Void DestroyObjects(ObjectType* start_ptr, const IndexType num); 
+    FORCEINLINE Void DestroyObjects(ObjectType* begin_ptr, ObjectType* end_ptr);
 
     ObjectType* data_ptr_;
     IndexType size_;
@@ -185,12 +221,69 @@ FORCEINLINE ZVector<ObjectType, kIfInitializeObject>::ZVector()
     , capacity_(0)
 {}
 
-/*
-    Creates an object at the certain index. Will Call Constrctor if needed.
-*/
 template<typename ObjectType, Bool kIfInitializeObject>
 FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObjectAtIndex(const IndexType index) {
+    if constexpr (kIfInitializeObject) {
+        new(reinterpret_cast<Address>(&(data_ptr_[index]))) ObjectType();
+    }
+}
 
+template<typename ObjectType, Bool kIfInitializeObject>
+template<typename... ArgsType>
+FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObjectAtIndex(const IndexType index, ArgsType&&... args) {
+    new(reinterpret_cast<Address>(&(data_ptr_[index]))) ObjectType(std::forward<ArgsType>(args)...);
+}
+
+template<typename ObjectType, Bool kIfInitializeObject>
+FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::DestroyObjectAtIndex(const IndexType index) {
+    if constexpr (kIfInitializeObject) {
+        data_ptr_[index].~ObjectType();
+    }
+}
+
+template<typename ObjectType, Bool kIfInitializeObject>
+FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObjects(ObjectType* begin_ptr, ObjectType* end_ptr) {
+    if constexpr (kIfInitializeObject) { 
+        while (begin_ptr != end_ptr) {
+            new(reinterpret_cast<Address>(begin_ptr)) ObjectType();
+            ++begin_ptr;
+        }
+    }
+}
+
+template<typename ObjectType, Bool kIfInitializeObject>
+FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObjects(ObjectType* begin_ptr, ObjectType* end_ptr,
+    const ObjectType& object) {
+    while (begin_ptr != end_ptr) {
+        new(reinterpret_cast<Address>(begin_ptr)) ObjectType(object);
+        ++begin_ptr;
+    }
+}
+
+template<typename ObjectType, Bool kIfInitializeObject>
+FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CopyObjects(ObjectType* dst_ptr, const ObjectType* src_ptr, 
+                                                                       const IndexType num) {
+    if constexpr (kIfInitializeObject) {
+        for (IndexType index = 0; index < num; ++index) {
+            *dst_ptr = *src_ptr;
+            ++dst_ptr;
+            ++src_ptr;
+        }
+    }
+    else {
+        memcpy(reinterpret_cast<Address>(dst_ptr), reinterpret_cast<Address>(const_cast<ObjectType*>(src_ptr)),
+               static_cast<SizeType>(num * sizeof(ObjectType)));
+    }
+}
+
+template<typename ObjectType, Bool kIfInitializeObject>
+FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::DestroyObjects(ObjectType* begin_ptr, ObjectType* end_ptr) {
+    if constexpr (kIfInitializeObject) {
+        while (begin_ptr != end_ptr) {
+            begin_ptr->~ObjectType();
+            ++begin_ptr;
+        }
+    }
 }
 
 }//zengine
