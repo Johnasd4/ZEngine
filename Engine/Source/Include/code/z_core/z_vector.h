@@ -2,7 +2,6 @@
 #define Z_CORE_Z_VECTOR_H_
 
 #include"internal/drive.h"
-#include"internal/z_iterator_base.h"
 
 namespace zengine {
 
@@ -13,11 +12,100 @@ namespace zengine {
 template<typename ObjectType, Bool kIfInitializeObject = kIsClass<ObjectType>>
 class ZVector :public ZObject {
 public:
-    class Iterator : public internal::IteratorBase<ObjectType> {};
-    class ConstIterator : public Iterator {};
+    class Iterator;
+    class ReverseIterator;
 
-    class ReverseIterator : public internal::IteratorBase<ObjectType> {};
-    class ConstReverseIterator : public ReverseIterator {};
+    class Iterator {
+        FORCEINLINE Iterator(const ObjectType* object_ptr) : object_ptr_(object_ptr) {}
+
+        FORCEINLINE Iterator& operator+(const IndexType data_num) {
+            object_ptr_ += data_num;
+            return *this;
+        }
+        FORCEINLINE const Iterator& operator+(const IndexType data_num) const {
+            object_ptr_ += data_num;
+            return *this;
+        }
+        FORCEINLINE Iterator& operator-(const IndexType data_num) {
+            object_ptr_ -= data_num;
+            return *this;
+        }
+        FORCEINLINE const Iterator& operator-(const IndexType data_num) const {
+            object_ptr_ -= data_num;
+            return *this;
+        }
+        FORCEINLINE Iterator& operator++() {
+            ++object_ptr_;
+            return *this;
+        }
+        FORCEINLINE const Iterator& operator++() const {
+            ++object_ptr_;
+            return *this;
+        }
+        FORCEINLINE Iterator& operator--() {
+            --object_ptr_;
+            return *this;
+        }
+        FORCEINLINE const Iterator& operator--() const {
+            --object_ptr_;
+            return *this;
+        }
+
+        FORCEINLINE const IndexType operator-(const Iterator iterator) const { 
+            return object_ptr_ - iterator.object_ptr_; 
+        }
+
+        FORCEINLINE ~Iterator() {}
+
+    private:
+        mutable ObjectType* object_ptr_;
+    };
+
+    class ReverseIterator {
+        FORCEINLINE ReverseIterator(const ObjectType* object_ptr) : object_ptr_(object_ptr) {}
+
+        FORCEINLINE ReverseIterator& operator+(const IndexType data_num) {
+            object_ptr_ += data_num;
+            return *this;
+        }
+        FORCEINLINE const ReverseIterator& operator+(const IndexType data_num) const {
+            object_ptr_ += data_num;
+            return *this;
+        }
+        FORCEINLINE ReverseIterator& operator-(const IndexType data_num) {
+            object_ptr_ -= data_num;
+            return *this;
+        }
+        FORCEINLINE const ReverseIterator& operator-(const IndexType data_num) const {
+            object_ptr_ -= data_num;
+            return *this;
+        }
+        FORCEINLINE ReverseIterator& operator++() {
+            ++object_ptr_;
+            return *this;
+        }
+        FORCEINLINE const ReverseIterator& operator++() const {
+            ++object_ptr_;
+            return *this;
+        }
+        FORCEINLINE ReverseIterator& operator--() {
+            --object_ptr_;
+            return *this;
+        }
+        FORCEINLINE const ReverseIterator& operator--() const {
+            --object_ptr_;
+            return *this;
+        }
+
+        FORCEINLINE const IndexType operator-(const ReverseIterator iterator) const {
+            return object_ptr_ - iterator.object_ptr_;
+        }
+
+        FORCEINLINE ~ReverseIterator() {}
+
+    private:
+        mutable ObjectType* object_ptr_;
+    };
 
     FORCEINLINE ZVector();
     ZVector(const IndexType capacity) noexcept;
@@ -27,8 +115,8 @@ public:
     ZVector& operator=(const ZVector& array) noexcept;
     ZVector& operator=(ZVector&& array) noexcept;
 
-    NODISCARD FORCEINLINE ObjectType& operator[](const IndexType index);
-    NODISCARD FORCEINLINE const ObjectType& operator[](const IndexType index) const;
+    NODISCARD FORCEINLINE ObjectType& operator[](const IndexType index) { return data_ptr_[index]; }
+    NODISCARD FORCEINLINE const ObjectType& operator[](const IndexType index) const { return data_ptr_[index]; }
 
     ~ZVector() noexcept;
 
@@ -44,8 +132,10 @@ public:
     NODISCARD FORCEINLINE ReverseIterator ReverseEnd();
     NODISCARD FORCEINLINE ConstReverseIterator ConstReverseEnd() const;
 
-    NODISCARD FORCEINLINE const IndexType size() const;
-    NODISCARD FORCEINLINE const IndexType capacity() const;
+    NODISCARD FORCEINLINE const IndexType size() const { return size_; }
+    NODISCARD FORCEINLINE const IndexType capacity() const { return capacity_; }
+    NODISCARD FORCEINLINE ObjectType* data_ptr() { return data_ptr_; }
+    NODISCARD FORCEINLINE const ObjectType* data_ptr() const { return data_ptr_; }
 
     /*
         Resize the vector, If the given size is smaller then the current size,
