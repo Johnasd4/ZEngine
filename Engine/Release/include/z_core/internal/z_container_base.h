@@ -356,7 +356,7 @@ FORCEINLINE Void ZContainerBase<ObjectType, kIfInitializeObject>::AutoExtend() n
 
 template<typename ObjectType, Bool kIfInitializeObject>
 Void ZContainerBase<ObjectType, kIfInitializeObject>::ExtendMemory(const MemoryType memory_size) noexcept {
-    if (memory_pool::CheckMemory(memory_size, data_ptr_)) {
+    if (memory_pool::CheckMemory(data_ptr_, memory_size)) {
         return;
     }
     ObjectType* temp_data_ptr = reinterpret_cast<ObjectType*>(

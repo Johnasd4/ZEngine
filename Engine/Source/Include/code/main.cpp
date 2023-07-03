@@ -6,6 +6,8 @@ using namespace zengine::math;
 
 constexpr CChar kTestString[] = "123";
 
+template<typename ObjectType>
+class VectorIterator;
 
 template<typename ObjectType,typename CompareFunction>
 requires kIsCompareFunction<CompareFunction, ObjectType>
@@ -14,6 +16,8 @@ void test(ObjectType&& object, CompareFunction&& compare_function) {
 }
 #include <iomanip>
 #include <vector>
+#include"z_core/z_vector.h"
+
 int main(){
     std::cout << std::setprecision(20);  // 设置输出的精度为18位有效数字
     //Float64 b = 0.01;
@@ -28,6 +32,8 @@ int main(){
         cout << index << "  " << FactorialReciprocal<Float64>(index) * pow(LnA(2.0), index) << endl;
     }
     ZArray<Int32> array(1000);
+    ZVector<Int32> vector1;
+    auto itarator = vector1.ConstBegin();
     test<Int32>(1,
         [](Int32 a, Int32 b) -> Bool {
         return a > b;
