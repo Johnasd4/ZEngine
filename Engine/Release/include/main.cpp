@@ -33,7 +33,7 @@ int main(){
     }
     ZArray<Int32> array(1000);
     ZVector<Int32> vector1;
-    vector1.ConstBegin();
+    auto itarator = vector1.ConstBegin();
     test<Int32>(1,
         [](Int32 a, Int32 b) -> Bool {
         return a > b;

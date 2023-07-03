@@ -43,16 +43,15 @@ public:
     NODISCARD static const Address ApplyMemory(const MemoryType size) noexcept;
     NODISCARD static const Address ApplyMemory(const MemoryType size, MemoryType* memory_size_ptr) noexcept;
 
-    static Void ReleaseMemory(const Address address, 
-                                        ZSmallMemoryPieceListMemoryPool* memory_pool_ptr) noexcept;
-
     /*
         Checks if the memory can extend without moving to a new Address, If can
         then it will auto extend and return true.
     */
-    FORCEINLINE static const Bool CheckMemory(const MemoryType size, ZSmallMemoryPieceListMemoryPool* memory_pool_ptr) {
-        return memory_pool_ptr->SuperType::memory_piece_memory_size() >= size;
-    }
+    FORCEINLINE static const Bool CheckMemory(ZSmallMemoryPieceListMemoryPool* memory_pool_ptr, const MemoryType size);
+    FORCEINLINE static const Bool CheckMemory(ZSmallMemoryPieceListMemoryPool* memory_pool_ptr, const MemoryType size,
+                                              MemoryType* memory_size_ptr);
+
+    static Void ReleaseMemory(ZSmallMemoryPieceListMemoryPool* memory_pool_ptr, const Address address) noexcept;
 
     FORCEINLINE static constexpr MemoryType memory_piece_memory_max_size() { return kMemoryPieceMemoryMaxSize; }
     FORCEINLINE static constexpr IndexType memory_piece_type_num() { return kMemoryPieceTypeNum; }
@@ -166,8 +165,19 @@ NODISCARD const Address ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::ApplyMem
 }
 
 template<Bool kIsThreadSafe>
+FORCEINLINE const Bool ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::CheckMemory(
+        ZSmallMemoryPieceListMemoryPool* memory_pool_ptr, const MemoryType size) {
+    return memory_pool_ptr->SuperType::memory_piece_memory_size() >= size;
+}
+template<Bool kIsThreadSafe>
+FORCEINLINE const Bool ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::CheckMemory(
+        ZSmallMemoryPieceListMemoryPool* memory_pool_ptr, const MemoryType size, MemoryType* memory_size_ptr) {
+    return (*memory_size_ptr = memory_pool_ptr->SuperType::memory_piece_memory_size()) >= size;
+}
+
+template<Bool kIsThreadSafe>
 Void ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::ReleaseMemory(
-        const Address address, ZSmallMemoryPieceListMemoryPool* memory_pool_ptr) noexcept {
+    ZSmallMemoryPieceListMemoryPool* memory_pool_ptr, const Address address) noexcept {
 #ifdef USE_MEMORY_POOL_TEST
     memory_pool_ptr->memory_piece_used_current_num_ -= 1;
 #endif //USE_MEMORY_POOL_TEST

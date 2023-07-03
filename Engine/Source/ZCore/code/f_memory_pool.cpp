@@ -39,26 +39,6 @@ CORE_DLLAPI NODISCARD const Address ApplyMemory(const MemoryType size, MemoryTyp
     return 0;
 }
 
-CORE_DLLAPI Void ReleaseMemory(const Address address) noexcept{
-    if (address == nullptr) {
-        return;
-    }
-    internal::MemoryPoolBase* owner_memory_pool_ptr =
-        *reinterpret_cast<internal::MemoryPoolBase**>(reinterpret_cast<AddressType>(address) - sizeof(Address));
-    switch (owner_memory_pool_ptr->memory_pool_type())
-    {
-        //small memory piece
-    case MemoryPoolType::kZSmallMemoryPieceListMemoryPool:
-        internal::SmallMemoryPieceListMemoryPool::ReleaseMemory(
-            address, static_cast<internal::SmallMemoryPieceListMemoryPool*>(owner_memory_pool_ptr));
-        break;
-    //TODO(Johnasd4):Release memory to other memory pools.
-    default:
-        exit(EXIT_FAILURE);
-        break;
-    }
-}
-
 CORE_DLLAPI NODISCARD const Bool CheckMemory(const Address address, const MemoryType size) noexcept {
     if (address == nullptr) {
         return false;
@@ -70,7 +50,7 @@ CORE_DLLAPI NODISCARD const Bool CheckMemory(const Address address, const Memory
         //small memory piece
     case MemoryPoolType::kZSmallMemoryPieceListMemoryPool:
         return internal::SmallMemoryPieceListMemoryPool::CheckMemory(
-            size, static_cast<internal::SmallMemoryPieceListMemoryPool*>(owner_memory_pool_ptr));
+            static_cast<internal::SmallMemoryPieceListMemoryPool*>(owner_memory_pool_ptr), size);
         break;
     //TODO(Johnasd4):Check memory to other memory pools.
     default:
@@ -78,6 +58,48 @@ CORE_DLLAPI NODISCARD const Bool CheckMemory(const Address address, const Memory
         break;
     }
     return false;
+}
+
+CORE_DLLAPI NODISCARD const Bool CheckMemory(const Address address, const MemoryType size,
+                                             MemoryType* memory_size_ptr) noexcept {
+    if (address == nullptr) {
+        return false;
+    }
+    internal::MemoryPoolBase* owner_memory_pool_ptr =
+        *reinterpret_cast<internal::MemoryPoolBase**>(reinterpret_cast<AddressType>(address) - sizeof(Address));
+    switch (owner_memory_pool_ptr->memory_pool_type())
+    {
+        //small memory piece
+    case MemoryPoolType::kZSmallMemoryPieceListMemoryPool:
+        return internal::SmallMemoryPieceListMemoryPool::CheckMemory(
+            static_cast<internal::SmallMemoryPieceListMemoryPool*>(owner_memory_pool_ptr), size, memory_size_ptr);
+        break;
+        //TODO(Johnasd4):Check memory to other memory pools.
+    default:
+        exit(EXIT_FAILURE);
+        break;
+    }
+    return false;
+}
+
+CORE_DLLAPI Void ReleaseMemory(const Address address) noexcept {
+    if (address == nullptr) {
+        return;
+    }
+    internal::MemoryPoolBase* owner_memory_pool_ptr =
+        *reinterpret_cast<internal::MemoryPoolBase**>(reinterpret_cast<AddressType>(address) - sizeof(Address));
+    switch (owner_memory_pool_ptr->memory_pool_type())
+    {
+        //small memory piece
+    case MemoryPoolType::kZSmallMemoryPieceListMemoryPool:
+        internal::SmallMemoryPieceListMemoryPool::ReleaseMemory(
+            static_cast<internal::SmallMemoryPieceListMemoryPool*>(owner_memory_pool_ptr), address);
+        break;
+        //TODO(Johnasd4):Release memory to other memory pools.
+    default:
+        exit(EXIT_FAILURE);
+        break;
+    }
 }
 
 }//memory_pool

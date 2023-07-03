@@ -151,11 +151,14 @@ protected:
 */
 template<typename ObjectType, Bool kIfInitializeObject = kIsClass<ObjectType>>
 class ZVector : public ZObject {
+private:
+    static constexpr Float32 kAutoExtendMulFactor = 1.5F;
+
 public:
     using IteratorType = internal::VectorIterator<ObjectType>;
     using ReverseIteratorType = internal::VectorReverseIterator<ObjectType>;
 
-    ZVector();
+    ZVector() noexcept;
     ZVector(const IndexType capacity) noexcept;
     ZVector(const ZVector& array) noexcept;
     ZVector(ZVector&& array) noexcept;
@@ -304,9 +307,10 @@ private:
     Void AutoExtend() noexcept;
 
     /*
-        Extends the memory to the given size.
+        Extends the capacity by the given capacity, the final capacity might
+        not equal the given capacity.
     */
-    Void ExtendMemory(const MemoryType size) noexcept;
+    Void ExtendCapacity(const IndexType capacity) noexcept;
 
     /*
         Called when the container is moved.
@@ -357,15 +361,67 @@ private:
 };
 
 template<typename ObjectType, Bool kIfInitializeObject>
-ZVector<ObjectType, kIfInitializeObject>::ZVector()
+ZVector<ObjectType, kIfInitializeObject>::ZVector() noexcept
     : data_ptr_(nullptr)
     , size_(0)
     , capacity_(0)
 {}
 
 template<typename ObjectType, Bool kIfInitializeObject>
-ZVector<ObjectType, kIfInitializeObject>::~ZVector() noexcept {
+ZVector<ObjectType, kIfInitializeObject>::ZVector(const IndexType capacity) noexcept
+    : size_(0)
+{
+    ExtendCapacity(capacity);
+}
 
+template<typename ObjectType, Bool kIfInitializeObject>
+ZVector<ObjectType, kIfInitializeObject>::~ZVector() noexcept {
+    if (data_ptr_ != nullptr) {
+        DestroyObjects(data_ptr_, data_ptr_ + size_);
+        memory_pool::ReleaseMemory(reinterpret_cast<Address>(data_ptr_));
+    }
+}
+
+template<typename ObjectType, Bool kIfInitializeObject>
+FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::ChangeSize(const IndexType offset) noexcept {
+    size_ += offset;
+    if (size_ > capacity_) {
+        AutoExtend();
+    }
+}
+
+template<typename ObjectType, Bool kIfInitializeObject>
+Void ZVector<ObjectType, kIfInitializeObject>::AutoExtend() noexcept {
+    Float32 temp_size = static_cast<Float32>(size_);
+    Float32 temp_capacity = static_cast<Float32>(capacity_);
+    while (temp_size < temp_capacity) {
+        temp_size *= kAutoExtendMulFactor;
+    }
+    ExtendCapacity(static_cast<IndexType>(temp_capacity));
+}
+
+template<typename ObjectType, Bool kIfInitializeObject>
+Void ZVector<ObjectType, kIfInitializeObject>::ExtendCapacity(const IndexType capacity) noexcept {
+    MemoryType current_memory_size = capacity_ * sizeof(ObjectType);
+    MemoryType need_memory_size = capacity * sizeof(ObjectType);
+    MemoryType apply_mrmory_size;
+    //The current memory piece doesn't have enough memory.
+    if (!memory_pool::CheckMemory(reinterpret_cast<Address>(data_ptr_), need_memory_size, &apply_mrmory_size)) {
+        ObjectType* temp_data_ptr = 
+            reinterpret_cast<ObjectType*>(memory_pool::ApplyMemory(need_memory_size, &apply_mrmory_size));
+        memcpy(reinterpret_cast<Address>(temp_data_ptr), reinterpret_cast<Address>(data_ptr_),
+               size_ * sizeof(ObjectType));
+        memory_pool::ReleaseMemory(reinterpret_cast<Address>(data_ptr_));
+        data_ptr_ = temp_data_ptr;
+    }
+    capacity_ = apply_mrmory_size / sizeof(ObjectType);  
+}
+
+template<typename ObjectType, Bool kIfInitializeObject>
+FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::MoveDestroy() {
+    data_ptr_ == nullptr;
+    size_ = 0;
+    capacity_ = 0;
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
