@@ -19,6 +19,22 @@ void test(ObjectType&& object, CompareFunction&& compare_function) {
 #include"z_core/z_vector.h"
 
 int main(){
+
+    /*求2到100000000的所有质数*/
+    //int n = 100000000;
+    //bool flag;
+    //for (int i = 2; i <= n; i++) {
+    //    flag = false;
+    //    for (int j = 2; j < i; j++) {
+    //        if (i % j == 0) {
+    //            flag = true;
+    //        }
+    //    }
+    //    if (flag == true) {
+    //        cout << i << endl;
+    //    }
+    //}
+
     std::cout << std::setprecision(20);  // 设置输出的精度为18位有效数字
     //Float64 b = 0.01;
     //for (Int32 index = 1; index <= 200; ++index) {
@@ -32,7 +48,9 @@ int main(){
         cout << index << "  " << FactorialReciprocal<Float64>(index) * pow(LnA(2.0), index) << endl;
     }
     ZArray<Int32> array(1000);
-    ZVector<Int32> vector1;
+    ZVector<ZVector<Int32>> vector1;
+    ZVector<Int32> ele;
+    vector1.PushBack(std::move(ele));
     auto itarator = vector1.ConstBegin();
     test<Int32>(1,
         [](Int32 a, Int32 b) -> Bool {
