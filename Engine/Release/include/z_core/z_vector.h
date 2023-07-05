@@ -229,7 +229,8 @@ public:
     Void PushBack(const IndexType num, const ObjectType& object) noexcept;
     Void PushBack(ObjectType&& object) noexcept;
 
-    Void PushBackEmpty(const IndexType object) noexcept;
+    Void PushBackEmpty(const IndexType num) noexcept;
+
     /*
         Calls the constructor with the arguements.
     */
@@ -489,7 +490,7 @@ Void ZVector<ObjectType, kIfInitializeObject>::PushBack(const IndexType num, con
     if (new_size > capacity_) {
         ExtendCapacity(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
     }
-    CreateObjects(data_ptr_+ size_, object);
+    CreateObjects(data_ptr_+ size_, data_ptr_ + new_size, object);
     size_ = new_size;
 }
 
@@ -501,6 +502,23 @@ Void ZVector<ObjectType, kIfInitializeObject>::PushBack(ObjectType&& object) noe
     }
     data_ptr_[size_] = std::forward<ObjectType>(object);
     size_ = new_size;
+}
+
+template<typename ObjectType, Bool kIfInitializeObject>
+Void ZVector<ObjectType, kIfInitializeObject>::PushBackEmpty(const IndexType num) noexcept {
+    IndexType new_size = size_ + num;
+    if (new_size > capacity_) {
+        ExtendCapacity(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+    }
+    CreateObjects(data_ptr_ + size_, num);
+    size_ = new_size;
+}
+
+template<typename ObjectType, Bool kIfInitializeObject>
+template<typename... ArgsType>
+Void ZVector<ObjectType, kIfInitializeObject>::EmplaceBack(ArgsType&&... args) noexcept {
+    DestroyObjectAtIndex(size_ - 1);
+    CreateObjectAtIndex(size_ - 1, std::forward<ArgsType>(args)...);
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
