@@ -4,22 +4,33 @@ using namespace zengine;
 using namespace std;
 using namespace zengine::math;
 
-constexpr CChar kTestString[] = "123";
 
-template<typename ObjectType>
-class VectorIterator;
-
-template<typename ObjectType,typename CompareFunction>
-requires kIsCompareFunction<CompareFunction, ObjectType>
-void test(ObjectType&& object, CompareFunction&& compare_function) {
-
-}
 #include <iomanip>
 #include <vector>
 #include"z_core/z_vector.h"
 
+#define TIME_TEST(code)\
+	{	\
+		Int32 start_time,end_time;	\
+		start_time = clock();	\
+		code;	\
+		end_time = clock();	\
+		std::cout << "代码运行总共消耗：" << end_time - start_time << "ms" << std::endl;\
+	}
+
+
 int main(){
 
+
+    Int32* test_1 = new Int32[1024 * 1024 * 100];
+    Int32* test_2 = new Int32[1024 * 1024 * 100];
+
+    for (IndexType index = 0; index < 1024 * 1024; index++) {
+        test_1[index] = index;
+    }
+    TIME_TEST(memmove(test_1, test_2, 4LL * 1024LL * 1024LL * 100 - 10));
+    TIME_TEST(memcpy(test_1, test_2, 4LL * 1024LL * 1024LL * 100 - 10););
+  
     /*求2到100000000的所有质数*/
     //int n = 100000000;
     //bool flag;
@@ -35,27 +46,27 @@ int main(){
     //    }
     //}
 
-    std::cout << std::setprecision(20);  // 设置输出的精度为18位有效数字
-    //Float64 b = 0.01;
+    //std::cout << std::setprecision(20);  // 设置输出的精度为18位有效数字
+    ////Float64 b = 0.01;
+    ////for (Int32 index = 1; index <= 200; ++index) {
+    ////    if (zengine::math::internal::LnCalculateA(0.01F * index) != 
+    ////        zengine::math::internal::LnCalculateB(0.01F * index)) {
+    ////        cout << index <<"  " << zengine::math::internal::LnCalculateA(0.01F * index) << "  " << zengine::math::internal::LnCalculateB(0.01F * index) << endl;
+    ////    }
+    ////}
+    //Float64 a = 1.0;
     //for (Int32 index = 1; index <= 200; ++index) {
-    //    if (zengine::math::internal::LnCalculateA(0.01F * index) != 
-    //        zengine::math::internal::LnCalculateB(0.01F * index)) {
-    //        cout << index <<"  " << zengine::math::internal::LnCalculateA(0.01F * index) << "  " << zengine::math::internal::LnCalculateB(0.01F * index) << endl;
-    //    }
+    //    cout << index << "  " << FactorialReciprocal<Float64>(index) * pow(LnA(2.0), index) << endl;
     //}
-    Float64 a = 1.0;
-    for (Int32 index = 1; index <= 200; ++index) {
-        cout << index << "  " << FactorialReciprocal<Float64>(index) * pow(LnA(2.0), index) << endl;
-    }
-    ZArray<Int32> array(1000);
-    ZVector<ZVector<Int32>> vector1;
-    ZVector<Int32> ele;
-    vector1.PushBack(std::move(ele));
-    auto itarator = vector1.ConstBegin();
-    test<Int32>(1,
-        [](Int32 a, Int32 b) -> Bool {
-        return a > b;
-        });
+    //ZArray<Int32> array(1000);
+    //ZVector<ZVector<Int32>> vector1;
+    //ZVector<Int32> ele;
+    //vector1.PushBack(std::move(ele));
+    //auto itarator = vector1.ConstBegin();
+    //test<Int32>(1,
+    //    [](Int32 a, Int32 b) -> Bool {
+    //    return a > b;
+    //    });
     //Size32Type test_number(0xff800000U);
     //Float32 asd = test_number.float_32;
     //if (asd == test_number.float_32) {

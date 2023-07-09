@@ -56,6 +56,9 @@ public:
 
     FORCEINLINE ~VectorIteratorBase() {}
 
+    NODISCARD FORCEINLINE ObjectType* object_ptr() { return object_ptr_; }
+    NODISCARD FORCEINLINE const ObjectType* object_ptr() const { return object_ptr_; }
+
     FORCEINLINE Void MoveDestroy() { object_ptr_ = nullptr; }
 
 protected:
@@ -225,11 +228,10 @@ public:
 
     Void PopBack() noexcept;
 
-    Void PushBack(const ObjectType& object) noexcept;
-    Void PushBack(const IndexType num, const ObjectType& object) noexcept;
-    Void PushBack(ObjectType&& object) noexcept;
-
-    Void PushBackEmpty(const IndexType num) noexcept;
+    template<typename... ArgsType>
+    Void PushBack(ArgsType&&... args) noexcept;
+    template<typename... ArgsType>
+    Void PushBacks(const IndexType num, ArgsType&&... args) noexcept;
 
     /*
         Calls the constructor with the arguements.
@@ -240,33 +242,33 @@ public:
     /*
         Inserts before the index. Returns the interator that points at the newest object.
     */
-    IteratorType Insert(const IndexType index, const ObjectType& object) noexcept;
-    /*
-        Inserts before the index. Returns the interator that points at the newest object.
-    */
-    IteratorType Insert(const IndexType index, const IndexType num, const ObjectType& object) noexcept;
-    /*
-        Inserts before the index. Returns the interator that points at the newest object.
-    */
-    IteratorType Insert(const IndexType index, ObjectType&& object) noexcept;
+    template<typename... ArgsType>
+    IteratorType Insert(const IndexType index, ArgsType&&... args) noexcept;
     /*
         Inserts before the iterator. Returns the interator that points at the newest object.
     */
-    IteratorType Insert(const IteratorType iterator, const ObjectType& object) noexcept;
-    /*
-        Inserts before the iterator. Returns the interator that points at the newest object.
-    */
-    IteratorType Insert(const IteratorType iterator, const IndexType num, const ObjectType& object) noexcept;
-    /*
-        Inserts before the iterator. Returns the interator that points at the newest object.
-    */
-    IteratorType Insert(const IteratorType iterator, ObjectType&& object) noexcept;
+    template<typename... ArgsType>
+    IteratorType Insert(const IteratorType iterator, ArgsType&&... args) noexcept;
 
-    Void Erase(const IndexType index) noexcept;
-    Void Erase(const IndexType index, const IndexType num) noexcept;
-    Void Erase(const IteratorType iterator) noexcept;
-    Void Erase(const IteratorType iterator, const IndexType num) noexcept;
-    Void Erase(const IteratorType begin, const IteratorType end) noexcept;
+    /*
+        Inserts before the index. Returns the interator that points at the first new object.
+    */
+    template<typename... ArgsType>
+    IteratorType Inserts(const IndexType index, IndexType num, ArgsType&&... args) noexcept;
+    /*
+        Inserts before the index. Returns the interator that points at the first new object.
+    */
+    template<typename... ArgsType>
+    IteratorType Inserts(const IteratorType iterator, IndexType num, ArgsType&&... args) noexcept;
+
+    IteratorType Erase(const IndexType index) noexcept;
+    IteratorType Erase(IteratorType iterator) noexcept;
+    IteratorType Erases(const IndexType index, const IndexType num) noexcept;
+    IteratorType Erases(IteratorType iterator, const IndexType num) noexcept;
+    /*
+        Erases the elements between begin and end, involves begin, but don't involves end.
+    */
+    IteratorType Erases(IteratorType begin, IteratorType end) noexcept;
 
     /*
         Calls the constructor with the arguements.
@@ -282,16 +284,28 @@ public:
     Void Assign(const IndexType num, const ObjectType& object) noexcept;
     Void Assign(const IteratorType begin, const IteratorType end) noexcept;
 
-    Void Sort();
+    /*
+        The small object on the front.
+    */
+    Void Sort() noexcept;
+    /*
+        will exchange the two objects when the function is true.
+    */
     template<typename CompareFunction>
     requires kIsCompareFunction<CompareFunction, ObjectType>
-    Void Sort(CompareFunction&& compare_function);        
-    Void Sort(const IteratorType begin, const IteratorType end);
+    Void Sort(CompareFunction&& compare_function) noexcept;
+    /*
+        The small object on the front.
+    */
+    Void Sort(const IteratorType begin, const IteratorType end) noexcept;
+    /*
+        will exchange the two objects when the function is true.
+    */
     template<typename CompareFunction>
     requires kIsCompareFunction<CompareFunction, ObjectType>
-    Void Sort(const IteratorType begin, const IteratorType end, CompareFunction&& compare_function);
+    Void Sort(const IteratorType begin, const IteratorType end, CompareFunction&& compare_function) noexcept;
 
-    FORCEINLINE Void Clear();
+    Void Clear() noexcept;
 
 protected:
     using SuperType = ZObject;
@@ -311,28 +325,36 @@ private:
     /*
         Creates an object at the certain index. Will call the Constrctor if needed.
     */
-    FORCEINLINE Void CreateObjectAtIndex(const IndexType index);
+    template<typename... ArgsType>
+    FORCEINLINE Void CreateObject(const IndexType index, ArgsType&&... args);
     /*
-        Creates an object at the certain index. Will always call the Constrctor.
+        Creates an object at the certain address. Will call the Constrctor if needed.
     */
     template<typename... ArgsType>
-    FORCEINLINE Void CreateObjectAtIndex(const IndexType index, ArgsType&&... args);
+    FORCEINLINE Void CreateObject(ObjectType* object_ptr, ArgsType&&... args);
 
     /*
         Destroys an object at the certain index. Will Call Destrctor if needed.
     */
-    FORCEINLINE Void DestroyObjectAtIndex(const IndexType index);
+    FORCEINLINE Void DestroyObject(const IndexType index);
+    /*
+        Destroys an object at the certain address. Will Call Destrctor if needed.
+    */
+    FORCEINLINE Void DestroyObject(ObjectType* object_ptr);
 
     /*
-        Initialize the address memory by the given address([begin, end)). 
-        Will call the constructor if this object class's member kIfInitializeObject is true.
+        Initialize the address memory by the given address([begin, end)).
+        Will call the Constrctor if needed.
     */
-    FORCEINLINE Void CreateObjects(ObjectType* begin_ptr, const ObjectType* end_ptr);
+    template<typename... ArgsType>
+    FORCEINLINE Void CreateObjects(ObjectType* begin_ptr, const ObjectType* end_ptr, ArgsType&&... args);
+
     /*
         Initialize the address memory by the given address([begin, begin + num)),
-        Will call the constructor if this object class's member kIfInitializeObject is true.
+        Will call the Constrctor if needed.
     */
-    FORCEINLINE Void CreateObjects(ObjectType* begin_ptr, const IndexType num);
+    template<typename... ArgsType>
+    FORCEINLINE Void CreateObjects(ObjectType* begin_ptr, const IndexType num, ArgsType&&... args);
 
     /*
         Initialize the address memory by the given address([begin, end)).
@@ -344,14 +366,7 @@ private:
         Initialize the address memory by the given address([begin + num)).
         Will call the copy constructor.
     */
-    FORCEINLINE Void CreateObjects(ObjectType* begin_ptr, ObjectType* src_ptr, const IndexType num);
-
-    /*
-        Initialize the address memory by the given address([begin, end)) and 
-        call the constructor with the given arguements.
-    */
-    template<typename... ArgsType>
-    FORCEINLINE Void CreateObjects(ObjectType* begin_ptr, const ObjectType* end_ptr, ArgsType&&... args);
+    FORCEINLINE Void CreateObjects(ObjectType* dst_ptr, ObjectType* src_ptr, const IndexType num);
 
     /*
         Copy objects by the address given. Will call the copy assignment operator
@@ -364,6 +379,12 @@ private:
         Will call the destrctor if this object class's member kIfInitializeObject is true.
     */
     FORCEINLINE Void DestroyObjects(ObjectType* begin_ptr, const ObjectType* end_ptr);
+
+    /*
+        Destroy the objects by the given address([begin, end)).
+        Will call the destrctor if this object class's member kIfInitializeObject is true.
+    */
+    FORCEINLINE Void DestroyObjects(ObjectType* begin_ptr, const IndexType num);
 
     ObjectType* data_ptr_;
     IndexType size_;
@@ -470,55 +491,156 @@ template<typename ObjectType, Bool kIfInitializeObject>
 Void ZVector<ObjectType, kIfInitializeObject>::PopBack() noexcept {
     if (size_ > 0) {
         --size_;
-        DestroyObjectAtIndex(size_);
+        DestroyObject(size_);
     }
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
-Void ZVector<ObjectType, kIfInitializeObject>::PushBack(const ObjectType& object) noexcept {
+template<typename... ArgsType>
+Void ZVector<ObjectType, kIfInitializeObject>::PushBack(ArgsType&&... args) noexcept {
     IndexType new_size = size_ + 1;
     if (new_size > capacity_) {
         ExtendCapacity(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
     }
-    CreateObjectAtIndex(size_, object);
+    CreateObject(size_, std::forward<ArgsType>(args)...);
     size_ = new_size;
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
-Void ZVector<ObjectType, kIfInitializeObject>::PushBack(const IndexType num, const ObjectType& object) noexcept {
+template<typename... ArgsType>
+Void ZVector<ObjectType, kIfInitializeObject>::PushBacks(const IndexType num, ArgsType&&... args) noexcept {
     IndexType new_size = size_ + num;
     if (new_size > capacity_) {
         ExtendCapacity(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
     }
-    CreateObjects(data_ptr_+ size_, data_ptr_ + new_size, object);
-    size_ = new_size;
-}
-
-template<typename ObjectType, Bool kIfInitializeObject>
-Void ZVector<ObjectType, kIfInitializeObject>::PushBack(ObjectType&& object) noexcept {
-    IndexType new_size = size_ + 1;
-    if (new_size > capacity_) {
-        ExtendCapacity(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
-    }
-    data_ptr_[size_] = std::forward<ObjectType>(object);
-    size_ = new_size;
-}
-
-template<typename ObjectType, Bool kIfInitializeObject>
-Void ZVector<ObjectType, kIfInitializeObject>::PushBackEmpty(const IndexType num) noexcept {
-    IndexType new_size = size_ + num;
-    if (new_size > capacity_) {
-        ExtendCapacity(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
-    }
-    CreateObjects(data_ptr_ + size_, num);
+    CreateObjects(data_ptr_ + size_, num, std::forward<ArgsType>(args)...);
     size_ = new_size;
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
 template<typename... ArgsType>
 Void ZVector<ObjectType, kIfInitializeObject>::EmplaceBack(ArgsType&&... args) noexcept {
-    DestroyObjectAtIndex(size_ - 1);
-    CreateObjectAtIndex(size_ - 1, std::forward<ArgsType>(args)...);
+    DestroyObject(size_ - 1);
+    CreateObject(size_ - 1, std::forward<ArgsType>(args)...);
+}
+
+template<typename ObjectType, Bool kIfInitializeObject>
+template<typename... ArgsType>
+ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfInitializeObject>::Insert(
+        const IndexType index, ArgsType&&... args) noexcept {
+    IndexType new_size = size_ + 1;
+    if (new_size > capacity_) {
+        ExtendCapacity(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+    }
+    memmove(reinterpret_cast<Address>(&data_ptr_[index + 1]), reinterpret_cast<Address>(&data_ptr_[index]), 
+            (size_ - index) * sizeof(ObjectType));
+    CreateObject(index, std::forward<ArgsType>(args)...);
+    size_ = new_size;
+    return IteratorType(&data_ptr_[index]);
+}
+
+template<typename ObjectType, Bool kIfInitializeObject>
+template<typename... ArgsType>
+ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfInitializeObject>::Insert(
+        const IteratorType iterator, ArgsType&&... args) noexcept {
+    IndexType new_size = size_ + 1;
+    IndexType index = iterator.object_ptr() - data_ptr_;
+    if (new_size > capacity_) {
+        ExtendCapacity(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+    }
+    memmove(reinterpret_cast<Address>(&data_ptr_[index + 1]), reinterpret_cast<Address>(&data_ptr_[index]), 
+            (size_ - index) * sizeof(ObjectType));
+    CreateObject(index, std::forward<ArgsType>(args)...);
+    size_ = new_size;
+    return IteratorType(&data_ptr_[index]);
+}
+
+template<typename ObjectType, Bool kIfInitializeObject>
+template<typename... ArgsType>
+ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfInitializeObject>::Inserts(
+        const IndexType index, IndexType num, ArgsType&&... args) noexcept {
+    IndexType new_size = size_ + num;
+    if (new_size > capacity_) {
+        ExtendCapacity(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+    }
+    memmove(reinterpret_cast<Address>(&data_ptr_[index + num]), reinterpret_cast<Address>(&data_ptr_[index]), 
+            (size_ - index) * sizeof(ObjectType));
+    CreateObjects(&data_ptr_[index], &data_ptr_[index + num], std::forward<ArgsType>(args)...);
+    size_ = new_size;
+    return IteratorType(&data_ptr_[index]);
+}
+
+template<typename ObjectType, Bool kIfInitializeObject>
+template<typename... ArgsType>
+ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfInitializeObject>::Inserts(
+        const IteratorType iterator, IndexType num, ArgsType&&... args) noexcept {
+    IndexType new_size = size_ + num;
+    IndexType index = iterator.object_ptr() - data_ptr_;
+    if (new_size > capacity_) {
+        ExtendCapacity(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+    }
+    memmove(reinterpret_cast<Address>(&data_ptr_[index + num]), reinterpret_cast<Address>(&data_ptr_[index]),
+            (size_ - index) * sizeof(ObjectType));
+    CreateObjects(&data_ptr_[index], &data_ptr_[index + num], std::forward<ArgsType>(args)...);
+    size_ = new_size;
+    return IteratorType(&data_ptr_[index]);
+}
+
+template<typename ObjectType, Bool kIfInitializeObject>
+ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfInitializeObject>::Erase(
+        const IndexType index) noexcept {
+    DestroyObject(index);
+    memmove(reinterpret_cast<Address>(&data_ptr_[index]), reinterpret_cast<Address>(&data_ptr_[index + 1]),
+            (size_ - index - 1) * sizeof(ObjectType));
+    --size_;
+    return IteratorType(&data_ptr_[index - 1]);
+}
+
+template<typename ObjectType, Bool kIfInitializeObject>
+ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfInitializeObject>::Erase(
+        ZVector<ObjectType, kIfInitializeObject>::IteratorType iterator) noexcept {
+    IndexType index = iterator.object_ptr() - data_ptr_;
+    DestroyObject(index);
+    memmove(reinterpret_cast<Address>(&data_ptr_[index]), reinterpret_cast<Address>(&data_ptr_[index + 1]),
+            (size_ - index - 1) * sizeof(ObjectType));
+    --size_;
+    return IteratorType(iterator.object_ptr() - 1);
+}
+
+template<typename ObjectType, Bool kIfInitializeObject>
+ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfInitializeObject>::Erases(
+        const IndexType index, const IndexType num) noexcept {
+    DestroyObjects(&data_ptr_[index], num);
+    memmove(reinterpret_cast<Address>(&data_ptr_[index]), reinterpret_cast<Address>(&data_ptr_[index + num]),
+            (size_ - index - num) * sizeof(ObjectType));
+    size_ -= num;
+    return IteratorType(&data_ptr_[index - 1]);
+}
+
+template<typename ObjectType, Bool kIfInitializeObject>
+ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfInitializeObject>::Erases(
+        IteratorType iterator, const IndexType num) noexcept {
+    IndexType index = iterator.object_ptr() - data_ptr_;
+    DestroyObjects(iterator.object_ptr(), num);
+    memmove(reinterpret_cast<Address>(&data_ptr_[index]), reinterpret_cast<Address>(&data_ptr_[index + num]), 
+            (size_ - index - num) * sizeof(ObjectType));
+    size_ -= num;
+    return --iterator;
+}
+template<typename ObjectType, Bool kIfInitializeObject>
+ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfInitializeObject>::Erases(
+        IteratorType begin, IteratorType end) noexcept {
+    DestroyObjects(begin.object_ptr(), end.object_ptr());
+    memmove(reinterpret_cast<Address>(begin.object_ptr()), reinterpret_cast<Address>(end.object_ptr()),
+            (size_ - (end.object_ptr() - data_ptr_)) * sizeof(ObjectType));
+    size_ -= end.object_ptr() - begin.object_ptr();
+    return --begin;
+}
+
+template<typename ObjectType, Bool kIfInitializeObject>
+Void ZVector<ObjectType, kIfInitializeObject>::Clear() noexcept {
+    DestroyObjects(data_ptr_, data_ptr_ + size_);
+    size_ = 0;
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
@@ -546,37 +668,83 @@ FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::MoveDestroy() {
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
-FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObjectAtIndex(const IndexType index) {
-    if constexpr (kIfInitializeObject) {
-        new(reinterpret_cast<Address>(&(data_ptr_[index]))) ObjectType();
+template<typename... ArgsType>
+FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObject(const IndexType index, 
+                                                                               ArgsType&&... args) {
+    if (sizeof...(ArgsType) == 0) {
+        if constexpr (kIfInitializeObject) {
+            new(reinterpret_cast<Address>(&(data_ptr_[index]))) ObjectType();
+        }
+    }
+    else {
+        new(reinterpret_cast<Address>(&(data_ptr_[index]))) ObjectType(std::forward<ArgsType>(args)...);
     }
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
 template<typename... ArgsType>
-FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObjectAtIndex(const IndexType index, 
-                                                                               ArgsType&&... args) {
-    new(reinterpret_cast<Address>(&(data_ptr_[index]))) ObjectType(std::forward<ArgsType>(args)...);
+FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObject(ObjectType* object_ptr, 
+                                                                        ArgsType&&... args) {
+    if (sizeof...(ArgsType) == 0) {
+        if constexpr (kIfInitializeObject) {
+            new(reinterpret_cast<Address>(object_ptr)) ObjectType();
+        }
+    }
+    else {
+        new(reinterpret_cast<Address>(object_ptr)) ObjectType(std::forward<ArgsType>(args)...);
+    }
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
-FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::DestroyObjectAtIndex(const IndexType index) {
+FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::DestroyObject(const IndexType index) {
     if constexpr (kIfInitializeObject) {
         data_ptr_[index].~ObjectType();
     }
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
-FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObjects(ObjectType* begin_ptr, 
-                                                                         const ObjectType* end_ptr) {
-    if constexpr (kIfInitializeObject) { 
-        new(reinterpret_cast<Address>(begin_ptr)) ObjectType[end_ptr - begin_ptr];
+FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::DestroyObject(ObjectType* object_ptr) {
+    if constexpr (kIfInitializeObject) {
+        (*object_ptr).~ObjectType();
     }
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
+template<typename... ArgsType>
+FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObjects(ObjectType* begin_ptr,
+                                                                         const ObjectType* end_ptr,
+                                                                         ArgsType&&... args) {
+    if (sizeof...(ArgsType) == 0) {
+        if constexpr (kIfInitializeObject) {
+            new(reinterpret_cast<Address>(begin_ptr)) ObjectType[end_ptr - begin_ptr];
+        }
+    }
+    else {
+        while (begin_ptr < end_ptr) {
+            new(reinterpret_cast<Address>(begin_ptr)) ObjectType(std::forward<ArgsType>(args)...);
+            ++begin_ptr;
+        }
+    }
+}
+
+template<typename ObjectType, Bool kIfInitializeObject>
+template<typename... ArgsType>
 FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObjects(ObjectType* begin_ptr, 
-                                                                         const IndexType num) {
+                                                                         const IndexType num,
+                                                                         ArgsType&&... args) {
+    if (sizeof...(ArgsType) == 0) {
+        if constexpr (kIfInitializeObject) {
+            new(reinterpret_cast<Address>(begin_ptr)) ObjectType[num];
+        }
+    }
+    else {
+        ObjectType* end_ptr = begin_ptr + num;
+        while (begin_ptr < end_ptr) {
+            new(reinterpret_cast<Address>(begin_ptr)) ObjectType(std::forward<ArgsType>(args)...);
+            ++begin_ptr;
+        }
+    }
+
     if constexpr (kIfInitializeObject) { 
         new(reinterpret_cast<Address>(begin_ptr)) ObjectType[num];
     }
@@ -600,32 +768,21 @@ FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObjects(ObjectT
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
-FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObjects(ObjectType* begin_ptr, 
+FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObjects(ObjectType* dst_ptr,
                                                                          ObjectType* src_ptr,
                                                                          const IndexType num) {
 
     if constexpr (kIfInitializeObject) {
-        ObjectType* end_ptr = begin_ptr + num;
-        while (begin_ptr < end_ptr) {
-            new(reinterpret_cast<Address>(begin_ptr)) ObjectType(*src_ptr);
-            ++begin_ptr;
+        ObjectType* end_ptr = dst_ptr + num;
+        while (dst_ptr < end_ptr) {
+            new(reinterpret_cast<Address>(dst_ptr)) ObjectType(*src_ptr);
+            ++dst_ptr;
             ++src_ptr;
         }
     }
     else {
-        memcpy(reinterpret_cast<Address>(begin_ptr), reinterpret_cast<Address>(const_cast<ObjectType*>(src_ptr)),
+        memcpy(reinterpret_cast<Address>(dst_ptr), reinterpret_cast<Address>(const_cast<ObjectType*>(src_ptr)),
             static_cast<SizeType>(num * sizeof(ObjectType)));
-    }
-}
-
-template<typename ObjectType, Bool kIfInitializeObject>
-template<typename... ArgsType>
-FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObjects(ObjectType* begin_ptr, 
-                                                                         const ObjectType* end_ptr,
-                                                                         ArgsType&&... args) {
-    while (begin_ptr < end_ptr) {
-        new(reinterpret_cast<Address>(begin_ptr)) ObjectType(std::forward<ArgsType>(args)...);
-        ++begin_ptr;
     }
 }
 
@@ -665,6 +822,18 @@ template<typename ObjectType, Bool kIfInitializeObject>
 FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::DestroyObjects(ObjectType* begin_ptr, 
                                                                           const ObjectType* end_ptr) {
     if constexpr (kIfInitializeObject) {
+        while (begin_ptr < end_ptr) {
+            begin_ptr->~ObjectType();
+            ++begin_ptr;
+        }
+    }
+}
+
+template<typename ObjectType, Bool kIfInitializeObject>
+FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::DestroyObjects(ObjectType* begin_ptr, 
+                                                                          const IndexType num) {
+    if constexpr (kIfInitializeObject) {
+        ObjectType* end_ptr = begin_ptr + num;
         while (begin_ptr < end_ptr) {
             begin_ptr->~ObjectType();
             ++begin_ptr;
