@@ -18,7 +18,7 @@ namespace memory_pool {
         memory piece, it's the offset to the real memory.
     - kIsThreadSafe: Thread safe or not.
 */
-template<typename MemoryPieceType, AddressType kMemoryPieceHeadOffset, Bool kIsThreadSafe>
+template<typename MemoryPieceType, PointerType kMemoryPieceHeadOffset, Bool kIsThreadSafe>
 class ZListMemoryPoolBase :public ZMemoryPoolBase<kIsThreadSafe> {
 private:
     //The multipul factor that container auto extends based on the origin size.
@@ -42,42 +42,38 @@ protected:
     explicit FORCEINLINE ZListMemoryPoolBase() noexcept : SuperType() {}
     explicit ZListMemoryPoolBase(const MemoryPoolType memory_pool_type, const MemoryType memory_piece_size,
                                  const MemoryType memory_piece_memory_size, const IndexType capacity) noexcept;
-
-    FORCEINLINE Void set_capacity(const IndexType capacity) { capacity_ = capacity; }
-    FORCEINLINE Void set_head_node_ptr(Node* head_node_ptr) { head_node_ptr_ = head_node_ptr; }
     
     FORCEINLINE static constexpr MemoryType node_head_offset() { return kNodeHeadOffset; }
-    NODISCARD FORCEINLINE const IndexType capacity() { return capacity_; }
-    NODISCARD FORCEINLINE const MemoryType memory_piece_size() { return memory_piece_size_; }
-    NODISCARD FORCEINLINE const MemoryType memory_piece_memory_size() { return memory_piece_memory_size_; }
-    NODISCARD FORCEINLINE Node* head_node_ptr() { return head_node_ptr_; }
+    NODISCARD FORCEINLINE const MemoryType capacity() const { return capacity_; }
+    NODISCARD FORCEINLINE const MemoryType memory_piece_size() const { return memory_piece_size_; }
+    NODISCARD FORCEINLINE const MemoryType memory_piece_memory_size() const { return memory_piece_memory_size_; }
 
     /*
-        It returns the memory's address(not the memory piece).It's inlined
+        It returns the memory's pointer(not the memory piece).It's inlined
         cause it's only used a few times.
     */
-    NODISCARD FORCEINLINE const Address ApplyMemory();
+    NODISCARD FORCEINLINE Void* ApplyMemory();
 
     /*
         Release the memory to this memory pool. It's inlinedcause it's only 
         used a few times.
     */
-    FORCEINLINE Void ReleaseMemory(const Address memory_address);
+    FORCEINLINE Void ReleaseMemory(const Void* memory_ptr);
 
 private:
     //The total offset of the memory piece.
-    static constexpr AddressType kNodeHeadOffset = sizeof(Node*) + kMemoryPieceHeadOffset;
+    static constexpr PointerType kNodeHeadOffset = sizeof(Node*) + kMemoryPieceHeadOffset;
 
     /*
         Called when the memory pool runs out. It aoto extends the memory pool.
     */
-    FORCEINLINE Void AutoExtend();
+    FORCEINLINE Void AutoExtendCapcity();
 
     /*
         The function that extends the memory pool. It must be rewrited in the
         sub class. capacity_ and head_node_ptr_ will be changed in this function.
     */
-    Void Extend(const IndexType memory_piece_added_num) noexcept;
+    Void ExtendCapacity(const IndexType memory_piece_added_num) noexcept;
 
     //The size of the memory piece(include the usable memory size)
     MemoryType memory_piece_size_;
@@ -88,7 +84,7 @@ private:
     Node* head_node_ptr_;
 };
 
-template<typename MemoryPieceType, AddressType kMemoryPieceHeadOffset, Bool kIsThreadSafe>
+template<typename MemoryPieceType, PointerType kMemoryPieceHeadOffset, Bool kIsThreadSafe>
 ZListMemoryPoolBase<MemoryPieceType, kMemoryPieceHeadOffset, kIsThreadSafe>::ZListMemoryPoolBase(
     const MemoryPoolType memory_pool_type, const MemoryType memory_piece_size,
     const MemoryType memory_piece_memory_size, const IndexType capacity) noexcept
@@ -97,43 +93,43 @@ ZListMemoryPoolBase<MemoryPieceType, kMemoryPieceHeadOffset, kIsThreadSafe>::ZLi
         , memory_piece_memory_size_(memory_piece_memory_size)
         , head_node_ptr_(nullptr)
         , capacity_(capacity) {
-    Extend(capacity);
+    ExtendCapacity(capacity);
 }
 
 
-template<typename MemoryPieceType, AddressType kMemoryPieceHeadOffset, Bool kIsThreadSafe>
-NODISCARD FORCEINLINE const Address ZListMemoryPoolBase<MemoryPieceType, kMemoryPieceHeadOffset, kIsThreadSafe>::ApplyMemory() {
+template<typename MemoryPieceType, PointerType kMemoryPieceHeadOffset, Bool kIsThreadSafe>
+NODISCARD FORCEINLINE Void* ZListMemoryPoolBase<MemoryPieceType, kMemoryPieceHeadOffset, kIsThreadSafe>::ApplyMemory() {
     MutexType::lock();
     if (head_node_ptr_ == nullptr) {
-        AutoExtend();
+        AutoExtendCapcity();
     }
-    Address objectAddress = reinterpret_cast<Address>(reinterpret_cast<AddressType>(head_node_ptr_) + kNodeHeadOffset);
+    Void* memory_ptr = reinterpret_cast<Void*>(reinterpret_cast<PointerType>(head_node_ptr_) + kNodeHeadOffset);
     head_node_ptr_ = head_node_ptr_->next_node_ptr;
     MutexType::unlock();
-    return objectAddress;
+    return memory_ptr;
 }
 
-template<typename MemoryPieceType, AddressType kMemoryPieceHeadOffset, Bool kIsThreadSafe>
+template<typename MemoryPieceType, PointerType kMemoryPieceHeadOffset, Bool kIsThreadSafe>
 FORCEINLINE Void ZListMemoryPoolBase<MemoryPieceType, kMemoryPieceHeadOffset, kIsThreadSafe>::ReleaseMemory(
-        const Address memory_address) {
+        const Void* memory_ptr) {
     MutexType::lock();
-    Node* nodeAddress = reinterpret_cast<Node*>(reinterpret_cast<AddressType>(memory_address) - kNodeHeadOffset);
-    nodeAddress->next_node_ptr = head_node_ptr_;
-    head_node_ptr_ = nodeAddress;
+    Node* node_ptr = reinterpret_cast<Node*>(reinterpret_cast<PointerType>(memory_ptr) - kNodeHeadOffset);
+    node_ptr->next_node_ptr = head_node_ptr_;
+    head_node_ptr_ = node_ptr;
     MutexType::unlock();
 }
 
-template<typename MemoryPieceType, AddressType kMemoryPieceHeadOffset, Bool kIsThreadSafe>
-FORCEINLINE Void ZListMemoryPoolBase<MemoryPieceType, kMemoryPieceHeadOffset, kIsThreadSafe>::AutoExtend() {
+template<typename MemoryPieceType, PointerType kMemoryPieceHeadOffset, Bool kIsThreadSafe>
+FORCEINLINE Void ZListMemoryPoolBase<MemoryPieceType, kMemoryPieceHeadOffset, kIsThreadSafe>::AutoExtendCapcity() {
     IndexType extend_num = static_cast<IndexType>(capacity_ * kAutoExtendMulFactor);
     if (extend_num < kAutoExtendMinNum) {
         extend_num = kAutoExtendMinNum;
     }
-    Extend(extend_num);
+    ExtendCapacity(extend_num);
 }
 
-template<typename MemoryPieceType, AddressType kMemoryPieceHeadOffset, Bool kIsThreadSafe>
-Void ZListMemoryPoolBase<MemoryPieceType, kMemoryPieceHeadOffset, kIsThreadSafe>::Extend(
+template<typename MemoryPieceType, PointerType kMemoryPieceHeadOffset, Bool kIsThreadSafe>
+Void ZListMemoryPoolBase<MemoryPieceType, kMemoryPieceHeadOffset, kIsThreadSafe>::ExtendCapacity(
         const IndexType memory_piece_added_num) noexcept {
     if (memory_piece_added_num == 0) {
         return;
@@ -148,8 +144,8 @@ Void ZListMemoryPoolBase<MemoryPieceType, kMemoryPieceHeadOffset, kIsThreadSafe>
             + kApplyHeapMemoryUnitSize;
     }
     //Apply heap memory.
-    Address apply_memory_address = ZHeapMemoryPool<kIsThreadSafe>::Instance().ApplyMemory(apply_heap_memory_size);
-    AddressType temp_memory_address = reinterpret_cast<AddressType>(apply_memory_address);
+    Void* apply_memory_ptr = ZHeapMemoryPool<kIsThreadSafe>::Instance().ApplyMemory(apply_heap_memory_size);
+    PointerType temp_memory_ptr = reinterpret_cast<PointerType>(apply_memory_ptr);
     SuperType* this_memory_pool_ptr = static_cast<SuperType*>(this);
     //Recaculate the real memory piece num added. 
     IndexType apply_memory_piece_num = apply_heap_memory_size / memory_piece_size_; 
@@ -157,19 +153,19 @@ Void ZListMemoryPoolBase<MemoryPieceType, kMemoryPieceHeadOffset, kIsThreadSafe>
     //Initialize the memory piece.
     for (IndexType count = 1; count < apply_memory_piece_num; count++) {
         //Initialize the memory piece.
-        reinterpret_cast<Node*>(temp_memory_address)->memory_piece.Init(reinterpret_cast<Address>(this));
+        reinterpret_cast<Node*>(temp_memory_ptr)->memory_piece.Init(reinterpret_cast<Void*>(this));
         //Links the pieces into a list.
-        reinterpret_cast<Node*>(temp_memory_address)->next_node_ptr =
-            reinterpret_cast<Node*>(temp_memory_address + memory_piece_size_);
-        //Next memory piece start address.
-        temp_memory_address += memory_piece_size_;
+        reinterpret_cast<Node*>(temp_memory_ptr)->next_node_ptr =
+            reinterpret_cast<Node*>(temp_memory_ptr + memory_piece_size_);
+        //Next memory piece start pointer.
+        temp_memory_ptr += memory_piece_size_;
     }
     //Initialize the last memory piece.
-    reinterpret_cast<Node*>(temp_memory_address)->memory_piece.Init(reinterpret_cast<Address>(this));
+    reinterpret_cast<Node*>(temp_memory_ptr)->memory_piece.Init(reinterpret_cast<Void*>(this));
     //Puts the pieces into the memory pool.
-    reinterpret_cast<Node*>(temp_memory_address)->next_node_ptr =
+    reinterpret_cast<Node*>(temp_memory_ptr)->next_node_ptr =
         const_cast<Node*>(head_node_ptr_);
-    head_node_ptr_ = reinterpret_cast<Node*>(apply_memory_address);
+    head_node_ptr_ = reinterpret_cast<Node*>(apply_memory_ptr);
 }
 
 }//memory_pool

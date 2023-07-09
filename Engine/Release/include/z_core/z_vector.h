@@ -281,7 +281,8 @@ public:
     template<typename... ArgsType>
     Void Emplace(const IteratorType iterator, ArgsType&&... args) noexcept;
 
-    Void Assign(const IndexType num, const ObjectType& object) noexcept;
+    template<typename... ArgsType>
+    Void Assign(const IndexType num, ArgsType&&... args) noexcept;
     Void Assign(const IteratorType begin, const IteratorType end) noexcept;
 
     /*
@@ -360,7 +361,7 @@ private:
         Initialize the address memory by the given address([begin, end)).
         Will call the copy constructor.
     */
-    FORCEINLINE Void CreateObjects(ObjectType* begin_ptr, const ObjectType* end_ptr, ObjectType* src_ptr);
+    FORCEINLINE Void CreateObjects(ObjectType* dst_ptr, ObjectType* src_begin_ptr, ObjectType* src_end_ptr);
 
     /*
         Initialize the address memory by the given address([begin + num)).
@@ -638,6 +639,44 @@ ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfIn
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
+template<typename... ArgsType>
+Void ZVector<ObjectType, kIfInitializeObject>::Emplace(const IndexType index, ArgsType&&... args) noexcept {
+    DestroyObject(index);
+    CreateObject(index, std::forward<ArgsType>(args)...);
+}
+
+template<typename ObjectType, Bool kIfInitializeObject>
+template<typename... ArgsType>
+Void ZVector<ObjectType, kIfInitializeObject>::Emplace(
+        const ZVector<ObjectType, kIfInitializeObject>::IteratorType iterator, ArgsType&&... args) noexcept {
+    DestroyObject(iterator.object_ptr());
+    CreateObject(iterator.object_ptr(), std::forward<ArgsType>(args)...);
+}
+
+template<typename ObjectType, Bool kIfInitializeObject>
+template<typename... ArgsType>
+Void ZVector<ObjectType, kIfInitializeObject>::Assign(const IndexType num, ArgsType&&... args) noexcept {
+    IndexType new_size = size_ + num;
+    if (new_size > capacity_) {
+        ExtendCapacity(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+    }
+    DestroyObjects(data_ptr_, size_);
+    CreateObjects(data_ptr_, num, std::forward<ArgsType>(args)...);
+    size_ = new_size;
+}
+
+template<typename ObjectType, Bool kIfInitializeObject>
+Void ZVector<ObjectType, kIfInitializeObject>::Assign(const IteratorType begin, const IteratorType end) noexcept {
+    IndexType new_size = size_ + (end - begin);
+    if (new_size > capacity_) {
+        ExtendCapacity(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+    }
+    DestroyObjects(data_ptr_, size_);
+    CreateObjects(data_ptr_, begin.object_ptr(), end.object_ptr());
+    size_ = new_size;
+}
+
+template<typename ObjectType, Bool kIfInitializeObject>
 Void ZVector<ObjectType, kIfInitializeObject>::Clear() noexcept {
     DestroyObjects(data_ptr_, data_ptr_ + size_);
     size_ = 0;
@@ -751,25 +790,24 @@ FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObjects(ObjectT
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
-FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObjects(ObjectType* begin_ptr, 
-                                                                         const ObjectType* end_ptr, 
-                                                                         ObjectType* src_ptr) {
+FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObjects(ObjectType* dst_ptr, 
+                                                                         ObjectType* src_begin_ptr, 
+                                                                         ObjectType* src_end_ptr) {
     if constexpr (kIfInitializeObject) {
-        while (begin_ptr < end_ptr) {
-            new(reinterpret_cast<Address>(begin_ptr)) ObjectType(*src_ptr);
-            ++begin_ptr;
-            ++src_ptr;
+        while (src_begin_ptr < src_end_ptr) {
+            new(reinterpret_cast<Address>(dst_ptr)) ObjectType(*src_begin_ptr);
+            ++dst_ptr;
+            ++src_begin_ptr;
         }
     }
     else {
-        memcpy(reinterpret_cast<Address>(begin_ptr), reinterpret_cast<Address>(const_cast<ObjectType*>(src_ptr)),
-            static_cast<SizeType>((end_ptr - begin_ptr) * sizeof(ObjectType)));
+        memcpy(reinterpret_cast<Address>(dst_ptr), reinterpret_cast<Address>(const_cast<ObjectType*>(src_begin_ptr)),
+            static_cast<SizeType>((src_end_ptr - src_begin_ptr) * sizeof(ObjectType)));
     }
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
-FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObjects(ObjectType* dst_ptr,
-                                                                         ObjectType* src_ptr,
+FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObjects(ObjectType* dst_ptr, ObjectType* src_ptr,
                                                                          const IndexType num) {
 
     if constexpr (kIfInitializeObject) {

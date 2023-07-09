@@ -237,7 +237,7 @@ Void ZContainerBase<ObjectType, kIfInitializeObject>::set_capacity(const IndexTy
     MemoryType need_memory_size = capacity * sizeof(ObjectType);
     ExtendMemory(need_memory_size);
     //Inicialize the objects if needed.
-    CreateObjects(reinterpret_cast<ObjectType*>(reinterpret_cast<AddressType>(data_ptr_) + current_memory_size),
+    CreateObjects(reinterpret_cast<ObjectType*>(reinterpret_cast<PointerType>(data_ptr_) + current_memory_size),
                   capacity - capacity_);
     //Destroy the extra objects if needed.
     DestroyObjects(data_ptr_ + capacity_, capacity - capacity_);

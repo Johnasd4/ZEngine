@@ -10,7 +10,7 @@ namespace memory_pool {
     The base type of all memory piece.
 */
 struct ZMemoryPieceBase {
-    FORCEINLINE Void Init(const Address pool_ptr) {}
+    FORCEINLINE Void Init(Void* pool_ptr) {}
 };
 
 }//memory_pool

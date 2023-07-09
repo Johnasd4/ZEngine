@@ -92,7 +92,7 @@ using Float64 = double;
 //The type of the max array length.
 using SizeType = size_t;
 //The type of the address when translated to number.
-using AddressType = SizeType;
+using PointerType = SizeType;
 //The type of the memory size.
 using MemoryType = UInt32;
 //The type of the index.
@@ -133,7 +133,7 @@ union Size64Type {
 #pragma region basic function
 
 template<typename ObjectType>
-FORCEINLINE constexpr Void Swap(ObjectType* object_1, ObjectType* object_2) {
+FORCEINLINE constexpr Void Swap(ObjectType const* object_1, ObjectType const* object_2) {
     ObjectType temp_object = std::move(*object_1);
     *object_1 = std::move(*object_2);
     *object_2 = std::move(temp_object);

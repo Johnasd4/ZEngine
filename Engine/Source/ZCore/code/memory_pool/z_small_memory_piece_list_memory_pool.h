@@ -17,7 +17,7 @@ template<Bool kIsThreadSafe>
 struct ZSmallMemoryPiece : ZMemoryPieceBase{
     ZMemoryPoolBase<kIsThreadSafe>* owner_memory_pool_ptr;
 
-    FORCEINLINE Void Init(const Address pool_ptr) { 
+    FORCEINLINE Void Init(Void* pool_ptr) { 
         owner_memory_pool_ptr = reinterpret_cast<ZMemoryPoolBase<kIsThreadSafe>*>(pool_ptr);
     }
 };
@@ -40,18 +40,18 @@ private:
     static constexpr MemoryType kMemoryPieceSizeMulGrowFactor = 2;
 
 public:
-    NODISCARD static const Address ApplyMemory(const MemoryType size) noexcept;
-    NODISCARD static const Address ApplyMemory(const MemoryType size, MemoryType* memory_size_ptr) noexcept;
+    NODISCARD static Void* ApplyMemory(const MemoryType size) noexcept;
+    NODISCARD static Void* ApplyMemory(const MemoryType size, MemoryType* memory_size_ptr) noexcept;
 
     /*
-        Checks if the memory can extend without moving to a new Address, If can
+        Checks if the memory can extend without moving to a new memory, If can
         then it will auto extend and return true.
     */
     FORCEINLINE static const Bool CheckMemory(ZSmallMemoryPieceListMemoryPool* memory_pool_ptr, const MemoryType size);
     FORCEINLINE static const Bool CheckMemory(ZSmallMemoryPieceListMemoryPool* memory_pool_ptr, const MemoryType size,
                                               MemoryType* memory_size_ptr);
 
-    static Void ReleaseMemory(ZSmallMemoryPieceListMemoryPool* memory_pool_ptr, const Address address) noexcept;
+    static Void ReleaseMemory(ZSmallMemoryPieceListMemoryPool* memory_pool_ptr, const Void* memory_ptr) noexcept;
 
     FORCEINLINE static constexpr MemoryType memory_piece_memory_max_size() { return kMemoryPieceMemoryMaxSize; }
     FORCEINLINE static constexpr IndexType memory_piece_type_num() { return kMemoryPieceTypeNum; }
@@ -121,14 +121,14 @@ private:
     ~ZSmallMemoryPieceListMemoryPool() noexcept;
 
 #ifdef USE_MEMORY_POOL_TEST
-    mutable IndexType memory_piece_used_current_num_ = 0;
-    mutable IndexType momory_piece_applyed_num_ = 0;
-    mutable IndexType momory_piece_peak_num_ = 0;
+    IndexType memory_piece_used_current_num_ = 0;
+    IndexType momory_piece_applyed_num_ = 0;
+    IndexType momory_piece_peak_num_ = 0;
 #endif //USE_MEMORY_POOL_TEST
 };
 
 template<Bool kIsThreadSafe>
-NODISCARD const Address ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::ApplyMemory(
+NODISCARD Void* ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::ApplyMemory(
         const MemoryType size) noexcept {
     static ZFixedArray<ZSmallMemoryPieceListMemoryPool<kIsThreadSafe> , kMemoryPieceTypeNum> memory_pool_array(
         MemoryPoolArrayInitFunction);
@@ -146,7 +146,7 @@ NODISCARD const Address ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::ApplyMem
 }
 
 template<Bool kIsThreadSafe>
-NODISCARD const Address ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::ApplyMemory(
+NODISCARD Void* ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::ApplyMemory(
         const MemoryType size, MemoryType* memory_size_ptr) noexcept {
     static ZFixedArray<ZSmallMemoryPieceListMemoryPool<kIsThreadSafe> , kMemoryPieceTypeNum> memory_pool_array(
         MemoryPoolArrayInitFunction);
@@ -177,18 +177,18 @@ FORCEINLINE const Bool ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::CheckMemo
 
 template<Bool kIsThreadSafe>
 Void ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::ReleaseMemory(
-    ZSmallMemoryPieceListMemoryPool* memory_pool_ptr, const Address address) noexcept {
+    ZSmallMemoryPieceListMemoryPool* memory_pool_ptr, const Void* memory_ptr) noexcept {
 #ifdef USE_MEMORY_POOL_TEST
     memory_pool_ptr->memory_piece_used_current_num_ -= 1;
 #endif //USE_MEMORY_POOL_TEST
-    memory_pool_ptr->SuperType::ReleaseMemory(address);
+    memory_pool_ptr->SuperType::ReleaseMemory(memory_ptr);
 }
 
 template<Bool kIsThreadSafe>
 Void ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::MemoryPoolArrayInitFunction(
     ZFixedArray<ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>, kMemoryPieceTypeNum>* array_ptr) noexcept {
     for (IndexType index = 0; index < array_ptr->size(); ++index) {
-        new(reinterpret_cast<Address>(&(*array_ptr)(index)))
+        new(reinterpret_cast<Void*>(&(*array_ptr)(index)))
             ZSmallMemoryPieceListMemoryPool(kMemoryPieceSizeArray(index), kMemoryPieceMemorySizeArray(index),
                                             kMemoryPieceDefaultNumArray(index));
     }

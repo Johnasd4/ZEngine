@@ -24,71 +24,52 @@ public:
         static ZHeapMemoryPool heap_memory_controller;
         return heap_memory_controller;
     }
-
-    /*
-        Use ApplyBigMemory to apply memory bigger then 2^32.
-    */
-    NODISCARD const Address ApplyMemory(const MemoryType size) noexcept;
-    NODISCARD const Address ApplyBigMemory(const SizeType size) noexcept;
+ 
+    NODISCARD Void* ApplyMemory(const MemoryType size) noexcept;
 
 protected:
     using MutexType = ZMemoryPoolThreadSafeBase<kIsThreadSafe>;
 
 private:
-    struct AddressArrayNode {
-        static constexpr Int32 kAddressNumPurNode = (kHeapMemoryUnitSize - sizeof(Address)) / sizeof(Address);
+    struct HeapMemoryPtrArrayNode {
+        static constexpr Int32 kHeapMemoryPtrNumPurNode = (kHeapMemoryUnitSize - sizeof(Void*)) / sizeof(Void*);
 
-        Address address[kAddressNumPurNode];
-        AddressArrayNode* next_node_ptr;
+        Void* heap_memory_ptr[kHeapMemoryPtrNumPurNode];
+        HeapMemoryPtrArrayNode* next_node_ptr;
     };
 
     ZHeapMemoryPool() noexcept 
-        : current_node_ptr_(static_cast<AddressArrayNode*>(malloc(sizeof(AddressArrayNode))))
+        : current_node_ptr_(static_cast<HeapMemoryPtrArrayNode*>(malloc(sizeof(HeapMemoryPtrArrayNode))))
         , head_node_ptr_(current_node_ptr_)
-        , current_node_address_num_(0) {}
+        , current_node_heap_memory_ptr_num_(0) {}
     /*
         Release all the heap memory.
     */
     ~ZHeapMemoryPool() noexcept;
 
-    AddressArrayNode* current_node_ptr_;
-    AddressArrayNode* head_node_ptr_;
-    Int32 current_node_address_num_;
+    HeapMemoryPtrArrayNode* current_node_ptr_;
+    HeapMemoryPtrArrayNode* head_node_ptr_;
+    Int32 current_node_heap_memory_ptr_num_;
 };
 
 #pragma warning(disable : 6011)
 
 template<Bool kIsThreadSafe>
-NODISCARD const Address ZHeapMemoryPool<kIsThreadSafe>::ApplyMemory(const MemoryType size) noexcept {
-    Address heap_memory_address = malloc(size);
+NODISCARD Void* ZHeapMemoryPool<kIsThreadSafe>::ApplyMemory(const MemoryType size) noexcept {
+    Void* heap_memory_ptr = malloc(size);
     MutexType::lock();
     //applys new node when the memory runs out.
-    if (current_node_address_num_ == AddressArrayNode::kAddressNumPurNode) {
-        current_node_address_num_ = 0;
-        current_node_ptr_->next_node_ptr = static_cast<AddressArrayNode*>(malloc(sizeof(AddressArrayNode)));
+    if (current_node_heap_memory_ptr_num_ == HeapMemoryPtrArrayNode::kHeapMemoryPtrNumPurNode) {
+        current_node_heap_memory_ptr_num_ = 0;
+        current_node_ptr_->next_node_ptr = static_cast<HeapMemoryPtrArrayNode*>(malloc(sizeof(HeapMemoryPtrArrayNode)));
         current_node_ptr_ = current_node_ptr_->next_node_ptr;
     }
-    current_node_ptr_->address[current_node_address_num_++] = heap_memory_address;
+    current_node_ptr_->heap_memory_ptr[current_node_heap_memory_ptr_num_++] = heap_memory_ptr;
     MutexType::unlock();
-    return heap_memory_address;
+    return heap_memory_ptr;
 }
 
 #pragma warning(default : 6011)
-
-template<Bool kIsThreadSafe>
-NODISCARD const Address ZHeapMemoryPool<kIsThreadSafe>::ApplyBigMemory(const SizeType size) noexcept {
-    Address heap_memory_address = malloc(size);
-    MutexType::lock();
-    //applys new node when the memory runs out.
-    if (current_node_address_num_ == AddressArrayNode::kAddressNumPurNode) {
-        current_node_address_num_ = 0;
-        current_node_ptr_->next_node_ptr = static_cast<AddressArrayNode*>(malloc(sizeof(AddressArrayNode)));
-        current_node_ptr_ = current_node_ptr_->next_node_ptr;
-    }
-    current_node_ptr_->address[current_node_address_num_++] = heap_memory_address;
-    MutexType::unlock();
-    return heap_memory_address;
-}
 
 #pragma warning(disable : 6001)
 
@@ -96,18 +77,18 @@ template<Bool kIsThreadSafe>
 ZHeapMemoryPool<kIsThreadSafe>::~ZHeapMemoryPool() noexcept {
     //Delete the filled nodes.
     while (head_node_ptr_ != current_node_ptr_) {
-        AddressArrayNode* delete_node = head_node_ptr_;
+        HeapMemoryPtrArrayNode* delete_node = head_node_ptr_;
         head_node_ptr_ = head_node_ptr_->next_node_ptr;
         //Delete the heap memory inside the node.
-        for (IndexType index = 0; index < AddressArrayNode::kAddressNumPurNode; ++index) {
-            free(delete_node->address[index]);
+        for (IndexType index = 0; index < HeapMemoryPtrArrayNode::kHeapMemoryPtrNumPurNode; ++index) {
+            free(delete_node->heap_memory_ptr[index]);
         }
         //Delete the node itself.
         free(delete_node);
     }
     //Delete the unfilled node.
-    for (IndexType index = 0; index < current_node_address_num_; ++index) {
-        free(head_node_ptr_->address[index]);
+    for (IndexType index = 0; index < current_node_heap_memory_ptr_num_; ++index) {
+        free(head_node_ptr_->heap_memory_ptr[index]);
     }
     free(head_node_ptr_);
 }
