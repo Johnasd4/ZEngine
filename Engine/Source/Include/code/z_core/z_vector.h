@@ -677,7 +677,7 @@ Void ZVector<ObjectType, kIfInitializeObject>::Emplace(
 template<typename ObjectType, Bool kIfInitializeObject>
 template<typename... ArgsType>
 Void ZVector<ObjectType, kIfInitializeObject>::Assign(const IndexType num, ArgsType&&... args) noexcept {
-    IndexType new_size = size_ + num;
+    IndexType new_size = num;
     if (new_size > capacity_) {
         ExtendCapacity(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
     }
@@ -688,7 +688,7 @@ Void ZVector<ObjectType, kIfInitializeObject>::Assign(const IndexType num, ArgsT
 
 template<typename ObjectType, Bool kIfInitializeObject>
 Void ZVector<ObjectType, kIfInitializeObject>::Assign(const IteratorType begin, const IteratorType end) noexcept {
-    IndexType new_size = size_ + (end - begin);
+    IndexType new_size = end - begin;
     if (new_size > capacity_) {
         ExtendCapacity(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
     }
