@@ -2,7 +2,6 @@
 
 using namespace zengine;
 using namespace std;
-using namespace zengine::math;
 
 
 #include <iomanip>

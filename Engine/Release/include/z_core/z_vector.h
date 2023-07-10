@@ -329,7 +329,7 @@ private:
     template<typename... ArgsType>
     FORCEINLINE Void CreateObject(const IndexType index, ArgsType&&... args);
     /*
-        Creates an object at the certain address. Will call the Constrctor if needed.
+        Creates an object at the certain place. Will call the Constrctor if needed.
     */
     template<typename... ArgsType>
     FORCEINLINE Void CreateObject(ObjectType* object_ptr, ArgsType&&... args);
@@ -339,50 +339,50 @@ private:
     */
     FORCEINLINE Void DestroyObject(const IndexType index);
     /*
-        Destroys an object at the certain address. Will Call Destrctor if needed.
+        Destroys an object at the certain place. Will Call Destrctor if needed.
     */
     FORCEINLINE Void DestroyObject(ObjectType* object_ptr);
 
     /*
-        Initialize the address memory by the given address([begin, end)).
+        Initialize the memory by the given arguements([begin, end)).
         Will call the Constrctor if needed.
     */
     template<typename... ArgsType>
     FORCEINLINE Void CreateObjects(ObjectType* begin_ptr, const ObjectType* end_ptr, ArgsType&&... args);
 
     /*
-        Initialize the address memory by the given address([begin, begin + num)),
+        Initialize the memory by the given arguements([begin, begin + num)),
         Will call the Constrctor if needed.
     */
     template<typename... ArgsType>
     FORCEINLINE Void CreateObjects(ObjectType* begin_ptr, const IndexType num, ArgsType&&... args);
 
     /*
-        Initialize the address memory by the given address([begin, end)).
+        Initialize the memory by the given arguements([begin, end)).
         Will call the copy constructor.
     */
     FORCEINLINE Void CreateObjects(ObjectType* dst_ptr, ObjectType* src_begin_ptr, ObjectType* src_end_ptr);
 
     /*
-        Initialize the address memory by the given address([begin + num)).
+        Initialize the memory by the given arguements([begin + num)).
         Will call the copy constructor.
     */
     FORCEINLINE Void CreateObjects(ObjectType* dst_ptr, ObjectType* src_ptr, const IndexType num);
 
     /*
-        Copy objects by the address given. Will call the copy assignment operator
+        Copy objects by the given pointer. Will call the copy assignment operator
         if this object class's member kIfInitializeObject is true. 
     */
     FORCEINLINE Void CopyObjects(ObjectType* dst_ptr, ObjectType* src_ptr, const IndexType num);
 
     /*
-        Destroy the objects by the given address([begin, end)). 
+        Destroy the objects by the given arguements([begin, end)). 
         Will call the destrctor if this object class's member kIfInitializeObject is true.
     */
     FORCEINLINE Void DestroyObjects(ObjectType* begin_ptr, const ObjectType* end_ptr);
 
     /*
-        Destroy the objects by the given address([begin, end)).
+        Destroy the objects by the given arguements([begin, begin + num)).
         Will call the destrctor if this object class's member kIfInitializeObject is true.
     */
     FORCEINLINE Void DestroyObjects(ObjectType* begin_ptr, const IndexType num);
@@ -449,7 +449,7 @@ template<typename ObjectType, Bool kIfInitializeObject>
 ZVector<ObjectType, kIfInitializeObject>::~ZVector() noexcept {
     if (data_ptr_ != nullptr) {
         DestroyObjects(data_ptr_, data_ptr_ + size_);
-        memory_pool::ReleaseMemory(reinterpret_cast<Address>(data_ptr_));
+        memory_pool::ReleaseMemory(reinterpret_cast<Void*>(data_ptr_));
     }
 }
 
@@ -533,7 +533,7 @@ ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfIn
     if (new_size > capacity_) {
         ExtendCapacity(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
     }
-    memmove(reinterpret_cast<Address>(&data_ptr_[index + 1]), reinterpret_cast<Address>(&data_ptr_[index]), 
+    memmove(reinterpret_cast<Void*>(&data_ptr_[index + 1]), reinterpret_cast<Void*>(&data_ptr_[index]),
             (size_ - index) * sizeof(ObjectType));
     CreateObject(index, std::forward<ArgsType>(args)...);
     size_ = new_size;
@@ -549,7 +549,7 @@ ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfIn
     if (new_size > capacity_) {
         ExtendCapacity(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
     }
-    memmove(reinterpret_cast<Address>(&data_ptr_[index + 1]), reinterpret_cast<Address>(&data_ptr_[index]), 
+    memmove(reinterpret_cast<Void*>(&data_ptr_[index + 1]), reinterpret_cast<Void*>(&data_ptr_[index]),
             (size_ - index) * sizeof(ObjectType));
     CreateObject(index, std::forward<ArgsType>(args)...);
     size_ = new_size;
@@ -564,7 +564,7 @@ ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfIn
     if (new_size > capacity_) {
         ExtendCapacity(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
     }
-    memmove(reinterpret_cast<Address>(&data_ptr_[index + num]), reinterpret_cast<Address>(&data_ptr_[index]), 
+    memmove(reinterpret_cast<Void*>(&data_ptr_[index + num]), reinterpret_cast<Void*>(&data_ptr_[index]),
             (size_ - index) * sizeof(ObjectType));
     CreateObjects(&data_ptr_[index], &data_ptr_[index + num], std::forward<ArgsType>(args)...);
     size_ = new_size;
@@ -580,7 +580,7 @@ ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfIn
     if (new_size > capacity_) {
         ExtendCapacity(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
     }
-    memmove(reinterpret_cast<Address>(&data_ptr_[index + num]), reinterpret_cast<Address>(&data_ptr_[index]),
+    memmove(reinterpret_cast<Void*>(&data_ptr_[index + num]), reinterpret_cast<Void*>(&data_ptr_[index]),
             (size_ - index) * sizeof(ObjectType));
     CreateObjects(&data_ptr_[index], &data_ptr_[index + num], std::forward<ArgsType>(args)...);
     size_ = new_size;
@@ -591,7 +591,7 @@ template<typename ObjectType, Bool kIfInitializeObject>
 ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfInitializeObject>::Erase(
         const IndexType index) noexcept {
     DestroyObject(index);
-    memmove(reinterpret_cast<Address>(&data_ptr_[index]), reinterpret_cast<Address>(&data_ptr_[index + 1]),
+    memmove(reinterpret_cast<Void*>(&data_ptr_[index]), reinterpret_cast<Void*>(&data_ptr_[index + 1]),
             (size_ - index - 1) * sizeof(ObjectType));
     --size_;
     return IteratorType(&data_ptr_[index - 1]);
@@ -602,7 +602,7 @@ ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfIn
         ZVector<ObjectType, kIfInitializeObject>::IteratorType iterator) noexcept {
     IndexType index = iterator.object_ptr() - data_ptr_;
     DestroyObject(index);
-    memmove(reinterpret_cast<Address>(&data_ptr_[index]), reinterpret_cast<Address>(&data_ptr_[index + 1]),
+    memmove(reinterpret_cast<Void*>(&data_ptr_[index]), reinterpret_cast<Void*>(&data_ptr_[index + 1]),
             (size_ - index - 1) * sizeof(ObjectType));
     --size_;
     return IteratorType(iterator.object_ptr() - 1);
@@ -612,7 +612,7 @@ template<typename ObjectType, Bool kIfInitializeObject>
 ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfInitializeObject>::Erases(
         const IndexType index, const IndexType num) noexcept {
     DestroyObjects(&data_ptr_[index], num);
-    memmove(reinterpret_cast<Address>(&data_ptr_[index]), reinterpret_cast<Address>(&data_ptr_[index + num]),
+    memmove(reinterpret_cast<Void*>(&data_ptr_[index]), reinterpret_cast<Void*>(&data_ptr_[index + num]),
             (size_ - index - num) * sizeof(ObjectType));
     size_ -= num;
     return IteratorType(&data_ptr_[index - 1]);
@@ -623,7 +623,7 @@ ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfIn
         IteratorType iterator, const IndexType num) noexcept {
     IndexType index = iterator.object_ptr() - data_ptr_;
     DestroyObjects(iterator.object_ptr(), num);
-    memmove(reinterpret_cast<Address>(&data_ptr_[index]), reinterpret_cast<Address>(&data_ptr_[index + num]), 
+    memmove(reinterpret_cast<Void*>(&data_ptr_[index]), reinterpret_cast<Void*>(&data_ptr_[index + num]), 
             (size_ - index - num) * sizeof(ObjectType));
     size_ -= num;
     return --iterator;
@@ -632,7 +632,7 @@ template<typename ObjectType, Bool kIfInitializeObject>
 ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfInitializeObject>::Erases(
         IteratorType begin, IteratorType end) noexcept {
     DestroyObjects(begin.object_ptr(), end.object_ptr());
-    memmove(reinterpret_cast<Address>(begin.object_ptr()), reinterpret_cast<Address>(end.object_ptr()),
+    memmove(reinterpret_cast<Void*>(begin.object_ptr()), reinterpret_cast<Void*>(end.object_ptr()),
             (size_ - (end.object_ptr() - data_ptr_)) * sizeof(ObjectType));
     size_ -= end.object_ptr() - begin.object_ptr();
     return --begin;
@@ -688,12 +688,12 @@ Void ZVector<ObjectType, kIfInitializeObject>::ExtendCapacity(const IndexType ca
     MemoryType need_memory_size = capacity * sizeof(ObjectType);
     MemoryType apply_mrmory_size;
     //The current memory piece doesn't have enough memory.
-    if (!memory_pool::CheckMemory(reinterpret_cast<Address>(data_ptr_), need_memory_size, &apply_mrmory_size)) {
+    if (!memory_pool::CheckMemory(reinterpret_cast<Void*>(data_ptr_), need_memory_size, &apply_mrmory_size)) {
         ObjectType* temp_data_ptr = 
             reinterpret_cast<ObjectType*>(memory_pool::ApplyMemory(need_memory_size, &apply_mrmory_size));
-        memcpy(reinterpret_cast<Address>(temp_data_ptr), reinterpret_cast<Address>(data_ptr_),
+        memcpy(reinterpret_cast<Void*>(temp_data_ptr), reinterpret_cast<Void*>(data_ptr_),
                size_ * sizeof(ObjectType));
-        memory_pool::ReleaseMemory(reinterpret_cast<Address>(data_ptr_));
+        memory_pool::ReleaseMemory(reinterpret_cast<Void*>(data_ptr_));
         data_ptr_ = temp_data_ptr;
     }
     capacity_ = apply_mrmory_size / sizeof(ObjectType);  
@@ -712,11 +712,11 @@ FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObject(const In
                                                                                ArgsType&&... args) {
     if (sizeof...(ArgsType) == 0) {
         if constexpr (kIfInitializeObject) {
-            new(reinterpret_cast<Address>(&(data_ptr_[index]))) ObjectType();
+            new(reinterpret_cast<Void*>(&(data_ptr_[index]))) ObjectType();
         }
     }
     else {
-        new(reinterpret_cast<Address>(&(data_ptr_[index]))) ObjectType(std::forward<ArgsType>(args)...);
+        new(reinterpret_cast<Void*>(&(data_ptr_[index]))) ObjectType(std::forward<ArgsType>(args)...);
     }
 }
 
@@ -726,11 +726,11 @@ FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObject(ObjectTy
                                                                         ArgsType&&... args) {
     if (sizeof...(ArgsType) == 0) {
         if constexpr (kIfInitializeObject) {
-            new(reinterpret_cast<Address>(object_ptr)) ObjectType();
+            new(reinterpret_cast<Void*>(object_ptr)) ObjectType();
         }
     }
     else {
-        new(reinterpret_cast<Address>(object_ptr)) ObjectType(std::forward<ArgsType>(args)...);
+        new(reinterpret_cast<Void*>(object_ptr)) ObjectType(std::forward<ArgsType>(args)...);
     }
 }
 
@@ -755,12 +755,12 @@ FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObjects(ObjectT
                                                                          ArgsType&&... args) {
     if (sizeof...(ArgsType) == 0) {
         if constexpr (kIfInitializeObject) {
-            new(reinterpret_cast<Address>(begin_ptr)) ObjectType[end_ptr - begin_ptr];
+            new(reinterpret_cast<Void*>(begin_ptr)) ObjectType[end_ptr - begin_ptr];
         }
     }
     else {
         while (begin_ptr < end_ptr) {
-            new(reinterpret_cast<Address>(begin_ptr)) ObjectType(std::forward<ArgsType>(args)...);
+            new(reinterpret_cast<Void*>(begin_ptr)) ObjectType(std::forward<ArgsType>(args)...);
             ++begin_ptr;
         }
     }
@@ -773,19 +773,19 @@ FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObjects(ObjectT
                                                                          ArgsType&&... args) {
     if (sizeof...(ArgsType) == 0) {
         if constexpr (kIfInitializeObject) {
-            new(reinterpret_cast<Address>(begin_ptr)) ObjectType[num];
+            new(reinterpret_cast<Void*>(begin_ptr)) ObjectType[num];
         }
     }
     else {
         ObjectType* end_ptr = begin_ptr + num;
         while (begin_ptr < end_ptr) {
-            new(reinterpret_cast<Address>(begin_ptr)) ObjectType(std::forward<ArgsType>(args)...);
+            new(reinterpret_cast<Void*>(begin_ptr)) ObjectType(std::forward<ArgsType>(args)...);
             ++begin_ptr;
         }
     }
 
     if constexpr (kIfInitializeObject) { 
-        new(reinterpret_cast<Address>(begin_ptr)) ObjectType[num];
+        new(reinterpret_cast<Void*>(begin_ptr)) ObjectType[num];
     }
 }
 
@@ -795,13 +795,13 @@ FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObjects(ObjectT
                                                                          ObjectType* src_end_ptr) {
     if constexpr (kIfInitializeObject) {
         while (src_begin_ptr < src_end_ptr) {
-            new(reinterpret_cast<Address>(dst_ptr)) ObjectType(*src_begin_ptr);
+            new(reinterpret_cast<Void*>(dst_ptr)) ObjectType(*src_begin_ptr);
             ++dst_ptr;
             ++src_begin_ptr;
         }
     }
     else {
-        memcpy(reinterpret_cast<Address>(dst_ptr), reinterpret_cast<Address>(const_cast<ObjectType*>(src_begin_ptr)),
+        memcpy(reinterpret_cast<Void*>(dst_ptr), reinterpret_cast<Void*>(const_cast<ObjectType*>(src_begin_ptr)),
             static_cast<SizeType>((src_end_ptr - src_begin_ptr) * sizeof(ObjectType)));
     }
 }
@@ -813,13 +813,13 @@ FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObjects(ObjectT
     if constexpr (kIfInitializeObject) {
         ObjectType* end_ptr = dst_ptr + num;
         while (dst_ptr < end_ptr) {
-            new(reinterpret_cast<Address>(dst_ptr)) ObjectType(*src_ptr);
+            new(reinterpret_cast<Void*>(dst_ptr)) ObjectType(*src_ptr);
             ++dst_ptr;
             ++src_ptr;
         }
     }
     else {
-        memcpy(reinterpret_cast<Address>(dst_ptr), reinterpret_cast<Address>(const_cast<ObjectType*>(src_ptr)),
+        memcpy(reinterpret_cast<Void*>(dst_ptr), reinterpret_cast<Void*>(const_cast<ObjectType*>(src_ptr)),
             static_cast<SizeType>(num * sizeof(ObjectType)));
     }
 }
@@ -851,7 +851,7 @@ FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CopyObjects(ObjectTyp
         }
     }
     else {
-        memcpy(reinterpret_cast<Address>(dst_ptr), reinterpret_cast<Address>(const_cast<ObjectType*>(src_ptr)),
+        memcpy(reinterpret_cast<Void*>(dst_ptr), reinterpret_cast<Void*>(const_cast<ObjectType*>(src_ptr)),
                static_cast<SizeType>(num * sizeof(ObjectType)));
     }
 }

@@ -20,12 +20,7 @@ namespace memory_pool {
 template<Bool kIsThreadSafe>
 class ZHeapMemoryPool :protected ZMemoryPoolThreadSafeBase<kIsThreadSafe> {
 public:
-    static ZHeapMemoryPool& Instance() noexcept {
-        static ZHeapMemoryPool heap_memory_controller;
-        return heap_memory_controller;
-    }
- 
-    NODISCARD Void* ApplyMemory(const MemoryType size) noexcept;
+    NODISCARD static Void* const ApplyMemory(const MemoryType size) noexcept;
 
 protected:
     using MutexType = ZMemoryPoolThreadSafeBase<kIsThreadSafe>;
@@ -55,17 +50,20 @@ private:
 #pragma warning(disable : 6011)
 
 template<Bool kIsThreadSafe>
-NODISCARD Void* ZHeapMemoryPool<kIsThreadSafe>::ApplyMemory(const MemoryType size) noexcept {
+NODISCARD Void* const ZHeapMemoryPool<kIsThreadSafe>::ApplyMemory(const MemoryType size) noexcept {
+    static ZHeapMemoryPool heap_memory_pool;
     Void* heap_memory_ptr = malloc(size);
-    MutexType::lock();
+    heap_memory_pool.MutexType::lock();
     //applys new node when the memory runs out.
-    if (current_node_heap_memory_ptr_num_ == HeapMemoryPtrArrayNode::kHeapMemoryPtrNumPurNode) {
-        current_node_heap_memory_ptr_num_ = 0;
-        current_node_ptr_->next_node_ptr = static_cast<HeapMemoryPtrArrayNode*>(malloc(sizeof(HeapMemoryPtrArrayNode)));
-        current_node_ptr_ = current_node_ptr_->next_node_ptr;
+    if (heap_memory_pool.current_node_heap_memory_ptr_num_ == HeapMemoryPtrArrayNode::kHeapMemoryPtrNumPurNode) {
+        heap_memory_pool.current_node_heap_memory_ptr_num_ = 0;
+        heap_memory_pool.current_node_ptr_->next_node_ptr = 
+            static_cast<HeapMemoryPtrArrayNode*>(malloc(sizeof(HeapMemoryPtrArrayNode)));
+        heap_memory_pool.current_node_ptr_ = heap_memory_pool.current_node_ptr_->next_node_ptr;
     }
-    current_node_ptr_->heap_memory_ptr[current_node_heap_memory_ptr_num_++] = heap_memory_ptr;
-    MutexType::unlock();
+    heap_memory_pool.current_node_ptr_->heap_memory_ptr[heap_memory_pool.current_node_heap_memory_ptr_num_++] = 
+        heap_memory_ptr;
+    heap_memory_pool.MutexType::unlock();
     return heap_memory_ptr;
 }
 

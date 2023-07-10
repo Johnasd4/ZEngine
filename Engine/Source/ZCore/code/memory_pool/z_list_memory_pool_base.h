@@ -39,9 +39,9 @@ protected:
         MemoryPieceType memory_piece;
     };
 
-    explicit FORCEINLINE ZListMemoryPoolBase() noexcept : SuperType() {}
-    explicit ZListMemoryPoolBase(const MemoryPoolType memory_pool_type, const MemoryType memory_piece_size,
-                                 const MemoryType memory_piece_memory_size, const IndexType capacity) noexcept;
+    FORCEINLINE ZListMemoryPoolBase() : SuperType() {}
+    Void Initialize(const MemoryPoolType memory_pool_type, const MemoryType memory_piece_size,
+                    const MemoryType memory_piece_memory_size, const IndexType capacity) noexcept;
     
     FORCEINLINE static constexpr MemoryType node_head_offset() { return kNodeHeadOffset; }
     NODISCARD FORCEINLINE const MemoryType capacity() const { return capacity_; }
@@ -85,14 +85,14 @@ private:
 };
 
 template<typename MemoryPieceType, PointerType kMemoryPieceHeadOffset, Bool kIsThreadSafe>
-ZListMemoryPoolBase<MemoryPieceType, kMemoryPieceHeadOffset, kIsThreadSafe>::ZListMemoryPoolBase(
-    const MemoryPoolType memory_pool_type, const MemoryType memory_piece_size,
-    const MemoryType memory_piece_memory_size, const IndexType capacity) noexcept
-        : SuperType(memory_pool_type)
-        , memory_piece_size_(memory_piece_size)
-        , memory_piece_memory_size_(memory_piece_memory_size)
-        , head_node_ptr_(nullptr)
-        , capacity_(capacity) {
+Void ZListMemoryPoolBase<MemoryPieceType, kMemoryPieceHeadOffset, kIsThreadSafe>::Initialize(
+        const MemoryPoolType memory_pool_type, const MemoryType memory_piece_size,
+        const MemoryType memory_piece_memory_size, const IndexType capacity) noexcept {
+    SuperType::Initialize(memory_pool_type);
+    memory_piece_size_ = memory_piece_size;
+    memory_piece_memory_size_ = memory_piece_memory_size;
+    head_node_ptr_ = nullptr;
+    capacity_ = capacity;
     ExtendCapacity(capacity);
 }
 
@@ -144,7 +144,7 @@ Void ZListMemoryPoolBase<MemoryPieceType, kMemoryPieceHeadOffset, kIsThreadSafe>
             + kApplyHeapMemoryUnitSize;
     }
     //Apply heap memory.
-    Void* apply_memory_ptr = ZHeapMemoryPool<kIsThreadSafe>::Instance().ApplyMemory(apply_heap_memory_size);
+    Void* apply_memory_ptr = ZHeapMemoryPool<kIsThreadSafe>::ApplyMemory(apply_heap_memory_size);
     PointerType temp_memory_ptr = reinterpret_cast<PointerType>(apply_memory_ptr);
     SuperType* this_memory_pool_ptr = static_cast<SuperType*>(this);
     //Recaculate the real memory piece num added. 

@@ -31,8 +31,9 @@ struct ZSmallMemoryPiece : ZMemoryPieceBase{
     - kIsThreadSafe: Thread safe or not.
 */
 template<Bool kIsThreadSafe>
-class ZSmallMemoryPieceListMemoryPool : public ZListMemoryPoolBase<ZSmallMemoryPiece<kIsThreadSafe>, 
-                                                             sizeof(ZSmallMemoryPiece<kIsThreadSafe>), kIsThreadSafe> {
+class ZSmallMemoryPieceListMemoryPool : 
+    public ZListMemoryPoolBase<ZSmallMemoryPiece<kIsThreadSafe>, sizeof(ZSmallMemoryPiece<kIsThreadSafe>), 
+                               kIsThreadSafe> {
 private:
     //The sizes of the memory pieces(includes the memory size).
     static constexpr IndexType kMemoryPieceTypeNum = 10;
@@ -113,12 +114,12 @@ private:
     static Void MemoryPoolArrayInitFunction(
         ZFixedArray<ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>, kMemoryPieceTypeNum>* array_ptr) noexcept;
 
-    explicit FORCEINLINE ZSmallMemoryPieceListMemoryPool() noexcept : SuperType() {}
-    explicit FORCEINLINE ZSmallMemoryPieceListMemoryPool(const MemoryType memory_piece_size,
-                                                         const MemoryType memory_piece_memory_size,
-                                                         const Int32 capacity) noexcept;
-
+    FORCEINLINE ZSmallMemoryPieceListMemoryPool() : SuperType() {}
     ~ZSmallMemoryPieceListMemoryPool() noexcept;
+
+    FORCEINLINE Void Initialize(const MemoryType memory_piece_size, const MemoryType memory_piece_memory_size, 
+                                const Int32 capacity) noexcept;
+
 
 #ifdef USE_MEMORY_POOL_TEST
     IndexType memory_piece_used_current_num_ = 0;
@@ -188,18 +189,10 @@ template<Bool kIsThreadSafe>
 Void ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::MemoryPoolArrayInitFunction(
     ZFixedArray<ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>, kMemoryPieceTypeNum>* array_ptr) noexcept {
     for (IndexType index = 0; index < array_ptr->size(); ++index) {
-        new(reinterpret_cast<Void*>(&(*array_ptr)(index)))
-            ZSmallMemoryPieceListMemoryPool(kMemoryPieceSizeArray(index), kMemoryPieceMemorySizeArray(index),
-                                            kMemoryPieceDefaultNumArray(index));
+        (*array_ptr)(index).Initialize(kMemoryPieceSizeArray(index), kMemoryPieceMemorySizeArray(index),
+                                       kMemoryPieceDefaultNumArray(index));
     }
-
 }
-
-template<Bool kIsThreadSafe>
-FORCEINLINE ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::ZSmallMemoryPieceListMemoryPool(
-        const MemoryType memory_piece_size, const MemoryType memory_piece_memory_size, const Int32 capacity) noexcept
-        : SuperType(MemoryPoolType::kZSmallMemoryPieceListMemoryPool, memory_piece_size, memory_piece_memory_size, 
-                    capacity) {}
 
 template<Bool kIsThreadSafe>
 ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::~ZSmallMemoryPieceListMemoryPool() noexcept {
@@ -227,6 +220,15 @@ ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::~ZSmallMemoryPieceListMemoryPool
         memory_piece_used_current_num_);
 #endif //USE_MEMORY_POOL_TEST        
 }
+
+template<Bool kIsThreadSafe>
+FORCEINLINE Void ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::Initialize(const MemoryType memory_piece_size, 
+                                                                            const MemoryType memory_piece_memory_size, 
+                                                                            const Int32 capacity) noexcept {
+    SuperType::Initialize(MemoryPoolType::kZSmallMemoryPieceListMemoryPool, memory_piece_size,
+                          memory_piece_memory_size, capacity);
+}
+
 
 }//memory_pool
 }//zengine

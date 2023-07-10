@@ -24,8 +24,8 @@ public:
     NODISCARD FORCEINLINE const MemoryPoolType memory_pool_type() const { return memory_pool_type_; }
 
 protected:
-    FORCEINLINE explicit ZMemoryPoolBase() {}
-    FORCEINLINE explicit ZMemoryPoolBase(const MemoryPoolType memory_pool_type) :memory_pool_type_(memory_pool_type) {}
+    FORCEINLINE ZMemoryPoolBase() {}
+    FORCEINLINE Void Initialize(const MemoryPoolType memory_pool_type) { memory_pool_type_ = memory_pool_type; }
 
 private:
     MemoryPoolType memory_pool_type_;

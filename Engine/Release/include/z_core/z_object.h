@@ -18,14 +18,14 @@ public:
     /*
         Overwrite the new and delete operator to use the memory from the memorypool.
     */
-    NODISCARD FORCEINLINE static void* operator new(size_t size) {
+    NODISCARD FORCEINLINE static Void* operator new(SizeType size) {
         return memory_pool::ApplyMemory(static_cast<MemoryType>(size));
     }
-    NODISCARD FORCEINLINE static void operator delete(void* address) {
-        if (address == nullptr) {
+    NODISCARD FORCEINLINE static Void operator delete(Void* memory_ptr) {
+        if (memory_ptr == nullptr) {
             return;
         }
-        memory_pool::ReleaseMemory(reinterpret_cast<Address>(address));
+        memory_pool::ReleaseMemory(reinterpret_cast<Void*>(memory_ptr));
     }
 
 protected:

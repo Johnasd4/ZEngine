@@ -19,31 +19,17 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="code\z_core\z_vector.h" />
-    <ClInclude Include="code\z_core\z_lookup_table.h" />
-    <ClInclude Include="code\z_math.h" />
-    <ClInclude Include="code\z_core\internal\z_iterator_base.h" />
-    <ClInclude Include="code\z_core\z_lock_guard.h" />
-    <ClInclude Include="code\z_core\f_console.h" />
     <ClInclude Include="code\z_core\z_array.h" />
-    <ClInclude Include="code\z_core\internal\z_container_base.h" />
     <ClInclude Include="code\z_core\z_fixed_array.h" />
+    <ClInclude Include="code\z_core\z_vector.h" />
+    <ClInclude Include="code\z_core\f_console.h" />
     <ClInclude Include="code\z_core\f_memory_pool.h" />
     <ClInclude Include="code\z_core\z_mutex.h" />
     <ClInclude Include="code\z_core\z_object.h" />
-    <ClInclude Include="code\z_core\z_tuple.h" />
-    <ClInclude Include="code\z_core\z_smart_ptr.h" />
-    <ClInclude Include="code\z_core\z_string.h" />
     <ClInclude Include="code\z_core.h" />
     <ClInclude Include="code\z_core\internal\drive.h" />
     <ClInclude Include="code\z_core\m_error_message.h" />
     <ClInclude Include="code\z_engine.h" />
-    <ClInclude Include="code\z_math\f_digital_signal.h" />
-    <ClInclude Include="code\z_math\f_fourier.h" />
-    <ClInclude Include="code\z_math\f_basic.h" />
-    <ClInclude Include="code\z_math\internal\drive.h" />
-    <ClInclude Include="code\z_math\z_complex.h" />
-    <ClInclude Include="code\z_math\z_interpolation_table.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\main.cpp" />

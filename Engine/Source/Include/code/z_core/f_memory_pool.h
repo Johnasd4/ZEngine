@@ -22,25 +22,25 @@ namespace memory_pool {
 /*
     Applys memory by the size given and returns the pointer of the memory.
 */
-CORE_DLLAPI extern Void* ApplyMemory(const MemoryType size) noexcept;
+CORE_DLLAPI extern Void* const ApplyMemory(const MemoryType size) noexcept;
 
 /*
     Applys memory by the size given and returns the pointer of the memory.
     Returns the memory size of the memory piece.
 */
-CORE_DLLAPI extern Void* ApplyMemory(const MemoryType size, MemoryType* memory_size_ptr) noexcept;
+CORE_DLLAPI extern Void* const ApplyMemory(const MemoryType size, MemoryType* memory_size_ptr) noexcept;
 
 /*
     Check if the memory can be extended to the given size without changing the memory,
     if can then the memeory will extend and return true.
 */
-CORE_DLLAPI NODISCARD extern const Bool CheckMemory(const Void* memory_ptr, const MemoryType size) noexcept;
+CORE_DLLAPI NODISCARD extern const Bool CheckMemory(Void* const memory_ptr, const MemoryType size) noexcept;
 
 /*
     Check if the memory can be extended to the given size without changing the memory,
     if can then the memeory will extend and return true.
 */
-CORE_DLLAPI NODISCARD extern const Bool CheckMemory(const Void* memory_ptr, const MemoryType size,
+CORE_DLLAPI NODISCARD extern const Bool CheckMemory(Void* const memory_ptr, const MemoryType size,
                                                     MemoryType* memory_size_ptr) noexcept;
 
 /*
@@ -48,7 +48,7 @@ CORE_DLLAPI NODISCARD extern const Bool CheckMemory(const Void* memory_ptr, cons
    so remember to set the pointer to null.
    nullptr is allowed to release.
 */
-CORE_DLLAPI extern Void ReleaseMemory(const Void* memory_ptr) noexcept;
+CORE_DLLAPI extern Void ReleaseMemory(Void* const memory_ptr) noexcept;
 
 
 }//system_memory

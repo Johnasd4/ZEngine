@@ -2,225 +2,118 @@
 #define Z_CORE_Z_ARRAY_H_
 
 #include"internal/drive.h"
-#include"internal/z_container_base.h"
-#include"internal/z_iterator_base.h"
+
+#include"z_object.h"
 
 namespace zengine {
 
 /*
-    An unfixed array, will auto extend size when used up.
+    The size of the array is fixed. It's stored in the stack memory, use new
+    to store it in the heap memory. This class uses no extra size, doesn't
+    have any other members except the objects.
 */
-template<typename ObjectType, Bool kIfInitializeObject = std::is_class_v<ObjectType>>
-class ZArray :public internal::ZContainerBase<ObjectType, kIfInitializeObject> {
+template<typename ObjectType, IndexType kCapacity>
+class ZArray : public ZObject {
 public:
-    class Iterator : public internal::IteratorBase<ObjectType> {
-    public:
-        FORCEINLINE Iterator(const ObjectType* data_ptr) :SuperType(data_ptr) {} 
 
-        FORCEINLINE Iterator& operator+(const IndexType data_num) {
-            SuperType::set_data_ptr(SuperType::data_ptr() + data_num);
-            return *this;
-        }
-        FORCEINLINE Iterator& operator-(const IndexType data_num) { 
-            SuperType::set_data_ptr(SuperType::data_ptr() - data_num);
-            return *this;
-        }
-        FORCEINLINE Iterator& operator++() {
-            SuperType::set_data_ptr(SuperType::data_ptr() + 1);
-            return *this;
-        }
-        FORCEINLINE Iterator& operator--() {
-            SuperType::set_data_ptr(SuperType::data_ptr() - 1);
-            return *this;
-        }
-
-        FORCEINLINE Iterator& operator-(const Iterator iterator) {
-            return SuperType::data_ptr() - iterator.SuperType::data_ptr();
-        }
-
-    protected:
-        using SuperType = internal::IteratorBase<ObjectType>;
-    };
-    class ConstIterator : public Iterator {
-    public:
-        FORCEINLINE ConstIterator(const ObjectType* data_ptr) :SuperType(data_ptr) {}
-
-        NODISCARD FORCEINLINE const ObjectType& operator*() { return SuperType::SuperType::operator*(); }
-        NODISCARD FORCEINLINE const ObjectType* operator->() { return SuperType::SuperType::operator->(); }
-
-    protected:
-        using SuperType = Iterator;
-    };
-
-    class ReverseIterator : public internal::IteratorBase<ObjectType> {
-    public:
-        FORCEINLINE ReverseIterator(const ObjectType* data_ptr) :SuperType(data_ptr) {}
-
-        FORCEINLINE ReverseIterator& operator+(const IndexType data_num) {
-            SuperType::set_data_ptr(SuperType::data_ptr() - data_num);
-            return *this;
-        }
-        FORCEINLINE ReverseIterator& operator-(const IndexType data_num) {
-            SuperType::set_data_ptr(SuperType::data_ptr() + data_num);
-            return *this;
-        }
-        FORCEINLINE ReverseIterator& operator++() {
-            SuperType::set_data_ptr(SuperType::data_ptr() - 1);
-            return *this;
-        }
-        FORCEINLINE ReverseIterator& operator--() {
-            SuperType::set_data_ptr(SuperType::data_ptr() + 1);
-            return *this;
-        }
-
-        FORCEINLINE Iterator& operator-(const Iterator iterator) {
-            return iterator.SuperType::data_ptr() - SuperType::data_ptr();
-        }
-
-    protected:
-        using SuperType = internal::IteratorBase<ObjectType>;
-    };
-    class ConstReverseIterator : public ReverseIterator {
-    public:
-        FORCEINLINE ConstReverseIterator(const ObjectType* data_ptr) :SuperType(data_ptr) {}
-
-        NODISCARD FORCEINLINE const ObjectType& operator*() { return SuperType::SuperType::operator*(); }
-        NODISCARD FORCEINLINE const ObjectType* operator->() { return SuperType::SuperType::operator->(); }
-
-    protected:
-        using SuperType = ReverseIterator;
-    };
-
-    FORCEINLINE ZArray() : SuperType() {}
-    FORCEINLINE ZArray(const IndexType init_capacity) : SuperType(init_capacity) {}
-    FORCEINLINE ZArray(const ZArray& array) : SuperType(array) {}
-    FORCEINLINE ZArray(ZArray&& array) : SuperType(std::forward<ZArray>(array)) {}
-
-    FORCEINLINE ZArray& operator=(const ZArray& array) { 
-        return reinterpret_cast<ZArray&>(SuperType::operator=(array));
-    }
-    FORCEINLINE ZArray& operator=(ZArray&& array) { 
-        return reinterpret_cast<ZArray&>(SuperType::operator=(std::forward<ZArray>(array)));
-    }
-
-    NODISCARD FORCEINLINE ObjectType& operator()(const IndexType index) { return SuperType::operator()(index); }
-    NODISCARD FORCEINLINE const ObjectType& operator()(const IndexType index) const { 
-        return SuperType::operator()(index); 
-    }
-
-    FORCEINLINE ~ZArray() {}
+#pragma warning(disable : 26495)
+    FORCEINLINE constexpr ZArray() :SuperType() {}
+#pragma warning(default : 26495)
+    ZArray(const ZArray& array) noexcept;
+    ZArray(ZArray&& array) noexcept;
 
     /*
-        The iterator funcions.
+        Constexpr array, the work is done at compile time.
+        The Constructor's fisrt parameter is the initial funtion of the array. The
+        first parameter of the initial funtion must be ZArray*.
+        Constructor Template Parameters:
+        - InitFunction: The function type that initial the array.
+        - ArgsType...: The parameters type.
+        Constructor Parameters:
+        - init_function: The function to initial the array.
+        - ArgsType...: The parameters of the function except for the fisrt.
+        Example:
+        constexpr auto init_function = [](ZArray<Int32, 10>* array_ptr) {
+            for (IndexType index = 0; index < array_ptr->size(); ++index) {
+                (*array_ptr)(index) = 1;
+            }
+        };
+        constexpr ZArray<Int32, 10> test(init_function);
     */
-    NODISCARD FORCEINLINE Iterator Begin() { return Iterator(SuperType::data_ptr()); }
-    NODISCARD FORCEINLINE ConstIterator ConstBegin() const { return ConstIterator(SuperType::data_ptr()); }
-    NODISCARD FORCEINLINE ReverseIterator ReverseBegin() { return ReverseIterator(SuperType::end_data_ptr() - 1); }
-    NODISCARD FORCEINLINE ConstReverseIterator ConstReverseBegin() const {
-        return ConstReverseIterator(SuperType::end_data_ptr() - 1);
+    template<typename InitFunction, typename... ArgsType>
+    FORCEINLINE constexpr ZArray(InitFunction&& init_function, ArgsType&&... args) :SuperType() {
+        init_function(this, std::forward<ArgsType>(args)...);
     }
-    NODISCARD FORCEINLINE Iterator End() { return Iterator(SuperType::end_data_ptr()); }
-    NODISCARD FORCEINLINE ConstIterator ConstEnd() const { return ConstIterator(SuperType::end_data_ptr()); }
-    NODISCARD FORCEINLINE ReverseIterator ReverseEnd() { return ReverseIterator(SuperType::data_ptr() - 1); }
-    NODISCARD FORCEINLINE ConstReverseIterator ConstReverseEnd() const {
-        return ConstReverseIterator(SuperType::data_ptr() - 1);
+
+    ZArray& operator=(const ZArray& array) noexcept;
+    ZArray& operator=(ZArray&& array) noexcept;
+
+    NODISCARD FORCEINLINE constexpr ObjectType& operator()(const IndexType index) { return this->data_[index]; }
+    NODISCARD FORCEINLINE constexpr const ObjectType& operator()(const IndexType index) const { 
+        return this->data_[index]; 
     }
 
-    NODISCARD FORCEINLINE const IndexType size() const { return SuperType::size(); }
-    NODISCARD FORCEINLINE const IndexType capacity() const { return SuperType::capacity(); }
-    FORCEINLINE Void set_size(const IndexType need_size) { 
-        SuperType::set_size(need_size); 
-        SuperType::set_end_data_ptr(SuperType::data_ptr() + need_size);
-    }
-    FORCEINLINE Void set_capacity(const IndexType need_capacity) { SuperType::set_capacity(need_capacity); }
-
-    NODISCARD FORCEINLINE const Bool IfEmpty() { return SuperType::IfEmpty(); }
-
-    /*
-        Returns false if the array is empty.
-    */
-    NODISCARD const Bool PopBack(ObjectType* object_ptr) noexcept;
-    Void PushBack(const ObjectType& object) noexcept;
-    /*
-        Calls the constructor with the arguements.
-        TODO(Johnasd4)
-    */
-    template<typename... ArgsType>
-    Void EmplaceBack(ArgsType&&... args) noexcept;
-
-
-    Void PushEmpty(const IndexType data_num) noexcept;
-
-    /*
-        Returns false if out of bounds. Takes a lot of performance.
-    */
-    NODISCARD const Bool Insert(const IndexType insert_index, const ObjectType& object) noexcept;
-    /*
-        Returns false if out of bounds. Takes a lot of performance.
-    */
-    NODISCARD const Bool Remove(const IndexType remove_index) noexcept;
-
-    FORCEINLINE Void Clear() { SuperType::Clear(); }
+    NODISCARD FORCEINLINE static constexpr const IndexType size() { return kCapacity; }
+    NODISCARD FORCEINLINE constexpr ObjectType* data_ptr() { return data_; }
+    NODISCARD FORCEINLINE constexpr const ObjectType* data_ptr() const { return data_; }
 
 protected:
-    using SuperType = internal::ZContainerBase<ObjectType, kIfInitializeObject>;
+    using SuperType = ZObject;
+
+private:
+    ObjectType data_[kCapacity];
 };
 
-template<typename ObjectType, Bool kIfInitializeObject>
-NODISCARD const Bool ZArray<ObjectType, kIfInitializeObject>::PopBack(ObjectType* object_ptr) noexcept {
-    if (SuperType::size() == 0) {
-        return false;
+template<typename ObjectType, IndexType kCapacity>
+ZArray<ObjectType, kCapacity>::ZArray(const ZArray& array) noexcept
+        : SuperType() {
+    if constexpr (std::is_class_v<ObjectType>) {
+        for (IndexType index = 0; index < array.size(); ++index) {
+            (*this)(index) = array(index);
+        }
     }
-    SuperType::change_size(-1);
-    object_ptr = SuperType::end_data_ptr();
-    SuperType::set_end_data_ptr(SuperType::end_data_ptr() - 1);
+    else {
+        memcpy(reinterpret_cast<Void*>(data_), reinterpret_cast<Void*>(array.data_), sizeof(ZArray));
+    }
 }
 
-template<typename ObjectType, Bool kIfInitializeObject>
-Void ZArray<ObjectType, kIfInitializeObject>::PushBack(const ObjectType& object) noexcept {
-    SuperType::change_size(1);
-    *SuperType::end_data_ptr() = object;
-    SuperType::set_end_data_ptr(SuperType::end_data_ptr() + 1);
+template<typename ObjectType, IndexType kCapacity>
+ZArray<ObjectType, kCapacity>::ZArray(ZArray&& array)noexcept
+        : SuperType() {
+    if constexpr (std::is_class_v<ObjectType>) {
+        for (IndexType index = 0; index < array.size(); ++index) {
+            (*this)(index) = array(index);
+        }
+    }
+    else {
+        memcpy(reinterpret_cast<Void*>(data_), reinterpret_cast<Void*>(array.data_), sizeof(ZArray));
+    }
 }
 
-template<typename ObjectType, Bool kIfInitializeObject>
-Void ZArray<ObjectType, kIfInitializeObject>::PushEmpty(const IndexType data_num) noexcept {
-    SuperType::change_size(data_num);
-    SuperType::set_end_data_ptr(SuperType::end_data_ptr() + data_num);
+template<typename ObjectType, IndexType kCapacity>
+ZArray<ObjectType, kCapacity>& ZArray<ObjectType, kCapacity>::operator=(const ZArray& array) noexcept {
+    if constexpr (std::is_class_v<ObjectType>) {
+        for (IndexType index = 0; index < array.size(); ++index) {
+            (*this)(index) = array(index);
+        }
+    }
+    else {
+        memcpy(reinterpret_cast<Void*>(data_), reinterpret_cast<Void*>(array.data_), sizeof(ZArray));
+    }
+    return *this;
 }
 
-template<typename ObjectType, Bool kIfInitializeObject>
-NODISCARD const Bool ZArray<ObjectType, kIfInitializeObject>::Insert(
-        const IndexType insert_index, const ObjectType& object) noexcept {
-    //Out of bounds.
-    if (insert_index > SuperType::size()) {
-        return false;
+template<typename ObjectType, IndexType kCapacity>
+ZArray<ObjectType, kCapacity>& ZArray<ObjectType, kCapacity>::operator=(ZArray&& array) noexcept {
+    if constexpr (std::is_class_v<ObjectType>) {
+        for (IndexType index = 0; index < array.size(); ++index) {
+            (*this)(index) = array(index);
+        }
     }
-    SuperType::change_size(1);
-    //Move the objects forward to insert.
-    for (IndexType index = SuperType::size() - 1; index > insert_index; --index) {
-        (*this)(index) = std::move((*this)(index - 1));
+    else {
+        memcpy(reinterpret_cast<Void*>(data_), reinterpret_cast<Void*>(array.data_), sizeof(ZArray));
     }
-    SuperType::CreateAndCopyObjectAtIndex(insert_index, object);
-    SuperType::set_end_data_ptr(SuperType::end_data_ptr() + 1);
-    return true;
-}
-
-template<typename ObjectType, Bool kIfInitializeObject>
-NODISCARD const Bool ZArray<ObjectType, kIfInitializeObject>::Remove(const IndexType remove_index) noexcept {
-    //Out of bounds.
-    if (remove_index >= SuperType::size()) {
-        return false;
-    }
-    SuperType::change_size(-1);
-    SuperType::DestroyObjectAtIndex(remove_index);
-    //Moves the objects backward.
-    memcpy(reinterpret_cast<Address>(&(*this)(remove_index)), reinterpret_cast<Address>(&(*this)(remove_index + 1)), 
-           static_cast<SizeType>(SuperType::size() - remove_index) * sizeof(ObjectType));
-    //Replace the last object with a new object.
-    SuperType::CreateObjectAtIndex(SuperType::size());
-    SuperType::set_end_data_ptr(SuperType::end_data_ptr() - 1);
-    return true;
+    return *this;
 }
 
 }//zengine

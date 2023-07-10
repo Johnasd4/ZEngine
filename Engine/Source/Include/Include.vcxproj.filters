@@ -15,15 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="code\z_core\z_array.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\z_core\internal\z_container_base.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\z_core\z_fixed_array.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="code\z_core\f_memory_pool.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -31,9 +22,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\z_core\z_object.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\z_core\z_tuple.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\z_core\internal\drive.h">
@@ -48,46 +36,16 @@
     <ClInclude Include="code\z_engine.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\z_core\z_smart_ptr.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\z_core\z_string.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="code\z_core\f_console.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\z_core\z_lock_guard.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\z_core\internal\z_iterator_base.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\z_math\f_fourier.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\z_math.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\z_math\z_complex.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\z_math\z_interpolation_table.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\z_math\f_digital_signal.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\z_math\internal\drive.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\z_math\f_basic.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\z_core\z_lookup_table.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="code\z_core\z_vector.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_core\z_fixed_array.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_core\z_array.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
