@@ -722,7 +722,7 @@ Void ZVector<ObjectType, kIfInitializeObject>::ExtendCapacity(const IndexType ca
 
 template<typename ObjectType, Bool kIfInitializeObject>
 FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::MoveDestroy() {
-    data_ptr_ == nullptr;
+    data_ptr_ = nullptr;
     size_ = 0;
     capacity_ = 0;
 }
