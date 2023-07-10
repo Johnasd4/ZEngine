@@ -85,7 +85,8 @@ public:
         return *this;
     }
 
-    NODISCARD FORCEINLINE ObjectType* const object_ptr() { return SuperType::object_ptr_; }
+    NODISCARD FORCEINLINE ObjectType* object_ptr() { return SuperType::object_ptr_; }
+    NODISCARD FORCEINLINE ObjectType* const object_ptr() const { return SuperType::object_ptr_; }
 
 protected:
     using SuperType = VectorIteratorBase<ObjectType>;
@@ -121,7 +122,8 @@ public:
         return *this;
     }
 
-    NODISCARD FORCEINLINE const ObjectType* const object_ptr() { return SuperType::object_ptr_; }
+    NODISCARD FORCEINLINE const ObjectType* object_ptr() { return SuperType::object_ptr_; }
+    NODISCARD FORCEINLINE const ObjectType* const object_ptr() const { return SuperType::object_ptr_; }
 
 protected:
     using SuperType = VectorIteratorBase<ObjectType>;
@@ -150,7 +152,8 @@ public:
         return *this;
     }
 
-    NODISCARD FORCEINLINE ObjectType* const object_ptr() { return SuperType::object_ptr_; }
+    NODISCARD FORCEINLINE ObjectType* object_ptr() { return SuperType::object_ptr_; }
+    NODISCARD FORCEINLINE ObjectType* const object_ptr() const { return SuperType::object_ptr_; }
 
 protected:
     using SuperType = VectorIteratorBase<ObjectType>;
@@ -187,7 +190,8 @@ public:
         return *this;
     }
 
-    NODISCARD FORCEINLINE const ObjectType* const object_ptr() { return SuperType::object_ptr_; }
+    NODISCARD FORCEINLINE const ObjectType* object_ptr() { return SuperType::object_ptr_; }
+    NODISCARD FORCEINLINE const ObjectType* const object_ptr() const { return SuperType::object_ptr_; }
 
 protected:
     using SuperType = VectorIteratorBase<ObjectType>;
@@ -664,7 +668,7 @@ ZVector<ObjectType, kIfInitializeObject>::ReverseIterator ZVector<ObjectType, kI
             (size_ - index) * sizeof(ObjectType));
     CreateObject(index, std::forward<ArgsType>(args)...);
     size_ = new_size;
-    return Iterator(&data_ptr_[index]);
+    return ReverseIterator(&data_ptr_[index]);
 }
 
 
@@ -712,7 +716,7 @@ ZVector<ObjectType, kIfInitializeObject>::ReverseIterator ZVector<ObjectType, kI
         (size_ - index) * sizeof(ObjectType));
     CreateObjects(&data_ptr_[index], &data_ptr_[index + num], std::forward<ArgsType>(args)...);
     size_ = new_size;
-    return Iterator(&data_ptr_[index]);
+    return ReverseIterator(&data_ptr_[index]);
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>

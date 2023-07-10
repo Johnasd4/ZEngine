@@ -25,9 +25,9 @@ int main(){
         vector.PushBack(index);
     }
     ZVector<Int32> vector_1(vector);
-    auto itarator = vector_1.ConstBegin();
+    auto itarator = vector_1.ReverseBegin();
     ++itarator;
-
+    vector.Insert(itarator, 1);
     vector.PushBack(1);
     RETURN(true,0,"123");
     //Int32* test_1 = new Int32[1024 * 1024 * 100];
