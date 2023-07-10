@@ -27,7 +27,7 @@ CORE_DLLAPI NODISCARD Void* const ApplyMemory(const MemoryType size) noexcept {
     return 0;
 }
 
-CORE_DLLAPI NODISCARD Void* const ApplyMemory(const MemoryType size, MemoryType* memory_size_ptr) noexcept {
+CORE_DLLAPI NODISCARD Void* const ApplyMemory(const MemoryType size, MemoryType* const memory_size_ptr) noexcept {
     //small memory piecea
     if (size <= internal::SmallMemoryPieceListMemoryPool::memory_piece_memory_max_size()){
         return internal::SmallMemoryPieceListMemoryPool::ApplyMemory(size, memory_size_ptr);
@@ -61,7 +61,7 @@ CORE_DLLAPI NODISCARD const Bool CheckMemory(Void* const memory_ptr, const Memor
 }
 
 CORE_DLLAPI NODISCARD const Bool CheckMemory(Void* const memory_ptr, const MemoryType size,
-                                             MemoryType* memory_size_ptr) noexcept {
+                                             MemoryType* const memory_size_ptr) noexcept {
     if (memory_ptr == nullptr) {
         return false;
     }

@@ -52,13 +52,13 @@ protected:
         It returns the memory's pointer(not the memory piece).It's inlined
         cause it's only used a few times.
     */
-    NODISCARD FORCEINLINE Void* ApplyMemory();
+    NODISCARD FORCEINLINE Void* const ApplyMemory();
 
     /*
         Release the memory to this memory pool. It's inlinedcause it's only 
         used a few times.
     */
-    FORCEINLINE Void ReleaseMemory(const Void* memory_ptr);
+    FORCEINLINE Void ReleaseMemory(const Void* const memory_ptr);
 
 private:
     //The total offset of the memory piece.
@@ -98,12 +98,12 @@ Void ZListMemoryPoolBase<MemoryPieceType, kMemoryPieceHeadOffset, kIsThreadSafe>
 
 
 template<typename MemoryPieceType, PointerType kMemoryPieceHeadOffset, Bool kIsThreadSafe>
-NODISCARD FORCEINLINE Void* ZListMemoryPoolBase<MemoryPieceType, kMemoryPieceHeadOffset, kIsThreadSafe>::ApplyMemory() {
+NODISCARD FORCEINLINE Void* const ZListMemoryPoolBase<MemoryPieceType, kMemoryPieceHeadOffset, kIsThreadSafe>::ApplyMemory() {
     MutexType::lock();
     if (head_node_ptr_ == nullptr) {
         AutoExtendCapcity();
     }
-    Void* memory_ptr = reinterpret_cast<Void*>(reinterpret_cast<PointerType>(head_node_ptr_) + kNodeHeadOffset);
+    Void* const memory_ptr = reinterpret_cast<Void*>(reinterpret_cast<PointerType>(head_node_ptr_) + kNodeHeadOffset);
     head_node_ptr_ = head_node_ptr_->next_node_ptr;
     MutexType::unlock();
     return memory_ptr;
@@ -111,9 +111,9 @@ NODISCARD FORCEINLINE Void* ZListMemoryPoolBase<MemoryPieceType, kMemoryPieceHea
 
 template<typename MemoryPieceType, PointerType kMemoryPieceHeadOffset, Bool kIsThreadSafe>
 FORCEINLINE Void ZListMemoryPoolBase<MemoryPieceType, kMemoryPieceHeadOffset, kIsThreadSafe>::ReleaseMemory(
-        const Void* memory_ptr) {
+        const Void* const memory_ptr) {
     MutexType::lock();
-    Node* node_ptr = reinterpret_cast<Node*>(reinterpret_cast<PointerType>(memory_ptr) - kNodeHeadOffset);
+    Node* const node_ptr = reinterpret_cast<Node*>(reinterpret_cast<PointerType>(memory_ptr) - kNodeHeadOffset);
     node_ptr->next_node_ptr = head_node_ptr_;
     head_node_ptr_ = node_ptr;
     MutexType::unlock();
@@ -144,9 +144,9 @@ Void ZListMemoryPoolBase<MemoryPieceType, kMemoryPieceHeadOffset, kIsThreadSafe>
             + kApplyHeapMemoryUnitSize;
     }
     //Apply heap memory.
-    Void* apply_memory_ptr = ZHeapMemoryPool<kIsThreadSafe>::ApplyMemory(apply_heap_memory_size);
+    Void* const apply_memory_ptr = ZHeapMemoryPool<kIsThreadSafe>::ApplyMemory(apply_heap_memory_size);
     PointerType temp_memory_ptr = reinterpret_cast<PointerType>(apply_memory_ptr);
-    SuperType* this_memory_pool_ptr = static_cast<SuperType*>(this);
+    SuperType* const this_memory_pool_ptr = static_cast<SuperType*>(this);
     //Recaculate the real memory piece num added. 
     IndexType apply_memory_piece_num = apply_heap_memory_size / memory_piece_size_; 
     capacity_ += apply_memory_piece_num;

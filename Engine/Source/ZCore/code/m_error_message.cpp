@@ -10,8 +10,8 @@ namespace internal {
 /*
     Console error message and error location.
 */
-CORE_DLLAPI Void ConsolePrintErrorMessage(const CChar* error_file, const CChar* error_funcion, const Int32 error_line,
-                                     const CChar* error_message) noexcept {
+CORE_DLLAPI Void ConsolePrintErrorMessage(const CChar* const error_file, const CChar* const error_funcion, 
+                                          const Int32 error_line, const CChar* const error_message) noexcept {
     console::Print(
         console::ConsoleTextColour::kConsoleTextColourLightRed, 
         console::ConsoleBackgroundColour::kConsoleBackgroundColourDarkBlack,
@@ -22,8 +22,8 @@ CORE_DLLAPI Void ConsolePrintErrorMessage(const CChar* error_file, const CChar* 
 /*
     Log error message and error location.
 */
-CORE_DLLAPI Void LogErrorMessage(const CChar* error_file, const CChar* error_funcion, const Int32 error_line,
-                                 const CChar* error_message) noexcept {
+CORE_DLLAPI Void LogErrorMessage(const CChar* const error_file, const CChar* const error_funcion,
+                                 const Int32 error_line, const CChar* const error_message) noexcept {
     static ZMutex log_mutex;
     log_mutex.lock();
     //TODO(Johnasd4):The log output.

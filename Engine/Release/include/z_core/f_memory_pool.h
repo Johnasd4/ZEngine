@@ -28,7 +28,7 @@ CORE_DLLAPI extern Void* const ApplyMemory(const MemoryType size) noexcept;
     Applys memory by the size given and returns the pointer of the memory.
     Returns the memory size of the memory piece.
 */
-CORE_DLLAPI extern Void* const ApplyMemory(const MemoryType size, MemoryType* memory_size_ptr) noexcept;
+CORE_DLLAPI extern Void* const ApplyMemory(const MemoryType size, MemoryType* const memory_size_ptr) noexcept;
 
 /*
     Check if the memory can be extended to the given size without changing the memory,
@@ -41,7 +41,7 @@ CORE_DLLAPI NODISCARD extern const Bool CheckMemory(Void* const memory_ptr, cons
     if can then the memeory will extend and return true.
 */
 CORE_DLLAPI NODISCARD extern const Bool CheckMemory(Void* const memory_ptr, const MemoryType size,
-                                                    MemoryType* memory_size_ptr) noexcept;
+                                                    MemoryType* const memory_size_ptr) noexcept;
 
 /*
    Release the memory by the memory pointer, it's a value parameter,

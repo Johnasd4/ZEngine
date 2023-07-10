@@ -41,18 +41,19 @@ private:
     static constexpr MemoryType kMemoryPieceSizeMulGrowFactor = 2;
 
 public:
-    NODISCARD static Void* ApplyMemory(const MemoryType size) noexcept;
-    NODISCARD static Void* ApplyMemory(const MemoryType size, MemoryType* memory_size_ptr) noexcept;
+    NODISCARD static Void* const ApplyMemory(const MemoryType size) noexcept;
+    NODISCARD static Void* const ApplyMemory(const MemoryType size, MemoryType* const memory_size_ptr) noexcept;
 
     /*
         Checks if the memory can extend without moving to a new memory, If can
         then it will auto extend and return true.
     */
-    FORCEINLINE static const Bool CheckMemory(ZSmallMemoryPieceListMemoryPool* memory_pool_ptr, const MemoryType size);
-    FORCEINLINE static const Bool CheckMemory(ZSmallMemoryPieceListMemoryPool* memory_pool_ptr, const MemoryType size,
-                                              MemoryType* memory_size_ptr);
+    FORCEINLINE static const Bool CheckMemory(ZSmallMemoryPieceListMemoryPool* const memory_pool_ptr, 
+                                              const MemoryType size);
+    FORCEINLINE static const Bool CheckMemory(ZSmallMemoryPieceListMemoryPool* const memory_pool_ptr, 
+                                              const MemoryType size, MemoryType* const memory_size_ptr);
 
-    static Void ReleaseMemory(ZSmallMemoryPieceListMemoryPool* memory_pool_ptr, const Void* memory_ptr) noexcept;
+    static Void ReleaseMemory(ZSmallMemoryPieceListMemoryPool* memory_pool_ptr, Void* const memory_ptr) noexcept;
 
     FORCEINLINE static constexpr MemoryType memory_piece_memory_max_size() { return kMemoryPieceMemoryMaxSize; }
     FORCEINLINE static constexpr IndexType memory_piece_type_num() { return kMemoryPieceTypeNum; }
@@ -129,8 +130,7 @@ private:
 };
 
 template<Bool kIsThreadSafe>
-NODISCARD Void* ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::ApplyMemory(
-        const MemoryType size) noexcept {
+NODISCARD Void* const ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::ApplyMemory(const MemoryType size) noexcept {
     static ZFixedArray<ZSmallMemoryPieceListMemoryPool<kIsThreadSafe> , kMemoryPieceTypeNum> memory_pool_array(
         MemoryPoolArrayInitFunction);
 
@@ -147,8 +147,8 @@ NODISCARD Void* ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::ApplyMemory(
 }
 
 template<Bool kIsThreadSafe>
-NODISCARD Void* ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::ApplyMemory(
-        const MemoryType size, MemoryType* memory_size_ptr) noexcept {
+NODISCARD Void* const ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::ApplyMemory(
+        const MemoryType size, MemoryType* const memory_size_ptr) noexcept {
     static ZFixedArray<ZSmallMemoryPieceListMemoryPool<kIsThreadSafe> , kMemoryPieceTypeNum> memory_pool_array(
         MemoryPoolArrayInitFunction);
 
@@ -167,18 +167,19 @@ NODISCARD Void* ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::ApplyMemory(
 
 template<Bool kIsThreadSafe>
 FORCEINLINE const Bool ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::CheckMemory(
-        ZSmallMemoryPieceListMemoryPool* memory_pool_ptr, const MemoryType size) {
+        ZSmallMemoryPieceListMemoryPool* const memory_pool_ptr, const MemoryType size) {
     return memory_pool_ptr->SuperType::memory_piece_memory_size() >= size;
 }
 template<Bool kIsThreadSafe>
 FORCEINLINE const Bool ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::CheckMemory(
-        ZSmallMemoryPieceListMemoryPool* memory_pool_ptr, const MemoryType size, MemoryType* memory_size_ptr) {
+        ZSmallMemoryPieceListMemoryPool* const memory_pool_ptr, const MemoryType size, MemoryType* const 
+        memory_size_ptr) {
     return (*memory_size_ptr = memory_pool_ptr->SuperType::memory_piece_memory_size()) >= size;
 }
 
 template<Bool kIsThreadSafe>
 Void ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::ReleaseMemory(
-    ZSmallMemoryPieceListMemoryPool* memory_pool_ptr, const Void* memory_ptr) noexcept {
+    ZSmallMemoryPieceListMemoryPool* const memory_pool_ptr, Void* const memory_ptr) noexcept {
 #ifdef USE_MEMORY_POOL_TEST
     memory_pool_ptr->memory_piece_used_current_num_ -= 1;
 #endif //USE_MEMORY_POOL_TEST

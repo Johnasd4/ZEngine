@@ -22,14 +22,14 @@ namespace internal {
 /*
     Console error message and error location.
 */
-CORE_DLLAPI extern Void ConsolePrintErrorMessage(const CChar* error_file, const CChar* error_funcion, const Int32 error_line,
-                                            const CChar* error_message) noexcept;
+CORE_DLLAPI extern Void ConsolePrintErrorMessage(const CChar* const error_file, const CChar* const error_funcion, 
+                                                 const Int32 error_line, const CChar* const error_message) noexcept;
 
 /*
     Log error message and error location.
 */
-CORE_DLLAPI extern Void LogErrorMessage(const CChar* error_file, const CChar* error_funcion, const Int32 error_line,
-                                        const CChar* error_message) noexcept;
+CORE_DLLAPI extern Void LogErrorMessage(const CChar* const error_file, const CChar* const error_funcion,
+                                        const Int32 error_line, const CChar* const error_message) noexcept;
 
 }//internal
 }//zengine
