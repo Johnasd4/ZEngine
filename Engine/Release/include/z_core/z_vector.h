@@ -62,7 +62,7 @@ public:
     FORCEINLINE Void MoveDestroy() { object_ptr_ = nullptr; }
 
 protected:
-    mutable ObjectType* object_ptr_;
+     ObjectType* object_ptr_;
 };
 
 
@@ -354,7 +354,7 @@ private:
         Creates an object at the certain place. Will call the Constrctor if needed.
     */
     template<typename... ArgsType>
-    FORCEINLINE Void CreateObject(ObjectType* object_ptr, ArgsType&&... args);
+    FORCEINLINE Void CreateObject(ObjectType* const object_ptr, ArgsType&&... args);
 
     /*
         Destroys an object at the certain index. Will Call Destrctor if needed.
@@ -363,14 +363,14 @@ private:
     /*
         Destroys an object at the certain place. Will Call Destrctor if needed.
     */
-    FORCEINLINE Void DestroyObject(ObjectType* object_ptr);
+    FORCEINLINE Void DestroyObject(ObjectType* const object_ptr);
 
     /*
         Initialize the memory by the given arguements([begin, end)).
         Will call the Constrctor if needed.
     */
     template<typename... ArgsType>
-    FORCEINLINE Void CreateObjects(ObjectType* begin_ptr, const ObjectType* end_ptr, ArgsType&&... args);
+    FORCEINLINE Void CreateObjects(ObjectType* begin_ptr, ObjectType* const end_ptr, ArgsType&&... args);
 
     /*
         Initialize the memory by the given arguements([begin, begin + num)),
@@ -383,25 +383,26 @@ private:
         Initialize the memory by the given arguements([begin, end)).
         Will call the copy constructor.
     */
-    FORCEINLINE Void CreateObjects(ObjectType* dst_ptr, ObjectType* src_begin_ptr, ObjectType* src_end_ptr);
+    FORCEINLINE Void CreateObjects(ObjectType* dst_ptr, const ObjectType* src_begin_ptr, 
+                                   const ObjectType* const src_end_ptr);
 
     /*
         Initialize the memory by the given arguements([begin + num)).
         Will call the copy constructor.
     */
-    FORCEINLINE Void CreateObjects(ObjectType* dst_ptr, ObjectType* src_ptr, const IndexType num);
+    FORCEINLINE Void CreateObjects(ObjectType* dst_ptr, const ObjectType* src_ptr, const IndexType num);
 
     /*
         Copy objects by the given pointer. Will call the copy assignment operator
         if this object class's member kIfInitializeObject is true. 
     */
-    FORCEINLINE Void CopyObjects(ObjectType* dst_ptr, ObjectType* src_ptr, const IndexType num);
+    FORCEINLINE Void CopyObjects(ObjectType* dst_ptr, const ObjectType* src_ptr, const IndexType num);
 
     /*
         Destroy the objects by the given arguements([begin, end)). 
         Will call the destrctor if this object class's member kIfInitializeObject is true.
     */
-    FORCEINLINE Void DestroyObjects(ObjectType* begin_ptr, const ObjectType* end_ptr);
+    FORCEINLINE Void DestroyObjects(ObjectType* begin_ptr, ObjectType* const end_ptr);
 
     /*
         Destroy the objects by the given arguements([begin, begin + num)).
@@ -677,7 +678,7 @@ Void ZVector<ObjectType, kIfInitializeObject>::Emplace(
 template<typename ObjectType, Bool kIfInitializeObject>
 template<typename... ArgsType>
 Void ZVector<ObjectType, kIfInitializeObject>::Assign(const IndexType num, ArgsType&&... args) noexcept {
-    IndexType new_size = size_ + num;
+    IndexType new_size = num;
     if (new_size > capacity_) {
         ExtendCapacity(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
     }
@@ -688,7 +689,7 @@ Void ZVector<ObjectType, kIfInitializeObject>::Assign(const IndexType num, ArgsT
 
 template<typename ObjectType, Bool kIfInitializeObject>
 Void ZVector<ObjectType, kIfInitializeObject>::Assign(const IteratorType begin, const IteratorType end) noexcept {
-    IndexType new_size = size_ + (end - begin);
+    IndexType new_size = end - begin;
     if (new_size > capacity_) {
         ExtendCapacity(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
     }
@@ -743,7 +744,7 @@ FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObject(const In
 
 template<typename ObjectType, Bool kIfInitializeObject>
 template<typename... ArgsType>
-FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObject(ObjectType* object_ptr, 
+FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObject(ObjectType* const object_ptr,
                                                                         ArgsType&&... args) {
     if (sizeof...(ArgsType) == 0) {
         if constexpr (kIfInitializeObject) {
@@ -763,7 +764,7 @@ FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::DestroyObject(const I
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
-FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::DestroyObject(ObjectType* object_ptr) {
+FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::DestroyObject(ObjectType* const object_ptr) {
     if constexpr (kIfInitializeObject) {
         (*object_ptr).~ObjectType();
     }
@@ -772,7 +773,7 @@ FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::DestroyObject(ObjectT
 template<typename ObjectType, Bool kIfInitializeObject>
 template<typename... ArgsType>
 FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObjects(ObjectType* begin_ptr,
-                                                                         const ObjectType* end_ptr,
+                                                                         ObjectType* const end_ptr,
                                                                          ArgsType&&... args) {
     if (sizeof...(ArgsType) == 0) {
         if constexpr (kIfInitializeObject) {
@@ -812,8 +813,8 @@ FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObjects(ObjectT
 
 template<typename ObjectType, Bool kIfInitializeObject>
 FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObjects(ObjectType* dst_ptr, 
-                                                                         ObjectType* src_begin_ptr, 
-                                                                         ObjectType* src_end_ptr) {
+                                                                         const ObjectType* src_begin_ptr, 
+                                                                         const ObjectType* const src_end_ptr) {
     if constexpr (kIfInitializeObject) {
         while (src_begin_ptr < src_end_ptr) {
             new(reinterpret_cast<Void*>(dst_ptr)) ObjectType(*src_begin_ptr);
@@ -828,7 +829,7 @@ FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObjects(ObjectT
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
-FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObjects(ObjectType* dst_ptr, ObjectType* src_ptr,
+FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObjects(ObjectType* dst_ptr, const ObjectType* src_ptr,
                                                                          const IndexType num) {
 
     if constexpr (kIfInitializeObject) {
@@ -846,7 +847,7 @@ FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObjects(ObjectT
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
-FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CopyObjects(ObjectType* dst_ptr, ObjectType* src_ptr, 
+FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CopyObjects(ObjectType* dst_ptr, const ObjectType* src_ptr,
                                                                        const IndexType num) {
     if constexpr (kIfInitializeObject) {
         ObjectType* end_ptr;
@@ -879,7 +880,7 @@ FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CopyObjects(ObjectTyp
 
 template<typename ObjectType, Bool kIfInitializeObject>
 FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::DestroyObjects(ObjectType* begin_ptr, 
-                                                                          const ObjectType* end_ptr) {
+                                                                          ObjectType* const end_ptr) {
     if constexpr (kIfInitializeObject) {
         while (begin_ptr < end_ptr) {
             begin_ptr->~ObjectType();

@@ -21,7 +21,7 @@ public:
     NODISCARD FORCEINLINE static Void* operator new(SizeType size) {
         return memory_pool::ApplyMemory(static_cast<MemoryType>(size));
     }
-    NODISCARD FORCEINLINE static Void operator delete(Void* memory_ptr) {
+    NODISCARD FORCEINLINE static Void operator delete(Void* const memory_ptr) {
         if (memory_ptr == nullptr) {
             return;
         }
