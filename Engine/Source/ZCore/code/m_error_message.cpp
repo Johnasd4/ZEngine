@@ -10,7 +10,7 @@ namespace internal {
 /*
     Console error message and error location.
 */
-CORE_DLLAPI Void ConsoleErrorMessage(const CChar* error_file, const CChar* error_funcion, const Int32 error_line,
+CORE_DLLAPI Void ConsolePrintErrorMessage(const CChar* error_file, const CChar* error_funcion, const Int32 error_line,
                                      const CChar* error_message) noexcept {
     console::Print(
         console::ConsoleTextColour::kConsoleTextColourLightRed, 

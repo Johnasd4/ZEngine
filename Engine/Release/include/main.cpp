@@ -26,6 +26,7 @@ int main(){
     }
     ZVector<Int32> vector_1(vector);
     vector.PushBack(1);
+    RETURN(true,0,"123");
     //Int32* test_1 = new Int32[1024 * 1024 * 100];
     //Int32* test_2 = new Int32[1024 * 1024 * 100];
 

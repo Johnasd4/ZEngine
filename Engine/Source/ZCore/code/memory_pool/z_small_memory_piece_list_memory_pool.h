@@ -196,7 +196,7 @@ Void ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::MemoryPoolArrayInitFunction
 
 template<Bool kIsThreadSafe>
 ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::~ZSmallMemoryPieceListMemoryPool() noexcept {
-#ifdef USE_MEMORY_POOL_TEST
+#if USE_MEMORY_POOL_TEST
     //The first pool realsed.
     if (SuperType::memory_piece_size() == kMemoryPieceMaxSize) {
         zengine::console::Print(

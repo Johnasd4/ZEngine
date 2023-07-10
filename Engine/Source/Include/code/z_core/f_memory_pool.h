@@ -3,11 +3,11 @@
 
 #include"internal/drive.h"
 
-//Shows the use of the memory pool, includes the memory piece left when the 
+// Shows the use of the memory pool, includes the memory piece left when the 
 // program emds, the total memory pieced appplyed and the peak situation of
 // the memory pool. Using this test will slightly reduce the performance of 
 // the program.
-#define USE_MEMORY_POOL_TEST
+#define USE_MEMORY_POOL_TEST true
 //Wheather the memory pool is thread safe.
 #define MEMORY_POOL_THREAD_SAFE true
 
