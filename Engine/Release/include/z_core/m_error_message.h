@@ -39,9 +39,9 @@ CORE_DLLAPI extern Void LogErrorMessage(const CChar* error_file, const CChar* er
 */
 #if USE_CONSOLE_PRINT_ERROR_MESSAGE
 #define CONSOLE_PRINT_ERROR_MESSAGE(error_message)    \
-        ::zengine::internal::ConsolePrintErrorMessage(__FILE__, __func__, __LINE__, error_message);    
+    zengine::internal::ConsolePrintErrorMessage(__FILE__, __func__, __LINE__, error_message);    
 #else
-#define ErrorMessageConsolePrint(_errorMessage) ;
+#define CONSOLE_PRINT_ERROR_MESSAGE(_errorMessage) ;
 #endif // USE_ERROR_CONSOLE_PRINT
 
 #endif // !Z_CORE_M_ERROR_MESSAGE_H_
