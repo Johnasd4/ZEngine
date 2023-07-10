@@ -226,10 +226,23 @@ public:
     */
     Void Reserve(const IndexType capacity) noexcept;
 
+    /*
+        Remove the last object of the vector.
+    */
     Void PopBack() noexcept;
 
+    /*
+        Create an object at the end of the vector by calling the constructor with
+        the arguements. If kIfInitializeObject is false and no arguements, will
+        only add the size of the victor.
+    */
     template<typename... ArgsType>
     Void PushBack(ArgsType&&... args) noexcept;
+    /*
+        Create objects at the end of the vector by calling the constructor with
+        the arguements. If kIfInitializeObject is false and no arguements, will
+        only add the size of the victor.
+    */
     template<typename... ArgsType>
     Void PushBacks(const IndexType num, ArgsType&&... args) noexcept;
 
@@ -281,8 +294,17 @@ public:
     template<typename... ArgsType>
     Void Emplace(const IteratorType iterator, ArgsType&&... args) noexcept;
 
+    /*
+        Construct the vector by filling it with the given amount of objects.
+        The object is constructed by the arguements.
+        If kIfInitializeObject is false and no arguements, will only add the 
+        size of the victor.
+    */
     template<typename... ArgsType>
     Void Assign(const IndexType num, ArgsType&&... args) noexcept;
+    /*
+        Construct the vector by filling it objects between the iterators.
+    */
     Void Assign(const IteratorType begin, const IteratorType end) noexcept;
 
     /*

@@ -153,7 +153,7 @@ Void ZListMemoryPoolBase<MemoryPieceType, kMemoryPieceHeadOffset, kIsThreadSafe>
     //Initialize the memory piece.
     for (IndexType count = 1; count < apply_memory_piece_num; count++) {
         //Initialize the memory piece.
-        reinterpret_cast<Node*>(temp_memory_ptr)->memory_piece.Init(reinterpret_cast<Void*>(this));
+        reinterpret_cast<Node*>(temp_memory_ptr)->memory_piece.Initialize(reinterpret_cast<Void*>(this));
         //Links the pieces into a list.
         reinterpret_cast<Node*>(temp_memory_ptr)->next_node_ptr =
             reinterpret_cast<Node*>(temp_memory_ptr + memory_piece_size_);
@@ -161,7 +161,7 @@ Void ZListMemoryPoolBase<MemoryPieceType, kMemoryPieceHeadOffset, kIsThreadSafe>
         temp_memory_ptr += memory_piece_size_;
     }
     //Initialize the last memory piece.
-    reinterpret_cast<Node*>(temp_memory_ptr)->memory_piece.Init(reinterpret_cast<Void*>(this));
+    reinterpret_cast<Node*>(temp_memory_ptr)->memory_piece.Initialize(reinterpret_cast<Void*>(this));
     //Puts the pieces into the memory pool.
     reinterpret_cast<Node*>(temp_memory_ptr)->next_node_ptr =
         const_cast<Node*>(head_node_ptr_);

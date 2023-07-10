@@ -17,7 +17,7 @@ template<Bool kIsThreadSafe>
 struct ZSmallMemoryPiece : ZMemoryPieceBase{
     ZMemoryPoolBase<kIsThreadSafe>* owner_memory_pool_ptr;
 
-    FORCEINLINE Void Init(Void* pool_ptr) { 
+    FORCEINLINE Void Initialize(Void* pool_ptr) {
         owner_memory_pool_ptr = reinterpret_cast<ZMemoryPoolBase<kIsThreadSafe>*>(pool_ptr);
     }
 };

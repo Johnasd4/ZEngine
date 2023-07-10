@@ -17,7 +17,7 @@ class ZArray : public ZObject {
 public:
 
 #pragma warning(disable : 26495)
-    FORCEINLINE constexpr ZArray() :SuperType() {}
+    FORCEINLINE ZArray() :SuperType() {}
 #pragma warning(default : 26495)
     ZArray(const ZArray& array) noexcept;
     ZArray(ZArray&& array) noexcept;
@@ -48,8 +48,8 @@ public:
     ZArray& operator=(const ZArray& array) noexcept;
     ZArray& operator=(ZArray&& array) noexcept;
 
-    NODISCARD FORCEINLINE constexpr ObjectType& operator()(const IndexType index) { return this->data_[index]; }
-    NODISCARD FORCEINLINE constexpr const ObjectType& operator()(const IndexType index) const { 
+    NODISCARD FORCEINLINE constexpr ObjectType& operator[](const IndexType index) { return this->data_[index]; }
+    NODISCARD FORCEINLINE constexpr const ObjectType& operator[](const IndexType index) const {
         return this->data_[index]; 
     }
 
