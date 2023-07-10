@@ -91,7 +91,7 @@ using Float64 = double;
 
 //The type of the max array length.
 using SizeType = size_t;
-//The type of the address when translated to number.
+//The type of the pointer when translated to number.
 using PointerType = SizeType;
 //The type of the memory size.
 using MemoryType = UInt32;
