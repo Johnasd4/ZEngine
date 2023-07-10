@@ -16,6 +16,11 @@ public:
     FORCEINLINE VectorIteratorBase(const VectorIteratorBase&& iterator) : object_ptr_(iterator.object_ptr_) {
         iterator.MoveDestroy();
     }
+
+    FORCEINLINE VectorIteratorBase& operator=(ObjectType* object_ptr) {
+        object_ptr_ = object_ptr;
+        return *this;
+    }
     FORCEINLINE VectorIteratorBase& operator=(const VectorIteratorBase& iterator) {
         object_ptr_ = iterator.object_ptr_;
         return *this;
@@ -26,22 +31,22 @@ public:
         return *this;
     }
 
-    NODISCARD FORCEINLINE const Bool operator==(const VectorIteratorBase& iterator) {
+    NODISCARD FORCEINLINE const Bool operator==(const VectorIteratorBase& iterator) const {
         return object_ptr_ == iterator.object_ptr_;
     }
-    NODISCARD FORCEINLINE const Bool operator!=(const VectorIteratorBase& iterator) {
+    NODISCARD FORCEINLINE const Bool operator!=(const VectorIteratorBase& iterator) const {
         return object_ptr_ != iterator.object_ptr_;
     }
-    NODISCARD FORCEINLINE const Bool operator>(const VectorIteratorBase& iterator) {
+    NODISCARD FORCEINLINE const Bool operator>(const VectorIteratorBase& iterator) const {
         return object_ptr_ > iterator.object_ptr_;
     }
-    NODISCARD FORCEINLINE const Bool operator>=(const VectorIteratorBase& iterator) {
+    NODISCARD FORCEINLINE const Bool operator>=(const VectorIteratorBase& iterator) const {
         return object_ptr_ >= iterator.object_ptr_;
     }
-    NODISCARD FORCEINLINE const Bool operator<(const VectorIteratorBase& iterator) {
+    NODISCARD FORCEINLINE const Bool operator<(const VectorIteratorBase& iterator) const {
         return object_ptr_ < iterator.object_ptr_;
     }
-    NODISCARD FORCEINLINE const Bool operator<=(const VectorIteratorBase& iterator) {
+    NODISCARD FORCEINLINE const Bool operator<=(const VectorIteratorBase& iterator) const {
         return object_ptr_ <= iterator.object_ptr_;
     }
 
@@ -49,15 +54,7 @@ public:
         return object_ptr_ - iterator.object_ptr_;
     }
 
-    NODISCARD FORCEINLINE ObjectType& operator*() { return *object_ptr_; }
-    NODISCARD FORCEINLINE ObjectType* operator->() { return object_ptr_; }
-    NODISCARD FORCEINLINE const ObjectType& operator*() const { return *object_ptr_; }
-    NODISCARD FORCEINLINE const ObjectType* operator->() const { return object_ptr_; }
-
     FORCEINLINE ~VectorIteratorBase() {}
-
-    NODISCARD FORCEINLINE ObjectType* object_ptr() { return object_ptr_; }
-    NODISCARD FORCEINLINE const ObjectType* object_ptr() const { return object_ptr_; }
 
     FORCEINLINE Void MoveDestroy() { object_ptr_ = nullptr; }
 
@@ -65,15 +62,13 @@ protected:
      ObjectType* object_ptr_;
 };
 
-
 template<typename ObjectType>
 class VectorIterator : public VectorIteratorBase<ObjectType> {
 public:
+    NODISCARD FORCEINLINE ObjectType& operator*() const { return *SuperType::object_ptr_; }
+    NODISCARD FORCEINLINE ObjectType* const operator->() const { return SuperType::object_ptr_; }
+
     FORCEINLINE VectorIterator& operator+(const IndexType data_num) {
-        SuperType::object_ptr_ += data_num;
-        return *this;
-    }
-    FORCEINLINE const VectorIterator& operator+(const IndexType data_num) const {
         SuperType::object_ptr_ += data_num;
         return *this;
     }
@@ -81,15 +76,7 @@ public:
         SuperType::object_ptr_ -= data_num;
         return *this;
     }
-    FORCEINLINE const VectorIterator& operator-(const IndexType data_num) const {
-        SuperType::object_ptr_ -= data_num;
-        return *this;
-    }
     FORCEINLINE VectorIterator& operator++() {
-        ++SuperType::object_ptr_;
-        return *this;
-    }
-    FORCEINLINE const VectorIterator& operator++() const {
         ++SuperType::object_ptr_;
         return *this;
     }
@@ -97,10 +84,44 @@ public:
         --SuperType::object_ptr_;
         return *this;
     }
-    FORCEINLINE const VectorIterator& operator--() const {
+
+    NODISCARD FORCEINLINE ObjectType* const object_ptr() { return SuperType::object_ptr_; }
+
+protected:
+    using SuperType = VectorIteratorBase<ObjectType>;
+};
+
+template<typename ObjectType>
+class VectorConstIterator : public VectorIteratorBase<ObjectType> {
+public:
+    FORCEINLINE VectorConstIterator(const ObjectType* object_ptr) : SuperType(const_cast<ObjectType*>(object_ptr)) {}
+
+    FORCEINLINE VectorConstIterator& operator=(const ObjectType* object_ptr) {
+        SuperType::object_ptr_ = const_cast<ObjectType*>(object_ptr);
+        return *this;
+    }
+
+    NODISCARD FORCEINLINE const ObjectType& operator*() const { return *SuperType::object_ptr_; }
+    NODISCARD FORCEINLINE const ObjectType* const operator->() const { return SuperType::object_ptr_; }
+
+    FORCEINLINE VectorConstIterator& operator+(const IndexType data_num) {
+        SuperType::object_ptr_ += data_num;
+        return *this;
+    }
+    FORCEINLINE VectorConstIterator& operator-(const IndexType data_num) {
+        SuperType::object_ptr_ -= data_num;
+        return *this;
+    }
+    FORCEINLINE VectorConstIterator& operator++() {
+        ++SuperType::object_ptr_;
+        return *this;
+    }
+    FORCEINLINE VectorConstIterator& operator--() {
         --SuperType::object_ptr_;
         return *this;
     }
+
+    NODISCARD FORCEINLINE const ObjectType* const object_ptr() { return SuperType::object_ptr_; }
 
 protected:
     using SuperType = VectorIteratorBase<ObjectType>;
@@ -109,11 +130,10 @@ protected:
 template<typename ObjectType>
 class VectorReverseIterator : public VectorIteratorBase<ObjectType> {
 public:
+    NODISCARD FORCEINLINE ObjectType& operator*() const { return *SuperType::object_ptr_; }
+    NODISCARD FORCEINLINE ObjectType* const operator->() const { return SuperType::object_ptr_; }
+
     FORCEINLINE VectorReverseIterator& operator+(const IndexType data_num) {
-        SuperType::object_ptr_ -= data_num;
-        return *this;
-    }
-    FORCEINLINE const VectorReverseIterator& operator+(const IndexType data_num) const {
         SuperType::object_ptr_ -= data_num;
         return *this;
     }
@@ -121,15 +141,7 @@ public:
         SuperType::object_ptr_ += data_num;
         return *this;
     }
-    FORCEINLINE const VectorReverseIterator& operator-(const IndexType data_num) const {
-        SuperType::object_ptr_ += data_num;
-        return *this;
-    }
     FORCEINLINE VectorReverseIterator& operator++() {
-        --SuperType::object_ptr_;
-        return *this;
-    }
-    FORCEINLINE const VectorReverseIterator& operator++() const {
         --SuperType::object_ptr_;
         return *this;
     }
@@ -137,10 +149,45 @@ public:
         ++SuperType::object_ptr_;
         return *this;
     }
-    FORCEINLINE const VectorReverseIterator& operator--() const {
+
+    NODISCARD FORCEINLINE ObjectType* const object_ptr() { return SuperType::object_ptr_; }
+
+protected:
+    using SuperType = VectorIteratorBase<ObjectType>;
+};
+
+template<typename ObjectType>
+class VectorConstReverseIterator : public VectorIteratorBase<ObjectType> {
+public:
+    FORCEINLINE VectorConstReverseIterator(const ObjectType* object_ptr) 
+        : SuperType(const_cast<ObjectType*>(object_ptr)) {}
+
+    FORCEINLINE VectorConstReverseIterator& operator=(const ObjectType* object_ptr) {
+        SuperType::object_ptr_ = const_cast<ObjectType*>(object_ptr);
+        return *this;
+    }
+
+    NODISCARD FORCEINLINE const ObjectType& operator*() const { return *SuperType::object_ptr_; }
+    NODISCARD FORCEINLINE const ObjectType* const operator->() const { return SuperType::object_ptr_; }
+
+    FORCEINLINE VectorConstReverseIterator& operator+(const IndexType data_num) {
+        SuperType::object_ptr_ -= data_num;
+        return *this;
+    }
+    FORCEINLINE VectorConstReverseIterator& operator-(const IndexType data_num) {
+        SuperType::object_ptr_ += data_num;
+        return *this;
+    }
+    FORCEINLINE VectorConstReverseIterator& operator++() {
+        --SuperType::object_ptr_;
+        return *this;
+    }
+    FORCEINLINE VectorConstReverseIterator& operator--() {
         ++SuperType::object_ptr_;
         return *this;
     }
+
+    NODISCARD FORCEINLINE const ObjectType* const object_ptr() { return SuperType::object_ptr_; }
 
 protected:
     using SuperType = VectorIteratorBase<ObjectType>;
@@ -158,8 +205,11 @@ private:
     static constexpr Float32 kAutoExtendMulFactor = 1.5F;
 
 public:
-    using IteratorType = internal::VectorIterator<ObjectType>;
-    using ReverseIteratorType = internal::VectorReverseIterator<ObjectType>;
+    using Iterator = internal::VectorIterator<ObjectType>;
+    using ConstIterator = internal::VectorConstIterator<ObjectType>;
+    using ReverseIterator = internal::VectorReverseIterator<ObjectType>;
+    using ConstReverseIterator = internal::VectorConstReverseIterator<ObjectType>;
+
 
     ZVector() noexcept;
     ZVector(const IndexType capacity) noexcept;
@@ -177,17 +227,17 @@ public:
     /*
         The iterator funcions.
     */
-    NODISCARD FORCEINLINE IteratorType Begin() { return IteratorType(data_ptr_); }
-    NODISCARD FORCEINLINE const IteratorType ConstBegin() const { return IteratorType(data_ptr_); }
-    NODISCARD FORCEINLINE ReverseIteratorType ReverseBegin() { return ReverseIteratorType(data_ptr_ + size_ - 1); }
-    NODISCARD FORCEINLINE const ReverseIteratorType ConstReverseBegin() const { 
-        return ReverseIteratorType(data_ptr_ + size_ - 1); 
+    NODISCARD FORCEINLINE Iterator Begin() { return Iterator(data_ptr_); }
+    NODISCARD FORCEINLINE ConstIterator ConstBegin() const { return ConstIterator(data_ptr_); }
+    NODISCARD FORCEINLINE ReverseIterator ReverseBegin() { return ReverseIterator(data_ptr_ + size_ - 1); }
+    NODISCARD FORCEINLINE ConstReverseIterator ConstReverseBegin() const {
+        return ConstReverseIterator(data_ptr_ + size_ - 1);
     }
-    NODISCARD FORCEINLINE IteratorType End() { return IteratorType(data_ptr_ + size_); }
-    NODISCARD FORCEINLINE const IteratorType ConstEnd() { return IteratorType(data_ptr_ + size_); }
-    NODISCARD FORCEINLINE ReverseIteratorType ReverseEnd() { return ReverseIteratorType(data_ptr_ - 1); }
-    NODISCARD FORCEINLINE const ReverseIteratorType ConstReverseEnd() const { 
-        return ReverseIteratorType(data_ptr_ - 1); 
+    NODISCARD FORCEINLINE Iterator End() { return Iterator(data_ptr_ + size_); }
+    NODISCARD FORCEINLINE ConstIterator ConstEnd() const { return ConstIterator(data_ptr_ + size_); }
+    NODISCARD FORCEINLINE ReverseIterator ReverseEnd() { return ReverseIterator(data_ptr_ - 1); }
+    NODISCARD FORCEINLINE ConstReverseIterator ConstReverseEnd() const {
+        return ConstReverseIterator(data_ptr_ - 1);
     }
 
     NODISCARD FORCEINLINE const IndexType size() const { return size_; }
@@ -256,32 +306,37 @@ public:
         Inserts before the index. Returns the interator that points at the newest object.
     */
     template<typename... ArgsType>
-    IteratorType Insert(const IndexType index, ArgsType&&... args) noexcept;
+    Iterator Insert(const IndexType index, ArgsType&&... args) noexcept;
     /*
         Inserts before the iterator. Returns the interator that points at the newest object.
     */
     template<typename... ArgsType>
-    IteratorType Insert(const IteratorType iterator, ArgsType&&... args) noexcept;
+    Iterator Insert(const Iterator iterator, ArgsType&&... args) noexcept;
+    /*
+        Inserts before the iterator. Returns the interator that points at the newest object.
+    */
+    template<typename... ArgsType>
+    ReverseIterator Insert(const ReverseIterator iterator, ArgsType&&... args) noexcept;
 
     /*
         Inserts before the index. Returns the interator that points at the first new object.
     */
     template<typename... ArgsType>
-    IteratorType Inserts(const IndexType index, IndexType num, ArgsType&&... args) noexcept;
+    Iterator Inserts(const IndexType index, IndexType num, ArgsType&&... args) noexcept;
     /*
         Inserts before the index. Returns the interator that points at the first new object.
     */
     template<typename... ArgsType>
-    IteratorType Inserts(const IteratorType iterator, IndexType num, ArgsType&&... args) noexcept;
+    Iterator Inserts(const Iterator iterator, IndexType num, ArgsType&&... args) noexcept;
 
-    IteratorType Erase(const IndexType index) noexcept;
-    IteratorType Erase(IteratorType iterator) noexcept;
-    IteratorType Erases(const IndexType index, const IndexType num) noexcept;
-    IteratorType Erases(IteratorType iterator, const IndexType num) noexcept;
+    Void Erase(const IndexType index) noexcept;
+    Void Erase(Iterator iterator) noexcept;
+    Void Erases(const IndexType index, const IndexType num) noexcept;
+    Void Erases(Iterator iterator, const IndexType num) noexcept;
     /*
         Erases the elements between begin and end, involves begin, but don't involves end.
     */
-    IteratorType Erases(IteratorType begin, IteratorType end) noexcept;
+    Void Erases(Iterator begin, Iterator end) noexcept;
 
     /*
         Calls the constructor with the arguements.
@@ -292,7 +347,7 @@ public:
         Calls the constructor with the arguements.
     */
     template<typename... ArgsType>
-    Void Emplace(const IteratorType iterator, ArgsType&&... args) noexcept;
+    Void Emplace(const Iterator iterator, ArgsType&&... args) noexcept;
 
     /*
         Construct the vector by filling it with the given amount of objects.
@@ -305,7 +360,7 @@ public:
     /*
         Construct the vector by filling it objects between the iterators.
     */
-    Void Assign(const IteratorType begin, const IteratorType end) noexcept;
+    Void Assign(const Iterator begin, const Iterator end) noexcept;
 
     /*
         The small object on the front.
@@ -320,19 +375,18 @@ public:
     /*
         The small object on the front.
     */
-    Void Sort(const IteratorType begin, const IteratorType end) noexcept;
+    Void Sort(const Iterator begin, const Iterator end) noexcept;
     /*
         will exchange the two objects when the function is true.
     */
     template<typename CompareFunction>
     requires kIsCompareFunction<CompareFunction, ObjectType>
-    Void Sort(const IteratorType begin, const IteratorType end, CompareFunction&& compare_function) noexcept;
+    Void Sort(const Iterator begin, const Iterator end, CompareFunction&& compare_function) noexcept;
 
     Void Clear() noexcept;
 
 protected:
     using SuperType = ZObject;
-
 private:
     /*
         Extends the capacity by the given capacity, the final capacity might
@@ -549,7 +603,7 @@ Void ZVector<ObjectType, kIfInitializeObject>::EmplaceBack(ArgsType&&... args) n
 
 template<typename ObjectType, Bool kIfInitializeObject>
 template<typename... ArgsType>
-ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfInitializeObject>::Insert(
+ZVector<ObjectType, kIfInitializeObject>::Iterator ZVector<ObjectType, kIfInitializeObject>::Insert(
         const IndexType index, ArgsType&&... args) noexcept {
     IndexType new_size = size_ + 1;
     if (new_size > capacity_) {
@@ -559,13 +613,13 @@ ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfIn
             (size_ - index) * sizeof(ObjectType));
     CreateObject(index, std::forward<ArgsType>(args)...);
     size_ = new_size;
-    return IteratorType(&data_ptr_[index]);
+    return Iterator(&data_ptr_[index]);
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
 template<typename... ArgsType>
-ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfInitializeObject>::Insert(
-        const IteratorType iterator, ArgsType&&... args) noexcept {
+ZVector<ObjectType, kIfInitializeObject>::Iterator ZVector<ObjectType, kIfInitializeObject>::Insert(
+        const Iterator iterator, ArgsType&&... args) noexcept {
     IndexType new_size = size_ + 1;
     IndexType index = iterator.object_ptr() - data_ptr_;
     if (new_size > capacity_) {
@@ -575,12 +629,29 @@ ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfIn
             (size_ - index) * sizeof(ObjectType));
     CreateObject(index, std::forward<ArgsType>(args)...);
     size_ = new_size;
-    return IteratorType(&data_ptr_[index]);
+    return Iterator(&data_ptr_[index]);
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
 template<typename... ArgsType>
-ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfInitializeObject>::Inserts(
+ZVector<ObjectType, kIfInitializeObject>::ReverseIterator ZVector<ObjectType, kIfInitializeObject>::Insert(
+    const ReverseIterator iterator, ArgsType&&... args) noexcept {
+    IndexType new_size = size_ + 1;
+    IndexType index = iterator.object_ptr() - data_ptr_ + 1;
+    if (new_size > capacity_) {
+        ExtendCapacity(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+    }
+    memmove(reinterpret_cast<Void*>(&data_ptr_[index + 1]), reinterpret_cast<Void*>(&data_ptr_[index]),
+            (size_ - index) * sizeof(ObjectType));
+    CreateObject(index, std::forward<ArgsType>(args)...);
+    size_ = new_size;
+    return Iterator(&data_ptr_[index]);
+}
+
+
+template<typename ObjectType, Bool kIfInitializeObject>
+template<typename... ArgsType>
+ZVector<ObjectType, kIfInitializeObject>::Iterator ZVector<ObjectType, kIfInitializeObject>::Inserts(
         const IndexType index, IndexType num, ArgsType&&... args) noexcept {
     IndexType new_size = size_ + num;
     if (new_size > capacity_) {
@@ -590,13 +661,13 @@ ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfIn
             (size_ - index) * sizeof(ObjectType));
     CreateObjects(&data_ptr_[index], &data_ptr_[index + num], std::forward<ArgsType>(args)...);
     size_ = new_size;
-    return IteratorType(&data_ptr_[index]);
+    return Iterator(&data_ptr_[index]);
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
 template<typename... ArgsType>
-ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfInitializeObject>::Inserts(
-        const IteratorType iterator, IndexType num, ArgsType&&... args) noexcept {
+ZVector<ObjectType, kIfInitializeObject>::Iterator ZVector<ObjectType, kIfInitializeObject>::Inserts(
+        const Iterator iterator, IndexType num, ArgsType&&... args) noexcept {
     IndexType new_size = size_ + num;
     IndexType index = iterator.object_ptr() - data_ptr_;
     if (new_size > capacity_) {
@@ -606,58 +677,48 @@ ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfIn
             (size_ - index) * sizeof(ObjectType));
     CreateObjects(&data_ptr_[index], &data_ptr_[index + num], std::forward<ArgsType>(args)...);
     size_ = new_size;
-    return IteratorType(&data_ptr_[index]);
+    return Iterator(&data_ptr_[index]);
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
-ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfInitializeObject>::Erase(
-        const IndexType index) noexcept {
+Void ZVector<ObjectType, kIfInitializeObject>::Erase(const IndexType index) noexcept {
     DestroyObject(index);
     memmove(reinterpret_cast<Void*>(&data_ptr_[index]), reinterpret_cast<Void*>(&data_ptr_[index + 1]),
             (size_ - index - 1) * sizeof(ObjectType));
     --size_;
-    return IteratorType(&data_ptr_[index - 1]);
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
-ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfInitializeObject>::Erase(
-        ZVector<ObjectType, kIfInitializeObject>::IteratorType iterator) noexcept {
+Void ZVector<ObjectType, kIfInitializeObject>::Erase(Iterator iterator) noexcept {
     IndexType index = iterator.object_ptr() - data_ptr_;
     DestroyObject(index);
     memmove(reinterpret_cast<Void*>(&data_ptr_[index]), reinterpret_cast<Void*>(&data_ptr_[index + 1]),
             (size_ - index - 1) * sizeof(ObjectType));
     --size_;
-    return IteratorType(iterator.object_ptr() - 1);
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
-ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfInitializeObject>::Erases(
-        const IndexType index, const IndexType num) noexcept {
+Void ZVector<ObjectType, kIfInitializeObject>::Erases(const IndexType index, const IndexType num) noexcept {
     DestroyObjects(&data_ptr_[index], num);
     memmove(reinterpret_cast<Void*>(&data_ptr_[index]), reinterpret_cast<Void*>(&data_ptr_[index + num]),
             (size_ - index - num) * sizeof(ObjectType));
     size_ -= num;
-    return IteratorType(&data_ptr_[index - 1]);
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
-ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfInitializeObject>::Erases(
-        IteratorType iterator, const IndexType num) noexcept {
+Void ZVector<ObjectType, kIfInitializeObject>::Erases(Iterator iterator, const IndexType num) noexcept {
     IndexType index = iterator.object_ptr() - data_ptr_;
     DestroyObjects(iterator.object_ptr(), num);
     memmove(reinterpret_cast<Void*>(&data_ptr_[index]), reinterpret_cast<Void*>(&data_ptr_[index + num]), 
             (size_ - index - num) * sizeof(ObjectType));
     size_ -= num;
-    return --iterator;
 }
 template<typename ObjectType, Bool kIfInitializeObject>
-ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfInitializeObject>::Erases(
-        IteratorType begin, IteratorType end) noexcept {
+Void ZVector<ObjectType, kIfInitializeObject>::Erases(Iterator begin, Iterator end) noexcept {
     DestroyObjects(begin.object_ptr(), end.object_ptr());
     memmove(reinterpret_cast<Void*>(begin.object_ptr()), reinterpret_cast<Void*>(end.object_ptr()),
             (size_ - (end.object_ptr() - data_ptr_)) * sizeof(ObjectType));
     size_ -= end.object_ptr() - begin.object_ptr();
-    return --begin;
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
@@ -670,7 +731,7 @@ Void ZVector<ObjectType, kIfInitializeObject>::Emplace(const IndexType index, Ar
 template<typename ObjectType, Bool kIfInitializeObject>
 template<typename... ArgsType>
 Void ZVector<ObjectType, kIfInitializeObject>::Emplace(
-        const ZVector<ObjectType, kIfInitializeObject>::IteratorType iterator, ArgsType&&... args) noexcept {
+        const ZVector<ObjectType, kIfInitializeObject>::Iterator iterator, ArgsType&&... args) noexcept {
     DestroyObject(iterator.object_ptr());
     CreateObject(iterator.object_ptr(), std::forward<ArgsType>(args)...);
 }
@@ -688,7 +749,7 @@ Void ZVector<ObjectType, kIfInitializeObject>::Assign(const IndexType num, ArgsT
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
-Void ZVector<ObjectType, kIfInitializeObject>::Assign(const IteratorType begin, const IteratorType end) noexcept {
+Void ZVector<ObjectType, kIfInitializeObject>::Assign(const Iterator begin, const Iterator end) noexcept {
     IndexType new_size = end - begin;
     if (new_size > capacity_) {
         ExtendCapacity(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
