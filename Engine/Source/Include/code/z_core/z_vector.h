@@ -226,10 +226,23 @@ public:
     */
     Void Reserve(const IndexType capacity) noexcept;
 
+    /*
+        Remove the last object of the vector.
+    */
     Void PopBack() noexcept;
 
+    /*
+        Create an object at the end of the vector by calling the constructor with
+        the arguements. If kIfInitializeObject is false and no arguements, will
+        only add the size of the victor.
+    */
     template<typename... ArgsType>
     Void PushBack(ArgsType&&... args) noexcept;
+    /*
+        Create objects at the end of the vector by calling the constructor with
+        the arguements. If kIfInitializeObject is false and no arguements, will
+        only add the size of the victor.
+    */
     template<typename... ArgsType>
     Void PushBacks(const IndexType num, ArgsType&&... args) noexcept;
 
