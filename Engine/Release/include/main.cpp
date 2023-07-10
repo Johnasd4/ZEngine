@@ -20,15 +20,20 @@ using namespace std;
 
 int main(){
 
-
-    Int32* test_1 = new Int32[1024 * 1024 * 100];
-    Int32* test_2 = new Int32[1024 * 1024 * 100];
-
-    for (IndexType index = 0; index < 1024 * 1024; index++) {
-        test_1[index] = index;
+    ZVector<Int32> vector;
+    for (IndexType index = 0; index < 10; ++index) {
+        vector.PushBack(index);
     }
-    TIME_TEST(memmove(test_1, test_2, 4LL * 1024LL * 1024LL * 100 - 10));
-    TIME_TEST(memcpy(test_1, test_2, 4LL * 1024LL * 1024LL * 100 - 10););
+    ZVector<Int32> vector_1(vector);
+    vector.PushBack(1);
+    //Int32* test_1 = new Int32[1024 * 1024 * 100];
+    //Int32* test_2 = new Int32[1024 * 1024 * 100];
+
+    //for (IndexType index = 0; index < 1024 * 1024; index++) {
+    //    test_1[index] = index;
+    //}
+    //TIME_TEST(memmove(test_1, test_2, 4LL * 1024LL * 1024LL * 100 - 10));
+    //TIME_TEST(memcpy(test_1, test_2, 4LL * 1024LL * 1024LL * 100 - 10););
   
     /*求2到100000000的所有质数*/
     //int n = 100000000;

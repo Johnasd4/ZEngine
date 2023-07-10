@@ -429,11 +429,10 @@ ZVector<ObjectType, kIfInitializeObject>::ZVector(const IndexType capacity) noex
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
-ZVector<ObjectType, kIfInitializeObject>::ZVector(const ZVector& vector) noexcept
-    : size_(vector.size_)
-{
+ZVector<ObjectType, kIfInitializeObject>::ZVector(const ZVector& vector) noexcept {
     ExtendCapacity(vector.size_);
-    CreateObjects(vector.data_ptr_, vector.data_ptr_ + vector.size_, vector.data_ptr_);
+    CreateObjects(data_ptr_, vector.data_ptr_, vector.size_);
+    size_ = vector.size_;
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
