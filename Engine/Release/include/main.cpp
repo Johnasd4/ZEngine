@@ -17,6 +17,7 @@ using namespace std;
 		std::cout << "代码运行总共消耗：" << end_time - start_time << "ms" << std::endl;\
 	}
 
+#include<array>
 
 int main(){
 
@@ -29,7 +30,9 @@ int main(){
     ++itarator;
     vector_1.Insert(itarator, 1);
     vector_1.PushBack(1);
-    RETURN(true,0,"123");
+    vector_1.PushBacks(1);
+    ZVector<ZVector<Int32>> vector_2;
+    vector_2.PushBacks(1);
     //Int32* test_1 = new Int32[1024 * 1024 * 100];
     //Int32* test_2 = new Int32[1024 * 1024 * 100];
 
