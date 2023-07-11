@@ -958,7 +958,7 @@ Void ZVector<ObjectType, kIfInitializeObject>::Assign(const IteratorType& begin,
         DestroyObjects(data_ptr_, begin.object_ptr());
         DestroyObjects(end.object_ptr(), data_ptr_ + size_);
         memmove(reinterpret_cast<Void*>(data_ptr_), reinterpret_cast<Void*>(begin.object_ptr()),
-                (new_size) * sizeof(ObjectType));
+                new_size * sizeof(ObjectType));
     }
     else {
         DestroyObjects(data_ptr_, size_);
@@ -970,6 +970,9 @@ Void ZVector<ObjectType, kIfInitializeObject>::Assign(const IteratorType& begin,
 template<typename ObjectType, Bool kIfInitializeObject>
 Void ZVector<ObjectType, kIfInitializeObject>::Assign(const ReverseIteratorType& begin,
                                                       const ReverseIteratorType& end) noexcept {
+    if (begin >= end) {
+
+    }
     IndexType new_size = end - begin;
     if (new_size > capacity_) {
         ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
@@ -982,9 +985,9 @@ Void ZVector<ObjectType, kIfInitializeObject>::Assign(const ReverseIteratorType&
         ObjectType* begin_ptr = end.object_ptr();
         ObjectType* end_ptr = begin.object_ptr();
         while (begin_ptr < end_ptr) {
-            Swap<ObjectType>(begin_ptr, end_ptr);
+            Swap(begin_ptr, end_ptr);
             ++begin_ptr;
-            ++end_ptr;
+            --end_ptr;
         }
     }
     else {
