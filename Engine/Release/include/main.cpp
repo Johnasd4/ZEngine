@@ -32,7 +32,7 @@ int main(){
     vector_1.PushBack(1);
     vector_1.PushBacks(1);
     ZVector<ZVector<Int32>> vector_2;
-    vector_2.PushBacks(1);
+    vector_2.PushBack(1);
     //Int32* test_1 = new Int32[1024 * 1024 * 100];
     //Int32* test_2 = new Int32[1024 * 1024 * 100];
 

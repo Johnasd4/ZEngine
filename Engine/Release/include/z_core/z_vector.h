@@ -591,7 +591,9 @@ ZVector<ObjectType, kIfInitializeObject>::ZVector() noexcept
 
 template<typename ObjectType, Bool kIfInitializeObject>
 ZVector<ObjectType, kIfInitializeObject>::ZVector(const IndexType capacity) noexcept
-    : size_(0)
+    : data_ptr_(nullptr)
+    , size_(0)
+    , capacity_(0)
 {
     ExtendCapacity(capacity);
 }
@@ -982,7 +984,7 @@ template<typename ObjectType, Bool kIfInitializeObject>
 template<typename... ArgsType>
 FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObject(const IndexType index, 
                                                                                ArgsType&&... args) {
-    if (sizeof...(ArgsType) == 0) {
+    if (sizeof...(args) == 0) {
         if constexpr (kIfInitializeObject) {
             new(reinterpret_cast<Void*>(&(data_ptr_[index]))) ObjectType();
         }
@@ -996,7 +998,7 @@ template<typename ObjectType, Bool kIfInitializeObject>
 template<typename... ArgsType>
 FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObject(ObjectType* const object_ptr,
                                                                         ArgsType&&... args) {
-    if (sizeof...(ArgsType) == 0) {
+    if (sizeof...(args) == 0) {
         if constexpr (kIfInitializeObject) {
             new(reinterpret_cast<Void*>(object_ptr)) ObjectType();
         }
@@ -1025,7 +1027,7 @@ template<typename... ArgsType>
 FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObjects(ObjectType* begin_ptr,
                                                                          ObjectType* const end_ptr,
                                                                          ArgsType&&... args) {
-    if (sizeof...(ArgsType) == 0) {
+    if (sizeof...(args) == 0) {
         if constexpr (kIfInitializeObject) {
             new(reinterpret_cast<Void*>(begin_ptr)) ObjectType[end_ptr - begin_ptr];
         }
@@ -1043,7 +1045,7 @@ template<typename... ArgsType>
 FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObjects(ObjectType* begin_ptr, 
                                                                          const IndexType num,
                                                                          ArgsType&&... args) {
-    if (sizeof...(ArgsType) == 0) {
+    if (sizeof...(args) == 0) {
         if constexpr (kIfInitializeObject) {
             new(reinterpret_cast<Void*>(begin_ptr)) ObjectType[num];
         }
