@@ -21,18 +21,14 @@ using namespace std;
 
 int main(){
 
-    ZVector<Int32> vector;
+    ZVector<Int32> vector_1;
     for (IndexType index = 0; index < 10; ++index) {
-        vector.PushBack(index);
+        vector_1.PushBack(index);
     }
-    ZVector<Int32> vector_1(vector);
-    auto itarator = vector_1.ReverseBegin();
-    ++itarator;
-    vector_1.Insert(itarator, 1);
-    vector_1.PushBack(1);
-    vector_1.PushBacks(1);
-    ZVector<ZVector<Int32>> vector_2;
-    vector_2.PushBack();
+    ZVector<Int32> vector_2(vector_1);
+    for (IndexType index = 0; index < 10; ++index) {
+        cout << vector_2[index] << endl;
+    }
     //Int32* test_1 = new Int32[1024 * 1024 * 100];
     //Int32* test_2 = new Int32[1024 * 1024 * 100];
 
