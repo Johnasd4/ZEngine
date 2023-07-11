@@ -495,10 +495,20 @@ protected:
     using SuperType = ZObject;
 private:
     /*
+        Creates the capacity by the given capacity, the final capacity might
+        not equal the given capacity.
+    */
+    FORCEINLINE Void CreateContainer(const IndexType capacity) noexcept;
+    /*
         Extends the capacity by the given capacity, the final capacity might
         not equal the given capacity.
     */
-    Void ExtendCapacity(const IndexType capacity) noexcept;
+    Void ExtendContainer(const IndexType capacity) noexcept;
+    /*
+        Destroys the container.
+    */
+    FORCEINLINE Void DestroyContainer() noexcept;
+
 
     /*
         Called when the container is moved.
@@ -578,29 +588,26 @@ private:
     FORCEINLINE Void DestroyObjects(ObjectType* begin_ptr, const IndexType num);
 
     ObjectType* data_ptr_;
-    IndexType size_;
     IndexType capacity_;
+    IndexType size_;
 };
 
 template<typename ObjectType, Bool kIfInitializeObject>
 ZVector<ObjectType, kIfInitializeObject>::ZVector() noexcept
     : data_ptr_(nullptr)
-    , size_(0)
     , capacity_(0)
+    , size_(0)
 {}
 
 template<typename ObjectType, Bool kIfInitializeObject>
-ZVector<ObjectType, kIfInitializeObject>::ZVector(const IndexType capacity) noexcept
-    : data_ptr_(nullptr)
-    , size_(0)
-    , capacity_(0)
-{
-    ExtendCapacity(capacity);
+ZVector<ObjectType, kIfInitializeObject>::ZVector(const IndexType capacity) noexcept {
+    CreateContainer(capacity);
+    size_ = 0;
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
 ZVector<ObjectType, kIfInitializeObject>::ZVector(const ZVector& vector) noexcept {
-    ExtendCapacity(vector.size_);
+    CreateContainer(vector.size_);
     CreateObjects(data_ptr_, vector.data_ptr_, vector.size_);
     size_ = vector.size_;
 }
@@ -608,8 +615,8 @@ ZVector<ObjectType, kIfInitializeObject>::ZVector(const ZVector& vector) noexcep
 template<typename ObjectType, Bool kIfInitializeObject>
 ZVector<ObjectType, kIfInitializeObject>::ZVector(ZVector&& vector) noexcept
     : data_ptr_(vector.data_ptr_)
-    , size_(vector.size_)
     , capacity_(vector.capacity_)
+    , size_(vector.size_)
 {
     vector.MoveDestroy();
 }
@@ -618,7 +625,7 @@ template<typename ObjectType, Bool kIfInitializeObject>
 ZVector<ObjectType, kIfInitializeObject>& ZVector<ObjectType, kIfInitializeObject>::operator=(
         const ZVector& vector) noexcept {
     if (vector.size_ > capacity_) {
-        ExtendCapacity(size_);
+        ExtendContainer(size_);
     }
     CopyObjects(data_ptr_, vector.data_ptr_, vector.size_);
     size_ = vector.size_;
@@ -638,15 +645,14 @@ ZVector<ObjectType, kIfInitializeObject>& ZVector<ObjectType, kIfInitializeObjec
 
 template<typename ObjectType, Bool kIfInitializeObject>
 ZVector<ObjectType, kIfInitializeObject>::~ZVector() noexcept {
-    DestroyObjects(data_ptr_, data_ptr_ + size_);
-    memory_pool::ReleaseMemory(reinterpret_cast<Void*>(data_ptr_));
+    DestroyContainer();
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
 Void ZVector<ObjectType, kIfInitializeObject>::Resize(const IndexType size) noexcept {
     if (size_ < size) {
         if (size > capacity_) {
-            ExtendCapacity(size);
+            ExtendContainer(size);
         }
         CreateObjects(data_ptr_ + size_, size - size_);
     }
@@ -660,7 +666,7 @@ template<typename ObjectType, Bool kIfInitializeObject>
 Void ZVector<ObjectType, kIfInitializeObject>::Resize(const IndexType size, const ObjectType& object) noexcept {
     if (size_ < size) {
         if (size > capacity_) {
-            ExtendCapacity(size);
+            ExtendContainer(size);
         }
         CreateObjects(data_ptr_ + size_, size - size_, object);
     }
@@ -673,7 +679,7 @@ Void ZVector<ObjectType, kIfInitializeObject>::Resize(const IndexType size, cons
 template<typename ObjectType, Bool kIfInitializeObject>
 Void ZVector<ObjectType, kIfInitializeObject>::Reserve(const IndexType capacity) noexcept {
     if (capacity > capacity_) {
-        ExtendCapacity(capacity);
+        ExtendContainer(capacity);
     }
 }
 
@@ -690,7 +696,7 @@ template<typename... ArgsType>
 Void ZVector<ObjectType, kIfInitializeObject>::PushBack(ArgsType&&... args) noexcept {
     IndexType new_size = size_ + 1;
     if (new_size > capacity_) {
-        ExtendCapacity(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+        ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
     }
     CreateObject(size_, std::forward<ArgsType>(args)...);
     size_ = new_size;
@@ -701,7 +707,7 @@ template<typename... ArgsType>
 Void ZVector<ObjectType, kIfInitializeObject>::PushBacks(const IndexType num, ArgsType&&... args) noexcept {
     IndexType new_size = size_ + num;
     if (new_size > capacity_) {
-        ExtendCapacity(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+        ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
     }
     CreateObjects(data_ptr_ + size_, num, std::forward<ArgsType>(args)...);
     size_ = new_size;
@@ -720,7 +726,7 @@ ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfIn
         const IndexType index, ArgsType&&... args) noexcept {
     IndexType new_size = size_ + 1;
     if (new_size > capacity_) {
-        ExtendCapacity(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+        ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
     }
     memmove(reinterpret_cast<Void*>(&data_ptr_[index + 1]), reinterpret_cast<Void*>(&data_ptr_[index]),
             (size_ - index) * sizeof(ObjectType));
@@ -736,7 +742,7 @@ ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfIn
     IndexType new_size = size_ + 1;
     IndexType index = static_cast<IndexType>(iterator.object_ptr() - data_ptr_);
     if (new_size > capacity_) {
-        ExtendCapacity(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+        ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
     }
     memmove(reinterpret_cast<Void*>(&data_ptr_[index + 1]), reinterpret_cast<Void*>(&data_ptr_[index]),
             (size_ - index) * sizeof(ObjectType));
@@ -752,7 +758,7 @@ ZVector<ObjectType, kIfInitializeObject>::ReverseIteratorType ZVector<ObjectType
     IndexType new_size = size_ + 1;
     IndexType index = static_cast<IndexType>(iterator.object_ptr() - data_ptr_) + 1;
     if (new_size > capacity_) {
-        ExtendCapacity(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+        ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
     }
     memmove(reinterpret_cast<Void*>(&data_ptr_[index + 1]), reinterpret_cast<Void*>(&data_ptr_[index]),
             (size_ - index) * sizeof(ObjectType));
@@ -768,7 +774,7 @@ ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfIn
         const IndexType index, IndexType num, ArgsType&&... args) noexcept {
     IndexType new_size = size_ + num;
     if (new_size > capacity_) {
-        ExtendCapacity(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+        ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
     }
     memmove(reinterpret_cast<Void*>(&data_ptr_[index + num]), reinterpret_cast<Void*>(&data_ptr_[index]),
             (size_ - index) * sizeof(ObjectType));
@@ -784,7 +790,7 @@ ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfIn
     IndexType new_size = size_ + num;
     IndexType index = iterator.object_ptr() - data_ptr_;
     if (new_size > capacity_) {
-        ExtendCapacity(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+        ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
     }
     memmove(reinterpret_cast<Void*>(&data_ptr_[index + num]), reinterpret_cast<Void*>(&data_ptr_[index]),
             (size_ - index) * sizeof(ObjectType));
@@ -800,7 +806,7 @@ ZVector<ObjectType, kIfInitializeObject>::ReverseIteratorType ZVector<ObjectType
     IndexType new_size = size_ + num;
     IndexType index = iterator.object_ptr() - data_ptr_ + 1;
     if (new_size > capacity_) {
-        ExtendCapacity(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+        ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
     }
     memmove(reinterpret_cast<Void*>(&data_ptr_[index + num]), reinterpret_cast<Void*>(&data_ptr_[index]),
         (size_ - index) * sizeof(ObjectType));
@@ -920,7 +926,7 @@ template<typename... ArgsType>
 Void ZVector<ObjectType, kIfInitializeObject>::Assign(const IndexType num, ArgsType&&... args) noexcept {
     IndexType new_size = num;
     if (new_size > capacity_) {
-        ExtendCapacity(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+        ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
     }
     DestroyObjects(data_ptr_, size_);
     CreateObjects(data_ptr_, num, std::forward<ArgsType>(args)...);
@@ -931,7 +937,7 @@ template<typename ObjectType, Bool kIfInitializeObject>
 Void ZVector<ObjectType, kIfInitializeObject>::Assign(const IteratorType& begin, const IteratorType& end) noexcept {
     IndexType new_size = end - begin;
     if (new_size > capacity_) {
-        ExtendCapacity(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+        ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
     }
     DestroyObjects(data_ptr_, size_);
     CreateObjects(data_ptr_, begin.object_ptr(), end.object_ptr());
@@ -943,7 +949,7 @@ Void ZVector<ObjectType, kIfInitializeObject>::Assign(const ReverseIteratorType&
                                                       const ReverseIteratorType& end) noexcept {
     IndexType new_size = end - begin;
     if (new_size > capacity_) {
-        ExtendCapacity(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+        ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
     }
     DestroyObjects(data_ptr_, size_);
     CreateObjectsReverse(data_ptr_, begin.object_ptr(), end.object_ptr());
@@ -957,7 +963,15 @@ Void ZVector<ObjectType, kIfInitializeObject>::Clear() noexcept {
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
-Void ZVector<ObjectType, kIfInitializeObject>::ExtendCapacity(const IndexType capacity) noexcept {
+FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateContainer(const IndexType capacity) noexcept {
+    MemoryType need_memory_size = capacity * sizeof(ObjectType);
+    MemoryType apply_mrmory_size;
+    data_ptr_ = reinterpret_cast<ObjectType*>(memory_pool::ApplyMemory(need_memory_size, &apply_mrmory_size));
+    capacity_ = apply_mrmory_size / sizeof(ObjectType);
+}
+
+template<typename ObjectType, Bool kIfInitializeObject>
+Void ZVector<ObjectType, kIfInitializeObject>::ExtendContainer(const IndexType capacity) noexcept {
     MemoryType current_memory_size = capacity_ * sizeof(ObjectType);
     MemoryType need_memory_size = capacity * sizeof(ObjectType);
     MemoryType apply_mrmory_size;
@@ -971,6 +985,12 @@ Void ZVector<ObjectType, kIfInitializeObject>::ExtendCapacity(const IndexType ca
         data_ptr_ = temp_data_ptr;
     }
     capacity_ = apply_mrmory_size / sizeof(ObjectType);  
+}
+
+template<typename ObjectType, Bool kIfInitializeObject>
+FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::DestroyContainer() noexcept {
+    DestroyObjects(data_ptr_, data_ptr_ + size_);
+    memory_pool::ReleaseMemory(reinterpret_cast<Void*>(data_ptr_));
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
