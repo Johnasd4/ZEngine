@@ -18,6 +18,7 @@ using namespace std;
 	}
 
 #include<array>
+#include <cassert>
 
 int main(){
 
@@ -31,7 +32,7 @@ int main(){
         vector_1.PushBack(index);
         vector_2.PushBack(vector_1);
     }
-
+    assert(false);
 
     auto begin = vector_2.ReverseBegin();
     auto end = vector_2.ReverseEnd();
