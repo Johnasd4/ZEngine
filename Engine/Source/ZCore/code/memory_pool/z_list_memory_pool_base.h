@@ -39,7 +39,9 @@ protected:
         MemoryPieceType memory_piece;
     };
 
+#pragma warning(disable : 26495)
     FORCEINLINE ZListMemoryPoolBase() : SuperType() {}
+#pragma warning(default : 26495)
     Void Initialize(const MemoryPoolType memory_pool_type, const MemoryType memory_piece_size,
                     const MemoryType memory_piece_memory_size, const IndexType capacity) noexcept;
     

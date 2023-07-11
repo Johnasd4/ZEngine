@@ -184,7 +184,7 @@ public:
     }
 
     FORCEINLINE const IndexType operator-(const VectorReverseIterator& iterator) const {
-        return iterator.SuperType::object_ptr_ - SuperType::object_ptr_;
+        return static_cast<IndexType>(iterator.SuperType::object_ptr_ - SuperType::object_ptr_);
     }
 
     NODISCARD FORCEINLINE ObjectType* object_ptr() { return SuperType::object_ptr_; }
@@ -649,9 +649,10 @@ ZVector<ObjectType, kIfInitializeObject>& ZVector<ObjectType, kIfInitializeObjec
 template<typename ObjectType, Bool kIfInitializeObject>
 ZVector<ObjectType, kIfInitializeObject>& ZVector<ObjectType, kIfInitializeObject>::operator=(
         ZVector&& vector) noexcept {
-    if (*this != vector) {
+    if (*this == vector) {
         return *this;
     }
+    DestroyObjects(data_ptr_, size_);
     data_ptr_ = vector.data_ptr_;
     size_ = vector.size_;
     capacity_ = vector.capacity_;
@@ -950,6 +951,10 @@ Void ZVector<ObjectType, kIfInitializeObject>::Assign(const IndexType num, ArgsT
 
 template<typename ObjectType, Bool kIfInitializeObject>
 Void ZVector<ObjectType, kIfInitializeObject>::Assign(const IteratorType& begin, const IteratorType& end) noexcept {
+    if (begin >= end) {
+        Clear();
+        return;
+    }
     IndexType new_size = end - begin;
     if (new_size > capacity_) {
         ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
@@ -971,7 +976,8 @@ template<typename ObjectType, Bool kIfInitializeObject>
 Void ZVector<ObjectType, kIfInitializeObject>::Assign(const ReverseIteratorType& begin,
                                                       const ReverseIteratorType& end) noexcept {
     if (begin >= end) {
-
+        Clear();
+        return;
     }
     IndexType new_size = end - begin;
     if (new_size > capacity_) {
@@ -980,15 +986,16 @@ Void ZVector<ObjectType, kIfInitializeObject>::Assign(const ReverseIteratorType&
     if (begin.object_ptr() >= data_ptr_ && begin.object_ptr() <= (data_ptr_ + size_)) {
         DestroyObjects(data_ptr_, end.object_ptr() + 1);
         DestroyObjects(begin.object_ptr() + 1, data_ptr_ + size_);
-        memmove(reinterpret_cast<Void*>(data_ptr_), reinterpret_cast<Void*>(end.object_ptr() + 1),
-                new_size * sizeof(ObjectType));
-        ObjectType* begin_ptr = end.object_ptr();
+        //Reverses the objects.
+        ObjectType* begin_ptr = end.object_ptr() + 1;
         ObjectType* end_ptr = begin.object_ptr();
         while (begin_ptr < end_ptr) {
             Swap(begin_ptr, end_ptr);
             ++begin_ptr;
             --end_ptr;
         }
+        memmove(reinterpret_cast<Void*>(data_ptr_), reinterpret_cast<Void*>(end.object_ptr() + 1),
+                new_size * sizeof(ObjectType));
     }
     else {
         DestroyObjects(data_ptr_, size_);
