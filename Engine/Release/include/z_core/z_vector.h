@@ -1125,7 +1125,7 @@ FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateAndCopyObjects(
     }
     else {
         memcpy(reinterpret_cast<Void*>(dst_ptr), reinterpret_cast<Void*>(const_cast<ObjectType*>(src_ptr)),
-            static_cast<SizeType>(num * sizeof(ObjectType)));
+               static_cast<SizeType>(num * sizeof(ObjectType)));
     }
 }
 
