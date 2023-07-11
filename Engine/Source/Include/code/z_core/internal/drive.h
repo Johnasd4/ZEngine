@@ -134,7 +134,7 @@ union Size64Type {
 
 template<typename ObjectType>
 FORCEINLINE constexpr Void Swap(ObjectType* const object_1, ObjectType* const object_2) {
-    ObjectType temp_object = std::move(*object_1);
+    ObjectType temp_object(std::move(*object_1));
     *object_1 = std::move(*object_2);
     *object_2 = std::move(temp_object);
 }

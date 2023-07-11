@@ -979,10 +979,12 @@ Void ZVector<ObjectType, kIfInitializeObject>::Assign(const ReverseIteratorType&
         DestroyObjects(begin.object_ptr() + 1, data_ptr_ + size_);
         memmove(reinterpret_cast<Void*>(data_ptr_), reinterpret_cast<Void*>(end.object_ptr() + 1),
                 new_size * sizeof(ObjectType));
-        for (ObjectType* begin_ptr = end.object_ptr(), end_ptr = begin.object_ptr(); begin_ptr < end_ptr; 
-             ++begin_ptr, ++end_ptr) {
-            
-            Swap(begin_ptr, end_ptr);
+        ObjectType* begin_ptr = end.object_ptr();
+        ObjectType* end_ptr = begin.object_ptr();
+        while (begin_ptr < end_ptr) {
+            Swap<ObjectType>(begin_ptr, end_ptr);
+            ++begin_ptr;
+            ++end_ptr;
         }
     }
     else {

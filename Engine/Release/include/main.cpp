@@ -26,7 +26,6 @@ int main(){
         vector_1.PushBack(index);
     }
     ZVector<ZVector<Int32>> vector_2;
-
     vector_2.PushBacks(11, vector_1);
     for (IndexType i = 0; i < vector_2.size(); ++i) {
         for (IndexType j = 0; j < vector_2[i].size(); ++j) {
@@ -34,6 +33,9 @@ int main(){
         }
         cout << endl;
     }
+    auto begin = vector_2.ReverseBegin();
+    auto end = vector_2.ReverseEnd();
+    vector_2.Assign(begin, end);
     //Int32* test_1 = new Int32[1024 * 1024 * 100];
     //Int32* test_2 = new Int32[1024 * 1024 * 100];
 
