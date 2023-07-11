@@ -636,10 +636,8 @@ ZVector<ObjectType, kIfInitializeObject>& ZVector<ObjectType, kIfInitializeObjec
 
 template<typename ObjectType, Bool kIfInitializeObject>
 ZVector<ObjectType, kIfInitializeObject>::~ZVector() noexcept {
-    if (data_ptr_ != nullptr) {
-        DestroyObjects(data_ptr_, data_ptr_ + size_);
-        memory_pool::ReleaseMemory(reinterpret_cast<Void*>(data_ptr_));
-    }
+    DestroyObjects(data_ptr_, data_ptr_ + size_);
+    memory_pool::ReleaseMemory(reinterpret_cast<Void*>(data_ptr_));
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
