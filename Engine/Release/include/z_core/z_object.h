@@ -51,9 +51,8 @@ protected:
     FORCEINLINE constexpr ~ZObject() {}
 
 private:
-
     /*
-        Reset the member to null when moved.
+        Reset the object to null when moved.
     */
     FORCEINLINE constexpr Void MoveDestroy() {}
 };
