@@ -1077,10 +1077,6 @@ FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObjects(ObjectT
             ++begin_ptr;
         }
     }
-
-    if constexpr (kIfInitializeObject) { 
-        new(reinterpret_cast<Void*>(begin_ptr)) ObjectType[num];
-    }
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
