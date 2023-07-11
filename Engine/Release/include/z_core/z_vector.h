@@ -275,6 +275,13 @@ public:
     ZVector& operator=(const ZVector& vector) noexcept;
     ZVector& operator=(ZVector&& vector) noexcept;
 
+    NODISCARD FORCEINLINE const Bool operator==(const ZVector& vector) noexcept { 
+        return data_ptr_ == vector.data_ptr_; 
+    }    
+    NODISCARD FORCEINLINE const Bool operator!=(const ZVector& vector) noexcept { 
+        return data_ptr_ != vector.data_ptr_; 
+    }
+
     NODISCARD FORCEINLINE ObjectType& operator[](const IndexType index) { return data_ptr_[index]; }
     NODISCARD FORCEINLINE const ObjectType& operator[](const IndexType index) const { return data_ptr_[index]; }
 
@@ -490,6 +497,10 @@ public:
         Destroys all the objects in the vector, does not release the memory.
     */
     Void Clear() noexcept;
+    /*
+        Destroys all the objects in the vector, release the memory.
+    */
+    Void Destroy() noexcept;
 
 protected:
     using SuperType = ZObject;
@@ -613,7 +624,7 @@ ZVector<ObjectType, kIfInitializeObject>::ZVector(const ZVector& vector) noexcep
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
-ZVector<ObjectType, kIfInitializeObject>::ZVector(ZVector&& vector) noexcept
+ZVector<ObjectType, kIfInitializeObject>::ZVector(ZVector&& vector) noexcept 
     : data_ptr_(vector.data_ptr_)
     , capacity_(vector.capacity_)
     , size_(vector.size_)
@@ -624,6 +635,9 @@ ZVector<ObjectType, kIfInitializeObject>::ZVector(ZVector&& vector) noexcept
 template<typename ObjectType, Bool kIfInitializeObject>
 ZVector<ObjectType, kIfInitializeObject>& ZVector<ObjectType, kIfInitializeObject>::operator=(
         const ZVector& vector) noexcept {
+    if (*this == vector) {
+        return *this;
+    }
     if (vector.size_ > capacity_) {
         ExtendContainer(size_);
     }
@@ -635,13 +649,15 @@ ZVector<ObjectType, kIfInitializeObject>& ZVector<ObjectType, kIfInitializeObjec
 template<typename ObjectType, Bool kIfInitializeObject>
 ZVector<ObjectType, kIfInitializeObject>& ZVector<ObjectType, kIfInitializeObject>::operator=(
         ZVector&& vector) noexcept {
+    if (*this != vector) {
+        return *this;
+    }
     data_ptr_ = vector.data_ptr_;
     size_ = vector.size_;
     capacity_ = vector.capacity_;
     vector.MoveDestroy();
     return *this;
 }
-
 
 template<typename ObjectType, Bool kIfInitializeObject>
 ZVector<ObjectType, kIfInitializeObject>::~ZVector() noexcept {
@@ -766,7 +782,6 @@ ZVector<ObjectType, kIfInitializeObject>::ReverseIteratorType ZVector<ObjectType
     size_ = new_size;
     return ReverseIteratorType(&data_ptr_[index]);
 }
-
 
 template<typename ObjectType, Bool kIfInitializeObject>
 template<typename... ArgsType>
@@ -939,8 +954,16 @@ Void ZVector<ObjectType, kIfInitializeObject>::Assign(const IteratorType& begin,
     if (new_size > capacity_) {
         ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
     }
-    DestroyObjects(data_ptr_, size_);
-    CreateAndCopyObjects(data_ptr_, begin.object_ptr(), end.object_ptr());
+    if (begin.object_ptr() >= data_ptr_ && begin.object_ptr() <= (data_ptr_ + size_)) {
+        DestroyObjects(data_ptr_, begin.object_ptr());
+        DestroyObjects(end.object_ptr(), data_ptr_ + size_);
+        memmove(reinterpret_cast<Void*>(data_ptr_), reinterpret_cast<Void*>(begin.object_ptr()),
+                (new_size) * sizeof(ObjectType));
+    }
+    else {
+        DestroyObjects(data_ptr_, size_);
+        CreateAndCopyObjects(data_ptr_, begin.object_ptr(), end.object_ptr());
+    }
     size_ = new_size;
 }
 
@@ -951,14 +974,35 @@ Void ZVector<ObjectType, kIfInitializeObject>::Assign(const ReverseIteratorType&
     if (new_size > capacity_) {
         ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
     }
-    DestroyObjects(data_ptr_, size_);
-    CreateAndCopyObjectsReverse(data_ptr_, begin.object_ptr(), end.object_ptr());
+    if (begin.object_ptr() >= data_ptr_ && begin.object_ptr() <= (data_ptr_ + size_)) {
+        DestroyObjects(data_ptr_, end.object_ptr() + 1);
+        DestroyObjects(begin.object_ptr() + 1, data_ptr_ + size_);
+        memmove(reinterpret_cast<Void*>(data_ptr_), reinterpret_cast<Void*>(end.object_ptr() + 1),
+                new_size * sizeof(ObjectType));
+        for (ObjectType* begin_ptr = end.object_ptr(), end_ptr = begin.object_ptr(); begin_ptr < end_ptr; 
+             ++begin_ptr, ++end_ptr) {
+            
+            Swap(begin_ptr, end_ptr);
+        }
+    }
+    else {
+        DestroyObjects(data_ptr_, size_);
+        CreateAndCopyObjectsReverse(data_ptr_, begin.object_ptr(), end.object_ptr());
+    }
     size_ = new_size;
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
 Void ZVector<ObjectType, kIfInitializeObject>::Clear() noexcept {
     DestroyObjects(data_ptr_, data_ptr_ + size_);
+    size_ = 0;
+}
+
+template<typename ObjectType, Bool kIfInitializeObject>
+Void ZVector<ObjectType, kIfInitializeObject>::Destroy() noexcept {
+    DestroyContainer();
+    data_ptr_ = nullptr;
+    capacity_ = 0;
     size_ = 0;
 }
 
@@ -1105,7 +1149,6 @@ FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateAndCopyObjectsR
         --src_begin_ptr;
     }
 }
-
 
 template<typename ObjectType, Bool kIfInitializeObject>
 FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateAndCopyObjects(ObjectType* dst_ptr, 

@@ -26,9 +26,8 @@ int main(){
         vector_1.PushBack(index);
     }
     ZVector<ZVector<Int32>> vector_2;
-    vector_2.PushBack(vector_1);
 
-    vector_2.PushBacks(2, vector_1);
+    vector_2.PushBacks(11, vector_1);
     for (IndexType i = 0; i < vector_2.size(); ++i) {
         for (IndexType j = 0; j < vector_2[i].size(); ++j) {
             cout << vector_2[i][j] << " ";
