@@ -1318,10 +1318,6 @@ FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CopyObjects(ObjectTyp
     }
 }
 
-/*
-    Copy objects by the given pointer. Will call the copy assignment operator
-    if this object class's member kIfInitializeObject is true.
-*/
 template<typename ObjectType, Bool kIfInitializeObject>
 FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CopyObjectsReverse(ObjectType* dst_ptr,
                                                                               const ObjectType* src_begin_ptr,
