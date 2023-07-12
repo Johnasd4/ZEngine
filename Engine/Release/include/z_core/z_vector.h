@@ -319,7 +319,6 @@ public:
 
     NODISCARD FORCEINLINE const IndexType size() const { return size_; }
     NODISCARD FORCEINLINE const IndexType capacity() const { return capacity_; }
-    NODISCARD FORCEINLINE ObjectType* data_ptr() { return data_ptr_; }
     NODISCARD FORCEINLINE const ObjectType* data_ptr() const { return data_ptr_; }
 
     NODISCARD FORCEINLINE ObjectType& At(const IndexType index) { return data_ptr_[index]; }

@@ -319,7 +319,6 @@ public:
 
     NODISCARD FORCEINLINE const IndexType size() const { return size_; }
     NODISCARD FORCEINLINE const IndexType capacity() const { return capacity_; }
-    NODISCARD FORCEINLINE ObjectType* data_ptr() { return data_ptr_; }
     NODISCARD FORCEINLINE const ObjectType* data_ptr() const { return data_ptr_; }
 
     NODISCARD FORCEINLINE ObjectType& At(const IndexType index) { return data_ptr_[index]; }
@@ -965,7 +964,7 @@ ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfIn
           "Erase iterator out of bounds!");
     DEBUG(end.object_ptr() < data_ptr_ || end.object_ptr() >= data_ptr_ + size_,
           "Erase iterator out of bounds!");
-    DEBUG(begin > end, "begin iterator after end iterator!");
+    DEBUG(begin > end, "Begin iterator after end iterator!");
     DestroyObjects(begin.object_ptr(), end.object_ptr());
     memmove(reinterpret_cast<Void*>(begin.object_ptr()), reinterpret_cast<Void*>(end.object_ptr()),
             (size_ - static_cast<IndexType>(end.object_ptr() - data_ptr_)) * sizeof(ObjectType));
@@ -980,7 +979,7 @@ ZVector<ObjectType, kIfInitializeObject>::ReverseIteratorType ZVector<ObjectType
           "Erase iterator out of bounds!");
     DEBUG(end.object_ptr() < data_ptr_ || end.object_ptr() >= data_ptr_ + size_,
           "Erase iterator out of bounds!");
-    DEBUG(begin > end, "begin iterator after end iterator!");
+    DEBUG(begin > end, "Begin iterator after end iterator!");
     DestroyObjects(end.object_ptr() + 1, begin.object_ptr() + 1);
     memmove(reinterpret_cast<Void*>(end.object_ptr() + 1), reinterpret_cast<Void*>(begin.object_ptr() + 1),
             (size_ - static_cast<IndexType>(end.object_ptr() - data_ptr_)) * sizeof(ObjectType));
@@ -1030,7 +1029,7 @@ Void ZVector<ObjectType, kIfInitializeObject>::Assign(const IndexType num, ArgsT
 
 template<typename ObjectType, Bool kIfInitializeObject>
 Void ZVector<ObjectType, kIfInitializeObject>::Assign(const IteratorType& begin, const IteratorType& end) noexcept {
-    DEBUG(begin > end, "begin iterator after end iterator!");
+    DEBUG(begin > end, "Begin iterator after end iterator!");
     IndexType new_size = end - begin;
     if (new_size > capacity_) {
         ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
@@ -1052,7 +1051,7 @@ Void ZVector<ObjectType, kIfInitializeObject>::Assign(const IteratorType& begin,
 template<typename ObjectType, Bool kIfInitializeObject>
 Void ZVector<ObjectType, kIfInitializeObject>::Assign(const ReverseIteratorType& begin,
                                                       const ReverseIteratorType& end) noexcept {
-    DEBUG(begin > end, "begin iterator after end iterator!");
+    DEBUG(begin > end, "Begin iterator after end iterator!");
     IndexType new_size = end - begin;
     if (new_size > capacity_) {
         ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
