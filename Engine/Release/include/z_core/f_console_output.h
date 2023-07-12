@@ -1,9 +1,9 @@
-#ifndef Z_CORE_F_CONSOLE_H_
-#define Z_CORE_F_CONSOLE_H_
+#ifndef Z_CORE_F_CONSOLE_OUTPUT_H_
+#define Z_CORE_F_CONSOLE_OUTPUT_H_
 
-#include"internal/drive.h"
+#include "internal/drive.h"
 
-#include"z_mutex.h"
+#include "z_mutex.h"
 
 namespace zengine{
 namespace console{
@@ -121,4 +121,4 @@ FORCEINLINE Void Print(const ConsoleTextColour text_colour,
 }//console
 }//zengine
 
-#endif // !Z_CORE_INTERNAL_F_CONSOLE_H_
+#endif // !Z_CORE_F_CONSOLE_OUTPUT_H_

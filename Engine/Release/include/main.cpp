@@ -1,4 +1,4 @@
-﻿#include"z_engine.h"
+﻿#include "z_engine.h"
 
 using namespace zengine;
 using namespace std;
@@ -6,16 +6,9 @@ using namespace std;
 
 #include <iomanip>
 #include <vector>
-#include"z_core/z_vector.h"
+#include "z_core/z_vector.h"
 
-#define TIME_TEST(code)\
-	{	\
-		Int32 start_time,end_time;	\
-		start_time = clock();	\
-		code;	\
-		end_time = clock();	\
-		std::cout << "代码运行总共消耗：" << end_time - start_time << "ms" << std::endl;\
-	}
+
 
 #include<array>
 #include <cassert>
@@ -32,7 +25,6 @@ int main(){
         vector_1.PushBack(index);
         vector_2.PushBack(vector_1);
     }
-    assert(false);
 
     auto begin = vector_2.ReverseBegin();
     auto end = vector_2.ReverseEnd();

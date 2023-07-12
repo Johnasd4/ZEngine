@@ -3,7 +3,7 @@
 
 #include "internal/drive.h"
 
-#include "f_console.h"
+#include "f_console_output.h"
 #include "z_fixed_array.h"
 #include "z_lookup_table.h"
 

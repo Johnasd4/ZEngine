@@ -1,8 +1,10 @@
 #define CORE_DLLFILE
 
-#include"f_memory_pool.h"
+#include "f_memory_pool.h"
 
-#include"memory_pool/z_small_memory_piece_list_memory_pool.h"
+#include "m_error_message.h"
+
+#include "memory_pool/z_small_memory_piece_list_memory_pool.h"
 
 namespace zengine {
 namespace memory_pool {
@@ -16,6 +18,7 @@ using MemoryPoolBase = ZMemoryPoolBase<MEMORY_POOL_THREAD_SAFE>;
 
 
 CORE_DLLAPI NODISCARD Void* const ApplyMemory(const MemoryType size) noexcept {
+    DEBUG(size < 0, "Negaive size not valid!");
     //small memory piece
     if (size <= internal::SmallMemoryPieceListMemoryPool::memory_piece_memory_max_size()) {
         return internal::SmallMemoryPieceListMemoryPool::ApplyMemory(size);
@@ -28,6 +31,7 @@ CORE_DLLAPI NODISCARD Void* const ApplyMemory(const MemoryType size) noexcept {
 }
 
 CORE_DLLAPI NODISCARD Void* const ApplyMemory(const MemoryType size, MemoryType* const memory_size_ptr) noexcept {
+    DEBUG(size < 0, "Negaive size not valid!");
     //small memory piecea
     if (size <= internal::SmallMemoryPieceListMemoryPool::memory_piece_memory_max_size()){
         return internal::SmallMemoryPieceListMemoryPool::ApplyMemory(size, memory_size_ptr);
@@ -40,6 +44,7 @@ CORE_DLLAPI NODISCARD Void* const ApplyMemory(const MemoryType size, MemoryType*
 }
 
 CORE_DLLAPI NODISCARD const Bool CheckMemory(Void* const memory_ptr, const MemoryType size) noexcept {
+    DEBUG(size < 0, "Negaive size not valid!");
     if (memory_ptr == nullptr) {
         return false;
     }
@@ -62,6 +67,7 @@ CORE_DLLAPI NODISCARD const Bool CheckMemory(Void* const memory_ptr, const Memor
 
 CORE_DLLAPI NODISCARD const Bool CheckMemory(Void* const memory_ptr, const MemoryType size,
                                              MemoryType* const memory_size_ptr) noexcept {
+    DEBUG(size < 0, "Negaive size not valid!");
     if (memory_ptr == nullptr) {
         return false;
     }

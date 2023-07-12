@@ -11,21 +11,29 @@ namespace internal {
 template<typename ObjectType>
 class VectorIteratorBase {
 public:
-    FORCEINLINE VectorIteratorBase(ObjectType* object_ptr) : object_ptr_(object_ptr) {}
-    FORCEINLINE VectorIteratorBase(const VectorIteratorBase& iterator) : object_ptr_(iterator.object_ptr_) {}
+    FORCEINLINE VectorIteratorBase(ObjectType* object_ptr) : object_ptr_(object_ptr) { 
+        DEBUG(object_ptr_ == nullptr, "The pointer points to nullptr!"); 
+    }
+    FORCEINLINE VectorIteratorBase(const VectorIteratorBase& iterator) : object_ptr_(iterator.object_ptr_) {
+        DEBUG(object_ptr_ == nullptr, "The pointer points to nullptr!");
+    }
     FORCEINLINE VectorIteratorBase(const VectorIteratorBase&& iterator) : object_ptr_(iterator.object_ptr_) {
+        DEBUG(object_ptr_ == nullptr, "The pointer points to nullptr!");
         iterator.MoveDestroy();
     }
 
     FORCEINLINE VectorIteratorBase& operator=(ObjectType* object_ptr) {
+        DEBUG(object_ptr_ == nullptr, "The pointer points to nullptr!");
         object_ptr_ = object_ptr;
         return *this;
     }
     FORCEINLINE VectorIteratorBase& operator=(const VectorIteratorBase& iterator) {
+        DEBUG(&iterator == this, "The source and the target of the copy is the same!");
         object_ptr_ = iterator.object_ptr_;
         return *this;
     }
     FORCEINLINE VectorIteratorBase& operator=(VectorIteratorBase&& iterator) {
+        DEBUG(&iterator == this, "The source and the target of the move is the same!");
         object_ptr_ = iterator.object_ptr_;
         iterator.MoveDestroy();
         return *this;
@@ -282,8 +290,14 @@ public:
         return data_ptr_ != vector.data_ptr_; 
     }
 
-    NODISCARD FORCEINLINE ObjectType& operator[](const IndexType index) { return data_ptr_[index]; }
-    NODISCARD FORCEINLINE const ObjectType& operator[](const IndexType index) const { return data_ptr_[index]; }
+    NODISCARD FORCEINLINE ObjectType& operator[](const IndexType index) { 
+        DEBUG(index >= size_ || index < 0, "Index out of bounds!");
+        return data_ptr_[index]; 
+    }
+    NODISCARD FORCEINLINE const ObjectType& operator[](const IndexType index) const { 
+        DEBUG(index >= size_ || index < 0, "Index out of bounds!");
+        return data_ptr_[index]; 
+    }
 
     ~ZVector() noexcept;
 
@@ -628,6 +642,7 @@ template<typename ObjectType, Bool kIfInitializeObject>
 ZVector<ObjectType, kIfInitializeObject>::ZVector(const IndexType capacity) noexcept
     : SuperType()
 {
+    DEBUG(capacity < 0, "Negaive capacity not valid!");
     CreateContainer(capacity);
     size_ = 0;
 }
@@ -654,10 +669,8 @@ ZVector<ObjectType, kIfInitializeObject>::ZVector(ZVector&& vector) noexcept
 template<typename ObjectType, Bool kIfInitializeObject>
 ZVector<ObjectType, kIfInitializeObject>& ZVector<ObjectType, kIfInitializeObject>::operator=(
         const ZVector& vector) noexcept {
+    DEBUG(&vector == this, "The source and the target of the copy is the same!");
     SuperType::operator=(vector);
-    if (*this == vector) {
-        return *this;
-    }
     if (vector.size_ > capacity_) {
         ExtendContainer(vector.size_);
     }
@@ -669,9 +682,7 @@ ZVector<ObjectType, kIfInitializeObject>& ZVector<ObjectType, kIfInitializeObjec
 template<typename ObjectType, Bool kIfInitializeObject>
 ZVector<ObjectType, kIfInitializeObject>& ZVector<ObjectType, kIfInitializeObject>::operator=(
         ZVector&& vector) noexcept {
-    if (*this == vector) {
-        return *this;
-    }
+    DEBUG(&vector == this, "The source and the target of the copy is the same!");
     SuperType::operator=(std::forward<ZVector>(vector));
     DestroyObjects(data_ptr_, size_);
     data_ptr_ = vector.data_ptr_;
@@ -688,6 +699,7 @@ ZVector<ObjectType, kIfInitializeObject>::~ZVector() noexcept {
 
 template<typename ObjectType, Bool kIfInitializeObject>
 Void ZVector<ObjectType, kIfInitializeObject>::Resize(const IndexType size) noexcept {
+    DEBUG(size < 0, "Negaive size is not valid!");
     if (size_ < size) {
         if (size > capacity_) {
             ExtendContainer(size);
@@ -702,6 +714,7 @@ Void ZVector<ObjectType, kIfInitializeObject>::Resize(const IndexType size) noex
 
 template<typename ObjectType, Bool kIfInitializeObject>
 Void ZVector<ObjectType, kIfInitializeObject>::Resize(const IndexType size, const ObjectType& object) noexcept {
+    DEBUG(size < 0, "Negaive size is not valid!");
     if (size_ < size) {
         if (size > capacity_) {
             ExtendContainer(size);
@@ -723,10 +736,9 @@ Void ZVector<ObjectType, kIfInitializeObject>::Reserve(const IndexType capacity)
 
 template<typename ObjectType, Bool kIfInitializeObject>
 Void ZVector<ObjectType, kIfInitializeObject>::PopBack() noexcept {
-    if (size_ > 0) {
-        --size_;
-        DestroyObject(size_);
-    }
+    DEBUG(size_ == 0, "Popping an empty vector!");
+    --size_;
+    DestroyObject(size_);
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
@@ -743,6 +755,7 @@ Void ZVector<ObjectType, kIfInitializeObject>::PushBack(ArgsType&&... args) noex
 template<typename ObjectType, Bool kIfInitializeObject>
 template<typename... ArgsType>
 Void ZVector<ObjectType, kIfInitializeObject>::PushBacks(const IndexType num, ArgsType&&... args) noexcept {
+    DEBUG(num < 0, "Negative pushing num not valid!");
     IndexType new_size = size_ + num;
     if (new_size > capacity_) {
         ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
@@ -762,6 +775,7 @@ template<typename ObjectType, Bool kIfInitializeObject>
 template<typename... ArgsType>
 ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfInitializeObject>::Insert(
         const IndexType index, ArgsType&&... args) noexcept {
+    DEBUG(index < 0 || index > size_, "Insert index out of bounds!");
     IndexType new_size = size_ + 1;
     if (new_size > capacity_) {
         ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
@@ -777,6 +791,8 @@ template<typename ObjectType, Bool kIfInitializeObject>
 template<typename... ArgsType>
 ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfInitializeObject>::Insert(
         const IteratorType& iterator, ArgsType&&... args) noexcept {
+    DEBUG(iterator.object_ptr() < data_ptr_ || iterator.object_ptr() > data_ptr_ + size_, 
+          "Insert iterator out of bounds!");
     IndexType new_size = size_ + 1;
     IndexType index = static_cast<IndexType>(iterator.object_ptr() - data_ptr_);
     if (new_size > capacity_) {
@@ -793,6 +809,8 @@ template<typename ObjectType, Bool kIfInitializeObject>
 template<typename... ArgsType>
 ZVector<ObjectType, kIfInitializeObject>::ReverseIteratorType ZVector<ObjectType, kIfInitializeObject>::Insert(
     const ReverseIteratorType& iterator, ArgsType&&... args) noexcept {
+    DEBUG(iterator.object_ptr() < data_ptr_ || iterator.object_ptr() > data_ptr_ + size_, 
+          "Insert iterator out of bounds!");
     IndexType new_size = size_ + 1;
     IndexType index = static_cast<IndexType>(iterator.object_ptr() - data_ptr_) + 1;
     if (new_size > capacity_) {
@@ -809,6 +827,8 @@ template<typename ObjectType, Bool kIfInitializeObject>
 template<typename... ArgsType>
 ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfInitializeObject>::Inserts(
         const IndexType index, IndexType num, ArgsType&&... args) noexcept {
+    DEBUG(index < 0 || index > size_, "Insert index out of bounds!");
+    DEBUG(num < 0, "Negative insert num not valid!");
     IndexType new_size = size_ + num;
     if (new_size > capacity_) {
         ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
@@ -824,6 +844,9 @@ template<typename ObjectType, Bool kIfInitializeObject>
 template<typename... ArgsType>
 ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfInitializeObject>::Inserts(
         const IteratorType& iterator, IndexType num, ArgsType&&... args) noexcept {
+    DEBUG(iterator.object_ptr() < data_ptr_ || iterator.object_ptr() > data_ptr_ + size_, 
+          "Insert iterator out of bounds!");
+    DEBUG(num < 0, "Negative insert num not valid!");
     IndexType new_size = size_ + num;
     IndexType index = iterator.object_ptr() - data_ptr_;
     if (new_size > capacity_) {
@@ -840,6 +863,9 @@ template<typename ObjectType, Bool kIfInitializeObject>
 template<typename... ArgsType>
 ZVector<ObjectType, kIfInitializeObject>::ReverseIteratorType ZVector<ObjectType, kIfInitializeObject>::Inserts(
         const ReverseIteratorType& iterator, IndexType num, ArgsType&&... args) noexcept {
+    DEBUG(iterator.object_ptr() < data_ptr_ || iterator.object_ptr() > data_ptr_ + size_, 
+          "Insert iterator out of bounds!");
+    DEBUG(num < 0, "Negative insert num not valid!");
     IndexType new_size = size_ + num;
     IndexType index = iterator.object_ptr() - data_ptr_ + 1;
     if (new_size > capacity_) {
@@ -855,6 +881,7 @@ ZVector<ObjectType, kIfInitializeObject>::ReverseIteratorType ZVector<ObjectType
 template<typename ObjectType, Bool kIfInitializeObject>
 ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfInitializeObject>::Erase(
         IndexType index) noexcept {
+    DEBUG(index < 0 || index >= size_, "Erase index out of bounds!");
     DestroyObject(index);
     memmove(reinterpret_cast<Void*>(&data_ptr_[index]), reinterpret_cast<Void*>(&data_ptr_[index + 1]),
             (size_ - index - 1) * sizeof(ObjectType));
@@ -865,6 +892,8 @@ ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfIn
 template<typename ObjectType, Bool kIfInitializeObject>
 ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfInitializeObject>::Erase(
         const IteratorType& iterator) noexcept {
+    DEBUG(iterator.object_ptr() < data_ptr_ || iterator.object_ptr() >= data_ptr_ + size_, 
+          "Erase iterator out of bounds!");
     DestroyObject(iterator.object_ptr());
     memmove(reinterpret_cast<Void*>(iterator.object_ptr()),
             reinterpret_cast<Void*>(iterator.object_ptr() + 1),
@@ -876,6 +905,8 @@ ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfIn
 template<typename ObjectType, Bool kIfInitializeObject>
 ZVector<ObjectType, kIfInitializeObject>::ReverseIteratorType ZVector<ObjectType, kIfInitializeObject>::Erase(
         const ReverseIteratorType& iterator) noexcept {
+    DEBUG(iterator.object_ptr() < data_ptr_ || iterator.object_ptr() >= data_ptr_ + size_, 
+          "Erase iterator out of bounds!");
     DestroyObject(iterator.object_ptr());
     memmove(reinterpret_cast<Void*>(iterator.object_ptr()),
             reinterpret_cast<Void*>(iterator.object_ptr() + 1),
@@ -887,6 +918,9 @@ ZVector<ObjectType, kIfInitializeObject>::ReverseIteratorType ZVector<ObjectType
 template<typename ObjectType, Bool kIfInitializeObject>
 ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfInitializeObject>::Erases(
         const IndexType index, const IndexType num) noexcept {
+    DEBUG(index < 0 || index >= size_, "Erase index out of bounds!");
+    DEBUG(num < 0, "Negative erase num not valid!");
+    DEBUG(index + num > size_, "Erasing not existing objects!");
     DestroyObjects(&data_ptr_[index], num);
     memmove(reinterpret_cast<Void*>(&data_ptr_[index]), reinterpret_cast<Void*>(&data_ptr_[index + num]),
             (size_ - index - num) * sizeof(ObjectType));
@@ -897,6 +931,10 @@ ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfIn
 template<typename ObjectType, Bool kIfInitializeObject>
 ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfInitializeObject>::Erases(
         const IteratorType& iterator, const IndexType num) noexcept {
+    DEBUG(iterator.object_ptr() < data_ptr_ || iterator.object_ptr() >= data_ptr_ + size_, 
+          "Erase iterator out of bounds!");
+    DEBUG(num < 0, "Negative erase num not valid!");
+    DEBUG(iterator.object_ptr() + num > data_ptr_ + size_, "Erasing not existing objects!");
     DestroyObjects(iterator.object_ptr(), num);
     memmove(reinterpret_cast<Void*>(iterator.object_ptr()),
             reinterpret_cast<Void*>(iterator.object_ptr() + num),
@@ -908,6 +946,10 @@ ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfIn
 template<typename ObjectType, Bool kIfInitializeObject>
 ZVector<ObjectType, kIfInitializeObject>::ReverseIteratorType ZVector<ObjectType, kIfInitializeObject>::Erases(
         const ReverseIteratorType& iterator, const IndexType num) noexcept {
+    DEBUG(iterator.object_ptr() < data_ptr_ || iterator.object_ptr() >= data_ptr_ + size_, 
+          "Erase iterator out of bounds!");
+    DEBUG(num < 0, "Negative erase num not valid!");
+    DEBUG(iterator.object_ptr() +- num < data_ptr_, "Erasing not existing objects!");
     DestroyObjects(iterator.object_ptr() - num + 1, iterator.object_ptr() + 1);
     memmove(reinterpret_cast<Void*>(iterator.object_ptr() - num + 1),
             reinterpret_cast<Void*>(iterator.object_ptr() + 1),
@@ -919,6 +961,11 @@ ZVector<ObjectType, kIfInitializeObject>::ReverseIteratorType ZVector<ObjectType
 template<typename ObjectType, Bool kIfInitializeObject>
 ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfInitializeObject>::Erases(
         const IteratorType& begin, const IteratorType& end) noexcept {
+    DEBUG(begin.object_ptr() < data_ptr_ || begin.object_ptr() >= data_ptr_ + size_,
+          "Erase iterator out of bounds!");
+    DEBUG(end.object_ptr() < data_ptr_ || end.object_ptr() >= data_ptr_ + size_,
+          "Erase iterator out of bounds!");
+    DEBUG(begin > end, "begin iterator after end iterator!");
     DestroyObjects(begin.object_ptr(), end.object_ptr());
     memmove(reinterpret_cast<Void*>(begin.object_ptr()), reinterpret_cast<Void*>(end.object_ptr()),
             (size_ - static_cast<IndexType>(end.object_ptr() - data_ptr_)) * sizeof(ObjectType));
@@ -929,6 +976,11 @@ ZVector<ObjectType, kIfInitializeObject>::IteratorType ZVector<ObjectType, kIfIn
 template<typename ObjectType, Bool kIfInitializeObject>
 ZVector<ObjectType, kIfInitializeObject>::ReverseIteratorType ZVector<ObjectType, kIfInitializeObject>::Erases(
         const ReverseIteratorType& begin, const ReverseIteratorType& end) noexcept {
+    DEBUG(begin.object_ptr() < data_ptr_ || begin.object_ptr() >= data_ptr_ + size_,
+          "Erase iterator out of bounds!");
+    DEBUG(end.object_ptr() < data_ptr_ || end.object_ptr() >= data_ptr_ + size_,
+          "Erase iterator out of bounds!");
+    DEBUG(begin > end, "begin iterator after end iterator!");
     DestroyObjects(end.object_ptr() + 1, begin.object_ptr() + 1);
     memmove(reinterpret_cast<Void*>(end.object_ptr() + 1), reinterpret_cast<Void*>(begin.object_ptr() + 1),
             (size_ - static_cast<IndexType>(end.object_ptr() - data_ptr_)) * sizeof(ObjectType));
@@ -939,6 +991,7 @@ ZVector<ObjectType, kIfInitializeObject>::ReverseIteratorType ZVector<ObjectType
 template<typename ObjectType, Bool kIfInitializeObject>
 template<typename... ArgsType>
 Void ZVector<ObjectType, kIfInitializeObject>::Emplace(const IndexType index, ArgsType&&... args) noexcept {
+    DEBUG(index < 0 || index >= size_, "Emplace index out of bounds!");
     DestroyObject(index);
     CreateObject(index, std::forward<ArgsType>(args)...);
 }
@@ -946,6 +999,8 @@ Void ZVector<ObjectType, kIfInitializeObject>::Emplace(const IndexType index, Ar
 template<typename ObjectType, Bool kIfInitializeObject>
 template<typename... ArgsType>
 Void ZVector<ObjectType, kIfInitializeObject>::Emplace(const IteratorType& iterator, ArgsType&&... args) noexcept {
+    DEBUG(iterator.object_ptr() < data_ptr_ || iterator.object_ptr() >= data_ptr_ + size_,
+          "Emplace iterator out of bounds!");
     DestroyObject(iterator.object_ptr());
     CreateObject(iterator.object_ptr(), std::forward<ArgsType>(args)...);
 }
@@ -954,6 +1009,8 @@ template<typename ObjectType, Bool kIfInitializeObject>
 template<typename... ArgsType>
 Void ZVector<ObjectType, kIfInitializeObject>::Emplace(const ReverseIteratorType& iterator, 
                                                        ArgsType&&... args) noexcept {
+    DEBUG(iterator.object_ptr() < data_ptr_ || iterator.object_ptr() >= data_ptr_ + size_,
+          "Emplace iterator out of bounds!");
     DestroyObject(iterator.object_ptr());
     CreateObject(iterator.object_ptr(), std::forward<ArgsType>(args)...);
 }
@@ -962,6 +1019,7 @@ template<typename ObjectType, Bool kIfInitializeObject>
 template<typename... ArgsType>
 Void ZVector<ObjectType, kIfInitializeObject>::Assign(const IndexType num, ArgsType&&... args) noexcept {
     IndexType new_size = num;
+    DEBUG(num < 0, "Negative assign num not valid!");
     if (new_size > capacity_) {
         ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
     }
@@ -972,10 +1030,7 @@ Void ZVector<ObjectType, kIfInitializeObject>::Assign(const IndexType num, ArgsT
 
 template<typename ObjectType, Bool kIfInitializeObject>
 Void ZVector<ObjectType, kIfInitializeObject>::Assign(const IteratorType& begin, const IteratorType& end) noexcept {
-    if (begin >= end) {
-        Clear();
-        return;
-    }
+    DEBUG(begin > end, "begin iterator after end iterator!");
     IndexType new_size = end - begin;
     if (new_size > capacity_) {
         ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
@@ -997,10 +1052,7 @@ Void ZVector<ObjectType, kIfInitializeObject>::Assign(const IteratorType& begin,
 template<typename ObjectType, Bool kIfInitializeObject>
 Void ZVector<ObjectType, kIfInitializeObject>::Assign(const ReverseIteratorType& begin,
                                                       const ReverseIteratorType& end) noexcept {
-    if (begin >= end) {
-        Clear();
-        return;
-    }
+    DEBUG(begin > end, "begin iterator after end iterator!");
     IndexType new_size = end - begin;
     if (new_size > capacity_) {
         ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
@@ -1043,6 +1095,7 @@ Void ZVector<ObjectType, kIfInitializeObject>::Destroy() noexcept {
 
 template<typename ObjectType, Bool kIfInitializeObject>
 FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateContainer(const IndexType capacity) noexcept {
+    DEBUG(capacity < 0, "Negaive capacity not valid!");
     MemoryType need_memory_size = capacity * sizeof(ObjectType);
     MemoryType apply_mrmory_size;
     data_ptr_ = reinterpret_cast<ObjectType*>(memory_pool::ApplyMemory(need_memory_size, &apply_mrmory_size));
@@ -1051,6 +1104,7 @@ FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateContainer(const
 
 template<typename ObjectType, Bool kIfInitializeObject>
 Void ZVector<ObjectType, kIfInitializeObject>::ExtendContainer(const IndexType capacity) noexcept {
+    DEBUG(capacity < 0, "Negaive capacity not valid!");
     MemoryType current_memory_size = capacity_ * sizeof(ObjectType);
     MemoryType need_memory_size = capacity * sizeof(ObjectType);
     MemoryType apply_mrmory_size;

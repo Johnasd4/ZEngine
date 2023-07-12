@@ -1,6 +1,6 @@
 #define CORE_DLLFILE
 
-#include"f_console.h"
+#include "f_console_output.h"
 
 namespace zengine {
 namespace console {

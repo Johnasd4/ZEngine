@@ -19,17 +19,18 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="code\z_core\m_time_test.h" />
+    <ClInclude Include="code\z_core\m_error_message.h" />
     <ClInclude Include="code\z_core\z_array.h" />
     <ClInclude Include="code\z_core\z_fixed_array.h" />
     <ClInclude Include="code\z_core\z_lookup_table.h" />
     <ClInclude Include="code\z_core\z_vector.h" />
-    <ClInclude Include="code\z_core\f_console.h" />
+    <ClInclude Include="code\z_core\f_console_output.h" />
     <ClInclude Include="code\z_core\f_memory_pool.h" />
     <ClInclude Include="code\z_core\z_mutex.h" />
     <ClInclude Include="code\z_core\z_object.h" />
     <ClInclude Include="code\z_core.h" />
     <ClInclude Include="code\z_core\internal\drive.h" />
-    <ClInclude Include="code\z_core\m_error_message.h" />
     <ClInclude Include="code\z_engine.h" />
   </ItemGroup>
   <ItemGroup>

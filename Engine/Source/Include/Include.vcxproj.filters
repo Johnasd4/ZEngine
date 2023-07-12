@@ -27,16 +27,13 @@
     <ClInclude Include="code\z_core\internal\drive.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\z_core\m_error_message.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="code\z_core.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\z_engine.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\z_core\f_console.h">
+    <ClInclude Include="code\z_core\f_console_output.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\z_core\z_vector.h">
@@ -49,6 +46,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\z_core\z_lookup_table.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_core\m_error_message.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_core\m_time_test.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

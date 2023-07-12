@@ -1,20 +1,47 @@
 #ifndef Z_CORE_M_ERROR_MESSAGE_H_
 #define Z_CORE_M_ERROR_MESSAGE_H_
 
-#include"internal/drive.h"
+#include "internal/drive.h"
 
-//Weather console print's the error that happens.
-#define USE_CONSOLE_PRINT_ERROR_MESSAGE true
-
+#ifdef _DEBUG
+//If console print's return error .
+#define USE_CONSOLE_PRINT_RETRUN_ERROR_MESSAGE true
+//If log's return error .
+#define USE_LOG_RETRUN_ERROR_MESSAGE true
+//If console print's debug error .
+#define USE_CONSOLE_PRINT_DEBUG_ERROR_MESSAGE true
+//If log's debug error .
+#define USE_LOG_DEBUG_ERROR_MESSAGE true
+#else
+//If console print's return error .
+#define USE_CONSOLE_PRINT_RETRUN_ERROR_MESSAGE false
+//If log's return error .
+#define USE_LOG_RETRUN_ERROR_MESSAGE false
+//If console print's debug error .
+#define USE_CONSOLE_PRINT_DEBUG_ERROR_MESSAGE false
+//If log's debug error .
+#define USE_LOG_DEBUG_ERROR_MESSAGE false
+#endif
 /*
     Return the specified value and output an error message when the condition is true.
 */
-#define RETURN(condition, return_value, error_message) \
-    if(condition)    \
-    {    \
-        CONSOLE_PRINT_ERROR_MESSAGE(error_message);    \
-        return return_value;    \
+#define RETURN(condition, return_value, error_message)\
+    if(condition) {\
+        CONSOLE_PRINT_RETRUN_ERROR_MESSAGE(error_message);\
+        LOG_RETRUN_ERROR_MESSAGE(error_message);\
+        return return_value;\
     }
+
+/*
+    Ends the program and output the error message..
+*/
+#define DEBUG(condition, error_message)\
+    if(condition) {\
+        CONSOLE_PRINT_DEBUG_ERROR_MESSAGE(error_message);\
+        LOG_DEBUG_ERROR_MESSAGE(error_message);\
+        exit(EXIT_FAILURE);\
+    }
+
 
 namespace zengine {
 namespace internal {
@@ -22,26 +49,49 @@ namespace internal {
 /*
     Console error message and error location.
 */
-CORE_DLLAPI extern Void ConsolePrintErrorMessage(const CChar* const error_file, const CChar* const error_funcion, 
-                                                 const Int32 error_line, const CChar* const error_message) noexcept;
+CORE_DLLAPI extern Void ConsolePrintErrorMessage(const CChar* const error_file, 
+                                                 const CChar* const error_funcion,
+                                                 const Int32 error_line, 
+                                                 const CChar* const error_message) noexcept;
 
 /*
     Log error message and error location.
 */
-CORE_DLLAPI extern Void LogErrorMessage(const CChar* const error_file, const CChar* const error_funcion,
-                                        const Int32 error_line, const CChar* const error_message) noexcept;
+CORE_DLLAPI extern Void LogErrorMessage(const CChar* const error_file, 
+                                        const CChar* const error_funcion,
+                                        const Int32 error_line, 
+                                        const CChar* const error_message) noexcept;
 
 }//internal
 }//zengine
 
-/* 
-    The macro that controls the console error output.
-*/
-#if USE_CONSOLE_PRINT_ERROR_MESSAGE
-#define CONSOLE_PRINT_ERROR_MESSAGE(error_message)    \
+#if USE_CONSOLE_PRINT_RETRUN_ERROR_MESSAGE
+#define CONSOLE_PRINT_RETRUN_ERROR_MESSAGE(error_message)\
     zengine::internal::ConsolePrintErrorMessage(__FILE__, __func__, __LINE__, error_message);    
 #else
-#define CONSOLE_PRINT_ERROR_MESSAGE(_errorMessage) ;
+#define CONSOLE_PRINT_RETRUN_ERROR_MESSAGE(_errorMessage) ;
+#endif // USE_CONSOLE_PRINT_RETRUN_ERROR_MESSAGE
+
+#if USE_LOG_RETRUN_ERROR_MESSAGE
+#define LOG_RETRUN_ERROR_MESSAGE(error_message)\
+    zengine::internal::LogErrorMessage(__FILE__, __func__, __LINE__, error_message);    
+#else
+#define LOG_RETRUN_ERROR_MESSAGE(_errorMessage) ;
+#endif // USE_LOG_RETRUN_ERROR_MESSAGE
+
+#if USE_CONSOLE_PRINT_DEBUG_ERROR_MESSAGE
+#define CONSOLE_PRINT_DEBUG_ERROR_MESSAGE(error_message)\
+    zengine::internal::ConsolePrintErrorMessage(__FILE__, __func__, __LINE__, error_message);    
+#else
+#define CONSOLE_PRINT_DEBUG_ERROR_MESSAGE(_errorMessage) ;
 #endif // USE_ERROR_CONSOLE_PRINT
+
+#if USE_LOG_DEBUG_ERROR_MESSAGE
+#define LOG_DEBUG_ERROR_MESSAGE(error_message)\
+    zengine::internal::LogErrorMessage(__FILE__, __func__, __LINE__, error_message);    
+#else
+#define LOG_DEBUG_ERROR_MESSAGE(_errorMessage) ;
+#endif // LOG_DEBUG_ERROR_MESSAGE
+
 
 #endif // !Z_CORE_M_ERROR_MESSAGE_H_

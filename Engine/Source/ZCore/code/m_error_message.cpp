@@ -1,8 +1,8 @@
 #define CORE_DLLFILE
 
-#include"f_console.h"
+#include "m_error_message.h"
 
-#include"m_error_message.h"
+#include "f_console_output.h"
 
 namespace zengine {
 namespace internal {
