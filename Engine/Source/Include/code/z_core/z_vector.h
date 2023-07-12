@@ -285,7 +285,6 @@ public:
     ZVector(const IteratorType& begin, const IteratorType& end) noexcept;
     ZVector(const ReverseIteratorType& begin, const ReverseIteratorType& end) noexcept;
     ZVector(const ZVector& vector) noexcept;
-    ZVector(const ZVector& vector) noexcept;
     ZVector(ZVector&& vector) noexcept;
 
 

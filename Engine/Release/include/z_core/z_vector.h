@@ -91,7 +91,7 @@ public:
     }
 
     FORCEINLINE const IndexType operator-(const VectorIterator& iterator) const {
-        return SuperType::object_ptr_ - iterator.SuperType::object_ptr_;
+        return static_cast<IndexType>(SuperType::object_ptr_ - iterator.SuperType::object_ptr_);
     }
 
     NODISCARD FORCEINLINE ObjectType* object_ptr() { return SuperType::object_ptr_; }
@@ -145,7 +145,7 @@ public:
     }
 
     FORCEINLINE const IndexType operator-(const VectorConstIterator& iterator) const {
-        return SuperType::object_ptr_ - iterator.SuperType::object_ptr_;
+        return static_cast<IndexType>(SuperType::object_ptr_ - iterator.SuperType::object_ptr_);
     }
 
     NODISCARD FORCEINLINE const ObjectType* object_ptr() { return SuperType::object_ptr_; }
@@ -247,7 +247,7 @@ public:
     }
 
     FORCEINLINE const IndexType operator-(const VectorConstReverseIterator& iterator) const {
-        return iterator.SuperType::object_ptr_ - SuperType::object_ptr_;
+        return static_cast<IndexType>(iterator.SuperType::object_ptr_ - SuperType::object_ptr_);
     }
 
     NODISCARD FORCEINLINE const ObjectType* object_ptr() { return SuperType::object_ptr_; }
@@ -281,7 +281,9 @@ public:
         Fills the container by the object constructed by the arguements.
     */
     template<typename... ArgsType>
-    ZVector(const IndexType capacity, ArgsType&&... args) noexcept;
+    ZVector(const IndexType capacity, ArgsType&&... args) noexcept;    
+    ZVector(const IteratorType& begin, const IteratorType& end) noexcept;
+    ZVector(const ReverseIteratorType& begin, const ReverseIteratorType& end) noexcept;
     ZVector(const ZVector& vector) noexcept;
     ZVector(ZVector&& vector) noexcept;
 
@@ -662,7 +664,31 @@ ZVector<ObjectType, kIfInitializeObject>::ZVector(const IndexType capacity, Args
     DEBUG(capacity < 0, "Negaive capacity not valid!");
     CreateContainer(capacity);
     CreateObjects(data_ptr_, capacity, std::forward<ArgsType>(args)...);
-    size_ = 0;
+    size_ = capacity;
+}
+
+template<typename ObjectType, Bool kIfInitializeObject>
+ZVector<ObjectType, kIfInitializeObject>::ZVector(const IteratorType& begin, const IteratorType& end) noexcept
+    : SuperType()
+{
+    DEBUG(begin > end, "Begin iterator after end iterator!");
+    IndexType size = end - begin;
+    CreateContainer(size);
+    CopyObjects(data_ptr_, begin.object_ptr(), end.object_ptr());
+    size_ = size;
+
+}
+
+template<typename ObjectType, Bool kIfInitializeObject>
+ZVector<ObjectType, kIfInitializeObject>::ZVector(const ReverseIteratorType& begin, 
+                                                  const ReverseIteratorType& end) noexcept
+    : SuperType()
+{
+    DEBUG(begin > end, "Begin iterator after end iterator!");
+    IndexType size = end - begin;
+    CreateContainer(size);
+    CopyObjectsReverse(data_ptr_, begin.object_ptr(), end.object_ptr());
+    size_ = size;
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
