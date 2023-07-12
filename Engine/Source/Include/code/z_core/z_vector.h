@@ -283,7 +283,9 @@ public:
     template<typename... ArgsType>
     ZVector(const IndexType capacity, ArgsType&&... args) noexcept;    
     ZVector(const IteratorType& begin, const IteratorType& end) noexcept;
+    ZVector(const ConstIteratorType& begin, const ConstIteratorType& end) noexcept;
     ZVector(const ReverseIteratorType& begin, const ReverseIteratorType& end) noexcept;
+    ZVector(const ConstReverseIteratorType& begin, const ConstReverseIteratorType& end) noexcept;
     ZVector(const ZVector& vector) noexcept;
     ZVector(ZVector&& vector) noexcept;
 
@@ -493,8 +495,15 @@ public:
     /*
         Construct the vector by filling it objects between the iterators.
     */
+    Void Assign(const ConstIteratorType& begin, const ConstIteratorType& end) noexcept;
+    /*
+        Construct the vector by filling it objects between the iterators.
+    */
     Void Assign(const ReverseIteratorType& begin, const ReverseIteratorType& end) noexcept;
-
+    /*
+        Construct the vector by filling it objects between the iterators.
+    */
+    Void Assign(const ConstReverseIteratorType& begin, const ConstReverseIteratorType& end) noexcept;
     /*
         The small object on the front.
     */
@@ -680,8 +689,32 @@ ZVector<ObjectType, kIfInitializeObject>::ZVector(const IteratorType& begin, con
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
+ZVector<ObjectType, kIfInitializeObject>::ZVector(const ConstIteratorType& begin, const ConstIteratorType& end) noexcept
+    : SuperType()
+{
+    DEBUG(begin > end, "Begin iterator after end iterator!");
+    IndexType size = end - begin;
+    CreateContainer(size);
+    CopyObjects(data_ptr_, begin.object_ptr(), end.object_ptr());
+    size_ = size;
+
+}
+
+template<typename ObjectType, Bool kIfInitializeObject>
 ZVector<ObjectType, kIfInitializeObject>::ZVector(const ReverseIteratorType& begin, 
                                                   const ReverseIteratorType& end) noexcept
+    : SuperType()
+{
+    DEBUG(begin > end, "Begin iterator after end iterator!");
+    IndexType size = end - begin;
+    CreateContainer(size);
+    CopyObjectsReverse(data_ptr_, begin.object_ptr(), end.object_ptr());
+    size_ = size;
+}
+
+template<typename ObjectType, Bool kIfInitializeObject>
+ZVector<ObjectType, kIfInitializeObject>::ZVector(const ConstReverseIteratorType& begin, 
+                                                  const ConstReverseIteratorType& end) noexcept
     : SuperType()
 {
     DEBUG(begin > end, "Begin iterator after end iterator!");
@@ -1095,8 +1128,60 @@ Void ZVector<ObjectType, kIfInitializeObject>::Assign(const IteratorType& begin,
 }
 
 template<typename ObjectType, Bool kIfInitializeObject>
+Void ZVector<ObjectType, kIfInitializeObject>::Assign(const ConstIteratorType& begin, 
+                                                      const ConstIteratorType& end) noexcept {
+    DEBUG(begin > end, "Begin iterator after end iterator!");
+    IndexType new_size = end - begin;
+    if (new_size > capacity_) {
+        ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+    }
+    //If the iterator is from this.
+    if (begin.object_ptr() >= data_ptr_ && begin.object_ptr() <= (data_ptr_ + size_)) {
+        DestroyObjects(data_ptr_, begin.object_ptr());
+        DestroyObjects(end.object_ptr(), data_ptr_ + size_);
+        //Move the objects to the front.
+        memmove(reinterpret_cast<Void*>(data_ptr_), reinterpret_cast<Void*>(begin.object_ptr()),
+            new_size * sizeof(ObjectType));
+    }
+    else {
+        CopyObjects(data_ptr_, begin.object_ptr(), end.object_ptr());
+    }
+    size_ = new_size;
+}
+
+template<typename ObjectType, Bool kIfInitializeObject>
 Void ZVector<ObjectType, kIfInitializeObject>::Assign(const ReverseIteratorType& begin,
                                                       const ReverseIteratorType& end) noexcept {
+    DEBUG(begin > end, "Begin iterator after end iterator!");
+    IndexType new_size = end - begin;
+    if (new_size > capacity_) {
+        ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+    }
+    //If the iterator is from this.
+    if (begin.object_ptr() >= data_ptr_ && begin.object_ptr() <= (data_ptr_ + size_)) {
+        DestroyObjects(data_ptr_, end.object_ptr() + 1);
+        DestroyObjects(begin.object_ptr() + 1, data_ptr_ + size_);
+        //Reverses the objects.
+        ObjectType* begin_ptr = end.object_ptr() + 1;
+        ObjectType* end_ptr = begin.object_ptr();
+        while (begin_ptr < end_ptr) {
+            Swap(begin_ptr, end_ptr);
+            ++begin_ptr;
+            --end_ptr;
+        }
+        //Move the objects to the first front.
+        memmove(reinterpret_cast<Void*>(data_ptr_), reinterpret_cast<Void*>(end.object_ptr() + 1),
+                new_size * sizeof(ObjectType));
+    }
+    else {
+        CopyObjectsReverse(data_ptr_, begin.object_ptr(), end.object_ptr());
+    }
+    size_ = new_size;
+}
+
+template<typename ObjectType, Bool kIfInitializeObject>
+Void ZVector<ObjectType, kIfInitializeObject>::Assign(const ConstReverseIteratorType& begin,
+                                                      const ConstReverseIteratorType& end) noexcept {
     DEBUG(begin > end, "Begin iterator after end iterator!");
     IndexType new_size = end - begin;
     if (new_size > capacity_) {
