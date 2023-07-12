@@ -735,7 +735,7 @@ Void ZVector<ObjectType, kIfInitializeObject>::Reserve(const IndexType capacity)
 
 template<typename ObjectType, Bool kIfInitializeObject>
 Void ZVector<ObjectType, kIfInitializeObject>::PopBack() noexcept {
-    DEBUG(size_ == 0, "Popping an empty vector!");
+    DEBUG(size_ == 0, "No existing object to pop!");
     --size_;
     DestroyObject(size_);
 }
@@ -766,6 +766,7 @@ Void ZVector<ObjectType, kIfInitializeObject>::PushBacks(const IndexType num, Ar
 template<typename ObjectType, Bool kIfInitializeObject>
 template<typename... ArgsType>
 Void ZVector<ObjectType, kIfInitializeObject>::EmplaceBack(ArgsType&&... args) noexcept {
+    DEBUG(size_ == 0, "No existing object to emplace!");
     DestroyObject(size_ - 1);
     CreateObject(size_ - 1, std::forward<ArgsType>(args)...);
 }
