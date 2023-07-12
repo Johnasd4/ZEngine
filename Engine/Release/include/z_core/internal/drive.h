@@ -152,6 +152,28 @@ concept kIsClass = std::is_class_v<ObjectType>;
 template<typename CharType>
 concept kIsChar = kSameType<CharType, CChar> || kSameType<CharType, TChar>;
 
+template<typename CharType>
+concept kIsSignedInt = Int16kSameType<CharType, Int32>;
+
+template<typename ObjectType>
+concept kIsComparable = requires(ObjectType object_1, ObjectType object_2) {
+    object_1 == object_2;
+    object_1 != object_2;
+    object_1 > object_2;
+    object_1 >= object_2;
+    object_1 < object_2;
+    object_1 <= object_2;
+};
+
+template<typename ObjectType>
+concept kIsCopyable = requires(ObjectType object_1, ObjectType object_2) {
+    object_1 = object_2;
+};
+
+template<typename ObjectType>
+concept kIsMovable = requires(ObjectType object_1, ObjectType object_2) {
+    object_1 = std::move(object_2);
+};
 
 template<typename Function, typename ObjectType>
 concept kIsCompareFunction = requires(Function function, ObjectType object) {
