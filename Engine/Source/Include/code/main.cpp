@@ -17,7 +17,7 @@ int main(){
 
     ZVector<Int32> vector_1;
     for (IndexType index = 1; index < 13; ++index) {
-        vector_1.PushBack(index);
+        vector_1.PushBacks(-10,index);
     }
     ZVector<ZVector<Int32>> vector_2;
     ZVector<ZVector<Int32>> vector_3;
