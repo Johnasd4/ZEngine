@@ -277,8 +277,16 @@ public:
 
     ZVector() noexcept;
     ZVector(const IndexType capacity) noexcept;
+    /*
+        Fills the container by the object constructed by the arguements.
+    */
+    template<typename... ArgsType>
+    ZVector(const IndexType capacity, ArgsType&&... args) noexcept;
     ZVector(const ZVector& vector) noexcept;
     ZVector(ZVector&& vector) noexcept;
+
+
+
 
     ZVector& operator=(const ZVector& vector) noexcept;
     ZVector& operator=(ZVector&& vector) noexcept;
@@ -643,6 +651,17 @@ ZVector<ObjectType, kIfInitializeObject>::ZVector(const IndexType capacity) noex
 {
     DEBUG(capacity < 0, "Negaive capacity not valid!");
     CreateContainer(capacity);
+    size_ = 0;
+}
+
+template<typename ObjectType, Bool kIfInitializeObject>
+template<typename... ArgsType>
+ZVector<ObjectType, kIfInitializeObject>::ZVector(const IndexType capacity, ArgsType&&... args) noexcept
+    : SuperType() 
+{
+    DEBUG(capacity < 0, "Negaive capacity not valid!");
+    CreateContainer(capacity);
+    CreateObjects(data_ptr_, capacity, std::forward<ArgsType>(args)...);
     size_ = 0;
 }
 
