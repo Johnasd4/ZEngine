@@ -11,29 +11,21 @@ namespace internal {
 template<typename ObjectType>
 class VectorIteratorBase {
 public:
-    FORCEINLINE VectorIteratorBase(ObjectType* object_ptr) : object_ptr_(object_ptr) { 
-        DEBUG(object_ptr_ == nullptr, "The pointer points to nullptr!"); 
-    }
-    FORCEINLINE VectorIteratorBase(const VectorIteratorBase& iterator) : object_ptr_(iterator.object_ptr_) {
-        DEBUG(object_ptr_ == nullptr, "The pointer points to nullptr!");
-    }
+    FORCEINLINE VectorIteratorBase(ObjectType* object_ptr) : object_ptr_(object_ptr) {}
+    FORCEINLINE VectorIteratorBase(const VectorIteratorBase& iterator) : object_ptr_(iterator.object_ptr_) {}
     FORCEINLINE VectorIteratorBase(const VectorIteratorBase&& iterator) : object_ptr_(iterator.object_ptr_) {
-        DEBUG(object_ptr_ == nullptr, "The pointer points to nullptr!");
         iterator.MoveDestroy();
     }
 
     FORCEINLINE VectorIteratorBase& operator=(ObjectType* object_ptr) {
-        DEBUG(object_ptr_ == nullptr, "The pointer points to nullptr!");
         object_ptr_ = object_ptr;
         return *this;
     }
     FORCEINLINE VectorIteratorBase& operator=(const VectorIteratorBase& iterator) {
-        DEBUG(&iterator == this, "The source and the target of the copy is the same!");
         object_ptr_ = iterator.object_ptr_;
         return *this;
     }
     FORCEINLINE VectorIteratorBase& operator=(VectorIteratorBase&& iterator) {
-        DEBUG(&iterator == this, "The source and the target of the move is the same!");
         object_ptr_ = iterator.object_ptr_;
         iterator.MoveDestroy();
         return *this;
