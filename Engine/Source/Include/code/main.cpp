@@ -14,7 +14,6 @@ using namespace std;
 #include <cassert>
 
 int main(){
-
     ZVector<Int32> vector_1;
     for (IndexType index = 1; index < 13; ++index) {
         vector_1.PushBacks(-10,index);
@@ -25,7 +24,6 @@ int main(){
         vector_1.PushBack(index);
         vector_2.PushBack(vector_1);
     }
-    vector<int>;
     auto begin = vector_2.ReverseBegin();
     auto end = vector_2.ReverseEnd();
     vector_2.Assign(begin, end);

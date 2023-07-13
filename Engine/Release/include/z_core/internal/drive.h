@@ -152,8 +152,22 @@ concept kIsClass = std::is_class_v<ObjectType>;
 template<typename CharType>
 concept kIsChar = kSameType<CharType, CChar> || kSameType<CharType, TChar>;
 
-template<typename CharType>
-concept kIsSignedInt = Int16kSameType<CharType, Int32>;
+template<typename NumberType>
+concept kIsSignedInt = kSameType<NumberType, Int8> || kSameType<NumberType, Int16> || kSameType<NumberType, Int32> || 
+                       kSameType<NumberType, Int64>;
+
+template<typename NumberType>
+concept kIsUnsignedInt = kSameType<NumberType, UInt8> || kSameType<NumberType, UInt16> || 
+                         kSameType<NumberType, UInt32> || kSameType<NumberType, UInt64>;
+
+template<typename NumberType>
+concept kIsInt = kIsSignedInt<NumberType> || kIsUnsignedInt<NumberType>;
+
+template<typename NumberType>
+concept kIsFloat = kSameType<NumberType, Float32> || kSameType<NumberType, Float64>;
+
+template<typename NumberType>
+concept kIsNumber = kIsInt<NumberType> || kIsFloat<NumberType>;
 
 template<typename ObjectType>
 concept kIsComparable = requires(ObjectType object_1, ObjectType object_2) {
