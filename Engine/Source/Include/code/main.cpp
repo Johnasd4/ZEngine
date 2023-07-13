@@ -34,6 +34,8 @@ int main(){
         }
         cout << endl;
     }
+
+    std::array<int, 10> a;
     //Int32* test_1 = new Int32[1024 * 1024 * 100];
     //Int32* test_2 = new Int32[1024 * 1024 * 100];
 

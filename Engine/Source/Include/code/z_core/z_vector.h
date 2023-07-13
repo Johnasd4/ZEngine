@@ -49,6 +49,7 @@ protected:
 template<typename ObjectType>
 class VectorIterator : public VectorIteratorBase<ObjectType> {
 public:
+    NODISCARD FORCEINLINE ObjectType& operator[](const IndexType index) const { return SuperType::object_ptr_[index]; }
     NODISCARD FORCEINLINE ObjectType& operator*() const { return *SuperType::object_ptr_; }
     NODISCARD FORCEINLINE ObjectType* const operator->() const { return SuperType::object_ptr_; }
 
@@ -111,6 +112,9 @@ public:
         return *this;
     }
 
+    NODISCARD FORCEINLINE const ObjectType& operator[](const IndexType index) const { 
+        return SuperType::object_ptr_[-index]; 
+    }
     NODISCARD FORCEINLINE const ObjectType& operator*() const { return *SuperType::object_ptr_; }
     NODISCARD FORCEINLINE const ObjectType* const operator->() const { return SuperType::object_ptr_; }
 
@@ -166,6 +170,7 @@ protected:
 template<typename ObjectType>
 class VectorReverseIterator : public VectorIteratorBase<ObjectType> {
 public:
+    NODISCARD FORCEINLINE ObjectType& operator[](const IndexType index) const { return SuperType::object_ptr_[-index]; }
     NODISCARD FORCEINLINE ObjectType& operator*() const { return *SuperType::object_ptr_; }
     NODISCARD FORCEINLINE ObjectType* const operator->() const { return SuperType::object_ptr_; }
 
@@ -221,7 +226,7 @@ protected:
 template<typename ObjectType>
 class VectorConstReverseIterator : public VectorIteratorBase<ObjectType> {
 public:
-    FORCEINLINE VectorConstReverseIterator(const ObjectType* object_ptr) 
+    FORCEINLINE VectorConstReverseIterator(const ObjectType* object_ptr)
         : SuperType(const_cast<ObjectType*>(object_ptr)) {}
 
     FORCEINLINE VectorConstReverseIterator& operator=(const ObjectType* object_ptr) {
@@ -229,6 +234,9 @@ public:
         return *this;
     }
 
+    NODISCARD FORCEINLINE const ObjectType& operator[](const IndexType index) const { 
+        return SuperType::object_ptr_[-index]; 
+    }
     NODISCARD FORCEINLINE const ObjectType& operator*() const { return *SuperType::object_ptr_; }
     NODISCARD FORCEINLINE const ObjectType* const operator->() const { return SuperType::object_ptr_; }
 
@@ -660,7 +668,8 @@ public:
     */
     template<typename CompareFunction>
     requires kIsCompareFunction<CompareFunction, ObjectType>
-    Void Sort(const ReverseIteratorType begin, const ReverseIteratorType end, CompareFunction&& compare_function) noexcept;
+    Void Sort(const ReverseIteratorType begin, const ReverseIteratorType end, 
+              CompareFunction&& compare_function) noexcept;
 
     /*
         Destroys all the objects in the vector, does not release the memory.
@@ -1680,7 +1689,7 @@ template<typename ObjectType, Bool kIfInitializeObject>
 template<typename... ArgsType>
 FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObject(const IndexType index, 
                                                                                ArgsType&&... args) {
-    if (sizeof...(args) == 0) {
+    if constexpr (sizeof...(args) == 0) {
         if constexpr (kIfInitializeObject) {
             new(reinterpret_cast<Void*>(&(data_ptr_[index]))) ObjectType();
         }
@@ -1694,7 +1703,7 @@ template<typename ObjectType, Bool kIfInitializeObject>
 template<typename... ArgsType>
 FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObject(ObjectType* const object_ptr,
                                                                         ArgsType&&... args) {
-    if (sizeof...(args) == 0) {
+    if constexpr (sizeof...(args) == 0) {
         if constexpr (kIfInitializeObject) {
             new(reinterpret_cast<Void*>(object_ptr)) ObjectType();
         }
@@ -1723,7 +1732,7 @@ template<typename... ArgsType>
 FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObjects(ObjectType* begin_ptr,
                                                                          ObjectType* const end_ptr,
                                                                          ArgsType&&... args) {
-    if (sizeof...(args) == 0) {
+    if constexpr (sizeof...(args) == 0) {
         if constexpr (kIfInitializeObject) {
             new(reinterpret_cast<Void*>(begin_ptr)) ObjectType[end_ptr - begin_ptr];
         }
@@ -1741,7 +1750,7 @@ template<typename... ArgsType>
 FORCEINLINE Void ZVector<ObjectType, kIfInitializeObject>::CreateObjects(ObjectType* begin_ptr, 
                                                                          const IndexType num,
                                                                          ArgsType&&... args) {
-    if (sizeof...(args) == 0) {
+    if constexpr (sizeof...(args) == 0) {
         if constexpr (kIfInitializeObject) {
             new(reinterpret_cast<Void*>(begin_ptr)) ObjectType[num];
         }
