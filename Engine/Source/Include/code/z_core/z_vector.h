@@ -306,7 +306,6 @@ public:
     using ReverseIteratorType = internal::VectorReverseIterator<ObjectType>;
     using ConstReverseIteratorType = internal::VectorConstReverseIterator<ObjectType>;
 
-
     ZVector() noexcept;
     ZVector(const IndexType capacity) noexcept;
     /*
@@ -320,9 +319,6 @@ public:
     ZVector(const ConstReverseIteratorType& begin, const ConstReverseIteratorType& end) noexcept;
     ZVector(const ZVector& vector) noexcept;
     ZVector(ZVector&& vector) noexcept;
-
-
-
 
     ZVector& operator=(const ZVector& vector) noexcept;
     ZVector& operator=(ZVector&& vector) noexcept;
@@ -632,12 +628,13 @@ public:
         Construct the vector by filling it objects between the iterators.
     */
     Void Assign(const ConstReverseIteratorType& begin, const ConstReverseIteratorType& end) noexcept;
+
     /*
         The small object on the front.
     */
     Void Sort() noexcept;
     /*
-        will exchange the two objects when the function is true.
+        Will exchange the two objects when the function is true.
     */
     template<typename CompareFunction>
     requires kIsCompareFunction<CompareFunction, ObjectType>
@@ -645,14 +642,34 @@ public:
     /*
         The small object on the front.
     */
+    Void Sort(const IndexType begin, const IndexType end) noexcept;
+    /*
+        Will exchange the two objects when the function is true.
+    */
+    template<typename CompareFunction>
+    requires kIsCompareFunction<CompareFunction, ObjectType>
+    Void Sort(const IndexType begin, const IndexType end, CompareFunction&& compare_function) noexcept;
+    /*
+        The small object on the front.
+    */
     Void Sort(const IteratorType begin, const IteratorType end) noexcept;
     /*
-        will exchange the two objects when the function is true.
+        Will exchange the two objects when the function is true.
     */
     template<typename CompareFunction>
     requires kIsCompareFunction<CompareFunction, ObjectType>
     Void Sort(const IteratorType begin, const IteratorType end, CompareFunction&& compare_function) noexcept;
-    
+    /*
+        The small object on the front.
+    */
+    Void Sort(const ReverseIteratorType begin, const ReverseIteratorType end) noexcept;
+    /*
+        Will exchange the two objects when the function is true.
+    */
+    template<typename CompareFunction>
+    requires kIsCompareFunction<CompareFunction, ObjectType>
+    Void Sort(const ReverseIteratorType begin, const ReverseIteratorType end, CompareFunction&& compare_function) noexcept;
+
     /*
         Destroys all the objects in the vector, does not release the memory.
     */
