@@ -357,6 +357,23 @@ public:
         return this->data_[index]; 
     }
 
+    NODISCARD FORCEINLINE constexpr ObjectType& At(const IndexType index) {
+        DEBUG(index < 0 || index >= kCapacity, "Index out of bounds!");
+        return data_[index];
+    }
+    NODISCARD FORCEINLINE constexpr const ObjectType& At(const IndexType index) const {
+        DEBUG(index < 0 || index >= kCapacity, "Index out of bounds!");
+        return data_[index];
+    }
+    NODISCARD FORCEINLINE constexpr ObjectType& Front() { return data_[0]; }
+    NODISCARD FORCEINLINE constexpr const ObjectType& Front() const { return data_[0]; }
+    NODISCARD FORCEINLINE constexpr ObjectType& Back() { return data_[kCapacity - 1]; }
+    NODISCARD FORCEINLINE constexpr const ObjectType& Back() const { return data_[kCapacity - 1]; }
+
+    NODISCARD FORCEINLINE constexpr const ObjectType* data_ptr() const { return data_; }
+
+    NODISCARD FORCEINLINE static constexpr const IndexType size() { return kCapacity; }
+
     /*
         The iterator funcions.
     */
@@ -373,21 +390,7 @@ public:
         return ConstReverseIteratorType(data_ - 1);
     }
 
-    NODISCARD FORCEINLINE static constexpr const IndexType size() { return kCapacity; }
-    NODISCARD FORCEINLINE constexpr const ObjectType* data_ptr() const { return data_; }
 
-    NODISCARD FORCEINLINE constexpr ObjectType& At(const IndexType index) { 
-        DEBUG(index < 0 || index >= kCapacity, "Index out of bounds!");
-        return data_[index]; 
-    }
-    NODISCARD FORCEINLINE constexpr const ObjectType& At(const IndexType index) const { 
-        DEBUG(index < 0 || index >= kCapacity, "Index out of bounds!");
-        return data_[index]; 
-    }
-    NODISCARD FORCEINLINE constexpr ObjectType& Front() { return data_[0]; }
-    NODISCARD FORCEINLINE constexpr const ObjectType& Front() const { return data_[0]; }
-    NODISCARD FORCEINLINE constexpr ObjectType& Back() { return data_[kCapacity - 1]; }
-    NODISCARD FORCEINLINE constexpr const ObjectType& Back() const { return data_[kCapacity - 1]; }
 
     template<typename... ArgsType>
     Void Fill(ArgsType&&... args) noexcept;

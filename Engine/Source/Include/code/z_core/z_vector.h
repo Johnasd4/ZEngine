@@ -341,6 +341,24 @@ public:
 
     ~ZVector() noexcept;
 
+
+    NODISCARD FORCEINLINE ObjectType& At(const IndexType index) {
+        DEBUG(index < 0 || index >= size_, "Index out of bounds!");
+        return data_ptr_[index];
+    }
+    NODISCARD FORCEINLINE const ObjectType& At(const IndexType index) const {
+        DEBUG(index < 0 || index >= size_, "Index out of bounds!");
+        return data_ptr_[index];
+    }
+    NODISCARD FORCEINLINE ObjectType& Front() { return data_ptr_[0]; }
+    NODISCARD FORCEINLINE const ObjectType& Front() const { return data_ptr_[0]; }
+    NODISCARD FORCEINLINE ObjectType& Back() { return data_ptr_[size_ - 1]; }
+    NODISCARD FORCEINLINE const ObjectType& Back() const { return data_ptr_[size_ - 1]; }
+
+    NODISCARD FORCEINLINE const IndexType size() const { return size_; }
+    NODISCARD FORCEINLINE const IndexType capacity() const { return capacity_; }
+    NODISCARD FORCEINLINE const ObjectType* data_ptr() const { return data_ptr_; }
+
     /*
         The iterator funcions.
     */
@@ -356,23 +374,6 @@ public:
     NODISCARD FORCEINLINE ConstReverseIteratorType ConstReverseEnd() const {
         return ConstReverseIteratorType(data_ptr_ - 1);
     }
-
-    NODISCARD FORCEINLINE const IndexType size() const { return size_; }
-    NODISCARD FORCEINLINE const IndexType capacity() const { return capacity_; }
-    NODISCARD FORCEINLINE const ObjectType* data_ptr() const { return data_ptr_; }
-
-    NODISCARD FORCEINLINE ObjectType& At(const IndexType index) { 
-        DEBUG(index < 0 || index >= size_, "Index out of bounds!");
-        return data_ptr_[index]; 
-    }
-    NODISCARD FORCEINLINE const ObjectType& At(const IndexType index) const { 
-        DEBUG(index < 0 || index >= size_, "Index out of bounds!");
-        return data_ptr_[index]; 
-    }
-    NODISCARD FORCEINLINE ObjectType& Front() { return data_ptr_[0]; }
-    NODISCARD FORCEINLINE const ObjectType& Front() const { return data_ptr_[0]; }
-    NODISCARD FORCEINLINE ObjectType& Back() { return data_ptr_[size_ - 1]; }
-    NODISCARD FORCEINLINE const ObjectType& Back() const { return data_ptr_[size_ - 1]; }
 
     NODISCARD FORCEINLINE const Bool IfEmpty() { return size_ == 0; }
 

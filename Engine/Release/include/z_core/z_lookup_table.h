@@ -3,12 +3,10 @@
 
 #include "internal/drive.h"
 
-#include "z_core/z_fixed_array.h"
-
 namespace zengine {
 
 template<typename ObjectType, IndexType kTableSize>
-class ZLookupTable : public ZFixedArray<ObjectType, kTableSize> {
+class ZLookupTable {
 public:
     /*
         The work is done at compile time.
@@ -25,30 +23,44 @@ public:
         Example:
         constexpr auto init_function = [](ZLookupTable<Float32, 10, true>* table_ptr) {
             for (IndexType index = 0; index < table_ptr->size(); ++index) {
-                (*table_ptr)(index) = 1.0F;
+                (*table_ptr)[index] = 1.0F;
             }
         };
         constexpr ZLookupTable<Int32, 10, true> test(init_function);
     */
     template<typename InitFunction, typename... ArgsType>
-    FORCEINLINE constexpr ZLookupTable(InitFunction&& init_function, ArgsType&&... args) : SuperType() {
+    FORCEINLINE constexpr ZLookupTable(InitFunction&& init_function, ArgsType&&... args) {
         init_function(this, std::forward<ArgsType>(args)...);
     }
+
+    NODISCARD FORCEINLINE constexpr ObjectType& operator[](const IndexType index) {
+        DEBUG(index < 0 || index >= kTableSize, "Index out of bounds!");
+        return this->data_[index];
+    }
+    NODISCARD FORCEINLINE constexpr const ObjectType& operator[](const IndexType index) const {
+        DEBUG(index < 0 || index >= kTableSize, "Index out of bounds!");
+        return this->data_[index];
+    }
+
+    NODISCARD FORCEINLINE static constexpr const IndexType size() { return kTableSize; }
 
     /*
         Find the object at the certain index.
     */
-    NODISCARD FORCEINLINE constexpr const ObjectType At(const IndexType index) const { return (*this)(index); }
+    NODISCARD FORCEINLINE constexpr const ObjectType& At(const IndexType index) const {
+        DEBUG(index < 0 || index >= kTableSize, "Index out of bounds!");
+        return data_[index];
+    }
     /*
         Find the object at the certain index.
         Will search the table over again if the index is bigger then the table size.
     */
-    NODISCARD FORCEINLINE constexpr const ObjectType LoopAt(const IndexType index) const { 
-        return (*this)(index % SuperType::size()); 
+    NODISCARD FORCEINLINE constexpr const ObjectType& LoopAt(const IndexType index) const {
+        return data_[index % kTableSize];
     }
 
-protected:
-    using SuperType = ZFixedArray<ObjectType, kTableSize>;
+private:
+    ObjectType data_[kTableSize];
 };
 
 }//zengine

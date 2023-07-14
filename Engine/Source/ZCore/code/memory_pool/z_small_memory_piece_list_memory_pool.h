@@ -4,7 +4,7 @@
 #include "internal/drive.h"
 
 #include "f_console_output.h"
-#include "z_fixed_array.h"
+#include "z_array.h"
 #include "z_lookup_table.h"
 
 #include "z_list_memory_pool_base.h"
@@ -63,34 +63,34 @@ protected:
         ZListMemoryPoolBase<ZSmallMemoryPiece<kIsThreadSafe>, sizeof(ZSmallMemoryPiece<kIsThreadSafe>), kIsThreadSafe>;
 
 private:
-    friend class ZFixedArray<ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>, kMemoryPieceTypeNum>;
+    friend class ZArray<ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>, kMemoryPieceTypeNum>;
 
     static constexpr MemoryType kMemoryPieceHeadSize = SuperType::node_head_offset();
-    static constexpr ZFixedArray<MemoryType, kMemoryPieceTypeNum> kMemoryPieceSizeArray =
-        ZFixedArray<MemoryType, kMemoryPieceTypeNum>([](ZFixedArray<MemoryType, kMemoryPieceTypeNum>* array_ptr) {
-            (*array_ptr)(0) = kMemoryPieceMinSize;
-            for (IndexType index = 1; index < ZFixedArray<Int32, kMemoryPieceTypeNum>::size(); ++index) {
-                (*array_ptr)(index) = (*array_ptr)(index - 1) * kMemoryPieceSizeMulGrowFactor;
+    static constexpr ZArray<MemoryType, kMemoryPieceTypeNum> kMemoryPieceSizeArray =
+        ZArray<MemoryType, kMemoryPieceTypeNum>([](ZArray<MemoryType, kMemoryPieceTypeNum>* array_ptr) {
+        (*array_ptr)[0] = kMemoryPieceMinSize;
+            for (IndexType index = 1; index < array_ptr->size(); ++index) {
+                (*array_ptr)[index] = (*array_ptr)[index - 1] * kMemoryPieceSizeMulGrowFactor;
             }
         });
-    static constexpr MemoryType kMemoryPieceMaxSize = kMemoryPieceSizeArray(kMemoryPieceTypeNum - 1);
-    static constexpr MemoryType kMemoryPieceMemoryMaxSize = kMemoryPieceSizeArray(kMemoryPieceTypeNum - 1)
+    static constexpr MemoryType kMemoryPieceMaxSize = kMemoryPieceSizeArray[kMemoryPieceTypeNum - 1];
+    static constexpr MemoryType kMemoryPieceMemoryMaxSize = kMemoryPieceSizeArray[kMemoryPieceTypeNum - 1]
         - kMemoryPieceHeadSize;
 
     //The sizes of the memorys that can be uesd.
-    static constexpr ZFixedArray<MemoryType, kMemoryPieceTypeNum> kMemoryPieceMemorySizeArray =
-        ZFixedArray<MemoryType, kMemoryPieceTypeNum>([](ZFixedArray<MemoryType, kMemoryPieceTypeNum>* array_ptr) {
-            for (IndexType index = 0; index < ZFixedArray<Int32, kMemoryPieceTypeNum>::size(); ++index) {
-                (*array_ptr)(index) = kMemoryPieceSizeArray(index) - SuperType::node_head_offset();
+    static constexpr ZArray<MemoryType, kMemoryPieceTypeNum> kMemoryPieceMemorySizeArray =
+        ZArray<MemoryType, kMemoryPieceTypeNum>([](ZArray<MemoryType, kMemoryPieceTypeNum>* array_ptr) {
+            for (IndexType index = 0; index < array_ptr->size(); ++index) {
+                (*array_ptr)[index] = kMemoryPieceSizeArray[index] - SuperType::node_head_offset();
             }
         });
 
     //The number of the pieces that the memory pool contains when created.
     static constexpr Int32 kMemoryPieceDefaultNum = 0;
-    static constexpr ZFixedArray<IndexType, kMemoryPieceTypeNum> kMemoryPieceDefaultNumArray =
-        ZFixedArray<IndexType, kMemoryPieceTypeNum>([](ZFixedArray<IndexType, kMemoryPieceTypeNum>* array_ptr) {
-            for (IndexType index = 0; index < ZFixedArray<Int32, kMemoryPieceTypeNum>::size(); ++index) {
-                (*array_ptr)(index) = kMemoryPieceDefaultNum;
+    static constexpr ZArray<IndexType, kMemoryPieceTypeNum> kMemoryPieceDefaultNumArray =
+        ZArray<IndexType, kMemoryPieceTypeNum>([](ZArray<IndexType, kMemoryPieceTypeNum>* array_ptr) {
+            for (IndexType index = 0; index < array_ptr->size(); ++index) {
+                (*array_ptr)[index] = kMemoryPieceDefaultNum;
             }
         });
 
@@ -102,18 +102,18 @@ private:
             [](ZLookupTable<UInt8, kkMemorySize2MemoryPoolTableSize>* array_ptr) {
                 UInt8 current_pool_index = 0;
                 for (IndexType index = 0; index < array_ptr->size(); ++index) {
-                    if (index <= static_cast<IndexType>(kMemoryPieceMemorySizeArray(current_pool_index))) {
-                        (*array_ptr)(index) = current_pool_index;
+                    if (index <= static_cast<IndexType>(kMemoryPieceMemorySizeArray[current_pool_index])) {
+                        (*array_ptr)[index] = current_pool_index;
                     }
                     else {
                         ++current_pool_index;
-                        (*array_ptr)(index) = current_pool_index;
+                        (*array_ptr)[index] = current_pool_index;
                     }
                 }
             });
 
     static Void MemoryPoolArrayInitFunction(
-        ZFixedArray<ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>, kMemoryPieceTypeNum>* array_ptr) noexcept;
+        ZArray<ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>, kMemoryPieceTypeNum>* array_ptr) noexcept;
 
     FORCEINLINE ZSmallMemoryPieceListMemoryPool() : SuperType() {}
     ~ZSmallMemoryPieceListMemoryPool() noexcept;
@@ -131,38 +131,38 @@ private:
 
 template<Bool kIsThreadSafe>
 NODISCARD Void* const ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::ApplyMemory(const MemoryType size) noexcept {
-    static ZFixedArray<ZSmallMemoryPieceListMemoryPool<kIsThreadSafe> , kMemoryPieceTypeNum> memory_pool_array(
+    static ZArray<ZSmallMemoryPieceListMemoryPool<kIsThreadSafe> , kMemoryPieceTypeNum> memory_pool_array(
         MemoryPoolArrayInitFunction);
 
 #ifdef USE_MEMORY_POOL_TEST
-    memory_pool_array(kMemorySize2MemoryPoolTable(size)).memory_piece_used_current_num_ += 1;
-    memory_pool_array(kMemorySize2MemoryPoolTable(size)).momory_piece_applyed_num_ += 1;
-    if (memory_pool_array(kMemorySize2MemoryPoolTable(size)).memory_piece_used_current_num_ > 
-        memory_pool_array(kMemorySize2MemoryPoolTable(size)).momory_piece_peak_num_) {
-        memory_pool_array(kMemorySize2MemoryPoolTable(size)).momory_piece_peak_num_ = 
-            memory_pool_array(kMemorySize2MemoryPoolTable(size)).memory_piece_used_current_num_;
+    memory_pool_array[kMemorySize2MemoryPoolTable.At(size)].memory_piece_used_current_num_ += 1;
+    memory_pool_array[kMemorySize2MemoryPoolTable.At(size)].momory_piece_applyed_num_ += 1;
+    if (memory_pool_array[kMemorySize2MemoryPoolTable.At(size)].memory_piece_used_current_num_ > 
+        memory_pool_array[kMemorySize2MemoryPoolTable.At(size)].momory_piece_peak_num_) {
+        memory_pool_array[kMemorySize2MemoryPoolTable.At(size)].momory_piece_peak_num_ = 
+            memory_pool_array[kMemorySize2MemoryPoolTable.At(size)].memory_piece_used_current_num_;
     }
 #endif //USE_MEMORY_POOL_TEST
-    return memory_pool_array(kMemorySize2MemoryPoolTable.At(size)).SuperType::ApplyMemory();
+    return memory_pool_array[kMemorySize2MemoryPoolTable.At(size)].SuperType::ApplyMemory();
 }
 
 template<Bool kIsThreadSafe>
 NODISCARD Void* const ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::ApplyMemory(
         const MemoryType size, MemoryType* const memory_size_ptr) noexcept {
-    static ZFixedArray<ZSmallMemoryPieceListMemoryPool<kIsThreadSafe> , kMemoryPieceTypeNum> memory_pool_array(
+    static ZArray<ZSmallMemoryPieceListMemoryPool<kIsThreadSafe> , kMemoryPieceTypeNum> memory_pool_array(
         MemoryPoolArrayInitFunction);
 
 #ifdef USE_MEMORY_POOL_TEST
-    memory_pool_array(kMemorySize2MemoryPoolTable(size)).memory_piece_used_current_num_ += 1;
-    memory_pool_array(kMemorySize2MemoryPoolTable(size)).momory_piece_applyed_num_ += 1;
-    if (memory_pool_array(kMemorySize2MemoryPoolTable(size)).memory_piece_used_current_num_ > 
-        memory_pool_array(kMemorySize2MemoryPoolTable(size)).momory_piece_peak_num_) {
-        memory_pool_array(kMemorySize2MemoryPoolTable(size)).momory_piece_peak_num_ = 
-            memory_pool_array(kMemorySize2MemoryPoolTable(size)).memory_piece_used_current_num_;
+    memory_pool_array[kMemorySize2MemoryPoolTable[size]].memory_piece_used_current_num_ += 1;
+    memory_pool_array[kMemorySize2MemoryPoolTable[size]].momory_piece_applyed_num_ += 1;
+    if (memory_pool_array[kMemorySize2MemoryPoolTable[size]].memory_piece_used_current_num_ > 
+        memory_pool_array[kMemorySize2MemoryPoolTable[size]].momory_piece_peak_num_) {
+        memory_pool_array[kMemorySize2MemoryPoolTable[size]].momory_piece_peak_num_ = 
+            memory_pool_array[kMemorySize2MemoryPoolTable[size]].memory_piece_used_current_num_;
     }
 #endif //USE_MEMORY_POOL_TEST
-    (*memory_size_ptr) = memory_pool_array(kMemorySize2MemoryPoolTable.At(size)).SuperType::memory_piece_memory_size();
-    return memory_pool_array(kMemorySize2MemoryPoolTable.At(size)).SuperType::ApplyMemory();
+    (*memory_size_ptr) = memory_pool_array[kMemorySize2MemoryPoolTable.At(size)].SuperType::memory_piece_memory_size();
+    return memory_pool_array[kMemorySize2MemoryPoolTable.At(size)].SuperType::ApplyMemory();
 }
 
 template<Bool kIsThreadSafe>
@@ -188,10 +188,10 @@ Void ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::ReleaseMemory(
 
 template<Bool kIsThreadSafe>
 Void ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::MemoryPoolArrayInitFunction(
-    ZFixedArray<ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>, kMemoryPieceTypeNum>* array_ptr) noexcept {
+    ZArray<ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>, kMemoryPieceTypeNum>* array_ptr) noexcept {
     for (IndexType index = 0; index < array_ptr->size(); ++index) {
-        (*array_ptr)(index).Initialize(kMemoryPieceSizeArray(index), kMemoryPieceMemorySizeArray(index),
-                                       kMemoryPieceDefaultNumArray(index));
+        (*array_ptr)[index].Initialize(kMemoryPieceSizeArray[index], kMemoryPieceMemorySizeArray[index],
+                                       kMemoryPieceDefaultNumArray[index]);
     }
 }
 
