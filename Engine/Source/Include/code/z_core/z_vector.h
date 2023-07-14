@@ -1756,7 +1756,8 @@ FORCEINLINE Void ZVector<ObjectType, kIfUnique>::CreateObjects(ObjectType* begin
             ObjectType* temp_object_ptr =
                 new(reinterpret_cast<Void*>(begin_ptr++)) ObjectType(std::forward<ArgsType>(args)...);
             while (begin_ptr < end_ptr) {
-                *(begin_ptr++) = *temp_object_ptr;
+                *begin_ptr = *temp_object_ptr;
+                ++begin_ptr;
             }
         }
     }
@@ -1787,7 +1788,8 @@ FORCEINLINE Void ZVector<ObjectType, kIfUnique>::CreateObjects(ObjectType* begin
             ObjectType* temp_object_ptr =
                 new(reinterpret_cast<Void*>(begin_ptr++)) ObjectType(std::forward<ArgsType>(args)...);
             while (begin_ptr < end_ptr) {
-                *(begin_ptr++) = *temp_object_ptr;
+                *begin_ptr = *temp_object_ptr;
+                ++begin_ptr;
             }
         }
     }
