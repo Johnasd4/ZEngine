@@ -449,7 +449,9 @@ FORCEINLINE ZArray<ObjectType, kCapacity, kIfUnique>::ZArray(const ZArray& array
         }
     }
     else {
-        memcpy(reinterpret_cast<Void*>(data_), reinterpret_cast<Void*>(array.data_), sizeof(ZArray));
+        memcpy(reinterpret_cast<Void*>(data_), 
+            reinterpret_cast<Void*>(const_cast<ObjectType*>(array.data_)),
+               sizeof(ZArray));
     }
 }
 

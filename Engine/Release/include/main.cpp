@@ -14,7 +14,9 @@ constexpr auto init_function = [](ZArray<Int32, 10>* array_ptr) {
     }
 };
 int main(){
-    ZArray<Int32, 19> qwe;
+    ZArray<Int32, 19> test_1;
+    ZArray<Int32, 19> test_2(test_1);
+
     ZVector<Int32> vector_1;
     for (IndexType index = 1; index < 13; ++index) {
         vector_1.PushBacks(-10,index);
