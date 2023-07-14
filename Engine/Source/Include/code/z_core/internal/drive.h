@@ -169,6 +169,12 @@ concept kIsFloat = kSameType<NumberType, Float32> || kSameType<NumberType, Float
 template<typename NumberType>
 concept kIsNumber = kIsInt<NumberType> || kIsFloat<NumberType>;
 
+template<auto number>
+concept kIsZero = number == 0;
+
+template<auto number>
+concept kIsNotZero = number != 0;
+
 template<typename ObjectType>
 concept kIsComparable = requires(ObjectType object_1, ObjectType object_2) {
     object_1 == object_2;

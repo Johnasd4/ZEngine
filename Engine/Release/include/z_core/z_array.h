@@ -3,6 +3,7 @@
 
 #include "internal/drive.h"
 
+#include "m_error_message.h"
 #include "z_object.h"
 
 namespace zengine {
@@ -290,6 +291,11 @@ protected:
     using SuperType = ArrayIteratorBase<ObjectType>;
 };
 
+template<typename ArrayType, typename Function, typename... ArgsType>
+concept kIsArrayInitFunction = requires(ArrayType* array, Function function, ArgsType&&... args) {
+    function(array, std::forward<ArgsType>(args)...);
+};
+
 }//internal
 
 
@@ -299,8 +305,10 @@ protected:
     The size of the array is fixed. It's stored in the stack memory, use new
     to store it in the heap memory. This class uses no extra size, doesn't
     have any other members except the objects.
+    If kIfUnique is true, will call the constuctor when the object is created.
 */
-template<typename ObjectType, IndexType kCapacity, Bool kIfInitializeObject = kIsClass<ObjectType>>
+template<typename ObjectType, IndexType kCapacity, Bool kIfUnique = kIsClass<ObjectType>>
+requires kIsNotZero<kCapacity>
 class ZArray : public ZObject {
 public:
     using IteratorType = internal::ArrayIterator<ObjectType>;
@@ -308,12 +316,8 @@ public:
     using ReverseIteratorType = internal::ArrayReverseIterator<ObjectType>;
     using ConstReverseIteratorType = internal::ArrayConstReverseIterator<ObjectType>;
 
-#pragma warning(disable : 26495)
-    FORCEINLINE ZArray() : SuperType() {}
-#pragma warning(default : 26495)
-    ZArray(const ZArray& array) noexcept;
-    ZArray(ZArray&& array) noexcept;
-
+    template<typename... ArgsType>
+    FORCEINLINE ZArray(ArgsType&&... args);
     /*
         Constexpr array, the work is done at compile time.
         The Constructor's fisrt parameter is the initial funtion of the array. The
@@ -327,21 +331,28 @@ public:
         Example:
         constexpr auto init_function = [](ZArray<Int32, 10>* array_ptr) {
             for (IndexType index = 0; index < array_ptr->size(); ++index) {
-                (*array_ptr)(index) = 1;
+                (*array_ptr)[index] = 1;
             }
         };
         constexpr ZArray<Int32, 10> test(init_function);
     */
     template<typename InitFunction, typename... ArgsType>
+    requires internal::kIsArrayInitFunction<ZArray<ObjectType, kCapacity, kIfUnique>, 
+                                            InitFunction, ArgsType...>
     FORCEINLINE constexpr ZArray(InitFunction&& init_function, ArgsType&&... args) :SuperType() {
         init_function(this, std::forward<ArgsType>(args)...);
     }
+    FORCEINLINE ZArray(const ZArray& array);
+    FORCEINLINE ZArray(ZArray&& array);
 
-    ZArray& operator=(const ZArray& array) noexcept;
-    ZArray& operator=(ZArray&& array) noexcept;
+    FORCEINLINE ZArray& operator=(const ZArray& array);
+    FORCEINLINE ZArray& operator=(ZArray&& array);
 
-    NODISCARD FORCEINLINE constexpr ObjectType& operator[](const IndexType index) { return this->data_[index]; }
+    NODISCARD FORCEINLINE constexpr ObjectType& operator[](const IndexType index) { 
+        DEBUG(index < 0 || index >= kCapacity, "Index out of bounds!");
+        return this->data_[index]; }
     NODISCARD FORCEINLINE constexpr const ObjectType& operator[](const IndexType index) const {
+        DEBUG(index < 0 || index >= kCapacity, "Index out of bounds!");
         return this->data_[index]; 
     }
 
@@ -364,15 +375,21 @@ public:
     NODISCARD FORCEINLINE static constexpr const IndexType size() { return kCapacity; }
     NODISCARD FORCEINLINE constexpr const ObjectType* data_ptr() const { return data_; }
 
-    NODISCARD FORCEINLINE constexpr ObjectType& At(const IndexType index) { return data_[index]; }
-    NODISCARD FORCEINLINE constexpr const ObjectType& At(const IndexType index) const { return data_[index]; }
+    NODISCARD FORCEINLINE constexpr ObjectType& At(const IndexType index) { 
+        DEBUG(index < 0 || index >= kCapacity, "Index out of bounds!");
+        return data_[index]; 
+    }
+    NODISCARD FORCEINLINE constexpr const ObjectType& At(const IndexType index) const { 
+        DEBUG(index < 0 || index >= kCapacity, "Index out of bounds!");
+        return data_[index]; 
+    }
     NODISCARD FORCEINLINE constexpr ObjectType& Front() { return data_[0]; }
     NODISCARD FORCEINLINE constexpr const ObjectType& Front() const { return data_[0]; }
     NODISCARD FORCEINLINE constexpr ObjectType& Back() { return data_[kCapacity - 1]; }
     NODISCARD FORCEINLINE constexpr const ObjectType& Back() const { return data_[kCapacity - 1]; }
 
     template<typename... ArgsType>
-    constexpr Void Fill(ArgsType&&... args) noexcept;
+    Void Fill(ArgsType&&... args) noexcept;
 
     /*
         The small object on the front.
@@ -423,79 +440,99 @@ private:
     ObjectType data_[kCapacity];
 };
 
-template<typename ObjectType, IndexType kCapacity, Bool kIfInitializeObject>
-ZArray<ObjectType, kCapacity, kIfInitializeObject>::ZArray(const ZArray& array) noexcept
-        : SuperType() {
-    if constexpr (kIfInitializeObject) {
-        for (IndexType index = 0; index < array.size(); ++index) {
-            data_[index] = array[index];
-        }
-    }
-    else {
-        memcpy(reinterpret_cast<Void*>(data_), reinterpret_cast<Void*>(array.data_), sizeof(ZArray));
-    }
-}
-
-template<typename ObjectType, IndexType kCapacity, Bool kIfInitializeObject>
-ZArray<ObjectType, kCapacity, kIfInitializeObject>::ZArray(ZArray&& array) noexcept
-        : SuperType() {
-    if constexpr (kIfInitializeObject) {
-        for (IndexType index = 0; index < array.size(); ++index) {
-            data_[index] = array[index];
-        }
-    }
-    else {
-        memcpy(reinterpret_cast<Void*>(data_), reinterpret_cast<Void*>(array.data_), sizeof(ZArray));
-    }
-}
-
-template<typename ObjectType, IndexType kCapacity, Bool kIfInitializeObject>
-ZArray<ObjectType, kCapacity, kIfInitializeObject>& ZArray<ObjectType, kCapacity, kIfInitializeObject>::operator=(
-        const ZArray& array) noexcept {
-    if constexpr (kIfInitializeObject) {
-        for (IndexType index = 0; index < array.size(); ++index) {
-            data_[index] = array[index];
-        }
-    }
-    else {
-        memcpy(reinterpret_cast<Void*>(data_), reinterpret_cast<Void*>(array.data_), sizeof(ZArray));
-    }
-    return *this;
-}
-
-template<typename ObjectType, IndexType kCapacity, Bool kIfInitializeObject>
-ZArray<ObjectType, kCapacity, kIfInitializeObject>& ZArray<ObjectType, kCapacity, kIfInitializeObject>::operator=(
-        ZArray&& array) noexcept {
-    if constexpr (kIfInitializeObject) {
-        for (IndexType index = 0; index < array.size(); ++index) {
-            data_[index] = array[index];
-        }
-    }
-    else {
-        memcpy(reinterpret_cast<Void*>(data_), reinterpret_cast<Void*>(array.data_), sizeof(ZArray));
-    }
-    return *this;
-}
-
-template<typename ObjectType, IndexType kCapacity, Bool kIfInitializeObject>
+template<typename ObjectType, IndexType kCapacity, Bool kIfUnique>
+requires kIsNotZero<kCapacity>
 template<typename... ArgsType>
-constexpr Void ZArray<ObjectType, kCapacity, kIfInitializeObject>::Fill(ArgsType&&... args) noexcept {
-    if constexpr (kIfInitializeObject) {
+FORCEINLINE ZArray<ObjectType, kCapacity, kIfUnique>::ZArray(ArgsType&&... args) {
+    if constexpr (sizeof...(args) != 0) {
+        data_[0] = ObjectType(std::forward<ArgsType>(args)...);
+        for (IndexType index = 1; index < kCapacity; ++index) {
+            data_[index] = data_[0];
+        }
+    }
+}
+
+template<typename ObjectType, IndexType kCapacity, Bool kIfUnique>
+requires kIsNotZero<kCapacity>
+FORCEINLINE ZArray<ObjectType, kCapacity, kIfUnique>::ZArray(const ZArray& array)
+        : SuperType() {
+    if constexpr (kIfUnique) {
         for (IndexType index = 0; index < array.size(); ++index) {
-            data_[index] = ObjectType(std::forward<ArgsType>(args)...);
+            data_[index] = array[index];
+        }
+    }
+    else {
+        memcpy(reinterpret_cast<Void*>(data_), reinterpret_cast<Void*>(array.data_), sizeof(ZArray));
+    }
+}
+
+template<typename ObjectType, IndexType kCapacity, Bool kIfUnique>
+requires kIsNotZero<kCapacity>
+FORCEINLINE ZArray<ObjectType, kCapacity, kIfUnique>::ZArray(ZArray&& array)
+        : SuperType() {
+    if constexpr (kIfUnique) {
+        for (IndexType index = 0; index < array.size(); ++index) {
+            data_[index] = array[index];
+        }
+    }
+    else {
+        memcpy(reinterpret_cast<Void*>(data_), reinterpret_cast<Void*>(array.data_), sizeof(ZArray));
+    }
+}
+
+template<typename ObjectType, IndexType kCapacity, Bool kIfUnique>
+requires kIsNotZero<kCapacity>
+FORCEINLINE ZArray<ObjectType, kCapacity, kIfUnique>& ZArray<ObjectType, kCapacity, kIfUnique>::operator=(
+        const ZArray& array) {
+    if constexpr (kIfUnique) {
+        for (IndexType index = 0; index < array.size(); ++index) {
+            data_[index] = array[index];
+        }
+    }
+    else {
+        memcpy(reinterpret_cast<Void*>(data_), reinterpret_cast<Void*>(array.data_), sizeof(ZArray));
+    }
+    return *this;
+}
+
+template<typename ObjectType, IndexType kCapacity, Bool kIfUnique>
+requires kIsNotZero<kCapacity>
+FORCEINLINE ZArray<ObjectType, kCapacity, kIfUnique>& ZArray<ObjectType, kCapacity, kIfUnique>::operator=(
+        ZArray&& array) {
+    if constexpr (kIfUnique) {
+        for (IndexType index = 0; index < array.size(); ++index) {
+            data_[index] = array[index];
+        }
+    }
+    else {
+        memcpy(reinterpret_cast<Void*>(data_), reinterpret_cast<Void*>(array.data_), sizeof(ZArray));
+    }
+    return *this;
+}
+
+template<typename ObjectType, IndexType kCapacity, Bool kIfUnique>
+requires kIsNotZero<kCapacity>
+template<typename... ArgsType>
+Void ZArray<ObjectType, kCapacity, kIfUnique>::Fill(ArgsType&&... args) noexcept {
+    if constexpr (kIfUnique) {
+        for (IndexType index = 0; index < kCapacity; ++index) {
+            data_[index].~ObjectType();
         }
         if constexpr (sizeof...(args) == 0) {
-            new(reinterpret_cast<Void*>(data_)) ObjectType[array.size()];
+            new(reinterpret_cast<Void*>(data_)) ObjectType[kCapacity];
         }
         else {
-            for (IndexType index = 0; index < array.size(); ++index) {
+            for (IndexType index = 0; index < kCapacity; ++index) {
                 new(reinterpret_cast<Void*>(&data_[index])) ObjectType(std::forward<ArgsType>(args)...);
             }
         }
     }
     else {
-        for (IndexType index = 0; index < array.size(); ++index) {
-            data_[index] = ObjectType(std::forward<ArgsType>(args)...);
+        if constexpr (sizeof...(args) != 0) {
+            data_[0] = ObjectType(std::forward<ArgsType>(args)...);
+            for (IndexType index = 1; index < kCapacity; ++index) {
+                data_[index] = data_[0];
+            }
         }
     }
 }

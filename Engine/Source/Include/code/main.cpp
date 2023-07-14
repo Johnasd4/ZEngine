@@ -8,11 +8,11 @@ using namespace std;
 #include <vector>
 #include "z_core/z_vector.h"
 
-
-
-#include<array>
-#include <cassert>
-
+constexpr auto init_function = [](ZArray<Int32, 10>* array_ptr) {
+    for (IndexType index = 0; index < array_ptr->size(); ++index) {
+        (*array_ptr)[index] = 1;
+    }
+};
 int main(){
     ZVector<Int32> vector_1;
     for (IndexType index = 1; index < 13; ++index) {
@@ -35,7 +35,6 @@ int main(){
         cout << endl;
     }
 
-    std::array<int, 10> a;
     //Int32* test_1 = new Int32[1024 * 1024 * 100];
     //Int32* test_2 = new Int32[1024 * 1024 * 100];
 
