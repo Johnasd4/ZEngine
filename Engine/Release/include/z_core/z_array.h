@@ -316,7 +316,9 @@ public:
     using ReverseIteratorType = internal::ArrayReverseIterator<ObjectType>;
     using ConstReverseIteratorType = internal::ArrayConstReverseIterator<ObjectType>;
 
+#pragma warning(disable : 26495)
     FORCEINLINE ZArray() : SuperType() {}
+#pragma warning(default : 26495)
     /*
         Constexpr array, the work is done at compile time.
         The Constructor's fisrt parameter is the initial funtion of the array. The
