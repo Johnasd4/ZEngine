@@ -1738,27 +1738,25 @@ template<typename... ArgsType>
 FORCEINLINE Void ZVector<ObjectType, kIfUnique>::CreateObjects(ObjectType* begin_ptr,
                                                                          ObjectType* const end_ptr,
                                                                          ArgsType&&... args) {
-    if constexpr (sizeof...(args) == 0) {
-        if constexpr (kIfUnique) {
+    if constexpr (kIfUnique) {
+        if constexpr (sizeof...(args) == 0) {
             new(reinterpret_cast<Void*>(begin_ptr)) ObjectType[end_ptr - begin_ptr];
+        }
+        else {
+            while (begin_ptr < end_ptr) {
+                new(reinterpret_cast<Void*>(begin_ptr++)) ObjectType(std::forward<ArgsType>(args)...);
+            }
         }
     }
     else {
-        if constexpr (kIfUnique) {
-            while (begin_ptr < end_ptr) {
-                new(reinterpret_cast<Void*>(begin_ptr++)) ObjectType(std::forward<ArgsType>(args)...);
-            }
+        if (begin_ptr == end_ptr) {
+            return;
         }
-        else {
-            if (begin_ptr == end_ptr) {
-                return;
-            }
-            ObjectType* temp_object_ptr =
-                new(reinterpret_cast<Void*>(begin_ptr++)) ObjectType(std::forward<ArgsType>(args)...);
-            while (begin_ptr < end_ptr) {
-                *begin_ptr = *temp_object_ptr;
-                ++begin_ptr;
-            }
+        ObjectType* temp_object_ptr =
+            new(reinterpret_cast<Void*>(begin_ptr++)) ObjectType(std::forward<ArgsType>(args)...);
+        while (begin_ptr < end_ptr) {
+            *begin_ptr = *temp_object_ptr;
+            ++begin_ptr;
         }
     }
 }
@@ -1768,29 +1766,25 @@ template<typename... ArgsType>
 FORCEINLINE Void ZVector<ObjectType, kIfUnique>::CreateObjects(ObjectType* begin_ptr, 
                                                                          const IndexType num,
                                                                          ArgsType&&... args) {
-    if constexpr (sizeof...(args) == 0) {
-        if constexpr (kIfUnique) {
+    if constexpr (kIfUnique) {
+        if constexpr (sizeof...(args) == 0) {
             new(reinterpret_cast<Void*>(begin_ptr)) ObjectType[num];
+        }
+        ObjectType* end_ptr = begin_ptr + num;
+        while (begin_ptr < end_ptr) {
+            new(reinterpret_cast<Void*>(begin_ptr++)) ObjectType(std::forward<ArgsType>(args)...);
         }
     }
     else {
-        if constexpr (kIfUnique) {
-            ObjectType* end_ptr = begin_ptr + num;
-            while (begin_ptr < end_ptr) {
-                new(reinterpret_cast<Void*>(begin_ptr++)) ObjectType(std::forward<ArgsType>(args)...);
-            }
+        if (num == 0) {
+            return;
         }
-        else {
-            if (num == 0) {
-                return;
-            }
-            ObjectType* end_ptr = begin_ptr + num;
-            ObjectType* temp_object_ptr =
-                new(reinterpret_cast<Void*>(begin_ptr++)) ObjectType(std::forward<ArgsType>(args)...);
-            while (begin_ptr < end_ptr) {
-                *begin_ptr = *temp_object_ptr;
-                ++begin_ptr;
-            }
+        ObjectType* end_ptr = begin_ptr + num;
+        ObjectType* temp_object_ptr =
+            new(reinterpret_cast<Void*>(begin_ptr++)) ObjectType(std::forward<ArgsType>(args)...);
+        while (begin_ptr < end_ptr) {
+            *begin_ptr = *temp_object_ptr;
+            ++begin_ptr;
         }
     }
 }
