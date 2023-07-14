@@ -1744,13 +1744,20 @@ FORCEINLINE Void ZVector<ObjectType, kIfUnique>::CreateObjects(ObjectType* begin
         }
     }
     else {
-        if (begin_ptr == end_ptr) {
-            return;
+        if constexpr (kIfUnique) {
+            while (begin_ptr < end_ptr) {
+                new(reinterpret_cast<Void*>(begin_ptr++)) ObjectType(std::forward<ArgsType>(args)...);
+            }
         }
-        ObjectType* temp_object_ptr =
-            new(reinterpret_cast<Void*>(begin_ptr++)) ObjectType(std::forward<ArgsType>(args)...);
-        while (begin_ptr < end_ptr) {
-            *(begin_ptr++) = *temp_object_ptr;
+        else {
+            if (begin_ptr == end_ptr) {
+                return;
+            }
+            ObjectType* temp_object_ptr =
+                new(reinterpret_cast<Void*>(begin_ptr++)) ObjectType(std::forward<ArgsType>(args)...);
+            while (begin_ptr < end_ptr) {
+                *(begin_ptr++) = *temp_object_ptr;
+            }
         }
     }
 }
@@ -1766,14 +1773,22 @@ FORCEINLINE Void ZVector<ObjectType, kIfUnique>::CreateObjects(ObjectType* begin
         }
     }
     else {
-        if (num == 0) {
-            return;
+        if constexpr (kIfUnique) {
+            ObjectType* end_ptr = begin_ptr + num;
+            while (begin_ptr < end_ptr) {
+                new(reinterpret_cast<Void*>(begin_ptr++)) ObjectType(std::forward<ArgsType>(args)...);
+            }
         }
-        ObjectType* end_ptr = begin_ptr + num;
-        ObjectType* temp_object_ptr = 
-            new(reinterpret_cast<Void*>(begin_ptr++)) ObjectType(std::forward<ArgsType>(args)...);
-        while (begin_ptr < end_ptr) {
-            *(begin_ptr++) = *temp_object_ptr;
+        else {
+            if (num == 0) {
+                return;
+            }
+            ObjectType* end_ptr = begin_ptr + num;
+            ObjectType* temp_object_ptr =
+                new(reinterpret_cast<Void*>(begin_ptr++)) ObjectType(std::forward<ArgsType>(args)...);
+            while (begin_ptr < end_ptr) {
+                *(begin_ptr++) = *temp_object_ptr;
+            }
         }
     }
 }
