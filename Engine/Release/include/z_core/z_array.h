@@ -316,8 +316,7 @@ public:
     using ReverseIteratorType = internal::ArrayReverseIterator<ObjectType>;
     using ConstReverseIteratorType = internal::ArrayConstReverseIterator<ObjectType>;
 
-    template<typename... ArgsType>
-    FORCEINLINE ZArray(ArgsType&&... args);
+    FORCEINLINE ZArray() : SuperType() {}
     /*
         Constexpr array, the work is done at compile time.
         The Constructor's fisrt parameter is the initial funtion of the array. The
@@ -442,22 +441,10 @@ private:
 
 template<typename ObjectType, IndexType kCapacity, Bool kIfUnique>
 requires kIsNotZero<kCapacity>
-template<typename... ArgsType>
-FORCEINLINE ZArray<ObjectType, kCapacity, kIfUnique>::ZArray(ArgsType&&... args) {
-    if constexpr (sizeof...(args) != 0) {
-        data_[0] = ObjectType(std::forward<ArgsType>(args)...);
-        for (IndexType index = 1; index < kCapacity; ++index) {
-            data_[index] = data_[0];
-        }
-    }
-}
-
-template<typename ObjectType, IndexType kCapacity, Bool kIfUnique>
-requires kIsNotZero<kCapacity>
 FORCEINLINE ZArray<ObjectType, kCapacity, kIfUnique>::ZArray(const ZArray& array)
         : SuperType() {
     if constexpr (kIfUnique) {
-        for (IndexType index = 0; index < array.size(); ++index) {
+        for (IndexType index = 0; index < kCapacity; ++index) {
             data_[index] = array[index];
         }
     }
@@ -471,7 +458,7 @@ requires kIsNotZero<kCapacity>
 FORCEINLINE ZArray<ObjectType, kCapacity, kIfUnique>::ZArray(ZArray&& array)
         : SuperType() {
     if constexpr (kIfUnique) {
-        for (IndexType index = 0; index < array.size(); ++index) {
+        for (IndexType index = 0; index < kCapacity; ++index) {
             data_[index] = array[index];
         }
     }
@@ -485,7 +472,7 @@ requires kIsNotZero<kCapacity>
 FORCEINLINE ZArray<ObjectType, kCapacity, kIfUnique>& ZArray<ObjectType, kCapacity, kIfUnique>::operator=(
         const ZArray& array) {
     if constexpr (kIfUnique) {
-        for (IndexType index = 0; index < array.size(); ++index) {
+        for (IndexType index = 0; index < kCapacity; ++index) {
             data_[index] = array[index];
         }
     }
@@ -500,7 +487,7 @@ requires kIsNotZero<kCapacity>
 FORCEINLINE ZArray<ObjectType, kCapacity, kIfUnique>& ZArray<ObjectType, kCapacity, kIfUnique>::operator=(
         ZArray&& array) {
     if constexpr (kIfUnique) {
-        for (IndexType index = 0; index < array.size(); ++index) {
+        for (IndexType index = 0; index < kCapacity; ++index) {
             data_[index] = array[index];
         }
     }
