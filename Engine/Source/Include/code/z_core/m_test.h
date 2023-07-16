@@ -1,5 +1,5 @@
-#ifndef Z_CORE_M_TIME_TEST_H_
-#define Z_CORE_M_TIME_TEST_H_
+#ifndef Z_CORE_M_TEST_H_
+#define Z_CORE_M_TEST_H_
 
 #include "internal/drive.h"
 
@@ -18,4 +18,4 @@
 	}
 
 
-#endif // !Z_CORE_M_TIME_TEST_H_
+#endif // !Z_CORE_M_TEST_H_

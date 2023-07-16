@@ -22,7 +22,7 @@ public:
         Tne first parameter is added to the index when using the table.
         Tne second parameter is distance between the table values.
         The Constructor's third parameter is the initial funtion of the table.
-        The first parameter of the initial funtion must be ZFixedArray*.
+        The first parameter of the initial funtion must be ZLookupTable*.
         Constructor Template Parameters:
         - InitFunction: The function type that initial the array.
         - ArgsType...: The parameters type.
