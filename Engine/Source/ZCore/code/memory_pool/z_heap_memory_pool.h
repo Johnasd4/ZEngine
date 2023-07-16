@@ -40,6 +40,13 @@ private:
     /*
         Release all the heap memory.
     */
+
+    ZHeapMemoryPool(const ZHeapMemoryPool&) = delete;
+    ZHeapMemoryPool(ZHeapMemoryPool&&) = delete;
+
+    ZHeapMemoryPool& operator=(const ZHeapMemoryPool&) = delete;
+    ZHeapMemoryPool& operator=(ZHeapMemoryPool&&) = delete;
+
     ~ZHeapMemoryPool() noexcept;
 
     HeapMemoryPtrArrayNode* current_node_ptr_;

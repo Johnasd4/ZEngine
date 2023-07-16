@@ -66,6 +66,12 @@ private:
     //The total offset of the memory piece.
     static constexpr PointerType kNodeHeadOffset = sizeof(Node*) + kMemoryPieceHeadOffset;
 
+    ZListMemoryPoolBase(const ZListMemoryPoolBase&) = delete;
+    ZListMemoryPoolBase(ZListMemoryPoolBase&&) = delete;
+
+    ZListMemoryPoolBase& operator=(const ZListMemoryPoolBase&) = delete;
+    ZListMemoryPoolBase& operator=(ZListMemoryPoolBase&&) = delete;
+
     /*
         Called when the memory pool runs out. It aoto extends the memory pool.
     */

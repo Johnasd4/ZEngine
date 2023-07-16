@@ -116,6 +116,13 @@ private:
         ZArray<ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>, kMemoryPieceTypeNum>* array_ptr) noexcept;
 
     FORCEINLINE ZSmallMemoryPieceListMemoryPool() : SuperType() {}
+
+    ZSmallMemoryPieceListMemoryPool(const ZSmallMemoryPieceListMemoryPool&) = delete;
+    ZSmallMemoryPieceListMemoryPool(ZSmallMemoryPieceListMemoryPool&&) = delete;
+
+    ZSmallMemoryPieceListMemoryPool& operator=(const ZSmallMemoryPieceListMemoryPool&) = delete;
+    ZSmallMemoryPieceListMemoryPool& operator=(ZSmallMemoryPieceListMemoryPool&&) = delete;
+
     ~ZSmallMemoryPieceListMemoryPool() noexcept;
 
     FORCEINLINE Void Initialize(const MemoryType memory_piece_size, const MemoryType memory_piece_memory_size, 

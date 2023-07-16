@@ -3,6 +3,9 @@
 
 #include "internal/drive.h"
 
+#include "m_error_message.h"
+#include "z_object.h"
+
 namespace zengine {
 
 namespace internal {
@@ -15,7 +18,7 @@ concept kIsLookupTableInitFunction = requires(LookupTableType * lookup_table, Fu
 }//internal
 
 template<typename ObjectType, IndexType kTableSize>
-class ZLookupTable {
+class ZLookupTable : public ZObject {
 public:
     /*
         The work is done at compile time.
@@ -40,7 +43,7 @@ public:
     template<typename InitFunction, typename... ArgsType>
     requires internal::kIsLookupTableInitFunction<ZLookupTable<ObjectType, kTableSize>,
                                                   InitFunction, ArgsType...>
-    FORCEINLINE constexpr ZLookupTable(InitFunction&& init_function, ArgsType&&... args) {
+    FORCEINLINE constexpr ZLookupTable(InitFunction&& init_function, ArgsType&&... args) : SuperType() {
         init_function(this, std::forward<ArgsType>(args)...);
     }
 
@@ -71,7 +74,17 @@ public:
         return data_[index % kTableSize];
     }
 
+protected:
+    using SuperType = ZObject;
+
 private:
+    ZLookupTable() = delete;
+    ZLookupTable(const ZLookupTable&) = delete;
+    ZLookupTable(ZLookupTable&&) = delete;
+
+    ZLookupTable& operator=(const ZLookupTable&) = delete;
+    ZLookupTable& operator=(ZLookupTable&&) = delete;
+
     ObjectType data_[kTableSize];
 };
 

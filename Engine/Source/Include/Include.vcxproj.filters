@@ -48,7 +48,13 @@
     <ClInclude Include="code\z_core\m_error_message.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\z_core\m_time_test.h">
+    <ClInclude Include="code\z_core\m_test.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_core\z_stack.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_core\z_queue.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

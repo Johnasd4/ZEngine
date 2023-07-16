@@ -17,6 +17,12 @@ public:
     FORCEINLINE Void unlock() { ReleaseMutex(handle_); }
 
 private:
+    ZMutex(const ZMutex&) = delete;
+    ZMutex(ZMutex&&) = delete;
+
+    ZMutex& operator=(const ZMutex&) = delete;
+    ZMutex& operator=(ZMutex&&) = delete;
+
     Handle handle_;
 };
 

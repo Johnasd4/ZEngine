@@ -340,7 +340,7 @@ public:
     template<typename InitFunction, typename... ArgsType>
     requires internal::kIsArrayInitFunction<ZArray<ObjectType, kCapacity, kIfUnique>, 
                                             InitFunction, ArgsType...>
-    FORCEINLINE constexpr ZArray(InitFunction&& init_function, ArgsType&&... args) :SuperType() {
+    FORCEINLINE constexpr ZArray(InitFunction&& init_function, ArgsType&&... args) : SuperType() {
         init_function(this, std::forward<ArgsType>(args)...);
     }
     FORCEINLINE ZArray(const ZArray& array);

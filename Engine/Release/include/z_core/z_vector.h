@@ -2,6 +2,8 @@
 #define Z_CORE_Z_VECTOR_H_
 
 #include "internal/drive.h"
+
+#include "m_error_message.h"
 #include "z_object.h"
 
 namespace zengine {
@@ -350,10 +352,22 @@ public:
         DEBUG(index < 0 || index >= size_, "Index out of bounds!");
         return data_ptr_[index];
     }
-    NODISCARD FORCEINLINE ObjectType& Front() { return data_ptr_[0]; }
-    NODISCARD FORCEINLINE const ObjectType& Front() const { return data_ptr_[0]; }
-    NODISCARD FORCEINLINE ObjectType& Back() { return data_ptr_[size_ - 1]; }
-    NODISCARD FORCEINLINE const ObjectType& Back() const { return data_ptr_[size_ - 1]; }
+    NODISCARD FORCEINLINE ObjectType& Front() {
+        DEBUG(size_ == 0, "No object exists!");
+        return data_ptr_[0]; 
+    }
+    NODISCARD FORCEINLINE const ObjectType& Front() const {
+        DEBUG(size_ == 0, "No object exists!");
+        return data_ptr_[0];
+    }
+    NODISCARD FORCEINLINE ObjectType& Back() {
+        DEBUG(size_ == 0, "No object exists!");
+        return data_ptr_[size_ - 1];
+    }
+    NODISCARD FORCEINLINE const ObjectType& Back() const {
+        DEBUG(size_ == 0, "No object exists!");
+        return data_ptr_[size_ - 1];
+    }
 
     NODISCARD FORCEINLINE const IndexType size() const { return size_; }
     NODISCARD FORCEINLINE const IndexType capacity() const { return capacity_; }
@@ -388,9 +402,10 @@ public:
         Resize the vector, If the given size is smaller then the current size,
         the function will cut remove the extra objects. If the given size is
         bigger then the current size, the function will fill the extra size with
-        the given object type.
+        the object constructed by the arguements.
     */
-    Void Resize(const IndexType size, const ObjectType& object) noexcept;
+    template<typename... ArgsType>
+    Void Resize(const IndexType size, ArgsType&&... args) noexcept;
 
     /*
         Will extend the capacity by the given capacity, if the smaller then the
@@ -403,6 +418,10 @@ public:
         Remove the last object of the vector.
     */
     Void PopBack() noexcept;
+    /*
+        Remove the last object of the vector. Give the authority to the given address.
+    */
+    Void PopBack(ObjectType* object_ptr) noexcept;
 
     /*
         Create an object at the end of the vector by calling the constructor with
@@ -689,8 +708,15 @@ public:
 
 protected:
     using SuperType = ZObject;
+
 private:
     /*
+    * 
+    * 
+    * 
+    * 
+    * 
+    * 
         Creates the capacity by the given capacity, the final capacity might
         not equal the given capacity.
     */
@@ -943,13 +969,14 @@ Void ZVector<ObjectType, kIfUnique>::Resize(const IndexType size) noexcept {
 }
 
 template<typename ObjectType, Bool kIfUnique>
-Void ZVector<ObjectType, kIfUnique>::Resize(const IndexType size, const ObjectType& object) noexcept {
+template<typename... ArgsType>
+Void ZVector<ObjectType, kIfUnique>::Resize(const IndexType size, ArgsType&&... args) noexcept {
     DEBUG(size < 0, "Negaive size is not valid!");
     if (size_ < size) {
         if (size > capacity_) {
             ExtendContainer(size);
         }
-        CreateObjects(data_ptr_ + size_, size - size_, object);
+        CreateObjects(data_ptr_ + size_, size - size_, std::forward<ArgsType>(args)...);
     }
     else {
         DestroyObjects(data_ptr_ + size, data_ptr_ + size_);
@@ -969,6 +996,13 @@ Void ZVector<ObjectType, kIfUnique>::PopBack() noexcept {
     DEBUG(size_ == 0, "No existing object to pop!");
     --size_;
     DestroyObject(size_);
+}
+
+template<typename ObjectType, Bool kIfUnique>
+Void ZVector<ObjectType, kIfUnique>::PopBack(ObjectType* object_ptr) noexcept {
+    DEBUG(size_ == 0, "No existing object to pop!");
+    --size_;
+    *object_ptr = std::move(data_ptr_[size_]);
 }
 
 template<typename ObjectType, Bool kIfUnique>

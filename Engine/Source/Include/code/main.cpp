@@ -6,6 +6,8 @@ using namespace std;
 
 #include <iomanip>
 #include <vector>
+#include <queue>
+
 #include "z_core/z_vector.h"
 
 constexpr auto init_function = [](ZArray<Int32, 10>* array_ptr) {
@@ -14,6 +16,7 @@ constexpr auto init_function = [](ZArray<Int32, 10>* array_ptr) {
     }
 };
 int main(){
+    queue<Int32> a;
     cout << (-4) % 3;
     ZArray<Int32, 19> test_1;
     ZArray<Int32, 19> test_2(test_1);

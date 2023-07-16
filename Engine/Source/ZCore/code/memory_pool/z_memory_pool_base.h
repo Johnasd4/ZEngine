@@ -25,9 +25,16 @@ public:
 
 protected:
     FORCEINLINE ZMemoryPoolBase() {}
+
     FORCEINLINE Void Initialize(const MemoryPoolType memory_pool_type) { memory_pool_type_ = memory_pool_type; }
 
 private:
+    ZMemoryPoolBase(const ZMemoryPoolBase&) = delete;
+    ZMemoryPoolBase(ZMemoryPoolBase&&) = delete;
+
+    ZMemoryPoolBase& operator=(const ZMemoryPoolBase&) = delete;
+    ZMemoryPoolBase& operator=(ZMemoryPoolBase&&) = delete;
+
     MemoryPoolType memory_pool_type_;
 };
 

@@ -3,17 +3,29 @@
 
 #include "internal/drive.h"
 
+#include "m_error_message.h"
+#include "z_object.h"
+
 namespace zengine {
 
+namespace internal {
+
+template<typename LookupTableType, typename Function, typename... ArgsType>
+concept kIsLookupTableInitFunction = requires(LookupTableType * lookup_table, Function function, ArgsType&&... args) {
+    function(lookup_table, std::forward<ArgsType>(args)...);
+};
+
+}//internal
+
 template<typename ObjectType, IndexType kTableSize>
-class ZLookupTable {
+class ZLookupTable : public ZObject {
 public:
     /*
         The work is done at compile time.
         Tne first parameter is added to the index when using the table.
         Tne second parameter is distance between the table values.
         The Constructor's third parameter is the initial funtion of the table.
-        The first parameter of the initial funtion must be ZFixedArray*.
+        The first parameter of the initial funtion must be ZLookupTable*.
         Constructor Template Parameters:
         - InitFunction: The function type that initial the array.
         - ArgsType...: The parameters type.
@@ -29,7 +41,9 @@ public:
         constexpr ZLookupTable<Int32, 10, true> test(init_function);
     */
     template<typename InitFunction, typename... ArgsType>
-    FORCEINLINE constexpr ZLookupTable(InitFunction&& init_function, ArgsType&&... args) {
+    requires internal::kIsLookupTableInitFunction<ZLookupTable<ObjectType, kTableSize>,
+                                                  InitFunction, ArgsType...>
+    FORCEINLINE constexpr ZLookupTable(InitFunction&& init_function, ArgsType&&... args) : SuperType() {
         init_function(this, std::forward<ArgsType>(args)...);
     }
 
@@ -56,10 +70,21 @@ public:
         Will search the table over again if the index is bigger then the table size.
     */
     NODISCARD FORCEINLINE constexpr const ObjectType& LoopAt(const IndexType index) const {
+        DEBUG(index < 0, "Index out of bounds!");
         return data_[index % kTableSize];
     }
 
+protected:
+    using SuperType = ZObject;
+
 private:
+    ZLookupTable() = delete;
+    ZLookupTable(const ZLookupTable&) = delete;
+    ZLookupTable(ZLookupTable&&) = delete;
+
+    ZLookupTable& operator=(const ZLookupTable&) = delete;
+    ZLookupTable& operator=(ZLookupTable&&) = delete;
+
     ObjectType data_[kTableSize];
 };
 
