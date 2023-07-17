@@ -77,23 +77,24 @@ public:
     Void Reserve(const IndexType capacity) noexcept;
 
     /*
-        Remove the last object of the stack.
+        Remove the object at the back of the vector.
     */
     Void PopBack() noexcept;
     /*
-        Remove the last object of the vector. Give the authority to the given address.
+        Remove the object at the back of the vector. 
+        Give the authority to the given address.
     */
     Void PopBack(ObjectType* object_ptr) noexcept;
 
     /*
-        Create an object at the end of the stack by calling the constructor with
+        Create an object at the back of the stack by calling the constructor with
         the arguements. If kIfUnique is false and no arguements, will
         only add the size of the stack.
     */
     template<typename... ArgsType>
     Void PushBack(ArgsType&&... args) noexcept;
     /*
-        Create objects at the end of the stack by calling the constructor with
+        Create objects at the back of the stack by calling the constructor with
         the arguements. If kIfUnique is false and no arguements, will
         only add the size of the stack.
     */
@@ -203,6 +204,12 @@ private:
                                                  const ObjectType* const src_end_ptr);
 
     /*
+        Initialize the memory by the given arguements([begin, end)).
+        Will call the copy constructor.
+    */
+    FORCEINLINE Void CreateAndCopyObjectsReverse(ObjectType* dst_ptr, const ObjectType* src_ptr, const IndexType num);
+
+    /*
         Copy objects by the given pointer. Will call the copy assignment operator
         if this object class's member kIfUnique is true.
     */
@@ -221,6 +228,12 @@ private:
     */
     FORCEINLINE Void CopyObjectsReverse(ObjectType* dst_ptr, const ObjectType* src_begin_ptr,
                                         const ObjectType* const src_end_ptr);
+
+    /*
+        Copy objects by the given pointer. Will call the copy assignment operator
+        if this object class's member kIfUnique is true.
+    */
+    FORCEINLINE Void CopyObjectsReverse(ObjectType* dst_ptr, const ObjectType* src_ptr, const IndexType num);
 
     /*
         Destroy the objects by the given arguements([begin, end)). 
@@ -469,8 +482,7 @@ FORCEINLINE Void ZStack<ObjectType, kIfUnique>::MoveDestroy() {
 
 template<typename ObjectType, Bool kIfUnique>
 template<typename... ArgsType>
-FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CreateObject(const IndexType index, 
-                                                                               ArgsType&&... args) {
+FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CreateObject(const IndexType index, ArgsType&&... args) {
     if constexpr (sizeof...(args) == 0) {
         if constexpr (kIfUnique) {
             new(reinterpret_cast<Void*>(&(data_ptr_[index]))) ObjectType();
@@ -483,8 +495,7 @@ FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CreateObject(const IndexType ind
 
 template<typename ObjectType, Bool kIfUnique>
 template<typename... ArgsType>
-FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CreateObject(ObjectType* const object_ptr,
-                                                                        ArgsType&&... args) {
+FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CreateObject(ObjectType* const object_ptr, ArgsType&&... args) {
     if constexpr (sizeof...(args) == 0) {
         if constexpr (kIfUnique) {
             new(reinterpret_cast<Void*>(object_ptr)) ObjectType();
@@ -511,9 +522,8 @@ FORCEINLINE Void ZStack<ObjectType, kIfUnique>::DestroyObject(ObjectType* const 
 
 template<typename ObjectType, Bool kIfUnique>
 template<typename... ArgsType>
-FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CreateObjects(ObjectType* begin_ptr,
-                                                                         ObjectType* const end_ptr,
-                                                                         ArgsType&&... args) {
+FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CreateObjects(ObjectType* begin_ptr, ObjectType* const end_ptr,
+                                                              ArgsType&&... args) {
     if constexpr (kIfUnique) {
         if constexpr (sizeof...(args) == 0) {
             new(reinterpret_cast<Void*>(begin_ptr)) ObjectType[end_ptr - begin_ptr];
@@ -539,9 +549,8 @@ FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CreateObjects(ObjectType* begin_
 
 template<typename ObjectType, Bool kIfUnique>
 template<typename... ArgsType>
-FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CreateObjects(ObjectType* begin_ptr, 
-                                                                         const IndexType num,
-                                                                         ArgsType&&... args) {
+FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CreateObjects(ObjectType* begin_ptr, const IndexType num,
+                                                              ArgsType&&... args) {
     if constexpr (kIfUnique) {
         if constexpr (sizeof...(args) == 0) {
             new(reinterpret_cast<Void*>(begin_ptr)) ObjectType[num];
@@ -567,8 +576,8 @@ FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CreateObjects(ObjectType* begin_
 
 template<typename ObjectType, Bool kIfUnique>
 FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CreateAndCopyObjects(ObjectType* dst_ptr, 
-                                                                                const ObjectType* src_begin_ptr, 
-                                                                                const ObjectType* const src_end_ptr) {
+                                                                     const ObjectType* src_begin_ptr, 
+                                                                     const ObjectType* const src_end_ptr) {
     if constexpr (kIfUnique) {
         while (src_begin_ptr < src_end_ptr) {
             new(reinterpret_cast<Void*>(dst_ptr)) ObjectType(*src_begin_ptr);
@@ -584,8 +593,8 @@ FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CreateAndCopyObjects(ObjectType*
 
 template<typename ObjectType, Bool kIfUnique>
 FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CreateAndCopyObjects(ObjectType* dst_ptr,
-                                                                                const ObjectType* src_ptr,
-                                                                                const IndexType num) {
+                                                                     const ObjectType* src_ptr,
+                                                                     const IndexType num) {
     if constexpr (kIfUnique) {
         ObjectType* const end_ptr = dst_ptr + num;
         while (dst_ptr < end_ptr) {
@@ -611,9 +620,20 @@ FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CreateAndCopyObjectsReverse(
 }
 
 template<typename ObjectType, Bool kIfUnique>
-FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CopyObjects(ObjectType* dst_ptr, 
-                                                                       const ObjectType* src_begin_ptr,
-                                                                       const ObjectType* const src_end_ptr) {
+FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CreateAndCopyObjectsReverse(ObjectType* dst_ptr, 
+                                                                            const ObjectType* src_ptr, 
+                                                                            const IndexType num) {
+    ObjectType* const end_ptr = dst_ptr + num;
+    while (dst_ptr > end_ptr) {
+        new(reinterpret_cast<Void*>(dst_ptr)) ObjectType(*src_ptr);
+        ++dst_ptr;
+        --src_ptr;
+    }
+}
+
+template<typename ObjectType, Bool kIfUnique>
+FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CopyObjects(ObjectType* dst_ptr, const ObjectType* src_begin_ptr,
+                                                            const ObjectType* const src_end_ptr) {
     IndexType num = src_end_ptr - src_begin_ptr;
     if constexpr (kIfUnique) {
         if (size_ < num) {
@@ -642,7 +662,7 @@ FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CopyObjects(ObjectType* dst_ptr,
 
 template<typename ObjectType, Bool kIfUnique>
 FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CopyObjects(ObjectType* dst_ptr, const ObjectType* src_ptr,
-                                                                       const IndexType num) {
+                                                            const IndexType num) {
     if constexpr (kIfUnique) {
         ObjectType* end_ptr;
         if (size_ < num) {
@@ -673,8 +693,8 @@ FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CopyObjects(ObjectType* dst_ptr,
 
 template<typename ObjectType, Bool kIfUnique>
 FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CopyObjectsReverse(ObjectType* dst_ptr,
-                                                                              const ObjectType* src_begin_ptr,
-                                                                              const ObjectType* const src_end_ptr) {
+                                                                   const ObjectType* src_begin_ptr,
+                                                                   const ObjectType* const src_end_ptr) {
     IndexType num = static_cast<IndexType>(src_begin_ptr - src_end_ptr);
     if (size_ < num) {
         const ObjectType* end_ptr = src_begin_ptr - size_;
@@ -693,12 +713,34 @@ FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CopyObjectsReverse(ObjectType* d
         }
         DestroyObjects(dst_ptr, dst_ptr + (size_ - num));
     }
-
 }
 
 template<typename ObjectType, Bool kIfUnique>
-FORCEINLINE Void ZStack<ObjectType, kIfUnique>::DestroyObjects(ObjectType* begin_ptr, 
-                                                                          ObjectType* const end_ptr) {
+FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CopyObjectsReverse(ObjectType* dst_ptr, const ObjectType* src_ptr, 
+                                                                   const IndexType num) {
+    const ObjectType* src_end_ptr = src_ptr - num;
+    if (size_ < num) {
+        const ObjectType* end_ptr = src_ptr - size_;
+        while (src_ptr > end_ptr) {
+            *dst_ptr = *src_ptr;
+            ++dst_ptr;
+            --src_ptr;
+        }
+        CreateAndCopyObjectsReverse(dst_ptr, src_ptr, src_end_ptr);
+    }
+    else {
+        while (src_ptr > src_end_ptr) {
+            *dst_ptr = *src_ptr;
+            ++dst_ptr;
+            --src_ptr;
+        }
+        DestroyObjects(dst_ptr, dst_ptr + (size_ - num));
+    }
+}
+
+
+template<typename ObjectType, Bool kIfUnique>
+FORCEINLINE Void ZStack<ObjectType, kIfUnique>::DestroyObjects(ObjectType* begin_ptr, ObjectType* const end_ptr) {
     if constexpr (kIfUnique) {
         while (begin_ptr < end_ptr) {
             begin_ptr->~ObjectType();
@@ -708,8 +750,7 @@ FORCEINLINE Void ZStack<ObjectType, kIfUnique>::DestroyObjects(ObjectType* begin
 }
 
 template<typename ObjectType, Bool kIfUnique>
-FORCEINLINE Void ZStack<ObjectType, kIfUnique>::DestroyObjects(ObjectType* begin_ptr, 
-                                                                          const IndexType num) {
+FORCEINLINE Void ZStack<ObjectType, kIfUnique>::DestroyObjects(ObjectType* begin_ptr, const IndexType num) {
     if constexpr (kIfUnique) {
         ObjectType* end_ptr = begin_ptr + num;
         while (begin_ptr < end_ptr) {

@@ -1,67 +1,60 @@
-#ifndef Z_CORE_Z_STACK_H_
-#define Z_CORE_Z_STACK_H_
+#ifndef Z_CORE_Z_DEQUE_H_
+#define Z_CORE_Z_DEQUE_H_
 
 #include "internal/drive.h"
+
 #include "m_error_message.h"
 #include "z_object.h"
 
 namespace zengine {
 
 /*
-    Stack caintainer.
+    Double end queue caintainer.
     If kIfUnique is true, will call the constuctor when the object is created.
 */
 template<typename ObjectType, Bool kIfUnique = kIsClass<ObjectType>>
-class ZStack : public ZObject {
+class ZDeque : public ZObject {
 private:
     static constexpr Float32 kAutoExtendMulFactor = 1.5F;
 
 public:
-    ZStack() noexcept;
-    ZStack(const IndexType capacity) noexcept;
+    ZDeque() noexcept;
+    ZDeque(const IndexType capacity) noexcept;
     /*
         Fills the container by the object constructed by the arguements.
     */
     template<typename... ArgsType>
-    ZStack(const IndexType capacity, ArgsType&&... args) noexcept;    
-    ZStack(const ZStack& stack) noexcept;
-    ZStack(ZStack&& stack) noexcept;
+    ZDeque(const IndexType capacity, ArgsType&&... args) noexcept;    
+    ZDeque(const ZDeque& queue) noexcept;
+    ZDeque(ZDeque&& queue) noexcept;
 
-    ZStack& operator=(const ZStack& stack) noexcept;
-    ZStack& operator=(ZStack&& stack) noexcept;
+    ZDeque& operator=(const ZDeque& queue) noexcept;
+    ZDeque& operator=(ZDeque&& queue) noexcept;
 
-    NODISCARD FORCEINLINE const Bool operator==(const ZStack& stack) noexcept { 
-        return data_ptr_ == stack.data_ptr_; 
-    }    
-    NODISCARD FORCEINLINE const Bool operator!=(const ZStack& stack) noexcept { 
-        return data_ptr_ != stack.data_ptr_; 
-    }
+    NODISCARD FORCEINLINE const Bool operator==(const ZDeque& queue) noexcept;
+    NODISCARD FORCEINLINE const Bool operator!=(const ZDeque& queue) noexcept;
 
-    ~ZStack() noexcept;
+    ~ZDeque() noexcept;
 
-    NODISCARD FORCEINLINE ObjectType& Back() {
-        DEBUG(size_ == 0, "No object exists!");
-        return data_ptr_[size_ - 1];
-    }
-    NODISCARD FORCEINLINE const ObjectType& Back() const {
-        DEBUG(size_ == 0, "No object exists!");
-        return data_ptr_[size_ - 1];
-    }
+    NODISCARD FORCEINLINE ObjectType& Front();
+    NODISCARD FORCEINLINE const ObjectType& Front() const;
+    NODISCARD FORCEINLINE ObjectType& Back();
+    NODISCARD FORCEINLINE const ObjectType& Back() const;
 
     NODISCARD FORCEINLINE const IndexType size() const { return size_; }
     NODISCARD FORCEINLINE const IndexType capacity() const { return capacity_; }
 
-    NODISCARD FORCEINLINE const Bool IsEmpty() { return size_ == 0; }
+    NODISCARD FORCEINLINE const Bool IsEmpty();
 
     /*
-        Resize the stack, If the given size is smaller then the current size,
+        Resize the queue, If the given size is smaller then the current size,
         the function will cut remove the extra objects. If the given size is
         bigger then the current size, the function will fill the extra size with
         the default value of ObjectType.
     */
     Void Resize(const IndexType size) noexcept;
     /*
-        Resize the vector, If the given size is smaller then the current size,
+        Resize the queue, If the given size is smaller then the current size,
         the function will cut remove the extra objects. If the given size is
         bigger then the current size, the function will fill the extra size with
         the object constructed by the arguements.
@@ -77,57 +70,60 @@ public:
     Void Reserve(const IndexType capacity) noexcept;
 
     /*
-        Remove the last object of the stack.
+        Remove the first object of the queue.
     */
-    Void PopBack() noexcept;
+    Void PopFront() noexcept;
     /*
-        Remove the last object of the vector. Give the authority to the given address.
+        Remove the first object of the queue. Give the authority to the given address.
     */
-    Void PopBack(ObjectType* object_ptr) noexcept;
+    Void PopFront(ObjectType* object_ptr) noexcept;
 
     /*
-        Create an object at the end of the stack by calling the constructor with
+        Create an object at the end of the queue by calling the constructor with
         the arguements. If kIfUnique is false and no arguements, will
-        only add the size of the stack.
+        only add the size of the queue.
     */
     template<typename... ArgsType>
     Void PushBack(ArgsType&&... args) noexcept;
     /*
-        Create objects at the end of the stack by calling the constructor with
+        Create objects at the end of the queue by calling the constructor with
         the arguements. If kIfUnique is false and no arguements, will
-        only add the size of the stack.
+        only add the size of the queue.
     */
     template<typename... ArgsType>
     Void PushBacks(const IndexType num, ArgsType&&... args) noexcept;
 
     /*
-        Calls the constructor with the arguements.
-    */
-    template<typename... ArgsType>
-    Void EmplaceBack(ArgsType&&... args) noexcept;
-
-    /*
-        Construct the stack by filling it with the given amount of objects.
+        Construct the queue by filling it with the given amount of objects.
         The object is constructed by the arguements.
         If kIfUnique is false and no arguements, will only add the 
-        size of the stack.
+        size of the queue.
     */
     template<typename... ArgsType>
     Void Assign(const IndexType num, ArgsType&&... args) noexcept;
 
     /*
-        Destroys all the objects in the stack, does not release the memory.
+        Destroys all the objects in the queue, does not release the memory.
     */
     Void Clear() noexcept;
     /*
-        Destroys all the objects in the stack, release the memory.
+        Destroys all the objects in the queue, release the memory.
     */
     Void Destroy() noexcept;
 
 protected:
     using SuperType = ZObject;
 
-private:
+private:    
+    struct DataNode {
+    public:
+        ObjectType* data_ptr;
+        DataNode* next_node;
+        DataNode* previous_node;
+        IndexType capacity;
+        IndexType size;
+    };
+
     /*
         Creates the capacity by the given capacity, the final capacity might
         not equal the given capacity.
@@ -246,22 +242,29 @@ private:
     */
     FORCEINLINE Void DestroyObjects(ObjectType* begin_ptr, const IndexType num);
 
-    ObjectType* data_ptr_;
+    DataNode* front_node_ptr_;
+    DataNode* back_node_ptr_;
+    IndexType front_index_;
+    IndexType back_index_;
     IndexType capacity_;
     IndexType size_;
 };
 
 template<typename ObjectType, Bool kIfUnique>
-ZStack<ObjectType, kIfUnique>::ZStack() noexcept
+ZDeque<ObjectType, kIfUnique>::ZDeque() noexcept
     : SuperType()
     , data_ptr_(nullptr)
+    , front_ptr_(nullptr)
+    , back_ptr_(nullptr)
     , capacity_(0)
     , size_(0)
 {}
 
 template<typename ObjectType, Bool kIfUnique>
-ZStack<ObjectType, kIfUnique>::ZStack(const IndexType capacity) noexcept
+ZDeque<ObjectType, kIfUnique>::ZDeque(const IndexType capacity) noexcept
     : SuperType()
+    , front_ptr_(nullptr)
+    , back_ptr_(nullptr)
 {
     DEBUG(capacity < 0, "Negaive capacity not valid!");
     CreateContainer(capacity);
@@ -270,67 +273,77 @@ ZStack<ObjectType, kIfUnique>::ZStack(const IndexType capacity) noexcept
 
 template<typename ObjectType, Bool kIfUnique>
 template<typename... ArgsType>
-ZStack<ObjectType, kIfUnique>::ZStack(const IndexType capacity, ArgsType&&... args) noexcept
+ZDeque<ObjectType, kIfUnique>::ZDeque(const IndexType capacity, ArgsType&&... args) noexcept
     : SuperType() 
 {
     DEBUG(capacity < 0, "Negaive capacity not valid!");
     CreateContainer(capacity);
     CreateObjects(data_ptr_, capacity, std::forward<ArgsType>(args)...);
     size_ = capacity;
+    front_ptr_ = data_ptr_;
+    back_ptr_ = data_ptr_ + size_ - 1;
 }
 
 template<typename ObjectType, Bool kIfUnique>
-ZStack<ObjectType, kIfUnique>::ZStack(const ZStack& stack) noexcept 
+ZDeque<ObjectType, kIfUnique>::ZDeque(const ZDeque& queue) noexcept 
     : SuperType()
 {
-    CreateContainer(stack.size_);
-    CreateAndCopyObjects(data_ptr_, stack.data_ptr_, stack.size_);
-    size_ = stack.size_;
+    CreateContainer(queue.size_);
+    CreateAndCopyObjects(data_ptr_, queue.data_ptr_, queue.size_);
+    size_ = queue.size_;
+    front_ptr_ = data_ptr_;
+    back_ptr_ = data_ptr_ + size_ - 1;
 } 
 
 template<typename ObjectType, Bool kIfUnique>
-ZStack<ObjectType, kIfUnique>::ZStack(ZStack&& stack) noexcept 
+ZDeque<ObjectType, kIfUnique>::ZDeque(ZDeque&& queue) noexcept 
     : SuperType()
-    , data_ptr_(stack.data_ptr_)
-    , capacity_(stack.capacity_)
-    , size_(stack.size_)
+    , data_ptr_(queue.data_ptr_)
+    , capacity_(queue.capacity_)
+    , front_ptr_(queue.front_ptr_)
+    , back_ptr_(queue.back_ptr_)
+    , size_(queue.size_)
 {
-    stack.MoveDestroy();
+    queue.MoveDestroy();
 }
 
 template<typename ObjectType, Bool kIfUnique>
-ZStack<ObjectType, kIfUnique>& ZStack<ObjectType, kIfUnique>::operator=(
-        const ZStack& stack) noexcept {
-    DEBUG(&stack == this, "The source and the target of the copy is the same!");
-    SuperType::operator=(stack);
-    if (stack.size_ > capacity_) {
-        ExtendContainer(stack.size_);
+ZDeque<ObjectType, kIfUnique>& ZDeque<ObjectType, kIfUnique>::operator=(
+        const ZDeque& queue) noexcept {
+    DEBUG(&queue == this, "The source and the target of the copy is the same!");
+    SuperType::operator=(queue);
+    if (queue.size_ > capacity_) {
+        ExtendContainer(queue.size_);
     }
-    CopyObjects(data_ptr_, stack.data_ptr_, stack.size_);
-    size_ = stack.size_;
+    CopyObjects(data_ptr_, vector.data_ptr_, vector.size_);
+    size_ = queue.size_;
+    front_ptr_ = data_ptr_;
+    back_ptr_ = data_ptr_ + size_ - 1;
     return *this;
 }
 
 template<typename ObjectType, Bool kIfUnique>
-ZStack<ObjectType, kIfUnique>& ZStack<ObjectType, kIfUnique>::operator=(
-        ZStack&& stack) noexcept {
-    DEBUG(&stack == this, "The source and the target of the copy is the same!");
-    SuperType::operator=(std::forward<ZStack>(stack));
+ZDeque<ObjectType, kIfUnique>& ZDeque<ObjectType, kIfUnique>::operator=(
+        ZDeque&& queue) noexcept {
+    DEBUG(&queue == this, "The source and the target of the copy is the same!");
+    SuperType::operator=(std::forward<ZDeque>(queue));
     DestroyObjects(data_ptr_, size_);
-    data_ptr_ = stack.data_ptr_;
-    size_ = stack.size_;
-    capacity_ = stack.capacity_;
-    stack.MoveDestroy();
+    data_ptr_ = queue.data_ptr_;
+    front_ptr_ = queue.front_ptr_;
+    back_ptr_ = queue.back_ptr_;
+    size_ = queue.size_;
+    capacity_ = queue.capacity_;
+    queue.MoveDestroy();
     return *this;
 }
 
 template<typename ObjectType, Bool kIfUnique>
-ZStack<ObjectType, kIfUnique>::~ZStack() noexcept {
+ZDeque<ObjectType, kIfUnique>::~ZDeque() noexcept {
     DestroyContainer();
 }
 
 template<typename ObjectType, Bool kIfUnique>
-Void ZStack<ObjectType, kIfUnique>::Resize(const IndexType size) noexcept {
+Void ZDeque<ObjectType, kIfUnique>::Resize(const IndexType size) noexcept {
     DEBUG(size < 0, "Negaive size is not valid!");
     if (size_ < size) {
         if (size > capacity_) {
@@ -346,7 +359,7 @@ Void ZStack<ObjectType, kIfUnique>::Resize(const IndexType size) noexcept {
 
 template<typename ObjectType, Bool kIfUnique>
 template<typename... ArgsType>
-Void ZStack<ObjectType, kIfUnique>::Resize(const IndexType size, ArgsType&&... args) noexcept {
+Void ZDeque<ObjectType, kIfUnique>::Resize(const IndexType size, ArgsType&&... args) noexcept {
     DEBUG(size < 0, "Negaive size is not valid!");
     if (size_ < size) {
         if (size > capacity_) {
@@ -361,21 +374,21 @@ Void ZStack<ObjectType, kIfUnique>::Resize(const IndexType size, ArgsType&&... a
 }
 
 template<typename ObjectType, Bool kIfUnique>
-Void ZStack<ObjectType, kIfUnique>::Reserve(const IndexType capacity) noexcept {
+Void ZDeque<ObjectType, kIfUnique>::Reserve(const IndexType capacity) noexcept {
     if (capacity > capacity_) {
         ExtendContainer(capacity);
     }
 }
 
 template<typename ObjectType, Bool kIfUnique>
-Void ZStack<ObjectType, kIfUnique>::PopBack() noexcept {
+Void ZDeque<ObjectType, kIfUnique>::PopFront() noexcept {
     DEBUG(size_ == 0, "No existing object to pop!");
     --size_;
     DestroyObject(size_);
 }
 
 template<typename ObjectType, Bool kIfUnique>
-Void ZStack<ObjectType, kIfUnique>::PopBack(ObjectType* object_ptr) noexcept {
+Void ZDeque<ObjectType, kIfUnique>::PopFront(ObjectType* object_ptr) noexcept {
     DEBUG(size_ == 0, "No existing object to pop!");
     --size_;
     *object_ptr = std::move(data_ptr_[size_]);
@@ -383,7 +396,7 @@ Void ZStack<ObjectType, kIfUnique>::PopBack(ObjectType* object_ptr) noexcept {
 
 template<typename ObjectType, Bool kIfUnique>
 template<typename... ArgsType>
-Void ZStack<ObjectType, kIfUnique>::PushBack(ArgsType&&... args) noexcept {
+Void ZDeque<ObjectType, kIfUnique>::PushBack(ArgsType&&... args) noexcept {
     IndexType new_size = size_ + 1;
     if (new_size > capacity_) {
         ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
@@ -394,7 +407,7 @@ Void ZStack<ObjectType, kIfUnique>::PushBack(ArgsType&&... args) noexcept {
 
 template<typename ObjectType, Bool kIfUnique>
 template<typename... ArgsType>
-Void ZStack<ObjectType, kIfUnique>::PushBacks(const IndexType num, ArgsType&&... args) noexcept {
+Void ZDeque<ObjectType, kIfUnique>::PushBacks(const IndexType num, ArgsType&&... args) noexcept {
     DEBUG(num < 0, "Negative pushing num not valid!");
     IndexType new_size = size_ + num;
     if (new_size > capacity_) {
@@ -406,15 +419,7 @@ Void ZStack<ObjectType, kIfUnique>::PushBacks(const IndexType num, ArgsType&&...
 
 template<typename ObjectType, Bool kIfUnique>
 template<typename... ArgsType>
-Void ZStack<ObjectType, kIfUnique>::EmplaceBack(ArgsType&&... args) noexcept {
-    DEBUG(size_ == 0, "No existing object to emplace!");
-    DestroyObject(size_ - 1);
-    CreateObject(size_ - 1, std::forward<ArgsType>(args)...);
-}
-
-template<typename ObjectType, Bool kIfUnique>
-template<typename... ArgsType>
-Void ZStack<ObjectType, kIfUnique>::Assign(const IndexType num, ArgsType&&... args) noexcept {
+Void ZDeque<ObjectType, kIfUnique>::Assign(const IndexType num, ArgsType&&... args) noexcept {
     IndexType new_size = num;
     DEBUG(num < 0, "Negative assign num not valid!");
     if (new_size > capacity_) {
@@ -426,18 +431,18 @@ Void ZStack<ObjectType, kIfUnique>::Assign(const IndexType num, ArgsType&&... ar
 }
 
 template<typename ObjectType, Bool kIfUnique>
-Void ZStack<ObjectType, kIfUnique>::Clear() noexcept {
+Void ZDeque<ObjectType, kIfUnique>::Clear() noexcept {
     DestroyObjects(data_ptr_, data_ptr_ + size_);
     size_ = 0;
 }
 
 template<typename ObjectType, Bool kIfUnique>
-Void ZStack<ObjectType, kIfUnique>::Destroy() noexcept {
+Void ZDeque<ObjectType, kIfUnique>::Destroy() noexcept {
     DestroyContainer();
 }
 
 template<typename ObjectType, Bool kIfUnique>
-FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CreateContainer(const IndexType capacity) noexcept {
+FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::CreateContainer(const IndexType capacity) noexcept {
     DEBUG(capacity < 0, "Negaive capacity not valid!");
     MemoryType need_memory_size = capacity * sizeof(ObjectType);
     MemoryType apply_mrmory_size;
@@ -446,7 +451,7 @@ FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CreateContainer(const IndexType 
 }
 
 template<typename ObjectType, Bool kIfUnique>
-Void ZStack<ObjectType, kIfUnique>::ExtendContainer(const IndexType capacity) noexcept {
+Void ZDeque<ObjectType, kIfUnique>::ExtendContainer(const IndexType capacity) noexcept {
     DEBUG(capacity < 0, "Negaive capacity not valid!");
     MemoryType current_memory_size = capacity_ * sizeof(ObjectType);
     MemoryType need_memory_size = capacity * sizeof(ObjectType);
@@ -455,33 +460,69 @@ Void ZStack<ObjectType, kIfUnique>::ExtendContainer(const IndexType capacity) no
     if (!memory_pool::CheckMemory(reinterpret_cast<Void*>(data_ptr_), need_memory_size, &apply_mrmory_size)) {
         ObjectType* temp_data_ptr = 
             reinterpret_cast<ObjectType*>(memory_pool::ApplyMemory(need_memory_size, &apply_mrmory_size));
-        memcpy(reinterpret_cast<Void*>(temp_data_ptr), reinterpret_cast<Void*>(data_ptr_),
-               size_ * sizeof(ObjectType));
+        //Needs to split the copy into two times.
+        if (front_ptr_ > back_ptr_) {
+            IndexType part_1_num = capacity_ - static_cast<IndexType>(front_ptr_ - data_ptr_);
+            memcpy(reinterpret_cast<Void*>(temp_data_ptr), reinterpret_cast<Void*>(front_ptr_),
+                part_1_num * sizeof(ObjectType));
+            memcpy(reinterpret_cast<Void*>(temp_data_ptr + part_1_num), reinterpret_cast<Void*>(data_ptr_),
+                (size_ - part_1_num) * sizeof(ObjectType));
+        }
+        else {
+            memcpy(reinterpret_cast<Void*>(temp_data_ptr), reinterpret_cast<Void*>(front_ptr_),
+                size_ * sizeof(ObjectType));
+        }
         memory_pool::ReleaseMemory(reinterpret_cast<Void*>(data_ptr_));
         data_ptr_ = temp_data_ptr;
+        front_ptr_ = data_ptr_;
+        back_ptr_ = data_ptr_ + size_;
     }
-    capacity_ = apply_mrmory_size / sizeof(ObjectType);  
+    else {
+        //Needs to move the objects from the front to the back.
+        if (front_ptr_ > back_ptr_) {
+            IndexType part_2_num = size_ - capacity_ + static_cast<IndexType>(front_ptr_ - data_ptr_);
+            IndexType temp_capacity = apply_mrmory_size / sizeof(ObjectType);
+            IndexType addition_capacity = temp_capacity - capacity_;
+            if (addition_capacity < part_2_num) {
+                memcpy(reinterpret_cast<Void*>(data_ptr_ + size_), reinterpret_cast<Void*>(data_ptr_),
+                    addition_capacity * sizeof(ObjectType));
+                memmove(reinterpret_cast<Void*>(data_ptr_ + addition_capacity), reinterpret_cast<Void*>(data_ptr_),
+                    (part_2_num - addition_capacity) * sizeof(ObjectType));
+                back_ptr_ = back_ptr_ - addition_capacity;
+            }
+            else {
+                memcpy(reinterpret_cast<Void*>(data_ptr_ + size_), reinterpret_cast<Void*>(data_ptr_),
+                    part_2_num * sizeof(ObjectType));
+                back_ptr_ = front_ptr_ + size_;
+            }
+        }
+    }
+    capacity_ = apply_mrmory_size / sizeof(ObjectType);
 }
 
 template<typename ObjectType, Bool kIfUnique>
-FORCEINLINE Void ZStack<ObjectType, kIfUnique>::DestroyContainer() noexcept {
-    DestroyObjects(data_ptr_, data_ptr_ + size_);
+FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::DestroyContainer() noexcept {
+    DestroyObjects(front_ptr_, back_ptr_ + 1);
     memory_pool::ReleaseMemory(reinterpret_cast<Void*>(data_ptr_));
     data_ptr_ = nullptr;
+    front_ptr_ = nullptr;
+    back_ptr_ = nullptr;
     capacity_ = 0;
     size_ = 0;
 }
 
 template<typename ObjectType, Bool kIfUnique>
-FORCEINLINE Void ZStack<ObjectType, kIfUnique>::MoveDestroy() {
+FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::MoveDestroy() {
     data_ptr_ = nullptr;
+    front_ptr_ = nullptr;
+    back_ptr_ = nullptr;
     size_ = 0;
     capacity_ = 0;
 }
 
 template<typename ObjectType, Bool kIfUnique>
 template<typename... ArgsType>
-FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CreateObject(const IndexType index, ArgsType&&... args) {
+FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::CreateObject(const IndexType index, ArgsType&&... args) {
     if constexpr (sizeof...(args) == 0) {
         if constexpr (kIfUnique) {
             new(reinterpret_cast<Void*>(&(data_ptr_[index]))) ObjectType();
@@ -494,7 +535,7 @@ FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CreateObject(const IndexType ind
 
 template<typename ObjectType, Bool kIfUnique>
 template<typename... ArgsType>
-FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CreateObject(ObjectType* const object_ptr, ArgsType&&... args) {
+FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::CreateObject(ObjectType* const object_ptr, ArgsType&&... args) {
     if constexpr (sizeof...(args) == 0) {
         if constexpr (kIfUnique) {
             new(reinterpret_cast<Void*>(object_ptr)) ObjectType();
@@ -506,14 +547,14 @@ FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CreateObject(ObjectType* const o
 }
 
 template<typename ObjectType, Bool kIfUnique>
-FORCEINLINE Void ZStack<ObjectType, kIfUnique>::DestroyObject(const IndexType index) {
+FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::DestroyObject(const IndexType index) {
     if constexpr (kIfUnique) {
         data_ptr_[index].~ObjectType();
     }
 }
 
 template<typename ObjectType, Bool kIfUnique>
-FORCEINLINE Void ZStack<ObjectType, kIfUnique>::DestroyObject(ObjectType* const object_ptr) {
+FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::DestroyObject(ObjectType* const object_ptr) {
     if constexpr (kIfUnique) {
         (*object_ptr).~ObjectType();
     }
@@ -521,7 +562,7 @@ FORCEINLINE Void ZStack<ObjectType, kIfUnique>::DestroyObject(ObjectType* const 
 
 template<typename ObjectType, Bool kIfUnique>
 template<typename... ArgsType>
-FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CreateObjects(ObjectType* begin_ptr, ObjectType* const end_ptr,
+FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::CreateObjects(ObjectType* begin_ptr, ObjectType* const end_ptr,
                                                               ArgsType&&... args) {
     if constexpr (kIfUnique) {
         if constexpr (sizeof...(args) == 0) {
@@ -548,7 +589,7 @@ FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CreateObjects(ObjectType* begin_
 
 template<typename ObjectType, Bool kIfUnique>
 template<typename... ArgsType>
-FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CreateObjects(ObjectType* begin_ptr, const IndexType num,
+FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::CreateObjects(ObjectType* begin_ptr, const IndexType num,
                                                               ArgsType&&... args) {
     if constexpr (kIfUnique) {
         if constexpr (sizeof...(args) == 0) {
@@ -574,7 +615,7 @@ FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CreateObjects(ObjectType* begin_
 }
 
 template<typename ObjectType, Bool kIfUnique>
-FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CreateAndCopyObjects(ObjectType* dst_ptr, 
+FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::CreateAndCopyObjects(ObjectType* dst_ptr, 
                                                                      const ObjectType* src_begin_ptr, 
                                                                      const ObjectType* const src_end_ptr) {
     if constexpr (kIfUnique) {
@@ -591,7 +632,7 @@ FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CreateAndCopyObjects(ObjectType*
 }
 
 template<typename ObjectType, Bool kIfUnique>
-FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CreateAndCopyObjects(ObjectType* dst_ptr,
+FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::CreateAndCopyObjects(ObjectType* dst_ptr,
                                                                      const ObjectType* src_ptr,
                                                                      const IndexType num) {
     if constexpr (kIfUnique) {
@@ -609,7 +650,7 @@ FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CreateAndCopyObjects(ObjectType*
 }
 
 template<typename ObjectType, Bool kIfUnique>
-FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CreateAndCopyObjectsReverse(
+FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::CreateAndCopyObjectsReverse(
         ObjectType* dst_ptr, const ObjectType* src_begin_ptr, const ObjectType* const src_end_ptr) {
     while (src_begin_ptr > src_end_ptr) {
         new(reinterpret_cast<Void*>(dst_ptr)) ObjectType(*src_begin_ptr);
@@ -619,7 +660,7 @@ FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CreateAndCopyObjectsReverse(
 }
 
 template<typename ObjectType, Bool kIfUnique>
-FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CreateAndCopyObjectsReverse(ObjectType* dst_ptr, 
+FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::CreateAndCopyObjectsReverse(ObjectType* dst_ptr, 
                                                                             const ObjectType* src_ptr, 
                                                                             const IndexType num) {
     ObjectType* const end_ptr = dst_ptr + num;
@@ -631,7 +672,7 @@ FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CreateAndCopyObjectsReverse(Obje
 }
 
 template<typename ObjectType, Bool kIfUnique>
-FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CopyObjects(ObjectType* dst_ptr, const ObjectType* src_begin_ptr,
+FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::CopyObjects(ObjectType* dst_ptr, const ObjectType* src_begin_ptr,
                                                             const ObjectType* const src_end_ptr) {
     IndexType num = src_end_ptr - src_begin_ptr;
     if constexpr (kIfUnique) {
@@ -660,7 +701,7 @@ FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CopyObjects(ObjectType* dst_ptr,
 }
 
 template<typename ObjectType, Bool kIfUnique>
-FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CopyObjects(ObjectType* dst_ptr, const ObjectType* src_ptr,
+FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::CopyObjects(ObjectType* dst_ptr, const ObjectType* src_ptr,
                                                             const IndexType num) {
     if constexpr (kIfUnique) {
         ObjectType* end_ptr;
@@ -691,7 +732,7 @@ FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CopyObjects(ObjectType* dst_ptr,
 }
 
 template<typename ObjectType, Bool kIfUnique>
-FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CopyObjectsReverse(ObjectType* dst_ptr,
+FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::CopyObjectsReverse(ObjectType* dst_ptr,
                                                                    const ObjectType* src_begin_ptr,
                                                                    const ObjectType* const src_end_ptr) {
     IndexType num = static_cast<IndexType>(src_begin_ptr - src_end_ptr);
@@ -715,7 +756,7 @@ FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CopyObjectsReverse(ObjectType* d
 }
 
 template<typename ObjectType, Bool kIfUnique>
-FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CopyObjectsReverse(ObjectType* dst_ptr, const ObjectType* src_ptr, 
+FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::CopyObjectsReverse(ObjectType* dst_ptr, const ObjectType* src_ptr, 
                                                                    const IndexType num) {
     const ObjectType* src_end_ptr = src_ptr - num;
     if (size_ < num) {
@@ -739,7 +780,7 @@ FORCEINLINE Void ZStack<ObjectType, kIfUnique>::CopyObjectsReverse(ObjectType* d
 
 
 template<typename ObjectType, Bool kIfUnique>
-FORCEINLINE Void ZStack<ObjectType, kIfUnique>::DestroyObjects(ObjectType* begin_ptr, ObjectType* const end_ptr) {
+FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::DestroyObjects(ObjectType* begin_ptr, ObjectType* const end_ptr) {
     if constexpr (kIfUnique) {
         while (begin_ptr < end_ptr) {
             begin_ptr->~ObjectType();
@@ -749,7 +790,7 @@ FORCEINLINE Void ZStack<ObjectType, kIfUnique>::DestroyObjects(ObjectType* begin
 }
 
 template<typename ObjectType, Bool kIfUnique>
-FORCEINLINE Void ZStack<ObjectType, kIfUnique>::DestroyObjects(ObjectType* begin_ptr, const IndexType num) {
+FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::DestroyObjects(ObjectType* begin_ptr, const IndexType num) {
     if constexpr (kIfUnique) {
         ObjectType* end_ptr = begin_ptr + num;
         while (begin_ptr < end_ptr) {
@@ -761,4 +802,5 @@ FORCEINLINE Void ZStack<ObjectType, kIfUnique>::DestroyObjects(ObjectType* begin
 
 }//zengine
 
-#endif // !Z_CORE_Z_STACK_H_
+
+#endif // !Z_CORE_Z_DEQUE_H_

@@ -36,8 +36,8 @@ class ZSmallMemoryPieceListMemoryPool :
                                kIsThreadSafe> {
 private:
     //The sizes of the memory pieces(includes the memory size).
-    static constexpr IndexType kMemoryPieceTypeNum = 10;
-    static constexpr MemoryType kMemoryPieceMinSize = 64;
+    static constexpr IndexType kMemoryPieceTypeNum = 9;
+    static constexpr MemoryType kMemoryPieceMinSize = 128;
     static constexpr MemoryType kMemoryPieceSizeMulGrowFactor = 2;
 
 public:
@@ -96,17 +96,19 @@ private:
 
     //The lookup table that links the memory size to the memory pool index.
     //mamory alignment
-    static constexpr IndexType kkMemorySize2MemoryPoolTableSize = kMemoryPieceMemoryMaxSize + 1;
+    static constexpr IndexType kkMemorySize2MemoryPoolTableSize = kMemoryPieceMaxSize / kMemoryPieceMinSize;
     static constexpr ZLookupTable<UInt8, kkMemorySize2MemoryPoolTableSize> kMemorySize2MemoryPoolTable =
         ZLookupTable<UInt8, kkMemorySize2MemoryPoolTableSize>(
             [](ZLookupTable<UInt8, kkMemorySize2MemoryPoolTableSize>* array_ptr) {
                 UInt8 current_pool_index = 0;
+                IndexType current_pool_size = 1;
                 for (IndexType index = 0; index < array_ptr->size(); ++index) {
-                    if (index <= static_cast<IndexType>(kMemoryPieceMemorySizeArray[current_pool_index])) {
+                    if (index < current_pool_size) {
                         (*array_ptr)[index] = current_pool_index;
                     }
                     else {
                         ++current_pool_index;
+                        current_pool_size *= static_cast<IndexType>(kMemoryPieceSizeMulGrowFactor);
                         (*array_ptr)[index] = current_pool_index;
                     }
                 }
@@ -140,17 +142,17 @@ template<Bool kIsThreadSafe>
 NODISCARD Void* const ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::ApplyMemory(const MemoryType size) noexcept {
     static ZArray<ZSmallMemoryPieceListMemoryPool<kIsThreadSafe> , kMemoryPieceTypeNum> memory_pool_array(
         MemoryPoolArrayInitFunction);
-
+    IndexType size_index = (size + SuperType::node_head_offset() - 1)/ kMemoryPieceMinSize;
 #ifdef USE_MEMORY_POOL_TEST
-    memory_pool_array[kMemorySize2MemoryPoolTable.At(size)].memory_piece_used_current_num_ += 1;
-    memory_pool_array[kMemorySize2MemoryPoolTable.At(size)].momory_piece_applyed_num_ += 1;
-    if (memory_pool_array[kMemorySize2MemoryPoolTable.At(size)].memory_piece_used_current_num_ > 
-        memory_pool_array[kMemorySize2MemoryPoolTable.At(size)].momory_piece_peak_num_) {
-        memory_pool_array[kMemorySize2MemoryPoolTable.At(size)].momory_piece_peak_num_ = 
-            memory_pool_array[kMemorySize2MemoryPoolTable.At(size)].memory_piece_used_current_num_;
+    memory_pool_array[kMemorySize2MemoryPoolTable.At(size_index)].memory_piece_used_current_num_ += 1;
+    memory_pool_array[kMemorySize2MemoryPoolTable.At(size_index)].momory_piece_applyed_num_ += 1;
+    if (memory_pool_array[kMemorySize2MemoryPoolTable.At(size_index)].memory_piece_used_current_num_ >
+        memory_pool_array[kMemorySize2MemoryPoolTable.At(size_index)].momory_piece_peak_num_) {
+        memory_pool_array[kMemorySize2MemoryPoolTable.At(size_index)].momory_piece_peak_num_ =
+            memory_pool_array[kMemorySize2MemoryPoolTable.At(size_index)].memory_piece_used_current_num_;
     }
 #endif //USE_MEMORY_POOL_TEST
-    return memory_pool_array[kMemorySize2MemoryPoolTable.At(size)].SuperType::ApplyMemory();
+    return memory_pool_array[kMemorySize2MemoryPoolTable.At(size_index)].SuperType::ApplyMemory();
 }
 
 template<Bool kIsThreadSafe>
@@ -158,18 +160,18 @@ NODISCARD Void* const ZSmallMemoryPieceListMemoryPool<kIsThreadSafe>::ApplyMemor
         const MemoryType size, MemoryType* const memory_size_ptr) noexcept {
     static ZArray<ZSmallMemoryPieceListMemoryPool<kIsThreadSafe> , kMemoryPieceTypeNum> memory_pool_array(
         MemoryPoolArrayInitFunction);
-
+    IndexType size_index = (size + SuperType::node_head_offset() - 1) / kMemoryPieceMinSize;
 #ifdef USE_MEMORY_POOL_TEST
-    memory_pool_array[kMemorySize2MemoryPoolTable[size]].memory_piece_used_current_num_ += 1;
-    memory_pool_array[kMemorySize2MemoryPoolTable[size]].momory_piece_applyed_num_ += 1;
-    if (memory_pool_array[kMemorySize2MemoryPoolTable[size]].memory_piece_used_current_num_ > 
-        memory_pool_array[kMemorySize2MemoryPoolTable[size]].momory_piece_peak_num_) {
-        memory_pool_array[kMemorySize2MemoryPoolTable[size]].momory_piece_peak_num_ = 
-            memory_pool_array[kMemorySize2MemoryPoolTable[size]].memory_piece_used_current_num_;
+    memory_pool_array[kMemorySize2MemoryPoolTable[size_index]].memory_piece_used_current_num_ += 1;
+    memory_pool_array[kMemorySize2MemoryPoolTable[size_index]].momory_piece_applyed_num_ += 1;
+    if (memory_pool_array[kMemorySize2MemoryPoolTable[size_index]].memory_piece_used_current_num_ >
+        memory_pool_array[kMemorySize2MemoryPoolTable[size_index]].momory_piece_peak_num_) {
+        memory_pool_array[kMemorySize2MemoryPoolTable[size_index]].momory_piece_peak_num_ =
+            memory_pool_array[kMemorySize2MemoryPoolTable[size_index]].memory_piece_used_current_num_;
     }
 #endif //USE_MEMORY_POOL_TEST
-    (*memory_size_ptr) = memory_pool_array[kMemorySize2MemoryPoolTable.At(size)].SuperType::memory_piece_memory_size();
-    return memory_pool_array[kMemorySize2MemoryPoolTable.At(size)].SuperType::ApplyMemory();
+    (*memory_size_ptr) = memory_pool_array[kMemorySize2MemoryPoolTable.At(size_index)].SuperType::memory_piece_memory_size();
+    return memory_pool_array[kMemorySize2MemoryPoolTable.At(size_index)].SuperType::ApplyMemory();
 }
 
 template<Bool kIsThreadSafe>

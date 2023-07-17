@@ -54,7 +54,7 @@
     <ClInclude Include="code\z_core\z_stack.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\z_core\z_queue.h">
+    <ClInclude Include="code\z_core\z_deque.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

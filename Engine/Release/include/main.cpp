@@ -6,6 +6,8 @@ using namespace std;
 
 #include <iomanip>
 #include <vector>
+#include <queue>
+
 #include "z_core/z_vector.h"
 
 constexpr auto init_function = [](ZArray<Int32, 10>* array_ptr) {
@@ -14,30 +16,33 @@ constexpr auto init_function = [](ZArray<Int32, 10>* array_ptr) {
     }
 };
 int main(){
-    cout << (-4) % 3;
-    ZArray<Int32, 19> test_1;
-    ZArray<Int32, 19> test_2(test_1);
+    ZVector<Int8> test_vector(49);
+    ZVector<Int8> test_vector_1(49);
+    //queue<Int32> a;
+    //cout << (-4) % 3;
+    //ZArray<Int32, 19> test_1;
+    //ZArray<Int32, 19> test_2(test_1);
 
-    ZVector<Int32> vector_1;
-    for (IndexType index = 1; index < 13; ++index) {
-        vector_1.PushBacks(-10,index);
-    }
-    ZVector<ZVector<Int32>> vector_2;
-    ZVector<ZVector<Int32>> vector_3;
-    for (IndexType index = 1; index < 13; ++index) {
-        vector_1.PushBack(index);
-        vector_2.PushBack(vector_1);
-    }
-    auto begin = vector_2.ReverseBegin();
-    auto end = vector_2.ReverseEnd();
-    vector_2.Assign(begin, end);
-    vector_3 = vector_2;
-    for (IndexType i = 0; i < vector_3.size(); ++i) {
-        for (IndexType j = 0; j < vector_3[i].size(); ++j) {
-            cout << vector_3[i][j] << " ";
-        }
-        cout << endl;
-    }
+    //ZVector<Int32> vector_1;
+    //for (IndexType index = 1; index < 13; ++index) {
+    //    vector_1.PushBacks(-10,index);
+    //}
+    //ZVector<ZVector<Int32>> vector_2;
+    //ZVector<ZVector<Int32>> vector_3;
+    //for (IndexType index = 1; index < 13; ++index) {
+    //    vector_1.PushBack(index);
+    //    vector_2.PushBack(vector_1);
+    //}
+    //auto begin = vector_2.ReverseBegin();
+    //auto end = vector_2.ReverseEnd();
+    //vector_2.Assign(begin, end);
+    //vector_3 = vector_2;
+    //for (IndexType i = 0; i < vector_3.size(); ++i) {
+    //    for (IndexType j = 0; j < vector_3[i].size(); ++j) {
+    //        cout << vector_3[i][j] << " ";
+    //    }
+    //    cout << endl;
+    //}
 
     //Int32* test_1 = new Int32[1024 * 1024 * 100];
     //Int32* test_2 = new Int32[1024 * 1024 * 100];
