@@ -11,8 +11,10 @@ namespace memory_pool {
 
 namespace internal {
 
-using SmallMemoryBlockListMemoryPool = ZSmallMemoryBlockListMemoryPool<MEMORY_POOL_THREAD_SAFE>;
 using MemoryPoolBase = ZMemoryPoolBase<MEMORY_POOL_THREAD_SAFE>;
+
+using SmallMemoryBlock = ZSmallMemoryBlock<MEMORY_POOL_THREAD_SAFE>;
+using SmallMemoryBlockListMemoryPool = ZSmallMemoryBlockListMemoryPool<MEMORY_POOL_THREAD_SAFE>;
 
 }
 
@@ -107,7 +109,7 @@ CORE_DLLAPI Void ReleaseMemory(Void* const memory_ptr) noexcept {
     }
     //Gets the memory pool's pointer that owns the memory block.
     internal::MemoryPoolBase* const owner_memory_pool_ptr =
-        reinterpret_cast<internal::SmallMemoryBlockListMemoryPool::HeadInfo*>(memory_ptr)[-1].memory_block.owner_memory_pool_ptr;
+        reinterpret_cast<internal::SmallMemoryBlock*>(memory_ptr)[-1].owner_memory_pool_ptr;
     switch (owner_memory_pool_ptr->memory_pool_type())
     {
         //small memory block

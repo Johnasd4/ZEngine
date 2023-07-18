@@ -40,13 +40,7 @@ private:
     static constexpr MemoryType kMemoryBlockMinSize = 128;
     static constexpr MemoryType kMemoryBlockSizeMulGrowFactor = 2;
 
-protected:
-    using SuperType =
-        ZListMemoryPoolBase<ZSmallMemoryBlock<kIsThreadSafe>, sizeof(ZSmallMemoryBlock<kIsThreadSafe>), kIsThreadSafe>;
-
 public:
-    using HeadInfo = SuperType::Node;
-
     NODISCARD static ZArray<ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>& Instance() noexcept {
         static ZArray<ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum> memory_pool_array(
             MemoryPoolArrayInitFunction);
@@ -71,6 +65,10 @@ public:
 
     NODISCARD static constexpr MemoryType memory_block_memory_max_size() { return kMemoryBlockMemoryMaxSize; }
     NODISCARD static constexpr IndexType memory_block_type_num() { return kMemoryBlockTypeNum; }
+
+protected:
+    using SuperType =
+        ZListMemoryPoolBase<ZSmallMemoryBlock<kIsThreadSafe>, sizeof(ZSmallMemoryBlock<kIsThreadSafe>), kIsThreadSafe>;
 
 private:
     friend class ZArray<ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>;
@@ -195,9 +193,6 @@ NODISCARD FORCEINLINE const Bool ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>:
 template<Bool kIsThreadSafe>
 NODISCARD FORCEINLINE const MemoryType ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::CalculateMemory(
         const MemoryType size) noexcept {
-    if (size == 0) {
-        return 0;
-    }
     IndexType size_index = (size + SuperType::node_head_offset() - 1) / kMemoryBlockMinSize;
     return Instance()[kMemorySize2MemoryPoolTable.At(size_index)].SuperType::memory_block_memory_size();
 }

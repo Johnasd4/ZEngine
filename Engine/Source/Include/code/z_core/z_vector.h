@@ -840,6 +840,7 @@ private:
 
     ObjectType* data_ptr_;
     IndexType capacity_;
+
     IndexType size_;
 };
 
