@@ -18,6 +18,7 @@ constexpr auto init_function = [](ZArray<Int32, 10>* array_ptr) {
 int main(){
     ZVector<Int8> test_vector(49);
     ZVector<Int8> test_vector_1(49);
+    sizeof(deque<int>);
     //queue<Int32> a;
     //cout << (-4) % 3;
     //ZArray<Int32, 19> test_1;

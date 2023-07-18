@@ -26,9 +26,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="code\memory_pool\z_small_memory_piece_list_memory_pool.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="code\memory_pool\z_memory_pool_base.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -41,7 +38,10 @@
     <ClInclude Include="code\memory_pool\z_memory_pool_thread_safe_base.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\memory_pool\z_memory_piece_base.h">
+    <ClInclude Include="code\memory_pool\z_memory_block_base.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\memory_pool\z_small_memory_block_list_memory_pool.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

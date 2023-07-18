@@ -415,6 +415,11 @@ public:
     Void Reserve(const IndexType capacity) noexcept;
 
     /*
+        Shrinks the vector to the minimum capacity that can fit the current size.
+    */
+    Void ShrinkToFit() noexcept;
+
+    /*
         Remove the object at the back of the vector.
     */
     Void PopBack() noexcept;
@@ -722,6 +727,10 @@ private:
     */
     Void ExtendContainer(const IndexType capacity) noexcept;
     /*
+        Shrinks the container to the minimum capacity that can fit the current size.
+    */
+    FORCEINLINE Void ShrinkContainer() noexcept;
+    /*
         Destroys the container.
     */
     FORCEINLINE Void DestroyContainer() noexcept;
@@ -996,6 +1005,11 @@ Void ZVector<ObjectType, kIfUnique>::Reserve(const IndexType capacity) noexcept 
     if (capacity > capacity_) {
         ExtendContainer(capacity);
     }
+}
+
+template<typename ObjectType, Bool kIfUnique>
+Void ZVector<ObjectType, kIfUnique>::ShrinkToFit() noexcept {
+    ShrinkContainer();
 }
 
 template<typename ObjectType, Bool kIfUnique>
@@ -1715,6 +1729,21 @@ Void ZVector<ObjectType, kIfUnique>::ExtendContainer(const IndexType capacity) n
         data_ptr_ = temp_data_ptr;
     }
     capacity_ = apply_mrmory_size / sizeof(ObjectType);  
+}
+
+template<typename ObjectType, Bool kIfUnique>
+FORCEINLINE Void ZVector<ObjectType, kIfUnique>::ShrinkContainer() noexcept {
+    MemoryType need_memory_size = size_ * sizeof(ObjectType);
+    MemoryType min_satisfied_memory_size = memory_pool::CalculateMemory();
+    MemoryType min_satisfied_capacity = min_satisfied_memory_size / sizeof(ObjectType);
+    if (capacity_ != min_satisfied_capacity) {
+        ObjectType* temp_data_ptr = reinterpret_cast<ObjectType*>(memory_pool::ApplyMemory(min_satisfied_memory_size));
+        memcpy(reinterpret_cast<Void*>(temp_data_ptr), reinterpret_cast<Void*>(data_ptr_),
+               size_ * sizeof(ObjectType));
+        memory_pool::ReleaseMemory(reinterpret_cast<Void*>(data_ptr_));
+        data_ptr_ = temp_data_ptr;
+        capacity_ = min_satisfied_capacity;
+    }
 }
 
 template<typename ObjectType, Bool kIfUnique>

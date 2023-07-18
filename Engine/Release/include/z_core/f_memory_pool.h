@@ -4,16 +4,16 @@
 #include "internal/drive.h"
 
 #ifdef _DEBUG
-// Shows the use of the memory pool, includes the memory piece left when the 
-// program emds, the total memory pieced appplyed and the peak situation of
+// Shows the use of the memory pool, includes the memory block left when the 
+// program emds, the total memory blocks appplyed and the peak situation of
 // the memory pool. Using this test will slightly reduce the performance of 
 // the program.
 #define USE_MEMORY_POOL_TEST true
 //Wheather the memory pool is thread safe.
 #define MEMORY_POOL_THREAD_SAFE true
 #else
-// Shows the use of the memory pool, includes the memory piece left when the 
-// program emds, the total memory pieced appplyed and the peak situation of
+// Shows the use of the memory pool, includes the memory block left when the 
+// program emds, the total memory blocks appplyed and the peak situation of
 // the memory pool. Using this test will slightly reduce the performance of 
 // the program.
 #define USE_MEMORY_POOL_TEST false
@@ -32,13 +32,13 @@ namespace memory_pool {
 /*
     Applys memory by the size given and returns the pointer of the memory.
 */
-CORE_DLLAPI extern Void* const ApplyMemory(const MemoryType size) noexcept;
+CORE_DLLAPI NODISCARD extern Void* const ApplyMemory(const MemoryType size) noexcept;
 
 /*
     Applys memory by the size given and returns the pointer of the memory.
-    Returns the memory size of the memory piece.
+    Returns the memory size of the memory block.
 */
-CORE_DLLAPI extern Void* const ApplyMemory(const MemoryType size, MemoryType* const memory_size_ptr) noexcept;
+CORE_DLLAPI NODISCARD extern Void* const ApplyMemory(const MemoryType size, MemoryType* const memory_size_ptr) noexcept;
 
 /*
     Check if the memory can be extended to the given size without changing the memory,
@@ -52,6 +52,11 @@ CORE_DLLAPI NODISCARD extern const Bool CheckMemory(Void* const memory_ptr, cons
 */
 CORE_DLLAPI NODISCARD extern const Bool CheckMemory(Void* const memory_ptr, const MemoryType size,
                                                     MemoryType* const memory_size_ptr) noexcept;
+
+/*
+    Calculate the minimum size of the memory block that satisfies the memory requirement.
+*/
+CORE_DLLAPI NODISCARD const MemoryType CalculateMemory(const MemoryType size) noexcept;
 
 /*
    Release the memory by the memory pointer, it's a value parameter,

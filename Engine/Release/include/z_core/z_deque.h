@@ -8,6 +8,295 @@
 
 namespace zengine {
 
+template<typename ObjectType, Bool kIfUnique = kIsClass<ObjectType>>
+class ZDeque;
+
+namespace internal {
+
+template<typename ObjectType>
+class DequeIteratorBase {
+public:
+    FORCEINLINE DequeIteratorBase(ObjectType* object_ptr) : object_ptr_(object_ptr) {}
+    FORCEINLINE DequeIteratorBase(const DequeIteratorBase& iterator) : object_ptr_(iterator.object_ptr_) {}
+    FORCEINLINE DequeIteratorBase(const DequeIteratorBase&& iterator) : object_ptr_(iterator.object_ptr_) {
+        iterator.MoveDestroy();
+    }
+
+    FORCEINLINE DequeIteratorBase& operator=(ObjectType* object_ptr) {
+        object_ptr_ = object_ptr;
+        return *this;
+    }
+    FORCEINLINE DequeIteratorBase& operator=(const DequeIteratorBase& iterator) {
+        object_ptr_ = iterator.object_ptr_;
+        return *this;
+    }
+    FORCEINLINE DequeIteratorBase& operator=(DequeIteratorBase&& iterator) {
+        object_ptr_ = iterator.object_ptr_;
+        iterator.MoveDestroy();
+        return *this;
+    }
+
+    NODISCARD FORCEINLINE const Bool operator==(const DequeIteratorBase& iterator) const {
+        return object_ptr_ == iterator.object_ptr_;
+    }
+    NODISCARD FORCEINLINE const Bool operator!=(const DequeIteratorBase& iterator) const {
+        return object_ptr_ != iterator.object_ptr_;
+    }
+
+    FORCEINLINE ~DequeIteratorBase() {}
+
+    FORCEINLINE Void MoveDestroy() { object_ptr_ = nullptr; }
+
+protected:
+     ObjectType* object_ptr_;
+     ZDeque<ObjectType>* deque_ptr_;
+};
+
+template<typename ObjectType>
+class DequeIterator : public DequeIteratorBase<ObjectType> {
+public:
+    NODISCARD FORCEINLINE ObjectType& operator[](const IndexType index) const { return SuperType::object_ptr_[index]; }
+    NODISCARD FORCEINLINE ObjectType& operator*() const { return *SuperType::object_ptr_; }
+    NODISCARD FORCEINLINE ObjectType* const operator->() const { return SuperType::object_ptr_; }
+
+    FORCEINLINE DequeIterator& operator+=(const IndexType data_num) {
+        SuperType::object_ptr_ += data_num;
+        return *this;
+    }
+    FORCEINLINE DequeIterator& operator-=(const IndexType data_num) {
+        SuperType::object_ptr_ -= data_num;
+        return *this;
+    }
+
+    FORCEINLINE DequeIterator& operator++() {
+        ++SuperType::object_ptr_;
+        return *this;
+    }
+    FORCEINLINE DequeIterator& operator--() {
+        --SuperType::object_ptr_;
+        return *this;
+    }
+
+    NODISCARD FORCEINLINE DequeIterator operator+(const IndexType data_num) const {
+        return DequeIterator(SuperType::object_ptr_ + data_num);
+    }
+    NODISCARD FORCEINLINE DequeIterator operator-(const IndexType data_num) const {
+        return DequeIterator(SuperType::object_ptr_ - data_num);
+    }
+
+    NODISCARD FORCEINLINE const Bool operator>(const DequeIterator& iterator) const {
+        return SuperType::object_ptr_ > iterator.SuperType::object_ptr_;
+    }
+    NODISCARD FORCEINLINE const Bool operator>=(const DequeIterator& iterator) const {
+        return SuperType::object_ptr_ >= iterator.SuperType::object_ptr_;
+    }
+    NODISCARD FORCEINLINE const Bool operator<(const DequeIterator& iterator) const {
+        return SuperType::object_ptr_ < iterator.SuperType::object_ptr_;
+    }
+    NODISCARD FORCEINLINE const Bool operator<=(const DequeIterator& iterator) const {
+        return SuperType::object_ptr_ <= iterator.SuperType::object_ptr_;
+    }
+
+    FORCEINLINE const IndexType operator-(const DequeIterator& iterator) const {
+        return static_cast<IndexType>(SuperType::object_ptr_ - iterator.SuperType::object_ptr_);
+    }
+
+    NODISCARD FORCEINLINE ObjectType* object_ptr() { return SuperType::object_ptr_; }
+    NODISCARD FORCEINLINE ObjectType* const object_ptr() const { return SuperType::object_ptr_; }
+
+protected:
+    using SuperType = DequeIteratorBase<ObjectType>;
+};
+
+template<typename ObjectType>
+class DequeConstIterator : public DequeIteratorBase<ObjectType> {
+public:
+    FORCEINLINE DequeConstIterator(const ObjectType* object_ptr) : SuperType(const_cast<ObjectType*>(object_ptr)) {}
+
+    FORCEINLINE DequeConstIterator& operator=(const ObjectType* object_ptr) {
+        SuperType::object_ptr_ = const_cast<ObjectType*>(object_ptr);
+        return *this;
+    }
+
+    NODISCARD FORCEINLINE const ObjectType& operator[](const IndexType index) const { 
+        return SuperType::object_ptr_[-index]; 
+    }
+    NODISCARD FORCEINLINE const ObjectType& operator*() const { return *SuperType::object_ptr_; }
+    NODISCARD FORCEINLINE const ObjectType* const operator->() const { return SuperType::object_ptr_; }
+
+    FORCEINLINE DequeConstIterator& operator+=(const IndexType data_num) {
+        SuperType::object_ptr_ += data_num;
+        return *this;
+    }
+    FORCEINLINE DequeConstIterator& operator-=(const IndexType data_num) {
+        SuperType::object_ptr_ -= data_num;
+        return *this;
+    }
+
+    FORCEINLINE DequeConstIterator& operator++() {
+        ++SuperType::object_ptr_;
+        return *this;
+    }
+    FORCEINLINE DequeConstIterator& operator--() {
+        --SuperType::object_ptr_;
+        return *this;
+    }
+
+    NODISCARD FORCEINLINE DequeConstIterator operator+(const IndexType data_num) const {
+        return DequeConstIterator(SuperType::object_ptr_ + data_num);
+    }
+    NODISCARD FORCEINLINE DequeConstIterator operator-(const IndexType data_num) const {
+        return DequeConstIterator(SuperType::object_ptr_ - data_num);
+    }
+
+    NODISCARD FORCEINLINE const Bool operator>(const DequeConstIterator& iterator) const {
+        return SuperType::object_ptr_ > iterator.SuperType::object_ptr_;
+    }
+    NODISCARD FORCEINLINE const Bool operator>=(const DequeConstIterator& iterator) const {
+        return SuperType::object_ptr_ >= iterator.SuperType::object_ptr_;
+    }
+    NODISCARD FORCEINLINE const Bool operator<(const DequeConstIterator& iterator) const {
+        return SuperType::object_ptr_ < iterator.SuperType::object_ptr_;
+    }
+    NODISCARD FORCEINLINE const Bool operator<=(const DequeConstIterator& iterator) const {
+        return SuperType::object_ptr_ <= iterator.SuperType::object_ptr_;
+    }
+
+    FORCEINLINE const IndexType operator-(const DequeConstIterator& iterator) const {
+        return static_cast<IndexType>(SuperType::object_ptr_ - iterator.SuperType::object_ptr_);
+    }
+
+    NODISCARD FORCEINLINE const ObjectType* object_ptr() { return SuperType::object_ptr_; }
+    NODISCARD FORCEINLINE const ObjectType* const object_ptr() const { return SuperType::object_ptr_; }
+
+protected:
+    using SuperType = DequeIteratorBase<ObjectType>;
+};
+
+template<typename ObjectType>
+class DequeReverseIterator : public DequeIteratorBase<ObjectType> {
+public:
+    NODISCARD FORCEINLINE ObjectType& operator[](const IndexType index) const { return SuperType::object_ptr_[-index]; }
+    NODISCARD FORCEINLINE ObjectType& operator*() const { return *SuperType::object_ptr_; }
+    NODISCARD FORCEINLINE ObjectType* const operator->() const { return SuperType::object_ptr_; }
+
+    FORCEINLINE DequeReverseIterator& operator+=(const IndexType data_num) {
+        SuperType::object_ptr_ -= data_num;
+        return *this;
+    }
+    FORCEINLINE DequeReverseIterator& operator-=(const IndexType data_num) {
+        SuperType::object_ptr_ += data_num;
+        return *this;
+    }
+
+    FORCEINLINE DequeReverseIterator& operator++() {
+        --SuperType::object_ptr_;
+        return *this;
+    }
+    FORCEINLINE DequeReverseIterator& operator--() {
+        ++SuperType::object_ptr_;
+        return *this;
+    }
+
+    NODISCARD FORCEINLINE DequeReverseIterator operator+(const IndexType data_num) const {
+        return DequeReverseIterator(SuperType::object_ptr_ - data_num);
+    }
+    NODISCARD FORCEINLINE DequeReverseIterator operator-(const IndexType data_num) const {
+        return DequeReverseIterator(SuperType::object_ptr_ + data_num);
+    }
+
+    NODISCARD FORCEINLINE const Bool operator>(const DequeReverseIterator& iterator) const {
+        return SuperType::object_ptr_ < iterator.SuperType::object_ptr_;
+    }
+    NODISCARD FORCEINLINE const Bool operator>=(const DequeReverseIterator& iterator) const {
+        return SuperType::object_ptr_ <= iterator.SuperType::object_ptr_;
+    }
+    NODISCARD FORCEINLINE const Bool operator<(const DequeReverseIterator& iterator) const {
+        return SuperType::object_ptr_ > iterator.SuperType::object_ptr_;
+    }
+    NODISCARD FORCEINLINE const Bool operator<=(const DequeReverseIterator& iterator) const {
+        return SuperType::object_ptr_ >= iterator.SuperType::object_ptr_;
+    }
+
+    FORCEINLINE const IndexType operator-(const DequeReverseIterator& iterator) const {
+        return static_cast<IndexType>(iterator.SuperType::object_ptr_ - SuperType::object_ptr_);
+    }
+
+    NODISCARD FORCEINLINE ObjectType* object_ptr() { return SuperType::object_ptr_; }
+    NODISCARD FORCEINLINE ObjectType* const object_ptr() const { return SuperType::object_ptr_; }
+
+protected:
+    using SuperType = DequeIteratorBase<ObjectType>;
+};
+
+template<typename ObjectType>
+class DequeConstReverseIterator : public DequeIteratorBase<ObjectType> {
+public:
+    FORCEINLINE DequeConstReverseIterator(const ObjectType* object_ptr)
+        : SuperType(const_cast<ObjectType*>(object_ptr)) {}
+
+    FORCEINLINE DequeConstReverseIterator& operator=(const ObjectType* object_ptr) {
+        SuperType::object_ptr_ = const_cast<ObjectType*>(object_ptr);
+        return *this;
+    }
+
+    NODISCARD FORCEINLINE const ObjectType& operator[](const IndexType index) const { 
+        return SuperType::object_ptr_[-index]; 
+    }
+    NODISCARD FORCEINLINE const ObjectType& operator*() const { return *SuperType::object_ptr_; }
+    NODISCARD FORCEINLINE const ObjectType* const operator->() const { return SuperType::object_ptr_; }
+
+    FORCEINLINE DequeConstReverseIterator& operator+=(const IndexType data_num) {
+        SuperType::object_ptr_ -= data_num;
+        return *this;
+    }
+    FORCEINLINE DequeConstReverseIterator& operator-=(const IndexType data_num) {
+        SuperType::object_ptr_ += data_num;
+        return *this;
+    }
+
+    FORCEINLINE DequeConstReverseIterator& operator++() {
+        --SuperType::object_ptr_;
+        return *this;
+    }
+    FORCEINLINE DequeConstReverseIterator& operator--() {
+        ++SuperType::object_ptr_;
+        return *this;
+    }
+
+    NODISCARD FORCEINLINE DequeConstReverseIterator operator+(const IndexType data_num) const {
+        return DequeConstReverseIterator(SuperType::object_ptr_ - data_num);
+    }
+    NODISCARD FORCEINLINE DequeConstReverseIterator operator-(const IndexType data_num) const {
+        return DequeConstReverseIterator(SuperType::object_ptr_ + data_num);
+    }
+
+    NODISCARD FORCEINLINE const Bool operator>(const DequeConstReverseIterator& iterator) const {
+        return SuperType::object_ptr_ < iterator.SuperType::object_ptr_;
+    }
+    NODISCARD FORCEINLINE const Bool operator>=(const DequeConstReverseIterator& iterator) const {
+        return SuperType::object_ptr_ <= iterator.SuperType::object_ptr_;
+    }
+    NODISCARD FORCEINLINE const Bool operator<(const DequeConstReverseIterator& iterator) const {
+        return SuperType::object_ptr_ > iterator.SuperType::object_ptr_;
+    }
+    NODISCARD FORCEINLINE const Bool operator<=(const DequeConstReverseIterator& iterator) const {
+        return SuperType::object_ptr_ >= iterator.SuperType::object_ptr_;
+    }
+
+    FORCEINLINE const IndexType operator-(const DequeConstReverseIterator& iterator) const {
+        return static_cast<IndexType>(iterator.SuperType::object_ptr_ - SuperType::object_ptr_);
+    }
+
+    NODISCARD FORCEINLINE const ObjectType* object_ptr() { return SuperType::object_ptr_; }
+    NODISCARD FORCEINLINE const ObjectType* const object_ptr() const { return SuperType::object_ptr_; }
+
+protected:
+    using SuperType = DequeIteratorBase<ObjectType>;
+};
+
+}//internal
+
 /*
     Double end queue caintainer.
     If kIfUnique is true, will call the constuctor when the object is created.
@@ -18,6 +307,11 @@ private:
     static constexpr Float32 kAutoExtendMulFactor = 1.5F;
 
 public:
+    using IteratorType = internal::DequeIterator<ObjectType>;
+    using ConstIteratorType = internal::DequeConstIterator<ObjectType>;
+    using ReverseIteratorType = internal::DequeReverseIterator<ObjectType>;
+    using ConstReverseIteratorType = internal::DequeConstReverseIterator<ObjectType>;
+
     ZDeque() noexcept;
     ZDeque(const IndexType capacity) noexcept;
     /*
@@ -25,6 +319,10 @@ public:
     */
     template<typename... ArgsType>
     ZDeque(const IndexType capacity, ArgsType&&... args) noexcept;    
+    ZDeque(const IteratorType& begin, const IteratorType& end) noexcept;
+    ZDeque(const ConstIteratorType& begin, const ConstIteratorType& end) noexcept;
+    ZDeque(const ReverseIteratorType& begin, const ReverseIteratorType& end) noexcept;
+    ZDeque(const ConstReverseIteratorType& begin, const ConstReverseIteratorType& end) noexcept;
     ZDeque(const ZDeque& queue) noexcept;
     ZDeque(ZDeque&& queue) noexcept;
 
@@ -34,8 +332,13 @@ public:
     NODISCARD FORCEINLINE const Bool operator==(const ZDeque& queue) noexcept;
     NODISCARD FORCEINLINE const Bool operator!=(const ZDeque& queue) noexcept;
 
+    NODISCARD FORCEINLINE ObjectType& operator[](const IndexType index);
+    NODISCARD FORCEINLINE const ObjectType& operator[](const IndexType index) const;
+
     ~ZDeque() noexcept;
 
+    NODISCARD FORCEINLINE ObjectType& At(const IndexType index);
+    NODISCARD FORCEINLINE const ObjectType& At(const IndexType index) const;
     NODISCARD FORCEINLINE ObjectType& Front();
     NODISCARD FORCEINLINE const ObjectType& Front() const;
     NODISCARD FORCEINLINE ObjectType& Back();
@@ -70,28 +373,277 @@ public:
     Void Reserve(const IndexType capacity) noexcept;
 
     /*
-        Remove the first object of the queue.
+        Shrinks the queue to the minimum capacity that can fit the current size.
+    */
+    Void ShrinkToFit() noexcept;
+
+    /*
+        Remove the object at the front of the queue.
     */
     Void PopFront() noexcept;
     /*
-        Remove the first object of the queue. Give the authority to the given address.
+        Remove the object at the front of the queue.. Give the authority to the given address.
     */
     Void PopFront(ObjectType* object_ptr) noexcept;
 
     /*
-        Create an object at the end of the queue by calling the constructor with
+        Create an object at the front of the queue by calling the constructor with
+        the arguements. If kIfUnique is false and no arguements, will
+        only add the size of the queue.
+    */
+    template<typename... ArgsType>
+    Void PushFront(ArgsType&&... args) noexcept;
+    /*
+        Create objects at the front of the queue by calling the constructor with
+        the arguements. If kIfUnique is false and no arguements, will
+        only add the size of the queue.
+    */
+    template<typename... ArgsType>
+    Void PushFronts(const IndexType num, ArgsType&&... args) noexcept;
+
+    /*
+        Makes a copy of the objects between the iterators and push them to the
+        front of the queue.
+    */
+    Void PushFronts(const IteratorType& begin, const IteratorType& end) noexcept;
+    /*
+        Makes a copy of the objects between the iterators and push them to the
+        front of the queue.
+    */
+    Void PushFronts(const ConstIteratorType& begin, const ConstIteratorType& end) noexcept;
+    /*
+        Makes a copy of the objects between the iterators and push them to the
+        front of the queue.
+    */
+    Void PushFronts(const ReverseIteratorType& begin, const ReverseIteratorType& end) noexcept;
+    /*
+        Makes a copy of the objects between the iterators and push them to the
+        front of the queue.
+    */
+    Void PushFronts(const ConstReverseIteratorType& begin, const ConstReverseIteratorType& end) noexcept;
+
+    /*
+        Calls the constructor with the arguements.
+    */
+    template<typename... ArgsType>
+    Void EmplaceFront(ArgsType&&... args) noexcept;
+
+    /*
+        Remove the object at the back of the queue.
+    */
+    Void PopBack() noexcept;
+    /*
+        Remove the object at the back of the queue.. Give the authority to the given address.
+    */
+    Void PopBack(ObjectType* object_ptr) noexcept;
+
+    /*
+        Create an object at the back of the queue by calling the constructor with
         the arguements. If kIfUnique is false and no arguements, will
         only add the size of the queue.
     */
     template<typename... ArgsType>
     Void PushBack(ArgsType&&... args) noexcept;
     /*
-        Create objects at the end of the queue by calling the constructor with
+        Create objects at the back of the queue by calling the constructor with
         the arguements. If kIfUnique is false and no arguements, will
         only add the size of the queue.
     */
     template<typename... ArgsType>
     Void PushBacks(const IndexType num, ArgsType&&... args) noexcept;
+
+    /*
+        Makes a copy of the objects between the iterators and push them to the
+        back of the queue.
+    */
+    Void PushBacks(const IteratorType& begin, const IteratorType& end) noexcept;
+    /*
+        Makes a copy of the objects between the iterators and push them to the
+        back of the queue.
+    */
+    Void PushBacks(const ConstIteratorType& begin, const ConstIteratorType& end) noexcept;
+    /*
+        Makes a copy of the objects between the iterators and push them to the
+        back of the queue.
+    */
+    Void PushBacks(const ReverseIteratorType& begin, const ReverseIteratorType& end) noexcept;
+    /*
+        Makes a copy of the objects between the iterators and push them to the
+        back of the queue.
+    */
+    Void PushBacks(const ConstReverseIteratorType& begin, const ConstReverseIteratorType& end) noexcept;
+
+    /*
+        Calls the constructor with the arguements.
+    */
+    template<typename... ArgsType>
+    Void EmplaceBack(ArgsType&&... args) noexcept;
+
+    /*
+        Inserts before the index. Returns the iterator that points at the newest object.
+    */
+    template<typename... ArgsType>
+    IteratorType Insert(const IndexType index, ArgsType&&... args) noexcept;
+    /*
+        Inserts before the iterator. Returns the iterator that points at the newest object.
+    */
+    template<typename... ArgsType>
+    IteratorType Insert(const IteratorType& iterator, ArgsType&&... args) noexcept;
+    /*
+        Inserts before the iterator. Returns the iterator that points at the newest object.
+    */
+    template<typename... ArgsType>
+    ReverseIteratorType Insert(const ReverseIteratorType& iterator, ArgsType&&... args) noexcept;
+
+    /*
+        Inserts before the index. Returns the iterator that points at the first new object.
+    */
+    template<typename... ArgsType>
+    IteratorType Inserts(const IndexType index, IndexType num, ArgsType&&... args) noexcept;
+    /*
+        Inserts before the iterator. Returns the iterator that points at the first new object.
+    */
+    template<typename... ArgsType>
+    IteratorType Inserts(const IteratorType& iterator, IndexType num, ArgsType&&... args) noexcept;
+    /*
+        Inserts before the iterator. Returns the iterator that points at the first new object.
+    */
+    template<typename... ArgsType>
+    ReverseIteratorType Inserts(const ReverseIteratorType& iterator, IndexType num, ArgsType&&... args) noexcept;
+
+    /*
+        Makes a copy of the objects between the iterators and insert them to the
+        given place. Returns the iterator that points at the first new object.
+    */
+    IteratorType Inserts(const IndexType index,
+        const IteratorType& src_begin, const IteratorType& src_end) noexcept;
+    /*
+        Makes a copy of the objects between the iterators and insert them to the
+        given place. Returns the iterator that points at the first new object.
+    */
+    IteratorType Inserts(const IndexType index,
+        const ConstIteratorType& src_begin, const ConstIteratorType& src_end) noexcept;
+    /*
+        Makes a copy of the objects between the iterators and insert them to the
+        given place. Returns the iterator that points at the first new object.
+    */
+    IteratorType Inserts(const IndexType index,
+        const ReverseIteratorType& src_begin, const ReverseIteratorType& src_end) noexcept;
+    /*
+        Makes a copy of the objects between the iterators and insert them to the
+        given place. Returns the iterator that points at the first new object.
+    */
+    IteratorType Inserts(const IndexType index,
+        const ConstReverseIteratorType& src_begin, const ConstReverseIteratorType& src_end) noexcept;
+
+    /*
+        Makes a copy of the objects between the iterators and insert them to the
+        given place. Returns the iterator that points at the first new object.
+    */
+    IteratorType Inserts(const IteratorType& iterator,
+        const IteratorType& src_begin, const IteratorType& src_end) noexcept;
+    /*
+        Makes a copy of the objects between the iterators and insert them to the
+        given place. Returns the iterator that points at the first new object.
+    */
+    IteratorType Inserts(const IteratorType& iterator,
+        const ConstIteratorType& src_begin, const ConstIteratorType& src_end) noexcept;
+    /*
+        Makes a copy of the objects between the iterators and insert them to the
+        given place. Returns the iterator that points at the first new object.
+    */
+    IteratorType Inserts(const IteratorType& iterator,
+        const ReverseIteratorType& src_begin, const ReverseIteratorType& src_end) noexcept;
+    /*
+        Makes a copy of the objects between the iterators and insert them to the
+        given place. Returns the iterator that points at the first new object.
+    */
+    IteratorType Inserts(const IteratorType& iterator,
+        const ConstReverseIteratorType& src_begin, const ConstReverseIteratorType& src_end) noexcept;
+
+    /*
+        Makes a copy of the objects between the iterators and insert them to the
+        given place. Returns the iterator that points at the first new object.
+    */
+    ReverseIteratorType Inserts(const ReverseIteratorType& iterator,
+        const IteratorType& src_begin, const IteratorType& src_end) noexcept;
+    /*
+        Makes a copy of the objects between the iterators and insert them to the
+        given place. Returns the iterator that points at the first new object.
+    */
+    ReverseIteratorType Inserts(const ReverseIteratorType& iterator,
+        const ConstIteratorType& src_begin, const ConstIteratorType& src_end) noexcept;
+    /*
+        Makes a copy of the objects between the iterators and insert them to the
+        given place. Returns the iterator that points at the first new object.
+    */
+    ReverseIteratorType Inserts(const ReverseIteratorType& iterator,
+        const ReverseIteratorType& src_begin, const ReverseIteratorType& src_end) noexcept;
+    /*
+        Makes a copy of the objects between the iterators and insert them to the
+        given place. Returns the iterator that points at the first new object.
+    */
+    ReverseIteratorType Inserts(const ReverseIteratorType& iterator,
+        const ConstReverseIteratorType& src_begin,
+        const ConstReverseIteratorType& src_end) noexcept;
+
+    /*
+        Erases the object by the index.
+        Returns the iterator that points at the next object.
+    */
+    IteratorType Erase(const IndexType index) noexcept;
+    /*
+        Erases the object by the index.
+        Returns the iterator that points at the next object.
+    */
+    IteratorType Erase(const IteratorType& iterator) noexcept;
+    /*
+        Erases the object by the index.
+        Returns the iterator that points at the next object.
+    */
+    ReverseIteratorType Erase(const ReverseIteratorType& iterator) noexcept;
+
+    /*
+        Erases the num of objects that starts at the given index.
+        Returns the iterator that points at the next object.
+    */
+    IteratorType Erases(const IndexType index, const IndexType num) noexcept;
+    /*
+        Erases the num of objects that starts at the given iterator.
+        Returns the iterator that points at the next object.
+    */
+    IteratorType Erases(const IteratorType& iterator, const IndexType num) noexcept;
+    /*
+        Erases the num of objects that starts at the given iterator.
+        Returns the iterator that points at the next object.
+    */
+    ReverseIteratorType Erases(const ReverseIteratorType& iterator, const IndexType num) noexcept;
+    /*
+        Erases the object between begin and end, involves begin, but don't involves end.
+        Returns the iterator that points at the next object.
+    */
+    IteratorType Erases(const IteratorType& begin, const IteratorType& end) noexcept;
+    /*
+        Erases the object between begin and end, involves begin, but don't involves end.
+        Returns the iterator that points at the next object.
+    */
+    ReverseIteratorType Erases(const ReverseIteratorType& begin, const ReverseIteratorType& end) noexcept;
+
+    /*
+        Calls the constructor with the arguements.
+    */
+    template<typename... ArgsType>
+    Void Emplace(const IndexType index, ArgsType&&... args) noexcept;
+    /*
+        Calls the constructor with the arguements.
+    */
+    template<typename... ArgsType>
+    Void Emplace(const IteratorType& iterator, ArgsType&&... args) noexcept;
+    /*
+        Calls the constructor with the arguements.
+    */
+    template<typename... ArgsType>
+    Void Emplace(const ReverseIteratorType& iterator, ArgsType&&... args) noexcept;
 
     /*
         Construct the queue by filling it with the given amount of objects.
@@ -101,7 +653,23 @@ public:
     */
     template<typename... ArgsType>
     Void Assign(const IndexType num, ArgsType&&... args) noexcept;
-
+    /*
+        Construct the queue by filling it objects between the iterators.
+    */
+    Void Assign(const IteratorType& begin, const IteratorType& end) noexcept;
+    /*
+        Construct the queue by filling it objects between the iterators.
+    */
+    Void Assign(const ConstIteratorType& begin, const ConstIteratorType& end) noexcept;
+    /*
+        Construct the queue by filling it objects between the iterators.
+    */
+    Void Assign(const ReverseIteratorType& begin, const ReverseIteratorType& end) noexcept;
+    /*
+        Construct the queue by filling it objects between the iterators.
+    */
+    Void Assign(const ConstReverseIteratorType& begin, const ConstReverseIteratorType& end) noexcept;
+    
     /*
         Destroys all the objects in the queue, does not release the memory.
     */
@@ -117,9 +685,8 @@ protected:
 private:    
     struct DataNode {
     public:
-        ObjectType* data_ptr;
-        DataNode* next_node;
-        DataNode* previous_node;
+        DataNode* next_node_ptr;
+        DataNode* previous_node_ptr;
         IndexType capacity;
         IndexType size;
     };
@@ -134,6 +701,10 @@ private:
         not equal the given capacity.
     */
     Void ExtendContainer(const IndexType capacity) noexcept;
+    /*
+        Shrinks the container to the minimum capacity that can fit the current size.
+    */
+    FORCEINLINE Void ShrinkContainer() noexcept;
     /*
         Destroys the container.
     */
@@ -244,6 +815,7 @@ private:
 
     DataNode* front_node_ptr_;
     DataNode* back_node_ptr_;
+    DataNode* emptr_node_ptr_;
     IndexType front_index_;
     IndexType back_index_;
     IndexType capacity_;
@@ -253,9 +825,11 @@ private:
 template<typename ObjectType, Bool kIfUnique>
 ZDeque<ObjectType, kIfUnique>::ZDeque() noexcept
     : SuperType()
-    , data_ptr_(nullptr)
-    , front_ptr_(nullptr)
-    , back_ptr_(nullptr)
+    , front_node_ptr_(nullptr)
+    , back_node_ptr_(nullptr)
+    , emptr_node_ptr_(nullptr)
+    , front_index_(0)
+    , back_index_(0)
     , capacity_(0)
     , size_(0)
 {}
@@ -315,7 +889,7 @@ ZDeque<ObjectType, kIfUnique>& ZDeque<ObjectType, kIfUnique>::operator=(
     if (queue.size_ > capacity_) {
         ExtendContainer(queue.size_);
     }
-    CopyObjects(data_ptr_, vector.data_ptr_, vector.size_);
+    CopyObjects(data_ptr_, queue.data_ptr_, queue.size_);
     size_ = queue.size_;
     front_ptr_ = data_ptr_;
     back_ptr_ = data_ptr_ + size_ - 1;

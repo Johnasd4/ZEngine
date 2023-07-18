@@ -372,7 +372,7 @@ public:
 
     NODISCARD FORCEINLINE constexpr const ObjectType* data_ptr() const { return data_; }
 
-    NODISCARD FORCEINLINE static constexpr const IndexType size() { return kCapacity; }
+    NODISCARD static constexpr const IndexType size() { return kCapacity; }
 
     /*
         The iterator funcions.

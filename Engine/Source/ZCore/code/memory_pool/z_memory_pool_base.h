@@ -9,7 +9,7 @@ namespace zengine {
 namespace memory_pool {
 
 enum MemoryPoolType : IndexType {
-    kZSmallMemoryPieceListMemoryPool = 1
+    kZSmallMemoryBlockListMemoryPool = 1
 };
 
 /*

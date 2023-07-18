@@ -8,6 +8,9 @@
 
 namespace zengine {
 
+template<typename ObjectType, Bool kIfUnique = kIsClass<ObjectType>>
+class ZDeque;
+
 namespace internal {
 
 template<typename ObjectType>
@@ -46,6 +49,7 @@ public:
 
 protected:
      ObjectType* object_ptr_;
+     ZDeque<ObjectType>* deque_ptr_;
 };
 
 template<typename ObjectType>
@@ -369,6 +373,11 @@ public:
     Void Reserve(const IndexType capacity) noexcept;
 
     /*
+        Shrinks the queue to the minimum capacity that can fit the current size.
+    */
+    Void ShrinkToFit() noexcept;
+
+    /*
         Remove the object at the front of the queue.
     */
     Void PopFront() noexcept;
@@ -676,9 +685,8 @@ protected:
 private:    
     struct DataNode {
     public:
-        ObjectType* data_ptr;
-        DataNode* next_node;
-        DataNode* previous_node;
+        DataNode* next_node_ptr;
+        DataNode* previous_node_ptr;
         IndexType capacity;
         IndexType size;
     };
@@ -693,6 +701,10 @@ private:
         not equal the given capacity.
     */
     Void ExtendContainer(const IndexType capacity) noexcept;
+    /*
+        Shrinks the container to the minimum capacity that can fit the current size.
+    */
+    FORCEINLINE Void ShrinkContainer() noexcept;
     /*
         Destroys the container.
     */
@@ -803,6 +815,7 @@ private:
 
     DataNode* front_node_ptr_;
     DataNode* back_node_ptr_;
+    DataNode* emptr_node_ptr_;
     IndexType front_index_;
     IndexType back_index_;
     IndexType capacity_;
@@ -814,6 +827,7 @@ ZDeque<ObjectType, kIfUnique>::ZDeque() noexcept
     : SuperType()
     , front_node_ptr_(nullptr)
     , back_node_ptr_(nullptr)
+    , emptr_node_ptr_(nullptr)
     , front_index_(0)
     , back_index_(0)
     , capacity_(0)

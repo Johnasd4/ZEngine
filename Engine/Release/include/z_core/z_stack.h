@@ -77,23 +77,24 @@ public:
     Void Reserve(const IndexType capacity) noexcept;
 
     /*
-        Remove the last object of the stack.
+        Remove the object at the back of the vector.
     */
     Void PopBack() noexcept;
     /*
-        Remove the last object of the vector. Give the authority to the given address.
+        Remove the object at the back of the vector. 
+        Give the authority to the given address.
     */
     Void PopBack(ObjectType* object_ptr) noexcept;
 
     /*
-        Create an object at the end of the stack by calling the constructor with
+        Create an object at the back of the stack by calling the constructor with
         the arguements. If kIfUnique is false and no arguements, will
         only add the size of the stack.
     */
     template<typename... ArgsType>
     Void PushBack(ArgsType&&... args) noexcept;
     /*
-        Create objects at the end of the stack by calling the constructor with
+        Create objects at the back of the stack by calling the constructor with
         the arguements. If kIfUnique is false and no arguements, will
         only add the size of the stack.
     */
