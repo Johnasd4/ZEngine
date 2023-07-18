@@ -840,6 +840,7 @@ private:
 
     ObjectType* data_ptr_;
     IndexType capacity_;
+
     IndexType size_;
 };
 
@@ -1734,7 +1735,7 @@ Void ZVector<ObjectType, kIfUnique>::ExtendContainer(const IndexType capacity) n
 template<typename ObjectType, Bool kIfUnique>
 FORCEINLINE Void ZVector<ObjectType, kIfUnique>::ShrinkContainer() noexcept {
     MemoryType need_memory_size = size_ * sizeof(ObjectType);
-    MemoryType min_satisfied_memory_size = memory_pool::CalculateMemory();
+    MemoryType min_satisfied_memory_size = memory_pool::CalculateMemory(need_memory_size);
     MemoryType min_satisfied_capacity = min_satisfied_memory_size / sizeof(ObjectType);
     if (capacity_ != min_satisfied_capacity) {
         ObjectType* temp_data_ptr = reinterpret_cast<ObjectType*>(memory_pool::ApplyMemory(min_satisfied_memory_size));

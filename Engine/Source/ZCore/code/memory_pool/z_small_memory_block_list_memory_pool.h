@@ -41,12 +41,6 @@ private:
     static constexpr MemoryType kMemoryBlockSizeMulGrowFactor = 2;
 
 public:
-    NODISCARD static ZArray<ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>& Instance() noexcept {
-        static ZArray<ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum> memory_pool_array(
-            MemoryPoolArrayInitFunction);
-        return memory_pool_array;
-    }
-
     NODISCARD static Void* const ApplyMemory(const MemoryType size) noexcept;
     NODISCARD static Void* const ApplyMemory(const MemoryType size, MemoryType* const memory_size_ptr) noexcept;
 
@@ -122,6 +116,13 @@ private:
                 }
             });
 
+
+    NODISCARD static ZArray<ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>& Instance() noexcept {
+        static ZArray<ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum> memory_pool_array(
+            MemoryPoolArrayInitFunction);
+        return memory_pool_array;
+    }
+
     static Void MemoryPoolArrayInitFunction(
         ZArray<ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>* array_ptr) noexcept;
 
@@ -139,7 +140,7 @@ private:
                                 const Int32 capacity) noexcept;
 
 
-#ifdef USE_MEMORY_POOL_TEST
+#if USE_MEMORY_POOL_TEST
     IndexType memory_block_used_current_num_ = 0;
     IndexType momory_block_applyed_num_ = 0;
     IndexType momory_block_peak_num_ = 0;
@@ -148,34 +149,36 @@ private:
 
 template<Bool kIsThreadSafe>
 NODISCARD Void* const ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::ApplyMemory(const MemoryType size) noexcept {
+    ZArray<ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>& memory_pool = Instance();
     IndexType size_index = (size + SuperType::node_head_offset() - 1)/ kMemoryBlockMinSize;
-#ifdef USE_MEMORY_POOL_TEST
-    Instance()[kMemorySize2MemoryPoolTable.At(size_index)].memory_block_used_current_num_ += 1;
-    Instance()[kMemorySize2MemoryPoolTable.At(size_index)].momory_block_applyed_num_ += 1;
-    if (Instance()[kMemorySize2MemoryPoolTable.At(size_index)].memory_block_used_current_num_ >
-        Instance()[kMemorySize2MemoryPoolTable.At(size_index)].momory_block_peak_num_) {
-        Instance()[kMemorySize2MemoryPoolTable.At(size_index)].momory_block_peak_num_ =
-            Instance()[kMemorySize2MemoryPoolTable.At(size_index)].memory_block_used_current_num_;
+#if USE_MEMORY_POOL_TEST
+    memory_pool[kMemorySize2MemoryPoolTable.At(size_index)].memory_block_used_current_num_ += 1;
+    memory_pool[kMemorySize2MemoryPoolTable.At(size_index)].momory_block_applyed_num_ += 1;
+    if (memory_pool[kMemorySize2MemoryPoolTable.At(size_index)].memory_block_used_current_num_ >
+        memory_pool[kMemorySize2MemoryPoolTable.At(size_index)].momory_block_peak_num_) {
+        memory_pool[kMemorySize2MemoryPoolTable.At(size_index)].momory_block_peak_num_ =
+            memory_pool[kMemorySize2MemoryPoolTable.At(size_index)].memory_block_used_current_num_;
     }
 #endif //USE_MEMORY_POOL_TEST
-    return Instance()[kMemorySize2MemoryPoolTable.At(size_index)].SuperType::ApplyMemory();
+    return memory_pool[kMemorySize2MemoryPoolTable.At(size_index)].SuperType::ApplyMemory();
 }
 
 template<Bool kIsThreadSafe>
 NODISCARD Void* const ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::ApplyMemory(
         const MemoryType size, MemoryType* const memory_size_ptr) noexcept {
+    ZArray<ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>& memory_pool = Instance();
     IndexType size_index = (size + SuperType::node_head_offset() - 1) / kMemoryBlockMinSize;
-#ifdef USE_MEMORY_POOL_TEST
-    Instance()[kMemorySize2MemoryPoolTable[size_index]].memory_block_used_current_num_ += 1;
-    Instance()[kMemorySize2MemoryPoolTable[size_index]].momory_block_applyed_num_ += 1;
-    if (Instance()[kMemorySize2MemoryPoolTable[size_index]].memory_block_used_current_num_ >
-        Instance()[kMemorySize2MemoryPoolTable[size_index]].momory_block_peak_num_) {
-        Instance()[kMemorySize2MemoryPoolTable[size_index]].momory_block_peak_num_ =
-            Instance()[kMemorySize2MemoryPoolTable[size_index]].memory_block_used_current_num_;
+#if USE_MEMORY_POOL_TEST
+    memory_pool[kMemorySize2MemoryPoolTable[size_index]].memory_block_used_current_num_ += 1;
+    memory_pool[kMemorySize2MemoryPoolTable[size_index]].momory_block_applyed_num_ += 1;
+    if (memory_pool[kMemorySize2MemoryPoolTable[size_index]].memory_block_used_current_num_ >
+        memory_pool[kMemorySize2MemoryPoolTable[size_index]].momory_block_peak_num_) {
+        memory_pool[kMemorySize2MemoryPoolTable[size_index]].momory_block_peak_num_ =
+            memory_pool[kMemorySize2MemoryPoolTable[size_index]].memory_block_used_current_num_;
     }
 #endif //USE_MEMORY_POOL_TEST
-    (*memory_size_ptr) = Instance()[kMemorySize2MemoryPoolTable.At(size_index)].SuperType::memory_block_memory_size();
-    return Instance()[kMemorySize2MemoryPoolTable.At(size_index)].SuperType::ApplyMemory();
+    (*memory_size_ptr) = memory_pool[kMemorySize2MemoryPoolTable.At(size_index)].SuperType::memory_block_memory_size();
+    return memory_pool[kMemorySize2MemoryPoolTable.At(size_index)].SuperType::ApplyMemory();
 }
 
 template<Bool kIsThreadSafe>
@@ -193,14 +196,15 @@ NODISCARD FORCEINLINE const Bool ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>:
 template<Bool kIsThreadSafe>
 NODISCARD FORCEINLINE const MemoryType ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::CalculateMemory(
         const MemoryType size) noexcept {
+    ZArray<ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>& memory_pool = Instance();
     IndexType size_index = (size + SuperType::node_head_offset() - 1) / kMemoryBlockMinSize;
-    return Instance()[kMemorySize2MemoryPoolTable.At(size_index)].SuperType::memory_block_memory_size();
+    return memory_pool[kMemorySize2MemoryPoolTable.At(size_index)].SuperType::memory_block_memory_size();
 }
 
 template<Bool kIsThreadSafe>
 Void ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::ReleaseMemory(
     ZSmallMemoryBlockListMemoryPool* const memory_pool_ptr, Void* const memory_ptr) noexcept {
-#ifdef USE_MEMORY_POOL_TEST
+#if USE_MEMORY_POOL_TEST
     memory_pool_ptr->memory_block_used_current_num_ -= 1;
 #endif //USE_MEMORY_POOL_TEST
     memory_pool_ptr->SuperType::ReleaseMemory(memory_ptr);

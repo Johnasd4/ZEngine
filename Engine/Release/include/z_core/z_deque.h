@@ -815,10 +815,11 @@ private:
 
     DataNode* front_node_ptr_;
     DataNode* back_node_ptr_;
-    DataNode* emptr_node_ptr_;
+    DataNode* empty_node_ptr_;
+    IndexType capacity_;
+
     IndexType front_index_;
     IndexType back_index_;
-    IndexType capacity_;
     IndexType size_;
 };
 
@@ -827,10 +828,10 @@ ZDeque<ObjectType, kIfUnique>::ZDeque() noexcept
     : SuperType()
     , front_node_ptr_(nullptr)
     , back_node_ptr_(nullptr)
-    , emptr_node_ptr_(nullptr)
+    , empty_node_ptr_(nullptr)
+    , capacity_(0)
     , front_index_(0)
     , back_index_(0)
-    , capacity_(0)
     , size_(0)
 {}
 
@@ -1020,7 +1021,9 @@ FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::CreateContainer(const IndexType 
     DEBUG(capacity < 0, "Negaive capacity not valid!");
     MemoryType need_memory_size = capacity * sizeof(ObjectType);
     MemoryType apply_mrmory_size;
-    data_ptr_ = reinterpret_cast<ObjectType*>(memory_pool::ApplyMemory(need_memory_size, &apply_mrmory_size));
+    front_node_ptr_ = back_node_ptr_ = 
+        reinterpret_cast<ObjectType*>(memory_pool::ApplyMemory(need_memory_size, &apply_mrmory_size));
+    empty_node_ptr_ = nullptr;
     capacity_ = apply_mrmory_size / sizeof(ObjectType);
 }
 
