@@ -689,13 +689,17 @@ private:
         DataNode* previous_node_ptr;
         IndexType capacity;
         IndexType size;
+
+        NODISCARD FORCEINLINE ObjectType& operator[](const IndexType index) { 
+            return reinterpret_cast<ObjectType*>(this + 1)[index];
+        }
     };
 
     /*
         Creates the capacity by the given capacity, the final capacity might
         not equal the given capacity.
     */
-    FORCEINLINE Void CreateContainer(const IndexType capacity) noexcept;
+    FORCEINLINE Void CreateContainer(const IndexType capacity) noexcept ;
     /*
         Extends the capacity by the given capacity, the final capacity might
         not equal the given capacity.
@@ -830,8 +834,8 @@ private:
     */
     FORCEINLINE Void DestroyObjects(ObjectType* begin_ptr, const IndexType num);
 
-    ObjectType* front_node_ptr_;
-    ObjectType* back_node_ptr_;
+    DataNode* front_node_ptr_;
+    DataNode* back_node_ptr_;
     DataNode* empty_node_ptr_;
     IndexType capacity_;
 
@@ -1045,7 +1049,7 @@ FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::CreateContainer(const IndexType 
     temp_node_ptr->previous_node_ptr = nullptr;
     temp_node_ptr->capacity = apply_mrmory_size / sizeof(ObjectType);
     //Initialize the container.
-    front_node_ptr_ = back_node_ptr_ = reinterpret_cast<ObjectType*>(temp_node_ptr[1]);
+    front_node_ptr_ = back_node_ptr_ = temp_node_ptr;
     empty_node_ptr_ = nullptr;
     capacity_ = temp_node_ptr->capacity;
 }
@@ -1068,27 +1072,47 @@ Void ZDeque<ObjectType, kIfUnique>::ExtendContainer(const IndexType capacity) no
 
 template<typename ObjectType, Bool kIfUnique>
 FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::ShrinkContainer() noexcept {
-    for(IndexType)
+    DataNode* temp_node_ptr;
+    while (empty_node_ptr_ != nullptr) {
+        temp_node_ptr = empty_node_ptr_;
+        empty_node_ptr_ = empty_node_ptr_->next_node_ptr;
+        memory_pool::ReleaseMemory(reinterpret_cast<Void*>(temp_node_ptr));
+    }
 }
 
 template<typename ObjectType, Bool kIfUnique>
 FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::DestroyContainer() noexcept {
-    DestroyObjects(front_ptr_, back_ptr_ + 1);
+    DataNode* temp_node_ptr;
+    while (empty_node_ptr_ != nullptr) {
+        temp_node_ptr = empty_node_ptr_;
+        empty_node_ptr_ = empty_node_ptr_->next_node_ptr;
+        memory_pool::ReleaseMemory(reinterpret_cast<Void*>(temp_node_ptr));
+    }
+    while (front_node_ptr_ != back_node_ptr_) {
+        DestroyObjects(&back_node_ptr_[0], back_node_ptr_->size);
+        temp_node_ptr = back_node_ptr_;
+        back_node_ptr_ = back_node_ptr_->previous_node_ptr;
+        memory_pool::ReleaseMemory(reinterpret_cast<Void*>(temp_node_ptr));
+    }
+    DestroyObjects(&front_node_ptr_[front_index_], front_node_ptr_->size);
     memory_pool::ReleaseMemory(reinterpret_cast<Void*>(data_ptr_));
-    data_ptr_ = nullptr;
-    front_ptr_ = nullptr;
-    back_ptr_ = nullptr;
+    front_node_ptr_ = nullptr;
+    back_node_ptr_ = nullptr;
+    front_index_ = 0;
+    back_index_ = 0;
     capacity_ = 0;
     size_ = 0;
 }
 
 template<typename ObjectType, Bool kIfUnique>
 FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::MoveDestroy() {
-    data_ptr_ = nullptr;
-    front_ptr_ = nullptr;
-    back_ptr_ = nullptr;
-    size_ = 0;
+    front_node_ptr_ = nullptr;
+    back_node_ptr_ = nullptr;
+    empty_node_ptr_ = nullptr;
+    front_index_ = 0;
+    back_index_ = 0;
     capacity_ = 0;
+    size_ = 0;
 }
 
 template<typename ObjectType, Bool kIfUnique>

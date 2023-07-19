@@ -922,7 +922,7 @@ ZVector<ObjectType, kIfUnique>::ZVector(const ConstReverseIteratorType& begin,
 
 template<typename ObjectType, Bool kIfUnique>
 ZVector<ObjectType, kIfUnique>::ZVector(const ZVector& vector) noexcept 
-    : SuperType()
+    : SuperType(vector)
 {
     CreateContainer(vector.size_);
     CreateAndCopyObjects(data_ptr_, vector.data_ptr_, vector.size_);
@@ -931,7 +931,7 @@ ZVector<ObjectType, kIfUnique>::ZVector(const ZVector& vector) noexcept
 
 template<typename ObjectType, Bool kIfUnique>
 ZVector<ObjectType, kIfUnique>::ZVector(ZVector&& vector) noexcept 
-    : SuperType()
+    : SuperType(std::forward<ZVector>(vector))
     , data_ptr_(vector.data_ptr_)
     , capacity_(vector.capacity_)
     , size_(vector.size_)
@@ -1751,6 +1751,13 @@ template<typename ObjectType, Bool kIfUnique>
 FORCEINLINE Void ZVector<ObjectType, kIfUnique>::DestroyContainer() noexcept {
     DestroyObjects(data_ptr_, data_ptr_ + size_);
     memory_pool::ReleaseMemory(reinterpret_cast<Void*>(data_ptr_));
+
+
+
+
+
+
+
     data_ptr_ = nullptr;
     size_ = 0;
     capacity_ = 0;

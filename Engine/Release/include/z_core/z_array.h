@@ -447,7 +447,7 @@ private:
 template<typename ObjectType, IndexType kCapacity, Bool kIfUnique>
 requires kIsNotZero<kCapacity>
 FORCEINLINE ZArray<ObjectType, kCapacity, kIfUnique>::ZArray(const ZArray& array)
-        : SuperType() {
+        : SuperType(array) {
     if constexpr (kIfUnique) {
         for (IndexType index = 0; index < kCapacity; ++index) {
             data_[index] = array[index];
@@ -463,7 +463,7 @@ FORCEINLINE ZArray<ObjectType, kCapacity, kIfUnique>::ZArray(const ZArray& array
 template<typename ObjectType, IndexType kCapacity, Bool kIfUnique>
 requires kIsNotZero<kCapacity>
 FORCEINLINE ZArray<ObjectType, kCapacity, kIfUnique>::ZArray(ZArray&& array)
-        : SuperType() {
+        : SuperType(std::forward<ZArray>(array)) {
     if constexpr (kIfUnique) {
         for (IndexType index = 0; index < kCapacity; ++index) {
             data_[index] = array[index];
