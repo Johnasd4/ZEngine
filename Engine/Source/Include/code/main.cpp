@@ -10,12 +10,26 @@ using namespace std;
 #include <deque>
 #include "z_core/z_vector.h"
 
+
+struct DataNode {
+public:
+    DataNode* next_node_ptr;
+    DataNode* previous_node_ptr;
+    IndexType capacity;
+    IndexType size;
+    IndexType a[];
+    IndexType b[10];
+};
+
 constexpr auto init_function = [](ZArray<Int32, 10>* array_ptr) {
     for (IndexType index = 0; index < array_ptr->size(); ++index) {
         (*array_ptr)[index] = 1;
     }
 };
 int main(){
+    DataNode a;
+    a.a[10] = 10;
+    cout << a.b[9];
     ZVector<Int8> test_vector(49);
     //ZVector<Int8> test_vector_1(test_vector);
     //cout << test_vector_1.capacity();

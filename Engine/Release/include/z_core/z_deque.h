@@ -304,7 +304,7 @@ protected:
 template<typename ObjectType, Bool kIfUnique = kIsClass<ObjectType>>
 class ZDeque : public ZObject {
 private:
-    static constexpr Float32 kAutoExtendMulFactor = 1.5F;
+    static constexpr Float32 kAutoExtendMulFactor = 0.5F;
 
 public:
     using IteratorType = internal::DequeIterator<ObjectType>;
@@ -711,6 +711,23 @@ private:
     FORCEINLINE Void DestroyContainer() noexcept;
 
     /*
+        Adds a new node to the front.
+    */
+    FORCEINLINE Void AddFrontNode() noexcept;
+    /*
+        Remove the front node.
+    */
+    FORCEINLINE Void RemoveFrontNode() noexcept;
+    /*
+        Adds a new node to the back.
+    */
+    FORCEINLINE Void AddBackNode() noexcept;
+    /*
+        Remove the back node.
+    */
+    FORCEINLINE Void RemoveBackNode() noexcept;
+
+    /*
         Called when the container is moved.
     */
     FORCEINLINE Void MoveDestroy();
@@ -813,8 +830,8 @@ private:
     */
     FORCEINLINE Void DestroyObjects(ObjectType* begin_ptr, const IndexType num);
 
-    DataNode* front_node_ptr_;
-    DataNode* back_node_ptr_;
+    ObjectType* front_node_ptr_;
+    ObjectType* back_node_ptr_;
     DataNode* empty_node_ptr_;
     IndexType capacity_;
 
@@ -1021,60 +1038,37 @@ FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::CreateContainer(const IndexType 
     DEBUG(capacity < 0, "Negaive capacity not valid!");
     MemoryType need_memory_size = capacity * sizeof(ObjectType);
     MemoryType apply_mrmory_size;
-    front_node_ptr_ = back_node_ptr_ = 
-        reinterpret_cast<ObjectType*>(memory_pool::ApplyMemory(need_memory_size, &apply_mrmory_size));
+    //Initialize the node.
+    DataNode* temp_node_ptr = 
+        reinterpret_cast<DataNode*>(memory_pool::ApplyMemory(need_memory_size, &apply_mrmory_size));
+    temp_node_ptr->next_node_ptr = nullptr;
+    temp_node_ptr->previous_node_ptr = nullptr;
+    temp_node_ptr->capacity = apply_mrmory_size / sizeof(ObjectType);
+    //Initialize the container.
+    front_node_ptr_ = back_node_ptr_ = reinterpret_cast<ObjectType*>(temp_node_ptr[1]);
     empty_node_ptr_ = nullptr;
-    capacity_ = apply_mrmory_size / sizeof(ObjectType);
+    capacity_ = temp_node_ptr->capacity;
 }
 
 template<typename ObjectType, Bool kIfUnique>
 Void ZDeque<ObjectType, kIfUnique>::ExtendContainer(const IndexType capacity) noexcept {
     DEBUG(capacity < 0, "Negaive capacity not valid!");
-    MemoryType current_memory_size = capacity_ * sizeof(ObjectType);
     MemoryType need_memory_size = capacity * sizeof(ObjectType);
     MemoryType apply_mrmory_size;
-    //If the current memory piece doesn't have enough memory.
-    if (!memory_pool::CheckMemory(reinterpret_cast<Void*>(data_ptr_), need_memory_size, &apply_mrmory_size)) {
-        ObjectType* temp_data_ptr = 
-            reinterpret_cast<ObjectType*>(memory_pool::ApplyMemory(need_memory_size, &apply_mrmory_size));
-        //Needs to split the copy into two times.
-        if (front_ptr_ > back_ptr_) {
-            IndexType part_1_num = capacity_ - static_cast<IndexType>(front_ptr_ - data_ptr_);
-            memcpy(reinterpret_cast<Void*>(temp_data_ptr), reinterpret_cast<Void*>(front_ptr_),
-                part_1_num * sizeof(ObjectType));
-            memcpy(reinterpret_cast<Void*>(temp_data_ptr + part_1_num), reinterpret_cast<Void*>(data_ptr_),
-                (size_ - part_1_num) * sizeof(ObjectType));
-        }
-        else {
-            memcpy(reinterpret_cast<Void*>(temp_data_ptr), reinterpret_cast<Void*>(front_ptr_),
-                size_ * sizeof(ObjectType));
-        }
-        memory_pool::ReleaseMemory(reinterpret_cast<Void*>(data_ptr_));
-        data_ptr_ = temp_data_ptr;
-        front_ptr_ = data_ptr_;
-        back_ptr_ = data_ptr_ + size_;
-    }
-    else {
-        //Needs to move the objects from the front to the back.
-        if (front_ptr_ > back_ptr_) {
-            IndexType part_2_num = size_ - capacity_ + static_cast<IndexType>(front_ptr_ - data_ptr_);
-            IndexType temp_capacity = apply_mrmory_size / sizeof(ObjectType);
-            IndexType addition_capacity = temp_capacity - capacity_;
-            if (addition_capacity < part_2_num) {
-                memcpy(reinterpret_cast<Void*>(data_ptr_ + size_), reinterpret_cast<Void*>(data_ptr_),
-                    addition_capacity * sizeof(ObjectType));
-                memmove(reinterpret_cast<Void*>(data_ptr_ + addition_capacity), reinterpret_cast<Void*>(data_ptr_),
-                    (part_2_num - addition_capacity) * sizeof(ObjectType));
-                back_ptr_ = back_ptr_ - addition_capacity;
-            }
-            else {
-                memcpy(reinterpret_cast<Void*>(data_ptr_ + size_), reinterpret_cast<Void*>(data_ptr_),
-                    part_2_num * sizeof(ObjectType));
-                back_ptr_ = front_ptr_ + size_;
-            }
-        }
-    }
-    capacity_ = apply_mrmory_size / sizeof(ObjectType);
+    //Initialize the node.
+    DataNode* temp_node_ptr =
+        reinterpret_cast<DataNode*>(memory_pool::ApplyMemory(need_memory_size, &apply_mrmory_size));
+    temp_node_ptr->next_node_ptr = empty_node_ptr_;
+    temp_node_ptr->previous_node_ptr = nullptr;
+    temp_node_ptr->capacity = apply_mrmory_size / sizeof(ObjectType);
+    //Update the container.
+    empty_node_ptr_ = temp_node_ptr;
+    capacity_ += temp_node_ptr->capacity;
+}
+
+template<typename ObjectType, Bool kIfUnique>
+FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::ShrinkContainer() noexcept {
+    for(IndexType)
 }
 
 template<typename ObjectType, Bool kIfUnique>

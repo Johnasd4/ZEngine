@@ -10,7 +10,7 @@ namespace console{
 
 using ConsoleOutputColourType = UInt16;
 
-enum ConsoleTextColour : ConsoleOutputColourType {
+enum ConsoleOutputTextColour : ConsoleOutputColourType {
     kConsoleTextColourDarkBlack = 0x00u,
     kConsoleTextColourDarkBlue = 0x01u,
     kConsoleTextColourDarkGreen = 0x02u,
@@ -29,7 +29,7 @@ enum ConsoleTextColour : ConsoleOutputColourType {
     kConsoleTextColourLightWhite = 0x0Fu
 };
 
-enum ConsoleBackgroundColour : ConsoleOutputColourType {
+enum ConsoleOutputBackgroundColour : ConsoleOutputColourType {
     kConsoleBackgroundColourDarkBlack = 0x00u,
     kConsoleBackgroundColourDarkBlue = 0x10u,
     kConsoleBackgroundColourDarkGreen = 0x20u,
@@ -53,36 +53,39 @@ namespace internal {
 /*
     Singleton class that contains the console settings.
 */
-class ZConsoleSettings {
+class ZConsoleOutputSettings {
+private:
+    static constexpr ConsoleOutputTextColour kDefaultTextColour = kConsoleTextColourLightWhite;
+    static constexpr ConsoleOutputBackgroundColour kDefaultBackgroundColour = kConsoleBackgroundColourDarkBlack;
+
 public:
 
-    static ZConsoleSettings& Instance() {
-        static ZConsoleSettings instance;
+    NODISCARD static ZConsoleOutputSettings& Instance() {
+        static ZConsoleOutputSettings instance;
         return instance;
     }
 
-    FORCEINLINE Void set_text_colour(const ConsoleTextColour test_colour) { text_colour_ = test_colour; }
-    FORCEINLINE Void set_background_colour(const ConsoleBackgroundColour background_colour) { 
+    FORCEINLINE Void set_text_colour(const ConsoleOutputTextColour test_colour) { text_colour_ = test_colour; }
+    FORCEINLINE Void set_background_colour(const ConsoleOutputBackgroundColour background_colour) { 
         background_colour_ = background_colour; 
     }
 
-    FORCEINLINE const ConsoleTextColour text_colour() { return text_colour_; }
-    FORCEINLINE const ConsoleBackgroundColour background_colour() { return background_colour_; }
-    FORCEINLINE ZMutex& console_output_mutex() { return console_output_mutex_; }
+    NODISCARD FORCEINLINE const ConsoleOutputTextColour text_colour() { return text_colour_; }
+    NODISCARD FORCEINLINE const ConsoleOutputBackgroundColour background_colour() { return background_colour_; }
+    NODISCARD FORCEINLINE ZMutex& console_output_mutex() { return console_output_mutex_; }
 
 private:
-    ZConsoleSettings() : text_colour_(ConsoleTextColour::kConsoleTextColourLightWhite)
-                       , background_colour_(ConsoleBackgroundColour::kConsoleBackgroundColourDarkBlack) {}
+    ZConsoleOutputSettings() : text_colour_(kDefaultTextColour), background_colour_(kDefaultBackgroundColour) {}
 
-    ConsoleTextColour text_colour_;
-    ConsoleBackgroundColour background_colour_;
+    ConsoleOutputTextColour text_colour_;
+    ConsoleOutputBackgroundColour background_colour_;
     ZMutex console_output_mutex_;
 };
 
 }//internal
 
-CORE_DLLAPI extern const Void SetConsoleOutputColour(const ConsoleTextColour test_colour,
-                                                     const ConsoleBackgroundColour background_colour) noexcept;
+CORE_DLLAPI extern const Void SetConsoleOutputColour(const ConsoleOutputTextColour test_colour,
+                                                     const ConsoleOutputBackgroundColour background_colour) noexcept;
 
 /*
     Use it as the same as printf, it's thread safe. You can add text colour and 
@@ -91,9 +94,10 @@ CORE_DLLAPI extern const Void SetConsoleOutputColour(const ConsoleTextColour tes
 */
 template<typename FormatType, typename... ArgsType>
 FORCEINLINE Void Print(FormatType&& format, ArgsType&&... args) {
-    internal::ZConsoleSettings::Instance().console_output_mutex().lock();
+    internal::ZConsoleOutputSettings& settings = internal::ZConsoleOutputSettings::Instance();
+    settings.console_output_mutex().lock();
     printf(std::forward<FormatType>(format), std::forward<ArgsType>(args)...);
-    internal::ZConsoleSettings::Instance().console_output_mutex().unlock();
+    settings.console_output_mutex().unlock();
 }
 
 /*
@@ -102,10 +106,11 @@ FORCEINLINE Void Print(FormatType&& format, ArgsType&&... args) {
     output.
 */
 template<typename FormatType, typename... ArgsType>
-FORCEINLINE Void Print(const ConsoleTextColour text_colour,
-                         const ConsoleBackgroundColour background_colour, 
+FORCEINLINE Void Print(const ConsoleOutputTextColour text_colour,
+                         const ConsoleOutputBackgroundColour background_colour, 
                          FormatType&& format, ArgsType&&... args) {
-    internal::ZConsoleSettings::Instance().console_output_mutex().lock();
+    internal::ZConsoleOutputSettings& settings = internal::ZConsoleOutputSettings::Instance();
+    settings.console_output_mutex().lock();
     //Changes the console output colour.
     SetConsoleTextAttribute(
         GetStdHandle(STD_OUTPUT_HANDLE), static_cast<UInt16>(text_colour) | static_cast<UInt16>(background_colour));
@@ -113,9 +118,9 @@ FORCEINLINE Void Print(const ConsoleTextColour text_colour,
     //Changes the console output colour back.
     SetConsoleTextAttribute(
         GetStdHandle(STD_OUTPUT_HANDLE), 
-        static_cast<UInt16>(internal::ZConsoleSettings::Instance().text_colour()) |
-        static_cast<UInt16>(internal::ZConsoleSettings::Instance().background_colour()));
-    internal::ZConsoleSettings::Instance().console_output_mutex().unlock();
+        static_cast<UInt16>(settings.text_colour()) |
+        static_cast<UInt16>(settings.background_colour()));
+    settings.console_output_mutex().unlock();
 }
 
 }//console

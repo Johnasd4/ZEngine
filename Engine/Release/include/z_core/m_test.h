@@ -11,8 +11,8 @@
 		code;\
 		end_time = clock();\
 		zengine::console::Print(\
-			zengine::console::ConsoleTextColour::kConsoleTextColourLightYellow,\
-			zengine::console::ConsoleBackgroundColour::kConsoleBackgroundColourDarkBlack,\
+			zengine::console::ConsoleOutputTextColour::kConsoleTextColourLightYellow,\
+			zengine::console::ConsoleOutputBackgroundColour::kConsoleBackgroundColourDarkBlack,\
 			"The code used %d ms\n",\
 			end_time - start_time);\
 	}
