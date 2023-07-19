@@ -13,8 +13,8 @@ CORE_DLLAPI Void ConsolePrintErrorMessage(const CChar* const error_title,
                                           const Int32 error_line, 
                                           const CChar* const error_message) noexcept {
     console::Print(
-        console::ConsoleTextColour::kConsoleTextColourLightRed, 
-        console::ConsoleBackgroundColour::kConsoleBackgroundColourDarkBlack,
+        console::ConsoleOutputTextColour::kConsoleTextColourLightRed, 
+        console::ConsoleOutputBackgroundColour::kConsoleBackgroundColourDarkBlack,
         "\n***** %s *****\nFile£º%s\nFunction£º%s\nLine£º%d\nMessage£º%s\n***** %s *****\n", 
         error_title, error_file, error_funcion, error_line, error_message, error_title);
 }

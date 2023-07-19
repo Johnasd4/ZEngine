@@ -5,10 +5,10 @@
 namespace zengine {
 namespace console {
 
-CORE_DLLAPI const Void SetConsoleOutputColour(const ConsoleTextColour test_colour,
-                                              const ConsoleBackgroundColour background_colour) noexcept {
-    internal::ZConsoleSettings::Instance().set_text_colour(test_colour);
-    internal::ZConsoleSettings::Instance().set_background_colour(background_colour);
+CORE_DLLAPI const Void SetConsoleOutputColour(const ConsoleOutputTextColour test_colour,
+                                              const ConsoleOutputBackgroundColour background_colour) noexcept {
+    internal::ZConsoleOutputSettings::Instance().set_text_colour(test_colour);
+    internal::ZConsoleOutputSettings::Instance().set_background_colour(background_colour);
     //Changes the console output colour.
     SetConsoleTextAttribute(
         GetStdHandle(STD_OUTPUT_HANDLE), 
