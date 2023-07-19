@@ -17,7 +17,7 @@ public:
     DataNode* previous_node_ptr;
     IndexType capacity;
     IndexType size;
-    IndexType a[];
+    IndexType a[0];
     IndexType b[10];
 };
 
