@@ -33,6 +33,11 @@ private:
         HeapMemoryPtrArrayNode* next_node_ptr;
     };
 
+    NODISCARD static ZHeapMemoryPool<kIsThreadSafe>& Instance() noexcept {
+        static ZHeapMemoryPool<kIsThreadSafe> heap_memory_pool;;
+        return heap_memory_pool;
+    }
+
     ZHeapMemoryPool() noexcept 
         : current_node_ptr_(static_cast<HeapMemoryPtrArrayNode*>(malloc(sizeof(HeapMemoryPtrArrayNode))))
         , head_node_ptr_(current_node_ptr_)
@@ -58,19 +63,19 @@ private:
 
 template<Bool kIsThreadSafe>
 NODISCARD Void* const ZHeapMemoryPool<kIsThreadSafe>::ApplyMemory(const MemoryType size) noexcept {
-    static ZHeapMemoryPool heap_memory_pool;
+    ZHeapMemoryPool& memory_pool = Instance();
     Void* const heap_memory_ptr = malloc(size);
-    heap_memory_pool.MutexType::lock();
+    memory_pool.MutexType::lock();
     //applys new node when the memory runs out.
-    if (heap_memory_pool.current_node_heap_memory_ptr_num_ == HeapMemoryPtrArrayNode::kHeapMemoryPtrNumPurNode) {
-        heap_memory_pool.current_node_heap_memory_ptr_num_ = 0;
-        heap_memory_pool.current_node_ptr_->next_node_ptr = 
+    if (memory_pool.current_node_heap_memory_ptr_num_ == HeapMemoryPtrArrayNode::kHeapMemoryPtrNumPurNode) {
+        memory_pool.current_node_heap_memory_ptr_num_ = 0;
+        memory_pool.current_node_ptr_->next_node_ptr = 
             static_cast<HeapMemoryPtrArrayNode*>(malloc(sizeof(HeapMemoryPtrArrayNode)));
-        heap_memory_pool.current_node_ptr_ = heap_memory_pool.current_node_ptr_->next_node_ptr;
+        memory_pool.current_node_ptr_ = memory_pool.current_node_ptr_->next_node_ptr;
     }
-    heap_memory_pool.current_node_ptr_->heap_memory_ptr[heap_memory_pool.current_node_heap_memory_ptr_num_++] = 
+    memory_pool.current_node_ptr_->heap_memory_ptr[memory_pool.current_node_heap_memory_ptr_num_++] = 
         heap_memory_ptr;
-    heap_memory_pool.MutexType::unlock();
+    memory_pool.MutexType::unlock();
     return heap_memory_ptr;
 }
 
