@@ -1751,13 +1751,6 @@ template<typename ObjectType, Bool kIfUnique>
 FORCEINLINE Void ZVector<ObjectType, kIfUnique>::DestroyContainer() noexcept {
     DestroyObjects(data_ptr_, data_ptr_ + size_);
     memory_pool::ReleaseMemory(reinterpret_cast<Void*>(data_ptr_));
-
-
-
-
-
-
-
     data_ptr_ = nullptr;
     size_ = 0;
     capacity_ = 0;
