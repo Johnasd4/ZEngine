@@ -24,7 +24,6 @@
     <ClInclude Include="code\z_core\z_array.h" />
     <ClInclude Include="code\z_core\z_lookup_table.h" />
     <ClInclude Include="code\z_core\z_deque.h" />
-    <ClInclude Include="code\z_core\z_stack.h" />
     <ClInclude Include="code\z_core\z_vector.h" />
     <ClInclude Include="code\z_core\f_console_output.h" />
     <ClInclude Include="code\z_core\f_memory_pool.h" />
