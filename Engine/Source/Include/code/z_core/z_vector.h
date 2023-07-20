@@ -1053,9 +1053,20 @@ Void ZVector<ObjectType, kIfUnique>::PushBacks(const IndexType num, ArgsType&&..
 template<typename ObjectType, Bool kIfUnique>
 Void ZVector<ObjectType, kIfUnique>::PushBacks(const IteratorType& begin, const IteratorType& end) noexcept {
     DEBUG(begin > end, "Begin iterator after end iterator!");
+    const ObjectType* begin_ptr = begin.object_ptr();
+    const ObjectType* end_ptr = end.object_ptr();
     IndexType new_size = size_ + (end - begin);
     if (new_size > capacity_) {
-        ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+        if (begin.object_ptr() >= data_ptr_ && begin.object_ptr() <= (data_ptr_ + size_)) {
+            IndexType begin_index = static_cast<IndexType>(begin_ptr - data_ptr_);
+            IndexType end_index = end_ptr - data_ptr_;
+            ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+            begin_ptr = data_ptr_ + begin_index;
+            end_ptr = data_ptr_ + end_index;
+        }
+        else {
+            ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+        }
     }
     CreateAndCopyObjects(data_ptr_ + size_, begin.object_ptr(), end.object_ptr());
     size_ = new_size;
