@@ -11,19 +11,6 @@ namespace zengine {
 namespace internal {
 
 template<typename ObjectType>
-class VectorIterator;
-
-template<typename ObjectType>
-class ConstVectorIterator;
-
-template<typename ObjectType>
-class ReverseVectorIterator;
-
-template<typename ObjectType>
-class ConstReverseVectorIterator;
-
-
-template<typename ObjectType>
 class VectorIteratorBase {
 public:
     FORCEINLINE VectorIteratorBase(ObjectType* object_ptr) : object_ptr_(object_ptr) {}
@@ -118,71 +105,6 @@ protected:
 };
 
 template<typename ObjectType>
-class VectorConstIterator : public VectorIteratorBase<ObjectType> {
-public:
-    FORCEINLINE VectorConstIterator(const ObjectType* object_ptr) : SuperType(const_cast<ObjectType*>(object_ptr)) {}
-
-    FORCEINLINE VectorConstIterator& operator=(const ObjectType* object_ptr) {
-        SuperType::object_ptr_ = const_cast<ObjectType*>(object_ptr);
-        return *this;
-    }
-
-    NODISCARD FORCEINLINE const ObjectType& operator[](const IndexType index) const { 
-        return SuperType::object_ptr_[-index]; 
-    }
-    NODISCARD FORCEINLINE const ObjectType& operator*() const { return *SuperType::object_ptr_; }
-    NODISCARD FORCEINLINE const ObjectType* const operator->() const { return SuperType::object_ptr_; }
-
-    FORCEINLINE VectorConstIterator& operator+=(const IndexType data_num) {
-        SuperType::object_ptr_ += data_num;
-        return *this;
-    }
-    FORCEINLINE VectorConstIterator& operator-=(const IndexType data_num) {
-        SuperType::object_ptr_ -= data_num;
-        return *this;
-    }
-
-    FORCEINLINE VectorConstIterator& operator++() {
-        ++SuperType::object_ptr_;
-        return *this;
-    }
-    FORCEINLINE VectorConstIterator& operator--() {
-        --SuperType::object_ptr_;
-        return *this;
-    }
-
-    NODISCARD FORCEINLINE VectorConstIterator operator+(const IndexType data_num) const {
-        return VectorConstIterator(SuperType::object_ptr_ + data_num);
-    }
-    NODISCARD FORCEINLINE VectorConstIterator operator-(const IndexType data_num) const {
-        return VectorConstIterator(SuperType::object_ptr_ - data_num);
-    }
-
-    NODISCARD FORCEINLINE const Bool operator>(const VectorConstIterator& iterator) const {
-        return SuperType::object_ptr_ > iterator.SuperType::object_ptr_;
-    }
-    NODISCARD FORCEINLINE const Bool operator>=(const VectorConstIterator& iterator) const {
-        return SuperType::object_ptr_ >= iterator.SuperType::object_ptr_;
-    }
-    NODISCARD FORCEINLINE const Bool operator<(const VectorConstIterator& iterator) const {
-        return SuperType::object_ptr_ < iterator.SuperType::object_ptr_;
-    }
-    NODISCARD FORCEINLINE const Bool operator<=(const VectorConstIterator& iterator) const {
-        return SuperType::object_ptr_ <= iterator.SuperType::object_ptr_;
-    }
-
-    FORCEINLINE const IndexType operator-(const VectorConstIterator& iterator) const {
-        return static_cast<IndexType>(SuperType::object_ptr_ - iterator.SuperType::object_ptr_);
-    }
-
-    NODISCARD FORCEINLINE const ObjectType* object_ptr() { return SuperType::object_ptr_; }
-    NODISCARD FORCEINLINE const ObjectType* const object_ptr() const { return SuperType::object_ptr_; }
-
-protected:
-    using SuperType = VectorIteratorBase<ObjectType>;
-};
-
-template<typename ObjectType>
 class VectorReverseIterator : public VectorIteratorBase<ObjectType> {
 public:
     NODISCARD FORCEINLINE ObjectType& operator[](const IndexType index) const { return SuperType::object_ptr_[-index]; }
@@ -238,72 +160,6 @@ protected:
     using SuperType = VectorIteratorBase<ObjectType>;
 };
 
-template<typename ObjectType>
-class VectorConstReverseIterator : public VectorIteratorBase<ObjectType> {
-public:
-    FORCEINLINE VectorConstReverseIterator(const ObjectType* object_ptr)
-        : SuperType(const_cast<ObjectType*>(object_ptr)) {}
-
-    FORCEINLINE VectorConstReverseIterator& operator=(const ObjectType* object_ptr) {
-        SuperType::object_ptr_ = const_cast<ObjectType*>(object_ptr);
-        return *this;
-    }
-
-    NODISCARD FORCEINLINE const ObjectType& operator[](const IndexType index) const { 
-        return SuperType::object_ptr_[-index]; 
-    }
-    NODISCARD FORCEINLINE const ObjectType& operator*() const { return *SuperType::object_ptr_; }
-    NODISCARD FORCEINLINE const ObjectType* const operator->() const { return SuperType::object_ptr_; }
-
-    FORCEINLINE VectorConstReverseIterator& operator+=(const IndexType data_num) {
-        SuperType::object_ptr_ -= data_num;
-        return *this;
-    }
-    FORCEINLINE VectorConstReverseIterator& operator-=(const IndexType data_num) {
-        SuperType::object_ptr_ += data_num;
-        return *this;
-    }
-
-    FORCEINLINE VectorConstReverseIterator& operator++() {
-        --SuperType::object_ptr_;
-        return *this;
-    }
-    FORCEINLINE VectorConstReverseIterator& operator--() {
-        ++SuperType::object_ptr_;
-        return *this;
-    }
-
-    NODISCARD FORCEINLINE VectorConstReverseIterator operator+(const IndexType data_num) const {
-        return VectorConstReverseIterator(SuperType::object_ptr_ - data_num);
-    }
-    NODISCARD FORCEINLINE VectorConstReverseIterator operator-(const IndexType data_num) const {
-        return VectorConstReverseIterator(SuperType::object_ptr_ + data_num);
-    }
-
-    NODISCARD FORCEINLINE const Bool operator>(const VectorConstReverseIterator& iterator) const {
-        return SuperType::object_ptr_ < iterator.SuperType::object_ptr_;
-    }
-    NODISCARD FORCEINLINE const Bool operator>=(const VectorConstReverseIterator& iterator) const {
-        return SuperType::object_ptr_ <= iterator.SuperType::object_ptr_;
-    }
-    NODISCARD FORCEINLINE const Bool operator<(const VectorConstReverseIterator& iterator) const {
-        return SuperType::object_ptr_ > iterator.SuperType::object_ptr_;
-    }
-    NODISCARD FORCEINLINE const Bool operator<=(const VectorConstReverseIterator& iterator) const {
-        return SuperType::object_ptr_ >= iterator.SuperType::object_ptr_;
-    }
-
-    FORCEINLINE const IndexType operator-(const VectorConstReverseIterator& iterator) const {
-        return static_cast<IndexType>(iterator.SuperType::object_ptr_ - SuperType::object_ptr_);
-    }
-
-    NODISCARD FORCEINLINE const ObjectType* object_ptr() { return SuperType::object_ptr_; }
-    NODISCARD FORCEINLINE const ObjectType* const object_ptr() const { return SuperType::object_ptr_; }
-
-protected:
-    using SuperType = VectorIteratorBase<ObjectType>;
-};
-
 }//internal
 
 /*
@@ -317,9 +173,9 @@ private:
 
 public:
     using IteratorType = internal::VectorIterator<ObjectType>;
-    using ConstIteratorType = internal::VectorConstIterator<ObjectType>;
+    using ConstIteratorType = internal::VectorIterator<const ObjectType>;
     using ReverseIteratorType = internal::VectorReverseIterator<ObjectType>;
-    using ConstReverseIteratorType = internal::VectorConstReverseIterator<ObjectType>;
+    using ConstReverseIteratorType = internal::VectorReverseIterator<const ObjectType>;
 
     ZVector() noexcept;
     ZVector(const IndexType capacity) noexcept;
@@ -495,14 +351,14 @@ public:
         Inserts before the iterator. Returns the iterator that points at the newest object.
     */
     template<typename... ArgsType>
-    FORCEINLINE IteratorType Insert(const IteratorType& iterator, ArgsType&&... args) {
+    NODISCARD FORCEINLINE IteratorType Insert(const IteratorType& iterator, ArgsType&&... args) {
         return InsertP(iterator.object_ptr() - data_ptr_, std::forward<ArgsType>(args)...);
     }
     /*
         Inserts before the iterator. Returns the iterator that points at the newest object.
     */
     template<typename... ArgsType>
-    FORCEINLINE ReverseIteratorType Insert(const ReverseIteratorType& iterator, ArgsType&&... args) {
+    NODISCARD FORCEINLINE ReverseIteratorType Insert(const ReverseIteratorType& iterator, ArgsType&&... args) {
         return InsertP(iterator.object_ptr() - data_ptr_ + 1, std::forward<ArgsType>(args)...);
     }
 
@@ -517,14 +373,15 @@ public:
         Inserts before the iterator. Returns the iterator that points at the first new object.
     */
     template<typename... ArgsType>
-    FORCEINLINE IteratorType Inserts(const IteratorType& iterator, IndexType num, ArgsType&&... args) {
+    NODISCARD FORCEINLINE IteratorType Inserts(const IteratorType& iterator, IndexType num, ArgsType&&... args) {
         return InsertsP(iterator.object_ptr() - data_ptr_, num, std::forward<ArgsType>(args)...);
     }
     /*
         Inserts before the iterator. Returns the iterator that points at the first new object.
     */
     template<typename... ArgsType>
-    FORCEINLINE ReverseIteratorType Inserts(const ReverseIteratorType & iterator, IndexType num, ArgsType&&... args) {
+    NODISCARD FORCEINLINE ReverseIteratorType Inserts(const ReverseIteratorType & iterator, IndexType num, 
+                                                      ArgsType&&... args) {
         return InsertsP(iterator.object_ptr() - data_ptr_ + 1, num, std::forward<ArgsType>(args)...) + (num - 1);
     }
 
@@ -569,36 +426,36 @@ public:
         Makes a copy of the objects between the iterators and insert them to the
         given place. Returns the iterator that points at the first new object.
     */
-    FORCEINLINE IteratorType Inserts(const IteratorType& iterator,
-                                     const IteratorType& src_begin, 
-                                     const IteratorType& src_end) {
+    NODISCARD FORCEINLINE IteratorType Inserts(const IteratorType& iterator,
+                                               const IteratorType& src_begin, 
+                                               const IteratorType& src_end) {
         return InsertsOrderP(iterator.object_ptr() - data_ptr_, src_begin.object_ptr(), src_end.object_ptr());
     }
     /*
         Makes a copy of the objects between the iterators and insert them to the
         given place. Returns the iterator that points at the first new object.
     */
-    FORCEINLINE IteratorType Inserts(const IteratorType& iterator,
-                                     const ConstIteratorType& src_begin, 
-                                     const ConstIteratorType& src_end) {
+    NODISCARD FORCEINLINE IteratorType Inserts(const IteratorType& iterator,
+                                               const ConstIteratorType& src_begin, 
+                                               const ConstIteratorType& src_end) {
         return InsertsOrderP(iterator.object_ptr() - data_ptr_, src_begin.object_ptr(), src_end.object_ptr());
     }
     /*
         Makes a copy of the objects between the iterators and insert them to the
         given place. Returns the iterator that points at the first new object.
     */
-    FORCEINLINE IteratorType Inserts(const IteratorType& iterator,
-                                     const ReverseIteratorType& src_begin, 
-                                     const ReverseIteratorType& src_end) {
+    NODISCARD FORCEINLINE IteratorType Inserts(const IteratorType& iterator,
+                                               const ReverseIteratorType& src_begin, 
+                                               const ReverseIteratorType& src_end) {
         return InsertsReverseP(iterator.object_ptr() - data_ptr_, src_begin.object_ptr(), src_end.object_ptr());
     }
     /*
         Makes a copy of the objects between the iterators and insert them to the
         given place. Returns the iterator that points at the first new object.
     */
-    FORCEINLINE IteratorType Inserts(const IteratorType& iterator,
-                                     const ConstReverseIteratorType& src_begin, 
-                                     const ConstReverseIteratorType& src_end) {
+    NODISCARD FORCEINLINE IteratorType Inserts(const IteratorType& iterator,
+                                               const ConstReverseIteratorType& src_begin, 
+                                               const ConstReverseIteratorType& src_end) {
         return InsertsReverseP(iterator.object_ptr() - data_ptr_, src_begin.object_ptr(), src_end.object_ptr());
     }
 
@@ -606,9 +463,9 @@ public:
         Makes a copy of the objects between the iterators and insert them to the
         given place. Returns the iterator that points at the first new object.
     */
-    FORCEINLINE ReverseIteratorType Inserts(const ReverseIteratorType& iterator,
-                                            const IteratorType& src_begin, 
-                                            const IteratorType& src_end) {
+    NODISCARD FORCEINLINE ReverseIteratorType Inserts(const ReverseIteratorType& iterator,
+                                                      const IteratorType& src_begin, 
+                                                      const IteratorType& src_end) {
         return InsertsReverseP(iterator.object_ptr() - data_ptr_ + 1,
                                src_end.object_ptr() - 1, src_begin.object_ptr() - 1) + ((src_end - src_begin) - 1);
     }
@@ -616,9 +473,9 @@ public:
         Makes a copy of the objects between the iterators and insert them to the
         given place. Returns the iterator that points at the first new object.
     */
-    FORCEINLINE ReverseIteratorType Inserts(const ReverseIteratorType& iterator,
-                                            const ConstIteratorType& src_begin, 
-                                            const ConstIteratorType& src_end) {
+    NODISCARD FORCEINLINE ReverseIteratorType Inserts(const ReverseIteratorType& iterator,
+                                                      const ConstIteratorType& src_begin, 
+                                                      const ConstIteratorType& src_end) {
         return InsertsReverseP(iterator.object_ptr() - data_ptr_ + 1,
                                src_end.object_ptr() - 1, src_begin.object_ptr() - 1) + ((src_end - src_begin) - 1);
     }
@@ -626,9 +483,9 @@ public:
         Makes a copy of the objects between the iterators and insert them to the
         given place. Returns the iterator that points at the first new object.
     */
-    FORCEINLINE ReverseIteratorType Inserts(const ReverseIteratorType& iterator,
-                                            const ReverseIteratorType& src_begin, 
-                                            const ReverseIteratorType& src_end) {
+    NODISCARD FORCEINLINE ReverseIteratorType Inserts(const ReverseIteratorType& iterator,
+                                                      const ReverseIteratorType& src_begin, 
+                                                      const ReverseIteratorType& src_end) {
         return InsertsOrderP(iterator.object_ptr() - data_ptr_ + 1,
                              src_end.object_ptr() + 1, src_begin.object_ptr() + 1) + ((src_end - src_begin) - 1);
     }
@@ -636,9 +493,9 @@ public:
         Makes a copy of the objects between the iterators and insert them to the
         given place. Returns the iterator that points at the first new object.
     */
-    FORCEINLINE ReverseIteratorType Inserts(const ReverseIteratorType& iterator,
-                                            const ConstReverseIteratorType& src_begin,
-                                            const ConstReverseIteratorType& src_end) {
+    NODISCARD FORCEINLINE ReverseIteratorType Inserts(const ReverseIteratorType& iterator,
+                                                      const ConstReverseIteratorType& src_begin,
+                                                      const ConstReverseIteratorType& src_end) {
         return InsertsOrderP(iterator.object_ptr() - data_ptr_ + 1,
                              src_end.object_ptr() + 1, src_begin.object_ptr() + 1) + ((src_end - src_begin) - 1);
 
@@ -655,14 +512,14 @@ public:
         Erases the object by the index.
         Returns the iterator that points at the next object.
     */
-    FORCEINLINE IteratorType Erase(const IteratorType& iterator) {
+    NODISCARD FORCEINLINE IteratorType Erase(const IteratorType& iterator) {
         return EraseP(iterator.object_ptr());
     }
     /*
         Erases the object by the index.
         Returns the iterator that points at the next object.
     */
-    FORCEINLINE ReverseIteratorType Erase(const ReverseIteratorType& iterator) {
+    NODISCARD FORCEINLINE ReverseIteratorType Erase(const ReverseIteratorType& iterator) {
         return EraseP(iterator.object_ptr()) - 1;
     }
 
@@ -670,35 +527,36 @@ public:
         Erases the num of objects that starts at the given index.
         Returns the iterator that points at the next object.
     */
-    FORCEINLINE IteratorType Erases(const IndexType index, const IndexType num) {
+    NODISCARD FORCEINLINE IteratorType Erases(const IndexType index, const IndexType num) {
         return ErasesP(data_ptr_ + index, data_ptr_ + (index + num));
     }
     /*
         Erases the num of objects that starts at the given iterator.
         Returns the iterator that points at the next object.
     */
-    FORCEINLINE IteratorType Erases(const IteratorType& iterator, const IndexType num) {
+    NODISCARD FORCEINLINE IteratorType Erases(const IteratorType& iterator, const IndexType num) {
         return ErasesP(iterator.object_ptr(), iterator.object_ptr() + num);
     }
     /*
         Erases the num of objects that starts at the given iterator.
         Returns the iterator that points at the next object.
     */
-    FORCEINLINE ReverseIteratorType Erases(const ReverseIteratorType& iterator, const IndexType num) {
+    NODISCARD FORCEINLINE ReverseIteratorType Erases(const ReverseIteratorType& iterator, const IndexType num) {
         return ErasesP(iterator.object_ptr(), iterator.object_ptr() + num) - num;
     }
     /*
         Erases the object between begin and end, involves begin, but don't involves end.
         Returns the iterator that points at the next object.
     */
-    FORCEINLINE IteratorType Erases(const IteratorType& begin, const IteratorType& end) {
+    NODISCARD FORCEINLINE IteratorType Erases(const IteratorType& begin, const IteratorType& end) {
         return ErasesP(begin.object_ptr(), end.object_ptr());
     }
     /*
         Erases the object between begin and end, involves begin, but don't involves end.
         Returns the iterator that points at the next object.
     */
-    FORCEINLINE ReverseIteratorType Erases(const ReverseIteratorType& begin, const ReverseIteratorType& end) {
+    NODISCARD FORCEINLINE ReverseIteratorType Erases(const ReverseIteratorType& begin, 
+                                                     const ReverseIteratorType& end) {
         return ErasesP(end.object_ptr() + 1, begin.object_ptr() + 1) - 1;
     }
 
@@ -706,17 +564,23 @@ public:
         Calls the constructor with the arguements.
     */
     template<typename... ArgsType>
-    Void Emplace(const IndexType index, ArgsType&&... args) noexcept;
+    FORCEINLINE Void Emplace(const IndexType index, ArgsType&&... args) {
+        EmplaceP(data_ptr_ + index, std::forward<ArgsType>(args)...);
+    }
     /*
         Calls the constructor with the arguements.
     */
     template<typename... ArgsType>
-    Void Emplace(const IteratorType& iterator, ArgsType&&... args) noexcept;
+    FORCEINLINE Void Emplace(const IteratorType& iterator, ArgsType&&... args) {
+        EmplaceP(iterator.object_ptr(), std::forward<ArgsType>(args)...);
+    }
     /*
         Calls the constructor with the arguements.
     */
     template<typename... ArgsType>
-    Void Emplace(const ReverseIteratorType& iterator, ArgsType&&... args) noexcept;
+    FORCEINLINE Void Emplace(const ReverseIteratorType& iterator, ArgsType&&... args) {
+        EmplaceP(iterator.object_ptr(), std::forward<ArgsType>(args)...);
+    }
 
     /*
         Construct the vector by filling it with the given amount of objects.
@@ -729,19 +593,27 @@ public:
     /*
         Construct the vector by filling it objects between the iterators.
     */
-    Void Assign(const IteratorType& begin, const IteratorType& end) noexcept;
+    FORCEINLINE Void Assign(const IteratorType& begin, const IteratorType& end) noexcept {
+        AssignOrderP(begin.object_ptr(), end.object_ptr());
+    }
     /*
         Construct the vector by filling it objects between the iterators.
     */
-    Void Assign(const ConstIteratorType& begin, const ConstIteratorType& end) noexcept;
+    FORCEINLINE Void Assign(const ConstIteratorType& begin, const ConstIteratorType& end) noexcept {
+        AssignOrderP(begin.object_ptr(), end.object_ptr());
+    }
     /*
         Construct the vector by filling it objects between the iterators.
     */
-    Void Assign(const ReverseIteratorType& begin, const ReverseIteratorType& end) noexcept;
+    FORCEINLINE Void Assign(const ReverseIteratorType& begin, const ReverseIteratorType& end) noexcept {
+        AssignReverseP(begin.object_ptr(), end.object_ptr());
+    }
     /*
         Construct the vector by filling it objects between the iterators.
     */
-    Void Assign(const ConstReverseIteratorType& begin, const ConstReverseIteratorType& end) noexcept;
+    FORCEINLINE Void Assign(const ConstReverseIteratorType& begin, const ConstReverseIteratorType& end) noexcept {
+        AssignReverseP(begin.object_ptr(), end.object_ptr());
+    }
 
     /*
         The small object on the front.
@@ -890,40 +762,55 @@ private:
         Inserts before the index. Returns the pointer that points at the newest object.
     */
     template<typename... ArgsType>
-    ObjectType* InsertP(const IndexType index, ArgsType&&... args) noexcept;
+    NODISCARD ObjectType* InsertP(const IndexType index, ArgsType&&... args) noexcept;
 
     /*
         Inserts before the index. Returns the pointer that points at the first new object.
     */
     template<typename... ArgsType>
-    ObjectType* InsertsP(const IndexType index, IndexType num, ArgsType&&... args) noexcept;
+    NODISCARD ObjectType* InsertsP(const IndexType index, IndexType num, ArgsType&&... args) noexcept;
 
     /*
         Makes a copy of the objects between the pointers and insert them to the
         given place. Returns the pointer that points at the first new object.
     */
-    ObjectType* InsertsOrderP(const IndexType index,
+    NODISCARD ObjectType* InsertsOrderP(const IndexType index,
                               const ObjectType* src_begin_ptr, const ObjectType* src_end_ptr) noexcept;
 
     /*
         Makes a copy of the objects between the pointers and insert them to the
         given place. Returns the pointer that points at the first new object.
     */
-    ObjectType* InsertsReverseP(const IndexType index,
+    NODISCARD ObjectType* InsertsReverseP(const IndexType index,
                                 const ObjectType* src_begin_ptr, const ObjectType* src_end_ptr) noexcept;
 
     /*
         Erases the object by the index.
         Returns the pointer that points at the next object.
     */
-    inline ObjectType* EraseP(const ObjectType* object_ptr) noexcept;
+    NODISCARD inline ObjectType* EraseP(const ObjectType* object_ptr) noexcept;
 
     /*
         Erases the num of objects that starts at the given index.
         Returns the pointer that points at the next object.
     */
-    inline ObjectType* ErasesP(const ObjectType* begin_ptr, const ObjectType* end_ptr) noexcept;
+    NODISCARD inline ObjectType* ErasesP(const ObjectType* begin_ptr, const ObjectType* end_ptr) noexcept;
 
+    /*
+        Calls the constructor with the arguements.
+    */
+    template<typename... ArgsType>
+    inline Void EmplaceP(const ObjectType* object_ptr, ArgsType&&... args) noexcept;
+
+    /*
+        Construct the vector by filling it objects between the pointers.
+    */
+    Void AssignOrderP(const ObjectType* begin_ptr, const ObjectType* end_ptr) noexcept;
+
+    /*
+        Construct the vector by filling it objects between the pointers.
+    */
+    Void AssignReverseP(const ObjectType* begin_ptr, const ObjectType* end_ptr) noexcept;
 
     ObjectType* data_ptr_;
     IndexType capacity_;
@@ -1132,33 +1019,6 @@ inline Void ZVector<ObjectType, kIfUnique>::EmplaceBack(ArgsType&&... args) noex
 
 template<typename ObjectType, Bool kIfUnique>
 template<typename... ArgsType>
-Void ZVector<ObjectType, kIfUnique>::Emplace(const IndexType index, ArgsType&&... args) noexcept {
-    DEBUG(index < 0 || index >= size_, "Emplace index out of bounds!");
-    DestroyObject(data_ptr_ + index);
-    CreateObject(data_ptr_ + index, std::forward<ArgsType>(args)...);
-}
-
-template<typename ObjectType, Bool kIfUnique>
-template<typename... ArgsType>
-Void ZVector<ObjectType, kIfUnique>::Emplace(const IteratorType& iterator, ArgsType&&... args) noexcept {
-    DEBUG(iterator.object_ptr() < data_ptr_ || iterator.object_ptr() >= data_ptr_ + size_,
-          "Emplace iterator out of bounds!");
-    DestroyObject(iterator.object_ptr());
-    CreateObject(iterator.object_ptr(), std::forward<ArgsType>(args)...);
-}
-
-template<typename ObjectType, Bool kIfUnique>
-template<typename... ArgsType>
-Void ZVector<ObjectType, kIfUnique>::Emplace(const ReverseIteratorType& iterator, 
-                                                       ArgsType&&... args) noexcept {
-    DEBUG(iterator.object_ptr() < data_ptr_ || iterator.object_ptr() >= data_ptr_ + size_,
-          "Emplace iterator out of bounds!");
-    DestroyObject(iterator.object_ptr());
-    CreateObject(iterator.object_ptr(), std::forward<ArgsType>(args)...);
-}
-
-template<typename ObjectType, Bool kIfUnique>
-template<typename... ArgsType>
 Void ZVector<ObjectType, kIfUnique>::Assign(const IndexType num, ArgsType&&... args) noexcept {
     IndexType new_size = num;
     DEBUG(num < 0, "Negative assign num not valid!");
@@ -1167,109 +1027,6 @@ Void ZVector<ObjectType, kIfUnique>::Assign(const IndexType num, ArgsType&&... a
     }
     DestroyObjects(data_ptr_, data_ptr_ + size_);
     CreateObjects(data_ptr_, data_ptr_ + num, std::forward<ArgsType>(args)...);
-    size_ = new_size;
-}
-
-template<typename ObjectType, Bool kIfUnique>
-Void ZVector<ObjectType, kIfUnique>::Assign(const IteratorType& begin, const IteratorType& end) noexcept {
-    DEBUG(begin > end, "Begin iterator after end iterator!");
-    IndexType new_size = end - begin;
-    if (new_size > capacity_) {
-        ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
-    }
-    //If the iterator is from this.
-    if (begin.object_ptr() >= data_ptr_ && begin.object_ptr() <= (data_ptr_ + size_)) {
-        DestroyObjects(data_ptr_, begin.object_ptr());
-        DestroyObjects(end.object_ptr(), data_ptr_ + size_);
-        //Move the objects to the front.
-        memmove(reinterpret_cast<Void*>(data_ptr_), reinterpret_cast<Void*>(begin.object_ptr()),
-                new_size * sizeof(ObjectType));
-    }
-    else {
-        CopyObjects(data_ptr_, begin.object_ptr(), end.object_ptr());
-    }
-    size_ = new_size;
-}
-
-template<typename ObjectType, Bool kIfUnique>
-Void ZVector<ObjectType, kIfUnique>::Assign(const ConstIteratorType& begin, 
-                                                      const ConstIteratorType& end) noexcept {
-    DEBUG(begin > end, "Begin iterator after end iterator!");
-    IndexType new_size = end - begin;
-    if (new_size > capacity_) {
-        ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
-    }
-    //If the iterator is from this.
-    if (begin.object_ptr() >= data_ptr_ && begin.object_ptr() <= (data_ptr_ + size_)) {
-        DestroyObjects(data_ptr_, begin.object_ptr());
-        DestroyObjects(end.object_ptr(), data_ptr_ + size_);
-        //Move the objects to the front.
-        memmove(reinterpret_cast<Void*>(data_ptr_), reinterpret_cast<Void*>(begin.object_ptr()),
-            new_size * sizeof(ObjectType));
-    }
-    else {
-        CopyObjects(data_ptr_, begin.object_ptr(), end.object_ptr());
-    }
-    size_ = new_size;
-}
-
-template<typename ObjectType, Bool kIfUnique>
-Void ZVector<ObjectType, kIfUnique>::Assign(const ReverseIteratorType& begin,
-                                                      const ReverseIteratorType& end) noexcept {
-    DEBUG(begin > end, "Begin iterator after end iterator!");
-    IndexType new_size = end - begin;
-    if (new_size > capacity_) {
-        ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
-    }
-    //If the iterator is from this.
-    if (begin.object_ptr() >= data_ptr_ && begin.object_ptr() <= (data_ptr_ + size_)) {
-        DestroyObjects(data_ptr_, end.object_ptr() + 1);
-        DestroyObjects(begin.object_ptr() + 1, data_ptr_ + size_);
-        //Reverses the objects.
-        ObjectType* begin_ptr = end.object_ptr() + 1;
-        ObjectType* end_ptr = begin.object_ptr();
-        while (begin_ptr < end_ptr) {
-            Swap(begin_ptr, end_ptr);
-            ++begin_ptr;
-            --end_ptr;
-        }
-        //Move the objects to the first front.
-        memmove(reinterpret_cast<Void*>(data_ptr_), reinterpret_cast<Void*>(end.object_ptr() + 1),
-                new_size * sizeof(ObjectType));
-    }
-    else {
-        CopyObjectsReverse(data_ptr_, begin.object_ptr(), end.object_ptr());
-    }
-    size_ = new_size;
-}
-
-template<typename ObjectType, Bool kIfUnique>
-Void ZVector<ObjectType, kIfUnique>::Assign(const ConstReverseIteratorType& begin,
-                                                      const ConstReverseIteratorType& end) noexcept {
-    DEBUG(begin > end, "Begin iterator after end iterator!");
-    IndexType new_size = end - begin;
-    if (new_size > capacity_) {
-        ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
-    }
-    //If the iterator is from this.
-    if (begin.object_ptr() >= data_ptr_ && begin.object_ptr() <= (data_ptr_ + size_)) {
-        DestroyObjects(data_ptr_, end.object_ptr() + 1);
-        DestroyObjects(begin.object_ptr() + 1, data_ptr_ + size_);
-        //Reverses the objects.
-        ObjectType* begin_ptr = end.object_ptr() + 1;
-        ObjectType* end_ptr = begin.object_ptr();
-        while (begin_ptr < end_ptr) {
-            Swap(begin_ptr, end_ptr);
-            ++begin_ptr;
-            --end_ptr;
-        }
-        //Move the objects to the first front.
-        memmove(reinterpret_cast<Void*>(data_ptr_), reinterpret_cast<Void*>(end.object_ptr() + 1),
-                new_size * sizeof(ObjectType));
-    }
-    else {
-        CopyObjectsReverse(data_ptr_, begin.object_ptr(), end.object_ptr());
-    }
     size_ = new_size;
 }
 
@@ -1518,7 +1275,7 @@ Void ZVector<ObjectType, kIfUnique>::PushBacksReverseP(const ObjectType* src_beg
 
 template<typename ObjectType, Bool kIfUnique>
 template<typename... ArgsType>
-ObjectType* ZVector<ObjectType, kIfUnique>::InsertP(const IndexType index, ArgsType&&... args) noexcept {
+NODISCARD ObjectType* ZVector<ObjectType, kIfUnique>::InsertP(const IndexType index, ArgsType&&... args) noexcept {
     DEBUG(index < 0 || index > size_, "Insert index out of bounds!");
     IndexType new_size = size_ + 1;
     if (new_size > capacity_) {
@@ -1533,8 +1290,8 @@ ObjectType* ZVector<ObjectType, kIfUnique>::InsertP(const IndexType index, ArgsT
 
 template<typename ObjectType, Bool kIfUnique>
 template<typename... ArgsType>
-ObjectType* ZVector<ObjectType, kIfUnique>::InsertsP(const IndexType index, IndexType num, 
-                                                     ArgsType&&... args) noexcept {
+NODISCARD ObjectType* ZVector<ObjectType, kIfUnique>::InsertsP(const IndexType index, IndexType num,
+                                                               ArgsType&&... args) noexcept {
     DEBUG(index < 0 || index > size_, "Insert index out of bounds!");
     DEBUG(num < 0, "Negative insert num not valid!");
     IndexType new_size = size_ + num;
@@ -1549,9 +1306,9 @@ ObjectType* ZVector<ObjectType, kIfUnique>::InsertsP(const IndexType index, Inde
 }
 
 template<typename ObjectType, Bool kIfUnique>
-ObjectType* ZVector<ObjectType, kIfUnique>::InsertsOrderP(const IndexType index, 
-                                                          const ObjectType* src_begin_ptr, 
-                                                          const ObjectType* src_end_ptr) noexcept {
+NODISCARD ObjectType* ZVector<ObjectType, kIfUnique>::InsertsOrderP(const IndexType index,
+                                                                    const ObjectType* src_begin_ptr, 
+                                                                    const ObjectType* src_end_ptr) noexcept {
     DEBUG(index < 0 || index > size_, "Insert index out of bounds!");
     DEBUG(src_begin_ptr > src_end_ptr, "Begin pointer after end pointer!");
     IndexType num = static_cast<IndexType>(src_end_ptr - src_begin_ptr);
@@ -1573,14 +1330,10 @@ ObjectType* ZVector<ObjectType, kIfUnique>::InsertsOrderP(const IndexType index,
     return data_ptr_ + index;
 }
 
-/*
-    Makes a copy of the objects between the iterators and insert them to the
-    given place. Returns the iterator that points at the first new object.
-*/
 template<typename ObjectType, Bool kIfUnique>
-ObjectType* ZVector<ObjectType, kIfUnique>::InsertsReverseP(const IndexType index, 
-                                                            const ObjectType* src_begin_ptr, 
-                                                            const ObjectType* src_end_ptr) noexcept {
+NODISCARD ObjectType* ZVector<ObjectType, kIfUnique>::InsertsReverseP(const IndexType index,
+                                                                      const ObjectType* src_begin_ptr, 
+                                                                      const ObjectType* src_end_ptr) noexcept {
     DEBUG(index < 0 || index > size_, "Insert index out of bounds!");
     DEBUG(src_begin_ptr < src_end_ptr, "Begin pointer after end pointer!");
     IndexType num = static_cast<IndexType>(src_begin_ptr - src_end_ptr);
@@ -1603,7 +1356,7 @@ ObjectType* ZVector<ObjectType, kIfUnique>::InsertsReverseP(const IndexType inde
 }
 
 template<typename ObjectType, Bool kIfUnique>
-inline ObjectType* ZVector<ObjectType, kIfUnique>::EraseP(const ObjectType* object_ptr) noexcept {
+NODISCARD inline ObjectType* ZVector<ObjectType, kIfUnique>::EraseP(const ObjectType* object_ptr) noexcept {
     DEBUG(object_ptr < data_ptr_ || object_ptr >= data_ptr_ + size_, "Erase index out of bounds!");
     DestroyObject(object_ptr);
     memmove(reinterpret_cast<Void*>(object_ptr), reinterpret_cast<Void*>(object_ptr + 1),
@@ -1613,16 +1366,74 @@ inline ObjectType* ZVector<ObjectType, kIfUnique>::EraseP(const ObjectType* obje
 }
 
 template<typename ObjectType, Bool kIfUnique>
-inline ObjectType* ZVector<ObjectType, kIfUnique>::ErasesP(const ObjectType* begin_ptr, 
-                                                           const ObjectType* end_ptr) noexcept {
+NODISCARD inline ObjectType* ZVector<ObjectType, kIfUnique>::ErasesP(const ObjectType* begin_ptr,
+                                                                     const ObjectType* end_ptr) noexcept {
     DEBUG(begin_ptr < data_ptr_ || begin_ptr >= data_ptr_ + size_, "Erase index out of bounds!");
-    DEBUG(end_ptr < data_ptr_ || end_ptr >= data_ptr_ + size_, "Erase iterator out of bounds!");
-    DEBUG(begin_ptr > end_ptr, "Begin iterator after end iterator!");
+    DEBUG(end_ptr < data_ptr_ || end_ptr >= data_ptr_ + size_, "Erase index out of bounds!");
+    DEBUG(begin_ptr > end_ptr, "Begin pointer after end pointer!");
     DestroyObjects(begin_ptr, end_ptr);
     memmove(reinterpret_cast<Void*>(begin_ptr), reinterpret_cast<Void*>(end_ptr),
             (size_ - static_cast<IndexType>(end_ptr - data_ptr_)) * sizeof(ObjectType));
     size_ -= end_ptr - begin_ptr;
     return begin_ptr;
+}
+
+template<typename ObjectType, Bool kIfUnique>
+template<typename... ArgsType>
+inline Void ZVector<ObjectType, kIfUnique>::EmplaceP(const ObjectType* object_ptr, ArgsType&&... args) noexcept {
+    DEBUG(object_ptr < data_ptr_ || object_ptr >= data_ptr_ + size_, "Emplace index out of bounds!");
+    DestroyObject(object_ptr);
+    CreateObject(object_ptr, std::forward<ArgsType>(args)...);
+}
+
+template<typename ObjectType, Bool kIfUnique>
+Void ZVector<ObjectType, kIfUnique>::AssignOrderP(const ObjectType* begin_ptr, const ObjectType* end_ptr) noexcept {
+    DEBUG(begin_ptr > end_ptr, "Begin pointer after end pointer!");
+    IndexType new_size = end_ptr - begin_ptr;
+    if (new_size > capacity_) {
+        ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+    }
+    //If the pointer is from this.
+    if (begin_ptr >= data_ptr_ && begin_ptr <= (data_ptr_ + size_)) {
+        DestroyObjects(data_ptr_, begin_ptr);
+        DestroyObjects(end_ptr, data_ptr_ + size_);
+        //Move the objects to the front.
+        memmove(reinterpret_cast<Void*>(data_ptr_), reinterpret_cast<Void*>(begin_ptr),
+            new_size * sizeof(ObjectType));
+    }
+    else {
+        CopyObjects(data_ptr_, begin_ptr, end_ptr);
+    }
+    size_ = new_size;
+}
+
+template<typename ObjectType, Bool kIfUnique>
+Void ZVector<ObjectType, kIfUnique>::AssignReverseP(const ObjectType* begin_ptr, const ObjectType* end_ptr) noexcept {
+    DEBUG(begin_ptr < end_ptr, "Begin pointer after end pointer!");
+    IndexType new_size = begin_ptr - end_ptr;
+    if (new_size > capacity_) {
+        ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+    }
+    //If the pointer is from this.
+    if (begin_ptr >= data_ptr_ && begin_ptr <= (data_ptr_ + size_)) {
+        DestroyObjects(data_ptr_, end_ptr + 1);
+        DestroyObjects(begin_ptr + 1, data_ptr_ + size_);
+        //Reverses the objects.
+        ObjectType* begin_ptr = end_ptr + 1;
+        ObjectType* end_ptr = begin_ptr;
+        while (begin_ptr < end_ptr) {
+            Swap(begin_ptr, end_ptr);
+            ++begin_ptr;
+            --end_ptr;
+        }
+        //Move the objects to the first front.
+        memmove(reinterpret_cast<Void*>(data_ptr_), reinterpret_cast<Void*>(end_ptr + 1),
+            new_size * sizeof(ObjectType));
+    }
+    else {
+        CopyObjectsReverse(data_ptr_, begin_ptr, end_ptr);
+    }
+    size_ = new_size;
 }
 
 }//zengine

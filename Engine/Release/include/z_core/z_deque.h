@@ -737,7 +737,6 @@ private:
     FORCEINLINE Void MoveDestroy();
 
     /*
-        Creates an object at the certain place. Will call the Constrctor if needed.
     */
     template<typename... ArgsType>
     FORCEINLINE Void CreateObject(ObjectType* const object_ptr, ArgsType&&... args);

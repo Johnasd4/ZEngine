@@ -30,10 +30,12 @@ int main(){
     DataNode a;
     a.a[10] = 10;
     cout << a.b[9];
-    ZVector<Int8> test_vector(49);
+    ZVector<Int32> test_vector(49);
     //ZVector<Int8> test_vector_1(test_vector);
     //cout << test_vector_1.capacity();
     test_vector.~ZVector();
+    auto iterator = test_vector.ConstBegin();
+    *iterator = 10;
     sizeof(deque<int>);
     //queue<Int32> a;
     //cout << (-4) % 3;
