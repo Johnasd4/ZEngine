@@ -755,12 +755,12 @@ private:
     /*
         Constructor with two order iterators.
     */
-    FORCEINLINE Void ZVectorOrderP(ObjectType* begin_ptr, ObjectType* const end_ptr) noexcept;
+    FORCEINLINE Void ZVectorOrderP(const ObjectType* begin_ptr, const ObjectType* const end_ptr) noexcept;
 
     /*
         Constructor with two reverse iterators.
     */
-    FORCEINLINE Void ZVectorReverseP(ObjectType* begin_ptr, ObjectType* const end_ptr) noexcept;
+    FORCEINLINE Void ZVectorReverseP(const ObjectType* begin_ptr, const ObjectType* const end_ptr) noexcept;
 
 
     /*
@@ -797,14 +797,15 @@ private:
         given place. Returns the pointer that points at the first new object.
     */
     NODISCARD ObjectType* InsertsOrderP(const IndexType index,
-                              const ObjectType* src_begin_ptr, const ObjectType* src_end_ptr) noexcept;
+                              const ObjectType* src_begin_ptr, const ObjectType* const src_end_ptr) noexcept;
 
     /*
         Makes a copy of the objects between the pointers and insert them to the
         given place. Returns the pointer that points at the first new object.
     */
     NODISCARD ObjectType* InsertsReverseP(const IndexType index,
-                                const ObjectType* src_begin_ptr, const ObjectType* src_end_ptr) noexcept;
+                                          const ObjectType* src_begin_ptr, 
+                                          const ObjectType* const src_end_ptr) noexcept;
 
     /*
         Erases the object by the index.
@@ -816,7 +817,7 @@ private:
         Erases the num of objects that starts at the given index.
         Returns the pointer that points at the next object.
     */
-    NODISCARD inline ObjectType* ErasesP(const ObjectType* begin_ptr, const ObjectType* end_ptr) noexcept;
+    NODISCARD inline ObjectType* ErasesP(const ObjectType* begin_ptr, const ObjectType* const end_ptr) noexcept;
 
     /*
         Calls the constructor with the arguements.
@@ -827,12 +828,12 @@ private:
     /*
         Construct the vector by filling it objects between the pointers.
     */
-    Void AssignOrderP(const ObjectType* begin_ptr, const ObjectType* end_ptr) noexcept;
+    Void AssignOrderP(const ObjectType* begin_ptr, const ObjectType* const end_ptr) noexcept;
 
     /*
         Construct the vector by filling it objects between the pointers.
     */
-    Void AssignReverseP(const ObjectType* begin_ptr, const ObjectType* end_ptr) noexcept;
+    Void AssignReverseP(const ObjectType* begin_ptr, const ObjectType* const end_ptr) noexcept;
 
     ObjectType* data_ptr_;
     IndexType capacity_;
@@ -1165,8 +1166,8 @@ Void ZVector<ObjectType, kIfUnique>::DestroyContainerP() noexcept {
 }
 
 template<typename ObjectType, Bool kIfUnique>
-FORCEINLINE Void ZVector<ObjectType, kIfUnique>::ZVectorOrderP(ObjectType* begin_ptr,
-                                                               ObjectType* const end_ptr) noexcept {
+FORCEINLINE Void ZVector<ObjectType, kIfUnique>::ZVectorOrderP(const ObjectType* begin_ptr,
+                                                               const ObjectType* const end_ptr) noexcept {
     DEBUG(begin_ptr > end_ptr, "Begin pointer after end pointer!");
     size_ = end_ptr - begin_ptr;
     CreateContainerP(size_);
@@ -1174,8 +1175,8 @@ FORCEINLINE Void ZVector<ObjectType, kIfUnique>::ZVectorOrderP(ObjectType* begin
 }
 
 template<typename ObjectType, Bool kIfUnique>
-FORCEINLINE Void ZVector<ObjectType, kIfUnique>::ZVectorReverseP(ObjectType* begin_ptr,
-                                                                 ObjectType* const end_ptr) noexcept {
+FORCEINLINE Void ZVector<ObjectType, kIfUnique>::ZVectorReverseP(const ObjectType* begin_ptr,
+                                                                 const ObjectType* const end_ptr) noexcept {
     DEBUG(begin_ptr < end_ptr, "Begin pointer after end pointer!");
     size_ = begin_ptr - end_ptr;
     CreateContainerP(size_);
@@ -1269,7 +1270,7 @@ NODISCARD ObjectType* ZVector<ObjectType, kIfUnique>::InsertsP(const IndexType i
 template<typename ObjectType, Bool kIfUnique>
 NODISCARD ObjectType* ZVector<ObjectType, kIfUnique>::InsertsOrderP(const IndexType index,
                                                                     const ObjectType* src_begin_ptr, 
-                                                                    const ObjectType* src_end_ptr) noexcept {
+                                                                    const ObjectType* const src_end_ptr) noexcept {
     DEBUG(index < 0 || index > size_, "Insert index out of bounds!");
     DEBUG(src_begin_ptr > src_end_ptr, "Begin pointer after end pointer!");
     IndexType num = static_cast<IndexType>(src_end_ptr - src_begin_ptr);
@@ -1294,7 +1295,7 @@ NODISCARD ObjectType* ZVector<ObjectType, kIfUnique>::InsertsOrderP(const IndexT
 template<typename ObjectType, Bool kIfUnique>
 NODISCARD ObjectType* ZVector<ObjectType, kIfUnique>::InsertsReverseP(const IndexType index,
                                                                       const ObjectType* src_begin_ptr, 
-                                                                      const ObjectType* src_end_ptr) noexcept {
+                                                                      const ObjectType* const src_end_ptr) noexcept {
     DEBUG(index < 0 || index > size_, "Insert index out of bounds!");
     DEBUG(src_begin_ptr < src_end_ptr, "Begin pointer after end pointer!");
     IndexType num = static_cast<IndexType>(src_begin_ptr - src_end_ptr);
@@ -1328,7 +1329,7 @@ NODISCARD inline ObjectType* ZVector<ObjectType, kIfUnique>::EraseP(const Object
 
 template<typename ObjectType, Bool kIfUnique>
 NODISCARD inline ObjectType* ZVector<ObjectType, kIfUnique>::ErasesP(const ObjectType* begin_ptr,
-                                                                     const ObjectType* end_ptr) noexcept {
+                                                                     const ObjectType* const end_ptr) noexcept {
     DEBUG(begin_ptr < data_ptr_ || begin_ptr >= data_ptr_ + size_, "Erase index out of bounds!");
     DEBUG(end_ptr < data_ptr_ || end_ptr >= data_ptr_ + size_, "Erase index out of bounds!");
     DEBUG(begin_ptr > end_ptr, "Begin pointer after end pointer!");
@@ -1348,7 +1349,8 @@ inline Void ZVector<ObjectType, kIfUnique>::EmplaceP(const ObjectType* object_pt
 }
 
 template<typename ObjectType, Bool kIfUnique>
-Void ZVector<ObjectType, kIfUnique>::AssignOrderP(const ObjectType* begin_ptr, const ObjectType* end_ptr) noexcept {
+Void ZVector<ObjectType, kIfUnique>::AssignOrderP(const ObjectType* begin_ptr, 
+                                                  const ObjectType* const end_ptr) noexcept {
     DEBUG(begin_ptr > end_ptr, "Begin pointer after end pointer!");
     IndexType new_size = end_ptr - begin_ptr;
     if (new_size > capacity_) {
@@ -1381,7 +1383,8 @@ Void ZVector<ObjectType, kIfUnique>::AssignOrderP(const ObjectType* begin_ptr, c
 }
 
 template<typename ObjectType, Bool kIfUnique>
-Void ZVector<ObjectType, kIfUnique>::AssignReverseP(const ObjectType* begin_ptr, const ObjectType* end_ptr) noexcept {
+Void ZVector<ObjectType, kIfUnique>::AssignReverseP(const ObjectType* begin_ptr, 
+                                                    const ObjectType* const end_ptr) noexcept {
     DEBUG(begin_ptr < end_ptr, "Begin pointer after end pointer!");
     IndexType new_size = begin_ptr - end_ptr;
     if (new_size > capacity_) {

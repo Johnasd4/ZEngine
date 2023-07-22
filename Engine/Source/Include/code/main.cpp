@@ -27,16 +27,13 @@ constexpr auto init_function = [](ZArray<Int32, 10>* array_ptr) {
     }
 };
 int main(){
-    DataNode a;
-    a.a[10] = 10;
-    cout << a.b[9];
-    ZVector<Int32> test_vector(49);
-    //ZVector<Int8> test_vector_1(test_vector);
-    //cout << test_vector_1.capacity();
-    test_vector.~ZVector();
-    auto iterator = test_vector.ConstBegin();
-//    *iterator = 10;
-    sizeof(deque<int>);
+    ZVector<int> a;
+    for (int i = 0; i < 11; i++)
+    {
+        a.PushBack(i);
+    }
+    ZVector<int> b(a.ConstBegin(), a.ConstEnd());
+
     //queue<Int32> a;
     //cout << (-4) % 3;
     //ZArray<Int32, 19> test_1;
