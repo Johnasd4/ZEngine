@@ -1205,6 +1205,7 @@ Void ZVector<ObjectType, kIfUnique>::CopyP(const ZVector& vector) noexcept {
     else {
         CopyObjectsP(data_ptr_, vector.data_ptr_, vector.data_ptr_ + vector.size_);
     }
+    size_ = vector.size_;
 }
 
 template<typename ObjectType, Bool kIfUnique>
