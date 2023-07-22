@@ -40,11 +40,11 @@ public:
 protected:
     FORCEINLINE constexpr ZObject() {}
     FORCEINLINE constexpr ZObject(const ZObject& object) {}
-    FORCEINLINE constexpr ZObject(ZObject&& object) { object.MoveDestroy(); }
+    FORCEINLINE constexpr ZObject(ZObject&& object) { MoveP(std::forward<ZObject>(object)); }
 
     FORCEINLINE constexpr const ZObject& operator=(const ZObject& object) { return *this; }
     FORCEINLINE constexpr const ZObject& operator=(ZObject&& object) {
-        object.MoveDestroy();
+        MoveP(std::forward<ZObject>(object));
         return *this;
     }
 
@@ -54,7 +54,7 @@ private:
     /*
         Reset the object to null when moved.
     */
-    FORCEINLINE constexpr Void MoveDestroy() {}
+    FORCEINLINE constexpr Void MoveP(ZObject&& object) {}
 };
 
 }//zengine

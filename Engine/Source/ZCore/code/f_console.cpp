@@ -7,8 +7,8 @@ namespace console {
 
 CORE_DLLAPI const Void SetConsoleOutputColour(const ConsoleOutputTextColour test_colour,
                                               const ConsoleOutputBackgroundColour background_colour) noexcept {
-    internal::ZConsoleOutputSettings::Instance().set_text_colour(test_colour);
-    internal::ZConsoleOutputSettings::Instance().set_background_colour(background_colour);
+    internal::ZConsoleOutputSettings::InstanceP().set_text_colour(test_colour);
+    internal::ZConsoleOutputSettings::InstanceP().set_background_colour(background_colour);
     //Changes the console output colour.
     SetConsoleTextAttribute(
         GetStdHandle(STD_OUTPUT_HANDLE), 

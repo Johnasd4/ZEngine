@@ -42,7 +42,7 @@ protected:
 #pragma warning(disable : 26495)
     FORCEINLINE ZListMemoryPoolBase() : SuperType() {}
 #pragma warning(default : 26495)
-    Void Initialize(const MemoryPoolType memory_pool_type, const MemoryType memory_block_size,
+    Void InitializeP(const MemoryPoolType memory_pool_type, const MemoryType memory_block_size,
                     const MemoryType memory_block_memory_size, const IndexType capacity) noexcept;
     
     FORCEINLINE static constexpr MemoryType node_head_offset() { return kNodeHeadOffset; }
@@ -75,13 +75,13 @@ private:
     /*
         Called when the memory pool runs out. It aoto extends the memory pool.
     */
-    FORCEINLINE Void AutoExtendCapcity();
+    FORCEINLINE Void AutoExtendCapcityP();
 
     /*
         The function that extends the memory pool. It must be rewrited in the
         sub class. capacity_ and head_node_ptr_ will be changed in this function.
     */
-    Void ExtendCapacity(const IndexType memory_block_added_num) noexcept;
+    Void ExtendCapacityP(const IndexType memory_block_added_num) noexcept;
 
     //The size of the memory block(include the usable memory size)
     MemoryType memory_block_size_;
@@ -93,15 +93,15 @@ private:
 };
 
 template<typename MemoryBlockType, PointerType kMemoryBlockHeadOffset, Bool kIsThreadSafe>
-Void ZListMemoryPoolBase<MemoryBlockType, kMemoryBlockHeadOffset, kIsThreadSafe>::Initialize(
+Void ZListMemoryPoolBase<MemoryBlockType, kMemoryBlockHeadOffset, kIsThreadSafe>::InitializeP(
         const MemoryPoolType memory_pool_type, const MemoryType memory_block_size,
         const MemoryType memory_block_memory_size, const IndexType capacity) noexcept {
-    SuperType::Initialize(memory_pool_type);
+    SuperType::InitializeP(memory_pool_type);
     memory_block_size_ = memory_block_size;
     memory_block_memory_size_ = memory_block_memory_size;
     head_node_ptr_ = nullptr;
     capacity_ = capacity;
-    ExtendCapacity(capacity);
+    ExtendCapacityP(capacity);
 }
 
 
@@ -109,7 +109,7 @@ template<typename MemoryBlockType, PointerType kMemoryBlockHeadOffset, Bool kIsT
 NODISCARD FORCEINLINE Void* const ZListMemoryPoolBase<MemoryBlockType, kMemoryBlockHeadOffset, kIsThreadSafe>::ApplyMemory() {
     MutexType::lock();
     if (head_node_ptr_ == nullptr) {
-        AutoExtendCapcity();
+        AutoExtendCapcityP();
     }
     Void* const memory_ptr = reinterpret_cast<Void*>(reinterpret_cast<PointerType>(head_node_ptr_) + kNodeHeadOffset);
     head_node_ptr_ = head_node_ptr_->next_node_ptr;
@@ -128,16 +128,16 @@ FORCEINLINE Void ZListMemoryPoolBase<MemoryBlockType, kMemoryBlockHeadOffset, kI
 }
 
 template<typename MemoryBlockType, PointerType kMemoryBlockHeadOffset, Bool kIsThreadSafe>
-FORCEINLINE Void ZListMemoryPoolBase<MemoryBlockType, kMemoryBlockHeadOffset, kIsThreadSafe>::AutoExtendCapcity() {
+FORCEINLINE Void ZListMemoryPoolBase<MemoryBlockType, kMemoryBlockHeadOffset, kIsThreadSafe>::AutoExtendCapcityP() {
     IndexType extend_num = static_cast<IndexType>(capacity_ * kAutoExtendMulFactor);
     if (extend_num < kAutoExtendMinNum) {
         extend_num = kAutoExtendMinNum;
     }
-    ExtendCapacity(extend_num);
+    ExtendCapacityP(extend_num);
 }
 
 template<typename MemoryBlockType, PointerType kMemoryBlockHeadOffset, Bool kIsThreadSafe>
-Void ZListMemoryPoolBase<MemoryBlockType, kMemoryBlockHeadOffset, kIsThreadSafe>::ExtendCapacity(
+Void ZListMemoryPoolBase<MemoryBlockType, kMemoryBlockHeadOffset, kIsThreadSafe>::ExtendCapacityP(
         const IndexType memory_block_added_num) noexcept {
     if (memory_block_added_num == 0) {
         return;
@@ -161,7 +161,7 @@ Void ZListMemoryPoolBase<MemoryBlockType, kMemoryBlockHeadOffset, kIsThreadSafe>
     //Initialize the memory block.
     for (IndexType count = 1; count < apply_memory_block_num; count++) {
         //Initialize the memory block.
-        reinterpret_cast<Node*>(temp_memory_ptr)->memory_block.Initialize(reinterpret_cast<Void*>(this));
+        reinterpret_cast<Node*>(temp_memory_ptr)->memory_block.InitializeP(reinterpret_cast<Void*>(this));
         //Links the blocks into a list.
         reinterpret_cast<Node*>(temp_memory_ptr)->next_node_ptr =
             reinterpret_cast<Node*>(temp_memory_ptr + memory_block_size_);
@@ -169,7 +169,7 @@ Void ZListMemoryPoolBase<MemoryBlockType, kMemoryBlockHeadOffset, kIsThreadSafe>
         temp_memory_ptr += memory_block_size_;
     }
     //Initialize the last memory block.
-    reinterpret_cast<Node*>(temp_memory_ptr)->memory_block.Initialize(reinterpret_cast<Void*>(this));
+    reinterpret_cast<Node*>(temp_memory_ptr)->memory_block.InitializeP(reinterpret_cast<Void*>(this));
     //Puts the blocks into the memory pool.
     reinterpret_cast<Node*>(temp_memory_ptr)->next_node_ptr =
         const_cast<Node*>(head_node_ptr_);

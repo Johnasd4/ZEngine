@@ -11,19 +11,6 @@ namespace zengine {
 namespace internal {
 
 template<typename ObjectType>
-class VectorIterator;
-
-template<typename ObjectType>
-class ConstVectorIterator;
-
-template<typename ObjectType>
-class ReverseVectorIterator;
-
-template<typename ObjectType>
-class ConstReverseVectorIterator;
-
-
-template<typename ObjectType>
 class VectorIteratorBase {
 public:
     FORCEINLINE VectorIteratorBase(ObjectType* object_ptr) : object_ptr_(object_ptr) {}
@@ -41,8 +28,7 @@ public:
         return *this;
     }
     FORCEINLINE VectorIteratorBase& operator=(VectorIteratorBase&& iterator) {
-        object_ptr_ = iterator.object_ptr_;
-        iterator.MoveDestroy();
+        MoveP(std::forward<VectorIteratorBase>(iterator));
         return *this;
     }
 
@@ -55,10 +41,15 @@ public:
 
     FORCEINLINE ~VectorIteratorBase() {}
 
-    FORCEINLINE Void MoveDestroy() { object_ptr_ = nullptr; }   
-
 protected:
      ObjectType* object_ptr_;
+
+private:
+     FORCEINLINE Void MoveP(VectorIteratorBase&& iterator) {
+         object_ptr_ = iterator.object_ptr_;
+         iterator.object_ptr_ = nullptr;
+     }
+
 };
 
 template<typename ObjectType>
@@ -112,71 +103,6 @@ public:
 
     NODISCARD FORCEINLINE ObjectType* object_ptr() { return SuperType::object_ptr_; }
     NODISCARD FORCEINLINE ObjectType* const object_ptr() const { return SuperType::object_ptr_; }
-
-protected:
-    using SuperType = VectorIteratorBase<ObjectType>;
-};
-
-template<typename ObjectType>
-class VectorConstIterator : public VectorIteratorBase<ObjectType> {
-public:
-    FORCEINLINE VectorConstIterator(const ObjectType* object_ptr) : SuperType(const_cast<ObjectType*>(object_ptr)) {}
-
-    FORCEINLINE VectorConstIterator& operator=(const ObjectType* object_ptr) {
-        SuperType::object_ptr_ = const_cast<ObjectType*>(object_ptr);
-        return *this;
-    }
-
-    NODISCARD FORCEINLINE const ObjectType& operator[](const IndexType index) const { 
-        return SuperType::object_ptr_[-index]; 
-    }
-    NODISCARD FORCEINLINE const ObjectType& operator*() const { return *SuperType::object_ptr_; }
-    NODISCARD FORCEINLINE const ObjectType* const operator->() const { return SuperType::object_ptr_; }
-
-    FORCEINLINE VectorConstIterator& operator+=(const IndexType data_num) {
-        SuperType::object_ptr_ += data_num;
-        return *this;
-    }
-    FORCEINLINE VectorConstIterator& operator-=(const IndexType data_num) {
-        SuperType::object_ptr_ -= data_num;
-        return *this;
-    }
-
-    FORCEINLINE VectorConstIterator& operator++() {
-        ++SuperType::object_ptr_;
-        return *this;
-    }
-    FORCEINLINE VectorConstIterator& operator--() {
-        --SuperType::object_ptr_;
-        return *this;
-    }
-
-    NODISCARD FORCEINLINE VectorConstIterator operator+(const IndexType data_num) const {
-        return VectorConstIterator(SuperType::object_ptr_ + data_num);
-    }
-    NODISCARD FORCEINLINE VectorConstIterator operator-(const IndexType data_num) const {
-        return VectorConstIterator(SuperType::object_ptr_ - data_num);
-    }
-
-    NODISCARD FORCEINLINE const Bool operator>(const VectorConstIterator& iterator) const {
-        return SuperType::object_ptr_ > iterator.SuperType::object_ptr_;
-    }
-    NODISCARD FORCEINLINE const Bool operator>=(const VectorConstIterator& iterator) const {
-        return SuperType::object_ptr_ >= iterator.SuperType::object_ptr_;
-    }
-    NODISCARD FORCEINLINE const Bool operator<(const VectorConstIterator& iterator) const {
-        return SuperType::object_ptr_ < iterator.SuperType::object_ptr_;
-    }
-    NODISCARD FORCEINLINE const Bool operator<=(const VectorConstIterator& iterator) const {
-        return SuperType::object_ptr_ <= iterator.SuperType::object_ptr_;
-    }
-
-    FORCEINLINE const IndexType operator-(const VectorConstIterator& iterator) const {
-        return static_cast<IndexType>(SuperType::object_ptr_ - iterator.SuperType::object_ptr_);
-    }
-
-    NODISCARD FORCEINLINE const ObjectType* object_ptr() { return SuperType::object_ptr_; }
-    NODISCARD FORCEINLINE const ObjectType* const object_ptr() const { return SuperType::object_ptr_; }
 
 protected:
     using SuperType = VectorIteratorBase<ObjectType>;
@@ -238,72 +164,6 @@ protected:
     using SuperType = VectorIteratorBase<ObjectType>;
 };
 
-template<typename ObjectType>
-class VectorConstReverseIterator : public VectorIteratorBase<ObjectType> {
-public:
-    FORCEINLINE VectorConstReverseIterator(const ObjectType* object_ptr)
-        : SuperType(const_cast<ObjectType*>(object_ptr)) {}
-
-    FORCEINLINE VectorConstReverseIterator& operator=(const ObjectType* object_ptr) {
-        SuperType::object_ptr_ = const_cast<ObjectType*>(object_ptr);
-        return *this;
-    }
-
-    NODISCARD FORCEINLINE const ObjectType& operator[](const IndexType index) const { 
-        return SuperType::object_ptr_[-index]; 
-    }
-    NODISCARD FORCEINLINE const ObjectType& operator*() const { return *SuperType::object_ptr_; }
-    NODISCARD FORCEINLINE const ObjectType* const operator->() const { return SuperType::object_ptr_; }
-
-    FORCEINLINE VectorConstReverseIterator& operator+=(const IndexType data_num) {
-        SuperType::object_ptr_ -= data_num;
-        return *this;
-    }
-    FORCEINLINE VectorConstReverseIterator& operator-=(const IndexType data_num) {
-        SuperType::object_ptr_ += data_num;
-        return *this;
-    }
-
-    FORCEINLINE VectorConstReverseIterator& operator++() {
-        --SuperType::object_ptr_;
-        return *this;
-    }
-    FORCEINLINE VectorConstReverseIterator& operator--() {
-        ++SuperType::object_ptr_;
-        return *this;
-    }
-
-    NODISCARD FORCEINLINE VectorConstReverseIterator operator+(const IndexType data_num) const {
-        return VectorConstReverseIterator(SuperType::object_ptr_ - data_num);
-    }
-    NODISCARD FORCEINLINE VectorConstReverseIterator operator-(const IndexType data_num) const {
-        return VectorConstReverseIterator(SuperType::object_ptr_ + data_num);
-    }
-
-    NODISCARD FORCEINLINE const Bool operator>(const VectorConstReverseIterator& iterator) const {
-        return SuperType::object_ptr_ < iterator.SuperType::object_ptr_;
-    }
-    NODISCARD FORCEINLINE const Bool operator>=(const VectorConstReverseIterator& iterator) const {
-        return SuperType::object_ptr_ <= iterator.SuperType::object_ptr_;
-    }
-    NODISCARD FORCEINLINE const Bool operator<(const VectorConstReverseIterator& iterator) const {
-        return SuperType::object_ptr_ > iterator.SuperType::object_ptr_;
-    }
-    NODISCARD FORCEINLINE const Bool operator<=(const VectorConstReverseIterator& iterator) const {
-        return SuperType::object_ptr_ >= iterator.SuperType::object_ptr_;
-    }
-
-    FORCEINLINE const IndexType operator-(const VectorConstReverseIterator& iterator) const {
-        return static_cast<IndexType>(iterator.SuperType::object_ptr_ - SuperType::object_ptr_);
-    }
-
-    NODISCARD FORCEINLINE const ObjectType* object_ptr() { return SuperType::object_ptr_; }
-    NODISCARD FORCEINLINE const ObjectType* const object_ptr() const { return SuperType::object_ptr_; }
-
-protected:
-    using SuperType = VectorIteratorBase<ObjectType>;
-};
-
 }//internal
 
 /*
@@ -320,12 +180,6 @@ public:
     using ConstIteratorType = internal::VectorIterator<const ObjectType>;
     using ReverseIteratorType = internal::VectorReverseIterator<ObjectType>;
     using ConstReverseIteratorType = internal::VectorReverseIterator<const ObjectType>;
-
-    //using IteratorType = internal::VectorIterator<ObjectType>;
-    //using ConstIteratorType = internal::VectorConstIterator<ObjectType>;
-    //using ReverseIteratorType = internal::VectorReverseIterator<ObjectType>;
-    //using ConstReverseIteratorType = internal::VectorConstReverseIterator<ObjectType>;
-
 
     ZVector() noexcept;
     ZVector(const IndexType capacity) noexcept;
@@ -648,7 +502,6 @@ public:
                                                       const ConstReverseIteratorType& src_end) {
         return InsertsOrderP(iterator.object_ptr() - data_ptr_ + 1,
                              src_end.object_ptr() + 1, src_begin.object_ptr() + 1) + ((src_end - src_begin) - 1);
-
     }
 
     /*
@@ -662,14 +515,14 @@ public:
         Erases the object by the index.
         Returns the iterator that points at the next object.
     */
-    FORCEINLINE IteratorType Erase(const IteratorType& iterator) {
+    NODISCARD FORCEINLINE IteratorType Erase(const IteratorType& iterator) {
         return EraseP(iterator.object_ptr());
     }
     /*
         Erases the object by the index.
         Returns the iterator that points at the next object.
     */
-    FORCEINLINE ReverseIteratorType Erase(const ReverseIteratorType& iterator) {
+    NODISCARD FORCEINLINE ReverseIteratorType Erase(const ReverseIteratorType& iterator) {
         return EraseP(iterator.object_ptr()) - 1;
     }
 
@@ -677,35 +530,36 @@ public:
         Erases the num of objects that starts at the given index.
         Returns the iterator that points at the next object.
     */
-    FORCEINLINE IteratorType Erases(const IndexType index, const IndexType num) {
+    NODISCARD FORCEINLINE IteratorType Erases(const IndexType index, const IndexType num) {
         return ErasesP(data_ptr_ + index, data_ptr_ + (index + num));
     }
     /*
         Erases the num of objects that starts at the given iterator.
         Returns the iterator that points at the next object.
     */
-    FORCEINLINE IteratorType Erases(const IteratorType& iterator, const IndexType num) {
+    NODISCARD FORCEINLINE IteratorType Erases(const IteratorType& iterator, const IndexType num) {
         return ErasesP(iterator.object_ptr(), iterator.object_ptr() + num);
     }
     /*
         Erases the num of objects that starts at the given iterator.
         Returns the iterator that points at the next object.
     */
-    FORCEINLINE ReverseIteratorType Erases(const ReverseIteratorType& iterator, const IndexType num) {
+    NODISCARD FORCEINLINE ReverseIteratorType Erases(const ReverseIteratorType& iterator, const IndexType num) {
         return ErasesP(iterator.object_ptr(), iterator.object_ptr() + num) - num;
     }
     /*
         Erases the object between begin and end, involves begin, but don't involves end.
         Returns the iterator that points at the next object.
     */
-    FORCEINLINE IteratorType Erases(const IteratorType& begin, const IteratorType& end) {
+    NODISCARD FORCEINLINE IteratorType Erases(const IteratorType& begin, const IteratorType& end) {
         return ErasesP(begin.object_ptr(), end.object_ptr());
     }
     /*
         Erases the object between begin and end, involves begin, but don't involves end.
         Returns the iterator that points at the next object.
     */
-    FORCEINLINE ReverseIteratorType Erases(const ReverseIteratorType& begin, const ReverseIteratorType& end) {
+    NODISCARD FORCEINLINE ReverseIteratorType Erases(const ReverseIteratorType& begin, 
+                                                     const ReverseIteratorType& end) {
         return ErasesP(end.object_ptr() + 1, begin.object_ptr() + 1) - 1;
     }
 
@@ -823,77 +677,77 @@ private:
         Creates an object at the certain place. Will call the Constrctor if needed.
     */
     template<typename... ArgsType>
-    FORCEINLINE static Void CreateObject(ObjectType* const object_ptr, ArgsType&&... args);
+    FORCEINLINE static Void CreateObjectP(ObjectType* const object_ptr, ArgsType&&... args);
 
     /*
         Destroys an object at the certain place. Will Call Destrctor if needed.
     */
-    FORCEINLINE static Void DestroyObject(ObjectType* const object_ptr);
+    FORCEINLINE static Void DestroyObjectP(ObjectType* const object_ptr);
 
     /*
         Initialize the memory by the given arguements([begin, end)).
         Will call the Constrctor if needed.
     */
     template<typename... ArgsType>
-    inline static Void CreateObjects(ObjectType* begin_ptr, ObjectType* const end_ptr, ArgsType&&... args) noexcept;
+    inline static Void CreateObjectsP(ObjectType* begin_ptr, ObjectType* const end_ptr, ArgsType&&... args) noexcept;
 
     /*
         Initialize the memory by the given arguements([begin, end)).
         Will call the copy constructor.
     */
-    inline static Void CreateAndCopyObjects(ObjectType* dst_ptr, const ObjectType* src_begin_ptr,
+    inline static Void CreateAndCopyObjectsP(ObjectType* dst_ptr, const ObjectType* src_begin_ptr,
                                             const ObjectType* const src_end_ptr) noexcept;
 
     /*
         Initialize the memory by the given arguements([begin, end)).
         Will call the copy constructor.
     */
-    static Void CreateAndCopyObjectsReverse(ObjectType* dst_ptr, const ObjectType* src_begin_ptr,
+    static Void CreateAndCopyObjectsReverseP(ObjectType* dst_ptr, const ObjectType* src_begin_ptr,
                                             const ObjectType* const src_end_ptr) noexcept;
 
     /*
         Copy objects by the given pointer. Will call the copy assignment operator
         if this object class's member kIfUnique is true.
     */
-    inline static Void CopyObjects(ObjectType* dst_ptr, const ObjectType* src_begin_ptr,
+    inline static Void CopyObjectsP(ObjectType* dst_ptr, const ObjectType* src_begin_ptr,
                                    const ObjectType* const src_end_ptr) noexcept;
 
     /*
         Copy objects by the given pointer. Will call the copy assignment operator
         if this object class's member kIfUnique is true.
     */
-    static Void CopyObjectsReverse(ObjectType* dst_ptr, const ObjectType* src_begin_ptr,
+    static Void CopyObjectsReverseP(ObjectType* dst_ptr, const ObjectType* src_begin_ptr,
                                    const ObjectType* const src_end_ptr) noexcept;
 
     /*
         Destroy the objects by the given arguements([begin, end)). 
         Will call the destrctor if this object class's member kIfUnique is true.
     */
-    inline static Void DestroyObjects(ObjectType* begin_ptr, ObjectType* const end_ptr) noexcept;
+    inline static Void DestroyObjectsP(ObjectType* begin_ptr, ObjectType* const end_ptr) noexcept;
 
     /*
         Creates the capacity by the given capacity, the final capacity might
         not equal the given capacity.
     */
-    Void CreateContainer(const IndexType capacity) noexcept;
+    Void CreateContainerP(const IndexType capacity) noexcept;
     /*
         Extends the capacity by the given capacity, the final capacity might
         not equal the given capacity.
     */
-    Void ExtendContainer(const IndexType capacity) noexcept;
+    Void ExtendContainerP(const IndexType capacity) noexcept;
     /*
         Shrinks the container to the minimum capacity that can fit the current size.
     */
-    Void ShrinkContainer() noexcept;
+    Void ShrinkContainerP() noexcept;
     /*
         Destroys the container.
     */
-    Void DestroyContainer() noexcept;
+    Void DestroyContainerP() noexcept;
 
     /*
-        Called when the container is moved.
+        Container move function.
     */
-    FORCEINLINE Void MoveDestroy();
+    FORCEINLINE Void MoveP(ZVector&& vector);
 
     /*
         Makes a copy of the objects between the pointers and push them to the
@@ -980,7 +834,7 @@ ZVector<ObjectType, kIfUnique>::ZVector(const IndexType capacity) noexcept
     : SuperType()
 {
     DEBUG(capacity < 0, "Negaive capacity not valid!");
-    CreateContainer(capacity);
+    CreateContainerP(capacity);
     size_ = 0;
 }
 
@@ -990,8 +844,8 @@ ZVector<ObjectType, kIfUnique>::ZVector(const IndexType capacity, ArgsType&&... 
     : SuperType() 
 {
     DEBUG(capacity < 0, "Negaive capacity not valid!");
-    CreateContainer(capacity);
-    CreateObjects(data_ptr_, data_ptr_ + capacity, std::forward<ArgsType>(args)...);
+    CreateContainerP(capacity);
+    CreateObjectsP(data_ptr_, data_ptr_ + capacity, std::forward<ArgsType>(args)...);
     size_ = capacity;
 }
 
@@ -1000,11 +854,9 @@ ZVector<ObjectType, kIfUnique>::ZVector(const IteratorType& begin, const Iterato
     : SuperType()
 {
     DEBUG(begin > end, "Begin iterator after end iterator!");
-    IndexType size = end - begin;
-    CreateContainer(size);
-    CreateAndCopyObjects(data_ptr_, begin.object_ptr(), end.object_ptr());
-    size_ = size;
-
+    size_ = end - begin;
+    CreateContainerP(size_);
+    CreateAndCopyObjectsP(data_ptr_, begin.object_ptr(), end.object_ptr());
 }
 
 template<typename ObjectType, Bool kIfUnique>
@@ -1012,10 +864,9 @@ ZVector<ObjectType, kIfUnique>::ZVector(const ConstIteratorType& begin, const Co
     : SuperType()
 {
     DEBUG(begin > end, "Begin iterator after end iterator!");
-    IndexType size = end - begin;
-    CreateContainer(size);
-    CreateAndCopyObjects(data_ptr_, begin.object_ptr(), end.object_ptr());
-    size_ = size;
+    size_ = end - begin;
+    CreateContainerP(size_);
+    CreateAndCopyObjectsP(data_ptr_, begin.object_ptr(), end.object_ptr());
 
 }
 
@@ -1025,10 +876,9 @@ ZVector<ObjectType, kIfUnique>::ZVector(const ReverseIteratorType& begin,
     : SuperType()
 {
     DEBUG(begin > end, "Begin iterator after end iterator!");
-    IndexType size = end - begin;
-    CreateContainer(size);
-    CreateAndCopyObjectsReverse(data_ptr_, begin.object_ptr(), end.object_ptr());
-    size_ = size;
+    size_ = end - begin;
+    CreateContainerP(size_);
+    CreateAndCopyObjectsReverseP(data_ptr_, begin.object_ptr(), end.object_ptr());
 }
 
 template<typename ObjectType, Bool kIfUnique>
@@ -1037,29 +887,27 @@ ZVector<ObjectType, kIfUnique>::ZVector(const ConstReverseIteratorType& begin,
     : SuperType()
 {
     DEBUG(begin > end, "Begin iterator after end iterator!");
-    IndexType size = end - begin;
-    CreateContainer(size);
-    CreateAndCopyObjectsReverse(data_ptr_, begin.object_ptr(), end.object_ptr());
-    size_ = size;
+    size_ = end - begin;
+    CreateContainerP(size_);
+    CreateAndCopyObjectsReverseP(data_ptr_, begin.object_ptr(), end.object_ptr());
 }
 
 template<typename ObjectType, Bool kIfUnique>
 ZVector<ObjectType, kIfUnique>::ZVector(const ZVector& vector) noexcept 
     : SuperType(vector)
 {
-    CreateContainer(vector.size_);
-    CreateAndCopyObjects(data_ptr_, vector.data_ptr_, vector.data_ptr_ + vector.size_);
+    DEBUG(&vector == this, "The source and the target of the copy is the same!");
+    CreateContainerP(vector.size_);
+    CreateAndCopyObjectsP(data_ptr_, vector.data_ptr_, vector.data_ptr_ + vector.size_);
     size_ = vector.size_;
 } 
 
 template<typename ObjectType, Bool kIfUnique>
 ZVector<ObjectType, kIfUnique>::ZVector(ZVector&& vector) noexcept 
     : SuperType(std::forward<ZVector>(vector))
-    , data_ptr_(vector.data_ptr_)
-    , capacity_(vector.capacity_)
-    , size_(vector.size_)
 {
-    vector.MoveDestroy();
+    DEBUG(&vector == this, "The source and the target of the copy is the same!");
+    MoveP(std::forward<ZVector>(vector));
 }
 
 template<typename ObjectType, Bool kIfUnique>
@@ -1067,11 +915,7 @@ ZVector<ObjectType, kIfUnique>& ZVector<ObjectType, kIfUnique>::operator=(
         const ZVector& vector) noexcept {
     DEBUG(&vector == this, "The source and the target of the copy is the same!");
     SuperType::operator=(vector);
-    if (vector.size_ > capacity_) {
-        ExtendContainer(vector.size_);
-    }
-    CopyObjects(data_ptr_, vector.data_ptr_, vector.data_ptr_ + vector.size_);
-    size_ = vector.size_;
+    AssignOrderP(data_ptr_, vector.data_ptr_, vector.data_ptr_ + vector.size_);
     return *this;
 }
 
@@ -1080,17 +924,14 @@ ZVector<ObjectType, kIfUnique>& ZVector<ObjectType, kIfUnique>::operator=(
         ZVector&& vector) noexcept {
     DEBUG(&vector == this, "The source and the target of the copy is the same!");
     SuperType::operator=(std::forward<ZVector>(vector));
-    DestroyObjects(data_ptr_, data_ptr_ + size_);
-    data_ptr_ = vector.data_ptr_;
-    size_ = vector.size_;
-    capacity_ = vector.capacity_;
-    vector.MoveDestroy();
+    DestroyObjectsP(data_ptr_, data_ptr_ + size_);
+    MoveP(std::forward<ZVector>(vector));
     return *this;
 }
 
 template<typename ObjectType, Bool kIfUnique>
 ZVector<ObjectType, kIfUnique>::~ZVector() noexcept {
-    DestroyContainer();
+    DestroyContainerP();
 }
 
 template<typename ObjectType, Bool kIfUnique>
@@ -1099,12 +940,12 @@ Void ZVector<ObjectType, kIfUnique>::Resize(const IndexType size, ArgsType&&... 
     DEBUG(size < 0, "Negaive size is not valid!");
     if (size_ < size) {
         if (size > capacity_) {
-            ExtendContainer(size);
+            ExtendContainerP(size);
         }
-        CreateObjects(data_ptr_ + size_, data_ptr_ + (size - size_), std::forward<ArgsType>(args)...);
+        CreateObjectsP(data_ptr_ + size_, data_ptr_ + (size - size_), std::forward<ArgsType>(args)...);
     }
     else {
-        DestroyObjects(data_ptr_ + size, data_ptr_ + size_);
+        DestroyObjectsP(data_ptr_ + size, data_ptr_ + size_);
     }
     size_ = size;
 }
@@ -1112,20 +953,20 @@ Void ZVector<ObjectType, kIfUnique>::Resize(const IndexType size, ArgsType&&... 
 template<typename ObjectType, Bool kIfUnique>
 Void ZVector<ObjectType, kIfUnique>::Reserve(const IndexType capacity) noexcept {
     if (capacity > capacity_) {
-        ExtendContainer(capacity);
+        ExtendContainerP(capacity);
     }
 }
 
 template<typename ObjectType, Bool kIfUnique>
 Void ZVector<ObjectType, kIfUnique>::ShrinkToFit() noexcept {
-    ShrinkContainer();
+    ShrinkContainerP();
 }
 
 template<typename ObjectType, Bool kIfUnique>
 Void ZVector<ObjectType, kIfUnique>::PopBack() noexcept {
     DEBUG(size_ == 0, "No existing object to pop!");
     --size_;
-    DestroyObject(data_ptr_ + size_);
+    DestroyObjectP(data_ptr_ + size_);
 }
 
 template<typename ObjectType, Bool kIfUnique>
@@ -1140,9 +981,9 @@ template<typename... ArgsType>
 Void ZVector<ObjectType, kIfUnique>::PushBack(ArgsType&&... args) noexcept {
     IndexType new_size = size_ + 1;
     if (new_size > capacity_) {
-        ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+        ExtendContainerP(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
     }
-    CreateObject(data_ptr_ + size_, std::forward<ArgsType>(args)...);
+    CreateObjectP(data_ptr_ + size_, std::forward<ArgsType>(args)...);
     size_ = new_size;
 }
 
@@ -1152,9 +993,9 @@ Void ZVector<ObjectType, kIfUnique>::PushBacks(const IndexType num, ArgsType&&..
     DEBUG(num < 0, "Negative pushing num not valid!");
     IndexType new_size = size_ + num;
     if (new_size > capacity_) {
-        ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+        ExtendContainerP(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
     }
-    CreateObjects(data_ptr_ + size_, data_ptr_ + num, std::forward<ArgsType>(args)...);
+    CreateObjectsP(data_ptr_ + size_, data_ptr_ + num, std::forward<ArgsType>(args)...);
     size_ = new_size;
 }
 
@@ -1162,8 +1003,8 @@ template<typename ObjectType, Bool kIfUnique>
 template<typename... ArgsType>
 inline Void ZVector<ObjectType, kIfUnique>::EmplaceBack(ArgsType&&... args) noexcept {
     DEBUG(size_ == 0, "No existing object to emplace!");
-    DestroyObject(data_ptr_ + (size_ - 1));
-    CreateObject(data_ptr_ + (size_ - 1), std::forward<ArgsType>(args)...);
+    DestroyObjectP(data_ptr_ + (size_ - 1));
+    CreateObjectP(data_ptr_ + (size_ - 1), std::forward<ArgsType>(args)...);
 }
 
 template<typename ObjectType, Bool kIfUnique>
@@ -1172,27 +1013,27 @@ Void ZVector<ObjectType, kIfUnique>::Assign(const IndexType num, ArgsType&&... a
     IndexType new_size = num;
     DEBUG(num < 0, "Negative assign num not valid!");
     if (new_size > capacity_) {
-        ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+        ExtendContainerP(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
     }
-    DestroyObjects(data_ptr_, data_ptr_ + size_);
-    CreateObjects(data_ptr_, data_ptr_ + num, std::forward<ArgsType>(args)...);
+    DestroyObjectsP(data_ptr_, data_ptr_ + size_);
+    CreateObjectsP(data_ptr_, data_ptr_ + num, std::forward<ArgsType>(args)...);
     size_ = new_size;
 }
 
 template<typename ObjectType, Bool kIfUnique>
 Void ZVector<ObjectType, kIfUnique>::Clear() noexcept {
-    DestroyObjects(data_ptr_, data_ptr_ + size_);
+    DestroyObjectsP(data_ptr_, data_ptr_ + size_);
     size_ = 0;
 }
 
 template<typename ObjectType, Bool kIfUnique>
 Void ZVector<ObjectType, kIfUnique>::Destroy() noexcept {
-    DestroyContainer();
+    DestroyContainerP();
 }
 
 template<typename ObjectType, Bool kIfUnique>
 template<typename... ArgsType>
-FORCEINLINE Void ZVector<ObjectType, kIfUnique>::CreateObject(ObjectType* const object_ptr, ArgsType&&... args) {
+FORCEINLINE Void ZVector<ObjectType, kIfUnique>::CreateObjectP(ObjectType* const object_ptr, ArgsType&&... args) {
     if constexpr (sizeof...(args) == 0) {
         if constexpr (kIfUnique) {
             new(reinterpret_cast<Void*>(object_ptr)) ObjectType();
@@ -1204,7 +1045,7 @@ FORCEINLINE Void ZVector<ObjectType, kIfUnique>::CreateObject(ObjectType* const 
 }
 
 template<typename ObjectType, Bool kIfUnique>
-FORCEINLINE Void ZVector<ObjectType, kIfUnique>::DestroyObject(ObjectType* const object_ptr) {
+FORCEINLINE Void ZVector<ObjectType, kIfUnique>::DestroyObjectP(ObjectType* const object_ptr) {
     if constexpr (kIfUnique) {
         (*object_ptr).~ObjectType();
     }
@@ -1212,7 +1053,7 @@ FORCEINLINE Void ZVector<ObjectType, kIfUnique>::DestroyObject(ObjectType* const
 
 template<typename ObjectType, Bool kIfUnique>
 template<typename... ArgsType>
-inline Void ZVector<ObjectType, kIfUnique>::CreateObjects(ObjectType* begin_ptr, ObjectType* const end_ptr,
+inline Void ZVector<ObjectType, kIfUnique>::CreateObjectsP(ObjectType* begin_ptr, ObjectType* const end_ptr,
                                                           ArgsType&&... args) noexcept {
     if constexpr (kIfUnique) {
         if constexpr (sizeof...(args) == 0) {
@@ -1234,7 +1075,7 @@ inline Void ZVector<ObjectType, kIfUnique>::CreateObjects(ObjectType* begin_ptr,
 }
 
 template<typename ObjectType, Bool kIfUnique>
-inline Void ZVector<ObjectType, kIfUnique>::CreateAndCopyObjects(ObjectType* dst_ptr, const ObjectType* src_begin_ptr,
+inline Void ZVector<ObjectType, kIfUnique>::CreateAndCopyObjectsP(ObjectType* dst_ptr, const ObjectType* src_begin_ptr,
                                                                  const ObjectType* const src_end_ptr) noexcept {
     if constexpr (kIfUnique) {
         while (src_begin_ptr < src_end_ptr) {
@@ -1250,7 +1091,7 @@ inline Void ZVector<ObjectType, kIfUnique>::CreateAndCopyObjects(ObjectType* dst
 }
 
 template<typename ObjectType, Bool kIfUnique>
-Void ZVector<ObjectType, kIfUnique>::CreateAndCopyObjectsReverse(ObjectType* dst_ptr, const ObjectType* src_begin_ptr, 
+Void ZVector<ObjectType, kIfUnique>::CreateAndCopyObjectsReverseP(ObjectType* dst_ptr, const ObjectType* src_begin_ptr, 
                                                                  const ObjectType* const src_end_ptr) noexcept {
     while (src_begin_ptr > src_end_ptr) {
         new(reinterpret_cast<Void*>(dst_ptr)) ObjectType(*src_begin_ptr);
@@ -1260,60 +1101,34 @@ Void ZVector<ObjectType, kIfUnique>::CreateAndCopyObjectsReverse(ObjectType* dst
 }
 
 template<typename ObjectType, Bool kIfUnique>
-inline Void ZVector<ObjectType, kIfUnique>::CopyObjects(ObjectType* dst_ptr, const ObjectType* src_begin_ptr,
+inline Void ZVector<ObjectType, kIfUnique>::CopyObjectsP(ObjectType* dst_ptr, const ObjectType* src_begin_ptr,
                                                         const ObjectType* const src_end_ptr) noexcept {
-    IndexType num = src_end_ptr - src_begin_ptr;
     if constexpr (kIfUnique) {
-        if (size_ < num) {
-            const ObjectType* end_ptr = src_begin_ptr + size_;
-            while (src_begin_ptr < end_ptr) {
-                *dst_ptr = *src_begin_ptr;
-                ++dst_ptr;
-                ++src_begin_ptr;
-            }
-            CreateAndCopyObjects(dst_ptr, src_begin_ptr, src_end_ptr);
-        }
-        else {
-            while (src_begin_ptr < src_end_ptr) {
-                *dst_ptr = *src_begin_ptr;
-                ++dst_ptr;
-                ++src_begin_ptr;
-            }
-            DestroyObjects(dst_ptr, dst_ptr + (size_ - num));
+        while (src_begin_ptr < src_end_ptr) {
+            *dst_ptr = *src_begin_ptr;
+            ++dst_ptr;
+            ++src_begin_ptr;
         }
     }
     else {
         memcpy(reinterpret_cast<Void*>(dst_ptr), reinterpret_cast<Void*>(const_cast<ObjectType*>(src_begin_ptr)),
-            static_cast<SizeType>(num * sizeof(ObjectType)));
+            static_cast<SizeType>((src_end_ptr - src_begin_ptr) * sizeof(ObjectType)));
     }
 }
 
 template<typename ObjectType, Bool kIfUnique>
-Void ZVector<ObjectType, kIfUnique>::CopyObjectsReverse(ObjectType* dst_ptr,
+Void ZVector<ObjectType, kIfUnique>::CopyObjectsReverseP(ObjectType* dst_ptr,
                                                         const ObjectType* src_begin_ptr,
                                                         const ObjectType* const src_end_ptr) noexcept {
-    IndexType num = static_cast<IndexType>(src_begin_ptr - src_end_ptr);
-    if (size_ < num) {
-        const ObjectType* end_ptr = src_begin_ptr - size_;
-        while (src_begin_ptr > end_ptr) {
-            *dst_ptr = *src_begin_ptr;
-            ++dst_ptr;
-            --src_begin_ptr;
-        }
-        CreateAndCopyObjectsReverse(dst_ptr, src_begin_ptr, src_end_ptr);
-    }
-    else {
-        while (src_begin_ptr > src_end_ptr) {
-            *dst_ptr = *src_begin_ptr;
-            ++dst_ptr;
-            --src_begin_ptr;
-        }
-        DestroyObjects(dst_ptr, dst_ptr + (size_ - num));
+    while (src_begin_ptr > src_end_ptr) {
+        *dst_ptr = *src_begin_ptr;
+        ++dst_ptr;
+        --src_begin_ptr;
     }
 }
 
 template<typename ObjectType, Bool kIfUnique>
-inline Void ZVector<ObjectType, kIfUnique>::DestroyObjects(ObjectType* begin_ptr, ObjectType* const end_ptr) noexcept {
+inline Void ZVector<ObjectType, kIfUnique>::DestroyObjectsP(ObjectType* begin_ptr, ObjectType* const end_ptr) noexcept {
     if constexpr (kIfUnique) {
         while (begin_ptr < end_ptr) {
             begin_ptr->~ObjectType();
@@ -1323,7 +1138,7 @@ inline Void ZVector<ObjectType, kIfUnique>::DestroyObjects(ObjectType* begin_ptr
 }
 
 template<typename ObjectType, Bool kIfUnique>
-Void ZVector<ObjectType, kIfUnique>::CreateContainer(const IndexType capacity) noexcept {
+Void ZVector<ObjectType, kIfUnique>::CreateContainerP(const IndexType capacity) noexcept {
     DEBUG(capacity < 0, "Negaive capacity not valid!");
     MemoryType need_memory_size = capacity * sizeof(ObjectType);
     MemoryType apply_mrmory_size;
@@ -1332,7 +1147,7 @@ Void ZVector<ObjectType, kIfUnique>::CreateContainer(const IndexType capacity) n
 }
 
 template<typename ObjectType, Bool kIfUnique>
-Void ZVector<ObjectType, kIfUnique>::ExtendContainer(const IndexType capacity) noexcept {
+Void ZVector<ObjectType, kIfUnique>::ExtendContainerP(const IndexType capacity) noexcept {
     DEBUG(capacity < 0, "Negaive capacity not valid!");
     MemoryType current_memory_size = capacity_ * sizeof(ObjectType);
     MemoryType need_memory_size = capacity * sizeof(ObjectType);
@@ -1350,7 +1165,7 @@ Void ZVector<ObjectType, kIfUnique>::ExtendContainer(const IndexType capacity) n
 }
 
 template<typename ObjectType, Bool kIfUnique>
-Void ZVector<ObjectType, kIfUnique>::ShrinkContainer() noexcept {
+Void ZVector<ObjectType, kIfUnique>::ShrinkContainerP() noexcept {
     MemoryType need_memory_size = size_ * sizeof(ObjectType);
     MemoryType min_satisfied_memory_size = memory_pool::CalculateMemory(need_memory_size);
     MemoryType min_satisfied_capacity = min_satisfied_memory_size / sizeof(ObjectType);
@@ -1365,8 +1180,8 @@ Void ZVector<ObjectType, kIfUnique>::ShrinkContainer() noexcept {
 }
 
 template<typename ObjectType, Bool kIfUnique>
-Void ZVector<ObjectType, kIfUnique>::DestroyContainer() noexcept {
-    DestroyObjects(data_ptr_, data_ptr_ + size_);
+Void ZVector<ObjectType, kIfUnique>::DestroyContainerP() noexcept {
+    DestroyObjectsP(data_ptr_, data_ptr_ + size_);
     memory_pool::ReleaseMemory(reinterpret_cast<Void*>(data_ptr_));
     data_ptr_ = nullptr;
     size_ = 0;
@@ -1374,10 +1189,13 @@ Void ZVector<ObjectType, kIfUnique>::DestroyContainer() noexcept {
 }
 
 template<typename ObjectType, Bool kIfUnique>
-FORCEINLINE Void ZVector<ObjectType, kIfUnique>::MoveDestroy() {
-    data_ptr_ = nullptr;
-    size_ = 0;
-    capacity_ = 0;
+FORCEINLINE Void ZVector<ObjectType, kIfUnique>::MoveP(ZVector&& vector) {
+    data_ptr_ = vector.data_ptr_;
+    size_ = vector.size_;
+    capacity_ = vector.capacity_;
+    vector.data_ptr_ = nullptr;
+    vector.size_ = 0;
+    vector.capacity_ = 0;
 }
 
 template<typename ObjectType, Bool kIfUnique>
@@ -1389,15 +1207,15 @@ Void ZVector<ObjectType, kIfUnique>::PushBacksOrderP(const ObjectType* src_begin
         if (src_begin_ptr >= data_ptr_ && src_begin_ptr <= (data_ptr_ + size_)) {
             IndexType begin_index = static_cast<IndexType>(src_begin_ptr - data_ptr_);
             IndexType end_index = src_end_ptr - data_ptr_;
-            ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+            ExtendContainerP(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
             src_begin_ptr = data_ptr_ + begin_index;
             src_end_ptr = data_ptr_ + end_index;
         }
         else {
-            ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+            ExtendContainerP(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
         }
     }
-    CreateAndCopyObjects(data_ptr_ + size_, src_begin_ptr, src_end_ptr);
+    CreateAndCopyObjectsP(data_ptr_ + size_, src_begin_ptr, src_end_ptr);
     size_ = new_size;
 }
 
@@ -1410,15 +1228,15 @@ Void ZVector<ObjectType, kIfUnique>::PushBacksReverseP(const ObjectType* src_beg
         if (src_begin_ptr >= data_ptr_ && src_begin_ptr <= (data_ptr_ + size_)) {
             IndexType begin_index = static_cast<IndexType>(src_begin_ptr - data_ptr_);
             IndexType end_index = src_end_ptr - data_ptr_;
-            ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+            ExtendContainerP(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
             src_begin_ptr = data_ptr_ + begin_index;
             src_end_ptr = data_ptr_ + end_index;
         }
         else {
-            ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+            ExtendContainerP(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
         }
     }
-    CreateAndCopyObjectsReverse(data_ptr_ + size_, src_begin_ptr, src_end_ptr);
+    CreateAndCopyObjectsReverseP(data_ptr_ + size_, src_begin_ptr, src_end_ptr);
     size_ = new_size;
 }
 
@@ -1428,11 +1246,11 @@ NODISCARD ObjectType* ZVector<ObjectType, kIfUnique>::InsertP(const IndexType in
     DEBUG(index < 0 || index > size_, "Insert index out of bounds!");
     IndexType new_size = size_ + 1;
     if (new_size > capacity_) {
-        ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+        ExtendContainerP(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
     }
     memmove(reinterpret_cast<Void*>(data_ptr_ + (index + 1)), reinterpret_cast<Void*>(data_ptr_ + index),
         (size_ - index) * sizeof(ObjectType));
-    CreateObject(data_ptr_ + index, std::forward<ArgsType>(args)...);
+    CreateObjectP(data_ptr_ + index, std::forward<ArgsType>(args)...);
     size_ = new_size;
     return data_ptr_ + index;
 }
@@ -1445,11 +1263,11 @@ NODISCARD ObjectType* ZVector<ObjectType, kIfUnique>::InsertsP(const IndexType i
     DEBUG(num < 0, "Negative insert num not valid!");
     IndexType new_size = size_ + num;
     if (new_size > capacity_) {
-        ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+        ExtendContainerP(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
     }
     memmove(reinterpret_cast<Void*>(data_ptr_ + (index + num)), reinterpret_cast<Void*>(data_ptr_ + index),
         (size_ - index) * sizeof(ObjectType));
-    CreateObjects(data_ptr_ + index, data_ptr_ + (index + num), std::forward<ArgsType>(args)...);
+    CreateObjectsP(data_ptr_ + index, data_ptr_ + (index + num), std::forward<ArgsType>(args)...);
     size_ = new_size;
     return data_ptr_ + index;
 }
@@ -1465,16 +1283,16 @@ NODISCARD ObjectType* ZVector<ObjectType, kIfUnique>::InsertsOrderP(const IndexT
     if (src_begin_ptr >= data_ptr_ && src_begin_ptr <= (data_ptr_ + size_)) {
         IndexType begin_index = static_cast<IndexType>(src_begin_ptr - data_ptr_);
         IndexType end_index = src_end_ptr - data_ptr_;
-        ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+        ExtendContainerP(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
         src_begin_ptr = data_ptr_ + begin_index;
         src_end_ptr = data_ptr_ + end_index;
     }
     else {
-        ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+        ExtendContainerP(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
     }
     memmove(reinterpret_cast<Void*>(data_ptr_ + (index + num)), reinterpret_cast<Void*>(data_ptr_ + index),
             (size_ - index) * sizeof(ObjectType));
-    CreateAndCopyObjects(data_ptr_ + index, src_begin_ptr, src_end_ptr);
+    CreateAndCopyObjectsP(data_ptr_ + index, src_begin_ptr, src_end_ptr);
     size_ = new_size;
     return data_ptr_ + index;
 }
@@ -1490,16 +1308,16 @@ NODISCARD ObjectType* ZVector<ObjectType, kIfUnique>::InsertsReverseP(const Inde
     if (src_begin_ptr >= data_ptr_ && src_begin_ptr <= (data_ptr_ + size_)) {
         IndexType begin_index = static_cast<IndexType>(src_begin_ptr - data_ptr_);
         IndexType end_index = src_end_ptr - data_ptr_;
-        ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+        ExtendContainerP(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
         src_begin_ptr = data_ptr_ + begin_index;
         src_end_ptr = data_ptr_ + end_index;
     }
     else {
-        ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+        ExtendContainerP(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
     }
     memmove(reinterpret_cast<Void*>(data_ptr_ + (index + num)), reinterpret_cast<Void*>(data_ptr_ + index),
             (size_ - index) * sizeof(ObjectType));
-    CreateAndCopyObjectsReverse(data_ptr_ + index, src_begin_ptr, src_end_ptr);
+    CreateAndCopyObjectsReverseP(data_ptr_ + index, src_begin_ptr, src_end_ptr);
     size_ = new_size;
     return data_ptr_ + index;
 }
@@ -1507,7 +1325,7 @@ NODISCARD ObjectType* ZVector<ObjectType, kIfUnique>::InsertsReverseP(const Inde
 template<typename ObjectType, Bool kIfUnique>
 NODISCARD inline ObjectType* ZVector<ObjectType, kIfUnique>::EraseP(const ObjectType* object_ptr) noexcept {
     DEBUG(object_ptr < data_ptr_ || object_ptr >= data_ptr_ + size_, "Erase index out of bounds!");
-    DestroyObject(object_ptr);
+    DestroyObjectP(object_ptr);
     memmove(reinterpret_cast<Void*>(object_ptr), reinterpret_cast<Void*>(object_ptr + 1),
             (size_ - static_cast<IndexType>(object_ptr - data_ptr_) - 1) * sizeof(ObjectType));
     --size_;
@@ -1520,7 +1338,7 @@ NODISCARD inline ObjectType* ZVector<ObjectType, kIfUnique>::ErasesP(const Objec
     DEBUG(begin_ptr < data_ptr_ || begin_ptr >= data_ptr_ + size_, "Erase index out of bounds!");
     DEBUG(end_ptr < data_ptr_ || end_ptr >= data_ptr_ + size_, "Erase index out of bounds!");
     DEBUG(begin_ptr > end_ptr, "Begin pointer after end pointer!");
-    DestroyObjects(begin_ptr, end_ptr);
+    DestroyObjectsP(begin_ptr, end_ptr);
     memmove(reinterpret_cast<Void*>(begin_ptr), reinterpret_cast<Void*>(end_ptr),
             (size_ - static_cast<IndexType>(end_ptr - data_ptr_)) * sizeof(ObjectType));
     size_ -= end_ptr - begin_ptr;
@@ -1531,8 +1349,8 @@ template<typename ObjectType, Bool kIfUnique>
 template<typename... ArgsType>
 inline Void ZVector<ObjectType, kIfUnique>::EmplaceP(const ObjectType* object_ptr, ArgsType&&... args) noexcept {
     DEBUG(object_ptr < data_ptr_ || object_ptr >= data_ptr_ + size_, "Emplace index out of bounds!");
-    DestroyObject(object_ptr);
-    CreateObject(object_ptr, std::forward<ArgsType>(args)...);
+    DestroyObjectP(object_ptr);
+    CreateObjectP(object_ptr, std::forward<ArgsType>(args)...);
 }
 
 template<typename ObjectType, Bool kIfUnique>
@@ -1540,18 +1358,30 @@ Void ZVector<ObjectType, kIfUnique>::AssignOrderP(const ObjectType* begin_ptr, c
     DEBUG(begin_ptr > end_ptr, "Begin pointer after end pointer!");
     IndexType new_size = end_ptr - begin_ptr;
     if (new_size > capacity_) {
-        ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+        ExtendContainerP(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
     }
-    //If the pointer is from this.
-    if (begin_ptr >= data_ptr_ && begin_ptr <= (data_ptr_ + size_)) {
-        DestroyObjects(data_ptr_, begin_ptr);
-        DestroyObjects(end_ptr, data_ptr_ + size_);
-        //Move the objects to the front.
-        memmove(reinterpret_cast<Void*>(data_ptr_), reinterpret_cast<Void*>(begin_ptr),
-            new_size * sizeof(ObjectType));
+    if constexpr (kIfUnique) {
+        //If the pointer is from this.
+        if (begin_ptr >= data_ptr_ && begin_ptr <= (data_ptr_ + size_)) {
+            DestroyObjectsP(data_ptr_, begin_ptr);
+            DestroyObjectsP(end_ptr, data_ptr_ + size_);
+            //Move the objects to the front.
+            memmove(reinterpret_cast<Void*>(data_ptr_), reinterpret_cast<Void*>(begin_ptr),
+                new_size * sizeof(ObjectType));
+        }
+        else {
+            if (new_size > size_) {
+                CopyObjectsP(data_ptr_, begin_ptr, begin_ptr + size_);
+                CreateAndCopyObjectsP(data_ptr_ + size_, begin_ptr + size_, end_ptr);
+            }
+            else {
+                CopyObjectsP(data_ptr_, begin_ptr, end_ptr);
+                DestroyObjectsP(data_ptr_ + new_size, data_ptr_ + size_);
+            }
+        }
     }
     else {
-        CopyObjects(data_ptr_, begin_ptr, end_ptr);
+        CopyObjectsP(data_ptr_, begin_ptr, end_ptr);
     }
     size_ = new_size;
 }
@@ -1561,26 +1391,38 @@ Void ZVector<ObjectType, kIfUnique>::AssignReverseP(const ObjectType* begin_ptr,
     DEBUG(begin_ptr < end_ptr, "Begin pointer after end pointer!");
     IndexType new_size = begin_ptr - end_ptr;
     if (new_size > capacity_) {
-        ExtendContainer(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+        ExtendContainerP(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
     }
-    //If the pointer is from this.
-    if (begin_ptr >= data_ptr_ && begin_ptr <= (data_ptr_ + size_)) {
-        DestroyObjects(data_ptr_, end_ptr + 1);
-        DestroyObjects(begin_ptr + 1, data_ptr_ + size_);
-        //Reverses the objects.
-        ObjectType* begin_ptr = end_ptr + 1;
-        ObjectType* end_ptr = begin_ptr;
-        while (begin_ptr < end_ptr) {
-            Swap(begin_ptr, end_ptr);
-            ++begin_ptr;
-            --end_ptr;
+    if constexpr (kIfUnique) {
+        //If the pointer is from this.
+        if (begin_ptr >= data_ptr_ && begin_ptr <= (data_ptr_ + size_)) {
+            DestroyObjectsP(data_ptr_, end_ptr + 1);
+            DestroyObjectsP(begin_ptr + 1, data_ptr_ + size_);
+            //Reverses the objects.
+            ObjectType* begin_ptr = end_ptr + 1;
+            ObjectType* end_ptr = begin_ptr;
+            while (begin_ptr < end_ptr) {
+                Swap(begin_ptr, end_ptr);
+                ++begin_ptr;
+                --end_ptr;
+            }
+            //Move the objects to the first front.
+            memmove(reinterpret_cast<Void*>(data_ptr_), reinterpret_cast<Void*>(end_ptr + 1),
+                new_size * sizeof(ObjectType));
         }
-        //Move the objects to the first front.
-        memmove(reinterpret_cast<Void*>(data_ptr_), reinterpret_cast<Void*>(end_ptr + 1),
-            new_size * sizeof(ObjectType));
+        else {
+            if (new_size > size_) {
+                CopyObjectsReverseP(data_ptr_, begin_ptr, begin_ptr - size_);
+                CreateAndCopyObjectsReverseP(data_ptr_ + size_, begin_ptr - size_, end_ptr);
+            }
+            else {
+                CopyObjectsReverseP(data_ptr_, begin_ptr, end_ptr);
+                DestroyObjectsP(data_ptr_ + new_size, data_ptr_ + size_);
+            }
+        }
     }
     else {
-        CopyObjectsReverse(data_ptr_, begin_ptr, end_ptr);
+        CopyObjectsReverseP(data_ptr_, begin_ptr, end_ptr);
     }
     size_ = new_size;
 }

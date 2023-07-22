@@ -33,7 +33,7 @@ private:
         HeapMemoryPtrArrayNode* next_node_ptr;
     };
 
-    NODISCARD static ZHeapMemoryPool<kIsThreadSafe>& Instance() noexcept {
+    NODISCARD static ZHeapMemoryPool<kIsThreadSafe>& InstanceP() noexcept {
         static ZHeapMemoryPool<kIsThreadSafe> heap_memory_pool;;
         return heap_memory_pool;
     }
@@ -63,7 +63,7 @@ private:
 
 template<Bool kIsThreadSafe>
 NODISCARD Void* const ZHeapMemoryPool<kIsThreadSafe>::ApplyMemory(const MemoryType size) noexcept {
-    ZHeapMemoryPool& memory_pool = Instance();
+    ZHeapMemoryPool& memory_pool = InstanceP();
     Void* const heap_memory_ptr = malloc(size);
     memory_pool.MutexType::lock();
     //applys new node when the memory runs out.

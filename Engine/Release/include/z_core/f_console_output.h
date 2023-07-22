@@ -60,7 +60,7 @@ private:
 
 public:
 
-    NODISCARD static ZConsoleOutputSettings& Instance() {
+    NODISCARD static ZConsoleOutputSettings& InstanceP() {
         static ZConsoleOutputSettings instance;
         return instance;
     }
@@ -94,7 +94,7 @@ CORE_DLLAPI extern const Void SetConsoleOutputColour(const ConsoleOutputTextColo
 */
 template<typename FormatType, typename... ArgsType>
 FORCEINLINE Void Print(FormatType&& format, ArgsType&&... args) {
-    internal::ZConsoleOutputSettings& settings = internal::ZConsoleOutputSettings::Instance();
+    internal::ZConsoleOutputSettings& settings = internal::ZConsoleOutputSettings::InstanceP();
     settings.console_output_mutex().lock();
     printf(std::forward<FormatType>(format), std::forward<ArgsType>(args)...);
     settings.console_output_mutex().unlock();
@@ -109,7 +109,7 @@ template<typename FormatType, typename... ArgsType>
 FORCEINLINE Void Print(const ConsoleOutputTextColour text_colour,
                          const ConsoleOutputBackgroundColour background_colour, 
                          FormatType&& format, ArgsType&&... args) {
-    internal::ZConsoleOutputSettings& settings = internal::ZConsoleOutputSettings::Instance();
+    internal::ZConsoleOutputSettings& settings = internal::ZConsoleOutputSettings::InstanceP();
     settings.console_output_mutex().lock();
     //Changes the console output colour.
     SetConsoleTextAttribute(

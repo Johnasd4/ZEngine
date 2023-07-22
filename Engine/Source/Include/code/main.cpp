@@ -35,7 +35,7 @@ int main(){
     //cout << test_vector_1.capacity();
     test_vector.~ZVector();
     auto iterator = test_vector.ConstBegin();
-    *iterator = 10;
+//    *iterator = 10;
     sizeof(deque<int>);
     //queue<Int32> a;
     //cout << (-4) % 3;
