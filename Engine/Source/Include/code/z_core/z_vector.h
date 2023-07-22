@@ -762,11 +762,15 @@ private:
     */
     FORCEINLINE Void ZVectorReverseP(const ObjectType* begin_ptr, const ObjectType* const end_ptr) noexcept;
 
+    /*
+        Container copy function.
+    */
+    Void CopyP(const ZVector& vector) noexcept;
 
     /*
         Container move function.
     */
-    FORCEINLINE Void MoveP(ZVector&& vector);
+    inline Void MoveP(ZVector&& vector) noexcept;
 
     /*
         Makes a copy of the objects between the pointers and push them to the
@@ -892,7 +896,7 @@ ZVector<ObjectType, kIfUnique>& ZVector<ObjectType, kIfUnique>::operator=(
         const ZVector& vector) noexcept {
     DEBUG(&vector == this, "The source and the target of the copy is the same!");
     SuperType::operator=(vector);
-    AssignOrderP(vector.data_ptr_, vector.data_ptr_ + vector.size_);
+    CopyP(vector);
     return *this;
 }
 
@@ -919,7 +923,7 @@ Void ZVector<ObjectType, kIfUnique>::Resize(const IndexType size, ArgsType&&... 
         if (size > capacity_) {
             ExtendContainerP(size);
         }
-        CreateObjectsP(data_ptr_ + size_, data_ptr_ + (size - size_), std::forward<ArgsType>(args)...);
+        CreateObjectsP(data_ptr_ + size_, data_ptr_ + size, std::forward<ArgsType>(args)...);
     }
     else {
         DestroyObjectsP(data_ptr_ + size, data_ptr_ + size_);
@@ -1184,7 +1188,27 @@ FORCEINLINE Void ZVector<ObjectType, kIfUnique>::ZVectorReverseP(const ObjectTyp
 }
 
 template<typename ObjectType, Bool kIfUnique>
-FORCEINLINE Void ZVector<ObjectType, kIfUnique>::MoveP(ZVector&& vector) {
+Void ZVector<ObjectType, kIfUnique>::CopyP(const ZVector& vector) noexcept {
+    if (vector.size_ > capacity_) {
+        ExtendContainerP(vector.size_);
+    }
+    if constexpr (kIfUnique) {
+        if (vector.size_ > size_) {
+            CopyObjectsP(data_ptr_, vector.data_ptr_, vector.data_ptr_ + size_);
+            CreateAndCopyObjectsP(data_ptr_ + size_, vector.data_ptr_ + size_, vector.data_ptr_ + vector.size_);
+        }
+        else {
+            CopyObjectsP(data_ptr_, vector.data_ptr_, vector.data_ptr_ + vector.size_);
+            DestroyObjectsP(data_ptr_ + vector.size_, data_ptr_ + size_);
+        }
+    }
+    else {
+        CopyObjectsP(data_ptr_, vector.data_ptr_, vector.data_ptr_ + vector.size_);
+    }
+}
+
+template<typename ObjectType, Bool kIfUnique>
+inline Void ZVector<ObjectType, kIfUnique>::MoveP(ZVector&& vector) noexcept {
     data_ptr_ = vector.data_ptr_;
     size_ = vector.size_;
     capacity_ = vector.capacity_;
@@ -1354,7 +1378,7 @@ Void ZVector<ObjectType, kIfUnique>::AssignOrderP(const ObjectType* begin_ptr,
     DEBUG(begin_ptr > end_ptr, "Begin pointer after end pointer!");
     IndexType new_size = end_ptr - begin_ptr;
     if (new_size > capacity_) {
-        ExtendContainerP(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+        ExtendContainerP(new_size);
     }
     if constexpr (kIfUnique) {
         //If the pointer is from this.
@@ -1388,7 +1412,7 @@ Void ZVector<ObjectType, kIfUnique>::AssignReverseP(const ObjectType* begin_ptr,
     DEBUG(begin_ptr < end_ptr, "Begin pointer after end pointer!");
     IndexType new_size = begin_ptr - end_ptr;
     if (new_size > capacity_) {
-        ExtendContainerP(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+        ExtendContainerP(new_size);
     }
     if constexpr (kIfUnique) {
         //If the pointer is from this.
