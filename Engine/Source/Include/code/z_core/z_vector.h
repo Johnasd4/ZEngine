@@ -188,10 +188,18 @@ public:
     */
     template<typename... ArgsType>
     ZVector(const IndexType capacity, ArgsType&&... args) noexcept;    
-    ZVector(const IteratorType& begin, const IteratorType& end) noexcept;
-    ZVector(const ConstIteratorType& begin, const ConstIteratorType& end) noexcept;
-    ZVector(const ReverseIteratorType& begin, const ReverseIteratorType& end) noexcept;
-    ZVector(const ConstReverseIteratorType& begin, const ConstReverseIteratorType& end) noexcept;
+    ZVector(const IteratorType& begin, const IteratorType& end) noexcept : SuperType() { 
+        ZVectorOrderP(begin.object_ptr(), end.object_ptr());
+    }
+    ZVector(const ConstIteratorType& begin, const ConstIteratorType& end) noexcept : SuperType() {
+        ZVectorOrderP(begin.object_ptr(), end.object_ptr());
+    }
+    ZVector(const ReverseIteratorType& begin, const ReverseIteratorType& end) noexcept : SuperType() {
+        ZVectorReverseP(begin.object_ptr(), end.object_ptr());
+    }
+    ZVector(const ConstReverseIteratorType& begin, const ConstReverseIteratorType& end) noexcept : SuperType() {
+        ZVectorReverseP(begin.object_ptr(), end.object_ptr());
+    }
     ZVector(const ZVector& vector) noexcept;
     ZVector(ZVector&& vector) noexcept;
 
@@ -745,6 +753,17 @@ private:
     Void DestroyContainerP() noexcept;
 
     /*
+        Constructor with two order iterators.
+    */
+    FORCEINLINE Void ZVectorOrderP(ObjectType* begin_ptr, ObjectType* const end_ptr) noexcept;
+
+    /*
+        Constructor with two reverse iterators.
+    */
+    FORCEINLINE Void ZVectorReverseP(ObjectType* begin_ptr, ObjectType* const end_ptr) noexcept;
+
+
+    /*
         Container move function.
     */
     FORCEINLINE Void MoveP(ZVector&& vector);
@@ -847,49 +866,6 @@ ZVector<ObjectType, kIfUnique>::ZVector(const IndexType capacity, ArgsType&&... 
     CreateContainerP(capacity);
     CreateObjectsP(data_ptr_, data_ptr_ + capacity, std::forward<ArgsType>(args)...);
     size_ = capacity;
-}
-
-template<typename ObjectType, Bool kIfUnique>
-ZVector<ObjectType, kIfUnique>::ZVector(const IteratorType& begin, const IteratorType& end) noexcept
-    : SuperType()
-{
-    DEBUG(begin > end, "Begin iterator after end iterator!");
-    size_ = end - begin;
-    CreateContainerP(size_);
-    CreateAndCopyObjectsP(data_ptr_, begin.object_ptr(), end.object_ptr());
-}
-
-template<typename ObjectType, Bool kIfUnique>
-ZVector<ObjectType, kIfUnique>::ZVector(const ConstIteratorType& begin, const ConstIteratorType& end) noexcept
-    : SuperType()
-{
-    DEBUG(begin > end, "Begin iterator after end iterator!");
-    size_ = end - begin;
-    CreateContainerP(size_);
-    CreateAndCopyObjectsP(data_ptr_, begin.object_ptr(), end.object_ptr());
-
-}
-
-template<typename ObjectType, Bool kIfUnique>
-ZVector<ObjectType, kIfUnique>::ZVector(const ReverseIteratorType& begin, 
-                                                  const ReverseIteratorType& end) noexcept
-    : SuperType()
-{
-    DEBUG(begin > end, "Begin iterator after end iterator!");
-    size_ = end - begin;
-    CreateContainerP(size_);
-    CreateAndCopyObjectsReverseP(data_ptr_, begin.object_ptr(), end.object_ptr());
-}
-
-template<typename ObjectType, Bool kIfUnique>
-ZVector<ObjectType, kIfUnique>::ZVector(const ConstReverseIteratorType& begin, 
-                                                  const ConstReverseIteratorType& end) noexcept
-    : SuperType()
-{
-    DEBUG(begin > end, "Begin iterator after end iterator!");
-    size_ = end - begin;
-    CreateContainerP(size_);
-    CreateAndCopyObjectsReverseP(data_ptr_, begin.object_ptr(), end.object_ptr());
 }
 
 template<typename ObjectType, Bool kIfUnique>
@@ -1186,6 +1162,24 @@ Void ZVector<ObjectType, kIfUnique>::DestroyContainerP() noexcept {
     data_ptr_ = nullptr;
     size_ = 0;
     capacity_ = 0;
+}
+
+template<typename ObjectType, Bool kIfUnique>
+FORCEINLINE Void ZVector<ObjectType, kIfUnique>::ZVectorOrderP(ObjectType* begin_ptr,
+                                                               ObjectType* const end_ptr) noexcept {
+    DEBUG(begin_ptr > end_ptr, "Begin pointer after end pointer!");
+    size_ = end_ptr - begin_ptr;
+    CreateContainerP(size_);
+    CreateAndCopyObjectsP(data_ptr_, begin_ptr, end_ptr);
+}
+
+template<typename ObjectType, Bool kIfUnique>
+FORCEINLINE Void ZVector<ObjectType, kIfUnique>::ZVectorReverseP(ObjectType* begin_ptr,
+                                                                 ObjectType* const end_ptr) noexcept {
+    DEBUG(begin_ptr < end_ptr, "Begin pointer after end pointer!");
+    size_ = begin_ptr - end_ptr;
+    CreateContainerP(size_);
+    CreateAndCopyObjectsReverseP(data_ptr_, begin_ptr, end_ptr);
 }
 
 template<typename ObjectType, Bool kIfUnique>
