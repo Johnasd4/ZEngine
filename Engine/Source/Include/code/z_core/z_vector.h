@@ -892,7 +892,7 @@ ZVector<ObjectType, kIfUnique>& ZVector<ObjectType, kIfUnique>::operator=(
         const ZVector& vector) noexcept {
     DEBUG(&vector == this, "The source and the target of the copy is the same!");
     SuperType::operator=(vector);
-    AssignOrderP(data_ptr_, vector.data_ptr_, vector.data_ptr_ + vector.size_);
+    AssignOrderP(vector.data_ptr_, vector.data_ptr_ + vector.size_);
     return *this;
 }
 
