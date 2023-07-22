@@ -770,7 +770,7 @@ private:
     /*
         Container move function.
     */
-    inline Void MoveP(ZVector&& vector) noexcept;
+    Void MoveP(ZVector&& vector) noexcept;
 
     /*
         Makes a copy of the objects between the pointers and push them to the
@@ -1209,7 +1209,7 @@ Void ZVector<ObjectType, kIfUnique>::CopyP(const ZVector& vector) noexcept {
 }
 
 template<typename ObjectType, Bool kIfUnique>
-inline Void ZVector<ObjectType, kIfUnique>::MoveP(ZVector&& vector) noexcept {
+Void ZVector<ObjectType, kIfUnique>::MoveP(ZVector&& vector) noexcept {
     data_ptr_ = vector.data_ptr_;
     size_ = vector.size_;
     capacity_ = vector.capacity_;

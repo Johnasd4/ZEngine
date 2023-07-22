@@ -600,22 +600,23 @@ private:
         Copy objects by the given pointer. Will call the copy assignment operator
         if this object class's member kIfUnique is true.
     */
-    inline static Void CopyObjectsP(ObjectType* dst_ptr, const ObjectType* src_begin_ptr,
-                                    const ObjectType* const src_end_ptr) noexcept;
+    static Void CopyObjectsP(ObjectType* dst_ptr, DataNode* dst_node_ptr,
+                             const ObjectType* src_begin_ptr, DataNode* src_begin_node_ptr,
+                             const ObjectType* const src_end_ptr, DataNode* src_end_node_ptr) noexcept;
 
     /*
         Copy objects by the given pointer. Will call the copy assignment operator
         if this object class's member kIfUnique is true.
     */
-    static Void CopyObjectsReverseP(ObjectType* dst_ptr, const ObjectType* src_begin_ptr,
-                                    const ObjectType* const src_end_ptr) noexcept;
+    static Void CopyObjectsReverseP(ObjectType* dst_ptr, DataNode* dst_node_ptr,
+                                    const ObjectType* src_begin_ptr, DataNode* src_begin_node_ptr,
+                                    const ObjectType* const src_end_ptr, DataNode* src_end_node_ptr) noexcept;
 
     /*
         Destroy the objects by the given arguements([begin, end)). 
         Will call the destrctor if this object class's member kIfUnique is true.
     */
     inline static Void DestroyObjectsP(ObjectType* begin_ptr, ObjectType* const end_ptr) noexcept;
-
 
     /*
         Creates the capacity by the given capacity, the final capacity might
@@ -866,6 +867,7 @@ Void ZDeque<ObjectType, kIfUnique>::CreateContainer(const IndexType capacity) no
     DEBUG(capacity < 0, "Negaive capacity not valid!");
     MemoryType need_memory_size = ((capacity * sizeof(ObjectType)) >> 1) + sizeof(DataNode);
     MemoryType apply_mrmory_size;
+    //Applys 2 nodes instead.
     front_node_ptr_ = reinterpret_cast<DataNode*>(memory_pool::ApplyMemory(need_memory_size, &apply_mrmory_size));
     back_node_ptr_ = reinterpret_cast<DataNode*>(memory_pool::ApplyMemory(need_memory_size, &apply_mrmory_size));
 
@@ -876,6 +878,7 @@ Void ZDeque<ObjectType, kIfUnique>::CreateContainer(const IndexType capacity) no
     back_node_ptr_->next_node_ptr = nullptr;
     back_node_ptr_->previous_node_ptr = front_node_ptr_;
     back_node_ptr_->capacity = (apply_mrmory_size - sizeof(DataNode)) / sizeof(ObjectType);
+
     empty_node_ptr_ = nullptr;
     capacity_ = front_node_ptr_->capacity + back_node_ptr_->capacity;
 }
