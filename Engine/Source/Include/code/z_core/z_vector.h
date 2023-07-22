@@ -1358,12 +1358,12 @@ Void ZVector<ObjectType, kIfUnique>::AssignOrderP(const ObjectType* begin_ptr,
     }
     if constexpr (kIfUnique) {
         //If the pointer is from this.
-        if (begin_ptr >= data_ptr_ && begin_ptr <= (data_ptr_ + size_)) {
+        if (begin_ptr >= data_ptr_ && begin_ptr < (data_ptr_ + size_)) {
             DestroyObjectsP(data_ptr_, begin_ptr);
             DestroyObjectsP(end_ptr, data_ptr_ + size_);
             //Move the objects to the front.
             memmove(reinterpret_cast<Void*>(data_ptr_), reinterpret_cast<Void*>(begin_ptr),
-                new_size * sizeof(ObjectType));
+                    new_size * sizeof(ObjectType));
         }
         else {
             if (new_size > size_) {
@@ -1392,7 +1392,7 @@ Void ZVector<ObjectType, kIfUnique>::AssignReverseP(const ObjectType* begin_ptr,
     }
     if constexpr (kIfUnique) {
         //If the pointer is from this.
-        if (begin_ptr >= data_ptr_ && begin_ptr <= (data_ptr_ + size_)) {
+        if (begin_ptr >= data_ptr_ && begin_ptr < (data_ptr_ + size_)) {
             DestroyObjectsP(data_ptr_, end_ptr + 1);
             DestroyObjectsP(begin_ptr + 1, data_ptr_ + size_);
             //Reverses the objects.
