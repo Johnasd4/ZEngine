@@ -1379,13 +1379,13 @@ NODISCARD ObjectType* ZVector<ObjectType, kIfUnique>::InsertsReverseP(const Inde
             CreateAndCopyObjectsReverseP(data_ptr_ + index, src_begin_ptr, src_end_ptr);
         }
         else {
-            IndexType part_1_num = begin_index - index;
+            IndexType part_1_num = begin_index - index + 1;
             IndexType part_2_num = num - part_1_num;
             ObjectType* dst_ptr = data_ptr_ + index;
-            src_begin_ptr = data_ptr_ + begin_index;
+            src_begin_ptr = data_ptr_ + begin_index + num;
             src_end_ptr = src_begin_ptr - part_1_num;
             CreateAndCopyObjectsReverseP(dst_ptr, src_begin_ptr, src_end_ptr);
-            src_begin_ptr = dst_ptr - num;
+            src_begin_ptr = dst_ptr - 1;
             src_end_ptr = src_begin_ptr - part_2_num;
             CreateAndCopyObjectsReverseP(dst_ptr + part_1_num, src_begin_ptr, src_end_ptr);
         }
@@ -1416,7 +1416,7 @@ template<typename ObjectType, Bool kIfUnique>
 NODISCARD inline ObjectType* ZVector<ObjectType, kIfUnique>::ErasesP(ObjectType* begin_ptr,
                                                                      ObjectType* const end_ptr) noexcept {
     DEBUG(begin_ptr < data_ptr_ || begin_ptr >= data_ptr_ + size_, "Erase index out of bounds!");
-    DEBUG(end_ptr < data_ptr_ || end_ptr >= data_ptr_ + size_, "Erase index out of bounds!");
+    DEBUG(end_ptr < data_ptr_ || end_ptr > data_ptr_ + size_, "Erase index out of bounds!");
     DEBUG(begin_ptr > end_ptr, "Begin pointer after end pointer!");
     DestroyObjectsP(begin_ptr, end_ptr);
     memmove(reinterpret_cast<Void*>(begin_ptr), reinterpret_cast<Void*>(end_ptr),

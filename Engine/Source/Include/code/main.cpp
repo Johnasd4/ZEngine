@@ -38,8 +38,7 @@ int main(){
         c.PushBack(a);
     }
     b = a;
-    b.Inserts(2, b.Begin(), b.End());
-    c.Inserts(2, c.Begin(), c.End());
+    b.Inserts(2, b.ReverseBegin(), b.ReverseEnd());
     cout << "B=";
     for (int i = 0; i < b.size(); i++)
     {
