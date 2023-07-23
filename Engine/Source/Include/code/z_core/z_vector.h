@@ -837,7 +837,7 @@ private:
         Calls the constructor with the arguements.
     */
     template<typename... ArgsType>
-    inline Void EmplaceP(const ObjectType* object_ptr, ArgsType&&... args) noexcept;
+    inline Void EmplaceP(ObjectType* object_ptr, ArgsType&&... args) noexcept;
 
     /*
         Construct the vector by filling it objects between the pointers.
@@ -1427,7 +1427,7 @@ NODISCARD inline ObjectType* ZVector<ObjectType, kIfUnique>::ErasesP(ObjectType*
 
 template<typename ObjectType, Bool kIfUnique>
 template<typename... ArgsType>
-inline Void ZVector<ObjectType, kIfUnique>::EmplaceP(const ObjectType* object_ptr, ArgsType&&... args) noexcept {
+inline Void ZVector<ObjectType, kIfUnique>::EmplaceP(ObjectType* object_ptr, ArgsType&&... args) noexcept {
     DEBUG(object_ptr < data_ptr_ || object_ptr >= data_ptr_ + size_, "Emplace index out of bounds!");
     DestroyObjectP(object_ptr);
     CreateObjectP(object_ptr, std::forward<ArgsType>(args)...);

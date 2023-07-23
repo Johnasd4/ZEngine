@@ -27,7 +27,6 @@ constexpr auto init_function = [](ZArray<Int32, 10>* array_ptr) {
     }
 };
 int main(){
-
     ZVector<int> a;
     ZVector<int> b;
     ZVector<ZVector<int>> c;
@@ -37,24 +36,9 @@ int main(){
         a.PushBack(i);
         c.PushBack(a);
     }
+    d = c;
     b = a;
-    b.Inserts(2, b.ReverseBegin(), b.ReverseEnd());
-    cout << "B=";
-    for (int i = 0; i < b.size(); i++)
-    {
-        cout << b[i] << " ";
-    }
-    cout << endl << b.size() << " " << b.capacity() << endl;
-    cout << "C=";
-    for (int i = 0; i < c.size(); i++)
-    {
-        for (int j = 0; j < c[i].size(); j++)
-        {
-            cout << c[i][j] << " ";
-        }
-        cout << endl /*<< c[i].size() << " " << c[i].capacity() << endl*/;
-    }
-    cout << c.size() << " " << c.capacity() << endl;
+    b.Emplace(0, 1);
     //cout << (-4) % 3;
     //ZArray<Int32, 19> test_1;
     //ZArray<Int32, 19> test_2(test_1);
