@@ -357,21 +357,21 @@ public:
     */
     template<typename... ArgsType>
     FORCEINLINE IteratorType Insert(const IndexType index, ArgsType&&... args) { 
-        return InsertP(index, std::forward<ArgsType>(args)...);
+        return IteratorType(InsertP(index, std::forward<ArgsType>(args)...));
     }
     /*
         Inserts before the iterator. Returns the iterator that points at the newest object.
     */
     template<typename... ArgsType>
     NODISCARD FORCEINLINE IteratorType Insert(const IteratorType& iterator, ArgsType&&... args) {
-        return InsertP(iterator.object_ptr() - data_ptr_, std::forward<ArgsType>(args)...);
+        return IteratorType(InsertP(iterator.object_ptr() - data_ptr_, std::forward<ArgsType>(args)...));
     }
     /*
         Inserts before the iterator. Returns the iterator that points at the newest object.
     */
     template<typename... ArgsType>
     NODISCARD FORCEINLINE ReverseIteratorType Insert(const ReverseIteratorType& iterator, ArgsType&&... args) {
-        return InsertP(iterator.object_ptr() - data_ptr_ + 1, std::forward<ArgsType>(args)...);
+        return ReverseIteratorType(InsertP(iterator.object_ptr() - data_ptr_ + 1, std::forward<ArgsType>(args)...));
     }
 
     /*
@@ -379,14 +379,14 @@ public:
     */
     template<typename... ArgsType>
     FORCEINLINE IteratorType Inserts(const IndexType index, IndexType num, ArgsType&&... args) {
-        return InsertsP(index, num, std::forward<ArgsType>(args)...);
+        return IteratorType(InsertsP(index, num, std::forward<ArgsType>(args)...));
     }
     /*
         Inserts before the iterator. Returns the iterator that points at the first new object.
     */
     template<typename... ArgsType>
     NODISCARD FORCEINLINE IteratorType Inserts(const IteratorType& iterator, IndexType num, ArgsType&&... args) {
-        return InsertsP(iterator.object_ptr() - data_ptr_, num, std::forward<ArgsType>(args)...);
+        return IteratorType(InsertsP(iterator.object_ptr() - data_ptr_, num, std::forward<ArgsType>(args)...));
     }
     /*
         Inserts before the iterator. Returns the iterator that points at the first new object.
@@ -394,7 +394,8 @@ public:
     template<typename... ArgsType>
     NODISCARD FORCEINLINE ReverseIteratorType Inserts(const ReverseIteratorType & iterator, IndexType num, 
                                                       ArgsType&&... args) {
-        return InsertsP(iterator.object_ptr() - data_ptr_ + 1, num, std::forward<ArgsType>(args)...) + (num - 1);
+        return ReverseIteratorType(
+            InsertsP(iterator.object_ptr() - data_ptr_ + 1, num, std::forward<ArgsType>(args)...) + (num - 1));
     }
 
     /*
@@ -404,7 +405,7 @@ public:
     FORCEINLINE IteratorType Inserts(const IndexType index, 
                                      const IteratorType& src_begin, 
                                      const IteratorType& src_end) {
-        return InsertsOrderP(index, src_begin.object_ptr(), src_end.object_ptr());
+        return IteratorType(InsertsOrderP(index, src_begin.object_ptr(), src_end.object_ptr()));
     }
     /*
         Makes a copy of the objects between the iterators and insert them to the
@@ -413,7 +414,7 @@ public:
     FORCEINLINE IteratorType Inserts(const IndexType index,
                                      const ConstIteratorType& src_begin, 
                                      const ConstIteratorType& src_end) {
-        return InsertsOrderP(index, src_begin.object_ptr(), src_end.object_ptr());
+        return IteratorType(InsertsOrderP(index, src_begin.object_ptr(), src_end.object_ptr()));
     }
     /*
         Makes a copy of the objects between the iterators and insert them to the
@@ -422,7 +423,7 @@ public:
     FORCEINLINE IteratorType Inserts(const IndexType index,
                                      const ReverseIteratorType& src_begin, 
                                      const ReverseIteratorType& src_end) {
-        return InsertsReverseP(index, src_begin.object_ptr(), src_end.object_ptr());
+        return IteratorType(InsertsReverseP(index, src_begin.object_ptr(), src_end.object_ptr()));
     }
     /*
         Makes a copy of the objects between the iterators and insert them to the
@@ -431,7 +432,7 @@ public:
     FORCEINLINE IteratorType Inserts(const IndexType index,
                                      const ConstReverseIteratorType& src_begin, 
                                      const ConstReverseIteratorType& src_end) {
-        return InsertsReverseP(index, src_begin.object_ptr(), src_end.object_ptr());
+        return IteratorType(InsertsReverseP(index, src_begin.object_ptr(), src_end.object_ptr()));
     }
 
     /*
@@ -441,7 +442,8 @@ public:
     NODISCARD FORCEINLINE IteratorType Inserts(const IteratorType& iterator,
                                                const IteratorType& src_begin, 
                                                const IteratorType& src_end) {
-        return InsertsOrderP(iterator.object_ptr() - data_ptr_, src_begin.object_ptr(), src_end.object_ptr());
+        return IteratorType(
+            InsertsOrderP(iterator.object_ptr() - data_ptr_, src_begin.object_ptr(), src_end.object_ptr()));
     }
     /*
         Makes a copy of the objects between the iterators and insert them to the
@@ -450,7 +452,8 @@ public:
     NODISCARD FORCEINLINE IteratorType Inserts(const IteratorType& iterator,
                                                const ConstIteratorType& src_begin, 
                                                const ConstIteratorType& src_end) {
-        return InsertsOrderP(iterator.object_ptr() - data_ptr_, src_begin.object_ptr(), src_end.object_ptr());
+        return IteratorType(
+            InsertsOrderP(iterator.object_ptr() - data_ptr_, src_begin.object_ptr(), src_end.object_ptr()));
     }
     /*
         Makes a copy of the objects between the iterators and insert them to the
@@ -459,7 +462,8 @@ public:
     NODISCARD FORCEINLINE IteratorType Inserts(const IteratorType& iterator,
                                                const ReverseIteratorType& src_begin, 
                                                const ReverseIteratorType& src_end) {
-        return InsertsReverseP(iterator.object_ptr() - data_ptr_, src_begin.object_ptr(), src_end.object_ptr());
+        return IteratorType(
+            InsertsReverseP(iterator.object_ptr() - data_ptr_, src_begin.object_ptr(), src_end.object_ptr()));
     }
     /*
         Makes a copy of the objects between the iterators and insert them to the
@@ -468,7 +472,8 @@ public:
     NODISCARD FORCEINLINE IteratorType Inserts(const IteratorType& iterator,
                                                const ConstReverseIteratorType& src_begin, 
                                                const ConstReverseIteratorType& src_end) {
-        return InsertsReverseP(iterator.object_ptr() - data_ptr_, src_begin.object_ptr(), src_end.object_ptr());
+        return IteratorType(
+            InsertsReverseP(iterator.object_ptr() - data_ptr_, src_begin.object_ptr(), src_end.object_ptr()));
     }
 
     /*
@@ -478,8 +483,9 @@ public:
     NODISCARD FORCEINLINE ReverseIteratorType Inserts(const ReverseIteratorType& iterator,
                                                       const IteratorType& src_begin, 
                                                       const IteratorType& src_end) {
-        return InsertsReverseP(iterator.object_ptr() - data_ptr_ + 1,
-                               src_end.object_ptr() - 1, src_begin.object_ptr() - 1) + ((src_end - src_begin) - 1);
+        return ReverseIteratorType(
+            InsertsReverseP(iterator.object_ptr() - data_ptr_ + 1,
+                            src_end.object_ptr() - 1, src_begin.object_ptr() - 1) + ((src_end - src_begin) - 1));
     }
     /*
         Makes a copy of the objects between the iterators and insert them to the
@@ -488,8 +494,9 @@ public:
     NODISCARD FORCEINLINE ReverseIteratorType Inserts(const ReverseIteratorType& iterator,
                                                       const ConstIteratorType& src_begin, 
                                                       const ConstIteratorType& src_end) {
-        return InsertsReverseP(iterator.object_ptr() - data_ptr_ + 1,
-                               src_end.object_ptr() - 1, src_begin.object_ptr() - 1) + ((src_end - src_begin) - 1);
+        return ReverseIteratorType(
+            InsertsReverseP(iterator.object_ptr() - data_ptr_ + 1,
+                            src_end.object_ptr() - 1, src_begin.object_ptr() - 1) + ((src_end - src_begin) - 1));
     }
     /*
         Makes a copy of the objects between the iterators and insert them to the
@@ -498,8 +505,9 @@ public:
     NODISCARD FORCEINLINE ReverseIteratorType Inserts(const ReverseIteratorType& iterator,
                                                       const ReverseIteratorType& src_begin, 
                                                       const ReverseIteratorType& src_end) {
-        return InsertsOrderP(iterator.object_ptr() - data_ptr_ + 1,
-                             src_end.object_ptr() + 1, src_begin.object_ptr() + 1) + ((src_end - src_begin) - 1);
+        return ReverseIteratorType(
+            InsertsOrderP(iterator.object_ptr() - data_ptr_ + 1,
+                          src_end.object_ptr() + 1, src_begin.object_ptr() + 1) + ((src_end - src_begin) - 1));
     }
     /*
         Makes a copy of the objects between the iterators and insert them to the
@@ -508,8 +516,9 @@ public:
     NODISCARD FORCEINLINE ReverseIteratorType Inserts(const ReverseIteratorType& iterator,
                                                       const ConstReverseIteratorType& src_begin,
                                                       const ConstReverseIteratorType& src_end) {
-        return InsertsOrderP(iterator.object_ptr() - data_ptr_ + 1,
-                             src_end.object_ptr() + 1, src_begin.object_ptr() + 1) + ((src_end - src_begin) - 1);
+        return ReverseIteratorType(
+            InsertsOrderP(iterator.object_ptr() - data_ptr_ + 1,
+                          src_end.object_ptr() + 1, src_begin.object_ptr() + 1) + ((src_end - src_begin) - 1));
     }
 
     /*
@@ -517,21 +526,21 @@ public:
         Returns the iterator that points at the next object.
     */
     FORCEINLINE IteratorType Erase(const IndexType index) {
-        return EraseP(data_ptr_ + index);
+        return IteratorType(EraseP(data_ptr_ + index));
     }
     /*
         Erases the object by the index.
         Returns the iterator that points at the next object.
     */
     NODISCARD FORCEINLINE IteratorType Erase(const IteratorType& iterator) {
-        return EraseP(iterator.object_ptr());
+        return IteratorType(EraseP(iterator.object_ptr()));
     }
     /*
         Erases the object by the index.
         Returns the iterator that points at the next object.
     */
     NODISCARD FORCEINLINE ReverseIteratorType Erase(const ReverseIteratorType& iterator) {
-        return EraseP(iterator.object_ptr()) - 1;
+        return ReverseIteratorType(EraseP(iterator.object_ptr()) - 1);
     }
 
     /*
@@ -539,28 +548,28 @@ public:
         Returns the iterator that points at the next object.
     */
     NODISCARD FORCEINLINE IteratorType Erases(const IndexType index, const IndexType num) {
-        return ErasesP(data_ptr_ + index, data_ptr_ + (index + num));
+        return IteratorType(ErasesP(data_ptr_ + index, data_ptr_ + (index + num)));
     }
     /*
         Erases the num of objects that starts at the given iterator.
         Returns the iterator that points at the next object.
     */
     NODISCARD FORCEINLINE IteratorType Erases(const IteratorType& iterator, const IndexType num) {
-        return ErasesP(iterator.object_ptr(), iterator.object_ptr() + num);
+        return IteratorType(ErasesP(iterator.object_ptr(), iterator.object_ptr() + num));
     }
     /*
         Erases the num of objects that starts at the given iterator.
         Returns the iterator that points at the next object.
     */
     NODISCARD FORCEINLINE ReverseIteratorType Erases(const ReverseIteratorType& iterator, const IndexType num) {
-        return ErasesP(iterator.object_ptr(), iterator.object_ptr() + num) - num;
+        return ReverseIteratorType(ErasesP(iterator.object_ptr(), iterator.object_ptr() + num) - num);
     }
     /*
         Erases the object between begin and end, involves begin, but don't involves end.
         Returns the iterator that points at the next object.
     */
     NODISCARD FORCEINLINE IteratorType Erases(const IteratorType& begin, const IteratorType& end) {
-        return ErasesP(begin.object_ptr(), end.object_ptr());
+        return IteratorType(ErasesP(begin.object_ptr(), end.object_ptr()));
     }
     /*
         Erases the object between begin and end, involves begin, but don't involves end.
@@ -568,7 +577,7 @@ public:
     */
     NODISCARD FORCEINLINE ReverseIteratorType Erases(const ReverseIteratorType& begin, 
                                                      const ReverseIteratorType& end) {
-        return ErasesP(end.object_ptr() + 1, begin.object_ptr() + 1) - 1;
+        return ReverseIteratorType(ErasesP(end.object_ptr() + 1, begin.object_ptr() + 1) - 1);
     }
 
     /*
@@ -976,7 +985,7 @@ Void ZVector<ObjectType, kIfUnique>::PushBacks(const IndexType num, ArgsType&&..
     if (new_size > capacity_) {
         ExtendContainerP(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
     }
-    CreateObjectsP(data_ptr_ + size_, data_ptr_ + num, std::forward<ArgsType>(args)...);
+    CreateObjectsP(data_ptr_ + size_, data_ptr_ + new_size, std::forward<ArgsType>(args)...);
     size_ = new_size;
 }
 
