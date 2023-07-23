@@ -810,7 +810,8 @@ private:
         given place. Returns the pointer that points at the first new object.
     */
     NODISCARD ObjectType* InsertsOrderP(const IndexType index,
-                              const ObjectType* src_begin_ptr, const ObjectType* const src_end_ptr) noexcept;
+                                        const ObjectType* src_begin_ptr, 
+                                        const ObjectType* src_end_ptr) noexcept;
 
     /*
         Makes a copy of the objects between the pointers and insert them to the
@@ -818,7 +819,7 @@ private:
     */
     NODISCARD ObjectType* InsertsReverseP(const IndexType index,
                                           const ObjectType* src_begin_ptr, 
-                                          const ObjectType* const src_end_ptr) noexcept;
+                                          const ObjectType* src_end_ptr) noexcept;
 
     /*
         Erases the object by the index.
@@ -1304,14 +1305,14 @@ NODISCARD ObjectType* ZVector<ObjectType, kIfUnique>::InsertsP(const IndexType i
 template<typename ObjectType, Bool kIfUnique>
 NODISCARD ObjectType* ZVector<ObjectType, kIfUnique>::InsertsOrderP(const IndexType index,
                                                                     const ObjectType* src_begin_ptr, 
-                                                                    const ObjectType* const src_end_ptr) noexcept {
+                                                                    const ObjectType* src_end_ptr) noexcept {
     DEBUG(index < 0 || index > size_, "Insert index out of bounds!");
     DEBUG(src_begin_ptr > src_end_ptr, "Begin pointer after end pointer!");
     IndexType num = static_cast<IndexType>(src_end_ptr - src_begin_ptr);
     IndexType new_size = size_ + num;
     if (src_begin_ptr >= data_ptr_ && src_begin_ptr <= (data_ptr_ + size_)) {
         IndexType begin_index = static_cast<IndexType>(src_begin_ptr - data_ptr_);
-        IndexType end_index = src_end_ptr - data_ptr_;
+        IndexType end_index = static_cast<IndexType>(src_end_ptr - data_ptr_);
         ExtendContainerP(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
         src_begin_ptr = data_ptr_ + begin_index;
         src_end_ptr = data_ptr_ + end_index;
@@ -1329,14 +1330,14 @@ NODISCARD ObjectType* ZVector<ObjectType, kIfUnique>::InsertsOrderP(const IndexT
 template<typename ObjectType, Bool kIfUnique>
 NODISCARD ObjectType* ZVector<ObjectType, kIfUnique>::InsertsReverseP(const IndexType index,
                                                                       const ObjectType* src_begin_ptr, 
-                                                                      const ObjectType* const src_end_ptr) noexcept {
+                                                                      const ObjectType* src_end_ptr) noexcept {
     DEBUG(index < 0 || index > size_, "Insert index out of bounds!");
     DEBUG(src_begin_ptr < src_end_ptr, "Begin pointer after end pointer!");
     IndexType num = static_cast<IndexType>(src_begin_ptr - src_end_ptr);
     IndexType new_size = size_ + num;
     if (src_begin_ptr >= data_ptr_ && src_begin_ptr <= (data_ptr_ + size_)) {
         IndexType begin_index = static_cast<IndexType>(src_begin_ptr - data_ptr_);
-        IndexType end_index = src_end_ptr - data_ptr_;
+        IndexType end_index = static_cast<IndexType>(src_end_ptr - data_ptr_);
         ExtendContainerP(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
         src_begin_ptr = data_ptr_ + begin_index;
         src_end_ptr = data_ptr_ + end_index;
@@ -1370,7 +1371,7 @@ NODISCARD inline ObjectType* ZVector<ObjectType, kIfUnique>::ErasesP(const Objec
     DestroyObjectsP(begin_ptr, end_ptr);
     memmove(reinterpret_cast<Void*>(begin_ptr), reinterpret_cast<Void*>(end_ptr),
             (size_ - static_cast<IndexType>(end_ptr - data_ptr_)) * sizeof(ObjectType));
-    size_ -= end_ptr - begin_ptr;
+    size_ -= static_cast<IndexType>(end_ptr - begin_ptr);
     return begin_ptr;
 }
 
@@ -1386,7 +1387,7 @@ template<typename ObjectType, Bool kIfUnique>
 Void ZVector<ObjectType, kIfUnique>::AssignOrderP(const ObjectType* begin_ptr, 
                                                   const ObjectType* const end_ptr) noexcept {
     DEBUG(begin_ptr > end_ptr, "Begin pointer after end pointer!");
-    IndexType new_size = end_ptr - begin_ptr;
+    IndexType new_size = static_cast<IndexType>(end_ptr - begin_ptr);
     if (new_size > capacity_) {
         ExtendContainerP(new_size);
     }
