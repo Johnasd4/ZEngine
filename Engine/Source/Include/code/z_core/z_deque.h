@@ -601,16 +601,19 @@ private:
         if this object class's member kIfUnique is true.
     */
     static Void CopyObjectsP(ObjectType* dst_ptr, DataNode* dst_node_ptr,
-                             const ObjectType* src_begin_ptr, DataNode* src_begin_node_ptr,
-                             const ObjectType* const src_end_ptr, DataNode* src_end_node_ptr) noexcept;
+                             const ObjectType* src_begin_ptr, const DataNode* src_begin_node_ptr,
+                             const ObjectType* const src_end_ptr, const DataNode* const src_end_node_ptr) noexcept;
 
     /*
         Copy objects by the given pointer. Will call the copy assignment operator
         if this object class's member kIfUnique is true.
     */
-    static Void CopyObjectsReverseP(ObjectType* dst_ptr, DataNode* dst_node_ptr,
-                                    const ObjectType* src_begin_ptr, DataNode* src_begin_node_ptr,
-                                    const ObjectType* const src_end_ptr, DataNode* src_end_node_ptr) noexcept;
+    static Void CopyObjectsReverseP(ObjectType* dst_ptr, 
+                                    DataNode* dst_node_ptr,
+                                    const ObjectType* src_begin_ptr, 
+                                    const DataNode* src_begin_node_ptr,
+                                    const ObjectType* const src_end_ptr, 
+                                    const DataNode* const src_end_node_ptr) noexcept;
 
     /*
         Destroy the objects by the given arguements([begin, end)). 
@@ -1091,6 +1094,67 @@ Void ZDeque<ObjectType, kIfUnique>::CreateAndCopyObjectsReverseP(ObjectType* dst
     }
 }
 
+template<typename ObjectType, Bool kIfUnique>
+Void ZDeque<ObjectType, kIfUnique>::CopyObjectsP(ObjectType* dst_ptr, 
+                                                 DataNode* dst_node_ptr,
+                                                 const ObjectType* src_begin_ptr, 
+                                                 const DataNode* src_begin_node_ptr,
+                                                 const ObjectType* const src_end_ptr, 
+                                                 const DataNode* const src_end_node_ptr) noexcept {
+    while (src_begin_node_ptr != src_end_node_ptr) {
+        ObjectType* src_end_ptr_temp = &((*src_begin_node_ptr)[src_begin_node_ptr->size]);
+        if constexpr(kIfUnique) {
+            while (src_begin_ptr != src_end_ptr_temp) {
+                *dst_ptr = *src_begin_ptr;
+                ++dst_ptr;
+                ++src_begin_ptr;
+            }
+        }
+        else {
+            SizeType size = static_cast<SizeType>(src_end_ptr_temp - src_begin_ptr);
+            memcpy(reinterpret_cast<Void*>(dst_ptr), reinterpret_cast<Void*>(const_cast<ObjectType*>(src_begin_ptr)),
+                   size * sizeof(ObjectType));
+            dst_ptr += size;
+        }
+        src_begin_node_ptr = src_begin_node_ptr->next_node_ptr;
+        src_begin_ptr = &((*src_begin_node_ptr)[0]);
+    }
+    if constexpr (kIfUnique) {
+        while (src_begin_ptr != src_end_ptr) {
+            *dst_ptr = *src_begin_ptr;
+            ++dst_ptr;
+            ++src_begin_ptr;
+        }
+    }
+    else {
+        memcpy(reinterpret_cast<Void*>(dst_ptr), reinterpret_cast<Void*>(const_cast<ObjectType*>(src_begin_ptr)),
+               static_cast<SizeType>(src_end_ptr - src_begin_ptr) * sizeof(ObjectType));
+    }
+}
+
+template<typename ObjectType, Bool kIfUnique>
+Void ZDeque<ObjectType, kIfUnique>::CopyObjectsReverseP(ObjectType* dst_ptr, 
+                                                        DataNode* dst_node_ptr,
+                                                        const ObjectType* src_begin_ptr,
+                                                        const DataNode* src_begin_node_ptr,
+                                                        const ObjectType* const src_end_ptr,
+                                                        const DataNode* const src_end_node_ptr) noexcept {
+    while (src_begin_node_ptr != src_end_node_ptr) {
+        ObjectType* src_end_ptr_temp = &((*src_begin_node_ptr)[-1]);
+        while (src_begin_ptr != src_end_ptr_temp) {
+            *dst_ptr = *src_begin_ptr;
+            ++dst_ptr;
+            --src_begin_ptr;
+        }
+        src_begin_node_ptr = src_begin_node_ptr->previous_node_ptr;
+        src_begin_ptr = &((*src_begin_node_ptr)[src_begin_node_ptr->size - 1]);
+    }
+    while (src_begin_ptr != src_end_ptr) {
+        *dst_ptr = *src_begin_ptr;
+        ++dst_ptr;
+        --src_begin_ptr;
+    }
+}
 
 
 template<typename ObjectType, Bool kIfUnique>
