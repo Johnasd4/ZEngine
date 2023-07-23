@@ -779,7 +779,7 @@ private:
     /*
         Container move function.
     */
-    Void MoveP(ZVector&& vector) noexcept;
+    FORCEINLINE Void MoveP(ZVector&& vector);
 
     /*
         Makes a copy of the objects between the pointers and push them to the
@@ -1130,7 +1130,6 @@ inline Void ZVector<ObjectType, kIfUnique>::DestroyObjectsP(ObjectType* begin_pt
 
 template<typename ObjectType, Bool kIfUnique>
 Void ZVector<ObjectType, kIfUnique>::CreateContainerP(const IndexType capacity) noexcept {
-    DEBUG(capacity < 0, "Negaive capacity not valid!");
     MemoryType need_memory_size = capacity * sizeof(ObjectType);
     MemoryType apply_mrmory_size;
     data_ptr_ = reinterpret_cast<ObjectType*>(memory_pool::ApplyMemory(need_memory_size, &apply_mrmory_size));
@@ -1139,7 +1138,6 @@ Void ZVector<ObjectType, kIfUnique>::CreateContainerP(const IndexType capacity) 
 
 template<typename ObjectType, Bool kIfUnique>
 Void ZVector<ObjectType, kIfUnique>::ExtendContainerP(const IndexType capacity) noexcept {
-    DEBUG(capacity < 0, "Negaive capacity not valid!");
     MemoryType current_memory_size = capacity_ * sizeof(ObjectType);
     MemoryType need_memory_size = capacity * sizeof(ObjectType);
     MemoryType apply_mrmory_size;
@@ -1219,13 +1217,9 @@ Void ZVector<ObjectType, kIfUnique>::CopyP(const ZVector& vector) noexcept {
 }
 
 template<typename ObjectType, Bool kIfUnique>
-Void ZVector<ObjectType, kIfUnique>::MoveP(ZVector&& vector) noexcept {
-    data_ptr_ = vector.data_ptr_;
-    size_ = vector.size_;
-    capacity_ = vector.capacity_;
-    vector.data_ptr_ = nullptr;
-    vector.size_ = 0;
-    vector.capacity_ = 0;
+FORCEINLINE Void ZVector<ObjectType, kIfUnique>::MoveP(ZVector&& vector) {
+    memcpy(reinterpret_cast<Void*>(this), reinterpret_cast<Void*>(&vector), sizeof(ZVector));
+    memset(reinterpret_cast<Void*>(this), 0, sizeof(ZVector));
 }
 
 template<typename ObjectType, Bool kIfUnique>

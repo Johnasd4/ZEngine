@@ -173,13 +173,13 @@ protected:
 template<typename ObjectType, Bool kIfUnique = kIsClass<ObjectType>>
 class ZDeque : public ZObject {
 private:
-    static constexpr Float32 kAutoExtendMulFactor = 0.25F;
+    static constexpr Float32 kAutoExtendMulFactor = 0.5F;
 
 public:
     using IteratorType = internal::DequeIterator<ObjectType>;
-    using ConstIteratorType = internal::DequeConstIterator<ObjectType>;
+    using ConstIteratorType = internal::DequeIterator<const ObjectType>;
     using ReverseIteratorType = internal::DequeReverseIterator<ObjectType>;
-    using ConstReverseIteratorType = internal::DequeConstReverseIterator<ObjectType>;
+    using ConstReverseIteratorType = internal::DequeReverseIterator<const ObjectType>;
 
     ZDeque() noexcept;
     ZDeque(const IndexType capacity) noexcept;
@@ -867,7 +867,6 @@ Void ZDeque<ObjectType, kIfUnique>::Destroy() noexcept {
 
 template<typename ObjectType, Bool kIfUnique>
 Void ZDeque<ObjectType, kIfUnique>::CreateContainer(const IndexType capacity) noexcept {
-    DEBUG(capacity < 0, "Negaive capacity not valid!");
     MemoryType need_memory_size = ((capacity * sizeof(ObjectType)) >> 1) + sizeof(DataNode);
     MemoryType apply_mrmory_size;
     //Applys 2 nodes instead.
@@ -889,7 +888,6 @@ Void ZDeque<ObjectType, kIfUnique>::CreateContainer(const IndexType capacity) no
 template<typename ObjectType, Bool kIfUnique>
 NODISCARD ZDeque<ObjectType, kIfUnique>::DataNode* const ZDeque<ObjectType, kIfUnique>::ExtendContainer(
         const IndexType capacity) noexcept {
-    DEBUG(capacity < 0, "Negaive capacity not valid!");
     MemoryType need_memory_size = capacity * sizeof(ObjectType) + sizeof(DataNode);
     MemoryType apply_mrmory_size;
     //Initialize the node.
@@ -1009,20 +1007,8 @@ Void ZDeque<ObjectType, kIfUnique>::RemoveBackNode() noexcept {
 
 template<typename ObjectType, Bool kIfUnique>
 FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::MoveP(ZDeque&& vector) {
-    front_node_ptr_ = vector.front_node_ptr_;
-    back_node_ptr_ = vector.back_node_ptr_;
-    empty_node_ptr_ = vector.empty_node_ptr_;
-    front_index_ = vector.front_index_;
-    back_index_ = vector.back_index_;
-    capacity_ = vector.capacity_;
-    size_ = vector.size_;
-    front_node_ptr_ = nullptr;
-    back_node_ptr_ = nullptr;
-    empty_node_ptr_ = nullptr;
-    front_index_ = 0;
-    back_index_ = 0;
-    capacity_ = 0;
-    size_ = 0;
+    memcpy(reinterpret_cast<Void*>(this), reinterpret_cast<Void*>(&vector), sizeof(ZDeque));
+    memset(reinterpret_cast<Void*>(this), 0, sizeof(ZDeque));
 }
 
 template<typename ObjectType, Bool kIfUnique>
@@ -1155,7 +1141,6 @@ Void ZDeque<ObjectType, kIfUnique>::CopyObjectsReverseP(ObjectType* dst_ptr,
         --src_begin_ptr;
     }
 }
-
 
 template<typename ObjectType, Bool kIfUnique>
 inline Void ZDeque<ObjectType, kIfUnique>::DestroyObjectsP(ObjectType* begin_ptr, ObjectType* const end_ptr) noexcept {
