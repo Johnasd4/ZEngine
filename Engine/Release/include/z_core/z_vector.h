@@ -15,14 +15,10 @@ class VectorIteratorBase {
 public:
     FORCEINLINE VectorIteratorBase(ObjectType* object_ptr) : object_ptr_(object_ptr) {}
     FORCEINLINE VectorIteratorBase(const VectorIteratorBase& iterator) : object_ptr_(iterator.object_ptr_) {}
-    FORCEINLINE VectorIteratorBase(const VectorIteratorBase&& iterator) : object_ptr_(iterator.object_ptr_) {
-        iterator.MoveDestroy();
+    FORCEINLINE VectorIteratorBase(VectorIteratorBase&& iterator) : object_ptr_(iterator.object_ptr_) {
+        MoveP(std::forward<VectorIteratorBase>(iterator));
     }
 
-    FORCEINLINE VectorIteratorBase& operator=(ObjectType* object_ptr) {
-        object_ptr_ = object_ptr;
-        return *this;
-    }
     FORCEINLINE VectorIteratorBase& operator=(const VectorIteratorBase& iterator) {
         object_ptr_ = iterator.object_ptr_;
         return *this;
@@ -39,16 +35,21 @@ public:
         return object_ptr_ != iterator.object_ptr_;
     }
 
+    NODISCARD FORCEINLINE ObjectType& operator*() const { return *object_ptr_; }
+    NODISCARD FORCEINLINE ObjectType* operator->() const { return object_ptr_; }
+
     FORCEINLINE ~VectorIteratorBase() {}
 
+    NODISCARD FORCEINLINE ObjectType* object_ptr() const { return object_ptr_; }
+
 protected:
-     ObjectType* object_ptr_;
+    ObjectType* object_ptr_;
 
 private:
-     FORCEINLINE Void MoveP(VectorIteratorBase&& iterator) {
-         object_ptr_ = iterator.object_ptr_;
-         iterator.object_ptr_ = nullptr;
-     }
+    FORCEINLINE Void MoveP(VectorIteratorBase&& iterator) {
+        object_ptr_ = iterator.object_ptr_;
+        iterator.object_ptr_ = nullptr;
+    }
 
 };
 
@@ -56,8 +57,6 @@ template<typename ObjectType>
 class VectorIterator : public VectorIteratorBase<ObjectType> {
 public:
     NODISCARD FORCEINLINE ObjectType& operator[](const IndexType index) const { return SuperType::object_ptr_[index]; }
-    NODISCARD FORCEINLINE ObjectType& operator*() const { return *SuperType::object_ptr_; }
-    NODISCARD FORCEINLINE ObjectType* operator->() const { return SuperType::object_ptr_; }
 
     FORCEINLINE VectorIterator& operator+=(const IndexType data_num) {
         SuperType::object_ptr_ += data_num;
@@ -101,9 +100,6 @@ public:
         return static_cast<IndexType>(SuperType::object_ptr_ - iterator.SuperType::object_ptr_);
     }
 
-    NODISCARD FORCEINLINE ObjectType* object_ptr() { return SuperType::object_ptr_; }
-    NODISCARD FORCEINLINE ObjectType* object_ptr() const { return SuperType::object_ptr_; }
-
 protected:
     using SuperType = VectorIteratorBase<ObjectType>;
 };
@@ -112,8 +108,6 @@ template<typename ObjectType>
 class VectorReverseIterator : public VectorIteratorBase<ObjectType> {
 public:
     NODISCARD FORCEINLINE ObjectType& operator[](const IndexType index) const { return SuperType::object_ptr_[-index]; }
-    NODISCARD FORCEINLINE ObjectType& operator*() const { return *SuperType::object_ptr_; }
-    NODISCARD FORCEINLINE ObjectType* operator->() const { return SuperType::object_ptr_; }
 
     FORCEINLINE VectorReverseIterator& operator+=(const IndexType data_num) {
         SuperType::object_ptr_ -= data_num;
@@ -156,9 +150,6 @@ public:
     FORCEINLINE const IndexType operator-(const VectorReverseIterator& iterator) const {
         return static_cast<IndexType>(iterator.SuperType::object_ptr_ - SuperType::object_ptr_);
     }
-
-    NODISCARD FORCEINLINE ObjectType* object_ptr() { return SuperType::object_ptr_; }
-    NODISCARD FORCEINLINE ObjectType* object_ptr() const { return SuperType::object_ptr_; }
 
 protected:
     using SuperType = VectorIteratorBase<ObjectType>;
@@ -1219,7 +1210,7 @@ Void ZVector<ObjectType, kIfUnique>::CopyP(const ZVector& vector) noexcept {
 template<typename ObjectType, Bool kIfUnique>
 FORCEINLINE Void ZVector<ObjectType, kIfUnique>::MoveP(ZVector&& vector) {
     memcpy(reinterpret_cast<Void*>(this), reinterpret_cast<Void*>(&vector), sizeof(ZVector));
-    memset(reinterpret_cast<Void*>(this), 0, sizeof(ZVector));
+    memset(reinterpret_cast<Void*>(&vector), 0, sizeof(ZVector));
 }
 
 template<typename ObjectType, Bool kIfUnique>

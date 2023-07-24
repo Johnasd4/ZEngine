@@ -19,10 +19,6 @@ public:
         MoveP(std::forward<VectorIteratorBase>(iterator));
     }
 
-    FORCEINLINE VectorIteratorBase& operator=(ObjectType* object_ptr) {
-        object_ptr_ = object_ptr;
-        return *this;
-    }
     FORCEINLINE VectorIteratorBase& operator=(const VectorIteratorBase& iterator) {
         object_ptr_ = iterator.object_ptr_;
         return *this;
@@ -44,7 +40,6 @@ public:
 
     FORCEINLINE ~VectorIteratorBase() {}
 
-    NODISCARD FORCEINLINE ObjectType* object_ptr() { return object_ptr_; }
     NODISCARD FORCEINLINE ObjectType* object_ptr() const { return object_ptr_; }
 
 protected:
