@@ -39,7 +39,13 @@ public:
         return object_ptr_ != iterator.object_ptr_;
     }
 
+    NODISCARD FORCEINLINE ObjectType& operator*() const { return *object_ptr_; }
+    NODISCARD FORCEINLINE ObjectType* operator->() const { return object_ptr_; }
+
     FORCEINLINE ~VectorIteratorBase() {}
+
+    NODISCARD FORCEINLINE ObjectType* object_ptr() { return object_ptr_; }
+    NODISCARD FORCEINLINE ObjectType* object_ptr() const { return object_ptr_; }
 
 protected:
     ObjectType* object_ptr_;
@@ -56,8 +62,6 @@ template<typename ObjectType>
 class VectorIterator : public VectorIteratorBase<ObjectType> {
 public:
     NODISCARD FORCEINLINE ObjectType& operator[](const IndexType index) const { return SuperType::object_ptr_[index]; }
-    NODISCARD FORCEINLINE ObjectType& operator*() const { return *SuperType::object_ptr_; }
-    NODISCARD FORCEINLINE ObjectType* operator->() const { return SuperType::object_ptr_; }
 
     FORCEINLINE VectorIterator& operator+=(const IndexType data_num) {
         SuperType::object_ptr_ += data_num;
@@ -101,9 +105,6 @@ public:
         return static_cast<IndexType>(SuperType::object_ptr_ - iterator.SuperType::object_ptr_);
     }
 
-    NODISCARD FORCEINLINE ObjectType* object_ptr() { return SuperType::object_ptr_; }
-    NODISCARD FORCEINLINE ObjectType* object_ptr() const { return SuperType::object_ptr_; }
-
 protected:
     using SuperType = VectorIteratorBase<ObjectType>;
 };
@@ -112,8 +113,6 @@ template<typename ObjectType>
 class VectorReverseIterator : public VectorIteratorBase<ObjectType> {
 public:
     NODISCARD FORCEINLINE ObjectType& operator[](const IndexType index) const { return SuperType::object_ptr_[-index]; }
-    NODISCARD FORCEINLINE ObjectType& operator*() const { return *SuperType::object_ptr_; }
-    NODISCARD FORCEINLINE ObjectType* operator->() const { return SuperType::object_ptr_; }
 
     FORCEINLINE VectorReverseIterator& operator+=(const IndexType data_num) {
         SuperType::object_ptr_ -= data_num;
@@ -156,9 +155,6 @@ public:
     FORCEINLINE const IndexType operator-(const VectorReverseIterator& iterator) const {
         return static_cast<IndexType>(iterator.SuperType::object_ptr_ - SuperType::object_ptr_);
     }
-
-    NODISCARD FORCEINLINE ObjectType* object_ptr() { return SuperType::object_ptr_; }
-    NODISCARD FORCEINLINE ObjectType* object_ptr() const { return SuperType::object_ptr_; }
 
 protected:
     using SuperType = VectorIteratorBase<ObjectType>;

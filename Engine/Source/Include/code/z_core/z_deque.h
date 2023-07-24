@@ -22,7 +22,7 @@ public:
     IndexType size;
 
     NODISCARD FORCEINLINE ObjectType& operator[](const IndexType index) {
-        return reinterpret_cast<ObjectType*>(this + 1)[index];
+        return (reinterpret_cast<ObjectType*>(this + 1))[index];
     }
 };
 
