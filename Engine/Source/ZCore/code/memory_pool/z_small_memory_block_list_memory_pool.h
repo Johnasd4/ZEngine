@@ -47,21 +47,21 @@ public:
         return memory_pool_array;
     }
 
-    NODISCARD static Void* const ApplyMemory(const MemoryType size) noexcept;
-    NODISCARD static Void* const ApplyMemory(const MemoryType size, MemoryType* const memory_size_ptr) noexcept;
+    NODISCARD static Void* ApplyMemory(const MemoryType size) noexcept;
+    NODISCARD static Void* ApplyMemory(const MemoryType size, MemoryType* memory_size_ptr) noexcept;
 
     /*
         Checks if the memory can extend without moving to a new memory, If can
         then it will auto extend and return true.
     */
-    NODISCARD FORCEINLINE static const Bool CheckMemory(ZSmallMemoryBlockListMemoryPool* const memory_pool_ptr,
+    NODISCARD FORCEINLINE static const Bool CheckMemory(ZSmallMemoryBlockListMemoryPool* memory_pool_ptr,
                                                         const MemoryType size);
-    NODISCARD FORCEINLINE static const Bool CheckMemory(ZSmallMemoryBlockListMemoryPool* const memory_pool_ptr,
-                                                        const MemoryType size, MemoryType* const memory_size_ptr);
+    NODISCARD FORCEINLINE static const Bool CheckMemory(ZSmallMemoryBlockListMemoryPool* memory_pool_ptr,
+                                                        const MemoryType size, MemoryType* memory_size_ptr);
 
     NODISCARD FORCEINLINE static const MemoryType CalculateMemory(const MemoryType size) noexcept;
 
-    static Void ReleaseMemory(ZSmallMemoryBlockListMemoryPool* memory_pool_ptr, Void* const memory_ptr) noexcept;
+    static Void ReleaseMemory(ZSmallMemoryBlockListMemoryPool* memory_pool_ptr, Void* memory_ptr) noexcept;
 
     NODISCARD static constexpr MemoryType memory_block_memory_max_size() { return kMemoryBlockMemoryMaxSize; }
     NODISCARD static constexpr IndexType memory_block_type_num() { return kMemoryBlockTypeNum; }
@@ -147,7 +147,7 @@ private:
 };
 
 template<Bool kIsThreadSafe>
-NODISCARD Void* const ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::ApplyMemory(const MemoryType size) noexcept {
+NODISCARD Void* ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::ApplyMemory(const MemoryType size) noexcept {
     IndexType size_index = (size + SuperType::node_head_offset() - 1)/ kMemoryBlockMinSize;
 #ifdef USE_MEMORY_POOL_TEST
     InstanceP()[kMemorySize2MemoryPoolTable.At(size_index)].memory_block_used_current_num_ += 1;
@@ -162,8 +162,8 @@ NODISCARD Void* const ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::ApplyMemor
 }
 
 template<Bool kIsThreadSafe>
-NODISCARD Void* const ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::ApplyMemory(
-        const MemoryType size, MemoryType* const memory_size_ptr) noexcept {
+NODISCARD Void* ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::ApplyMemory(
+        const MemoryType size, MemoryType* memory_size_ptr) noexcept {
     IndexType size_index = (size + SuperType::node_head_offset() - 1) / kMemoryBlockMinSize;
 #ifdef USE_MEMORY_POOL_TEST
     InstanceP()[kMemorySize2MemoryPoolTable[size_index]].memory_block_used_current_num_ += 1;
@@ -180,12 +180,12 @@ NODISCARD Void* const ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::ApplyMemor
 
 template<Bool kIsThreadSafe>
 NODISCARD FORCEINLINE const Bool ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::CheckMemory(
-        ZSmallMemoryBlockListMemoryPool* const memory_pool_ptr, const MemoryType size) {
+        ZSmallMemoryBlockListMemoryPool* memory_pool_ptr, const MemoryType size) {
     return memory_pool_ptr->SuperType::memory_block_memory_size() >= size;
 }
 template<Bool kIsThreadSafe>
 NODISCARD FORCEINLINE const Bool ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::CheckMemory(
-        ZSmallMemoryBlockListMemoryPool* const memory_pool_ptr, const MemoryType size, MemoryType* const 
+        ZSmallMemoryBlockListMemoryPool* memory_pool_ptr, const MemoryType size, MemoryType* 
         memory_size_ptr) {
     return (*memory_size_ptr = memory_pool_ptr->SuperType::memory_block_memory_size()) >= size;
 }
@@ -199,7 +199,7 @@ NODISCARD FORCEINLINE const MemoryType ZSmallMemoryBlockListMemoryPool<kIsThread
 
 template<Bool kIsThreadSafe>
 Void ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::ReleaseMemory(
-    ZSmallMemoryBlockListMemoryPool* const memory_pool_ptr, Void* const memory_ptr) noexcept {
+    ZSmallMemoryBlockListMemoryPool* memory_pool_ptr, Void* memory_ptr) noexcept {
 #ifdef USE_MEMORY_POOL_TEST
     memory_pool_ptr->memory_block_used_current_num_ -= 1;
 #endif //USE_MEMORY_POOL_TEST

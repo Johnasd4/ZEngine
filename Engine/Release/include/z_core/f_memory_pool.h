@@ -32,26 +32,26 @@ namespace memory_pool {
 /*
     Applys memory by the size given and returns the pointer of the memory.
 */
-CORE_DLLAPI NODISCARD extern Void* const ApplyMemory(const MemoryType size) noexcept;
+CORE_DLLAPI NODISCARD extern Void* ApplyMemory(const MemoryType size) noexcept;
 
 /*
     Applys memory by the size given and returns the pointer of the memory.
     Returns the memory size of the memory block.
 */
-CORE_DLLAPI NODISCARD extern Void* const ApplyMemory(const MemoryType size, MemoryType* const memory_size_ptr) noexcept;
+CORE_DLLAPI NODISCARD extern Void* ApplyMemory(const MemoryType size, MemoryType* memory_size_ptr) noexcept;
 
 /*
     Check if the memory can be extended to the given size without changing the memory,
     if can then the memeory will extend and return true.
 */
-CORE_DLLAPI NODISCARD extern const Bool CheckMemory(Void* const memory_ptr, const MemoryType size) noexcept;
+CORE_DLLAPI NODISCARD extern const Bool CheckMemory(Void* memory_ptr, const MemoryType size) noexcept;
 
 /*
     Check if the memory can be extended to the given size without changing the memory,
     if can then the memeory will extend and return true.
 */
-CORE_DLLAPI NODISCARD extern const Bool CheckMemory(Void* const memory_ptr, const MemoryType size,
-                                                    MemoryType* const memory_size_ptr) noexcept;
+CORE_DLLAPI NODISCARD extern const Bool CheckMemory(Void* memory_ptr, const MemoryType size,
+                                                    MemoryType* memory_size_ptr) noexcept;
 
 /*
     Calculate the minimum size of the memory block that satisfies the memory requirement.
@@ -63,7 +63,7 @@ CORE_DLLAPI NODISCARD const MemoryType CalculateMemory(const MemoryType size) no
    so remember to set the pointer to null.
    nullptr is allowed to release.
 */
-CORE_DLLAPI extern Void ReleaseMemory(Void* const memory_ptr) noexcept;
+CORE_DLLAPI extern Void ReleaseMemory(Void* memory_ptr) noexcept;
 
 
 }//system_memory

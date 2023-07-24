@@ -20,7 +20,7 @@ namespace memory_pool {
 template<Bool kIsThreadSafe>
 class ZHeapMemoryPool :protected ZMemoryPoolThreadSafeBase<kIsThreadSafe> {
 public:
-    NODISCARD static Void* const ApplyMemory(const MemoryType size) noexcept;
+    NODISCARD static Void* ApplyMemory(const MemoryType size) noexcept;
 
 protected:
     using MutexType = ZMemoryPoolThreadSafeBase<kIsThreadSafe>;
@@ -62,9 +62,9 @@ private:
 #pragma warning(disable : 6011)
 
 template<Bool kIsThreadSafe>
-NODISCARD Void* const ZHeapMemoryPool<kIsThreadSafe>::ApplyMemory(const MemoryType size) noexcept {
+NODISCARD Void* ZHeapMemoryPool<kIsThreadSafe>::ApplyMemory(const MemoryType size) noexcept {
     ZHeapMemoryPool& memory_pool = InstanceP();
-    Void* const heap_memory_ptr = malloc(size);
+    Void* heap_memory_ptr = malloc(size);
     memory_pool.MutexType::lock();
     //applys new node when the memory runs out.
     if (memory_pool.current_node_heap_memory_ptr_num_ == HeapMemoryPtrArrayNode::kHeapMemoryPtrNumPurNode) {
@@ -87,7 +87,7 @@ template<Bool kIsThreadSafe>
 ZHeapMemoryPool<kIsThreadSafe>::~ZHeapMemoryPool() noexcept {
     //Delete the filled nodes.
     while (head_node_ptr_ != current_node_ptr_) {
-        HeapMemoryPtrArrayNode* const delete_node = head_node_ptr_;
+        HeapMemoryPtrArrayNode* delete_node = head_node_ptr_;
         head_node_ptr_ = head_node_ptr_->next_node_ptr;
         //Delete the heap memory inside the node.
         for (IndexType index = 0; index < HeapMemoryPtrArrayNode::kHeapMemoryPtrNumPurNode; ++index) {

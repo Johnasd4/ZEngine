@@ -53,7 +53,7 @@ class ArrayIterator : public ArrayIterator<ObjectType> {
 public:
     NODISCARD FORCEINLINE ObjectType& operator[](const IndexType index) const { return SuperType::object_ptr_[index]; }
     NODISCARD FORCEINLINE ObjectType& operator*() const { return *SuperType::object_ptr_; }
-    NODISCARD FORCEINLINE ObjectType* const operator->() const { return SuperType::object_ptr_; }
+    NODISCARD FORCEINLINE ObjectType* operator->() const { return SuperType::object_ptr_; }
 
     FORCEINLINE ArrayIterator& operator+=(const IndexType data_num) {
         SuperType::object_ptr_ += data_num;
@@ -98,7 +98,7 @@ public:
     }
 
     NODISCARD FORCEINLINE ObjectType* object_ptr() { return SuperType::object_ptr_; }
-    NODISCARD FORCEINLINE ObjectType* const object_ptr() const { return SuperType::object_ptr_; }
+    NODISCARD FORCEINLINE ObjectType* object_ptr() const { return SuperType::object_ptr_; }
 
 protected:
     using SuperType = ArrayIteratorBase<ObjectType>;
@@ -118,7 +118,7 @@ public:
         return SuperType::object_ptr_[index]; 
     }
     NODISCARD FORCEINLINE const ObjectType& operator*() const { return *SuperType::object_ptr_; }
-    NODISCARD FORCEINLINE const ObjectType* const operator->() const { return SuperType::object_ptr_; }
+    NODISCARD FORCEINLINE const ObjectType* operator->() const { return SuperType::object_ptr_; }
 
     FORCEINLINE ArrayConstIterator& operator+=(const IndexType data_num) {
         SuperType::object_ptr_ += data_num;
@@ -163,7 +163,7 @@ public:
     }
 
     NODISCARD FORCEINLINE const ObjectType* object_ptr() { return SuperType::object_ptr_; }
-    NODISCARD FORCEINLINE const ObjectType* const object_ptr() const { return SuperType::object_ptr_; }
+    NODISCARD FORCEINLINE const ObjectType* object_ptr() const { return SuperType::object_ptr_; }
 
 protected:
     using SuperType = ArrayIteratorBase<ObjectType>;
@@ -174,7 +174,7 @@ class ArrayReverseIterator : public ArrayIteratorBase<ObjectType> {
 public:
     NODISCARD FORCEINLINE ObjectType& operator[](const IndexType index) const { return SuperType::object_ptr_[-index]; }
     NODISCARD FORCEINLINE ObjectType& operator*() const { return *SuperType::object_ptr_; }
-    NODISCARD FORCEINLINE ObjectType* const operator->() const { return SuperType::object_ptr_; }
+    NODISCARD FORCEINLINE ObjectType* operator->() const { return SuperType::object_ptr_; }
 
     FORCEINLINE ArrayReverseIterator& operator+=(const IndexType data_num) {
         SuperType::object_ptr_ -= data_num;
@@ -219,7 +219,7 @@ public:
     }
 
     NODISCARD FORCEINLINE ObjectType* object_ptr() { return SuperType::object_ptr_; }
-    NODISCARD FORCEINLINE ObjectType* const object_ptr() const { return SuperType::object_ptr_; }
+    NODISCARD FORCEINLINE ObjectType* object_ptr() const { return SuperType::object_ptr_; }
 
 protected:
     using SuperType = ArrayIteratorBase<ObjectType>;
@@ -240,7 +240,7 @@ public:
         return SuperType::object_ptr_[-index];
     }
     NODISCARD FORCEINLINE const ObjectType& operator*() const { return *SuperType::object_ptr_; }
-    NODISCARD FORCEINLINE const ObjectType* const operator->() const { return SuperType::object_ptr_; }
+    NODISCARD FORCEINLINE const ObjectType* operator->() const { return SuperType::object_ptr_; }
 
     FORCEINLINE ArrayConstReverseIterator& operator+=(const IndexType data_num) {
         SuperType::object_ptr_ -= data_num;
@@ -285,7 +285,7 @@ public:
     }
 
     NODISCARD FORCEINLINE const ObjectType* object_ptr() { return SuperType::object_ptr_; }
-    NODISCARD FORCEINLINE const ObjectType* const object_ptr() const { return SuperType::object_ptr_; }
+    NODISCARD FORCEINLINE const ObjectType* object_ptr() const { return SuperType::object_ptr_; }
 
 protected:
     using SuperType = ArrayIteratorBase<ObjectType>;

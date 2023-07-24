@@ -57,7 +57,7 @@ class DequeIterator : public DequeIteratorBase<ObjectType> {
 public:
     NODISCARD FORCEINLINE ObjectType& operator[](const IndexType index) const { return SuperType::object_ptr_[index]; }
     NODISCARD FORCEINLINE ObjectType& operator*() const { return *SuperType::object_ptr_; }
-    NODISCARD FORCEINLINE ObjectType* const operator->() const { return SuperType::object_ptr_; }
+    NODISCARD FORCEINLINE ObjectType* operator->() const { return SuperType::object_ptr_; }
 
     FORCEINLINE DequeIterator& operator+=(const IndexType data_num) {
         SuperType::object_ptr_ += data_num;
@@ -102,7 +102,7 @@ public:
     }
 
     NODISCARD FORCEINLINE ObjectType* object_ptr() { return SuperType::object_ptr_; }
-    NODISCARD FORCEINLINE ObjectType* const object_ptr() const { return SuperType::object_ptr_; }
+    NODISCARD FORCEINLINE ObjectType* object_ptr() const { return SuperType::object_ptr_; }
 
 protected:
     using SuperType = DequeIteratorBase<ObjectType>;
@@ -113,7 +113,7 @@ class DequeReverseIterator : public DequeIteratorBase<ObjectType> {
 public:
     NODISCARD FORCEINLINE ObjectType& operator[](const IndexType index) const { return SuperType::object_ptr_[-index]; }
     NODISCARD FORCEINLINE ObjectType& operator*() const { return *SuperType::object_ptr_; }
-    NODISCARD FORCEINLINE ObjectType* const operator->() const { return SuperType::object_ptr_; }
+    NODISCARD FORCEINLINE ObjectType* operator->() const { return SuperType::object_ptr_; }
 
     FORCEINLINE DequeReverseIterator& operator+=(const IndexType data_num) {
         SuperType::object_ptr_ -= data_num;
@@ -158,7 +158,7 @@ public:
     }
 
     NODISCARD FORCEINLINE ObjectType* object_ptr() { return SuperType::object_ptr_; }
-    NODISCARD FORCEINLINE ObjectType* const object_ptr() const { return SuperType::object_ptr_; }
+    NODISCARD FORCEINLINE ObjectType* object_ptr() const { return SuperType::object_ptr_; }
 
 protected:
     using SuperType = DequeIteratorBase<ObjectType>;
@@ -173,13 +173,13 @@ protected:
 template<typename ObjectType, Bool kIfUnique = kIsClass<ObjectType>>
 class ZDeque : public ZObject {
 private:
-    static constexpr Float32 kAutoExtendMulFactor = 0.25F;
+    static constexpr Float32 kAutoExtendMulFactor = 0.5F;
 
 public:
     using IteratorType = internal::DequeIterator<ObjectType>;
-    using ConstIteratorType = internal::DequeConstIterator<ObjectType>;
+    using ConstIteratorType = internal::DequeIterator<const ObjectType>;
     using ReverseIteratorType = internal::DequeReverseIterator<ObjectType>;
-    using ConstReverseIteratorType = internal::DequeConstReverseIterator<ObjectType>;
+    using ConstReverseIteratorType = internal::DequeReverseIterator<const ObjectType>;
 
     ZDeque() noexcept;
     ZDeque(const IndexType capacity) noexcept;
@@ -568,55 +568,58 @@ private:
         Creates an object at the certain place. Will call the Constrctor if needed.
     */
     template<typename... ArgsType>
-    FORCEINLINE static Void CreateObjectP(ObjectType* const object_ptr, ArgsType&&... args);
+    FORCEINLINE static Void CreateObjectP(ObjectType* object_ptr, ArgsType&&... args);
 
     /*
         Destroys an object at the certain place. Will Call Destrctor if needed.
     */
-    FORCEINLINE static Void DestroyObjectP(ObjectType* const object_ptr);
+    FORCEINLINE static Void DestroyObjectP(ObjectType* object_ptr);
 
     /*
         Initialize the memory by the given arguements([begin, end)).
         Will call the Constrctor if needed.
     */
     template<typename... ArgsType>
-    inline static Void CreateObjectsP(ObjectType* begin_ptr, ObjectType* const end_ptr, ArgsType&&... args) noexcept;
+    inline static Void CreateObjectsP(ObjectType* begin_ptr, ObjectType* end_ptr, ArgsType&&... args) noexcept;
 
     /*
         Initialize the memory by the given arguements([begin, end)).
         Will call the copy constructor.
     */
     inline static Void CreateAndCopyObjectsP(ObjectType* dst_ptr, const ObjectType* src_begin_ptr,
-                                             const ObjectType* const src_end_ptr) noexcept;
+                                             const ObjectType* src_end_ptr) noexcept;
 
     /*
         Initialize the memory by the given arguements([begin, end)).
         Will call the copy constructor.
     */
     static Void CreateAndCopyObjectsReverseP(ObjectType* dst_ptr, const ObjectType* src_begin_ptr,
-                                            const ObjectType* const src_end_ptr) noexcept;
+                                            const ObjectType* src_end_ptr) noexcept;
 
     /*
         Copy objects by the given pointer. Will call the copy assignment operator
         if this object class's member kIfUnique is true.
     */
     static Void CopyObjectsP(ObjectType* dst_ptr, DataNode* dst_node_ptr,
-                             const ObjectType* src_begin_ptr, DataNode* src_begin_node_ptr,
-                             const ObjectType* const src_end_ptr, DataNode* src_end_node_ptr) noexcept;
+                             const ObjectType* src_begin_ptr, const DataNode* src_begin_node_ptr,
+                             const ObjectType* src_end_ptr, const DataNode* src_end_node_ptr) noexcept;
 
     /*
         Copy objects by the given pointer. Will call the copy assignment operator
         if this object class's member kIfUnique is true.
     */
-    static Void CopyObjectsReverseP(ObjectType* dst_ptr, DataNode* dst_node_ptr,
-                                    const ObjectType* src_begin_ptr, DataNode* src_begin_node_ptr,
-                                    const ObjectType* const src_end_ptr, DataNode* src_end_node_ptr) noexcept;
+    static Void CopyObjectsReverseP(ObjectType* dst_ptr, 
+                                    DataNode* dst_node_ptr,
+                                    const ObjectType* src_begin_ptr, 
+                                    const DataNode* src_begin_node_ptr,
+                                    const ObjectType* src_end_ptr, 
+                                    const DataNode* src_end_node_ptr) noexcept;
 
     /*
         Destroy the objects by the given arguements([begin, end)). 
         Will call the destrctor if this object class's member kIfUnique is true.
     */
-    inline static Void DestroyObjectsP(ObjectType* begin_ptr, ObjectType* const end_ptr) noexcept;
+    inline static Void DestroyObjectsP(ObjectType* begin_ptr, ObjectType* end_ptr) noexcept;
 
     /*
         Creates the capacity by the given capacity, the final capacity might
@@ -627,7 +630,7 @@ private:
         Extends the capacity by the given capacity, the final capacity might
         not equal the given capacity. Returns the data node pointer.
     */
-    NODISCARD DataNode* const ExtendContainer(const IndexType capacity) noexcept;
+    NODISCARD DataNode* ExtendContainer(const IndexType capacity) noexcept;
     /*
         Shrinks the container to the minimum capacity that can fit the current size.
     */
@@ -864,7 +867,6 @@ Void ZDeque<ObjectType, kIfUnique>::Destroy() noexcept {
 
 template<typename ObjectType, Bool kIfUnique>
 Void ZDeque<ObjectType, kIfUnique>::CreateContainer(const IndexType capacity) noexcept {
-    DEBUG(capacity < 0, "Negaive capacity not valid!");
     MemoryType need_memory_size = ((capacity * sizeof(ObjectType)) >> 1) + sizeof(DataNode);
     MemoryType apply_mrmory_size;
     //Applys 2 nodes instead.
@@ -884,9 +886,8 @@ Void ZDeque<ObjectType, kIfUnique>::CreateContainer(const IndexType capacity) no
 }
 
 template<typename ObjectType, Bool kIfUnique>
-NODISCARD ZDeque<ObjectType, kIfUnique>::DataNode* const ZDeque<ObjectType, kIfUnique>::ExtendContainer(
+NODISCARD ZDeque<ObjectType, kIfUnique>::DataNode* ZDeque<ObjectType, kIfUnique>::ExtendContainer(
         const IndexType capacity) noexcept {
-    DEBUG(capacity < 0, "Negaive capacity not valid!");
     MemoryType need_memory_size = capacity * sizeof(ObjectType) + sizeof(DataNode);
     MemoryType apply_mrmory_size;
     //Initialize the node.
@@ -1006,25 +1007,13 @@ Void ZDeque<ObjectType, kIfUnique>::RemoveBackNode() noexcept {
 
 template<typename ObjectType, Bool kIfUnique>
 FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::MoveP(ZDeque&& vector) {
-    front_node_ptr_ = vector.front_node_ptr_;
-    back_node_ptr_ = vector.back_node_ptr_;
-    empty_node_ptr_ = vector.empty_node_ptr_;
-    front_index_ = vector.front_index_;
-    back_index_ = vector.back_index_;
-    capacity_ = vector.capacity_;
-    size_ = vector.size_;
-    front_node_ptr_ = nullptr;
-    back_node_ptr_ = nullptr;
-    empty_node_ptr_ = nullptr;
-    front_index_ = 0;
-    back_index_ = 0;
-    capacity_ = 0;
-    size_ = 0;
+    memcpy(reinterpret_cast<Void*>(this), reinterpret_cast<Void*>(&vector), sizeof(ZDeque));
+    memset(reinterpret_cast<Void*>(this), 0, sizeof(ZDeque));
 }
 
 template<typename ObjectType, Bool kIfUnique>
 template<typename... ArgsType>
-FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::CreateObjectP(ObjectType* const object_ptr, ArgsType&&... args) {
+FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::CreateObjectP(ObjectType* object_ptr, ArgsType&&... args) {
     if constexpr (sizeof...(args) == 0) {
         if constexpr (kIfUnique) {
             new(reinterpret_cast<Void*>(object_ptr)) ObjectType();
@@ -1036,7 +1025,7 @@ FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::CreateObjectP(ObjectType* const 
 }
 
 template<typename ObjectType, Bool kIfUnique>
-FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::DestroyObjectP(ObjectType* const object_ptr) {
+FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::DestroyObjectP(ObjectType* object_ptr) {
     if constexpr (kIfUnique) {
         (*object_ptr).~ObjectType();
     }
@@ -1044,7 +1033,7 @@ FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::DestroyObjectP(ObjectType* const
 
 template<typename ObjectType, Bool kIfUnique>
 template<typename... ArgsType>
-inline Void ZDeque<ObjectType, kIfUnique>::CreateObjectsP(ObjectType* begin_ptr, ObjectType* const end_ptr,
+inline Void ZDeque<ObjectType, kIfUnique>::CreateObjectsP(ObjectType* begin_ptr, ObjectType* end_ptr,
                                                          ArgsType&&... args) noexcept {
     if constexpr (kIfUnique) {
         if constexpr (sizeof...(args) == 0) {
@@ -1067,7 +1056,7 @@ inline Void ZDeque<ObjectType, kIfUnique>::CreateObjectsP(ObjectType* begin_ptr,
 
 template<typename ObjectType, Bool kIfUnique>
 inline Void ZDeque<ObjectType, kIfUnique>::CreateAndCopyObjectsP(ObjectType* dst_ptr, const ObjectType* src_begin_ptr, 
-                                                                const ObjectType* const src_end_ptr) noexcept {
+                                                                const ObjectType* src_end_ptr) noexcept {
     if constexpr (kIfUnique) {
         while (src_begin_ptr < src_end_ptr) {
             new(reinterpret_cast<Void*>(dst_ptr)) ObjectType(*src_begin_ptr);
@@ -1083,7 +1072,7 @@ inline Void ZDeque<ObjectType, kIfUnique>::CreateAndCopyObjectsP(ObjectType* dst
 
 template<typename ObjectType, Bool kIfUnique>
 Void ZDeque<ObjectType, kIfUnique>::CreateAndCopyObjectsReverseP(ObjectType* dst_ptr, const ObjectType* src_begin_ptr, 
-                                                                const ObjectType* const src_end_ptr) noexcept {
+                                                                const ObjectType* src_end_ptr) noexcept {
     while (src_begin_ptr > src_end_ptr) {
         new(reinterpret_cast<Void*>(dst_ptr)) ObjectType(*src_begin_ptr);
         ++dst_ptr;
@@ -1091,10 +1080,70 @@ Void ZDeque<ObjectType, kIfUnique>::CreateAndCopyObjectsReverseP(ObjectType* dst
     }
 }
 
-
+template<typename ObjectType, Bool kIfUnique>
+Void ZDeque<ObjectType, kIfUnique>::CopyObjectsP(ObjectType* dst_ptr, 
+                                                 DataNode* dst_node_ptr,
+                                                 const ObjectType* src_begin_ptr, 
+                                                 const DataNode* src_begin_node_ptr,
+                                                 const ObjectType* src_end_ptr, 
+                                                 const DataNode* src_end_node_ptr) noexcept {
+    while (src_begin_node_ptr != src_end_node_ptr) {
+        ObjectType* src_end_ptr_temp = &((*src_begin_node_ptr)[src_begin_node_ptr->size]);
+        if constexpr(kIfUnique) {
+            while (src_begin_ptr != src_end_ptr_temp) {
+                *dst_ptr = *src_begin_ptr;
+                ++dst_ptr;
+                ++src_begin_ptr;
+            }
+        }
+        else {
+            SizeType size = static_cast<SizeType>(src_end_ptr_temp - src_begin_ptr);
+            memcpy(reinterpret_cast<Void*>(dst_ptr), reinterpret_cast<Void*>(const_cast<ObjectType*>(src_begin_ptr)),
+                   size * sizeof(ObjectType));
+            dst_ptr += size;
+        }
+        src_begin_node_ptr = src_begin_node_ptr->next_node_ptr;
+        src_begin_ptr = &((*src_begin_node_ptr)[0]);
+    }
+    if constexpr (kIfUnique) {
+        while (src_begin_ptr != src_end_ptr) {
+            *dst_ptr = *src_begin_ptr;
+            ++dst_ptr;
+            ++src_begin_ptr;
+        }
+    }
+    else {
+        memcpy(reinterpret_cast<Void*>(dst_ptr), reinterpret_cast<Void*>(const_cast<ObjectType*>(src_begin_ptr)),
+               static_cast<SizeType>(src_end_ptr - src_begin_ptr) * sizeof(ObjectType));
+    }
+}
 
 template<typename ObjectType, Bool kIfUnique>
-inline Void ZDeque<ObjectType, kIfUnique>::DestroyObjectsP(ObjectType* begin_ptr, ObjectType* const end_ptr) noexcept {
+Void ZDeque<ObjectType, kIfUnique>::CopyObjectsReverseP(ObjectType* dst_ptr, 
+                                                        DataNode* dst_node_ptr,
+                                                        const ObjectType* src_begin_ptr,
+                                                        const DataNode* src_begin_node_ptr,
+                                                        const ObjectType* src_end_ptr,
+                                                        const DataNode* src_end_node_ptr) noexcept {
+    while (src_begin_node_ptr != src_end_node_ptr) {
+        ObjectType* src_end_ptr_temp = &((*src_begin_node_ptr)[-1]);
+        while (src_begin_ptr != src_end_ptr_temp) {
+            *dst_ptr = *src_begin_ptr;
+            ++dst_ptr;
+            --src_begin_ptr;
+        }
+        src_begin_node_ptr = src_begin_node_ptr->previous_node_ptr;
+        src_begin_ptr = &((*src_begin_node_ptr)[src_begin_node_ptr->size - 1]);
+    }
+    while (src_begin_ptr != src_end_ptr) {
+        *dst_ptr = *src_begin_ptr;
+        ++dst_ptr;
+        --src_begin_ptr;
+    }
+}
+
+template<typename ObjectType, Bool kIfUnique>
+inline Void ZDeque<ObjectType, kIfUnique>::DestroyObjectsP(ObjectType* begin_ptr, ObjectType* end_ptr) noexcept {
     if constexpr (kIfUnique) {
         while (begin_ptr < end_ptr) {
             begin_ptr->~ObjectType();

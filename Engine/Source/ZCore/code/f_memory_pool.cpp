@@ -19,7 +19,7 @@ using SmallMemoryBlockListMemoryPool = ZSmallMemoryBlockListMemoryPool<MEMORY_PO
 }
 
 
-CORE_DLLAPI NODISCARD Void* const ApplyMemory(const MemoryType size) noexcept {
+CORE_DLLAPI NODISCARD Void* ApplyMemory(const MemoryType size) noexcept {
     DEBUG(size < 0, "Negaive size not valid!");
     //small memory block
     if (size <= internal::SmallMemoryBlockListMemoryPool::memory_block_memory_max_size()) {
@@ -32,7 +32,7 @@ CORE_DLLAPI NODISCARD Void* const ApplyMemory(const MemoryType size) noexcept {
     return 0;
 }
 
-CORE_DLLAPI NODISCARD Void* const ApplyMemory(const MemoryType size, MemoryType* const memory_size_ptr) noexcept {
+CORE_DLLAPI NODISCARD Void* ApplyMemory(const MemoryType size, MemoryType* memory_size_ptr) noexcept {
     DEBUG(size < 0, "Negaive size not valid!");
     //small memory blocka
     if (size <= internal::SmallMemoryBlockListMemoryPool::memory_block_memory_max_size()){
@@ -45,12 +45,12 @@ CORE_DLLAPI NODISCARD Void* const ApplyMemory(const MemoryType size, MemoryType*
     return 0;
 }
 
-CORE_DLLAPI NODISCARD const Bool CheckMemory(Void* const memory_ptr, const MemoryType size) noexcept {
+CORE_DLLAPI NODISCARD const Bool CheckMemory(Void* memory_ptr, const MemoryType size) noexcept {
     DEBUG(size < 0, "Negaive size not valid!");
     if (memory_ptr == nullptr) {
         return false;
     }
-    internal::MemoryPoolBase* const owner_memory_pool_ptr =
+    internal::MemoryPoolBase* owner_memory_pool_ptr =
         *reinterpret_cast<internal::MemoryPoolBase**>(reinterpret_cast<PointerType>(memory_ptr) - sizeof(Void*));
     switch (owner_memory_pool_ptr->memory_pool_type())
     {
@@ -67,13 +67,13 @@ CORE_DLLAPI NODISCARD const Bool CheckMemory(Void* const memory_ptr, const Memor
     return false;
 }
 
-CORE_DLLAPI NODISCARD const Bool CheckMemory(Void* const memory_ptr, const MemoryType size,
-                                             MemoryType* const memory_size_ptr) noexcept {
+CORE_DLLAPI NODISCARD const Bool CheckMemory(Void* memory_ptr, const MemoryType size,
+                                             MemoryType* memory_size_ptr) noexcept {
     DEBUG(size < 0, "Negaive size not valid!");
     if (memory_ptr == nullptr) {
         return false;
     }
-    internal::MemoryPoolBase* const owner_memory_pool_ptr =
+    internal::MemoryPoolBase* owner_memory_pool_ptr =
         *reinterpret_cast<internal::MemoryPoolBase**>(reinterpret_cast<PointerType>(memory_ptr) - sizeof(Void*));
     switch (owner_memory_pool_ptr->memory_pool_type())
     {
@@ -103,12 +103,12 @@ CORE_DLLAPI NODISCARD const MemoryType CalculateMemory(const MemoryType size) no
     return 0;
 }
 
-CORE_DLLAPI Void ReleaseMemory(Void* const memory_ptr) noexcept {
+CORE_DLLAPI Void ReleaseMemory(Void* memory_ptr) noexcept {
     if (memory_ptr == nullptr) {
         return;
     }
     //Gets the memory pool's pointer that owns the memory block.
-    internal::MemoryPoolBase* const owner_memory_pool_ptr =
+    internal::MemoryPoolBase* owner_memory_pool_ptr =
         reinterpret_cast<internal::SmallMemoryBlock*>(memory_ptr)[-1].owner_memory_pool_ptr;
     switch (owner_memory_pool_ptr->memory_pool_type())
     {
