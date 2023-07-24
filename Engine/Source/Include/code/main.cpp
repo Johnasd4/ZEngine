@@ -38,7 +38,9 @@ int main(){
     }
     d = c;
     b = a;
-    c.Assign(d.Begin(), d.Begin() + 3);
+    auto it = b.Erases(b.ReverseEnd() - 2, 2);
+    it = b.Erase(it);
+
     //cout << (-4) % 3;
     //ZArray<Int32, 19> test_1;
     //ZArray<Int32, 19> test_2(test_1);

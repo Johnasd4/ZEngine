@@ -24,7 +24,9 @@ public:
 
     FORCEINLINE DequeIteratorBase& operator=(ObjectType* object_ptr) {
         object_ptr_ = object_ptr;
-        return *this;
+        return *this;Dd
+             
+
     }
     FORCEINLINE DequeIteratorBase& operator=(const DequeIteratorBase& iterator) {
         object_ptr_ = iterator.object_ptr_;
