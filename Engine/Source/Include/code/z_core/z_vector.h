@@ -15,8 +15,8 @@ class VectorIteratorBase {
 public:
     FORCEINLINE VectorIteratorBase(ObjectType* object_ptr) : object_ptr_(object_ptr) {}
     FORCEINLINE VectorIteratorBase(const VectorIteratorBase& iterator) : object_ptr_(iterator.object_ptr_) {}
-    FORCEINLINE VectorIteratorBase(const VectorIteratorBase&& iterator) : object_ptr_(iterator.object_ptr_) {
-        iterator.MoveDestroy();
+    FORCEINLINE VectorIteratorBase(VectorIteratorBase&& iterator) : object_ptr_(iterator.object_ptr_) {
+        MoveP(std::forward<VectorIteratorBase>(iterator));
     }
 
     FORCEINLINE VectorIteratorBase& operator=(ObjectType* object_ptr) {
@@ -42,13 +42,13 @@ public:
     FORCEINLINE ~VectorIteratorBase() {}
 
 protected:
-     ObjectType* object_ptr_;
+    ObjectType* object_ptr_;
 
 private:
-     FORCEINLINE Void MoveP(VectorIteratorBase&& iterator) {
-         object_ptr_ = iterator.object_ptr_;
-         iterator.object_ptr_ = nullptr;
-     }
+    FORCEINLINE Void MoveP(VectorIteratorBase&& iterator) {
+        object_ptr_ = iterator.object_ptr_;
+        iterator.object_ptr_ = nullptr;
+    }
 
 };
 
@@ -1219,7 +1219,7 @@ Void ZVector<ObjectType, kIfUnique>::CopyP(const ZVector& vector) noexcept {
 template<typename ObjectType, Bool kIfUnique>
 FORCEINLINE Void ZVector<ObjectType, kIfUnique>::MoveP(ZVector&& vector) {
     memcpy(reinterpret_cast<Void*>(this), reinterpret_cast<Void*>(&vector), sizeof(ZVector));
-    memset(reinterpret_cast<Void*>(this), 0, sizeof(ZVector));
+    memset(reinterpret_cast<Void*>(&vector), 0, sizeof(ZVector));
 }
 
 template<typename ObjectType, Bool kIfUnique>

@@ -14,27 +14,38 @@ class ZDeque;
 namespace internal {
 
 template<typename ObjectType>
-class DequeIteratorBase {
+struct DequeDataNode {
 public:
-    FORCEINLINE DequeIteratorBase(ObjectType* object_ptr) : object_ptr_(object_ptr) {}
-    FORCEINLINE DequeIteratorBase(const DequeIteratorBase& iterator) : object_ptr_(iterator.object_ptr_) {}
-    FORCEINLINE DequeIteratorBase(const DequeIteratorBase&& iterator) : object_ptr_(iterator.object_ptr_) {
-        iterator.MoveDestroy();
+    DequeDataNode* next_node_ptr;
+    DequeDataNode* previous_node_ptr;
+    IndexType capacity;
+    IndexType size;
+
+    NODISCARD FORCEINLINE ObjectType& operator[](const IndexType index) {
+        return reinterpret_cast<ObjectType*>(this + 1)[index];
+    }
+};
+
+template<typename ObjectType>
+class DequeIteratorBase {
+protected:
+    using DataNode = DequeDataNode<ObjectType>;
+
+public:
+    FORCEINLINE DequeIteratorBase(ObjectType* object_ptr, DataNode* node_ptr) 
+        : object_ptr_(object_ptr), node_ptr_(node_ptr) {}
+    FORCEINLINE DequeIteratorBase(const DequeIteratorBase& iterator) 
+        : object_ptr_(iterator.object_ptr_), node_ptr_(iterator.node_ptr_) {}
+    FORCEINLINE DequeIteratorBase(DequeIteratorBase&& iterator) : object_ptr_(iterator.object_ptr_) {
+        MoveP(std::forward<DequeIteratorBase>(iterator));
     }
 
-    FORCEINLINE DequeIteratorBase& operator=(ObjectType* object_ptr) {
-        object_ptr_ = object_ptr;
-        return *this;Dd
-             
-
-    }
     FORCEINLINE DequeIteratorBase& operator=(const DequeIteratorBase& iterator) {
         object_ptr_ = iterator.object_ptr_;
         return *this;
     }
     FORCEINLINE DequeIteratorBase& operator=(DequeIteratorBase&& iterator) {
-        object_ptr_ = iterator.object_ptr_;
-        iterator.MoveDestroy();
+        MoveP(std::forward<DequeIteratorBase>(iterator));
         return *this;
     }
 
@@ -47,11 +58,15 @@ public:
 
     FORCEINLINE ~DequeIteratorBase() {}
 
-    FORCEINLINE Void MoveDestroy() { object_ptr_ = nullptr; }
-
 protected:
-     ObjectType* object_ptr_;
-     ZDeque<ObjectType>* deque_ptr_;
+    ObjectType* object_ptr_;
+    DataNode* node_ptr_;
+
+private:
+    FORCEINLINE Void MoveP(DequeIteratorBase&& iterator) {
+        memcpy(reinterpret_cast<Void*>(this), reinterpret_cast<Void*>(&iterator), sizeof(DequeIteratorBase));
+        memset(reinterpret_cast<Void*>(&iterator), 0, sizeof(DequeIteratorBase));
+    }
 };
 
 template<typename ObjectType>
@@ -552,19 +567,10 @@ public:
 
 protected:
     using SuperType = ZObject;
+    using DataNode = internal::DequeDataNode<ObjectType>;
 
 private:    
-    struct DataNode {
-    public:
-        DataNode* next_node_ptr;
-        DataNode* previous_node_ptr;
-        IndexType capacity;
-        IndexType size;
 
-        NODISCARD FORCEINLINE ObjectType& operator[](const IndexType index) { 
-            return reinterpret_cast<ObjectType*>(this + 1)[index];
-        }
-    };
 
     /*
         Creates an object at the certain place. Will call the Constrctor if needed.
@@ -1008,9 +1014,9 @@ Void ZDeque<ObjectType, kIfUnique>::RemoveBackNode() noexcept {
 
 
 template<typename ObjectType, Bool kIfUnique>
-FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::MoveP(ZDeque&& vector) {
-    memcpy(reinterpret_cast<Void*>(this), reinterpret_cast<Void*>(&vector), sizeof(ZDeque));
-    memset(reinterpret_cast<Void*>(this), 0, sizeof(ZDeque));
+FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::MoveP(ZDeque&& queue) {
+    memcpy(reinterpret_cast<Void*>(this), reinterpret_cast<Void*>(&queue), sizeof(ZDeque));
+    memset(reinterpret_cast<Void*>(&queue), 0, sizeof(ZDeque));
 }
 
 template<typename ObjectType, Bool kIfUnique>
