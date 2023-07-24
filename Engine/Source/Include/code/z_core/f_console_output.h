@@ -65,8 +65,8 @@ public:
         return instance;
     }
 
-    FORCEINLINE Void set_text_colour(const ConsoleOutputTextColour test_colour) { text_colour_ = test_colour; }
-    FORCEINLINE Void set_background_colour(const ConsoleOutputBackgroundColour background_colour) { 
+    FORCEINLINE Void set_text_colour(ConsoleOutputTextColour test_colour) { text_colour_ = test_colour; }
+    FORCEINLINE Void set_background_colour(ConsoleOutputBackgroundColour background_colour) { 
         background_colour_ = background_colour; 
     }
 
@@ -84,8 +84,8 @@ private:
 
 }//internal
 
-CORE_DLLAPI extern const Void SetConsoleOutputColour(const ConsoleOutputTextColour test_colour,
-                                                     const ConsoleOutputBackgroundColour background_colour) noexcept;
+CORE_DLLAPI extern Void SetConsoleOutputColour(ConsoleOutputTextColour test_colour,
+                                               ConsoleOutputBackgroundColour background_colour) noexcept;
 
 /*
     Use it as the same as printf, it's thread safe. You can add text colour and 

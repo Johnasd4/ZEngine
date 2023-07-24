@@ -28,10 +28,10 @@ public:
         return *this;
     }
 
-    NODISCARD FORCEINLINE const Bool operator==(const VectorIteratorBase& iterator) const {
+    NODISCARD FORCEINLINE Bool operator==(const VectorIteratorBase& iterator) const {
         return object_ptr_ == iterator.object_ptr_;
     }
-    NODISCARD FORCEINLINE const Bool operator!=(const VectorIteratorBase& iterator) const {
+    NODISCARD FORCEINLINE Bool operator!=(const VectorIteratorBase& iterator) const {
         return object_ptr_ != iterator.object_ptr_;
     }
 
@@ -83,16 +83,16 @@ public:
         return VectorIterator(SuperType::object_ptr_ - data_num);
     }
 
-    NODISCARD FORCEINLINE const Bool operator>(const VectorIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator>(const VectorIterator& iterator) const {
         return SuperType::object_ptr_ > iterator.SuperType::object_ptr_;
     }
-    NODISCARD FORCEINLINE const Bool operator>=(const VectorIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator>=(const VectorIterator& iterator) const {
         return SuperType::object_ptr_ >= iterator.SuperType::object_ptr_;
     }
-    NODISCARD FORCEINLINE const Bool operator<(const VectorIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator<(const VectorIterator& iterator) const {
         return SuperType::object_ptr_ < iterator.SuperType::object_ptr_;
     }
-    NODISCARD FORCEINLINE const Bool operator<=(const VectorIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator<=(const VectorIterator& iterator) const {
         return SuperType::object_ptr_ <= iterator.SuperType::object_ptr_;
     }
 
@@ -134,16 +134,16 @@ public:
         return VectorReverseIterator(SuperType::object_ptr_ + data_num);
     }
 
-    NODISCARD FORCEINLINE const Bool operator>(const VectorReverseIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator>(const VectorReverseIterator& iterator) const {
         return SuperType::object_ptr_ < iterator.SuperType::object_ptr_;
     }
-    NODISCARD FORCEINLINE const Bool operator>=(const VectorReverseIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator>=(const VectorReverseIterator& iterator) const {
         return SuperType::object_ptr_ <= iterator.SuperType::object_ptr_;
     }
-    NODISCARD FORCEINLINE const Bool operator<(const VectorReverseIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator<(const VectorReverseIterator& iterator) const {
         return SuperType::object_ptr_ > iterator.SuperType::object_ptr_;
     }
-    NODISCARD FORCEINLINE const Bool operator<=(const VectorReverseIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator<=(const VectorReverseIterator& iterator) const {
         return SuperType::object_ptr_ >= iterator.SuperType::object_ptr_;
     }
 
@@ -197,10 +197,10 @@ public:
     ZVector& operator=(const ZVector& vector) noexcept;
     ZVector& operator=(ZVector&& vector) noexcept;
 
-    NODISCARD FORCEINLINE const Bool operator==(const ZVector& vector) noexcept { 
+    NODISCARD FORCEINLINE Bool operator==(const ZVector& vector) noexcept { 
         return data_ptr_ == vector.data_ptr_; 
     }    
-    NODISCARD FORCEINLINE const Bool operator!=(const ZVector& vector) noexcept { 
+    NODISCARD FORCEINLINE Bool operator!=(const ZVector& vector) noexcept { 
         return data_ptr_ != vector.data_ptr_; 
     }
 
@@ -261,7 +261,7 @@ public:
         return ConstReverseIteratorType(data_ptr_ - 1);
     }
 
-    NODISCARD FORCEINLINE const Bool IsEmpty() { return size_ == 0; }
+    NODISCARD FORCEINLINE Bool IsEmpty() { return size_ == 0; }
 
     /*
         Resize the vector, If the given size is smaller then the current size,
