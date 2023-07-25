@@ -588,7 +588,7 @@ public:
         Returns the iterator that points at the next object.
     */
     NODISCARD FORCEINLINE ReverseIteratorType Erases(const ReverseIteratorType& iterator, IndexType num) {
-        return ReverseIteratorType(ErasesP(iterator.object_ptr() - num + 1, iterator.object_ptr() + 1) - 1);
+        return ReverseIteratorType(ErasesP(iterator.object_ptr() - (num - 1), iterator.object_ptr() + 1) - 1);
     }
     /*
         Erases the object between begin and end, involves begin, but don't involves end.

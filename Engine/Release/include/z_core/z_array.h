@@ -172,9 +172,6 @@ concept kIsArrayInitFunction = requires(ArrayType* array, Function function, Arg
 
 }//internal
 
-
-
-
 /*
     The size of the array is fixed. It's stored in the stack memory, use new
     to store it in the heap memory. This class uses no extra size, doesn't
@@ -267,7 +264,7 @@ public:
 
 
     template<typename... ArgsType>
-    Void Fill(ArgsType&&... args) noexcept;
+    inline Void Fill(ArgsType&&... args) noexcept;
 
     /*
         The small object on the front.
@@ -381,7 +378,7 @@ inline ZArray<ObjectType, kCapacity, kIfUnique>& ZArray<ObjectType, kCapacity, k
 template<typename ObjectType, IndexType kCapacity, Bool kIfUnique>
 requires kIsNotZero<kCapacity>
 template<typename... ArgsType>
-Void ZArray<ObjectType, kCapacity, kIfUnique>::Fill(ArgsType&&... args) noexcept {
+inline Void ZArray<ObjectType, kCapacity, kIfUnique>::Fill(ArgsType&&... args) noexcept {
     if constexpr (kIfUnique) {
         ObjectType* end_ptr = data_ + kCapacity;
         for (ObjectType* object_ptr = data_; object_ptr < end_ptr; ++object_ptr) {

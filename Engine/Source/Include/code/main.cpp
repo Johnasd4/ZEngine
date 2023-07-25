@@ -28,17 +28,19 @@ constexpr auto init_function = [](ZArray<Int32, 10>* array_ptr) {
 };
 int main(){
     ZVector<int> a;
-    ZVector<int> b(ZVector<int>(10));
+    ZVector<int> b;
     ZVector<ZVector<int>> c;
     ZVector<ZVector<int>> d;
     for (int i = 0; i < 6; i++)
     {
         a.PushBack(i);
-        c.PushBack(ZVector<int>());
+        c.PushBack(a);
     }
     d = c;
     b = a;
     auto it = b.Erases(b.ReverseEnd() - 2, 2);
+    cout << (b.ReverseEnd() - 2).object_ptr() - b.data_ptr() << endl;
+    cout << it.object_ptr() - b.data_ptr() << endl;
     it = b.Erase(it);
 
     //cout << (-4) % 3;
