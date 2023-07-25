@@ -19,7 +19,7 @@ using SmallMemoryBlockListMemoryPool = ZSmallMemoryBlockListMemoryPool<MEMORY_PO
 }
 
 
-CORE_DLLAPI NODISCARD Void* ApplyMemory(const MemoryType size) noexcept {
+CORE_DLLAPI NODISCARD Void* ApplyMemory(MemoryType size) noexcept {
     DEBUG(size < 0, "Negaive size not valid!");
     //small memory block
     if (size <= internal::SmallMemoryBlockListMemoryPool::memory_block_memory_max_size()) {
@@ -32,7 +32,7 @@ CORE_DLLAPI NODISCARD Void* ApplyMemory(const MemoryType size) noexcept {
     return 0;
 }
 
-CORE_DLLAPI NODISCARD Void* ApplyMemory(const MemoryType size, MemoryType* memory_size_ptr) noexcept {
+CORE_DLLAPI NODISCARD Void* ApplyMemory(MemoryType size, MemoryType* memory_size_ptr) noexcept {
     DEBUG(size < 0, "Negaive size not valid!");
     //small memory blocka
     if (size <= internal::SmallMemoryBlockListMemoryPool::memory_block_memory_max_size()){
@@ -45,7 +45,7 @@ CORE_DLLAPI NODISCARD Void* ApplyMemory(const MemoryType size, MemoryType* memor
     return 0;
 }
 
-CORE_DLLAPI NODISCARD const Bool CheckMemory(Void* memory_ptr, const MemoryType size) noexcept {
+CORE_DLLAPI NODISCARD Bool CheckMemory(Void* memory_ptr, MemoryType size) noexcept {
     DEBUG(size < 0, "Negaive size not valid!");
     if (memory_ptr == nullptr) {
         return false;
@@ -67,8 +67,7 @@ CORE_DLLAPI NODISCARD const Bool CheckMemory(Void* memory_ptr, const MemoryType 
     return false;
 }
 
-CORE_DLLAPI NODISCARD const Bool CheckMemory(Void* memory_ptr, const MemoryType size,
-                                             MemoryType* memory_size_ptr) noexcept {
+CORE_DLLAPI NODISCARD Bool CheckMemory(Void* memory_ptr, MemoryType size, MemoryType* memory_size_ptr) noexcept {
     DEBUG(size < 0, "Negaive size not valid!");
     if (memory_ptr == nullptr) {
         return false;
@@ -90,7 +89,7 @@ CORE_DLLAPI NODISCARD const Bool CheckMemory(Void* memory_ptr, const MemoryType 
     return false;
 }
 
-CORE_DLLAPI NODISCARD const MemoryType CalculateMemory(const MemoryType size) noexcept {
+CORE_DLLAPI NODISCARD MemoryType CalculateMemory(MemoryType size) noexcept {
     DEBUG(size < 0, "Negaive size not valid!");
     //small memory blocka
     if (size <= internal::SmallMemoryBlockListMemoryPool::memory_block_memory_max_size()) {

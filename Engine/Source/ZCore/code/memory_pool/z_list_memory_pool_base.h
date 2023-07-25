@@ -42,13 +42,13 @@ protected:
 #pragma warning(disable : 26495)
     FORCEINLINE ZListMemoryPoolBase() : SuperType() {}
 #pragma warning(default : 26495)
-    Void InitializeP(const MemoryPoolType memory_pool_type, const MemoryType memory_block_size,
-                    const MemoryType memory_block_memory_size, const IndexType capacity) noexcept;
+    Void InitializeP(MemoryPoolType memory_pool_type, MemoryType memory_block_size,
+                     MemoryType memory_block_memory_size, IndexType capacity) noexcept;
     
     FORCEINLINE static constexpr MemoryType node_head_offset() { return kNodeHeadOffset; }
-    NODISCARD FORCEINLINE const MemoryType capacity() const { return capacity_; }
-    NODISCARD FORCEINLINE const MemoryType memory_block_size() const { return memory_block_size_; }
-    NODISCARD FORCEINLINE const MemoryType memory_block_memory_size() const { return memory_block_memory_size_; }
+    NODISCARD FORCEINLINE MemoryType capacity() const { return capacity_; }
+    NODISCARD FORCEINLINE MemoryType memory_block_size() const { return memory_block_size_; }
+    NODISCARD FORCEINLINE MemoryType memory_block_memory_size() const { return memory_block_memory_size_; }
 
     /*
         It returns the memory's pointer(not the memory block).It's inlined
@@ -60,7 +60,7 @@ protected:
         Release the memory to this memory pool. It's inlinedcause it's only 
         used a few times.
     */
-    FORCEINLINE Void ReleaseMemory(const Void* memory_ptr);
+    FORCEINLINE Void ReleaseMemory(Void* memory_ptr);
 
 private:
     //The total offset of the memory block.
@@ -81,7 +81,7 @@ private:
         The function that extends the memory pool. It must be rewrited in the
         sub class. capacity_ and head_node_ptr_ will be changed in this function.
     */
-    Void ExtendCapacityP(const IndexType memory_block_added_num) noexcept;
+    Void ExtendCapacityP(IndexType memory_block_added_num) noexcept;
 
     //The size of the memory block(include the usable memory size)
     MemoryType memory_block_size_;
@@ -94,8 +94,8 @@ private:
 
 template<typename MemoryBlockType, PointerType kMemoryBlockHeadOffset, Bool kIsThreadSafe>
 Void ZListMemoryPoolBase<MemoryBlockType, kMemoryBlockHeadOffset, kIsThreadSafe>::InitializeP(
-        const MemoryPoolType memory_pool_type, const MemoryType memory_block_size,
-        const MemoryType memory_block_memory_size, const IndexType capacity) noexcept {
+        MemoryPoolType memory_pool_type, MemoryType memory_block_size,
+        MemoryType memory_block_memory_size, IndexType capacity) noexcept {
     SuperType::InitializeP(memory_pool_type);
     memory_block_size_ = memory_block_size;
     memory_block_memory_size_ = memory_block_memory_size;
@@ -119,7 +119,7 @@ NODISCARD FORCEINLINE Void* ZListMemoryPoolBase<MemoryBlockType, kMemoryBlockHea
 
 template<typename MemoryBlockType, PointerType kMemoryBlockHeadOffset, Bool kIsThreadSafe>
 FORCEINLINE Void ZListMemoryPoolBase<MemoryBlockType, kMemoryBlockHeadOffset, kIsThreadSafe>::ReleaseMemory(
-        const Void* memory_ptr) {
+        Void* memory_ptr) {
     MutexType::lock();
     Node* node_ptr = reinterpret_cast<Node*>(reinterpret_cast<PointerType>(memory_ptr) - kNodeHeadOffset);
     node_ptr->next_node_ptr = head_node_ptr_;
@@ -138,7 +138,7 @@ FORCEINLINE Void ZListMemoryPoolBase<MemoryBlockType, kMemoryBlockHeadOffset, kI
 
 template<typename MemoryBlockType, PointerType kMemoryBlockHeadOffset, Bool kIsThreadSafe>
 Void ZListMemoryPoolBase<MemoryBlockType, kMemoryBlockHeadOffset, kIsThreadSafe>::ExtendCapacityP(
-        const IndexType memory_block_added_num) noexcept {
+        IndexType memory_block_added_num) noexcept {
     if (memory_block_added_num == 0) {
         return;
     }

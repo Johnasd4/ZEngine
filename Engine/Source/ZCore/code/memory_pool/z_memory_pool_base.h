@@ -21,12 +21,12 @@ enum MemoryPoolType : IndexType {
 template<Bool kIsThreadSafe>
 class ZMemoryPoolBase :public ZMemoryPoolThreadSafeBase<kIsThreadSafe> {
 public:
-    NODISCARD FORCEINLINE const MemoryPoolType memory_pool_type() const { return memory_pool_type_; }
+    NODISCARD FORCEINLINE MemoryPoolType memory_pool_type() const { return memory_pool_type_; }
 
 protected:
     FORCEINLINE ZMemoryPoolBase() {}
 
-    FORCEINLINE Void InitializeP(const MemoryPoolType memory_pool_type) { memory_pool_type_ = memory_pool_type; }
+    FORCEINLINE Void InitializeP(MemoryPoolType memory_pool_type) { memory_pool_type_ = memory_pool_type; }
 
 private:
     ZMemoryPoolBase(const ZMemoryPoolBase&) = delete;

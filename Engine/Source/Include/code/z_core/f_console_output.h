@@ -70,8 +70,8 @@ public:
         background_colour_ = background_colour; 
     }
 
-    NODISCARD FORCEINLINE const ConsoleOutputTextColour text_colour() { return text_colour_; }
-    NODISCARD FORCEINLINE const ConsoleOutputBackgroundColour background_colour() { return background_colour_; }
+    NODISCARD FORCEINLINE ConsoleOutputTextColour text_colour() { return text_colour_; }
+    NODISCARD FORCEINLINE ConsoleOutputBackgroundColour background_colour() { return background_colour_; }
     NODISCARD FORCEINLINE ZMutex& console_output_mutex() { return console_output_mutex_; }
 
 private:
@@ -93,7 +93,7 @@ CORE_DLLAPI extern Void SetConsoleOutputColour(ConsoleOutputTextColour test_colo
     output.
 */
 template<typename FormatType, typename... ArgsType>
-FORCEINLINE Void Print(FormatType&& format, ArgsType&&... args) {
+Void Print(FormatType&& format, ArgsType&&... args) noexcept {
     internal::ZConsoleOutputSettings& settings = internal::ZConsoleOutputSettings::InstanceP();
     settings.console_output_mutex().lock();
     printf(std::forward<FormatType>(format), std::forward<ArgsType>(args)...);
@@ -106,9 +106,8 @@ FORCEINLINE Void Print(FormatType&& format, ArgsType&&... args) {
     output.
 */
 template<typename FormatType, typename... ArgsType>
-FORCEINLINE Void Print(const ConsoleOutputTextColour text_colour,
-                         const ConsoleOutputBackgroundColour background_colour, 
-                         FormatType&& format, ArgsType&&... args) {
+Void Print(ConsoleOutputTextColour text_colour, ConsoleOutputBackgroundColour background_colour, 
+           FormatType&& format, ArgsType&&... args) noexcept{
     internal::ZConsoleOutputSettings& settings = internal::ZConsoleOutputSettings::InstanceP();
     settings.console_output_mutex().lock();
     //Changes the console output colour.

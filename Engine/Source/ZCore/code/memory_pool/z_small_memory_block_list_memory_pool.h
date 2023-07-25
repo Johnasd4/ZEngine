@@ -47,19 +47,25 @@ public:
         return memory_pool_array;
     }
 
-    NODISCARD static Void* ApplyMemory(const MemoryType size) noexcept;
-    NODISCARD static Void* ApplyMemory(const MemoryType size, MemoryType* memory_size_ptr) noexcept;
+    NODISCARD static Void* ApplyMemory(MemoryType size) noexcept;
+    NODISCARD static Void* ApplyMemory(MemoryType size, MemoryType* memory_size_ptr) noexcept;
 
     /*
         Checks if the memory can extend without moving to a new memory, If can
         then it will auto extend and return true.
     */
-    NODISCARD FORCEINLINE static const Bool CheckMemory(ZSmallMemoryBlockListMemoryPool* memory_pool_ptr,
-                                                        const MemoryType size);
-    NODISCARD FORCEINLINE static const Bool CheckMemory(ZSmallMemoryBlockListMemoryPool* memory_pool_ptr,
-                                                        const MemoryType size, MemoryType* memory_size_ptr);
+    NODISCARD FORCEINLINE static Bool CheckMemory(ZSmallMemoryBlockListMemoryPool* memory_pool_ptr, MemoryType size) {
+        return memory_pool_ptr->SuperType::memory_block_memory_size() >= size;
+    }
+    NODISCARD FORCEINLINE static Bool CheckMemory(ZSmallMemoryBlockListMemoryPool* memory_pool_ptr, MemoryType size, 
+                                                  MemoryType* memory_size_ptr) {
+        return (*memory_size_ptr = memory_pool_ptr->SuperType::memory_block_memory_size()) >= size;
+    }
 
-    NODISCARD FORCEINLINE static const MemoryType CalculateMemory(const MemoryType size) noexcept;
+    NODISCARD FORCEINLINE static MemoryType CalculateMemory(MemoryType size) noexcept {
+        IndexType size_index = (size + SuperType::node_head_offset() - 1) / kMemoryBlockMinSize;
+        return InstanceP()[kMemorySize2MemoryPoolTable.At(size_index)].SuperType::memory_block_memory_size();
+    }
 
     static Void ReleaseMemory(ZSmallMemoryBlockListMemoryPool* memory_pool_ptr, Void* memory_ptr) noexcept;
 
@@ -135,8 +141,11 @@ private:
 
     ~ZSmallMemoryBlockListMemoryPool() noexcept;
 
-    FORCEINLINE Void InitializeP(const MemoryType memory_block_size, const MemoryType memory_block_memory_size, 
-                                const Int32 capacity) noexcept;
+    FORCEINLINE Void InitializeP(MemoryType memory_block_size, MemoryType memory_block_memory_size, 
+                                 Int32 capacity) noexcept {
+        SuperType::InitializeP(MemoryPoolType::kZSmallMemoryBlockListMemoryPool, memory_block_size,
+                               memory_block_memory_size, capacity);
+    }
 
 
 #ifdef USE_MEMORY_POOL_TEST
@@ -179,27 +188,8 @@ NODISCARD Void* ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::ApplyMemory(
 }
 
 template<Bool kIsThreadSafe>
-NODISCARD FORCEINLINE const Bool ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::CheckMemory(
-        ZSmallMemoryBlockListMemoryPool* memory_pool_ptr, const MemoryType size) {
-    return memory_pool_ptr->SuperType::memory_block_memory_size() >= size;
-}
-template<Bool kIsThreadSafe>
-NODISCARD FORCEINLINE const Bool ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::CheckMemory(
-        ZSmallMemoryBlockListMemoryPool* memory_pool_ptr, const MemoryType size, MemoryType* 
-        memory_size_ptr) {
-    return (*memory_size_ptr = memory_pool_ptr->SuperType::memory_block_memory_size()) >= size;
-}
-
-template<Bool kIsThreadSafe>
-NODISCARD FORCEINLINE const MemoryType ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::CalculateMemory(
-        const MemoryType size) noexcept {
-    IndexType size_index = (size + SuperType::node_head_offset() - 1) / kMemoryBlockMinSize;
-    return InstanceP()[kMemorySize2MemoryPoolTable.At(size_index)].SuperType::memory_block_memory_size();
-}
-
-template<Bool kIsThreadSafe>
 Void ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::ReleaseMemory(
-    ZSmallMemoryBlockListMemoryPool* memory_pool_ptr, Void* memory_ptr) noexcept {
+        ZSmallMemoryBlockListMemoryPool* memory_pool_ptr, Void* memory_ptr) noexcept {
 #ifdef USE_MEMORY_POOL_TEST
     memory_pool_ptr->memory_block_used_current_num_ -= 1;
 #endif //USE_MEMORY_POOL_TEST
@@ -208,7 +198,7 @@ Void ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::ReleaseMemory(
 
 template<Bool kIsThreadSafe>
 Void ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::MemoryPoolArrayInitFunction(
-    ZArray<ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>* array_ptr) noexcept {
+        ZArray<ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>* array_ptr) noexcept {
     for (IndexType index = 0; index < array_ptr->size(); ++index) {
         (*array_ptr)[index].InitializeP(kMemoryBlockSizeArray[index], kMemoryBlockMemorySizeArray[index],
                                        kMemoryBlockDefaultNumArray[index]);
@@ -241,15 +231,6 @@ ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::~ZSmallMemoryBlockListMemoryPool
         memory_block_used_current_num_);
 #endif //USE_MEMORY_POOL_TEST        
 }
-
-template<Bool kIsThreadSafe>
-FORCEINLINE Void ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::InitializeP(const MemoryType memory_block_size, 
-                                                                            const MemoryType memory_block_memory_size, 
-                                                                            const Int32 capacity) noexcept {
-    SuperType::InitializeP(MemoryPoolType::kZSmallMemoryBlockListMemoryPool, memory_block_size,
-                          memory_block_memory_size, capacity);
-}
-
 
 }//memory_pool
 }//zengine

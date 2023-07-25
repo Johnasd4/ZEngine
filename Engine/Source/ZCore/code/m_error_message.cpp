@@ -10,7 +10,7 @@ namespace internal {
 CORE_DLLAPI Void ConsolePrintErrorMessage(const CChar* error_title, 
                                           const CChar* error_file, 
                                           const CChar* error_funcion,
-                                          const Int32 error_line, 
+                                          Int32 error_line, 
                                           const CChar* error_message) noexcept {
     console::Print(
         console::ConsoleOutputTextColour::kConsoleTextColourLightRed, 
@@ -22,7 +22,7 @@ CORE_DLLAPI Void ConsolePrintErrorMessage(const CChar* error_title,
 CORE_DLLAPI Void LogErrorMessage(const CChar* error_title,
                                  const CChar* error_file,
                                  const CChar* error_funcion,
-                                 const Int32 error_line,
+                                 Int32 error_line,
                                  const CChar* error_message) noexcept {
     static ZMutex log_mutex;
     log_mutex.lock();

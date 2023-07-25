@@ -15,7 +15,7 @@ class ArrayIteratorBase {
 public:
     FORCEINLINE ArrayIteratorBase(ObjectType* object_ptr) : object_ptr_(object_ptr) {}
     FORCEINLINE ArrayIteratorBase(const ArrayIteratorBase& iterator) : object_ptr_(iterator.object_ptr_) {}
-    FORCEINLINE ArrayIteratorBase(const ArrayIteratorBase&& iterator) : object_ptr_(iterator.object_ptr_) {
+    FORCEINLINE ArrayIteratorBase(ArrayIteratorBase&& iterator) : object_ptr_(iterator.object_ptr_) {
         iterator.MoveDestroy();
     }
 
@@ -33,14 +33,19 @@ public:
         return *this;
     }
 
-    NODISCARD FORCEINLINE const Bool operator==(const ArrayIteratorBase& iterator) const {
+    NODISCARD FORCEINLINE Bool operator==(const ArrayIteratorBase& iterator) const {
         return object_ptr_ == iterator.object_ptr_;
     }
-    NODISCARD FORCEINLINE const Bool operator!=(const ArrayIteratorBase& iterator) const {
+    NODISCARD FORCEINLINE Bool operator!=(const ArrayIteratorBase& iterator) const {
         return object_ptr_ != iterator.object_ptr_;
     }
 
+    NODISCARD FORCEINLINE ObjectType& operator*() const { return *object_ptr_; }
+    NODISCARD FORCEINLINE ObjectType* operator->() const { return object_ptr_; }
+
     FORCEINLINE ~ArrayIteratorBase() {}
+
+    NODISCARD FORCEINLINE ObjectType* object_ptr() const { return object_ptr_; }
 
     FORCEINLINE Void MoveDestroy() { object_ptr_ = nullptr; }
 
@@ -51,16 +56,14 @@ protected:
 template<typename ObjectType>
 class ArrayIterator : public ArrayIterator<ObjectType> {
 public:
-    NODISCARD FORCEINLINE ObjectType& operator[](const IndexType index) const { return SuperType::object_ptr_[index]; }
-    NODISCARD FORCEINLINE ObjectType& operator*() const { return *SuperType::object_ptr_; }
-    NODISCARD FORCEINLINE ObjectType* operator->() const { return SuperType::object_ptr_; }
+    NODISCARD FORCEINLINE ObjectType& operator[](IndexType index) const { return SuperType::object_ptr_[index]; }
 
-    FORCEINLINE ArrayIterator& operator+=(const IndexType data_num) {
-        SuperType::object_ptr_ += data_num;
+    FORCEINLINE ArrayIterator& operator+=(IndexType num) {
+        SuperType::object_ptr_ += num;
         return *this;
     }
-    FORCEINLINE ArrayIterator& operator-=(const IndexType data_num) {
-        SuperType::object_ptr_ -= data_num;
+    FORCEINLINE ArrayIterator& operator-=(IndexType num) {
+        SuperType::object_ptr_ -= num;
         return *this;
     }
 
@@ -68,102 +71,42 @@ public:
         ++SuperType::object_ptr_;
         return *this;
     }
+    FORCEINLINE ArrayIterator& operator++(IndexType) {
+        ++SuperType::object_ptr_;
+        return *this;
+    }
     FORCEINLINE ArrayIterator& operator--() {
         --SuperType::object_ptr_;
         return *this;
     }
-
-    NODISCARD FORCEINLINE ArrayIterator operator+(const IndexType data_num) const {
-        return ArrayIterator(SuperType::object_ptr_ + data_num);
-    }
-    NODISCARD FORCEINLINE ArrayIterator operator-(const IndexType data_num) const {
-        return ArrayIterator(SuperType::object_ptr_ - data_num);
-    }
-
-    NODISCARD FORCEINLINE const Bool operator>(const ArrayIterator& iterator) const {
-        return SuperType::object_ptr_ > iterator.SuperType::object_ptr_;
-    }
-    NODISCARD FORCEINLINE const Bool operator>=(const ArrayIterator& iterator) const {
-        return SuperType::object_ptr_ >= iterator.SuperType::object_ptr_;
-    }
-    NODISCARD FORCEINLINE const Bool operator<(const ArrayIterator& iterator) const {
-        return SuperType::object_ptr_ < iterator.SuperType::object_ptr_;
-    }
-    NODISCARD FORCEINLINE const Bool operator<=(const ArrayIterator& iterator) const {
-        return SuperType::object_ptr_ <= iterator.SuperType::object_ptr_;
-    }
-
-    FORCEINLINE const IndexType operator-(const ArrayIterator& iterator) const {
-        return static_cast<IndexType>(SuperType::object_ptr_ - iterator.SuperType::object_ptr_);
-    }
-
-    NODISCARD FORCEINLINE ObjectType* object_ptr() { return SuperType::object_ptr_; }
-    NODISCARD FORCEINLINE ObjectType* object_ptr() const { return SuperType::object_ptr_; }
-
-protected:
-    using SuperType = ArrayIteratorBase<ObjectType>;
-};
-
-template<typename ObjectType>
-class ArrayConstIterator : public ArrayIteratorBase<ObjectType> {
-public:
-    FORCEINLINE ArrayConstIterator(const ObjectType* object_ptr) : SuperType(const_cast<ObjectType*>(object_ptr)) {}
-
-    FORCEINLINE ArrayConstIterator& operator=(const ObjectType* object_ptr) {
-        SuperType::object_ptr_ = const_cast<ObjectType*>(object_ptr);
-        return *this;
-    }
-
-    NODISCARD FORCEINLINE const ObjectType& operator[](const IndexType index) const { 
-        return SuperType::object_ptr_[index]; 
-    }
-    NODISCARD FORCEINLINE const ObjectType& operator*() const { return *SuperType::object_ptr_; }
-    NODISCARD FORCEINLINE const ObjectType* operator->() const { return SuperType::object_ptr_; }
-
-    FORCEINLINE ArrayConstIterator& operator+=(const IndexType data_num) {
-        SuperType::object_ptr_ += data_num;
-        return *this;
-    }
-    FORCEINLINE ArrayConstIterator& operator-=(const IndexType data_num) {
-        SuperType::object_ptr_ -= data_num;
-        return *this;
-    }
-
-    FORCEINLINE ArrayConstIterator& operator++() {
-        ++SuperType::object_ptr_;
-        return *this;
-    }
-    FORCEINLINE ArrayConstIterator& operator--() {
+    FORCEINLINE ArrayIterator& operator--(IndexType) {
         --SuperType::object_ptr_;
         return *this;
     }
 
-    NODISCARD FORCEINLINE ArrayConstIterator operator+(const IndexType data_num) const {
-        return ArrayConstIterator(SuperType::object_ptr_ + data_num);
+    NODISCARD FORCEINLINE ArrayIterator operator+(IndexType num) const {
+        return ArrayIterator(SuperType::object_ptr_ + num);
     }
-    NODISCARD FORCEINLINE ArrayConstIterator operator-(const IndexType data_num) const {
-        return ArrayConstIterator(SuperType::object_ptr_ - data_num);
+    NODISCARD FORCEINLINE ArrayIterator operator-(IndexType num) const {
+        return ArrayIterator(SuperType::object_ptr_ - num);
     }
 
-    NODISCARD FORCEINLINE const Bool operator>(const ArrayConstIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator>(const ArrayIterator& iterator) const {
         return SuperType::object_ptr_ > iterator.SuperType::object_ptr_;
     }
-    NODISCARD FORCEINLINE const Bool operator>=(const ArrayConstIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator>=(const ArrayIterator& iterator) const {
         return SuperType::object_ptr_ >= iterator.SuperType::object_ptr_;
     }
-    NODISCARD FORCEINLINE const Bool operator<(const ArrayConstIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator<(const ArrayIterator& iterator) const {
         return SuperType::object_ptr_ < iterator.SuperType::object_ptr_;
     }
-    NODISCARD FORCEINLINE const Bool operator<=(const ArrayConstIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator<=(const ArrayIterator& iterator) const {
         return SuperType::object_ptr_ <= iterator.SuperType::object_ptr_;
     }
 
-    FORCEINLINE const IndexType operator-(const ArrayConstIterator& iterator) const {
+    FORCEINLINE IndexType operator-(const ArrayIterator& iterator) const {
         return static_cast<IndexType>(SuperType::object_ptr_ - iterator.SuperType::object_ptr_);
     }
-
-    NODISCARD FORCEINLINE const ObjectType* object_ptr() { return SuperType::object_ptr_; }
-    NODISCARD FORCEINLINE const ObjectType* object_ptr() const { return SuperType::object_ptr_; }
 
 protected:
     using SuperType = ArrayIteratorBase<ObjectType>;
@@ -172,16 +115,14 @@ protected:
 template<typename ObjectType>
 class ArrayReverseIterator : public ArrayIteratorBase<ObjectType> {
 public:
-    NODISCARD FORCEINLINE ObjectType& operator[](const IndexType index) const { return SuperType::object_ptr_[-index]; }
-    NODISCARD FORCEINLINE ObjectType& operator*() const { return *SuperType::object_ptr_; }
-    NODISCARD FORCEINLINE ObjectType* operator->() const { return SuperType::object_ptr_; }
+    NODISCARD FORCEINLINE ObjectType& operator[](IndexType index) const { return SuperType::object_ptr_[-index]; }
 
-    FORCEINLINE ArrayReverseIterator& operator+=(const IndexType data_num) {
-        SuperType::object_ptr_ -= data_num;
+    FORCEINLINE ArrayReverseIterator& operator+=(IndexType num) {
+        SuperType::object_ptr_ -= num;
         return *this;
     }
-    FORCEINLINE ArrayReverseIterator& operator-=(const IndexType data_num) {
-        SuperType::object_ptr_ += data_num;
+    FORCEINLINE ArrayReverseIterator& operator-=(IndexType num) {
+        SuperType::object_ptr_ += num;
         return *this;
     }
 
@@ -194,11 +135,11 @@ public:
         return *this;
     }
 
-    NODISCARD FORCEINLINE ArrayReverseIterator operator+(const IndexType data_num) const {
-        return ArrayReverseIterator(SuperType::object_ptr_ - data_num);
+    NODISCARD FORCEINLINE ArrayReverseIterator operator+(IndexType num) const {
+        return ArrayReverseIterator(SuperType::object_ptr_ - num);
     }
-    NODISCARD FORCEINLINE ArrayReverseIterator operator-(const IndexType data_num) const {
-        return ArrayReverseIterator(SuperType::object_ptr_ + data_num);
+    NODISCARD FORCEINLINE ArrayReverseIterator operator-(IndexType num) const {
+        return ArrayReverseIterator(SuperType::object_ptr_ + num);
     }
 
     NODISCARD FORCEINLINE const Bool operator>(const ArrayReverseIterator& iterator) const {
@@ -214,78 +155,11 @@ public:
         return SuperType::object_ptr_ >= iterator.SuperType::object_ptr_;
     }
 
-    FORCEINLINE const IndexType operator-(const ArrayReverseIterator& iterator) const {
+    FORCEINLINE IndexType operator-(const ArrayReverseIterator& iterator) const {
         return static_cast<IndexType>(iterator.SuperType::object_ptr_ - SuperType::object_ptr_);
     }
 
-    NODISCARD FORCEINLINE ObjectType* object_ptr() { return SuperType::object_ptr_; }
-    NODISCARD FORCEINLINE ObjectType* object_ptr() const { return SuperType::object_ptr_; }
 
-protected:
-    using SuperType = ArrayIteratorBase<ObjectType>;
-};
-
-template<typename ObjectType>
-class ArrayConstReverseIterator : public ArrayIteratorBase<ObjectType> {
-public:
-    FORCEINLINE ArrayConstReverseIterator(const ObjectType* object_ptr) 
-        : SuperType(const_cast<ObjectType*>(object_ptr)) {}
-
-    FORCEINLINE ArrayConstReverseIterator& operator=(const ObjectType* object_ptr) {
-        SuperType::object_ptr_ = const_cast<ObjectType*>(object_ptr);
-        return *this;
-    }
-
-    NODISCARD FORCEINLINE const ObjectType& operator[](const IndexType index) const {
-        return SuperType::object_ptr_[-index];
-    }
-    NODISCARD FORCEINLINE const ObjectType& operator*() const { return *SuperType::object_ptr_; }
-    NODISCARD FORCEINLINE const ObjectType* operator->() const { return SuperType::object_ptr_; }
-
-    FORCEINLINE ArrayConstReverseIterator& operator+=(const IndexType data_num) {
-        SuperType::object_ptr_ -= data_num;
-        return *this;
-    }
-    FORCEINLINE ArrayConstReverseIterator& operator-=(const IndexType data_num) {
-        SuperType::object_ptr_ += data_num;
-        return *this;
-    }
-
-    FORCEINLINE ArrayConstReverseIterator& operator++() {
-        --SuperType::object_ptr_;
-        return *this;
-    }
-    FORCEINLINE ArrayConstReverseIterator& operator--() {
-        ++SuperType::object_ptr_;
-        return *this;
-    }
-
-    NODISCARD FORCEINLINE ArrayConstReverseIterator operator+(const IndexType data_num) const {
-        return ArrayConstReverseIterator(SuperType::object_ptr_ - data_num);
-    }
-    NODISCARD FORCEINLINE ArrayConstReverseIterator operator-(const IndexType data_num) const {
-        return ArrayConstReverseIterator(SuperType::object_ptr_ + data_num);
-    }
-
-    NODISCARD FORCEINLINE const Bool operator>(const ArrayConstReverseIterator& iterator) const {
-        return SuperType::object_ptr_ < iterator.SuperType::object_ptr_;
-    }
-    NODISCARD FORCEINLINE const Bool operator>=(const ArrayConstReverseIterator& iterator) const {
-        return SuperType::object_ptr_ <= iterator.SuperType::object_ptr_;
-    }
-    NODISCARD FORCEINLINE const Bool operator<(const ArrayConstReverseIterator& iterator) const {
-        return SuperType::object_ptr_ > iterator.SuperType::object_ptr_;
-    }
-    NODISCARD FORCEINLINE const Bool operator<=(const ArrayConstReverseIterator& iterator) const {
-        return SuperType::object_ptr_ >= iterator.SuperType::object_ptr_;
-    }
-
-    FORCEINLINE const IndexType operator-(const ArrayConstReverseIterator& iterator) const {
-        return static_cast<IndexType>(iterator.SuperType::object_ptr_ - SuperType::object_ptr_);
-    }
-
-    NODISCARD FORCEINLINE const ObjectType* object_ptr() { return SuperType::object_ptr_; }
-    NODISCARD FORCEINLINE const ObjectType* object_ptr() const { return SuperType::object_ptr_; }
 
 protected:
     using SuperType = ArrayIteratorBase<ObjectType>;
@@ -312,9 +186,9 @@ requires kIsNotZero<kCapacity>
 class ZArray : public ZObject {
 public:
     using IteratorType = internal::ArrayIterator<ObjectType>;
-    using ConstIteratorType = internal::ArrayConstIterator<ObjectType>;
+    using ConstIteratorType = internal::ArrayIterator<const ObjectType>;
     using ReverseIteratorType = internal::ArrayReverseIterator<ObjectType>;
-    using ConstReverseIteratorType = internal::ArrayConstReverseIterator<ObjectType>;
+    using ConstReverseIteratorType = internal::ArrayReverseIterator<const ObjectType>;
 
 #pragma warning(disable : 26495)
     FORCEINLINE ZArray() : SuperType() {}
@@ -349,19 +223,19 @@ public:
     inline ZArray& operator=(const ZArray& array) noexcept;
     inline ZArray& operator=(ZArray&& array) noexcept;
 
-    NODISCARD FORCEINLINE constexpr ObjectType& operator[](const IndexType index) { 
+    NODISCARD FORCEINLINE constexpr ObjectType& operator[](IndexType index) { 
         DEBUG(index < 0 || index >= kCapacity, "Index out of bounds!");
         return this->data_[index]; }
-    NODISCARD FORCEINLINE constexpr const ObjectType& operator[](const IndexType index) const {
+    NODISCARD FORCEINLINE constexpr const ObjectType& operator[](IndexType index) const {
         DEBUG(index < 0 || index >= kCapacity, "Index out of bounds!");
         return this->data_[index]; 
     }
 
-    NODISCARD FORCEINLINE constexpr ObjectType& At(const IndexType index) {
+    NODISCARD FORCEINLINE constexpr ObjectType& At(IndexType index) {
         DEBUG(index < 0 || index >= kCapacity, "Index out of bounds!");
         return data_[index];
     }
-    NODISCARD FORCEINLINE constexpr const ObjectType& At(const IndexType index) const {
+    NODISCARD FORCEINLINE constexpr const ObjectType& At(IndexType index) const {
         DEBUG(index < 0 || index >= kCapacity, "Index out of bounds!");
         return data_[index];
     }
@@ -372,7 +246,7 @@ public:
 
     NODISCARD FORCEINLINE constexpr const ObjectType* data_ptr() const { return data_; }
 
-    NODISCARD static constexpr const IndexType size() { return kCapacity; }
+    NODISCARD static constexpr IndexType size() { return kCapacity; }
 
     /*
         The iterator funcions.
@@ -408,33 +282,33 @@ public:
     /*
         The small object on the front.
     */
-    Void Sort(const IndexType begin, const IndexType end) noexcept;
+    Void Sort(IndexType begin, IndexType end) noexcept;
     /*
         Will exchange the two objects when the function is true.
     */
     template<typename CompareFunction>
         requires kIsCompareFunction<CompareFunction, ObjectType>
-    Void Sort(const IndexType begin, const IndexType end, CompareFunction&& compare_function) noexcept;
+    Void Sort(IndexType begin, IndexType end, CompareFunction&& compare_function) noexcept;
     /*
         The small object on the front.
     */
-    Void Sort(const IteratorType begin, const IteratorType end) noexcept;
+    Void Sort(const IteratorType& begin, const IteratorType& end) noexcept;
     /*
         Will exchange the two objects when the function is true.
     */
     template<typename CompareFunction>
         requires kIsCompareFunction<CompareFunction, ObjectType>
-    Void Sort(const IteratorType begin, const IteratorType end, CompareFunction&& compare_function) noexcept;
+    Void Sort(const IteratorType& begin, const IteratorType& end, CompareFunction&& compare_function) noexcept;
     /*
         The small object on the front.
     */
-    Void Sort(const ReverseIteratorType begin, const ReverseIteratorType end) noexcept;
+    Void Sort(const ReverseIteratorType& begin, const ReverseIteratorType& end) noexcept;
     /*
         Will exchange the two objects when the function is true.
     */
     template<typename CompareFunction>
         requires kIsCompareFunction<CompareFunction, ObjectType>
-    Void Sort(const ReverseIteratorType begin, const ReverseIteratorType end, 
+    Void Sort(const ReverseIteratorType& begin, const ReverseIteratorType& end, 
               CompareFunction&& compare_function) noexcept;
 
 protected:

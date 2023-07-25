@@ -52,7 +52,7 @@ namespace internal {
 CORE_DLLAPI extern Void ConsolePrintErrorMessage(const CChar* error_title,
                                                  const CChar* error_file, 
                                                  const CChar* error_funcion,
-                                                 const Int32 error_line, 
+                                                 Int32 error_line, 
                                                  const CChar* error_message) noexcept;
 
 /*
@@ -61,7 +61,7 @@ CORE_DLLAPI extern Void ConsolePrintErrorMessage(const CChar* error_title,
 CORE_DLLAPI extern Void LogErrorMessage(const CChar* error_title,
                                         const CChar* error_file, 
                                         const CChar* error_funcion,
-                                        const Int32 error_line, 
+                                        Int32 error_line, 
                                         const CChar* error_message) noexcept;
 
 }//internal

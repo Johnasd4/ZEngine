@@ -21,7 +21,7 @@ public:
     IndexType capacity;
     IndexType size;
 
-    NODISCARD FORCEINLINE ObjectType& operator[](const IndexType index) {
+    NODISCARD FORCEINLINE ObjectType& operator[](IndexType index) {
         return (reinterpret_cast<ObjectType*>(this + 1))[index];
     }
 };
@@ -49,10 +49,10 @@ public:
         return *this;
     }
 
-    NODISCARD FORCEINLINE const Bool operator==(const DequeIteratorBase& iterator) const {
+    NODISCARD FORCEINLINE Bool operator==(const DequeIteratorBase& iterator) const {
         return object_ptr_ == iterator.object_ptr_;
     }
-    NODISCARD FORCEINLINE const Bool operator!=(const DequeIteratorBase& iterator) const {
+    NODISCARD FORCEINLINE Bool operator!=(const DequeIteratorBase& iterator) const {
         return object_ptr_ != iterator.object_ptr_;
     }
 
@@ -61,7 +61,6 @@ public:
 
     FORCEINLINE ~DequeIteratorBase() {}
 
-    NODISCARD FORCEINLINE ObjectType* object_ptr() { return SuperType::object_ptr_; }
     NODISCARD FORCEINLINE ObjectType* object_ptr() const { return SuperType::object_ptr_; }
 
 protected:
@@ -106,16 +105,16 @@ public:
         return DequeIterator(SuperType::object_ptr_ - data_num);
     }
 
-    NODISCARD FORCEINLINE const Bool operator>(const DequeIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator>(const DequeIterator& iterator) const {
         return SuperType::object_ptr_ > iterator.SuperType::object_ptr_;
     }
-    NODISCARD FORCEINLINE const Bool operator>=(const DequeIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator>=(const DequeIterator& iterator) const {
         return SuperType::object_ptr_ >= iterator.SuperType::object_ptr_;
     }
-    NODISCARD FORCEINLINE const Bool operator<(const DequeIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator<(const DequeIterator& iterator) const {
         return SuperType::object_ptr_ < iterator.SuperType::object_ptr_;
     }
-    NODISCARD FORCEINLINE const Bool operator<=(const DequeIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator<=(const DequeIterator& iterator) const {
         return SuperType::object_ptr_ <= iterator.SuperType::object_ptr_;
     }
 
@@ -161,16 +160,16 @@ public:
         return DequeReverseIterator(SuperType::object_ptr_ + data_num);
     }
 
-    NODISCARD FORCEINLINE const Bool operator>(const DequeReverseIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator>(const DequeReverseIterator& iterator) const {
         return SuperType::object_ptr_ < iterator.SuperType::object_ptr_;
     }
-    NODISCARD FORCEINLINE const Bool operator>=(const DequeReverseIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator>=(const DequeReverseIterator& iterator) const {
         return SuperType::object_ptr_ <= iterator.SuperType::object_ptr_;
     }
-    NODISCARD FORCEINLINE const Bool operator<(const DequeReverseIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator<(const DequeReverseIterator& iterator) const {
         return SuperType::object_ptr_ > iterator.SuperType::object_ptr_;
     }
-    NODISCARD FORCEINLINE const Bool operator<=(const DequeReverseIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator<=(const DequeReverseIterator& iterator) const {
         return SuperType::object_ptr_ >= iterator.SuperType::object_ptr_;
     }
 
@@ -219,8 +218,8 @@ public:
     ZDeque& operator=(const ZDeque& queue) noexcept;
     ZDeque& operator=(ZDeque&& queue) noexcept;
 
-    NODISCARD FORCEINLINE const Bool operator==(const ZDeque& queue) noexcept;
-    NODISCARD FORCEINLINE const Bool operator!=(const ZDeque& queue) noexcept;
+    NODISCARD FORCEINLINE Bool operator==(const ZDeque& queue) noexcept;
+    NODISCARD FORCEINLINE Bool operator!=(const ZDeque& queue) noexcept;
 
     NODISCARD FORCEINLINE ObjectType& operator[](const IndexType index);
     NODISCARD FORCEINLINE const ObjectType& operator[](const IndexType index) const;
@@ -237,7 +236,7 @@ public:
     NODISCARD FORCEINLINE const IndexType size() const { return size_; }
     NODISCARD FORCEINLINE const IndexType capacity() const { return capacity_; }
 
-    NODISCARD FORCEINLINE const Bool IsEmpty();
+    NODISCARD FORCEINLINE Bool IsEmpty();
 
     /*
         Resize the queue, If the given size is smaller then the current size,

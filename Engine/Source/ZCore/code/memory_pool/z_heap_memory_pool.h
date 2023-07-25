@@ -20,7 +20,7 @@ namespace memory_pool {
 template<Bool kIsThreadSafe>
 class ZHeapMemoryPool :protected ZMemoryPoolThreadSafeBase<kIsThreadSafe> {
 public:
-    NODISCARD static Void* ApplyMemory(const MemoryType size) noexcept;
+    NODISCARD static Void* ApplyMemory(MemoryType size) noexcept;
 
 protected:
     using MutexType = ZMemoryPoolThreadSafeBase<kIsThreadSafe>;
@@ -62,7 +62,7 @@ private:
 #pragma warning(disable : 6011)
 
 template<Bool kIsThreadSafe>
-NODISCARD Void* ZHeapMemoryPool<kIsThreadSafe>::ApplyMemory(const MemoryType size) noexcept {
+NODISCARD Void* ZHeapMemoryPool<kIsThreadSafe>::ApplyMemory(MemoryType size) noexcept {
     ZHeapMemoryPool& memory_pool = InstanceP();
     Void* heap_memory_ptr = malloc(size);
     memory_pool.MutexType::lock();
