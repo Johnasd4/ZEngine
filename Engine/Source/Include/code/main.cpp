@@ -1,14 +1,15 @@
 ﻿#include "z_engine.h"
 
-using namespace zengine;
-using namespace std;
-
 
 #include <iomanip>
 #include <vector>
 #include <queue>
 #include <deque>
 #include "z_core/z_vector.h"
+
+using namespace zengine;
+using namespace std;
+
 
 
 struct DataNode {
@@ -41,7 +42,7 @@ int main(){
     auto it = b.Erases(b.ReverseEnd() - 2, 2);
     cout << (b.ReverseEnd() - 2).object_ptr() - b.data_ptr() << endl;
     cout << it.object_ptr() - b.data_ptr() << endl;
-    it = b.Erase(it);
+    it++;
 
     //cout << (-4) % 3;
     //ZArray<Int32, 19> test_1;

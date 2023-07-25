@@ -58,6 +58,7 @@ public:
 
     FORCEINLINE ZDequeIteratorBase& operator=(const ZDequeIteratorBase& iterator) {
         object_ptr_ = iterator.object_ptr_;
+        node_ptr_ = iterator.node_ptr_;
         return *this;
     }
     FORCEINLINE ZDequeIteratorBase& operator=(ZDequeIteratorBase&& iterator) {
@@ -77,75 +78,93 @@ public:
 
     FORCEINLINE ~ZDequeIteratorBase() {}
 
+    NODISCARD FORCEINLINE ObjectType& object() const { return *object_ptr_; }
     NODISCARD FORCEINLINE ObjectType* object_ptr() const { return object_ptr_; }
 
 protected:
+    Void MoveToNode(IndexType* index_ptr) noexcept {
+        while (*index_ptr > node_ptr_->capacity) {
+            *index_ptr -= node_ptr_->capacity;
+            node_ptr_ = node_ptr_->next_node_ptr;
+        }
+        while (*index_ptr < 0) {
+            node_ptr_ = node_ptr_->previous_node_ptr;
+            *index_ptr += node_ptr_->capacity;
+        }
+    }
+
     ObjectType* object_ptr_;
     DataNode* node_ptr_;
 
 private:
     FORCEINLINE Void MoveP(ZDequeIteratorBase&& iterator) {
-        memcpy(reinterpret_cast<Void*>(this), reinterpret_cast<Void*>(&iterator), sizeof(ZDequeIteratorBase));
-        memset(reinterpret_cast<Void*>(&iterator), 0, sizeof(ZDequeIteratorBase));
+        object_ptr_ = iterator.object_ptr_;
+        node_ptr_ = iterator.node_ptr_;
+        iterator.object_ptr_ = nullptr;
+        iterator.node_ptr_ = nullptr;
     }
+
+
 };
 
 template<typename ObjectType>
 class ZDequeIterator : public ZDequeIteratorBase<ObjectType> {
 public:
-    NODISCARD FORCEINLINE ObjectType& operator[](IndexType index) const { 
-        index += SuperType::node_ptr_
-        while()
-        return SuperType::object_ptr_[index]; }
+    NODISCARD FORCEINLINE ObjectType& operator[](IndexType index) const {
+        index = SuperType::object_ptr_ - SuperType::node_ptr_->AtPtr(0) + index;
+        SuperType::MoveToNode(&index);
+        return SuperType::node_ptr_->At(index); 
+    }
 
-    FORCEINLINE ZDequeIterator& operator+=(IndexType data_num) {
-        SuperType::object_ptr_ += data_num;
+    FORCEINLINE ZDequeIterator& operator+=(IndexType num) {
+        IndexType index = static_cast<IndexType>(SuperType::object_ptr_ - SuperType::node_ptr_->AtPtr(0)) + num;
+        SuperType::MoveToNode(&index);
+        SuperType::object_ptr_ = SuperType::node_ptr_->AtPtr(index);
         return *this;
     }
-    FORCEINLINE ZDequeIterator& operator-=(IndexType data_num) {
-        SuperType::object_ptr_ -= data_num;
+    FORCEINLINE ZDequeIterator& operator-=(IndexType num) {
+        IndexType index = static_cast<IndexType>(SuperType::object_ptr_ - SuperType::node_ptr_->AtPtr(0)) - num;
+        SuperType::MoveToNode(&index);
+        SuperType::object_ptr_ = SuperType::node_ptr_->AtPtr(index);
         return *this;
     }
 
     FORCEINLINE ZDequeIterator& operator++() {
         ++SuperType::object_ptr_;
+        if (SuperType::object_ptr_ > SuperType::node_ptr_->AtPtr(SuperType::node_ptr_->capacity)) {
+            SuperType::node_ptr_ = SuperType::node_ptr_->next_node_ptr;
+            SuperType::object_ptr_ = SuperType::node_ptr_->AtPtr(0);
+        }
         return *this;
     }
     FORCEINLINE ZDequeIterator& operator++(IndexType) {
-        ++SuperType::object_ptr_;
-        return *this;
+        return operator++();
     }
     FORCEINLINE ZDequeIterator& operator--() {
         --SuperType::object_ptr_;
+        if (SuperType::object_ptr_ < SuperType::node_ptr_->AtPtr(0)) {
+            SuperType::node_ptr_ = SuperType::node_ptr_->previous_node_ptr;
+            SuperType::object_ptr_ = SuperType::node_ptr_->AtPtr(SuperType::node_ptr_->capacity - 1);
+        }
         return *this;
     }
     FORCEINLINE ZDequeIterator& operator--(IndexType) {
-        --SuperType::object_ptr_;
-        return *this;
+        return operator--();
     }
 
-    NODISCARD FORCEINLINE ZDequeIterator operator+(IndexType data_num) const {
-        return ZDequeIterator(SuperType::object_ptr_ + data_num);
+    NODISCARD FORCEINLINE ZDequeIterator operator+(IndexType num) const {
+        IndexType index = static_cast<IndexType>(SuperType::object_ptr_ - SuperType::node_ptr_->AtPtr(0)) + num;
+        ZDequeIterator temp_iterator(*this);
+        temp_iterator.SuperType::MoveToNode(&index);
+        temp_iterator.SuperType::object_ptr_ = temp_iterator.SuperType::node_ptr_->AtPtr(index);
+        return temp_iterator;
     }
-    NODISCARD FORCEINLINE ZDequeIterator operator-(IndexType data_num) const {
-        return ZDequeIterator(SuperType::object_ptr_ - data_num);
-    }
-
-    NODISCARD FORCEINLINE Bool operator>(const ZDequeIterator& iterator) const {
-        return SuperType::object_ptr_ > iterator.SuperType::object_ptr_;
-    }
-    NODISCARD FORCEINLINE Bool operator>=(const ZDequeIterator& iterator) const {
-        return SuperType::object_ptr_ >= iterator.SuperType::object_ptr_;
-    }
-    NODISCARD FORCEINLINE Bool operator<(const ZDequeIterator& iterator) const {
-        return SuperType::object_ptr_ < iterator.SuperType::object_ptr_;
-    }
-    NODISCARD FORCEINLINE Bool operator<=(const ZDequeIterator& iterator) const {
-        return SuperType::object_ptr_ <= iterator.SuperType::object_ptr_;
-    }
-
-    FORCEINLINE IndexType operator-(const ZDequeIterator& iterator) const {
-        return static_cast<IndexType>(SuperType::object_ptr_ - iterator.SuperType::object_ptr_);
+    NODISCARD FORCEINLINE ZDequeIterator operator-(IndexType num) const {
+        IndexType index = static_cast<IndexType>(SuperType::object_ptr_ - SuperType::node_ptr_->AtPtr(0)) - num;
+        ZDequeIterator temp_iterator(*this);
+        temp_iterator.SuperType::MoveToNode(&index);
+        temp_iterator.SuperType::object_ptr_ = temp_iterator.SuperType::node_ptr_->AtPtr(index);
+        return temp_iterator;
     }
 
 protected:
@@ -155,56 +174,61 @@ protected:
 template<typename ObjectType>
 class ZDequeReverseIterator : public ZDequeIteratorBase<ObjectType> {
 public:
-    NODISCARD FORCEINLINE ObjectType& operator[](IndexType index) const { return SuperType::object_ptr_[-index]; }
+    NODISCARD FORCEINLINE ObjectType& operator[](IndexType index) const {
+        index = SuperType::object_ptr_ - SuperType::node_ptr_->AtPtr(0) - index;
+        SuperType::MoveToNode(&index);
+        return SuperType::node_ptr_->At(index);
+    }
 
-    FORCEINLINE ZDequeReverseIterator& operator+=(IndexType data_num) {
-        SuperType::object_ptr_ -= data_num;
+    FORCEINLINE ZDequeReverseIterator& operator+=(IndexType num) {
+        IndexType index = static_cast<IndexType>(SuperType::object_ptr_ - SuperType::node_ptr_->AtPtr(0)) - num;
+        SuperType::MoveToNode(&index);
+        SuperType::object_ptr_ = SuperType::node_ptr_->AtPtr(index);
         return *this;
     }
-    FORCEINLINE ZDequeReverseIterator& operator-=(IndexType data_num) {
-        SuperType::object_ptr_ += data_num;
+    FORCEINLINE ZDequeReverseIterator& operator-=(IndexType num) {
+        IndexType index = static_cast<IndexType>(SuperType::object_ptr_ - SuperType::node_ptr_->AtPtr(0)) + num;
+        SuperType::MoveToNode(&index);
+        SuperType::object_ptr_ = SuperType::node_ptr_->AtPtr(index);
         return *this;
     }
 
     FORCEINLINE ZDequeReverseIterator& operator++() {
         --SuperType::object_ptr_;
+        if (SuperType::object_ptr_ > SuperType::node_ptr_->AtPtr(SuperType::node_ptr_->capacity)) {
+            SuperType::node_ptr_ = SuperType::node_ptr_->next_node_ptr;
+            SuperType::object_ptr_ = SuperType::node_ptr_->AtPtr(0);
+        }
         return *this;
     }
     FORCEINLINE ZDequeReverseIterator& operator++(IndexType) {
-        --SuperType::object_ptr_;
-        return *this;
+        return operator++();
     }
     FORCEINLINE ZDequeReverseIterator& operator--() {
         ++SuperType::object_ptr_;
+        if (SuperType::object_ptr_ < SuperType::node_ptr_->AtPtr(0)) {
+            SuperType::node_ptr_ = SuperType::node_ptr_->previous_node_ptr;
+            SuperType::object_ptr_ = SuperType::node_ptr_->AtPtr(SuperType::node_ptr_->capacity - 1);
+        }
         return *this;
     }
     FORCEINLINE ZDequeReverseIterator& operator--(IndexType) {
-        ++SuperType::object_ptr_;
-        return *this;
+        return operator--();
     }
 
-    NODISCARD FORCEINLINE ZDequeReverseIterator operator+(IndexType data_num) const {
-        return ZDequeReverseIterator(SuperType::object_ptr_ - data_num);
+    NODISCARD FORCEINLINE ZDequeReverseIterator operator+(IndexType num) const {
+        IndexType index = static_cast<IndexType>(SuperType::object_ptr_ - SuperType::node_ptr_->AtPtr(0)) - num;
+        ZDequeReverseIterator temp_iterator(*this);
+        temp_iterator.SuperType::MoveToNode(&index);
+        temp_iterator.SuperType::object_ptr_ = temp_iterator.SuperType::node_ptr_->AtPtr(index);
+        return temp_iterator;
     }
-    NODISCARD FORCEINLINE ZDequeReverseIterator operator-(IndexType data_num) const {
-        return ZDequeReverseIterator(SuperType::object_ptr_ + data_num);
-    }
-
-    NODISCARD FORCEINLINE Bool operator>(const ZDequeReverseIterator& iterator) const {
-        return SuperType::object_ptr_ < iterator.SuperType::object_ptr_;
-    }
-    NODISCARD FORCEINLINE Bool operator>=(const ZDequeReverseIterator& iterator) const {
-        return SuperType::object_ptr_ <= iterator.SuperType::object_ptr_;
-    }
-    NODISCARD FORCEINLINE Bool operator<(const ZDequeReverseIterator& iterator) const {
-        return SuperType::object_ptr_ > iterator.SuperType::object_ptr_;
-    }
-    NODISCARD FORCEINLINE Bool operator<=(const ZDequeReverseIterator& iterator) const {
-        return SuperType::object_ptr_ >= iterator.SuperType::object_ptr_;
-    }
-
-    FORCEINLINE IndexType operator-(const ZDequeReverseIterator& iterator) const {
-        return static_cast<IndexType>(iterator.SuperType::object_ptr_ - SuperType::object_ptr_);
+    NODISCARD FORCEINLINE ZDequeReverseIterator operator-(IndexType num) const {
+        IndexType index = static_cast<IndexType>(SuperType::object_ptr_ - SuperType::node_ptr_->AtPtr(0)) + num;
+        ZDequeReverseIterator temp_iterator(*this);
+        temp_iterator.SuperType::MoveToNode(&index);
+        temp_iterator.SuperType::object_ptr_ = temp_iterator.SuperType::node_ptr_->AtPtr(index);
+        return temp_iterator;
     }
 
 protected:
@@ -239,14 +263,18 @@ public:
     ZDeque(const ConstIteratorType& begin, const ConstIteratorType& end) noexcept;
     ZDeque(const ReverseIteratorType& begin, const ReverseIteratorType& end) noexcept;
     ZDeque(const ConstReverseIteratorType& begin, const ConstReverseIteratorType& end) noexcept;
-    ZDeque(const ZDeque& queue) noexcept;
-    ZDeque(ZDeque&& queue) noexcept;
+    ZDeque(const ZDeque& deque) noexcept;
+    ZDeque(ZDeque&& deque) noexcept;
 
-    ZDeque& operator=(const ZDeque& queue) noexcept;
-    ZDeque& operator=(ZDeque&& queue) noexcept;
+    ZDeque& operator=(const ZDeque& deque) noexcept;
+    ZDeque& operator=(ZDeque&& deque) noexcept;
 
-    NODISCARD FORCEINLINE Bool operator==(const ZDeque& queue) noexcept;
-    NODISCARD FORCEINLINE Bool operator!=(const ZDeque& queue) noexcept;
+    NODISCARD FORCEINLINE Bool operator==(const ZDeque& deque) noexcept {
+        return this == &deque;
+    }
+    NODISCARD FORCEINLINE Bool operator!=(const ZDeque& deque) noexcept {
+        return this != &deque;
+    }
 
     NODISCARD FORCEINLINE ObjectType& operator[](IndexType index);
     NODISCARD FORCEINLINE const ObjectType& operator[](IndexType index) const;
@@ -272,14 +300,14 @@ public:
     NODISCARD FORCEINLINE Bool IsEmpty();
 
     /*
-        Resize the queue, If the given size is smaller then the current size,
+        Resize the deque, If the given size is smaller then the current size,
         the function will cut remove the extra objects. If the given size is
         bigger then the current size, the function will fill the extra size with
         the default value of ObjectType.
     */
     Void Resize(IndexType size) noexcept;
     /*
-        Resize the queue, If the given size is smaller then the current size,
+        Resize the deque, If the given size is smaller then the current size,
         the function will cut remove the extra objects. If the given size is
         bigger then the current size, the function will fill the extra size with
         the object constructed by the arguements.
@@ -295,52 +323,52 @@ public:
     Void Reserve(IndexType capacity) noexcept;
 
     /*
-        Shrinks the queue to the minimum capacity that can fit the current size.
+        Shrinks the deque to the minimum capacity that can fit the current size.
     */
     Void ShrinkToFit() noexcept;
 
     /*
-        Remove the object at the front of the queue.
+        Remove the object at the front of the deque.
     */
     Void PopFront() noexcept;
     /*
-        Remove the object at the front of the queue.. Give the authority to the given address.
+        Remove the object at the front of the deque.. Give the authority to the given address.
     */
     Void PopFront(ObjectType* object_ptr) noexcept;
 
     /*
-        Create an object at the front of the queue by calling the constructor with
+        Create an object at the front of the deque by calling the constructor with
         the arguements. If kIfUnique is false and no arguements, will
-        only add the size of the queue.
+        only add the size of the deque.
     */
     template<typename... ArgsType>
     Void PushFront(ArgsType&&... args) noexcept;
     /*
-        Create objects at the front of the queue by calling the constructor with
+        Create objects at the front of the deque by calling the constructor with
         the arguements. If kIfUnique is false and no arguements, will
-        only add the size of the queue.
+        only add the size of the deque.
     */
     template<typename... ArgsType>
     Void PushFronts(IndexType num, ArgsType&&... args) noexcept;
 
     /*
         Makes a copy of the objects between the iterators and push them to the
-        front of the queue.
+        front of the deque.
     */
     Void PushFronts(const IteratorType& begin, const IteratorType& end) noexcept;
     /*
         Makes a copy of the objects between the iterators and push them to the
-        front of the queue.
+        front of the deque.
     */
     Void PushFronts(const ConstIteratorType& begin, const ConstIteratorType& end) noexcept;
     /*
         Makes a copy of the objects between the iterators and push them to the
-        front of the queue.
+        front of the deque.
     */
     Void PushFronts(const ReverseIteratorType& begin, const ReverseIteratorType& end) noexcept;
     /*
         Makes a copy of the objects between the iterators and push them to the
-        front of the queue.
+        front of the deque.
     */
     Void PushFronts(const ConstReverseIteratorType& begin, const ConstReverseIteratorType& end) noexcept;
 
@@ -351,47 +379,47 @@ public:
     Void EmplaceFront(ArgsType&&... args) noexcept;
 
     /*
-        Remove the object at the back of the queue.
+        Remove the object at the back of the deque.
     */
     Void PopBack() noexcept;
     /*
-        Remove the object at the back of the queue.. Give the authority to the given address.
+        Remove the object at the back of the deque.. Give the authority to the given address.
     */
     Void PopBack(ObjectType* object_ptr) noexcept;
 
     /*
-        Create an object at the back of the queue by calling the constructor with
+        Create an object at the back of the deque by calling the constructor with
         the arguements. If kIfUnique is false and no arguements, will
-        only add the size of the queue.
+        only add the size of the deque.
     */
     template<typename... ArgsType>
     Void PushBack(ArgsType&&... args) noexcept;
     /*
-        Create objects at the back of the queue by calling the constructor with
+        Create objects at the back of the deque by calling the constructor with
         the arguements. If kIfUnique is false and no arguements, will
-        only add the size of the queue.
+        only add the size of the deque.
     */
     template<typename... ArgsType>
     Void PushBacks(IndexType num, ArgsType&&... args) noexcept;
 
     /*
         Makes a copy of the objects between the iterators and push them to the
-        back of the queue.
+        back of the deque.
     */
     Void PushBacks(const IteratorType& begin, const IteratorType& end) noexcept;
     /*
         Makes a copy of the objects between the iterators and push them to the
-        back of the queue.
+        back of the deque.
     */
     Void PushBacks(const ConstIteratorType& begin, const ConstIteratorType& end) noexcept;
     /*
         Makes a copy of the objects between the iterators and push them to the
-        back of the queue.
+        back of the deque.
     */
     Void PushBacks(const ReverseIteratorType& begin, const ReverseIteratorType& end) noexcept;
     /*
         Makes a copy of the objects between the iterators and push them to the
-        back of the queue.
+        back of the deque.
     */
     Void PushBacks(const ConstReverseIteratorType& begin, const ConstReverseIteratorType& end) noexcept;
 
@@ -568,36 +596,36 @@ public:
     Void Emplace(const ReverseIteratorType& iterator, ArgsType&&... args) noexcept;
 
     /*
-        Construct the queue by filling it with the given amount of objects.
+        Construct the deque by filling it with the given amount of objects.
         The object is constructed by the arguements.
         If kIfUnique is false and no arguements, will only add the 
-        size of the queue.
+        size of the deque.
     */
     template<typename... ArgsType>
     Void Assign(IndexType num, ArgsType&&... args) noexcept;
     /*
-        Construct the queue by filling it objects between the iterators.
+        Construct the deque by filling it objects between the iterators.
     */
     Void Assign(const IteratorType& begin, const IteratorType& end) noexcept;
     /*
-        Construct the queue by filling it objects between the iterators.
+        Construct the deque by filling it objects between the iterators.
     */
     Void Assign(const ConstIteratorType& begin, const ConstIteratorType& end) noexcept;
     /*
-        Construct the queue by filling it objects between the iterators.
+        Construct the deque by filling it objects between the iterators.
     */
     Void Assign(const ReverseIteratorType& begin, const ReverseIteratorType& end) noexcept;
     /*
-        Construct the queue by filling it objects between the iterators.
+        Construct the deque by filling it objects between the iterators.
     */
     Void Assign(const ConstReverseIteratorType& begin, const ConstReverseIteratorType& end) noexcept;
     
     /*
-        Destroys all the objects in the queue, does not release the memory.
+        Destroys all the objects in the deque, does not release the memory.
     */
     Void Clear() noexcept;
     /*
-        Destroys all the objects in the queue, release the memory.
+        Destroys all the objects in the deque, release the memory.
     */
     Void Destroy() noexcept;
 
@@ -606,8 +634,6 @@ protected:
     using DataNode = internal::ZDequeDataNode<ObjectType>;
 
 private:    
-
-
     /*
         Creates an object at the certain place. Will call the Constrctor if needed.
     */
@@ -687,7 +713,7 @@ private:
     /*
         Container move function.
     */
-    FORCEINLINE Void MoveP(ZDeque&& vector);
+    FORCEINLINE Void MoveP(ZDeque&& deque);
 
     DataNode* front_node_ptr_;
     DataNode* back_node_ptr_;
@@ -697,6 +723,39 @@ private:
     IndexType back_index_;
     IndexType size_;
 };
+
+template<typename ObjectType, Bool kIfUnique>
+ZDeque<ObjectType, kIfUnique>::ZDeque() noexcept 
+    : SuperType()
+    , front_node_ptr_(nullptr)
+    , back_node_ptr_(nullptr)
+    , capacity_(0)
+    , front_index_(0)
+    , back_index_(0)
+    , size_(0)
+{}
+
+template<typename ObjectType, Bool kIfUnique>
+ZDeque<ObjectType, kIfUnique>::ZDeque(IndexType capacity) noexcept
+    : SuperType()
+{
+    DEBUG(capacity < 0, "Negaive capacity not valid!");
+    CreateContainerP(capacity);
+    front_index_ = 0;
+    back_index_ = 0;
+    size_ = 0;
+}
+
+template<typename ObjectType, Bool kIfUnique>
+template<typename... ArgsType>
+ZDeque<ObjectType, kIfUnique>::ZDeque(IndexType capacity, ArgsType&&... args) noexcept
+    : SuperType()
+{
+    //DEBUG(capacity < 0, "Negaive capacity not valid!");
+    //CreateContainerP(capacity);
+    //CreateObjectsP(data_ptr_, data_ptr_ + capacity, std::forward<ArgsType>(args)...);
+    //size_ = capacity;
+}
 
 template<typename ObjectType, Bool kIfUnique>
 template<typename... ArgsType>
@@ -907,17 +966,32 @@ Void ZDeque<ObjectType, kIfUnique>::DestroyContainer() noexcept {
         DataNode* delete_node_ptr = temp_node_ptr;
         temp_node_ptr = temp_node_ptr->previous_node_ptr;
         DestroyObjectsP(delete_node_ptr->AtPtr(0), delete_node_ptr->AtPtr(delete_node_ptr->size));
-        memory_pool::ReleaseMemory(reinterpret_cast<Void*>(delete_node_ptr);
+        memory_pool::ReleaseMemory(reinterpret_cast<Void*>(delete_node_ptr));
     }
     DestroyObjectsP(front_node_ptr_->AtPtr(front_index_), front_node_ptr_->AtPtr(front_index_ + front_node_ptr_->size));
     memory_pool::ReleaseMemory(reinterpret_cast<Void*>(temp_node_ptr));
-    memset(reinterpret_cast<Void*>(this), 0, sizeof(ZDeque));
+    front_node_ptr_ = nullptr;
+    back_node_ptr_ = nullptr;
+    capacity_ = 0;
+    front_index_ = 0;
+    back_index_ = 0;
+    size_ = 0;
 }
 
 template<typename ObjectType, Bool kIfUnique>
-FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::MoveP(ZDeque&& queue) {
-    memcpy(reinterpret_cast<Void*>(this), reinterpret_cast<Void*>(&queue), sizeof(ZDeque));
-    memset(reinterpret_cast<Void*>(&queue), 0, sizeof(ZDeque));
+FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::MoveP(ZDeque&& deque) {
+    front_node_ptr_ = deque.front_node_ptr_;
+    back_node_ptr_ = deque.back_node_ptr_;
+    capacity_ = deque.capacity_;
+    front_index_ = deque.front_index_;
+    back_index_ = deque.back_index_;
+    size_ = deque.size_;
+    deque.front_node_ptr_ = nullptr;
+    deque.back_node_ptr_ = nullptr;
+    deque.capacity_ = 0;
+    deque.front_index_ = 0;
+    deque.back_index_ = 0;
+    deque.size_ = 0;
 }
 
 

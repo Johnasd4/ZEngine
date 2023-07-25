@@ -32,10 +32,10 @@ public:
     }
 
     NODISCARD FORCEINLINE Bool operator==(const ZVectorIteratorBase& iterator) const {
-        return object_ptr_ == iterator.object_ptr_;
+        return this == &iterator;
     }
     NODISCARD FORCEINLINE Bool operator!=(const ZVectorIteratorBase& iterator) const {
-        return object_ptr_ != iterator.object_ptr_;
+        return this != &iterator;
     }
 
     NODISCARD FORCEINLINE ObjectType& operator*() const { return *object_ptr_; }
@@ -43,6 +43,7 @@ public:
 
     FORCEINLINE ~ZVectorIteratorBase() {}
 
+    NODISCARD FORCEINLINE ObjectType& object() const { return *object_ptr_; }
     NODISCARD FORCEINLINE ObjectType* object_ptr() const { return object_ptr_; }
 
 protected:
@@ -215,10 +216,10 @@ public:
     ZVector& operator=(ZVector&& vector) noexcept;
 
     NODISCARD FORCEINLINE Bool operator==(const ZVector& vector) noexcept { 
-        return data_ptr_ == vector.data_ptr_; 
+        return this == &vector;
     }    
     NODISCARD FORCEINLINE Bool operator!=(const ZVector& vector) noexcept { 
-        return data_ptr_ != vector.data_ptr_; 
+        return this != &vector;
     }
 
     NODISCARD FORCEINLINE ObjectType& operator[](IndexType index) { 
@@ -361,11 +362,11 @@ public:
         only add the size of the vector.
     */
     template<typename... ArgsType>
-    inline Void PushBack(ArgsType&&... args) noexcept;
+    FORCEINLINE Void PushBack(ArgsType&&... args);
     /*
         Create objects at the back of the vector by calling the constructor with
-        the arguements. If kIfUnique is false and no arguements, will
-        only add the size of the vector.
+        the arguements. If kIfUnique is false and no arguements, 
+        will only add the size of the vector.
     */
     template<typename... ArgsType>
     inline Void PushBacks(IndexType num, ArgsType&&... args) noexcept;
@@ -1017,7 +1018,7 @@ FORCEINLINE Void ZVector<ObjectType, kIfUnique>::PopBack(ObjectType* object_ptr)
 
 template<typename ObjectType, Bool kIfUnique>
 template<typename... ArgsType>
-Void ZVector<ObjectType, kIfUnique>::PushBack(ArgsType&&... args) noexcept {
+FORCEINLINE Void ZVector<ObjectType, kIfUnique>::PushBack(ArgsType&&... args) {
     IndexType new_size = size_ + 1;
     if (new_size > capacity_) {
         ExtendContainerP(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
@@ -1220,7 +1221,9 @@ template<typename ObjectType, Bool kIfUnique>
 Void ZVector<ObjectType, kIfUnique>::DestroyContainerP() noexcept {
     DestroyObjectsP(data_ptr_, data_ptr_ + size_);
     memory_pool::ReleaseMemory(reinterpret_cast<Void*>(data_ptr_));
-    memset(reinterpret_cast<Void*>(this), 0, sizeof(ZVector));
+    data_ptr_ = nullptr;
+    capacity_ = 0;
+    size_ = 0;
 }
 
 template<typename ObjectType, Bool kIfUnique>
@@ -1264,8 +1267,12 @@ Void ZVector<ObjectType, kIfUnique>::CopyP(const ZVector& vector) noexcept {
 
 template<typename ObjectType, Bool kIfUnique>
 FORCEINLINE Void ZVector<ObjectType, kIfUnique>::MoveP(ZVector&& vector) {
-    memcpy(reinterpret_cast<Void*>(this), reinterpret_cast<Void*>(&vector), sizeof(ZVector));
-    memset(reinterpret_cast<Void*>(&vector), 0, sizeof(ZVector));
+    data_ptr_ = vector.data_ptr_;
+    capacity_ = vector.capacity_;
+    size_ = vector.size_;
+    vector.data_ptr_ = nullptr;
+    vector.capacity_ = 0;
+    vector.size_ = 0;
 }
 
 template<typename ObjectType, Bool kIfUnique>

@@ -14,163 +14,163 @@ class ZVector;
 namespace internal {
 
 template<typename ObjectType>
-class VectorIteratorBase {
+class ZVectorIteratorBase {
 public:
-    FORCEINLINE VectorIteratorBase(ObjectType* object_ptr) : object_ptr_(object_ptr) {}
-    FORCEINLINE VectorIteratorBase(const VectorIteratorBase& iterator) : object_ptr_(iterator.object_ptr_) {}
-    FORCEINLINE VectorIteratorBase(VectorIteratorBase&& iterator) : object_ptr_(iterator.object_ptr_) {
-        MoveP(std::forward<VectorIteratorBase>(iterator));
+    FORCEINLINE ZVectorIteratorBase(ObjectType* object_ptr) : object_ptr_(object_ptr) {}
+    FORCEINLINE ZVectorIteratorBase(const ZVectorIteratorBase& iterator) : object_ptr_(iterator.object_ptr_) {}
+    FORCEINLINE ZVectorIteratorBase(ZVectorIteratorBase&& iterator) { 
+        MoveP(std::forward<ZVectorIteratorBase>(iterator)); 
     }
 
-    FORCEINLINE VectorIteratorBase& operator=(const VectorIteratorBase& iterator) {
+    FORCEINLINE ZVectorIteratorBase& operator=(const ZVectorIteratorBase& iterator) {
         object_ptr_ = iterator.object_ptr_;
         return *this;
     }
-    FORCEINLINE VectorIteratorBase& operator=(VectorIteratorBase&& iterator) {
-        MoveP(std::forward<VectorIteratorBase>(iterator));
+    FORCEINLINE ZVectorIteratorBase& operator=(ZVectorIteratorBase&& iterator) {
+        MoveP(std::forward<ZVectorIteratorBase>(iterator));
         return *this;
     }
 
-    NODISCARD FORCEINLINE Bool operator==(const VectorIteratorBase& iterator) const {
+    NODISCARD FORCEINLINE Bool operator==(const ZVectorIteratorBase& iterator) const {
         return object_ptr_ == iterator.object_ptr_;
     }
-    NODISCARD FORCEINLINE Bool operator!=(const VectorIteratorBase& iterator) const {
+    NODISCARD FORCEINLINE Bool operator!=(const ZVectorIteratorBase& iterator) const {
         return object_ptr_ != iterator.object_ptr_;
     }
 
     NODISCARD FORCEINLINE ObjectType& operator*() const { return *object_ptr_; }
     NODISCARD FORCEINLINE ObjectType* operator->() const { return object_ptr_; }
 
-    FORCEINLINE ~VectorIteratorBase() {}
+    FORCEINLINE ~ZVectorIteratorBase() {}
 
+    NODISCARD FORCEINLINE ObjectType& object() const { return *object_ptr_; }
     NODISCARD FORCEINLINE ObjectType* object_ptr() const { return object_ptr_; }
 
 protected:
     ObjectType* object_ptr_;
 
 private:
-    FORCEINLINE Void MoveP(VectorIteratorBase&& iterator) {
+    FORCEINLINE Void MoveP(ZVectorIteratorBase&& iterator) {
         object_ptr_ = iterator.object_ptr_;
         iterator.object_ptr_ = nullptr;
     }
-
 };
 
 template<typename ObjectType>
-class VectorIterator : public VectorIteratorBase<ObjectType> {
+class ZVectorIterator : public ZVectorIteratorBase<ObjectType> {
 public:
     NODISCARD FORCEINLINE ObjectType& operator[](IndexType index) const { return SuperType::object_ptr_[index]; }
 
-    FORCEINLINE VectorIterator& operator+=(IndexType data_num) {
+    FORCEINLINE ZVectorIterator& operator+=(IndexType data_num) {
         SuperType::object_ptr_ += data_num;
         return *this;
     }
-    FORCEINLINE VectorIterator& operator-=(IndexType data_num) {
+    FORCEINLINE ZVectorIterator& operator-=(IndexType data_num) {
         SuperType::object_ptr_ -= data_num;
         return *this;
     }
 
-    FORCEINLINE VectorIterator& operator++() {
+    FORCEINLINE ZVectorIterator& operator++() {
         ++SuperType::object_ptr_;
         return *this;
     }
-    FORCEINLINE VectorIterator& operator++(IndexType) {
+    FORCEINLINE ZVectorIterator& operator++(IndexType) {
         ++SuperType::object_ptr_;
         return *this;
     }
-    FORCEINLINE VectorIterator& operator--() {
+    FORCEINLINE ZVectorIterator& operator--() {
         --SuperType::object_ptr_;
         return *this;
     }
-    FORCEINLINE VectorIterator& operator--(IndexType) {
+    FORCEINLINE ZVectorIterator& operator--(IndexType) {
         --SuperType::object_ptr_;
         return *this;
     }
-    NODISCARD FORCEINLINE VectorIterator operator+(IndexType data_num) const {
-        return VectorIterator(SuperType::object_ptr_ + data_num);
+    NODISCARD FORCEINLINE ZVectorIterator operator+(IndexType data_num) const {
+        return ZVectorIterator(SuperType::object_ptr_ + data_num);
     }
-    NODISCARD FORCEINLINE VectorIterator operator-(IndexType data_num) const {
-        return VectorIterator(SuperType::object_ptr_ - data_num);
+    NODISCARD FORCEINLINE ZVectorIterator operator-(IndexType data_num) const {
+        return ZVectorIterator(SuperType::object_ptr_ - data_num);
     }
 
-    NODISCARD FORCEINLINE Bool operator>(const VectorIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator>(const ZVectorIterator& iterator) const {
         return SuperType::object_ptr_ > iterator.SuperType::object_ptr_;
     }
-    NODISCARD FORCEINLINE Bool operator>=(const VectorIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator>=(const ZVectorIterator& iterator) const {
         return SuperType::object_ptr_ >= iterator.SuperType::object_ptr_;
     }
-    NODISCARD FORCEINLINE Bool operator<(const VectorIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator<(const ZVectorIterator& iterator) const {
         return SuperType::object_ptr_ < iterator.SuperType::object_ptr_;
     }
-    NODISCARD FORCEINLINE Bool operator<=(const VectorIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator<=(const ZVectorIterator& iterator) const {
         return SuperType::object_ptr_ <= iterator.SuperType::object_ptr_;
     }
 
-    FORCEINLINE IndexType operator-(const VectorIterator& iterator) const {
+    FORCEINLINE IndexType operator-(const ZVectorIterator& iterator) const {
         return static_cast<IndexType>(SuperType::object_ptr_ - iterator.SuperType::object_ptr_);
     }
 
 protected:
-    using SuperType = VectorIteratorBase<ObjectType>;
+    using SuperType = ZVectorIteratorBase<ObjectType>;
 };
 
 template<typename ObjectType>
-class VectorReverseIterator : public VectorIteratorBase<ObjectType> {
+class ZVectorReverseIterator : public ZVectorIteratorBase<ObjectType> {
 public:
     NODISCARD FORCEINLINE ObjectType& operator[](IndexType index) const { return SuperType::object_ptr_[-index]; }
 
-    FORCEINLINE VectorReverseIterator& operator+=(IndexType data_num) {
+    FORCEINLINE ZVectorReverseIterator& operator+=(IndexType data_num) {
         SuperType::object_ptr_ -= data_num;
         return *this;
     }
-    FORCEINLINE VectorReverseIterator& operator-=(IndexType data_num) {
+    FORCEINLINE ZVectorReverseIterator& operator-=(IndexType data_num) {
         SuperType::object_ptr_ += data_num;
         return *this;
     }
 
-    FORCEINLINE VectorReverseIterator& operator++() {
+    FORCEINLINE ZVectorReverseIterator& operator++() {
         --SuperType::object_ptr_;
         return *this;
     }
-    FORCEINLINE VectorReverseIterator& operator++(IndexType) {
+    FORCEINLINE ZVectorReverseIterator& operator++(IndexType) {
         --SuperType::object_ptr_;
         return *this;
     }
-    FORCEINLINE VectorReverseIterator& operator--() {
+    FORCEINLINE ZVectorReverseIterator& operator--() {
         ++SuperType::object_ptr_;
         return *this;
     }
-    FORCEINLINE VectorReverseIterator& operator--(IndexType) {
+    FORCEINLINE ZVectorReverseIterator& operator--(IndexType) {
         ++SuperType::object_ptr_;
         return *this;
     }
 
-    NODISCARD FORCEINLINE VectorReverseIterator operator+(IndexType data_num) const {
-        return VectorReverseIterator(SuperType::object_ptr_ - data_num);
+    NODISCARD FORCEINLINE ZVectorReverseIterator operator+(IndexType data_num) const {
+        return ZVectorReverseIterator(SuperType::object_ptr_ - data_num);
     }
-    NODISCARD FORCEINLINE VectorReverseIterator operator-(IndexType data_num) const {
-        return VectorReverseIterator(SuperType::object_ptr_ + data_num);
+    NODISCARD FORCEINLINE ZVectorReverseIterator operator-(IndexType data_num) const {
+        return ZVectorReverseIterator(SuperType::object_ptr_ + data_num);
     }
 
-    NODISCARD FORCEINLINE Bool operator>(const VectorReverseIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator>(const ZVectorReverseIterator& iterator) const {
         return SuperType::object_ptr_ < iterator.SuperType::object_ptr_;
     }
-    NODISCARD FORCEINLINE Bool operator>=(const VectorReverseIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator>=(const ZVectorReverseIterator& iterator) const {
         return SuperType::object_ptr_ <= iterator.SuperType::object_ptr_;
     }
-    NODISCARD FORCEINLINE Bool operator<(const VectorReverseIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator<(const ZVectorReverseIterator& iterator) const {
         return SuperType::object_ptr_ > iterator.SuperType::object_ptr_;
     }
-    NODISCARD FORCEINLINE Bool operator<=(const VectorReverseIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator<=(const ZVectorReverseIterator& iterator) const {
         return SuperType::object_ptr_ >= iterator.SuperType::object_ptr_;
     }
 
-    FORCEINLINE IndexType operator-(const VectorReverseIterator& iterator) const {
+    FORCEINLINE IndexType operator-(const ZVectorReverseIterator& iterator) const {
         return static_cast<IndexType>(iterator.SuperType::object_ptr_ - SuperType::object_ptr_);
     }
 
 protected:
-    using SuperType = VectorIteratorBase<ObjectType>;
+    using SuperType = ZVectorIteratorBase<ObjectType>;
 };
 
 }//internal
@@ -185,10 +185,10 @@ private:
     static constexpr Float32 kAutoExtendMulFactor = 1.5F;
 
 public:
-    using IteratorType = internal::VectorIterator<ObjectType>;
-    using ConstIteratorType = internal::VectorIterator<const ObjectType>;
-    using ReverseIteratorType = internal::VectorReverseIterator<ObjectType>;
-    using ConstReverseIteratorType = internal::VectorReverseIterator<const ObjectType>;
+    using IteratorType = internal::ZVectorIterator<ObjectType>;
+    using ConstIteratorType = internal::ZVectorIterator<const ObjectType>;
+    using ReverseIteratorType = internal::ZVectorReverseIterator<ObjectType>;
+    using ConstReverseIteratorType = internal::ZVectorReverseIterator<const ObjectType>;
 
     ZVector() noexcept;
     ZVector(IndexType capacity) noexcept;
@@ -242,6 +242,14 @@ public:
         DEBUG(index < 0 || index >= size_, "Index out of bounds!");
         return data_ptr_[index];
     }
+    NODISCARD FORCEINLINE ObjectType* AtPtr(IndexType index) {
+        DEBUG(index < 0 || index >= size_, "Index out of bounds!");
+        return data_ptr_ + index;
+    }
+    NODISCARD FORCEINLINE const ObjectType* AtPtr(IndexType index) const {
+        DEBUG(index < 0 || index >= size_, "Index out of bounds!");
+        return data_ptr_ + index;
+    }
     NODISCARD FORCEINLINE ObjectType& Front() {
         DEBUG(size_ == 0, "No object exists!");
         return data_ptr_[0]; 
@@ -250,6 +258,14 @@ public:
         DEBUG(size_ == 0, "No object exists!");
         return data_ptr_[0];
     }
+    NODISCARD FORCEINLINE ObjectType* FrontPtr() {
+        DEBUG(size_ == 0, "No object exists!");
+        return data_ptr_;
+    }
+    NODISCARD FORCEINLINE const ObjectType* FrontPtr() const {
+        DEBUG(size_ == 0, "No object exists!");
+        return data_ptr_;
+    }
     NODISCARD FORCEINLINE ObjectType& Back() {
         DEBUG(size_ == 0, "No object exists!");
         return data_ptr_[size_ - 1];
@@ -257,6 +273,14 @@ public:
     NODISCARD FORCEINLINE const ObjectType& Back() const {
         DEBUG(size_ == 0, "No object exists!");
         return data_ptr_[size_ - 1];
+    }
+    NODISCARD FORCEINLINE ObjectType* BackPtr() {
+        DEBUG(size_ == 0, "No object exists!");
+        return data_ptr_ + (size_ - 1);
+    }
+    NODISCARD FORCEINLINE const ObjectType* BackPtr() const {
+        DEBUG(size_ == 0, "No object exists!");
+        return data_ptr_ + (size_ - 1);
     }
 
     NODISCARD FORCEINLINE IndexType size() const { return size_; }
@@ -338,11 +362,11 @@ public:
         only add the size of the vector.
     */
     template<typename... ArgsType>
-    inline Void PushBack(ArgsType&&... args) noexcept;
+    FORCEINLINE Void PushBack(ArgsType&&... args);
     /*
         Create objects at the back of the vector by calling the constructor with
-        the arguements. If kIfUnique is false and no arguements, will
-        only add the size of the vector.
+        the arguements. If kIfUnique is false and no arguements, 
+        will only add the size of the vector.
     */
     template<typename... ArgsType>
     inline Void PushBacks(IndexType num, ArgsType&&... args) noexcept;
@@ -994,7 +1018,7 @@ FORCEINLINE Void ZVector<ObjectType, kIfUnique>::PopBack(ObjectType* object_ptr)
 
 template<typename ObjectType, Bool kIfUnique>
 template<typename... ArgsType>
-Void ZVector<ObjectType, kIfUnique>::PushBack(ArgsType&&... args) noexcept {
+FORCEINLINE Void ZVector<ObjectType, kIfUnique>::PushBack(ArgsType&&... args) {
     IndexType new_size = size_ + 1;
     if (new_size > capacity_) {
         ExtendContainerP(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
@@ -1197,7 +1221,9 @@ template<typename ObjectType, Bool kIfUnique>
 Void ZVector<ObjectType, kIfUnique>::DestroyContainerP() noexcept {
     DestroyObjectsP(data_ptr_, data_ptr_ + size_);
     memory_pool::ReleaseMemory(reinterpret_cast<Void*>(data_ptr_));
-    memset(reinterpret_cast<Void*>(this), 0, sizeof(ZVector));
+    data_ptr_ = nullptr;
+    capacity_ = 0;
+    size_ = 0;
 }
 
 template<typename ObjectType, Bool kIfUnique>
@@ -1241,8 +1267,12 @@ Void ZVector<ObjectType, kIfUnique>::CopyP(const ZVector& vector) noexcept {
 
 template<typename ObjectType, Bool kIfUnique>
 FORCEINLINE Void ZVector<ObjectType, kIfUnique>::MoveP(ZVector&& vector) {
-    memcpy(reinterpret_cast<Void*>(this), reinterpret_cast<Void*>(&vector), sizeof(ZVector));
-    memset(reinterpret_cast<Void*>(&vector), 0, sizeof(ZVector));
+    data_ptr_ = vector.data_ptr_;
+    capacity_ = vector.capacity_;
+    size_ = vector.size_;
+    vector.data_ptr_ = nullptr;
+    vector.capacity_ = 0;
+    vector.size_ = 0;
 }
 
 template<typename ObjectType, Bool kIfUnique>

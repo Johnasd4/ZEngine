@@ -44,6 +44,7 @@ public:
 
     FORCEINLINE ~ZArrayIteratorBase() {}
 
+    NODISCARD FORCEINLINE ObjectType& object() const { return *object_ptr_; }
     NODISCARD FORCEINLINE ObjectType* object_ptr() const { return object_ptr_; }
 
 protected:
@@ -223,6 +224,13 @@ public:
     inline ZArray& operator=(const ZArray& array) noexcept;
     inline ZArray& operator=(ZArray&& array) noexcept;
 
+    NODISCARD FORCEINLINE Bool operator==(const ZArray& array) noexcept {
+        return this == &array;
+    }
+    NODISCARD FORCEINLINE Bool operator!=(const ZArray& array) noexcept {
+        return this != &array;
+    }
+
     NODISCARD FORCEINLINE constexpr ObjectType& operator[](IndexType index) { 
         DEBUG(index < 0 || index >= kCapacity, "Index out of bounds!");
         return this->data_[index]; }
@@ -240,11 +248,11 @@ public:
         return data_[index];
     }
     NODISCARD FORCEINLINE ObjectType* AtPtr(IndexType index) {
-        DEBUG(index < 0 || index >= size_, "Index out of bounds!");
+        DEBUG(index < 0 || index >= kCapacity, "Index out of bounds!");
         return data_ + index;
     }
     NODISCARD FORCEINLINE const ObjectType* AtPtr(IndexType index) const {
-        DEBUG(index < 0 || index >= size_, "Index out of bounds!");
+        DEBUG(index < 0 || index >= kCapacity, "Index out of bounds!");
         return data_ + index;
     }
     NODISCARD FORCEINLINE constexpr ObjectType& Front() { return data_[0]; }
