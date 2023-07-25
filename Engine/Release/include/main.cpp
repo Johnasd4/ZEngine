@@ -28,13 +28,13 @@ constexpr auto init_function = [](ZArray<Int32, 10>* array_ptr) {
 };
 int main(){
     ZVector<int> a;
-    ZVector<int> b;
+    ZVector<int> b(ZVector<int>(10));
     ZVector<ZVector<int>> c;
     ZVector<ZVector<int>> d;
     for (int i = 0; i < 6; i++)
     {
         a.PushBack(i);
-        c.PushBack(a);
+        c.PushBack(ZVector<int>());
     }
     d = c;
     b = a;

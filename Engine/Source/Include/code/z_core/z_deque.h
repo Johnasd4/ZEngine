@@ -36,9 +36,7 @@ public:
         : object_ptr_(object_ptr), node_ptr_(node_ptr) {}
     FORCEINLINE DequeIteratorBase(const DequeIteratorBase& iterator) 
         : object_ptr_(iterator.object_ptr_), node_ptr_(iterator.node_ptr_) {}
-    FORCEINLINE DequeIteratorBase(DequeIteratorBase&& iterator) : object_ptr_(iterator.object_ptr_) {
-        MoveP(std::forward<DequeIteratorBase>(iterator));
-    }
+    FORCEINLINE DequeIteratorBase(DequeIteratorBase&& iterator) { MoveP(std::forward<DequeIteratorBase>(iterator)); }
 
     FORCEINLINE DequeIteratorBase& operator=(const DequeIteratorBase& iterator) {
         object_ptr_ = iterator.object_ptr_;
@@ -78,7 +76,6 @@ template<typename ObjectType>
 class DequeIterator : public DequeIteratorBase<ObjectType> {
 public:
     NODISCARD FORCEINLINE ObjectType& operator[](IndexType index) const { return SuperType::object_ptr_[index]; }
-
 
     FORCEINLINE DequeIterator& operator+=(IndexType data_num) {
         SuperType::object_ptr_ += data_num;
@@ -129,8 +126,6 @@ public:
     FORCEINLINE IndexType operator-(const DequeIterator& iterator) const {
         return static_cast<IndexType>(SuperType::object_ptr_ - iterator.SuperType::object_ptr_);
     }
-
-
 
 protected:
     using SuperType = DequeIteratorBase<ObjectType>;
@@ -652,7 +647,7 @@ private:
         Extends the capacity by the given capacity, the final capacity might
         not equal the given capacity. Returns the data node pointer.
     */
-    NODISCARD DataNode* ExtendContainer(IndexType capacity) noexcept;
+    Void ExtendContainer(IndexType capacity) noexcept;
     /*
         Shrinks the container to the minimum capacity that can fit the current size.
     */
@@ -663,30 +658,12 @@ private:
     Void DestroyContainer() noexcept;
 
     /*
-        Adds a new node to the front.
-    */
-    Void AddFrontNode() noexcept;
-    /*
-        Remove the front node.
-    */
-    Void RemoveFrontNode() noexcept;
-    /*
-        Adds a new node to the back.
-    */
-    Void AddBackNode() noexcept;
-    /*
-        Remove the back node.
-    */
-    Void RemoveBackNode() noexcept;
-
-    /*
         Container move function.
     */
     FORCEINLINE Void MoveP(ZDeque&& vector);
 
     DataNode* front_node_ptr_;
     DataNode* back_node_ptr_;
-    DataNode* empty_node_ptr_;
     IndexType capacity_;
 
     IndexType front_index_;
@@ -838,26 +815,25 @@ inline Void ZDeque<ObjectType, kIfUnique>::DestroyObjectsP(ObjectType* begin_ptr
 template<typename ObjectType, Bool kIfUnique>
 Void ZDeque<ObjectType, kIfUnique>::CreateContainer(IndexType capacity) noexcept {
     MemoryType need_memory_size = ((capacity * sizeof(ObjectType)) >> 1) + sizeof(DataNode);
-    MemoryType apply_mrmory_size;
+    MemoryType front_node_apply_mrmory_size;
+    MemoryType back_node_apply_mrmory_size;
     //Applys 2 nodes instead.
-    front_node_ptr_ = reinterpret_cast<DataNode*>(memory_pool::ApplyMemory(need_memory_size, &apply_mrmory_size));
-    back_node_ptr_ = reinterpret_cast<DataNode*>(memory_pool::ApplyMemory(need_memory_size, &apply_mrmory_size));
+    front_node_ptr_ = 
+        reinterpret_cast<DataNode*>(memory_pool::ApplyMemory(need_memory_size, &front_node_apply_mrmory_size));
+    back_node_ptr_ = 
+        reinterpret_cast<DataNode*>(memory_pool::ApplyMemory(need_memory_size, &back_node_apply_mrmory_size));
 
-    front_node_ptr_->next_node_ptr = back_node_ptr_;
-    front_node_ptr_->previous_node_ptr = nullptr;
-    front_node_ptr_->capacity = (apply_mrmory_size - sizeof(DataNode)) / sizeof(ObjectType);
+    front_node_ptr_->next_node_ptr = front_node_ptr_->previous_node_ptr = back_node_ptr_;
+    front_node_ptr_->capacity = (front_node_apply_mrmory_size - sizeof(DataNode)) / sizeof(ObjectType);
 
-    back_node_ptr_->next_node_ptr = nullptr;
-    back_node_ptr_->previous_node_ptr = front_node_ptr_;
-    back_node_ptr_->capacity = (apply_mrmory_size - sizeof(DataNode)) / sizeof(ObjectType);
+    back_node_ptr_->next_node_ptr = back_node_ptr_->previous_node_ptr = front_node_ptr_;
+    back_node_ptr_->capacity = (back_node_apply_mrmory_size - sizeof(DataNode)) / sizeof(ObjectType);
 
-    empty_node_ptr_ = nullptr;
     capacity_ = front_node_ptr_->capacity + back_node_ptr_->capacity;
 }
 
 template<typename ObjectType, Bool kIfUnique>
-NODISCARD ZDeque<ObjectType, kIfUnique>::DataNode* ZDeque<ObjectType, kIfUnique>::ExtendContainer(
-        IndexType capacity) noexcept {
+Void ZDeque<ObjectType, kIfUnique>::ExtendContainer( IndexType capacity) noexcept {
     MemoryType need_memory_size = capacity * sizeof(ObjectType) + sizeof(DataNode);
     MemoryType apply_mrmory_size;
     //Initialize the node.
@@ -865,115 +841,51 @@ NODISCARD ZDeque<ObjectType, kIfUnique>::DataNode* ZDeque<ObjectType, kIfUnique>
         reinterpret_cast<DataNode*>(memory_pool::ApplyMemory(need_memory_size, &apply_mrmory_size));
     temp_node_ptr->capacity = (apply_mrmory_size - sizeof(DataNode)) / sizeof(ObjectType);
     //Update the container.
+    if (front_node_ptr_ == nullptr) {
+        front_node_ptr_ = back_node_ptr_ = temp_node_ptr;
+    }
+    temp_node_ptr->next_node_ptr = front_node_ptr_;
+    temp_node_ptr->previous_node_ptr = back_node_ptr_;
     capacity_ += temp_node_ptr->capacity;
-    return temp_node_ptr;
 }
 
 template<typename ObjectType, Bool kIfUnique>
 Void ZDeque<ObjectType, kIfUnique>::ShrinkContainer() noexcept {
-    DataNode* temp_node_ptr;
-    while (empty_node_ptr_ != nullptr) {
-        temp_node_ptr = empty_node_ptr_;
-        empty_node_ptr_ = empty_node_ptr_->next_node_ptr;
-        capacity_ -= temp_node_ptr->capacity;
-        memory_pool::ReleaseMemory(reinterpret_cast<Void*>(temp_node_ptr));
+    if (front_node_ptr_ == nullptr) {
+        return;
     }
+    DataNode* temp_node_ptr = front_node_ptr_->previous_node_ptr;
+    while (temp_node_ptr != back_node_ptr_) {
+        DataNode* delete_node_ptr = temp_node_ptr;
+        capacity_ -= delete_node_ptr->capacity;
+        temp_node_ptr = temp_node_ptr->previous_node_ptr;
+        memory_pool::ReleaseMemory(reinterpret_cast<Void*>(delete_node_ptr));
+    }
+    front_node_ptr_->previous_node_ptr = back_node_ptr_;
+    back_node_ptr_->next_node_ptr = front_node_ptr_;
 }
 
 template<typename ObjectType, Bool kIfUnique>
 Void ZDeque<ObjectType, kIfUnique>::DestroyContainer() noexcept {
-    DataNode* temp_node_ptr;
-    while (empty_node_ptr_ != nullptr) {
-        temp_node_ptr = empty_node_ptr_;
-        empty_node_ptr_ = empty_node_ptr_->next_node_ptr;
-        memory_pool::ReleaseMemory(reinterpret_cast<Void*>(temp_node_ptr));
+    if (front_node_ptr_ == nullptr) {
+        return;
     }
-    while (front_node_ptr_ != back_node_ptr_) {
-        DestroyObjectsP(&back_node_ptr_[0], back_node_ptr_->size);
-        temp_node_ptr = back_node_ptr_;
-        back_node_ptr_ = back_node_ptr_->previous_node_ptr;
-        memory_pool::ReleaseMemory(reinterpret_cast<Void*>(temp_node_ptr));
+    DataNode* temp_node_ptr = front_node_ptr_->previous_node_ptr;
+    while (temp_node_ptr != back_node_ptr_) {
+        DataNode* delete_node_ptr = temp_node_ptr;
+        temp_node_ptr = temp_node_ptr->previous_node_ptr;
+        memory_pool::ReleaseMemory(reinterpret_cast<Void*>(delete_node_ptr));
     }
-    DestroyObjectsP(&front_node_ptr_[front_index_], front_node_ptr_->size);
-    memory_pool::ReleaseMemory(reinterpret_cast<Void*>(data_ptr_));
-    front_node_ptr_ = nullptr;
-    back_node_ptr_ = nullptr;
-    front_index_ = 0;
-    back_index_ = 0;
-    capacity_ = 0;
-    size_ = 0;
+    while (temp_node_ptr != front_node_ptr_) {
+        DataNode* delete_node_ptr = temp_node_ptr;
+        temp_node_ptr = temp_node_ptr->previous_node_ptr;
+        DestroyObjectsP(&((*delete_node_ptr)[0]), &((*delete_node_ptr)[delete_node_ptr->size]));
+        memory_pool::ReleaseMemory(reinterpret_cast<Void*>(delete_node_ptr);
+    }
+    DestroyObjectsP(&((*front_node_ptr_)[front_index_]), &((*front_node_ptr_)[front_index_ + front_node_ptr_->size]));
+    memory_pool::ReleaseMemory(reinterpret_cast<Void*>(temp_node_ptr));
+    memset(reinterpret_cast<Void*>(this), 0, sizeof(ZDeque));
 }
-
-template<typename ObjectType, Bool kIfUnique>
-Void ZDeque<ObjectType, kIfUnique>::AddFrontNode() noexcept {
-    DataNode* temp_node_ptr;
-    if (empty_node_ptr_ == nullptr) {
-        temp_node_ptr = ExtendContainer(capacity_ * kAutoExtendMulFactor);
-    }
-    else {
-        temp_node_ptr = empty_node_ptr_;
-        empty_node_ptr_ = empty_node_ptr_->next_node_ptr;
-    }
-    temp_node_ptr->next_node_ptr = front_node_ptr_;
-    temp_node_ptr->previous_node_ptr = nullptr;
-    if (front_node_ptr_ != nullptr) {
-        front_node_ptr_->previous_node_ptr = temp_node_ptr;
-        front_node_ptr_ = temp_node_ptr;
-    }
-    else {
-        front_node_ptr_ = back_node_ptr_ = temp_node_ptr;
-    }
-}
-
-template<typename ObjectType, Bool kIfUnique>
-Void ZDeque<ObjectType, kIfUnique>::RemoveFrontNode() noexcept {
-    DataNode* temp_node_ptr;
-    temp_node_ptr = front_node_ptr_;
-    if (front_node_ptr_ == back_node_ptr_) {
-        front_node_ptr_ = back_node_ptr_ = nullptr;
-    }
-    else {
-        front_node_ptr_ = front_node_ptr_->next_node_ptr;
-    }
-    temp_node_ptr->next_node_ptr = empty_node_ptr_;
-    empty_node_ptr_ = temp_node_ptr;
-}
-
-template<typename ObjectType, Bool kIfUnique>
-Void ZDeque<ObjectType, kIfUnique>::AddBackNode() noexcept {
-    DataNode* temp_node_ptr;
-    if (empty_node_ptr_ == nullptr) {
-        temp_node_ptr = ExtendContainer(capacity_ * kAutoExtendMulFactor);
-    }
-    else {
-        temp_node_ptr = empty_node_ptr_;
-        empty_node_ptr_ = empty_node_ptr_->next_node_ptr;
-    }
-    temp_node_ptr->next_node_ptr = nullptr;
-    temp_node_ptr->previous_node_ptr = back_node_ptr_;
-    if (back_node_ptr_ != nullptr) {
-        back_node_ptr_->next_node_ptr = temp_node_ptr;
-        back_node_ptr_ = temp_node_ptr;
-    }
-    else {
-        front_node_ptr_ = back_node_ptr_ = temp_node_ptr;
-    }
-}
-
-template<typename ObjectType, Bool kIfUnique>
-Void ZDeque<ObjectType, kIfUnique>::RemoveBackNode() noexcept {
-    DataNode* temp_node_ptr;
-    temp_node_ptr = back_node_ptr_;
-    if (front_node_ptr_ == back_node_ptr_) {
-        front_node_ptr_ = back_node_ptr_ = nullptr;
-    }
-    else {
-        back_node_ptr_ = back_node_ptr_->previous_node_ptr;
-    }
-    temp_node_ptr->next_node_ptr = empty_node_ptr_;
-    empty_node_ptr_ = temp_node_ptr;
-}
-
 
 template<typename ObjectType, Bool kIfUnique>
 FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::MoveP(ZDeque&& queue) {

@@ -263,16 +263,36 @@ public:
     /*
         The iterator funcions.
     */
-    NODISCARD FORCEINLINE IteratorType Begin() { return IteratorType(data_ptr_); }
-    NODISCARD FORCEINLINE ConstIteratorType ConstBegin() const { return ConstIteratorType(data_ptr_); }
-    NODISCARD FORCEINLINE ReverseIteratorType ReverseBegin() { return ReverseIteratorType(data_ptr_ + size_ - 1); }
+    NODISCARD FORCEINLINE IteratorType Begin() {
+        DEBUG(data_ptr_ == nullptr, "Vector not exist!");
+        return IteratorType(data_ptr_); 
+    }
+    NODISCARD FORCEINLINE ConstIteratorType ConstBegin() const { 
+        DEBUG(data_ptr_ == nullptr, "Vector not exist!"); 
+        return ConstIteratorType(data_ptr_); 
+    }
+    NODISCARD FORCEINLINE ReverseIteratorType ReverseBegin() { 
+        DEBUG(data_ptr_ == nullptr, "Vector not exist!"); 
+        return ReverseIteratorType(data_ptr_ + size_ - 1); 
+    }
     NODISCARD FORCEINLINE ConstReverseIteratorType ConstReverseBegin() const {
+        DEBUG(data_ptr_ == nullptr, "Vector not exist!");
         return ConstReverseIteratorType(data_ptr_ + size_ - 1);
     }
-    NODISCARD FORCEINLINE IteratorType End() { return IteratorType(data_ptr_ + size_); }
-    NODISCARD FORCEINLINE ConstIteratorType ConstEnd() const { return ConstIteratorType(data_ptr_ + size_); }
-    NODISCARD FORCEINLINE ReverseIteratorType ReverseEnd() { return ReverseIteratorType(data_ptr_ - 1); }
+    NODISCARD FORCEINLINE IteratorType End() { 
+        DEBUG(data_ptr_ == nullptr, "Vector not exist!"); 
+        return IteratorType(data_ptr_ + size_); 
+    }
+    NODISCARD FORCEINLINE ConstIteratorType ConstEnd() const { 
+        DEBUG(data_ptr_ == nullptr, "Vector not exist!"); 
+        return ConstIteratorType(data_ptr_ + size_); 
+    }
+    NODISCARD FORCEINLINE ReverseIteratorType ReverseEnd() { 
+        DEBUG(data_ptr_ == nullptr, "Vector not exist!"); 
+        return ReverseIteratorType(data_ptr_ - 1); 
+    }
     NODISCARD FORCEINLINE ConstReverseIteratorType ConstReverseEnd() const {
+        DEBUG(data_ptr_ == nullptr, "Vector not exist!");
         return ConstReverseIteratorType(data_ptr_ - 1);
     }
 
@@ -285,29 +305,29 @@ public:
         the object constructed by the arguements.
     */
     template<typename... ArgsType>
-    Void Resize(IndexType size, ArgsType&&... args) noexcept;
+    inline Void Resize(IndexType size, ArgsType&&... args) noexcept;
 
     /*
         Will extend the capacity by the given capacity, if the smaller then the
         given capacity, this function will do nothing, otherwise the capacity will
         entend to a size that equals or bigger then the given capacity.
     */
-    Void Reserve(IndexType capacity) noexcept;
+    FORCEINLINE Void Reserve(IndexType capacity);
 
     /*
         Shrinks the vector to the minimum capacity that can fit the current size.
     */
-    Void ShrinkToFit() noexcept;
+    FORCEINLINE Void ShrinkToFit();
 
     /*
         Remove the object at the back of the vector.
     */
-    Void PopBack() noexcept;
+    FORCEINLINE Void PopBack();
     /*
         Remove the object at the back of the vector. 
         Give the authority to the given address.
     */
-    Void PopBack(ObjectType* object_ptr) noexcept;
+    FORCEINLINE Void PopBack(ObjectType* object_ptr);
 
     /*
         Create an object at the back of the vector by calling the constructor with
@@ -315,14 +335,14 @@ public:
         only add the size of the vector.
     */
     template<typename... ArgsType>
-    Void PushBack(ArgsType&&... args) noexcept;
+    inline Void PushBack(ArgsType&&... args) noexcept;
     /*
         Create objects at the back of the vector by calling the constructor with
         the arguements. If kIfUnique is false and no arguements, will
         only add the size of the vector.
     */
     template<typename... ArgsType>
-    Void PushBacks(IndexType num, ArgsType&&... args) noexcept;
+    inline Void PushBacks(IndexType num, ArgsType&&... args) noexcept;
     /*
         Makes a copy of the objects between the iterators and push them to the
         back of the vector.
@@ -690,7 +710,7 @@ public:
     /*
         Destroys all the objects in the vector, release the memory.
     */
-    Void Destroy() noexcept;
+    FORCEINLINE Void Destroy();
 
 protected:
     using SuperType = ZObject;
@@ -931,7 +951,7 @@ ZVector<ObjectType, kIfUnique>::~ZVector() noexcept {
 
 template<typename ObjectType, Bool kIfUnique>
 template<typename... ArgsType>
-Void ZVector<ObjectType, kIfUnique>::Resize(IndexType size, ArgsType&&... args) noexcept {
+inline Void ZVector<ObjectType, kIfUnique>::Resize(IndexType size, ArgsType&&... args) noexcept {
     DEBUG(size < 0, "Negaive size is not valid!");
     if (size_ < size) {
         if (size > capacity_) {
@@ -946,29 +966,27 @@ Void ZVector<ObjectType, kIfUnique>::Resize(IndexType size, ArgsType&&... args) 
 }
 
 template<typename ObjectType, Bool kIfUnique>
-Void ZVector<ObjectType, kIfUnique>::Reserve(IndexType capacity) noexcept {
+FORCEINLINE Void ZVector<ObjectType, kIfUnique>::Reserve(IndexType capacity) {
     if (capacity > capacity_) {
         ExtendContainerP(capacity);
     }
 }
 
 template<typename ObjectType, Bool kIfUnique>
-Void ZVector<ObjectType, kIfUnique>::ShrinkToFit() noexcept {
+FORCEINLINE Void ZVector<ObjectType, kIfUnique>::ShrinkToFit() {
     ShrinkContainerP();
 }
 
 template<typename ObjectType, Bool kIfUnique>
-Void ZVector<ObjectType, kIfUnique>::PopBack() noexcept {
+FORCEINLINE Void ZVector<ObjectType, kIfUnique>::PopBack() {
     DEBUG(size_ == 0, "No existing object to pop!");
-    --size_;
-    DestroyObjectP(data_ptr_ + size_);
+    DestroyObjectP(data_ptr_ + size_--);
 }
 
 template<typename ObjectType, Bool kIfUnique>
-Void ZVector<ObjectType, kIfUnique>::PopBack(ObjectType* object_ptr) noexcept {
+FORCEINLINE Void ZVector<ObjectType, kIfUnique>::PopBack(ObjectType* object_ptr) {
     DEBUG(size_ == 0, "No existing object to pop!");
-    --size_;
-    *object_ptr = std::move(data_ptr_[size_]);
+    *object_ptr = std::move(data_ptr_[size_--]);
 }
 
 template<typename ObjectType, Bool kIfUnique>
@@ -984,7 +1002,7 @@ Void ZVector<ObjectType, kIfUnique>::PushBack(ArgsType&&... args) noexcept {
 
 template<typename ObjectType, Bool kIfUnique>
 template<typename... ArgsType>
-Void ZVector<ObjectType, kIfUnique>::PushBacks(IndexType num, ArgsType&&... args) noexcept {
+inline Void ZVector<ObjectType, kIfUnique>::PushBacks(IndexType num, ArgsType&&... args) noexcept {
     DEBUG(num < 0, "Negative pushing num not valid!");
     IndexType new_size = size_ + num;
     if (new_size > capacity_) {
@@ -1005,8 +1023,8 @@ inline Void ZVector<ObjectType, kIfUnique>::EmplaceBack(ArgsType&&... args) noex
 template<typename ObjectType, Bool kIfUnique>
 template<typename... ArgsType>
 Void ZVector<ObjectType, kIfUnique>::Assign(IndexType num, ArgsType&&... args) noexcept {
-    IndexType new_size = num;
     DEBUG(num < 0, "Negative assign num not valid!");
+    IndexType new_size = num;
     if (new_size > capacity_) {
         ExtendContainerP(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
     }
@@ -1022,7 +1040,7 @@ Void ZVector<ObjectType, kIfUnique>::Clear() noexcept {
 }
 
 template<typename ObjectType, Bool kIfUnique>
-Void ZVector<ObjectType, kIfUnique>::Destroy() noexcept {
+FORCEINLINE Void ZVector<ObjectType, kIfUnique>::Destroy() {
     DestroyContainerP();
 }
 
@@ -1176,9 +1194,7 @@ template<typename ObjectType, Bool kIfUnique>
 Void ZVector<ObjectType, kIfUnique>::DestroyContainerP() noexcept {
     DestroyObjectsP(data_ptr_, data_ptr_ + size_);
     memory_pool::ReleaseMemory(reinterpret_cast<Void*>(data_ptr_));
-    data_ptr_ = nullptr;
-    size_ = 0;
-    capacity_ = 0;
+    memset(reinterpret_cast<Void*>(this), 0, sizeof(ZVector));
 }
 
 template<typename ObjectType, Bool kIfUnique>

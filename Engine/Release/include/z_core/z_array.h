@@ -135,10 +135,10 @@ public:
         return *this;
     }
 
-    NODISCARD FORCEINLINE ArrayReverseIterator operator+(const IndexType num) const {
+    NODISCARD FORCEINLINE ArrayReverseIterator operator+(IndexType num) const {
         return ArrayReverseIterator(SuperType::object_ptr_ - num);
     }
-    NODISCARD FORCEINLINE ArrayReverseIterator operator-(const IndexType num) const {
+    NODISCARD FORCEINLINE ArrayReverseIterator operator-(IndexType num) const {
         return ArrayReverseIterator(SuperType::object_ptr_ + num);
     }
 
