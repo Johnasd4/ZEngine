@@ -8,56 +8,74 @@
 
 namespace zengine {
 
-template<typename ObjectType, Bool kIfUnique = kIsClass<ObjectType>>
-class ZDeque;
-
 namespace internal {
 
 template<typename ObjectType>
-struct DequeDataNode {
+struct ZDequeDataNode {
 public:
-    DequeDataNode* next_node_ptr;
-    DequeDataNode* previous_node_ptr;
+    ZDequeDataNode* next_node_ptr;
+    ZDequeDataNode* previous_node_ptr;
     IndexType capacity;
     IndexType size;
 
     NODISCARD FORCEINLINE ObjectType& operator[](IndexType index) {
         return (reinterpret_cast<ObjectType*>(this + 1))[index];
     }
+    NODISCARD FORCEINLINE const ObjectType& operator[](IndexType index) const {
+        return (reinterpret_cast<ObjectType*>(this + 1))[index];
+    }
+
+    NODISCARD FORCEINLINE ObjectType& At(IndexType index) {
+        return (reinterpret_cast<ObjectType*>(this + 1))[index];
+    }
+    NODISCARD FORCEINLINE const ObjectType& At(IndexType index) const {
+        return (reinterpret_cast<ObjectType*>(this + 1))[index];
+    }
+
+    NODISCARD FORCEINLINE ObjectType* AtPtr(IndexType index) {
+        return (reinterpret_cast<ObjectType*>(this + 1)) + index;
+    }
+    NODISCARD FORCEINLINE const ObjectType* AtPtr(IndexType index) const {
+        return (reinterpret_cast<ObjectType*>(this + 1)) + index;
+    }
+
+
 };
 
 template<typename ObjectType>
-class DequeIteratorBase {
+class ZDequeIteratorBase {
 protected:
-    using DataNode = DequeDataNode<ObjectType>;
+    using DataNode = ZDequeDataNode<ObjectType>;
 
 public:
-    FORCEINLINE DequeIteratorBase(ObjectType* object_ptr, DataNode* node_ptr) 
+    FORCEINLINE ZDequeIteratorBase(ObjectType* object_ptr, DataNode* node_ptr) 
         : object_ptr_(object_ptr), node_ptr_(node_ptr) {}
-    FORCEINLINE DequeIteratorBase(const DequeIteratorBase& iterator) 
+    FORCEINLINE ZDequeIteratorBase(const ZDequeIteratorBase& iterator) 
         : object_ptr_(iterator.object_ptr_), node_ptr_(iterator.node_ptr_) {}
-    FORCEINLINE DequeIteratorBase(DequeIteratorBase&& iterator) { MoveP(std::forward<DequeIteratorBase>(iterator)); }
+    FORCEINLINE ZDequeIteratorBase(ZDequeIteratorBase&& iterator) { 
+        MoveP(std::forward<ZDequeIteratorBase>(iterator)); 
+    }
 
-    FORCEINLINE DequeIteratorBase& operator=(const DequeIteratorBase& iterator) {
+    FORCEINLINE ZDequeIteratorBase& operator=(const ZDequeIteratorBase& iterator) {
         object_ptr_ = iterator.object_ptr_;
         return *this;
     }
-    FORCEINLINE DequeIteratorBase& operator=(DequeIteratorBase&& iterator) {
-        MoveP(std::forward<DequeIteratorBase>(iterator));
+    FORCEINLINE ZDequeIteratorBase& operator=(ZDequeIteratorBase&& iterator) {
+        MoveP(std::forward<ZDequeIteratorBase>(iterator));
         return *this;
     }
 
-    NODISCARD FORCEINLINE Bool operator==(const DequeIteratorBase& iterator) const {
+    NODISCARD FORCEINLINE Bool operator==(const ZDequeIteratorBase& iterator) const {
         return object_ptr_ == iterator.object_ptr_;
     }
-    NODISCARD FORCEINLINE Bool operator!=(const DequeIteratorBase& iterator) const {
+    NODISCARD FORCEINLINE Bool operator!=(const ZDequeIteratorBase& iterator) const {
         return object_ptr_ != iterator.object_ptr_;
     }
 
     NODISCARD FORCEINLINE ObjectType& operator*() const { return *object_ptr_; }
     NODISCARD FORCEINLINE ObjectType* operator->() const { return object_ptr_; }
 
-    FORCEINLINE ~DequeIteratorBase() {}
+    FORCEINLINE ~ZDequeIteratorBase() {}
 
     NODISCARD FORCEINLINE ObjectType* object_ptr() const { return object_ptr_; }
 
@@ -66,128 +84,131 @@ protected:
     DataNode* node_ptr_;
 
 private:
-    FORCEINLINE Void MoveP(DequeIteratorBase&& iterator) {
-        memcpy(reinterpret_cast<Void*>(this), reinterpret_cast<Void*>(&iterator), sizeof(DequeIteratorBase));
-        memset(reinterpret_cast<Void*>(&iterator), 0, sizeof(DequeIteratorBase));
+    FORCEINLINE Void MoveP(ZDequeIteratorBase&& iterator) {
+        memcpy(reinterpret_cast<Void*>(this), reinterpret_cast<Void*>(&iterator), sizeof(ZDequeIteratorBase));
+        memset(reinterpret_cast<Void*>(&iterator), 0, sizeof(ZDequeIteratorBase));
     }
 };
 
 template<typename ObjectType>
-class DequeIterator : public DequeIteratorBase<ObjectType> {
+class ZDequeIterator : public ZDequeIteratorBase<ObjectType> {
 public:
-    NODISCARD FORCEINLINE ObjectType& operator[](IndexType index) const { return SuperType::object_ptr_[index]; }
+    NODISCARD FORCEINLINE ObjectType& operator[](IndexType index) const { 
+        index += SuperType::node_ptr_
+        while()
+        return SuperType::object_ptr_[index]; }
 
-    FORCEINLINE DequeIterator& operator+=(IndexType data_num) {
+    FORCEINLINE ZDequeIterator& operator+=(IndexType data_num) {
         SuperType::object_ptr_ += data_num;
         return *this;
     }
-    FORCEINLINE DequeIterator& operator-=(IndexType data_num) {
+    FORCEINLINE ZDequeIterator& operator-=(IndexType data_num) {
         SuperType::object_ptr_ -= data_num;
         return *this;
     }
 
-    FORCEINLINE DequeIterator& operator++() {
+    FORCEINLINE ZDequeIterator& operator++() {
         ++SuperType::object_ptr_;
         return *this;
     }
-    FORCEINLINE DequeIterator& operator++(IndexType) {
+    FORCEINLINE ZDequeIterator& operator++(IndexType) {
         ++SuperType::object_ptr_;
         return *this;
     }
-    FORCEINLINE DequeIterator& operator--() {
+    FORCEINLINE ZDequeIterator& operator--() {
         --SuperType::object_ptr_;
         return *this;
     }
-    FORCEINLINE DequeIterator& operator--(IndexType) {
+    FORCEINLINE ZDequeIterator& operator--(IndexType) {
         --SuperType::object_ptr_;
         return *this;
     }
 
-    NODISCARD FORCEINLINE DequeIterator operator+(IndexType data_num) const {
-        return DequeIterator(SuperType::object_ptr_ + data_num);
+    NODISCARD FORCEINLINE ZDequeIterator operator+(IndexType data_num) const {
+        return ZDequeIterator(SuperType::object_ptr_ + data_num);
     }
-    NODISCARD FORCEINLINE DequeIterator operator-(IndexType data_num) const {
-        return DequeIterator(SuperType::object_ptr_ - data_num);
+    NODISCARD FORCEINLINE ZDequeIterator operator-(IndexType data_num) const {
+        return ZDequeIterator(SuperType::object_ptr_ - data_num);
     }
 
-    NODISCARD FORCEINLINE Bool operator>(const DequeIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator>(const ZDequeIterator& iterator) const {
         return SuperType::object_ptr_ > iterator.SuperType::object_ptr_;
     }
-    NODISCARD FORCEINLINE Bool operator>=(const DequeIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator>=(const ZDequeIterator& iterator) const {
         return SuperType::object_ptr_ >= iterator.SuperType::object_ptr_;
     }
-    NODISCARD FORCEINLINE Bool operator<(const DequeIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator<(const ZDequeIterator& iterator) const {
         return SuperType::object_ptr_ < iterator.SuperType::object_ptr_;
     }
-    NODISCARD FORCEINLINE Bool operator<=(const DequeIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator<=(const ZDequeIterator& iterator) const {
         return SuperType::object_ptr_ <= iterator.SuperType::object_ptr_;
     }
 
-    FORCEINLINE IndexType operator-(const DequeIterator& iterator) const {
+    FORCEINLINE IndexType operator-(const ZDequeIterator& iterator) const {
         return static_cast<IndexType>(SuperType::object_ptr_ - iterator.SuperType::object_ptr_);
     }
 
 protected:
-    using SuperType = DequeIteratorBase<ObjectType>;
+    using SuperType = ZDequeIteratorBase<ObjectType>;
 };
 
 template<typename ObjectType>
-class DequeReverseIterator : public DequeIteratorBase<ObjectType> {
+class ZDequeReverseIterator : public ZDequeIteratorBase<ObjectType> {
 public:
     NODISCARD FORCEINLINE ObjectType& operator[](IndexType index) const { return SuperType::object_ptr_[-index]; }
 
-    FORCEINLINE DequeReverseIterator& operator+=(IndexType data_num) {
+    FORCEINLINE ZDequeReverseIterator& operator+=(IndexType data_num) {
         SuperType::object_ptr_ -= data_num;
         return *this;
     }
-    FORCEINLINE DequeReverseIterator& operator-=(IndexType data_num) {
+    FORCEINLINE ZDequeReverseIterator& operator-=(IndexType data_num) {
         SuperType::object_ptr_ += data_num;
         return *this;
     }
 
-    FORCEINLINE DequeReverseIterator& operator++() {
+    FORCEINLINE ZDequeReverseIterator& operator++() {
         --SuperType::object_ptr_;
         return *this;
     }
-    FORCEINLINE DequeReverseIterator& operator++(IndexType) {
+    FORCEINLINE ZDequeReverseIterator& operator++(IndexType) {
         --SuperType::object_ptr_;
         return *this;
     }
-    FORCEINLINE DequeReverseIterator& operator--() {
+    FORCEINLINE ZDequeReverseIterator& operator--() {
         ++SuperType::object_ptr_;
         return *this;
     }
-    FORCEINLINE DequeReverseIterator& operator--(IndexType) {
+    FORCEINLINE ZDequeReverseIterator& operator--(IndexType) {
         ++SuperType::object_ptr_;
         return *this;
     }
 
-    NODISCARD FORCEINLINE DequeReverseIterator operator+(IndexType data_num) const {
-        return DequeReverseIterator(SuperType::object_ptr_ - data_num);
+    NODISCARD FORCEINLINE ZDequeReverseIterator operator+(IndexType data_num) const {
+        return ZDequeReverseIterator(SuperType::object_ptr_ - data_num);
     }
-    NODISCARD FORCEINLINE DequeReverseIterator operator-(IndexType data_num) const {
-        return DequeReverseIterator(SuperType::object_ptr_ + data_num);
+    NODISCARD FORCEINLINE ZDequeReverseIterator operator-(IndexType data_num) const {
+        return ZDequeReverseIterator(SuperType::object_ptr_ + data_num);
     }
 
-    NODISCARD FORCEINLINE Bool operator>(const DequeReverseIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator>(const ZDequeReverseIterator& iterator) const {
         return SuperType::object_ptr_ < iterator.SuperType::object_ptr_;
     }
-    NODISCARD FORCEINLINE Bool operator>=(const DequeReverseIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator>=(const ZDequeReverseIterator& iterator) const {
         return SuperType::object_ptr_ <= iterator.SuperType::object_ptr_;
     }
-    NODISCARD FORCEINLINE Bool operator<(const DequeReverseIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator<(const ZDequeReverseIterator& iterator) const {
         return SuperType::object_ptr_ > iterator.SuperType::object_ptr_;
     }
-    NODISCARD FORCEINLINE Bool operator<=(const DequeReverseIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator<=(const ZDequeReverseIterator& iterator) const {
         return SuperType::object_ptr_ >= iterator.SuperType::object_ptr_;
     }
 
-    FORCEINLINE IndexType operator-(const DequeReverseIterator& iterator) const {
+    FORCEINLINE IndexType operator-(const ZDequeReverseIterator& iterator) const {
         return static_cast<IndexType>(iterator.SuperType::object_ptr_ - SuperType::object_ptr_);
     }
 
 protected:
-    using SuperType = DequeIteratorBase<ObjectType>;
+    using SuperType = ZDequeIteratorBase<ObjectType>;
 };
 
 }//internal
@@ -202,10 +223,10 @@ private:
     static constexpr Float32 kAutoExtendMulFactor = 0.5F;
 
 public:
-    using IteratorType = internal::DequeIterator<ObjectType>;
-    using ConstIteratorType = internal::DequeIterator<const ObjectType>;
-    using ReverseIteratorType = internal::DequeReverseIterator<ObjectType>;
-    using ConstReverseIteratorType = internal::DequeReverseIterator<const ObjectType>;
+    using IteratorType = internal::ZDequeIterator<ObjectType>;
+    using ConstIteratorType = internal::ZDequeIterator<const ObjectType>;
+    using ReverseIteratorType = internal::ZDequeReverseIterator<ObjectType>;
+    using ConstReverseIteratorType = internal::ZDequeReverseIterator<const ObjectType>;
 
     ZDeque() noexcept;
     ZDeque(IndexType capacity) noexcept;
@@ -234,10 +255,16 @@ public:
 
     NODISCARD FORCEINLINE ObjectType& At(IndexType index);
     NODISCARD FORCEINLINE const ObjectType& At(IndexType index) const;
+    NODISCARD FORCEINLINE ObjectType* AtPtr(IndexType index);
+    NODISCARD FORCEINLINE const ObjectType* AtPtr(IndexType index) const;
     NODISCARD FORCEINLINE ObjectType& Front();
     NODISCARD FORCEINLINE const ObjectType& Front() const;
+    NODISCARD FORCEINLINE ObjectType* FrontPtr();
+    NODISCARD FORCEINLINE const ObjectType* FrontPtr() const;
     NODISCARD FORCEINLINE ObjectType& Back();
     NODISCARD FORCEINLINE const ObjectType& Back() const;
+    NODISCARD FORCEINLINE ObjectType* BackPtr();
+    NODISCARD FORCEINLINE const ObjectType* BackPtr() const;
 
     NODISCARD FORCEINLINE IndexType size() const { return size_; }
     NODISCARD FORCEINLINE IndexType capacity() const { return capacity_; }
@@ -576,7 +603,7 @@ public:
 
 protected:
     using SuperType = ZObject;
-    using DataNode = internal::DequeDataNode<ObjectType>;
+    using DataNode = internal::ZDequeDataNode<ObjectType>;
 
 private:    
 
@@ -879,10 +906,10 @@ Void ZDeque<ObjectType, kIfUnique>::DestroyContainer() noexcept {
     while (temp_node_ptr != front_node_ptr_) {
         DataNode* delete_node_ptr = temp_node_ptr;
         temp_node_ptr = temp_node_ptr->previous_node_ptr;
-        DestroyObjectsP(&((*delete_node_ptr)[0]), &((*delete_node_ptr)[delete_node_ptr->size]));
+        DestroyObjectsP(delete_node_ptr->AtPtr(0), delete_node_ptr->AtPtr(delete_node_ptr->size));
         memory_pool::ReleaseMemory(reinterpret_cast<Void*>(delete_node_ptr);
     }
-    DestroyObjectsP(&((*front_node_ptr_)[front_index_]), &((*front_node_ptr_)[front_index_ + front_node_ptr_->size]));
+    DestroyObjectsP(front_node_ptr_->AtPtr(front_index_), front_node_ptr_->AtPtr(front_index_ + front_node_ptr_->size));
     memory_pool::ReleaseMemory(reinterpret_cast<Void*>(temp_node_ptr));
     memset(reinterpret_cast<Void*>(this), 0, sizeof(ZDeque));
 }

@@ -8,6 +8,9 @@
 
 namespace zengine {
 
+template<typename ObjectType, Bool kIfUnique>
+class ZVector;
+
 namespace internal {
 
 template<typename ObjectType>

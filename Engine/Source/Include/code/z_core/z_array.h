@@ -11,158 +11,161 @@ namespace zengine {
 namespace internal {
 
 template<typename ObjectType>
-class ArrayIteratorBase {
+class ZArrayIteratorBase {
 public:
-    FORCEINLINE ArrayIteratorBase(ObjectType* object_ptr) : object_ptr_(object_ptr) {}
-    FORCEINLINE ArrayIteratorBase(const ArrayIteratorBase& iterator) : object_ptr_(iterator.object_ptr_) {}
-    FORCEINLINE ArrayIteratorBase(ArrayIteratorBase&& iterator) : object_ptr_(iterator.object_ptr_) {
-        iterator.MoveDestroy();
+    FORCEINLINE ZArrayIteratorBase(ObjectType* object_ptr) : object_ptr_(object_ptr) {}
+    FORCEINLINE ZArrayIteratorBase(const ZArrayIteratorBase& iterator) : object_ptr_(iterator.object_ptr_) {}
+    FORCEINLINE ZArrayIteratorBase(ZArrayIteratorBase&& iterator) {
+        MoveP(std::forward<ZArrayIteratorBase>(iterator));
     }
 
-    FORCEINLINE ArrayIteratorBase& operator=(ObjectType* object_ptr) {
+    FORCEINLINE ZArrayIteratorBase& operator=(ObjectType* object_ptr) {
         object_ptr_ = object_ptr;
         return *this;
     }
-    FORCEINLINE ArrayIteratorBase& operator=(const ArrayIteratorBase& iterator) {
+    FORCEINLINE ZArrayIteratorBase& operator=(const ZArrayIteratorBase& iterator) {
         object_ptr_ = iterator.object_ptr_;
         return *this;
     }
-    FORCEINLINE ArrayIteratorBase& operator=(ArrayIteratorBase&& iterator) {
-        object_ptr_ = iterator.object_ptr_;
-        iterator.MoveDestroy();
+    FORCEINLINE ZArrayIteratorBase& operator=(ZArrayIteratorBase&& iterator) {
+        MoveP(std::forward<ZArrayIteratorBase>(iterator));
         return *this;
     }
 
-    NODISCARD FORCEINLINE Bool operator==(const ArrayIteratorBase& iterator) const {
+    NODISCARD FORCEINLINE Bool operator==(const ZArrayIteratorBase& iterator) const {
         return object_ptr_ == iterator.object_ptr_;
     }
-    NODISCARD FORCEINLINE Bool operator!=(const ArrayIteratorBase& iterator) const {
+    NODISCARD FORCEINLINE Bool operator!=(const ZArrayIteratorBase& iterator) const {
         return object_ptr_ != iterator.object_ptr_;
     }
 
     NODISCARD FORCEINLINE ObjectType& operator*() const { return *object_ptr_; }
     NODISCARD FORCEINLINE ObjectType* operator->() const { return object_ptr_; }
 
-    FORCEINLINE ~ArrayIteratorBase() {}
+    FORCEINLINE ~ZArrayIteratorBase() {}
 
     NODISCARD FORCEINLINE ObjectType* object_ptr() const { return object_ptr_; }
 
-    FORCEINLINE Void MoveDestroy() { object_ptr_ = nullptr; }
-
 protected:
      ObjectType* object_ptr_;
+
+private:
+    FORCEINLINE Void MoveP(ZArrayIteratorBase&& iterator) {
+        object_ptr_ = iterator.object_ptr_;
+        iterator.object_ptr_ = nullptr;
+    }
 };
 
 template<typename ObjectType>
-class ArrayIterator : public ArrayIterator<ObjectType> {
+class ZArrayIterator : public ZArrayIterator<ObjectType> {
 public:
     NODISCARD FORCEINLINE ObjectType& operator[](IndexType index) const { return SuperType::object_ptr_[index]; }
 
-    FORCEINLINE ArrayIterator& operator+=(IndexType num) {
+    FORCEINLINE ZArrayIterator& operator+=(IndexType num) {
         SuperType::object_ptr_ += num;
         return *this;
     }
-    FORCEINLINE ArrayIterator& operator-=(IndexType num) {
+    FORCEINLINE ZArrayIterator& operator-=(IndexType num) {
         SuperType::object_ptr_ -= num;
         return *this;
     }
 
-    FORCEINLINE ArrayIterator& operator++() {
+    FORCEINLINE ZArrayIterator& operator++() {
         ++SuperType::object_ptr_;
         return *this;
     }
-    FORCEINLINE ArrayIterator& operator++(IndexType) {
+    FORCEINLINE ZArrayIterator& operator++(IndexType) {
         ++SuperType::object_ptr_;
         return *this;
     }
-    FORCEINLINE ArrayIterator& operator--() {
+    FORCEINLINE ZArrayIterator& operator--() {
         --SuperType::object_ptr_;
         return *this;
     }
-    FORCEINLINE ArrayIterator& operator--(IndexType) {
+    FORCEINLINE ZArrayIterator& operator--(IndexType) {
         --SuperType::object_ptr_;
         return *this;
     }
 
-    NODISCARD FORCEINLINE ArrayIterator operator+(IndexType num) const {
-        return ArrayIterator(SuperType::object_ptr_ + num);
+    NODISCARD FORCEINLINE ZArrayIterator operator+(IndexType num) const {
+        return ZArrayIterator(SuperType::object_ptr_ + num);
     }
-    NODISCARD FORCEINLINE ArrayIterator operator-(IndexType num) const {
-        return ArrayIterator(SuperType::object_ptr_ - num);
+    NODISCARD FORCEINLINE ZArrayIterator operator-(IndexType num) const {
+        return ZArrayIterator(SuperType::object_ptr_ - num);
     }
 
-    NODISCARD FORCEINLINE Bool operator>(const ArrayIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator>(const ZArrayIterator& iterator) const {
         return SuperType::object_ptr_ > iterator.SuperType::object_ptr_;
     }
-    NODISCARD FORCEINLINE Bool operator>=(const ArrayIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator>=(const ZArrayIterator& iterator) const {
         return SuperType::object_ptr_ >= iterator.SuperType::object_ptr_;
     }
-    NODISCARD FORCEINLINE Bool operator<(const ArrayIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator<(const ZArrayIterator& iterator) const {
         return SuperType::object_ptr_ < iterator.SuperType::object_ptr_;
     }
-    NODISCARD FORCEINLINE Bool operator<=(const ArrayIterator& iterator) const {
+    NODISCARD FORCEINLINE Bool operator<=(const ZArrayIterator& iterator) const {
         return SuperType::object_ptr_ <= iterator.SuperType::object_ptr_;
     }
 
-    FORCEINLINE IndexType operator-(const ArrayIterator& iterator) const {
+    FORCEINLINE IndexType operator-(const ZArrayIterator& iterator) const {
         return static_cast<IndexType>(SuperType::object_ptr_ - iterator.SuperType::object_ptr_);
     }
 
 protected:
-    using SuperType = ArrayIteratorBase<ObjectType>;
+    using SuperType = ZArrayIteratorBase<ObjectType>;
 };
 
 template<typename ObjectType>
-class ArrayReverseIterator : public ArrayIteratorBase<ObjectType> {
+class ZArrayReverseIterator : public ZArrayIteratorBase<ObjectType> {
 public:
     NODISCARD FORCEINLINE ObjectType& operator[](IndexType index) const { return SuperType::object_ptr_[-index]; }
 
-    FORCEINLINE ArrayReverseIterator& operator+=(IndexType num) {
+    FORCEINLINE ZArrayReverseIterator& operator+=(IndexType num) {
         SuperType::object_ptr_ -= num;
         return *this;
     }
-    FORCEINLINE ArrayReverseIterator& operator-=(IndexType num) {
+    FORCEINLINE ZArrayReverseIterator& operator-=(IndexType num) {
         SuperType::object_ptr_ += num;
         return *this;
     }
 
-    FORCEINLINE ArrayReverseIterator& operator++() {
+    FORCEINLINE ZArrayReverseIterator& operator++() {
         --SuperType::object_ptr_;
         return *this;
     }
-    FORCEINLINE ArrayReverseIterator& operator--() {
+    FORCEINLINE ZArrayReverseIterator& operator--() {
         ++SuperType::object_ptr_;
         return *this;
     }
 
-    NODISCARD FORCEINLINE ArrayReverseIterator operator+(IndexType num) const {
-        return ArrayReverseIterator(SuperType::object_ptr_ - num);
+    NODISCARD FORCEINLINE ZArrayReverseIterator operator+(IndexType num) const {
+        return ZArrayReverseIterator(SuperType::object_ptr_ - num);
     }
-    NODISCARD FORCEINLINE ArrayReverseIterator operator-(IndexType num) const {
-        return ArrayReverseIterator(SuperType::object_ptr_ + num);
+    NODISCARD FORCEINLINE ZArrayReverseIterator operator-(IndexType num) const {
+        return ZArrayReverseIterator(SuperType::object_ptr_ + num);
     }
 
-    NODISCARD FORCEINLINE const Bool operator>(const ArrayReverseIterator& iterator) const {
+    NODISCARD FORCEINLINE const Bool operator>(const ZArrayReverseIterator& iterator) const {
         return SuperType::object_ptr_ < iterator.SuperType::object_ptr_;
     }
-    NODISCARD FORCEINLINE const Bool operator>=(const ArrayReverseIterator& iterator) const {
+    NODISCARD FORCEINLINE const Bool operator>=(const ZArrayReverseIterator& iterator) const {
         return SuperType::object_ptr_ <= iterator.SuperType::object_ptr_;
     }
-    NODISCARD FORCEINLINE const Bool operator<(const ArrayReverseIterator& iterator) const {
+    NODISCARD FORCEINLINE const Bool operator<(const ZArrayReverseIterator& iterator) const {
         return SuperType::object_ptr_ > iterator.SuperType::object_ptr_;
     }
-    NODISCARD FORCEINLINE const Bool operator<=(const ArrayReverseIterator& iterator) const {
+    NODISCARD FORCEINLINE const Bool operator<=(const ZArrayReverseIterator& iterator) const {
         return SuperType::object_ptr_ >= iterator.SuperType::object_ptr_;
     }
 
-    FORCEINLINE IndexType operator-(const ArrayReverseIterator& iterator) const {
+    FORCEINLINE IndexType operator-(const ZArrayReverseIterator& iterator) const {
         return static_cast<IndexType>(iterator.SuperType::object_ptr_ - SuperType::object_ptr_);
     }
 
 
 
 protected:
-    using SuperType = ArrayIteratorBase<ObjectType>;
+    using SuperType = ZArrayIteratorBase<ObjectType>;
 };
 
 template<typename ArrayType, typename Function, typename... ArgsType>
@@ -182,10 +185,10 @@ template<typename ObjectType, IndexType kCapacity, Bool kIfUnique = kIsClass<Obj
 requires kIsNotZero<kCapacity>
 class ZArray : public ZObject {
 public:
-    using IteratorType = internal::ArrayIterator<ObjectType>;
-    using ConstIteratorType = internal::ArrayIterator<const ObjectType>;
-    using ReverseIteratorType = internal::ArrayReverseIterator<ObjectType>;
-    using ConstReverseIteratorType = internal::ArrayReverseIterator<const ObjectType>;
+    using IteratorType = internal::ZArrayIterator<ObjectType>;
+    using ConstIteratorType = internal::ZArrayIterator<const ObjectType>;
+    using ReverseIteratorType = internal::ZArrayReverseIterator<ObjectType>;
+    using ConstReverseIteratorType = internal::ZArrayReverseIterator<const ObjectType>;
 
 #pragma warning(disable : 26495)
     FORCEINLINE ZArray() : SuperType() {}
@@ -236,10 +239,22 @@ public:
         DEBUG(index < 0 || index >= kCapacity, "Index out of bounds!");
         return data_[index];
     }
+    NODISCARD FORCEINLINE ObjectType* AtPtr(IndexType index) {
+        DEBUG(index < 0 || index >= size_, "Index out of bounds!");
+        return data_ + index;
+    }
+    NODISCARD FORCEINLINE const ObjectType* AtPtr(IndexType index) const {
+        DEBUG(index < 0 || index >= size_, "Index out of bounds!");
+        return data_ + index;
+    }
     NODISCARD FORCEINLINE constexpr ObjectType& Front() { return data_[0]; }
     NODISCARD FORCEINLINE constexpr const ObjectType& Front() const { return data_[0]; }
+    NODISCARD FORCEINLINE ObjectType* FrontPtr() { return data_; }
+    NODISCARD FORCEINLINE const ObjectType* FrontPtr() const { return data_; }
     NODISCARD FORCEINLINE constexpr ObjectType& Back() { return data_[kCapacity - 1]; }
     NODISCARD FORCEINLINE constexpr const ObjectType& Back() const { return data_[kCapacity - 1]; }
+    NODISCARD FORCEINLINE ObjectType* BackPtr() { return data_ + (kCapacity - 1); }
+    NODISCARD FORCEINLINE const ObjectType* BackPtr() const { return data_ + (kCapacity - 1); }
 
     NODISCARD FORCEINLINE constexpr const ObjectType* data_ptr() const { return data_; }
 
