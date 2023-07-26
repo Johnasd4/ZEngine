@@ -36,7 +36,7 @@ int main(){
     {
         a.PushBack(i);
         c.PushBack(a);
-    }
+    } 
     d = c;
     b = a;
     auto it = b.Erases(b.ReverseEnd() - 2, 2);

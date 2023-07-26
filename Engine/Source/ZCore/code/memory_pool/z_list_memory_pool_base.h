@@ -142,8 +142,9 @@ Void ZListMemoryPoolBase<MemoryBlockType, kMemoryBlockHeadOffset, kIsThreadSafe>
     if (memory_block_added_num == 0) {
         return;
     }
+    MemoryType memory_block_size = memory_block_size_;
     //Calculates the size that needs to apply. Rounds up to the unit size's multiple.
-    MemoryType apply_heap_memory_size = memory_block_added_num * memory_block_size_;
+    MemoryType apply_heap_memory_size = memory_block_added_num * memory_block_size;
     if (apply_heap_memory_size >= kApplyHeapMemoryMaxSizePurTime) {
         apply_heap_memory_size = kApplyHeapMemoryMaxSizePurTime;
     }
@@ -156,7 +157,7 @@ Void ZListMemoryPoolBase<MemoryBlockType, kMemoryBlockHeadOffset, kIsThreadSafe>
     PointerType temp_memory_ptr = reinterpret_cast<PointerType>(apply_memory_ptr);
     SuperType* this_memory_pool_ptr = static_cast<SuperType*>(this);
     //Recaculate the real memory block num added. 
-    IndexType apply_memory_block_num = apply_heap_memory_size / memory_block_size_; 
+    IndexType apply_memory_block_num = apply_heap_memory_size / memory_block_size;
     capacity_ += apply_memory_block_num;
     //Initialize the memory block.
     for (IndexType count = 1; count < apply_memory_block_num; count++) {
@@ -164,9 +165,9 @@ Void ZListMemoryPoolBase<MemoryBlockType, kMemoryBlockHeadOffset, kIsThreadSafe>
         reinterpret_cast<Node*>(temp_memory_ptr)->memory_block.InitializeP(reinterpret_cast<Void*>(this));
         //Links the blocks into a list.
         reinterpret_cast<Node*>(temp_memory_ptr)->next_node_ptr =
-            reinterpret_cast<Node*>(temp_memory_ptr + memory_block_size_);
+            reinterpret_cast<Node*>(temp_memory_ptr + memory_block_size);
         //Next memory block start pointer.
-        temp_memory_ptr += memory_block_size_;
+        temp_memory_ptr += memory_block_size;
     }
     //Initialize the last memory block.
     reinterpret_cast<Node*>(temp_memory_ptr)->memory_block.InitializeP(reinterpret_cast<Void*>(this));
