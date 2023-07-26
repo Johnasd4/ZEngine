@@ -65,7 +65,7 @@ template<Bool kIsThreadSafe>
 NODISCARD Void* ZHeapMemoryPool<kIsThreadSafe>::ApplyMemory(MemoryType size) noexcept {
     ZHeapMemoryPool& memory_pool = InstanceP();
     Void* heap_memory_ptr = malloc(size);
-    memory_pool.MutexType::lock();
+    memory_pool.MutexType::Lock();
     //applys new node when the memory runs out.
     if (memory_pool.current_node_heap_memory_ptr_num_ == HeapMemoryPtrArrayNode::kHeapMemoryPtrNumPurNode) {
         memory_pool.current_node_heap_memory_ptr_num_ = 0;
@@ -75,7 +75,7 @@ NODISCARD Void* ZHeapMemoryPool<kIsThreadSafe>::ApplyMemory(MemoryType size) noe
     }
     memory_pool.current_node_ptr_->heap_memory_ptr[memory_pool.current_node_heap_memory_ptr_num_++] = 
         heap_memory_ptr;
-    memory_pool.MutexType::unlock();
+    memory_pool.MutexType::Unlock();
     return heap_memory_ptr;
 }
 

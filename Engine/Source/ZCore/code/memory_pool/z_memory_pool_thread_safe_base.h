@@ -17,14 +17,18 @@ namespace memory_pool {
 template<Bool kIsThreadSafe>
 class ZMemoryPoolThreadSafeBase {
 protected:
-    FORCEINLINE Void lock() { if constexpr (kIsThreadSafe) { mutex_.lock(); } }
-    FORCEINLINE Void unlock() { if constexpr (kIsThreadSafe) { mutex_.unlock(); } }
+    FORCEINLINE Void Lock() { if constexpr (kIsThreadSafe) { mutex_.Lock(); } }
+    FORCEINLINE Void Unlock() { if constexpr (kIsThreadSafe) { mutex_.Unlock(); } }
 
 private:
     ZMutex mutex_;
 };
 template<>
-class ZMemoryPoolThreadSafeBase<false>{};
+class ZMemoryPoolThreadSafeBase<false> {
+protected:
+    FORCEINLINE Void Lock() {}
+    FORCEINLINE Void Unlock() {}
+};
 
 }//memory_pool
 }//zengine

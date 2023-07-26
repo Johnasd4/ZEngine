@@ -107,24 +107,24 @@ Void ZListMemoryPoolBase<MemoryBlockType, kMemoryBlockHeadOffset, kIsThreadSafe>
 
 template<typename MemoryBlockType, PointerType kMemoryBlockHeadOffset, Bool kIsThreadSafe>
 NODISCARD FORCEINLINE Void* ZListMemoryPoolBase<MemoryBlockType, kMemoryBlockHeadOffset, kIsThreadSafe>::ApplyMemory() {
-    MutexType::lock();
+    MutexType::Lock();
     if (head_node_ptr_ == nullptr) {
         AutoExtendCapcityP();
     }
     Void* memory_ptr = reinterpret_cast<Void*>(reinterpret_cast<PointerType>(head_node_ptr_) + kNodeHeadOffset);
     head_node_ptr_ = head_node_ptr_->next_node_ptr;
-    MutexType::unlock();
+    MutexType::Unlock();
     return memory_ptr;
 }
 
 template<typename MemoryBlockType, PointerType kMemoryBlockHeadOffset, Bool kIsThreadSafe>
 FORCEINLINE Void ZListMemoryPoolBase<MemoryBlockType, kMemoryBlockHeadOffset, kIsThreadSafe>::ReleaseMemory(
         Void* memory_ptr) {
-    MutexType::lock();
+    MutexType::Lock();
     Node* node_ptr = reinterpret_cast<Node*>(reinterpret_cast<PointerType>(memory_ptr) - kNodeHeadOffset);
     node_ptr->next_node_ptr = head_node_ptr_;
     head_node_ptr_ = node_ptr;
-    MutexType::unlock();
+    MutexType::Unlock();
 }
 
 template<typename MemoryBlockType, PointerType kMemoryBlockHeadOffset, Bool kIsThreadSafe>

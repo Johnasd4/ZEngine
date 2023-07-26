@@ -25,10 +25,10 @@ CORE_DLLAPI Void LogErrorMessage(const CChar* error_title,
                                  Int32 error_line,
                                  const CChar* error_message) noexcept {
     static ZMutex log_mutex;
-    log_mutex.lock();
+    log_mutex.Lock();
     //TODO(Johnasd4):The log output.
 
-    log_mutex.unlock();
+    log_mutex.Unlock();
 }
 
 }//internal

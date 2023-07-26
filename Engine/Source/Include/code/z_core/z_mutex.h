@@ -13,8 +13,8 @@ public:
     FORCEINLINE ZMutex() :handle_(CreateMutex(nullptr, FALSE, nullptr)) {}
     FORCEINLINE ~ZMutex() { CloseHandle(handle_); }
 
-    FORCEINLINE Void lock() { WaitForSingleObject(handle_, INFINITE); }   
-    FORCEINLINE Void unlock() { ReleaseMutex(handle_); }
+    FORCEINLINE Void Lock() { WaitForSingleObject(handle_, INFINITE); }   
+    FORCEINLINE Void Unlock() { ReleaseMutex(handle_); }
 
 private:
     ZMutex(const ZMutex&) = delete;
