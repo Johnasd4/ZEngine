@@ -101,7 +101,6 @@ using IndexType = Int32;
 using Bool = bool;
 using Byte = unsigned char;
 using Void = void;
-using Address = void*;
 using Handle = void*;
 
 #pragma endregion basic type

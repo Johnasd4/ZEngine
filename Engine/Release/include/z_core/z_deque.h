@@ -840,11 +840,16 @@ inline Void ZDeque<ObjectType, kIfUnique>::CreateAndCopyObjectsP(ObjectType* dst
                                                                  const DataNode* src_begin_node_ptr,
                                                                  const ObjectType* src_end_ptr, 
                                                                  const DataNode* src_end_node_ptr) noexcept {
-    if constexpr (sizeof...(args) != 0) {
-        while (begin_node_ptr != end_node_ptr) {
-            ObjectType* temp_end_ptr = begin_node_ptr->AtPtr(begin_node_ptr->size);
-            while (begin_ptr != temp_end_ptr) {
-                new(reinterpret_cast<Void*>(begin_ptr++)) ObjectType(std::forward<ArgsType>(args)...);
+    if constexpr (kIfUnique) {
+        ObjectType* temp_dst_end_ptr = dst_node_ptr->AtPtr(dst_node_ptr->capacity);
+        while (src_begin_node_ptr != src_end_node_ptr) {
+            ObjectType* temp_src_end_ptr = src_begin_node_ptr->AtPtr(src_begin_node_ptr->size);
+            while (src_begin_ptr != temp_src_end_ptr) {
+                *dst_ptr = *src_begin_ptr;
+                if (++dst_ptr == temp_dst_end_ptr) {
+                    dst_node_ptr = dst_node_ptr->next_node_ptr;
+                }
+                new(reinterpret_cast<Void*>(src_begin_ptr++)) ObjectType(std::forward<ArgsType>(args)...);
             }
             begin_node_ptr = begin_node_ptr->next_node_ptr;
             begin_ptr = begin_node_ptr->FrontPtr();
@@ -852,24 +857,7 @@ inline Void ZDeque<ObjectType, kIfUnique>::CreateAndCopyObjectsP(ObjectType* dst
         while (begin_ptr != end_ptr) {
             new(reinterpret_cast<Void*>(begin_ptr++)) ObjectType(std::forward<ArgsType>(args)...);
         }
-    }
-    else {
-        if constexpr (kIfUnique) {
-            if (begin_node_ptr != end_node_ptr) {
-                new(reinterpret_cast<Void*>(begin_ptr))
-                    ObjectType[begin_node_ptr->AtPtr(begin_node_ptr->capacity) - begin_ptr];
-                do {
-                    new(reinterpret_cast<Void*>(begin_ptr)) ObjectType[begin_node_ptr->size];
-                    begin_node_ptr = begin_node_ptr->next_node_ptr;
-                } while (begin_node_ptr != end_node_ptr);
-            }
-            else {
-                new(reinterpret_cast<Void*>(begin_ptr)) ObjectType[end_ptr - begin_ptr];
-            }
-        }
-    }
 
-    if constexpr (kIfUnique) {
         while (src_begin_ptr < src_end_ptr) {
             new(reinterpret_cast<Void*>(dst_ptr)) ObjectType(*src_begin_ptr);
             ++dst_ptr;

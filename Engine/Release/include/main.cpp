@@ -27,22 +27,14 @@ constexpr auto init_function = [](ZArray<Int32, 10>* array_ptr) {
         (*array_ptr)[index] = 1;
     }
 };
-int main(){
-    ZVector<int> a;
-    ZVector<int> b;
-    ZVector<ZVector<int>> c;
-    ZVector<ZVector<int>> d;
-    for (int i = 0; i < 6; i++)
-    {
-        a.PushBack(i);
-        c.PushBack(a);
-    } 
-    d = c;
-    b = a;
-    auto it = b.Erases(b.ReverseEnd() - 2, 2);
-    cout << (b.ReverseEnd() - 2).object_ptr() - b.data_ptr() << endl;
-    cout << it.object_ptr() - b.data_ptr() << endl;
-    it++;
+int main() {
+    IndexType a = 1;
+    IndexType b = 1;
+    cin >> a >> b;
+    if (a == b) {
+        a = b;
+    }
+    cout << a << b << endl;
 
     //cout << (-4) % 3;
     //ZArray<Int32, 19> test_1;

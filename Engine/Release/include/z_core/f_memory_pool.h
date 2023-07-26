@@ -10,7 +10,7 @@
 // the program.
 #define USE_MEMORY_POOL_TEST true
 //Wheather the memory pool is thread safe.
-#define MEMORY_POOL_THREAD_SAFE false
+#define MEMORY_POOL_THREAD_SAFE true
 #else
 // Shows the use of the memory pool, includes the memory block left when the 
 // program emds, the total memory blocks appplyed and the peak situation of
