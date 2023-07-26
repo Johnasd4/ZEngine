@@ -32,10 +32,10 @@ public:
     }
 
     NODISCARD FORCEINLINE Bool operator==(const ZVectorIteratorBase& iterator) const {
-        return object_ptr_ == iterator.object_ptr_;
+        return this == &iterator;
     }
     NODISCARD FORCEINLINE Bool operator!=(const ZVectorIteratorBase& iterator) const {
-        return object_ptr_ != iterator.object_ptr_;
+        return this != &iterator;
     }
 
     NODISCARD FORCEINLINE ObjectType& operator*() const { return *object_ptr_; }
@@ -216,10 +216,10 @@ public:
     ZVector& operator=(ZVector&& vector) noexcept;
 
     NODISCARD FORCEINLINE Bool operator==(const ZVector& vector) noexcept { 
-        return data_ptr_ == vector.data_ptr_; 
+        return this == &vector;
     }    
     NODISCARD FORCEINLINE Bool operator!=(const ZVector& vector) noexcept { 
-        return data_ptr_ != vector.data_ptr_; 
+        return this != &vector;
     }
 
     NODISCARD FORCEINLINE ObjectType& operator[](IndexType index) { 

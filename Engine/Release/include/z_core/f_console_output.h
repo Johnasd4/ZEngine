@@ -95,9 +95,9 @@ CORE_DLLAPI extern Void SetConsoleOutputColour(ConsoleOutputTextColour test_colo
 template<typename FormatType, typename... ArgsType>
 Void Print(FormatType&& format, ArgsType&&... args) noexcept {
     internal::ZConsoleOutputSettings& settings = internal::ZConsoleOutputSettings::InstanceP();
-    settings.console_output_mutex().lock();
+    settings.console_output_mutex().Lock();
     printf(std::forward<FormatType>(format), std::forward<ArgsType>(args)...);
-    settings.console_output_mutex().unlock();
+    settings.console_output_mutex().Unlock();
 }
 
 /*
@@ -109,7 +109,7 @@ template<typename FormatType, typename... ArgsType>
 Void Print(ConsoleOutputTextColour text_colour, ConsoleOutputBackgroundColour background_colour, 
            FormatType&& format, ArgsType&&... args) noexcept{
     internal::ZConsoleOutputSettings& settings = internal::ZConsoleOutputSettings::InstanceP();
-    settings.console_output_mutex().lock();
+    settings.console_output_mutex().Lock();
     //Changes the console output colour.
     SetConsoleTextAttribute(
         GetStdHandle(STD_OUTPUT_HANDLE), static_cast<UInt16>(text_colour) | static_cast<UInt16>(background_colour));
@@ -119,7 +119,7 @@ Void Print(ConsoleOutputTextColour text_colour, ConsoleOutputBackgroundColour ba
         GetStdHandle(STD_OUTPUT_HANDLE), 
         static_cast<UInt16>(settings.text_colour()) |
         static_cast<UInt16>(settings.background_colour()));
-    settings.console_output_mutex().unlock();
+    settings.console_output_mutex().Unlock();
 }
 
 }//console

@@ -224,6 +224,13 @@ public:
     inline ZArray& operator=(const ZArray& array) noexcept;
     inline ZArray& operator=(ZArray&& array) noexcept;
 
+    NODISCARD FORCEINLINE Bool operator==(const ZArray& array) noexcept {
+        return this == &array;
+    }
+    NODISCARD FORCEINLINE Bool operator!=(const ZArray& array) noexcept {
+        return this != &array;
+    }
+
     NODISCARD FORCEINLINE constexpr ObjectType& operator[](IndexType index) { 
         DEBUG(index < 0 || index >= kCapacity, "Index out of bounds!");
         return this->data_[index]; }
