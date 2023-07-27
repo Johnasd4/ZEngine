@@ -17,13 +17,13 @@ template<typename ObjectType>
 class ZVectorIteratorBase {
 public:
     FORCEINLINE ZVectorIteratorBase(ObjectType* object_ptr) : object_ptr_(object_ptr) {}
-    FORCEINLINE ZVectorIteratorBase(const ZVectorIteratorBase& iterator) : object_ptr_(iterator.object_ptr_) {}
+    FORCEINLINE ZVectorIteratorBase(const ZVectorIteratorBase& iterator) { CopyP(iterator); }
     FORCEINLINE ZVectorIteratorBase(ZVectorIteratorBase&& iterator) { 
         MoveP(std::forward<ZVectorIteratorBase>(iterator)); 
     }
 
     FORCEINLINE ZVectorIteratorBase& operator=(const ZVectorIteratorBase& iterator) {
-        object_ptr_ = iterator.object_ptr_;
+        CopyP(iterator);
         return *this;
     }
     FORCEINLINE ZVectorIteratorBase& operator=(ZVectorIteratorBase&& iterator) {
@@ -50,6 +50,10 @@ protected:
     ObjectType* object_ptr_;
 
 private:
+    FORCEINLINE Void CopyP(const ZVectorIteratorBase& iterator) {
+        object_ptr_ = iterator.object_ptr_;
+    }
+
     FORCEINLINE Void MoveP(ZVectorIteratorBase&& iterator) {
         object_ptr_ = iterator.object_ptr_;
         iterator.object_ptr_ = nullptr;
@@ -743,6 +747,13 @@ protected:
     using SuperType = ZObject;
 
 private:
+    static constexpr Bool kCreateObjects = true;
+    static constexpr Bool kDestroyObjects = false;
+    static constexpr Bool kCreateAndCopyObjects = true;
+    static constexpr Bool kCopyObjects = false;
+    static constexpr Bool kCreateAndCopyObjectsReverse = true;
+    static constexpr Bool kCopyObjectsReverse = false;
+
     /*
         Creates an object at the certain place. Will call the Constrctor if needed.
     */
@@ -755,6 +766,13 @@ private:
     FORCEINLINE static Void DestroyObjectP(ObjectType* object_ptr);
 
     /*
+        The base function of create and destroy objests.
+    */
+    template<Bool kIfCreate, typename... ArgsType>
+    FORCEINLINE static Void CreateDestroyObjectsBaseP(ObjectType* begin_ptr, ObjectType* end_ptr, 
+                                                      ArgsType&&... args) noexcept;
+
+    /*
         Initialize the memory by the given arguements([begin, end)).
         Will call the Constrctor if needed.
     */
@@ -762,11 +780,39 @@ private:
     inline static Void CreateObjectsP(ObjectType* begin_ptr, ObjectType* end_ptr, ArgsType&&... args) noexcept;
 
     /*
+        Destroy the objects by the given arguements([begin, end)).
+        Will call the destrctor if this object class's member kIfUnique is true.
+    */
+    inline static Void DestroyObjectsP(ObjectType* begin_ptr, ObjectType* end_ptr) noexcept;
+
+    /*
+        The base function of copy objests.
+    */
+    template<Bool kIfCreate>
+    FORCEINLINE static Void CopyObjectsBaseP(ObjectType* dst_ptr, const ObjectType* src_begin_ptr, 
+                                             const ObjectType* src_end_ptr) noexcept;
+
+    /*
         Initialize the memory by the given arguements([begin, end)).
         Will call the copy constructor.
     */
     inline static Void CreateAndCopyObjectsP(ObjectType* dst_ptr, const ObjectType* src_begin_ptr,
                                              const ObjectType* src_end_ptr) noexcept;
+
+    /*
+        Copy objects by the given pointer. Will call the copy assignment operator
+        if this object class's member kIfUnique is true.
+    */
+    inline static Void CopyObjectsP(ObjectType* dst_ptr, const ObjectType* src_begin_ptr,
+                                    const ObjectType* src_end_ptr) noexcept;
+
+    /*
+        The base function of reverse copy objests.
+    */
+    template<Bool kIfCreate>
+    FORCEINLINE static Void CopyObjectsReverseBaseP(ObjectType* dst_ptr, 
+                                                    const ObjectType* src_begin_ptr, 
+                                                    const ObjectType* src_end_ptr) noexcept;
 
     /*
         Initialize the memory by the given arguements([begin, end)).
@@ -779,21 +825,8 @@ private:
         Copy objects by the given pointer. Will call the copy assignment operator
         if this object class's member kIfUnique is true.
     */
-    inline static Void CopyObjectsP(ObjectType* dst_ptr, const ObjectType* src_begin_ptr,
-                                    const ObjectType* src_end_ptr) noexcept;
-
-    /*
-        Copy objects by the given pointer. Will call the copy assignment operator
-        if this object class's member kIfUnique is true.
-    */
     static Void CopyObjectsReverseP(ObjectType* dst_ptr, const ObjectType* src_begin_ptr,
                                     const ObjectType* src_end_ptr) noexcept;
-
-    /*
-        Destroy the objects by the given arguements([begin, end)). 
-        Will call the destrctor if this object class's member kIfUnique is true.
-    */
-    inline static Void DestroyObjectsP(ObjectType* begin_ptr, ObjectType* end_ptr) noexcept;
 
     /*
         Creates the capacity by the given capacity, the final capacity might
@@ -1092,89 +1125,103 @@ FORCEINLINE Void ZVector<ObjectType, kIfUnique>::DestroyObjectP(ObjectType* obje
 }
 
 template<typename ObjectType, Bool kIfUnique>
-template<typename... ArgsType>
-inline Void ZVector<ObjectType, kIfUnique>::CreateObjectsP(ObjectType* begin_ptr, ObjectType* end_ptr,
-                                                          ArgsType&&... args) noexcept {
-    if constexpr (kIfUnique) {
-        if constexpr (sizeof...(args) == 0) {
-            new(reinterpret_cast<Void*>(begin_ptr)) ObjectType[end_ptr - begin_ptr];
-        }
-        else {
-            while (begin_ptr < end_ptr) {
-                new(reinterpret_cast<Void*>(begin_ptr++)) ObjectType(std::forward<ArgsType>(args)...);
+template<Bool kIfCreate, typename... ArgsType>
+FORCEINLINE static Void ZVector<ObjectType, kIfUnique>::CreateDestroyObjectsBaseP(ObjectType* begin_ptr, 
+                                                                                  ObjectType* end_ptr,
+                                                                                  ArgsType&&... args) noexcept {
+    if constexpr (sizeof...(args) != 0 || (!kIfCreate && kIfUnique)) {
+        while (begin_ptr < end_ptr) {
+            if constexpr (kIfCreate) {
+                new(reinterpret_cast<Void*>(begin_ptr)) ObjectType(std::forward<ArgsType>(args)...);
             }
+            else {
+                begin_ptr->~ObjectType();
+            }
+            ++begin_ptr;
         }
     }
     else {
-        if constexpr (sizeof...(args) != 0) {
-            while (begin_ptr < end_ptr) {
-                new(reinterpret_cast<Void*>(begin_ptr++)) ObjectType(std::forward<ArgsType>(args)...);
-            }
+        if constexpr (kIfUnique) {
+            new(reinterpret_cast<Void*>(begin_ptr)) ObjectType[end_ptr - begin_ptr];
         }
+    }
+}
+
+template<typename ObjectType, Bool kIfUnique>
+template<typename... ArgsType>
+inline Void ZVector<ObjectType, kIfUnique>::CreateObjectsP(ObjectType* begin_ptr, ObjectType* end_ptr,
+                                                          ArgsType&&... args) noexcept {
+    CreateDestroyObjectsBaseP<kCreateObjects>(begin_ptr, end_ptr, std::forward<ArgsType>(args)...);
+}
+
+template<typename ObjectType, Bool kIfUnique>
+inline Void ZVector<ObjectType, kIfUnique>::DestroyObjectsP(ObjectType* begin_ptr, ObjectType* end_ptr) noexcept {
+    CreateDestroyObjectsBaseP<kDestroyObjects>(begin_ptr, end_ptr);
+}
+
+template<typename ObjectType, Bool kIfUnique>
+template<Bool kIfCreate>
+FORCEINLINE static Void ZVector<ObjectType, kIfUnique>::CopyObjectsBaseP(ObjectType* dst_ptr, 
+                                                                         const ObjectType* src_begin_ptr,
+                                                                         const ObjectType* src_end_ptr) noexcept {
+    if constexpr (kIfUnique) {
+        while (src_begin_ptr < src_end_ptr) {
+            if constexpr (kIfCreate) {
+                new(reinterpret_cast<Void*>(dst_ptr)) ObjectType(*src_begin_ptr);
+            }
+            else {
+                *dst_ptr = *src_begin_ptr;
+            }
+            ++dst_ptr;
+            ++src_begin_ptr;
+        }
+    }
+    else {
+        memcpy(reinterpret_cast<Void*>(dst_ptr), reinterpret_cast<Void*>(const_cast<ObjectType*>(src_begin_ptr)),
+            static_cast<SizeType>(src_end_ptr - src_begin_ptr) * sizeof(ObjectType));
     }
 }
 
 template<typename ObjectType, Bool kIfUnique>
 inline Void ZVector<ObjectType, kIfUnique>::CreateAndCopyObjectsP(ObjectType* dst_ptr, const ObjectType* src_begin_ptr,
                                                                   const ObjectType* src_end_ptr) noexcept {
-    if constexpr (kIfUnique) {
-        while (src_begin_ptr < src_end_ptr) {
-            new(reinterpret_cast<Void*>(dst_ptr)) ObjectType(*src_begin_ptr);
-            ++dst_ptr;
-            ++src_begin_ptr;
-        }
-    }
-    else {
-        memcpy(reinterpret_cast<Void*>(dst_ptr), reinterpret_cast<Void*>(const_cast<ObjectType*>(src_begin_ptr)),
-            static_cast<SizeType>((src_end_ptr - src_begin_ptr) * sizeof(ObjectType)));
-    }
-}
-
-template<typename ObjectType, Bool kIfUnique>
-Void ZVector<ObjectType, kIfUnique>::CreateAndCopyObjectsReverseP(ObjectType* dst_ptr, const ObjectType* src_begin_ptr, 
-                                                                  const ObjectType* src_end_ptr) noexcept {
-    while (src_begin_ptr > src_end_ptr) {
-        new(reinterpret_cast<Void*>(dst_ptr)) ObjectType(*src_begin_ptr);
-        ++dst_ptr;
-        --src_begin_ptr;
-    }
+    CopyObjectsBaseP<kCreateAndCopyObjects>(dst_ptr, src_begin_ptr, src_end_ptr);
 }
 
 template<typename ObjectType, Bool kIfUnique>
 inline Void ZVector<ObjectType, kIfUnique>::CopyObjectsP(ObjectType* dst_ptr, const ObjectType* src_begin_ptr,
                                                          const ObjectType* src_end_ptr) noexcept {
-    if constexpr (kIfUnique) {
-        while (src_begin_ptr < src_end_ptr) {
-            *dst_ptr = *src_begin_ptr;
-            ++dst_ptr;
-            ++src_begin_ptr;
+    CopyObjectsBaseP<kCopyObjects>(dst_ptr, src_begin_ptr, src_end_ptr);
+}
+
+template<typename ObjectType, Bool kIfUnique>
+template<Bool kIfCreate>
+FORCEINLINE static Void ZVector<ObjectType, kIfUnique>::CopyObjectsReverseBaseP(
+        ObjectType* dst_ptr, const ObjectType* src_begin_ptr, const ObjectType* src_end_ptr) noexcept {
+    while (src_begin_ptr > src_end_ptr) {
+        if constexpr (kIfCreate) {
+            new(reinterpret_cast<Void*>(dst_ptr)) ObjectType(*src_begin_ptr);
         }
+        else {
+            *dst_ptr = *src_begin_ptr;
+        }
+        ++dst_ptr;
+        --src_begin_ptr;
     }
-    else {
-        memcpy(reinterpret_cast<Void*>(dst_ptr), reinterpret_cast<Void*>(const_cast<ObjectType*>(src_begin_ptr)),
-            static_cast<SizeType>((src_end_ptr - src_begin_ptr) * sizeof(ObjectType)));
-    }
+
+}
+
+template<typename ObjectType, Bool kIfUnique>
+Void ZVector<ObjectType, kIfUnique>::CreateAndCopyObjectsReverseP(ObjectType* dst_ptr, const ObjectType* src_begin_ptr, 
+                                                                  const ObjectType* src_end_ptr) noexcept {
+    CopyObjectsReverseBaseP<kCreateAndCopyObjectsReverse>(dst_ptr, src_begin_ptr, src_end_ptr);
 }
 
 template<typename ObjectType, Bool kIfUnique>
 Void ZVector<ObjectType, kIfUnique>::CopyObjectsReverseP(ObjectType* dst_ptr,
                                                          const ObjectType* src_begin_ptr,
                                                          const ObjectType* src_end_ptr) noexcept {
-    while (src_begin_ptr > src_end_ptr) {
-        *dst_ptr = *src_begin_ptr;
-        ++dst_ptr;
-        --src_begin_ptr;
-    }
-}
-
-template<typename ObjectType, Bool kIfUnique>
-inline Void ZVector<ObjectType, kIfUnique>::DestroyObjectsP(ObjectType* begin_ptr, ObjectType* end_ptr) noexcept {
-    if constexpr (kIfUnique) {
-        while (begin_ptr < end_ptr) {
-            begin_ptr->~ObjectType();
-            ++begin_ptr;
-        }
-    }
+    CopyObjectsReverseBaseP<kCopyObjectsReverse>(dst_ptr, src_begin_ptr, src_end_ptr);
 }
 
 template<typename ObjectType, Bool kIfUnique>

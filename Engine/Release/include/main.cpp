@@ -10,46 +10,29 @@
 using namespace zengine;
 using namespace std;
 
-
-
-struct DataNode {
-public:
-    DataNode* next_node_ptr;
-    DataNode* previous_node_ptr;
-    IndexType capacity;
-    IndexType size;
-    IndexType a[1];
-    IndexType b[10];
-};
-
-constexpr auto init_function = [](ZArray<Int32, 10>* array_ptr) {
-    for (IndexType index = 0; index < array_ptr->size(); ++index) {
-        (*array_ptr)[index] = 1;
-    }
-};
 int main() {
     IndexType a = 1;
     IndexType b = 1;
-    cin >> a >> b;
     if (a == b) {
         a = b;
     }
     cout << a << b << endl;
-
+    IndexType* c = nullptr;
+    auto d = c - c;
     //cout << (-4) % 3;
     //ZArray<Int32, 19> test_1;
     //ZArray<Int32, 19> test_2(test_1);
 
-    //ZVector<Int32> vector_1;
-    //for (IndexType index = 1; index < 13; ++index) {
-    //    vector_1.PushBacks(-10,index);
-    //}
-    //ZVector<ZVector<Int32>> vector_2;
-    //ZVector<ZVector<Int32>> vector_3;
-    //for (IndexType index = 1; index < 13; ++index) {
-    //    vector_1.PushBack(index);
-    //    vector_2.PushBack(vector_1);
-    //}
+    ZVector<Int32> vector_1;
+    for (IndexType index = 1; index < 13; ++index) {
+        vector_1.PushBacks(10,index);
+    }
+    ZVector<ZVector<Int32>> vector_2;
+    ZVector<ZVector<Int32>> vector_3;
+    for (IndexType index = 1; index < 13; ++index) {
+        vector_1.PushBack(index);
+        vector_2.PushBack(vector_1);
+    }
     //auto begin = vector_2.ReverseBegin();
     //auto end = vector_2.ReverseEnd();
     //vector_2.Assign(begin, end);
