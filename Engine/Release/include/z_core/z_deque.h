@@ -1,3 +1,21 @@
+/*
+    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+
+    This code file is licensed under the Creative Commons
+    Attribution-NonCommercial 4.0 International License.
+
+    You may obtain a copy of the License at
+    https://creativecommons.org/licenses/by-nc/4.0/
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Contact: 1152325286@qq.com
+*/
 #ifndef Z_CORE_Z_DEQUE_H_
 #define Z_CORE_Z_DEQUE_H_
 
@@ -123,6 +141,9 @@ public:
 
     NODISCARD FORCEINLINE ObjectType& object() const { return *object_ptr_; }
     NODISCARD FORCEINLINE ObjectType* object_ptr() const { return object_ptr_; }
+
+    NODISCARD FORCEINLINE DataNode& data_node() const { return *node_ptr_; }
+    NODISCARD FORCEINLINE DataNode* data_node_ptr() const { return node_ptr_; }
 
 protected:
     ObjectType* FindObject(IndexType index) noexcept {
@@ -303,10 +324,18 @@ public:
     */
     template<typename... ArgsType>
     ZDeque(IndexType capacity, ArgsType&&... args) noexcept;    
-    ZDeque(const IteratorType& begin, const IteratorType& end) noexcept;
-    ZDeque(const ConstIteratorType& begin, const ConstIteratorType& end) noexcept;
-    ZDeque(const ReverseIteratorType& begin, const ReverseIteratorType& end) noexcept;
-    ZDeque(const ConstReverseIteratorType& begin, const ConstReverseIteratorType& end) noexcept;
+    ZDeque(const IteratorType& begin, const IteratorType& end) noexcept : SuperType() {
+        ZDequeOrderP(begin.object_ptr(), begin.data_node_ptr(), end.object_ptr(), end.data_node_ptr());
+    }
+    ZDeque(const ConstIteratorType& begin, const ConstIteratorType& end) noexcept : SuperType() {
+        ZDequeOrderP(begin.object_ptr(), begin.data_node_ptr(), end.object_ptr(), end.data_node_ptr());
+    }
+    ZDeque(const ReverseIteratorType& begin, const ReverseIteratorType& end) noexcept : SuperType() {
+        ZDequeReverseP(begin.object_ptr(), begin.data_node_ptr(), end.object_ptr(), end.data_node_ptr());
+    }
+    ZDeque(const ConstReverseIteratorType& begin, const ConstReverseIteratorType& end) noexcept : SuperType() {
+        ZDequeReverseP(begin.object_ptr(), begin.data_node_ptr(), end.object_ptr(), end.data_node_ptr());
+    }
     ZDeque(const ZDeque& deque) noexcept;
     ZDeque(ZDeque&& deque) noexcept;
 
@@ -804,6 +833,18 @@ private:
     Void DestroyContainerP() noexcept;
 
     /*
+        Constructor with two order iterators.
+    */
+    FORCEINLINE Void ZDequeOrderP(const ObjectType* begin_ptr, const DataNode* begin_node_ptr,
+                                  const ObjectType* end_ptr, const DataNode* end_node_ptr) noexcept;
+
+    /*
+        Constructor with two reverse iterators.
+    */
+    FORCEINLINE Void ZDequeReverseP(const ObjectType* begin_ptr, const DataNode* begin_node_ptr,
+                                    const ObjectType* end_ptr, const DataNode* end_node_ptr) noexcept;
+
+    /*
         Container copy function.
     */
     Void CopyP(const ZDeque& deque) noexcept;
@@ -849,10 +890,16 @@ template<typename... ArgsType>
 ZDeque<ObjectType, kIfUnique>::ZDeque(IndexType capacity, ArgsType&&... args) noexcept
     : SuperType()
 {
-    //DEBUG(capacity < 0, "Negaive capacity not valid!");
-    //CreateContainerP(capacity);
-    //CreateObjectsP(data_ptr_, data_ptr_ + capacity, std::forward<ArgsType>(args)...);
-    //size_ = capacity;
+    DEBUG(capacity < 0, "Negaive capacity not valid!");
+    CreateContainerP(capacity);
+    ObjectType* end_ptr;
+    DataNode* end_node_ptr;
+    FindPlaceP(front_node_ptr_->FrontPtr(), front_node_ptr_, capacity, &end_ptr, &end_node_ptr);
+    CreateObjectsP(front_node_ptr_->FrontPtr(), front_node_ptr_, end_ptr, end_node_ptr, 
+                   std::forward<ArgsType>(args)...);
+    front_index_ = 0;
+    back_index_ = end_ptr - end_node_ptr->FrontPtr();
+    size_ = capacity;
 }
 
 template<typename ObjectType, Bool kIfUnique>
@@ -1286,6 +1333,30 @@ Void ZDeque<ObjectType, kIfUnique>::DestroyContainerP() noexcept {
     front_index_ = 0;
     back_index_ = 0;
     size_ = 0;
+}
+
+template<typename ObjectType, Bool kIfUnique>
+FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::ZDequeOrderP(const ObjectType* begin_ptr, 
+                                                             const DataNode* begin_node_ptr,
+                                                             const ObjectType* end_ptr, 
+                                                             const DataNode* end_node_ptr) noexcept {
+    size_ = CalculateLengthP(begin_ptr, begin_node_ptr, end_ptr, end_node_ptr);
+    CreateContainerP(size_);
+    CreateAndCopyObjectsP(front_node_ptr_->FrontPtr(), front_node_ptr_, 
+                          begin_ptr, begin_node_ptr, 
+                          end_ptr, end_node_ptr);
+}
+
+template<typename ObjectType, Bool kIfUnique>
+FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::ZDequeReverseP(const ObjectType* begin_ptr,
+                                                               const DataNode* begin_node_ptr,
+                                                               const ObjectType* end_ptr,
+                                                               const DataNode* end_node_ptr) noexcept {
+    size_ = CalculateLengthP(end_ptr, end_node_ptr, begin_ptr, begin_node_ptr);
+    CreateContainerP(size_);
+    CreateAndCopyObjectsReverseP(front_node_ptr_->FrontPtr(), front_node_ptr_, 
+                                 begin_ptr, begin_node_ptr, 
+                                 end_ptr, end_node_ptr);
 }
 
 template<typename ObjectType, Bool kIfUnique>
