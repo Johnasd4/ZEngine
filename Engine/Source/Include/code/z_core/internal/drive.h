@@ -1,5 +1,5 @@
 /*
-    Copyright (c) 2023-2025 YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -16,7 +16,6 @@
     Author: YuLin Zhu (÷Ï”Í¡÷)
     Contact: 1152325286@qq.com
 */
-
 #ifndef Z_CORE_INTERNAL_DRIVE_H_
 #define Z_CORE_INTERNAL_DRIVE_H_
 
