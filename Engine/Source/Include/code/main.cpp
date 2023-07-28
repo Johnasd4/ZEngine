@@ -22,7 +22,7 @@ int main() {
     //cout << (-4) % 3;
     //ZArray<Int32, 19> test_1;
     //ZArray<Int32, 19> test_2(test_1);
-
+    //
     ZVector<Int32> vector_1;
     for (IndexType index = 1; index < 13; ++index) {
         vector_1.PushBacks(10,index);
