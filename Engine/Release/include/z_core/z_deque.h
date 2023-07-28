@@ -773,6 +773,18 @@ private:
                                     const ObjectType* src_end_ptr, const DataNode* src_end_node_ptr) noexcept;
 
     /*
+        Starts at the given place and find the place that is num objects away.
+    */
+    static Void FindPlaceP(const ObjectType* begin_ptr, const DataNode* begin_node_ptr, IndexType num,
+                           ObjectType** find_ptr, DataNode** find_node_ptr) noexcept;
+
+    /*
+        Calculate the length between the two places.
+    */
+    static IndexType CalculateLengthP(const ObjectType* begin_ptr, const DataNode* begin_node_ptr,
+                                      const ObjectType* end_ptr, const DataNode* end_node_ptr) noexcept;
+
+    /*
         Creates the capacity by the given capacity, the final capacity might
         not equal the given capacity.
     */
@@ -1169,6 +1181,38 @@ Void ZDeque<ObjectType, kIfUnique>::CopyObjectsReverseP(ObjectType* dst_ptr,
 }
 
 template<typename ObjectType, Bool kIfUnique>
+Void ZDeque<ObjectType, kIfUnique>::FindPlaceP(const ObjectType* begin_ptr, 
+                                               const DataNode* begin_node_ptr, 
+                                               IndexType num,
+                                               ObjectType** find_ptr, 
+                                               DataNode** find_node_ptr) noexcept {
+    IndexType node_left_num = begin_node_ptr->BackPtr() - begin_ptr;
+    if (num > node_left_num) {
+        do {
+            num -= node_left_num;
+            begin_node_ptr = begin_node_ptr->next_node_ptr;
+            node_left_num = begin_node_ptr->capacity;
+        } while (num > node_left_num);
+        begin_ptr = begin_node_ptr->FrontPtr();
+    }
+    *find_node_ptr = begin_node_ptr;
+    *find_ptr = begin_ptr + num;
+}
+
+template<typename ObjectType, Bool kIfUnique>
+static IndexType ZDeque<ObjectType, kIfUnique>::CalculateLengthP(const ObjectType* begin_ptr, 
+                                                                 const DataNode* begin_node_ptr,
+                                                                 const ObjectType* end_ptr,
+                                                                 const DataNode* end_node_ptr) noexcept {
+    IndexType num = (end_ptr - end_node_ptr->FrontPtr()) - (begin_ptr - begin_node_ptr->FrontPtr());
+    while (begin_node_ptr != end_node_ptr) {
+        num += begin_node_ptr->capacity;
+        begin_node_ptr = begin_node_ptr->next_node_ptr;
+    }
+    return num;
+}
+
+template<typename ObjectType, Bool kIfUnique>
 Void ZDeque<ObjectType, kIfUnique>::CreateContainerP(IndexType capacity) noexcept {
     MemoryType need_memory_size = ((capacity * sizeof(ObjectType)) >> 1) + sizeof(DataNode);
     MemoryType front_node_apply_mrmory_size;
@@ -1282,9 +1326,6 @@ FORCEINLINE Void ZDeque<ObjectType, kIfUnique>::MoveP(ZDeque&& deque) {
     deque.size_ = 0;
 }
 
-
-
 }//zengine
-
 
 #endif // !Z_CORE_Z_DEQUE_H_
