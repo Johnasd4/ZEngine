@@ -211,6 +211,9 @@ public:
 
 #pragma warning(disable : 26495)
     FORCEINLINE ZArray() : SuperType() {}
+    inline ZArray(const ZArray& array) noexcept;
+    inline ZArray(ZArray&& array) noexcept;
+
 #pragma warning(default : 26495)
     /*
         Constexpr array, the work is done at compile time.
@@ -236,8 +239,6 @@ public:
     FORCEINLINE constexpr ZArray(InitFunction&& init_function, ArgsType&&... args) : SuperType() {
         init_function(this, std::forward<ArgsType>(args)...);
     }
-    inline ZArray(const ZArray& array) noexcept;
-    inline ZArray(ZArray&& array) noexcept;
 
     inline ZArray& operator=(const ZArray& array) noexcept;
     inline ZArray& operator=(ZArray&& array) noexcept;

@@ -28,7 +28,7 @@
 using namespace zengine;
 using namespace std;
 
-int main() {
+Int32 main() {
     IndexType a = 1;
     IndexType b = 1;
     if (a == b) {
@@ -51,6 +51,8 @@ int main() {
         vector_1.PushBack(index);
         vector_2.PushBack(vector_1);
     }
+    ZVector<ZVector<Int32>> vector_4(std::move(vector_3));
+
     //auto begin = vector_2.ReverseBegin();
     //auto end = vector_2.ReverseEnd();
     //vector_2.Assign(begin, end);

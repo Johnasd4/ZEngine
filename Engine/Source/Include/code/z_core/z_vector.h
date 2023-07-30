@@ -213,12 +213,16 @@ public:
     using ConstReverseIteratorType = internal::ZVectorReverseIterator<const ObjectType>;
 
     ZVector() noexcept;
+    ZVector(const ZVector& vector) noexcept;
+    ZVector(ZVector&& vector) noexcept;
+
     ZVector(IndexType capacity) noexcept;
     /*
         Fills the container by the object constructed by the arguements.
     */
     template<typename... ArgsType>
     ZVector(IndexType capacity, ArgsType&&... args) noexcept;    
+
     ZVector(const IteratorType& begin, const IteratorType& end) noexcept : SuperType() { 
         ZVectorOrderP(begin.object_ptr(), end.object_ptr());
     }
@@ -231,8 +235,6 @@ public:
     ZVector(const ConstReverseIteratorType& begin, const ConstReverseIteratorType& end) noexcept : SuperType() {
         ZVectorReverseP(begin.object_ptr(), end.object_ptr());
     }
-    ZVector(const ZVector& vector) noexcept;
-    ZVector(ZVector&& vector) noexcept;
 
     ZVector& operator=(const ZVector& vector) noexcept;
     ZVector& operator=(ZVector&& vector) noexcept;
@@ -345,7 +347,8 @@ public:
         return ConstReverseIteratorType(data_ptr_ - 1);
     }
 
-    NODISCARD FORCEINLINE Bool IsEmpty() { return size_ == 0; }
+    NODISCARD FORCEINLINE Bool Empty() { return size_ == 0; }
+    NODISCARD FORCEINLINE Bool Exist() { return data_ptr_ != nullptr; }
 
     /*
         Resize the vector, If the given size is smaller then the current size,
@@ -968,6 +971,24 @@ ZVector<ObjectType, kIfUnique>::ZVector() noexcept
 {}
 
 template<typename ObjectType, Bool kIfUnique>
+ZVector<ObjectType, kIfUnique>::ZVector(const ZVector& vector) noexcept
+    : SuperType(vector)
+{
+    DEBUG(&vector == this, "The source and the target of the copy is the same!");
+    CreateContainerP(vector.size_);
+    CreateAndCopyObjectsP(data_ptr_, vector.data_ptr_, vector.data_ptr_ + vector.size_);
+    size_ = vector.size_;
+}
+
+template<typename ObjectType, Bool kIfUnique>
+ZVector<ObjectType, kIfUnique>::ZVector(ZVector&& vector) noexcept
+    : SuperType(std::forward<ZVector>(vector))
+{
+    DEBUG(&vector == this, "The source and the target of the copy is the same!");
+    MoveP(std::forward<ZVector>(vector));
+}
+
+template<typename ObjectType, Bool kIfUnique>
 ZVector<ObjectType, kIfUnique>::ZVector(IndexType capacity) noexcept
     : SuperType()
 {
@@ -979,30 +1000,12 @@ ZVector<ObjectType, kIfUnique>::ZVector(IndexType capacity) noexcept
 template<typename ObjectType, Bool kIfUnique>
 template<typename... ArgsType>
 ZVector<ObjectType, kIfUnique>::ZVector(IndexType capacity, ArgsType&&... args) noexcept
-    : SuperType() 
+    : SuperType()
 {
     DEBUG(capacity < 0, "Negaive capacity not valid!");
     CreateContainerP(capacity);
     CreateObjectsP(data_ptr_, data_ptr_ + capacity, std::forward<ArgsType>(args)...);
     size_ = capacity;
-}
-
-template<typename ObjectType, Bool kIfUnique>
-ZVector<ObjectType, kIfUnique>::ZVector(const ZVector& vector) noexcept 
-    : SuperType(vector)
-{
-    DEBUG(&vector == this, "The source and the target of the copy is the same!");
-    CreateContainerP(vector.size_);
-    CreateAndCopyObjectsP(data_ptr_, vector.data_ptr_, vector.data_ptr_ + vector.size_);
-    size_ = vector.size_;
-} 
-
-template<typename ObjectType, Bool kIfUnique>
-ZVector<ObjectType, kIfUnique>::ZVector(ZVector&& vector) noexcept 
-    : SuperType(std::forward<ZVector>(vector))
-{
-    DEBUG(&vector == this, "The source and the target of the copy is the same!");
-    MoveP(std::forward<ZVector>(vector));
 }
 
 template<typename ObjectType, Bool kIfUnique>
