@@ -268,10 +268,10 @@ private:
     static constexpr Float32 kAutoExtendMulFactor = 0.5F;
 
 public:
-    using IteratorType = internal::ZDequeIterator<ObjectType>;
-    using ConstIteratorType = internal::ZDequeIterator<const ObjectType>;
-    using ReverseIteratorType = internal::ZDequeReverseIterator<ObjectType>;
-    using ConstReverseIteratorType = internal::ZDequeReverseIterator<const ObjectType>;
+    using Iterator = internal::ZDequeIterator<ObjectType>;
+    using ConstIterator = internal::ZDequeIterator<const ObjectType>;
+    using ReverseIterator = internal::ZDequeReverseIterator<ObjectType>;
+    using ConstReverseIterator = internal::ZDequeReverseIterator<const ObjectType>;
 
     ZDeque() noexcept;
     ZDeque(const ZDeque& deque) noexcept;
@@ -284,16 +284,16 @@ public:
     template<typename... ArgsType>
     ZDeque(IndexType capacity, ArgsType&&... args) noexcept;    
 
-    ZDeque(const IteratorType& begin, const IteratorType& end) noexcept : SuperType() {
+    ZDeque(const Iterator& begin, const Iterator& end) noexcept : SuperType() {
         ZDequeOrderP(begin.object_ptr(), begin.data_node_ptr(), end.object_ptr(), end.data_node_ptr());
     }
-    ZDeque(const ConstIteratorType& begin, const ConstIteratorType& end) noexcept : SuperType() {
+    ZDeque(const ConstIterator& begin, const ConstIterator& end) noexcept : SuperType() {
         ZDequeOrderP(begin.object_ptr(), begin.data_node_ptr(), end.object_ptr(), end.data_node_ptr());
     }
-    ZDeque(const ReverseIteratorType& begin, const ReverseIteratorType& end) noexcept : SuperType() {
+    ZDeque(const ReverseIterator& begin, const ReverseIterator& end) noexcept : SuperType() {
         ZDequeReverseP(begin.object_ptr(), begin.data_node_ptr(), end.object_ptr(), end.data_node_ptr());
     }
-    ZDeque(const ConstReverseIteratorType& begin, const ConstReverseIteratorType& end) noexcept : SuperType() {
+    ZDeque(const ConstReverseIterator& begin, const ConstReverseIterator& end) noexcept : SuperType() {
         ZDequeReverseP(begin.object_ptr(), begin.data_node_ptr(), end.object_ptr(), end.data_node_ptr());
     }
 
@@ -387,22 +387,22 @@ public:
         Makes a copy of the objects between the iterators and push them to the
         front of the deque.
     */
-    Void PushFronts(const IteratorType& begin, const IteratorType& end) noexcept;
+    Void PushFronts(const Iterator& begin, const Iterator& end) noexcept;
     /*
         Makes a copy of the objects between the iterators and push them to the
         front of the deque.
     */
-    Void PushFronts(const ConstIteratorType& begin, const ConstIteratorType& end) noexcept;
+    Void PushFronts(const ConstIterator& begin, const ConstIterator& end) noexcept;
     /*
         Makes a copy of the objects between the iterators and push them to the
         front of the deque.
     */
-    Void PushFronts(const ReverseIteratorType& begin, const ReverseIteratorType& end) noexcept;
+    Void PushFronts(const ReverseIterator& begin, const ReverseIterator& end) noexcept;
     /*
         Makes a copy of the objects between the iterators and push them to the
         front of the deque.
     */
-    Void PushFronts(const ConstReverseIteratorType& begin, const ConstReverseIteratorType& end) noexcept;
+    Void PushFronts(const ConstReverseIterator& begin, const ConstReverseIterator& end) noexcept;
 
     /*
         Calls the constructor with the arguements.
@@ -438,22 +438,22 @@ public:
         Makes a copy of the objects between the iterators and push them to the
         back of the deque.
     */
-    Void PushBacks(const IteratorType& begin, const IteratorType& end) noexcept;
+    Void PushBacks(const Iterator& begin, const Iterator& end) noexcept;
     /*
         Makes a copy of the objects between the iterators and push them to the
         back of the deque.
     */
-    Void PushBacks(const ConstIteratorType& begin, const ConstIteratorType& end) noexcept;
+    Void PushBacks(const ConstIterator& begin, const ConstIterator& end) noexcept;
     /*
         Makes a copy of the objects between the iterators and push them to the
         back of the deque.
     */
-    Void PushBacks(const ReverseIteratorType& begin, const ReverseIteratorType& end) noexcept;
+    Void PushBacks(const ReverseIterator& begin, const ReverseIterator& end) noexcept;
     /*
         Makes a copy of the objects between the iterators and push them to the
         back of the deque.
     */
-    Void PushBacks(const ConstReverseIteratorType& begin, const ConstReverseIteratorType& end) noexcept;
+    Void PushBacks(const ConstReverseIterator& begin, const ConstReverseIterator& end) noexcept;
 
     /*
         Calls the constructor with the arguements.
@@ -465,151 +465,151 @@ public:
         Inserts before the index. Returns the iterator that points at the newest object.
     */
     template<typename... ArgsType>
-    IteratorType Insert(IndexType index, ArgsType&&... args) noexcept;
+    Iterator Insert(IndexType index, ArgsType&&... args) noexcept;
     /*
         Inserts before the iterator. Returns the iterator that points at the newest object.
     */
     template<typename... ArgsType>
-    IteratorType Insert(const IteratorType& iterator, ArgsType&&... args) noexcept;
+    Iterator Insert(const Iterator& iterator, ArgsType&&... args) noexcept;
     /*
         Inserts before the iterator. Returns the iterator that points at the newest object.
     */
     template<typename... ArgsType>
-    ReverseIteratorType Insert(const ReverseIteratorType& iterator, ArgsType&&... args) noexcept;
+    ReverseIterator Insert(const ReverseIterator& iterator, ArgsType&&... args) noexcept;
 
     /*
         Inserts before the index. Returns the iterator that points at the first new object.
     */
     template<typename... ArgsType>
-    IteratorType Inserts(IndexType index, IndexType num, ArgsType&&... args) noexcept;
+    Iterator Inserts(IndexType index, IndexType num, ArgsType&&... args) noexcept;
     /*
         Inserts before the iterator. Returns the iterator that points at the first new object.
     */
     template<typename... ArgsType>
-    IteratorType Inserts(const IteratorType& iterator, IndexType num, ArgsType&&... args) noexcept;
+    Iterator Inserts(const Iterator& iterator, IndexType num, ArgsType&&... args) noexcept;
     /*
         Inserts before the iterator. Returns the iterator that points at the first new object.
     */
     template<typename... ArgsType>
-    ReverseIteratorType Inserts(const ReverseIteratorType& iterator, IndexType num, ArgsType&&... args) noexcept;
+    ReverseIterator Inserts(const ReverseIterator& iterator, IndexType num, ArgsType&&... args) noexcept;
 
     /*
         Makes a copy of the objects between the iterators and insert them to the
         given place. Returns the iterator that points at the first new object.
     */
-    IteratorType Inserts(IndexType index,
-        const IteratorType& src_begin, const IteratorType& src_end) noexcept;
+    Iterator Inserts(IndexType index,
+        const Iterator& src_begin, const Iterator& src_end) noexcept;
     /*
         Makes a copy of the objects between the iterators and insert them to the
         given place. Returns the iterator that points at the first new object.
     */
-    IteratorType Inserts(IndexType index,
-        const ConstIteratorType& src_begin, const ConstIteratorType& src_end) noexcept;
+    Iterator Inserts(IndexType index,
+        const ConstIterator& src_begin, const ConstIterator& src_end) noexcept;
     /*
         Makes a copy of the objects between the iterators and insert them to the
         given place. Returns the iterator that points at the first new object.
     */
-    IteratorType Inserts(IndexType index,
-        const ReverseIteratorType& src_begin, const ReverseIteratorType& src_end) noexcept;
+    Iterator Inserts(IndexType index,
+        const ReverseIterator& src_begin, const ReverseIterator& src_end) noexcept;
     /*
         Makes a copy of the objects between the iterators and insert them to the
         given place. Returns the iterator that points at the first new object.
     */
-    IteratorType Inserts(IndexType index,
-        const ConstReverseIteratorType& src_begin, const ConstReverseIteratorType& src_end) noexcept;
+    Iterator Inserts(IndexType index,
+        const ConstReverseIterator& src_begin, const ConstReverseIterator& src_end) noexcept;
 
     /*
         Makes a copy of the objects between the iterators and insert them to the
         given place. Returns the iterator that points at the first new object.
     */
-    IteratorType Inserts(const IteratorType& iterator,
-        const IteratorType& src_begin, const IteratorType& src_end) noexcept;
+    Iterator Inserts(const Iterator& iterator,
+        const Iterator& src_begin, const Iterator& src_end) noexcept;
     /*
         Makes a copy of the objects between the iterators and insert them to the
         given place. Returns the iterator that points at the first new object.
     */
-    IteratorType Inserts(const IteratorType& iterator,
-        const ConstIteratorType& src_begin, const ConstIteratorType& src_end) noexcept;
+    Iterator Inserts(const Iterator& iterator,
+        const ConstIterator& src_begin, const ConstIterator& src_end) noexcept;
     /*
         Makes a copy of the objects between the iterators and insert them to the
         given place. Returns the iterator that points at the first new object.
     */
-    IteratorType Inserts(const IteratorType& iterator,
-        const ReverseIteratorType& src_begin, const ReverseIteratorType& src_end) noexcept;
+    Iterator Inserts(const Iterator& iterator,
+        const ReverseIterator& src_begin, const ReverseIterator& src_end) noexcept;
     /*
         Makes a copy of the objects between the iterators and insert them to the
         given place. Returns the iterator that points at the first new object.
     */
-    IteratorType Inserts(const IteratorType& iterator,
-        const ConstReverseIteratorType& src_begin, const ConstReverseIteratorType& src_end) noexcept;
+    Iterator Inserts(const Iterator& iterator,
+        const ConstReverseIterator& src_begin, const ConstReverseIterator& src_end) noexcept;
 
     /*
         Makes a copy of the objects between the iterators and insert them to the
         given place. Returns the iterator that points at the first new object.
     */
-    ReverseIteratorType Inserts(const ReverseIteratorType& iterator,
-        const IteratorType& src_begin, const IteratorType& src_end) noexcept;
+    ReverseIterator Inserts(const ReverseIterator& iterator,
+        const Iterator& src_begin, const Iterator& src_end) noexcept;
     /*
         Makes a copy of the objects between the iterators and insert them to the
         given place. Returns the iterator that points at the first new object.
     */
-    ReverseIteratorType Inserts(const ReverseIteratorType& iterator,
-        const ConstIteratorType& src_begin, const ConstIteratorType& src_end) noexcept;
+    ReverseIterator Inserts(const ReverseIterator& iterator,
+        const ConstIterator& src_begin, const ConstIterator& src_end) noexcept;
     /*
         Makes a copy of the objects between the iterators and insert them to the
         given place. Returns the iterator that points at the first new object.
     */
-    ReverseIteratorType Inserts(const ReverseIteratorType& iterator,
-        const ReverseIteratorType& src_begin, const ReverseIteratorType& src_end) noexcept;
+    ReverseIterator Inserts(const ReverseIterator& iterator,
+        const ReverseIterator& src_begin, const ReverseIterator& src_end) noexcept;
     /*
         Makes a copy of the objects between the iterators and insert them to the
         given place. Returns the iterator that points at the first new object.
     */
-    ReverseIteratorType Inserts(const ReverseIteratorType& iterator,
-        const ConstReverseIteratorType& src_begin,
-        const ConstReverseIteratorType& src_end) noexcept;
+    ReverseIterator Inserts(const ReverseIterator& iterator,
+        const ConstReverseIterator& src_begin,
+        const ConstReverseIterator& src_end) noexcept;
 
     /*
         Erases the object by the index.
         Returns the iterator that points at the next object.
     */
-    IteratorType Erase(IndexType index) noexcept;
+    Iterator Erase(IndexType index) noexcept;
     /*
         Erases the object by the index.
         Returns the iterator that points at the next object.
     */
-    IteratorType Erase(const IteratorType& iterator) noexcept;
+    Iterator Erase(const Iterator& iterator) noexcept;
     /*
         Erases the object by the index.
         Returns the iterator that points at the next object.
     */
-    ReverseIteratorType Erase(const ReverseIteratorType& iterator) noexcept;
+    ReverseIterator Erase(const ReverseIterator& iterator) noexcept;
 
     /*
         Erases the num of objects that starts at the given index.
         Returns the iterator that points at the next object.
     */
-    IteratorType Erases(IndexType index, IndexType num) noexcept;
+    Iterator Erases(IndexType index, IndexType num) noexcept;
     /*
         Erases the num of objects that starts at the given iterator.
         Returns the iterator that points at the next object.
     */
-    IteratorType Erases(const IteratorType& iterator, IndexType num) noexcept;
+    Iterator Erases(const Iterator& iterator, IndexType num) noexcept;
     /*
         Erases the num of objects that starts at the given iterator.
         Returns the iterator that points at the next object.
     */
-    ReverseIteratorType Erases(const ReverseIteratorType& iterator, IndexType num) noexcept;
+    ReverseIterator Erases(const ReverseIterator& iterator, IndexType num) noexcept;
     /*
         Erases the object between begin and end, involves begin, but don't involves end.
         Returns the iterator that points at the next object.
     */
-    IteratorType Erases(const IteratorType& begin, const IteratorType& end) noexcept;
+    Iterator Erases(const Iterator& begin, const Iterator& end) noexcept;
     /*
         Erases the object between begin and end, involves begin, but don't involves end.
         Returns the iterator that points at the next object.
     */
-    ReverseIteratorType Erases(const ReverseIteratorType& begin, const ReverseIteratorType& end) noexcept;
+    ReverseIterator Erases(const ReverseIterator& begin, const ReverseIterator& end) noexcept;
 
     /*
         Calls the constructor with the arguements.
@@ -620,12 +620,12 @@ public:
         Calls the constructor with the arguements.
     */
     template<typename... ArgsType>
-    Void Emplace(const IteratorType& iterator, ArgsType&&... args) noexcept;
+    Void Emplace(const Iterator& iterator, ArgsType&&... args) noexcept;
     /*
         Calls the constructor with the arguements.
     */
     template<typename... ArgsType>
-    Void Emplace(const ReverseIteratorType& iterator, ArgsType&&... args) noexcept;
+    Void Emplace(const ReverseIterator& iterator, ArgsType&&... args) noexcept;
 
     /*
         Construct the deque by filling it with the given amount of objects.
@@ -638,19 +638,19 @@ public:
     /*
         Construct the deque by filling it objects between the iterators.
     */
-    Void Assign(const IteratorType& begin, const IteratorType& end) noexcept;
+    Void Assign(const Iterator& begin, const Iterator& end) noexcept;
     /*
         Construct the deque by filling it objects between the iterators.
     */
-    Void Assign(const ConstIteratorType& begin, const ConstIteratorType& end) noexcept;
+    Void Assign(const ConstIterator& begin, const ConstIterator& end) noexcept;
     /*
         Construct the deque by filling it objects between the iterators.
     */
-    Void Assign(const ReverseIteratorType& begin, const ReverseIteratorType& end) noexcept;
+    Void Assign(const ReverseIterator& begin, const ReverseIterator& end) noexcept;
     /*
         Construct the deque by filling it objects between the iterators.
     */
-    Void Assign(const ConstReverseIteratorType& begin, const ConstReverseIteratorType& end) noexcept;
+    Void Assign(const ConstReverseIterator& begin, const ConstReverseIterator& end) noexcept;
     
     /*
         Destroys all the objects in the deque, does not release the memory.
@@ -858,8 +858,8 @@ ZDeque<ObjectType, kIfUnique>::ZDeque(const ZDeque& deque) noexcept
     }
     front_ptr_ = front_node_ptr_->begin_ptr;
     CreateAndCopyObjectsP(front_ptr_, front_node_ptr_, 
-                          deque.front_ptr_,deque.front_node_ptr_,
-                          , deque.back_node_ptr_,
+                          deque.front_ptr_, deque.front_node_ptr_,
+                          deque.back_ptr_, deque.back_node_ptr_,
                           &back_ptr_, &back_node_ptr_);
     back_ptr_ -= 1;
     size_ = deque.size_;
@@ -904,16 +904,16 @@ ZDeque<ObjectType, kIfUnique>::ZDeque(IndexType capacity, ArgsType&&... args) no
 
 template<typename ObjectType, Bool kIfUnique>
 ZDeque<ObjectType, kIfUnique>& ZDeque<ObjectType, kIfUnique>::operator=(const ZDeque& deque) noexcept {
-    DEBUG(&vector == this, "The source and the target of the copy is the same!");
-    SuperType::operator=(vector);
-    CopyP(vector);
+    DEBUG(&deque == this, "The source and the target of the copy is the same!");
+    SuperType::operator=(deque);
+    CopyP(deque);
     return *this;
 }
 
 template<typename ObjectType, Bool kIfUnique>
 ZDeque<ObjectType, kIfUnique>& ZDeque<ObjectType, kIfUnique>::operator=(ZDeque&& deque) noexcept {
-    DEBUG(&vector == this, "The source and the target of the copy is the same!");
-    SuperType::operator=(std::forward<ZVector>(vector));
+    DEBUG(&deque == this, "The source and the target of the copy is the same!");
+    SuperType::operator=(std::forward<ZDeque>(deque));
     DestroyObjectsP(front_ptr_, front_node_ptr_, back_ptr_ + 1, back_node_ptr_);
     MoveP(std::forward<ZDeque>(deque));
     return *this;
