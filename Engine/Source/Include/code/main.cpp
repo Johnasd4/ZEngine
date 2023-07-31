@@ -53,7 +53,9 @@ Int32 main() {
         vector_2.PushBack(vector_1);
     }
     ZVector<ZVector<Int32>> vector_4(std::move(vector_3));
-
+    std::deque<int> qwe;
+    auto asd = qwe.begin();
+    sizeof(asd);
     //auto begin = vector_2.ReverseBegin();
     //auto end = vector_2.ReverseEnd();
     //vector_2.Assign(begin, end);
