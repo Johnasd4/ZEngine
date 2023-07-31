@@ -710,24 +710,23 @@ public:
     /*
         The small object on the front.
     */
-    Void Sort(const Iterator& begin, const Iterator& end) noexcept;
+    Void Sort(Iterator begin, Iterator& end) noexcept;
     /*
         Will exchange the two objects when the function is true.
     */
     template<typename CompareFunction>
     requires kIsCompareFunction<CompareFunction, ObjectType>
-    Void Sort(const Iterator& begin, const Iterator& end, CompareFunction&& compare_function) noexcept;
+    Void Sort(Iterator begin, Iterator end, CompareFunction&& compare_function) noexcept;
     /*
         The small object on the front.
     */
-    Void Sort(const ReverseIterator& begin, const ReverseIterator& end) noexcept;
+    Void Sort(ReverseIterator begin, ReverseIterator end) noexcept;
     /*
         Will exchange the two objects when the function is true.
     */
     template<typename CompareFunction>
     requires kIsCompareFunction<CompareFunction, ObjectType>
-    Void Sort(const ReverseIterator& begin, const ReverseIterator& end, 
-              CompareFunction&& compare_function) noexcept;
+    Void Sort(ReverseIterator begin, ReverseIterator end, CompareFunction&& compare_function) noexcept;
 
     /*
         Destroys all the objects in the vector, does not release the memory.
@@ -1024,7 +1023,7 @@ FORCEINLINE Void ZVector<ObjectType, kIfUnique>::ShrinkToFit() {
 }
 
 template<typename ObjectType, Bool kIfUnique>
-FORCEINLINE Void ZVector<ObjectType, kIfUnique>::PopBack() {
+FORCEINLINE Void ZVector<ObjectType, kIfUnique>::PopBack() {               
     DEBUG(size_ == 0, "No existing object to pop!");
     DestroyObjectP(Iterator(data_ptr_ + size_--));
 }
