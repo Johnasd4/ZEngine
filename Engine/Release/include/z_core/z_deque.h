@@ -43,7 +43,7 @@ public:
     }
     NODISCARD FORCEINLINE const ObjectType& At(IndexType index) const {
         return front_ptr[index];
-    }
+    } 
 
     NODISCARD FORCEINLINE ObjectType* AtPtr(IndexType index) {
         return front_ptr + index;

@@ -548,28 +548,28 @@ public:
         Makes a copy of the objects between the iterators and insert them to the
         given place. Returns the iterator that points at the first new object.
     */
-    NODISCARD FORCEINLINE Iterator Inserts(Iterator dst, Iterator src_begin, Iterator src_end) {
+    FORCEINLINE Iterator Inserts(Iterator dst, Iterator src_begin, Iterator src_end) {
         return InsertsP(dst, src_begin, src_end);
     }
     /*
         Makes a copy of the objects between the iterators and insert them to the
         given place. Returns the iterator that points at the first new object.
     */
-    NODISCARD FORCEINLINE Iterator Inserts(Iterator dst, ConstIterator src_begin, ConstIterator src_end) {
+    FORCEINLINE Iterator Inserts(Iterator dst, ConstIterator src_begin, ConstIterator src_end) {
         return InsertsP(dst, src_begin, src_end);
     }
     /*
         Makes a copy of the objects between the iterators and insert them to the
         given place. Returns the iterator that points at the first new object.
     */
-    NODISCARD FORCEINLINE Iterator Inserts(Iterator dst, ReverseIterator src_begin, ReverseIterator src_end) {
+    FORCEINLINE Iterator Inserts(Iterator dst, ReverseIterator src_begin, ReverseIterator src_end) {
         return InsertsP(dst, src_begin, src_end);
     }
     /*
         Makes a copy of the objects between the iterators and insert them to the
         given place. Returns the iterator that points at the first new object.
     */
-    NODISCARD FORCEINLINE Iterator Inserts(Iterator dst, ConstReverseIterator src_begin, ConstReverseIterator src_end) {
+    FORCEINLINE Iterator Inserts(Iterator dst, ConstReverseIterator src_begin, ConstReverseIterator src_end) {
         return InsertsP(dst, src_begin, src_end);
     }
 
@@ -577,30 +577,29 @@ public:
         Makes a copy of the objects between the iterators and insert them to the
         given place. Returns the iterator that points at the first new object.
     */
-    NODISCARD FORCEINLINE ReverseIterator Inserts(ReverseIterator dst, Iterator src_begin, Iterator src_end) {
+    FORCEINLINE ReverseIterator Inserts(ReverseIterator dst, Iterator src_begin, Iterator src_end) {
         return InsertsP(dst, src_begin, src_end);
     }
     /*
         Makes a copy of the objects between the iterators and insert them to the
         given place. Returns the iterator that points at the first new object.
     */
-    NODISCARD FORCEINLINE ReverseIterator Inserts(ReverseIterator dst, ConstIterator src_begin, ConstIterator src_end) {
+    FORCEINLINE ReverseIterator Inserts(ReverseIterator dst, ConstIterator src_begin, ConstIterator src_end) {
         return InsertsP(dst, src_begin, src_end);
     }
     /*
         Makes a copy of the objects between the iterators and insert them to the
         given place. Returns the iterator that points at the first new object.
     */
-    NODISCARD FORCEINLINE ReverseIterator Inserts(ReverseIterator dst,
-                                                  ReverseIterator src_begin, ReverseIterator src_end) {
+    FORCEINLINE ReverseIterator Inserts(ReverseIterator dst, ReverseIterator src_begin, ReverseIterator src_end) {
         return InsertsP(dst, src_begin, src_end);
     }
     /*
         Makes a copy of the objects between the iterators and insert them to the
         given place. Returns the iterator that points at the first new object.
     */
-    NODISCARD FORCEINLINE ReverseIterator Inserts(ReverseIterator dst,
-                                                  ConstReverseIterator src_begin, ConstReverseIterator src_end) {
+    FORCEINLINE ReverseIterator Inserts(ReverseIterator dst, 
+                                        ConstReverseIterator src_begin, ConstReverseIterator src_end) {
         return InsertsP(dst, src_begin, src_end);
     }
 
@@ -613,40 +612,40 @@ public:
         Erases the object by the index.
         Returns the iterator that points at the next object.
     */
-    NODISCARD FORCEINLINE Iterator Erase(Iterator dst) { return EraseP(dst); }
+    FORCEINLINE Iterator Erase(Iterator dst) { return EraseP(dst); }
     /*
         Erases the object by the index.
         Returns the iterator that points at the next object.
     */
-    NODISCARD FORCEINLINE ReverseIterator Erase(ReverseIterator dst) { return EraseP(dst); }
+    FORCEINLINE ReverseIterator Erase(ReverseIterator dst) { return EraseP(dst); }
 
     /*
         Erases the num of objects that starts at the given index.
         Returns the iterator that points at the next object.
     */
-    NODISCARD FORCEINLINE Iterator Erases(IndexType index, IndexType num) {
+    FORCEINLINE Iterator Erases(IndexType index, IndexType num) {
         return ErasesP(Iterator(data_ptr_ + index), Iterator(data_ptr_ + (index + num)));
     }
     /*
         Erases the num of objects that starts at the given iterator.
         Returns the iterator that points at the next object.
     */
-    NODISCARD FORCEINLINE Iterator Erases(Iterator dst, IndexType num) { return ErasesP(dst, dst + num); }
+    FORCEINLINE Iterator Erases(Iterator dst, IndexType num) { return ErasesP(dst, dst + num); }
     /*
         Erases the num of objects that starts at the given iterator.
         Returns the iterator that points at the next object.
     */
-    NODISCARD FORCEINLINE ReverseIterator Erases(ReverseIterator dst, IndexType num) { return ErasesP(dst, dst + num); }
+    FORCEINLINE ReverseIterator Erases(ReverseIterator dst, IndexType num) { return ErasesP(dst, dst + num); }
     /*
         Erases the object between begin and end, involves begin, but don't involves end.
         Returns the iterator that points at the next object.
     */
-    NODISCARD FORCEINLINE Iterator Erases(Iterator dst_begin, Iterator dst_end) { return ErasesP(dst_begin, dst_end); }
+    FORCEINLINE Iterator Erases(Iterator dst_begin, Iterator dst_end) { return ErasesP(dst_begin, dst_end); }
     /*
         Erases the object between begin and end, involves begin, but don't involves end.
         Returns the iterator that points at the next object.
     */
-    NODISCARD FORCEINLINE ReverseIterator Erases(ReverseIterator dst_begin, ReverseIterator dst_end) {
+    FORCEINLINE ReverseIterator Erases(ReverseIterator dst_begin, ReverseIterator dst_end) {
         return ErasesP(dst_begin, dst_end);
     }
 

@@ -32,29 +32,33 @@ using namespace std;
 Int32 main() {
     ZVector<Int32> vector_0;
     ZVector<ZVector<Int32>> vector_3;
-    for (IndexType index = 0; index < 10; ++index) {
+    for (IndexType index = 0; index < 20; ++index) {
         vector_0.PushBack(index);
-        vector_3.PushBacks(2, vector_0);
+        vector_3.PushBack(vector_0);
     }
+    //vector_0.PushBacks(vector_0.ReverseBegin(), vector_0.ReverseBegin() + 10);
+    //vector_0.PushBacks(vector_0.Begin(), vector_0.Begin() + 10);
     ZVector<Int32> vector_1(vector_0.ReverseBegin(), vector_0.ReverseBegin() + 5);
     ZVector<ZVector<Int32>> vector_2(vector_3.Begin(), vector_3.Begin() + 5);
     vector_1 = vector_0;
     vector_2 = vector_3;
-    //vector_1.Inserts(5, vector_1.ReverseBegin(), vector_1.ReverseBegin() + 7);
-    vector_1.Inserts(vector_1.ReverseBegin() + 4, vector_1.ReverseBegin(), vector_1.ReverseBegin() + 7);
+    vector_1.Erases(vector_1.ReverseBegin() + 8, 8);
+    vector_2.Erases(vector_2.Begin(), 10);
 
     cout << "vector_1:" << endl;
     for (int i = 0; i < vector_1.size(); i++) {
         cout << vector_1[i] << " ";
     }
-    cout << endl << vector_1.size() << " " << vector_1.capacity() << endl << "vector_2:" << endl;
+    cout << endl << vector_1.size() << " " << vector_1.capacity();
+    cout << endl << "vector_2:" << endl;
     for (int i = 0; i < vector_2.size(); i++)
     {
         for (int j = 0; j < vector_2[i].size(); j++)
         {
             cout << vector_2[i][j] << " ";
         }
-        cout << endl << vector_2[i].size() << " " << vector_2[i].capacity() << endl;
+        cout << endl;
+        cout << vector_2[i].size() << " " << vector_2[i].capacity() << endl;
     }
     cout << vector_2.size() << " " << vector_2.capacity() << endl;
     //IndexType a = 1;
