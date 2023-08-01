@@ -107,8 +107,9 @@ ZHeapMemoryPool<kIsThreadSafe>::~ZHeapMemoryPool() noexcept {
     HeapMemoryPtrArrayNode* head_node_ptr = head_node_ptr_;
     HeapMemoryPtrArrayNode* current_node_ptr = current_node_ptr_;
     IndexType current_node_heap_memory_ptr_num = current_node_heap_memory_ptr_num_;
-    HeapMemoryPtrArrayNode* delete_node = head_node_ptr;
+
     for (; head_node_ptr != current_node_ptr; ) {
+        HeapMemoryPtrArrayNode* delete_node = head_node_ptr;
         head_node_ptr = head_node_ptr->next_node_ptr;
         //Delete the heap memory inside the node.
         for (IndexType index = 0; index < HeapMemoryPtrArrayNode::kHeapMemoryPtrNumPurNode; ++index) {
@@ -119,9 +120,9 @@ ZHeapMemoryPool<kIsThreadSafe>::~ZHeapMemoryPool() noexcept {
     }
     //Delete the unfilled node.
     for (IndexType index = 0; index < current_node_heap_memory_ptr_num; ++index) {
-        free(delete_node->heap_memory_ptr[index]);
+        free(head_node_ptr->heap_memory_ptr[index]);
     }
-    free(delete_node);
+    free(head_node_ptr);
 }
 
 #pragma warning(disable : 6011)
