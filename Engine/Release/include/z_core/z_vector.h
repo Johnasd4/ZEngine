@@ -671,6 +671,109 @@ public:
         EmplaceP(dst, std::forward<ArgsType>(args)...);
     }
 
+
+    /*
+        Replace the certain num of objects that starts at the given place with 
+        the object constructed by the given arguements.
+    */
+    template<typename... ArgsType>
+    FORCEINLINE Iterator Emplaces(IndexType index, IndexType num, ArgsType&&... args) {
+        return EmplacesP(Iterator(data_ptr_ + index), num, std::forward<ArgsType>(args)...);
+    }
+    /*
+        Replace the certain num of objects that starts at the given place with
+        the object constructed by the given arguements.
+    */
+    template<typename... ArgsType>
+    NODISCARD FORCEINLINE Iterator Emplaces(Iterator dst, IndexType num, ArgsType&&... args) {
+        return EmplacesP(dst, num, std::forward<ArgsType>(args)...);
+    }
+    /*
+        Replace the certain num of objects that starts at the given place with
+        the object constructed by the given arguements.
+    */
+    template<typename... ArgsType>
+    NODISCARD FORCEINLINE ReverseIterator Emplaces(ReverseIterator dst, IndexType num, ArgsType&&... args) {
+        return EmplacesP(dst, num, std::forward<ArgsType>(args)...);
+    }
+
+    /*
+        Replace the objects that starts at the given place with the other objects given.
+    */
+    FORCEINLINE Iterator Emplaces(IndexType index, Iterator src_begin, Iterator src_end) {
+        return EmplacesP(Iterator(data_ptr_ + index), src_begin, src_end);
+    }
+    /*
+        Replace the objects that starts at the given place with the other objects given.
+    */
+    FORCEINLINE Iterator Emplaces(IndexType index, ConstIterator src_begin, ConstIterator src_end) {
+        return EmplacesP(Iterator(data_ptr_ + index), src_begin, src_end);
+    }
+    /*
+        Replace the objects that starts at the given place with the other objects given.
+    */
+    FORCEINLINE Iterator Emplaces(IndexType index, ReverseIterator src_begin,ReverseIterator src_end) {
+        return EmplacesP(Iterator(data_ptr_ + index), src_begin, src_end);
+    }
+    /*
+        Replace the objects that starts at the given place with the other objects given.
+    */
+    FORCEINLINE Iterator Emplaces(IndexType index, ConstReverseIterator src_begin, ConstReverseIterator src_end) {
+        return EmplacesP(Iterator(data_ptr_ + index), src_begin, src_end);
+    }
+
+    /*
+        Replace the objects that starts at the given place with the other objects given.
+    */
+    FORCEINLINE Iterator Emplaces(Iterator dst, Iterator src_begin, Iterator src_end) {
+        return EmplacesP(dst, src_begin, src_end);
+    }
+    /*
+        Replace the objects that starts at the given place with the other objects given.
+    */
+    FORCEINLINE Iterator Emplaces(Iterator dst, ConstIterator src_begin, ConstIterator src_end) {
+        return EmplacesP(dst, src_begin, src_end);
+    }
+    /*
+        Replace the objects that starts at the given place with the other objects given.
+    */
+    FORCEINLINE Iterator Emplaces(Iterator dst, ReverseIterator src_begin, ReverseIterator src_end) {
+        return EmplacesP(dst, src_begin, src_end);
+    }
+    /*
+        Replace the objects that starts at the given place with the other objects given.
+    */
+    FORCEINLINE Iterator Emplaces(Iterator dst, ConstReverseIterator src_begin, ConstReverseIterator src_end) {
+        return EmplacesP(dst, src_begin, src_end);
+    }
+
+    /*
+        Replace the objects that starts at the given place with the other objects given.
+    */
+    FORCEINLINE ReverseIterator Emplaces(ReverseIterator dst, Iterator src_begin, Iterator src_end) {
+        return EmplacesP(dst, src_begin, src_end);
+    }
+    /*
+        Replace the objects that starts at the given place with the other objects given.
+    */
+    FORCEINLINE ReverseIterator Emplaces(ReverseIterator dst, ConstIterator src_begin, ConstIterator src_end) {
+        return EmplacesP(dst, src_begin, src_end);
+    }
+    /*
+        Replace the objects that starts at the given place with the other objects given.
+    */
+    FORCEINLINE ReverseIterator Emplaces(ReverseIterator dst, ReverseIterator src_begin, ReverseIterator src_end) {
+        return EmplacesP(dst, src_begin, src_end);
+    }
+    /*
+        Replace the objects that starts at the given place with the other objects given.
+    */
+    FORCEINLINE ReverseIterator Emplaces(ReverseIterator dst, 
+                                        ConstReverseIterator src_begin, ConstReverseIterator src_end) {
+        return EmplacesP(dst, src_begin, src_end);
+    }
+
+
     /*
         Construct the vector by filling it with the given amount of objects.
         The object is constructed by the arguements.
@@ -931,7 +1034,7 @@ private:
     */
     template<typename DstIteratorType, typename... ArgsType>
     requires internal::kIsNonConstVectorIterator<DstIteratorType, ObjectType>
-    NODISCARD DstIteratorType EmplaceP(DstIteratorType dst, IndexType num, ArgsType&&... args) noexcept;
+    inline Void EmplacesP(DstIteratorType dst, IndexType num, ArgsType&&... args) noexcept;
 
     /*
         Makes a copy of the objects between the iterators and insert them to the
@@ -940,13 +1043,13 @@ private:
     template<typename DstIteratorType, typename SrcIteratorType>
     requires (internal::kIsNonConstVectorIterator<DstIteratorType, ObjectType> &&
               internal::kIsVectorIterator<SrcIteratorType, ObjectType>)
-    NODISCARD DstIteratorType EmplaceP(DstIteratorType dst, SrcIteratorType src_begin, SrcIteratorType src_end) noexcept;
+    inline Void EmplacesP(DstIteratorType dst, SrcIteratorType src_begin, SrcIteratorType src_end) noexcept;
 
 
     /*
         Construct the vector by filling it objects between the iterators.
     */
-    template<typename SrcIteratorType, typename... ArgsType>
+    template<typename SrcIteratorType>
     requires internal::kIsVectorIterator<SrcIteratorType, ObjectType>
     Void AssignP(SrcIteratorType src_begin, SrcIteratorType src_end) noexcept;
 
@@ -1486,7 +1589,31 @@ inline Void ZVector<ObjectType, kIfUnique>::EmplaceP(DstIteratorType dst, ArgsTy
 }
 
 template<typename ObjectType, Bool kIfUnique>
-template<typename SrcIteratorType, typename... ArgsType>
+template<typename DstIteratorType, typename... ArgsType>
+requires internal::kIsNonConstVectorIterator<DstIteratorType, ObjectType>
+inline Void ZVector<ObjectType, kIfUnique>::EmplacesP(DstIteratorType dst, IndexType num, ArgsType&&... args) noexcept {
+    DEBUG(dst.object_ptr() < data_ptr_ || dst.object_ptr() >= data_ptr_ + size_, "Emplace place out of bounds!");
+    DEBUG(dst.object_ptr() + num - 1 < data_ptr_ || dst.object_ptr() + num - 1 >= data_ptr_ + size_, 
+          "Emplace place out of bounds!");
+    DEBUG(num < 0, "Negative insert num not valid!");
+    DestroyObjectsP(dst, dst + num);
+    CreateObjectsP(dst, dst + num, std::forward<ArgsType>(args)...);
+}
+
+template<typename ObjectType, Bool kIfUnique>
+template<typename DstIteratorType, typename SrcIteratorType>
+requires (internal::kIsNonConstVectorIterator<DstIteratorType, ObjectType>&&
+          internal::kIsVectorIterator<SrcIteratorType, ObjectType>)
+inline Void ZVector<ObjectType, kIfUnique>::EmplacesP(DstIteratorType dst, 
+                                                      SrcIteratorType src_begin, 
+                                                      SrcIteratorType src_end) noexcept {
+    DEBUG(dst.object_ptr() < data_ptr_ || dst.object_ptr() >= data_ptr_ + size_, "Emplace place out of bounds!");
+    DEBUG(src_begin > src_end, "Begin iterator after end iterator!");
+    CopyObjectsP(dst, src_begin, src_end);
+}
+
+template<typename ObjectType, Bool kIfUnique>
+template<typename SrcIteratorType>
 requires internal::kIsVectorIterator<SrcIteratorType, ObjectType>
 Void ZVector<ObjectType, kIfUnique>::AssignP(SrcIteratorType src_begin, SrcIteratorType src_end) noexcept {
     DEBUG(src_begin > src_end, "Begin iterator after end iterator!");
@@ -1494,45 +1621,45 @@ Void ZVector<ObjectType, kIfUnique>::AssignP(SrcIteratorType src_begin, SrcItera
     if (new_size > capacity_) {
         ExtendContainerP(new_size);
     }
-    if constexpr (kIfUnique) {
-        //If the iterator is from this.
-        if (src_begin.object_ptr() >= data_ptr_ && src_begin.object_ptr() < (data_ptr_ + size_)) {
-            if constexpr (internal::kIsOrderVectorIterator<SrcIteratorType, ObjectType>) {
-                DestroyObjectsP(SrcIteratorType(data_ptr_), src_begin);
-                DestroyObjectsP(src_end, SrcIteratorType(data_ptr_ + size_));
-                //Move the objects to the front.
-                memmove(reinterpret_cast<Void*>(data_ptr_), 
-                        reinterpret_cast<Void*>(const_cast<ObjectType*>(src_begin.object_ptr())),
-                        new_size * sizeof(ObjectType));
-            }
-            else {
-                DestroyObjectsP(SrcIteratorType(data_ptr_ + (size_ - 1)), src_begin);
-                DestroyObjectsP(src_end, SrcIteratorType(data_ptr_ - 1));
-                //Move the objects to the front.
-                memmove(reinterpret_cast<Void*>(data_ptr_), 
-                        reinterpret_cast<Void*>(const_cast<ObjectType*>(src_end.object_ptr() + 1)),
-                        new_size * sizeof(ObjectType));
-                //Reverses the objects.
-                for (ObjectType* begin_ptr = data_ptr_, end_ptr = begin_ptr + (new_size - 1);
-                     begin_ptr < end_ptr; ++begin_ptr, --end_ptr) {
-                    Swap(begin_ptr, end_ptr);
-                }
-            }
+    //If the iterator is from this.
+    if (src_begin.object_ptr() >= data_ptr_ && src_begin.object_ptr() < (data_ptr_ + size_)) {
+        if constexpr (internal::kIsOrderVectorIterator<SrcIteratorType, ObjectType>) {
+            DestroyObjectsP(Iterator(data_ptr_), 
+                            Iterator(const_cast<ObjectType*>(src_begin.object_ptr())));
+            DestroyObjectsP(Iterator(const_cast<ObjectType*>(src_end.object_ptr())),
+                            Iterator(data_ptr_ + size_));
+            //Move the objects to the front.
+            memmove(reinterpret_cast<Void*>(data_ptr_),
+                    reinterpret_cast<Void*>(const_cast<ObjectType*>(src_begin.object_ptr())),
+                    new_size * sizeof(ObjectType));
         }
         else {
-            if (new_size > size_) {
-                CopyObjectsP(Iterator(data_ptr_), src_begin, src_begin + size_);
-                CreateAndCopyObjectsP(Iterator(data_ptr_ + size_), src_begin + size_, src_end);
-            }
-            else {
-                Iterator temp(data_ptr_);
-                CopyObjectsP(Iterator(data_ptr_), src_begin, src_end);
-                DestroyObjectsP(Iterator(data_ptr_ + new_size), Iterator(data_ptr_ + size_));
+            DestroyObjectsP(Iterator(data_ptr_ + (size_ - 1)), 
+                            Iterator(const_cast<ObjectType*>(src_begin.object_ptr())));
+            DestroyObjectsP(Iterator(const_cast<ObjectType*>(src_end.object_ptr())),
+                            Iterator(data_ptr_ - 1));
+            //Move the objects to the front.
+            memmove(reinterpret_cast<Void*>(data_ptr_),
+                    reinterpret_cast<Void*>(const_cast<ObjectType*>(src_end.object_ptr() + 1)),
+                    new_size * sizeof(ObjectType));
+            //Reverses the objects.
+            ObjectType* begin_ptr = data_ptr_;
+            ObjectType* end_ptr = begin_ptr + (new_size - 1);
+            for (; begin_ptr < end_ptr; ++begin_ptr, --end_ptr) {
+                Swap(begin_ptr, end_ptr);
             }
         }
     }
     else {
-        CopyObjectsP(Iterator(data_ptr_), src_begin, src_end);
+        if (new_size > size_) {
+            CopyObjectsP(Iterator(data_ptr_), src_begin, src_begin + size_);
+            CreateAndCopyObjectsP(Iterator(data_ptr_ + size_), src_begin + size_, src_end);
+        }
+        else {
+            Iterator temp(data_ptr_);
+            CopyObjectsP(Iterator(data_ptr_), src_begin, src_end);
+            DestroyObjectsP(Iterator(data_ptr_ + new_size), Iterator(data_ptr_ + size_));
+        }
     }
     size_ = new_size;
 }

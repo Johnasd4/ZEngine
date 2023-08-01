@@ -36,31 +36,16 @@ Int32 main() {
         vector_0.PushBack(index);
         vector_3.PushBack(vector_0);
     }
-    //vector_0.PushBacks(vector_0.ReverseBegin(), vector_0.ReverseBegin() + 10);
-    //vector_0.PushBacks(vector_0.Begin(), vector_0.Begin() + 10);
     ZVector<Int32> vector_1(vector_0.ReverseBegin(), vector_0.ReverseBegin() + 5);
     ZVector<ZVector<Int32>> vector_2(vector_3.Begin(), vector_3.Begin() + 5);
     vector_1 = vector_0;
     vector_2 = vector_3;
-    vector_1.Erases(vector_1.ReverseBegin() + 8, 8);
-    vector_2.Erases(vector_2.Begin(), 10);
-
+    vector_1.Assign(vector_1.ConstReverseBegin() + 10, vector_1.ConstReverseBegin() + 20);
     cout << "vector_1:" << endl;
     for (int i = 0; i < vector_1.size(); i++) {
         cout << vector_1[i] << " ";
     }
     cout << endl << vector_1.size() << " " << vector_1.capacity();
-    cout << endl << "vector_2:" << endl;
-    for (int i = 0; i < vector_2.size(); i++)
-    {
-        for (int j = 0; j < vector_2[i].size(); j++)
-        {
-            cout << vector_2[i][j] << " ";
-        }
-        cout << endl;
-        cout << vector_2[i].size() << " " << vector_2[i].capacity() << endl;
-    }
-    cout << vector_2.size() << " " << vector_2.capacity() << endl;
     //IndexType a = 1;
     //IndexType b = 1;
     //if (a == b) {
