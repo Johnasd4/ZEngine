@@ -1277,8 +1277,7 @@ Void ZVector<ObjectType, kIfUnique>::PushBacksP(SrcIteratorType src_begin, SrcIt
     DEBUG(src_begin > src_end, "Begin iterator after end iterator!");
     IndexType new_size = size_ + (src_end - src_begin);
     if (new_size > capacity_) {
-        if (static_cast<ObjectType*>(src_begin) >= data_ptr_ && 
-                static_cast<ObjectType*>(src_begin) <= (data_ptr_ + size_)) {
+        if (src_begin.object_ptr() >= data_ptr_ && src_begin.object_ptr() <= (data_ptr_ + size_)) {
             IndexType begin_index = static_cast<IndexType>(src_begin.object_ptr() - data_ptr_);
             IndexType end_index = static_cast<IndexType>(src_end.object_ptr() - data_ptr_);
             ExtendContainerP(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
