@@ -1128,14 +1128,13 @@ FORCEINLINE static Void ZVector<ObjectType, kIfUnique>::CreateDestroyObjectsBase
                                                                                   DstIteratorType dst_end,
                                                                                   ArgsType&&... args) {
     if constexpr (sizeof...(args) != 0 || kIfUnique) {
-        while (dst_begin < dst_end) {
+        for (; dst_begin < dst_end; ++dst_begin) {
             if constexpr (kIfCreate) {
                 new(reinterpret_cast<Void*>(dst_begin.object_ptr())) ObjectType(std::forward<ArgsType>(args)...);
             }
             else {
                 dst_begin->~ObjectType();
             }
-            ++dst_begin;
         }
     }
 }
@@ -1149,15 +1148,13 @@ FORCEINLINE Void ZVector<ObjectType, kIfUnique>::CopyObjectsBaseP(DstIteratorTyp
                                                                   SrcIteratorType src_end) {
     if constexpr (kIfUnique || (internal::kIsOrderVectorIterator<DstIteratorType, ObjectType> != 
                                 internal::kIsOrderVectorIterator<SrcIteratorType, ObjectType>)) {
-        while (src_begin < src_end) {
+        for(; src_begin < src_end; ++dst, ++src_begin) {
             if constexpr (kIfCreate) {
                 new(reinterpret_cast<Void*>(dst.object_ptr())) ObjectType(*src_begin);
             }
             else {
                 *dst = *src_begin;
             }
-            ++dst;
-            ++src_begin;
         }
     }
     else {
@@ -1471,12 +1468,9 @@ Void ZVector<ObjectType, kIfUnique>::AssignP(SrcIteratorType src_begin, SrcItera
                         reinterpret_cast<Void*>(const_cast<ObjectType*>(src_end.object_ptr() + 1)),
                         new_size * sizeof(ObjectType));
                 //Reverses the objects.
-                ObjectType* begin_ptr = data_ptr_;
-                ObjectType* end_ptr = data_ptr_ + (new_size - 1);
-                while (begin_ptr < end_ptr) {
+                for (ObjectType* begin_ptr = data_ptr_, end_ptr = begin_ptr + (new_size - 1);
+                     begin_ptr < end_ptr; ++begin_ptr, --end_ptr) {
                     Swap(begin_ptr, end_ptr);
-                    ++begin_ptr;
-                    --end_ptr;
                 }
             }
         }
