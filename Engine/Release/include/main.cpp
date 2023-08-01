@@ -30,30 +30,33 @@ using namespace zengine;
 using namespace std;
 
 Int32 main() {
-    IndexType a = 1;
-    IndexType b = 1;
-    if (a == b) {
-        a = b;
-    }
-    cout << a << b << endl;
-    IndexType* c = nullptr;
-    auto d = c - c;
-    //cout << (-4) % 3;
-    //ZArray<Int32, 19> test_1;
-    //ZArray<Int32, 19> test_2(test_1);
-    //
-    ZVector<Int32> vector_1;
-    for (IndexType index = 1; index < 13; ++index) {
-        vector_1.PushBacks(10,index);
-    }
-    ZVector<ZVector<Int32>> vector_2;
-    ZVector<ZVector<Int32>> vector_3;
-    for (IndexType index = 1; index < 13; ++index) {
-        vector_1.PushBack(index);
-        vector_2.PushBack(vector_1);
-    }
-    ZVector<ZVector<Int32>> vector_4(std::move(vector_3));
-
+    ZVector<Int32> a(1, 5);
+    //IndexType a = 1;
+    //IndexType b = 1;
+    //if (a == b) {
+    //    a = b;
+    //}
+    //cout << a << b << endl;
+    //IndexType* c = nullptr;
+    //auto d = c - c;
+    ////cout << (-4) % 3;
+    ////ZArray<Int32, 19> test_1;
+    ////ZArray<Int32, 19> test_2(test_1);
+    ////
+    //ZVector<Int32> vector_1;
+    //for (IndexType index = 1; index < 13; ++index) {
+    //    vector_1.PushBacks(10,index);
+    //}
+    //ZVector<ZVector<Int32>> vector_2;
+    //ZVector<ZVector<Int32>> vector_3;
+    //for (IndexType index = 1; index < 13; ++index) {
+    //    vector_1.PushBack(index);
+    //    vector_2.PushBack(vector_1);
+    //}
+    //ZVector<ZVector<Int32>> vector_4(std::move(vector_3));
+    //std::deque<int> qwe;
+    //auto asd = qwe.begin();
+    //sizeof(asd);
     //auto begin = vector_2.ReverseBegin();
     //auto end = vector_2.ReverseEnd();
     //vector_2.Assign(begin, end);

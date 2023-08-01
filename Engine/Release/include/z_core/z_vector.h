@@ -710,24 +710,23 @@ public:
     /*
         The small object on the front.
     */
-    Void Sort(const Iterator& begin, const Iterator& end) noexcept;
+    Void Sort(Iterator begin, Iterator& end) noexcept;
     /*
         Will exchange the two objects when the function is true.
     */
     template<typename CompareFunction>
     requires kIsCompareFunction<CompareFunction, ObjectType>
-    Void Sort(const Iterator& begin, const Iterator& end, CompareFunction&& compare_function) noexcept;
+    Void Sort(Iterator begin, Iterator end, CompareFunction&& compare_function) noexcept;
     /*
         The small object on the front.
     */
-    Void Sort(const ReverseIterator& begin, const ReverseIterator& end) noexcept;
+    Void Sort(ReverseIterator begin, ReverseIterator end) noexcept;
     /*
         Will exchange the two objects when the function is true.
     */
     template<typename CompareFunction>
     requires kIsCompareFunction<CompareFunction, ObjectType>
-    Void Sort(const ReverseIterator& begin, const ReverseIterator& end, 
-              CompareFunction&& compare_function) noexcept;
+    Void Sort(ReverseIterator begin, ReverseIterator end, CompareFunction&& compare_function) noexcept;
 
     /*
         Destroys all the objects in the vector, does not release the memory.
@@ -754,21 +753,24 @@ private:
         Creates an object at the certain place. Will call the Constrctor if needed.
     */
     template<typename DstIteratorType, typename... ArgsType>
-    requires (!internal::kIsConstVectorIterator<DstIteratorType, ObjectType>)
+    requires (!internal::kIsConstVectorIterator<DstIteratorType, ObjectType> &&
+              internal::kIsVectorIterator<DstIteratorType, ObjectType>)
     FORCEINLINE static Void CreateObjectP(DstIteratorType dst, ArgsType&&... args);
 
     /*
         Destroys an object at the certain place. Will Call Destrctor if needed.
     */
     template<typename DstIteratorType>
-    requires (!internal::kIsConstVectorIterator<DstIteratorType, ObjectType>)
+    requires (!internal::kIsConstVectorIterator<DstIteratorType, ObjectType> &&
+              internal::kIsVectorIterator<DstIteratorType, ObjectType>)
     FORCEINLINE static Void DestroyObjectP(DstIteratorType dst);
 
     /*
         The base function of create and destroy objests.
     */
     template<Bool kIfCreate, typename DstIteratorType, typename... ArgsType>
-    requires (!internal::kIsConstVectorIterator<DstIteratorType, ObjectType>)
+    requires (!internal::kIsConstVectorIterator<DstIteratorType, ObjectType> &&
+              internal::kIsVectorIterator<DstIteratorType, ObjectType>)
     FORCEINLINE static Void CreateDestroyObjectsBaseP(DstIteratorType dst_begin, DstIteratorType dst_end, 
                                                       ArgsType&&... args);
 
@@ -776,9 +778,10 @@ private:
         Initialize the memory by the given arguements([begin, end)).
         Will call the Constrctor if needed.
     */
-    template<typename IteratorType, typename... ArgsType>
-    requires (!internal::kIsConstVectorIterator<IteratorType, ObjectType>)
-    inline static Void CreateObjectsP(IteratorType begin, IteratorType end, ArgsType&&... args) noexcept {
+    template<typename DstIteratorType, typename... ArgsType>
+    requires (!internal::kIsConstVectorIterator<DstIteratorType, ObjectType> &&
+              internal::kIsVectorIterator<DstIteratorType, ObjectType>)
+    inline static Void CreateObjectsP(DstIteratorType begin, DstIteratorType end, ArgsType&&... args) noexcept {
         CreateDestroyObjectsBaseP<kCreateObjects>(begin, end, std::forward<ArgsType>(args)...);
     }
 
@@ -786,9 +789,9 @@ private:
         Destroy the objects by the given arguements([begin, end)).
         Will call the destrctor if this object class's member kIfUnique is true.
     */
-    template<typename IteratorType>
-    requires (!internal::kIsConstVectorIterator<IteratorType, ObjectType>)
-    inline static Void DestroyObjectsP(IteratorType begin, IteratorType end) noexcept {
+    template<typename DstIteratorType>
+    requires (!internal::kIsConstVectorIterator<DstIteratorType, ObjectType>)
+    inline static Void DestroyObjectsP(DstIteratorType begin, DstIteratorType end) noexcept {
         CreateDestroyObjectsBaseP<kDestroyObjects>(begin, end);
     }
 
@@ -872,14 +875,16 @@ private:
         Inserts before the index. Returns the pointer that points at the newest object.
     */
     template<typename DstIteratorType, typename... ArgsType>
-    requires (!internal::kIsConstVectorIterator<DstIteratorType, ObjectType>)
+    requires (!internal::kIsConstVectorIterator<DstIteratorType, ObjectType> &&
+              internal::kIsVectorIterator<DstIteratorType, ObjectType>)
     NODISCARD DstIteratorType InsertP(DstIteratorType dst, ArgsType&&... args) noexcept;
 
     /*
         Inserts before the index. Returns the pointer that points at the first new object.
     */
     template<typename DstIteratorType, typename... ArgsType>
-    requires (!internal::kIsConstVectorIterator<DstIteratorType, ObjectType>)
+    requires (!internal::kIsConstVectorIterator<DstIteratorType, ObjectType> &&
+              internal::kIsVectorIterator<DstIteratorType, ObjectType>)
     NODISCARD DstIteratorType InsertsP(DstIteratorType dst, IndexType num, ArgsType&&... args) noexcept;
 
     /*
@@ -887,8 +892,9 @@ private:
         given place. Returns the pointer that points at the first new object.
     */
     template<typename DstIteratorType, typename SrcIteratorType>
-    requires (!internal::kIsConstVectorIterator<DstIteratorType, ObjectType>&&
-    internal::kIsVectorIterator<SrcIteratorType, ObjectType>)
+    requires (!internal::kIsConstVectorIterator<DstIteratorType, ObjectType> &&
+              internal::kIsVectorIterator<SrcIteratorType, ObjectType> &&
+              internal::kIsVectorIterator<DstIteratorType, ObjectType>)
     NODISCARD DstIteratorType InsertsP(DstIteratorType dst, SrcIteratorType src_begin, SrcIteratorType src_end) noexcept;
 
     /*
@@ -896,7 +902,8 @@ private:
         Returns the pointer that points at the next object.
     */
     template<typename DstIteratorType, typename... ArgsType>
-    requires (!internal::kIsConstVectorIterator<DstIteratorType, ObjectType>)
+    requires (!internal::kIsConstVectorIterator<DstIteratorType, ObjectType> &&
+              internal::kIsVectorIterator<DstIteratorType, ObjectType>)
     NODISCARD inline DstIteratorType EraseP(DstIteratorType dst) noexcept;
 
     /*
@@ -904,21 +911,24 @@ private:
         Returns the pointer that points at the next object.
     */
     template<typename DstIteratorType, typename... ArgsType>
-    requires (!internal::kIsConstVectorIterator<DstIteratorType, ObjectType>)
+    requires (!internal::kIsConstVectorIterator<DstIteratorType, ObjectType> &&
+              internal::kIsVectorIterator<DstIteratorType, ObjectType>)
     NODISCARD inline DstIteratorType ErasesP(DstIteratorType dst_begin, DstIteratorType dst_end) noexcept;
 
     /*
         Calls the constructor with the arguements.
     */
     template<typename DstIteratorType, typename... ArgsType>
-    requires (!internal::kIsConstVectorIterator<DstIteratorType, ObjectType>)
+    requires (!internal::kIsConstVectorIterator<DstIteratorType, ObjectType> &&
+              internal::kIsVectorIterator<DstIteratorType, ObjectType>)
     inline Void EmplaceP(DstIteratorType dst, ArgsType&&... args) noexcept;
 
     /*
         Construct the vector by filling it objects between the iterators.
     */
     template<typename SrcIteratorType, typename... ArgsType>
-    requires (!internal::kIsConstVectorIterator<SrcIteratorType, ObjectType>)
+    requires (!internal::kIsConstVectorIterator<SrcIteratorType, ObjectType> &&
+              internal::kIsVectorIterator<SrcIteratorType, ObjectType>)
     Void AssignP(SrcIteratorType src_begin, SrcIteratorType src_end) noexcept;
 
     ObjectType* data_ptr_;
@@ -969,7 +979,7 @@ ZVector<ObjectType, kIfUnique>::ZVector(IndexType capacity, ArgsType&&... args) 
 {
     DEBUG(capacity < 0, "Negaive capacity not valid!");
     CreateContainerP(capacity);
-    CreateObjectsP(data_ptr_, data_ptr_ + capacity, std::forward<ArgsType>(args)...);
+    CreateObjectsP(Iterator(data_ptr_), Iterator(data_ptr_ + capacity), std::forward<ArgsType>(args)...);
     size_ = capacity;
 }
 
@@ -1024,7 +1034,7 @@ FORCEINLINE Void ZVector<ObjectType, kIfUnique>::ShrinkToFit() {
 }
 
 template<typename ObjectType, Bool kIfUnique>
-FORCEINLINE Void ZVector<ObjectType, kIfUnique>::PopBack() {
+FORCEINLINE Void ZVector<ObjectType, kIfUnique>::PopBack() {               
     DEBUG(size_ == 0, "No existing object to pop!");
     DestroyObjectP(Iterator(data_ptr_ + size_--));
 }
@@ -1093,7 +1103,8 @@ FORCEINLINE Void ZVector<ObjectType, kIfUnique>::Destroy() {
 
 template<typename ObjectType, Bool kIfUnique>
 template<typename DstIteratorType, typename... ArgsType>
-requires (!internal::kIsConstVectorIterator<DstIteratorType, ObjectType>)
+requires (!internal::kIsConstVectorIterator<DstIteratorType, ObjectType>&&
+          internal::kIsVectorIterator<DstIteratorType, ObjectType>)
 FORCEINLINE Void ZVector<ObjectType, kIfUnique>::CreateObjectP(DstIteratorType dst, ArgsType&&... args) {
     if constexpr (sizeof...(args) == 0) {
         if constexpr (kIfUnique) {
@@ -1107,7 +1118,8 @@ FORCEINLINE Void ZVector<ObjectType, kIfUnique>::CreateObjectP(DstIteratorType d
 
 template<typename ObjectType, Bool kIfUnique>
 template<typename DstIteratorType>
-requires (!internal::kIsConstVectorIterator<DstIteratorType, ObjectType>)
+requires (!internal::kIsConstVectorIterator<DstIteratorType, ObjectType>&&
+          internal::kIsVectorIterator<DstIteratorType, ObjectType>)
 FORCEINLINE Void ZVector<ObjectType, kIfUnique>::DestroyObjectP(DstIteratorType dst) {
     if constexpr (kIfUnique) {
         dst->~ObjectType();
@@ -1116,7 +1128,8 @@ FORCEINLINE Void ZVector<ObjectType, kIfUnique>::DestroyObjectP(DstIteratorType 
 
 template<typename ObjectType, Bool kIfUnique>
 template<Bool kIfCreate, typename DstIteratorType, typename... ArgsType>
-requires (!internal::kIsConstVectorIterator<DstIteratorType, ObjectType>)
+requires (!internal::kIsConstVectorIterator<DstIteratorType, ObjectType>&&
+          internal::kIsVectorIterator<DstIteratorType, ObjectType>)
 FORCEINLINE static Void ZVector<ObjectType, kIfUnique>::CreateDestroyObjectsBaseP(DstIteratorType dst_begin, 
                                                                                   DstIteratorType dst_end,
                                                                                   ArgsType&&... args) {
@@ -1292,7 +1305,8 @@ Void ZVector<ObjectType, kIfUnique>::PushBacksP(SrcIteratorType src_begin, SrcIt
 
 template<typename ObjectType, Bool kIfUnique>
 template<typename DstIteratorType, typename... ArgsType>
-requires (!internal::kIsConstVectorIterator<DstIteratorType, ObjectType>)
+requires (!internal::kIsConstVectorIterator<DstIteratorType, ObjectType>&&
+          internal::kIsVectorIterator<DstIteratorType, ObjectType>)
 NODISCARD DstIteratorType ZVector<ObjectType, kIfUnique>::InsertP(DstIteratorType dst, ArgsType&&... args) noexcept {
     if constexpr (internal::kIsReverseVectorIterator<DstIteratorType, ObjectType>) {
         --dst;
@@ -1314,7 +1328,8 @@ NODISCARD DstIteratorType ZVector<ObjectType, kIfUnique>::InsertP(DstIteratorTyp
 
 template<typename ObjectType, Bool kIfUnique>
 template<typename DstIteratorType, typename... ArgsType>
-requires (!internal::kIsConstVectorIterator<DstIteratorType, ObjectType>)
+requires (!internal::kIsConstVectorIterator<DstIteratorType, ObjectType>&&
+          internal::kIsVectorIterator<DstIteratorType, ObjectType>)
 NODISCARD DstIteratorType ZVector<ObjectType, kIfUnique>::InsertsP(DstIteratorType dst, IndexType num,
                                                                    ArgsType&&... args) noexcept {
     if constexpr (internal::kIsReverseVectorIterator<DstIteratorType, ObjectType>) {
@@ -1340,8 +1355,9 @@ NODISCARD DstIteratorType ZVector<ObjectType, kIfUnique>::InsertsP(DstIteratorTy
 
 template<typename ObjectType, Bool kIfUnique>
 template<typename DstIteratorType, typename SrcIteratorType>
-requires (!internal::kIsConstVectorIterator<DstIteratorType, ObjectType> &&
-          internal::kIsVectorIterator<SrcIteratorType, ObjectType>)
+requires (!internal::kIsConstVectorIterator<DstIteratorType, ObjectType>&&
+          internal::kIsVectorIterator<SrcIteratorType, ObjectType>&&
+          internal::kIsVectorIterator<DstIteratorType, ObjectType>)
 NODISCARD DstIteratorType ZVector<ObjectType, kIfUnique>::InsertsP(DstIteratorType dst,
                                                                    SrcIteratorType src_begin, 
                                                                    SrcIteratorType src_end) noexcept {
@@ -1400,7 +1416,8 @@ NODISCARD DstIteratorType ZVector<ObjectType, kIfUnique>::InsertsP(DstIteratorTy
 
 template<typename ObjectType, Bool kIfUnique>
 template<typename DstIteratorType, typename... ArgsType>
-requires (!internal::kIsConstVectorIterator<DstIteratorType, ObjectType>)
+requires (!internal::kIsConstVectorIterator<DstIteratorType, ObjectType>&&
+          internal::kIsVectorIterator<DstIteratorType, ObjectType>)
 NODISCARD inline DstIteratorType ZVector<ObjectType, kIfUnique>::EraseP(DstIteratorType dst) noexcept {
     DEBUG(dst.object_ptr() < data_ptr_ || dst.object_ptr() >= data_ptr_ + size_, "Erase place out of bounds!");
     DestroyObjectP(dst);
@@ -1415,7 +1432,8 @@ NODISCARD inline DstIteratorType ZVector<ObjectType, kIfUnique>::EraseP(DstItera
 
 template<typename ObjectType, Bool kIfUnique>
 template<typename DstIteratorType, typename... ArgsType>
-requires (!internal::kIsConstVectorIterator<DstIteratorType, ObjectType>)
+requires (!internal::kIsConstVectorIterator<DstIteratorType, ObjectType>&&
+          internal::kIsVectorIterator<DstIteratorType, ObjectType>)
 NODISCARD inline DstIteratorType ZVector<ObjectType, kIfUnique>::ErasesP(DstIteratorType dst_begin, 
                                                                          DstIteratorType dst_end) noexcept {
     DEBUG(dst_begin.object_ptr() < data_ptr_ || dst_begin.object_ptr() >= data_ptr_ + size_, 
@@ -1436,7 +1454,8 @@ NODISCARD inline DstIteratorType ZVector<ObjectType, kIfUnique>::ErasesP(DstIter
 
 template<typename ObjectType, Bool kIfUnique>
 template<typename DstIteratorType, typename... ArgsType>
-requires (!internal::kIsConstVectorIterator<DstIteratorType, ObjectType>)
+requires (!internal::kIsConstVectorIterator<DstIteratorType, ObjectType>&&
+          internal::kIsVectorIterator<DstIteratorType, ObjectType>)
 inline Void ZVector<ObjectType, kIfUnique>::EmplaceP(DstIteratorType dst, ArgsType&&... args) noexcept {
     DEBUG(dst.object_ptr() < data_ptr_ || dst.object_ptr() >= data_ptr_ + size_, "Emplace place out of bounds!");
     DestroyObjectP(dst);
@@ -1445,7 +1464,8 @@ inline Void ZVector<ObjectType, kIfUnique>::EmplaceP(DstIteratorType dst, ArgsTy
 
 template<typename ObjectType, Bool kIfUnique>
 template<typename SrcIteratorType, typename... ArgsType>
-requires (!internal::kIsConstVectorIterator<SrcIteratorType, ObjectType>)
+requires (!internal::kIsConstVectorIterator<SrcIteratorType, ObjectType>&&
+          internal::kIsVectorIterator<SrcIteratorType, ObjectType>)
 Void ZVector<ObjectType, kIfUnique>::AssignP(SrcIteratorType src_begin, SrcIteratorType src_end) noexcept {
     DEBUG(src_begin > src_end, "Begin iterator after end iterator!");
     IndexType new_size = src_end - src_begin;

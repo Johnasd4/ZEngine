@@ -331,24 +331,23 @@ public:
     /*
         The small object on the front.
     */
-    Void Sort(const Iterator& begin, const Iterator& end) noexcept;
+    Void Sort(Iterator begin, Iterator end) noexcept;
     /*
         Will exchange the two objects when the function is true.
     */
     template<typename CompareFunction>
         requires kIsCompareFunction<CompareFunction, ObjectType>
-    Void Sort(const Iterator& begin, const Iterator& end, CompareFunction&& compare_function) noexcept;
+    Void Sort(Iterator begin, Iterator end, CompareFunction&& compare_function) noexcept;
     /*
         The small object on the front.
     */
-    Void Sort(const ReverseIterator& begin, const ReverseIterator& end) noexcept;
+    Void Sort(ReverseIterator begin, ReverseIterator end) noexcept;
     /*
         Will exchange the two objects when the function is true.
     */
     template<typename CompareFunction>
         requires kIsCompareFunction<CompareFunction, ObjectType>
-    Void Sort(const ReverseIterator& begin, const ReverseIterator& end, 
-              CompareFunction&& compare_function) noexcept;
+    Void Sort(ReverseIterator begin, const ReverseIterator end, CompareFunction&& compare_function) noexcept;
 
 protected:
     using SuperType = ZObject;
