@@ -1296,9 +1296,6 @@ template<typename ObjectType, Bool kIfUnique>
 template<typename DstIteratorType, typename... ArgsType>
 requires internal::kIsNonConstVectorIterator<DstIteratorType, ObjectType>
 NODISCARD DstIteratorType ZVector<ObjectType, kIfUnique>::InsertP(DstIteratorType dst, ArgsType&&... args) noexcept {
-    if constexpr (internal::kIsReverseVectorIterator<DstIteratorType, ObjectType>) {
-        --dst;
-    }
     DEBUG(dst.object_ptr() < data_ptr_ || dst.object_ptr() > data_ptr_ + size_, "Insert place out of bounds!");
     IndexType new_size = size_ + 1;
     if (new_size > capacity_) {
@@ -1306,6 +1303,9 @@ NODISCARD DstIteratorType ZVector<ObjectType, kIfUnique>::InsertP(DstIteratorTyp
         ExtendContainerP(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
         dst = data_ptr_ + index;
 
+    }
+    if constexpr (internal::kIsReverseVectorIterator<DstIteratorType, ObjectType>) {
+        --dst;
     }
     memmove(reinterpret_cast<Void*>(dst.object_ptr() + 1), reinterpret_cast<Void*>(dst.object_ptr()),
             (size_ - static_cast<SizeType>(dst.object_ptr() - data_ptr_)) * sizeof(ObjectType));
@@ -1319,9 +1319,6 @@ template<typename DstIteratorType, typename... ArgsType>
 requires internal::kIsNonConstVectorIterator<DstIteratorType, ObjectType>
 NODISCARD DstIteratorType ZVector<ObjectType, kIfUnique>::InsertsP(DstIteratorType dst, IndexType num,
                                                                    ArgsType&&... args) noexcept {
-    if constexpr (internal::kIsReverseVectorIterator<DstIteratorType, ObjectType>) {
-        --dst;
-    }
     DEBUG(dst.object_ptr() < data_ptr_ || dst.object_ptr() > data_ptr_ + size_, "Insert place out of bounds!");
     DEBUG(num < 0, "Negative insert num not valid!");
     IndexType new_size = size_ + num;
@@ -1330,13 +1327,16 @@ NODISCARD DstIteratorType ZVector<ObjectType, kIfUnique>::InsertsP(DstIteratorTy
         ExtendContainerP(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
         dst = data_ptr_ + index;
     }
+    if constexpr (internal::kIsReverseVectorIterator<DstIteratorType, ObjectType>) {
+        --dst;
+    }
     memmove(reinterpret_cast<Void*>(dst.object_ptr() + num), reinterpret_cast<Void*>(dst.object_ptr()),
             (size_ - static_cast<SizeType>(dst.object_ptr() - data_ptr_)) * sizeof(ObjectType));
-    CreateObjectsP(dst, dst + num, std::forward<ArgsType>(args)...);
-    size_ = new_size;
     if constexpr (internal::kIsReverseVectorIterator<DstIteratorType, ObjectType>) {
         dst -= num - 1;
     }
+    CreateObjectsP(dst, dst + num, std::forward<ArgsType>(args)...);
+    size_ = new_size;
     return dst;
 }
 
