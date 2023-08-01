@@ -1033,13 +1033,13 @@ FORCEINLINE Void ZVector<ObjectType, kIfUnique>::ShrinkToFit() {
 template<typename ObjectType, Bool kIfUnique>
 FORCEINLINE Void ZVector<ObjectType, kIfUnique>::PopBack() {               
     DEBUG(size_ == 0, "No existing object to pop!");
-    DestroyObjectP(Iterator(data_ptr_ + size_--));
+    DestroyObjectP(Iterator(data_ptr_ + --size_));
 }
 
 template<typename ObjectType, Bool kIfUnique>
 FORCEINLINE Void ZVector<ObjectType, kIfUnique>::PopBack(ObjectType* object_ptr) {
     DEBUG(size_ == 0, "No existing object to pop!");
-    *object_ptr = std::move(data_ptr_[size_--]);
+    *object_ptr = std::move(data_ptr_[--size_]);
 }
 
 template<typename ObjectType, Bool kIfUnique>
