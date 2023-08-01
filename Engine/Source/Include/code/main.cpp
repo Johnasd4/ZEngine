@@ -32,7 +32,7 @@ using namespace std;
 Int32 main() {
     ZVector<Int32> vector_0;
     ZVector<ZVector<Int32>> vector_3;
-    for (IndexType index = 0; index < 5; ++index) {
+    for (IndexType index = 0; index < 10; ++index) {
         vector_0.PushBack(index);
         vector_3.PushBacks(2, vector_0);
     }
@@ -40,8 +40,8 @@ Int32 main() {
     ZVector<ZVector<Int32>> vector_2(vector_3.Begin(), vector_3.Begin() + 5);
     vector_1 = vector_0;
     vector_2 = vector_3;
-    //vector_1.Inserts(2, vector_1.ReverseBegin(), vector_1.ReverseBegin() + 3);
-    vector_1.Inserts(vector_1.ReverseBegin() + 2, vector_1.ReverseBegin(), vector_1.ReverseBegin() + 3);
+    //vector_1.Inserts(5, vector_1.ReverseBegin(), vector_1.ReverseBegin() + 7);
+    vector_1.Inserts(vector_1.ReverseBegin() + 4, vector_1.ReverseBegin(), vector_1.ReverseBegin() + 7);
 
     cout << "vector_1:" << endl;
     for (int i = 0; i < vector_1.size(); i++) {

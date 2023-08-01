@@ -1296,6 +1296,9 @@ template<typename ObjectType, Bool kIfUnique>
 template<typename DstIteratorType, typename... ArgsType>
 requires internal::kIsNonConstVectorIterator<DstIteratorType, ObjectType>
 NODISCARD DstIteratorType ZVector<ObjectType, kIfUnique>::InsertP(DstIteratorType dst, ArgsType&&... args) noexcept {
+    if constexpr (internal::kIsReverseVectorIterator<DstIteratorType, ObjectType>) {
+        --dst;
+    }
     DEBUG(dst.object_ptr() < data_ptr_ || dst.object_ptr() > data_ptr_ + size_, "Insert place out of bounds!");
     IndexType new_size = size_ + 1;
     if (new_size > capacity_) {
@@ -1303,9 +1306,6 @@ NODISCARD DstIteratorType ZVector<ObjectType, kIfUnique>::InsertP(DstIteratorTyp
         ExtendContainerP(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
         dst = data_ptr_ + index;
 
-    }
-    if constexpr (internal::kIsReverseVectorIterator<DstIteratorType, ObjectType>) {
-        --dst;
     }
     memmove(reinterpret_cast<Void*>(dst.object_ptr() + 1), reinterpret_cast<Void*>(dst.object_ptr()),
             (size_ - static_cast<SizeType>(dst.object_ptr() - data_ptr_)) * sizeof(ObjectType));
@@ -1319,6 +1319,9 @@ template<typename DstIteratorType, typename... ArgsType>
 requires internal::kIsNonConstVectorIterator<DstIteratorType, ObjectType>
 NODISCARD DstIteratorType ZVector<ObjectType, kIfUnique>::InsertsP(DstIteratorType dst, IndexType num,
                                                                    ArgsType&&... args) noexcept {
+    if constexpr (internal::kIsReverseVectorIterator<DstIteratorType, ObjectType>) {
+        --dst;
+    }
     DEBUG(dst.object_ptr() < data_ptr_ || dst.object_ptr() > data_ptr_ + size_, "Insert place out of bounds!");
     DEBUG(num < 0, "Negative insert num not valid!");
     IndexType new_size = size_ + num;
@@ -1326,9 +1329,6 @@ NODISCARD DstIteratorType ZVector<ObjectType, kIfUnique>::InsertsP(DstIteratorTy
         IndexType index = static_cast<IndexType>(dst.object_ptr() - data_ptr_);
         ExtendContainerP(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
         dst = data_ptr_ + index;
-    }
-    if constexpr (internal::kIsReverseVectorIterator<DstIteratorType, ObjectType>) {
-        --dst;
     }
     memmove(reinterpret_cast<Void*>(dst.object_ptr() + num), reinterpret_cast<Void*>(dst.object_ptr()),
             (size_ - static_cast<SizeType>(dst.object_ptr() - data_ptr_)) * sizeof(ObjectType));
@@ -1360,6 +1360,8 @@ NODISCARD DstIteratorType ZVector<ObjectType, kIfUnique>::InsertsP(DstIteratorTy
         IndexType index = static_cast<IndexType>(dst.object_ptr() - data_ptr_);
         if (new_size > capacity_) {
             ExtendContainerP(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+            src_begin = data_ptr_ + begin_index;
+            src_end = data_ptr_ + end_index;
             dst = data_ptr_ + index;
         }
         memmove(reinterpret_cast<Void*>(dst.object_ptr() + num), reinterpret_cast<Void*>(dst.object_ptr()),
@@ -1369,46 +1371,32 @@ NODISCARD DstIteratorType ZVector<ObjectType, kIfUnique>::InsertsP(DstIteratorTy
         }
         if constexpr (internal::kIsOrderVectorIterator<SrcIteratorType, ObjectType>) {
             if (index >= end_index) {
-                src_begin = data_ptr_ + begin_index;
-                src_end = data_ptr_ + end_index;
                 CreateAndCopyObjectsP(dst, src_begin, src_end);
             }
             else if (index < begin_index) {
-                src_begin = data_ptr_ + begin_index + num;
-                src_end = data_ptr_ + end_index + num;
-                CreateAndCopyObjectsP(dst, src_begin, src_end);
+                CreateAndCopyObjectsP(dst, src_begin + num, src_end + num);
             }
             else {
                 IndexType part_1_num = index - begin_index;
                 IndexType part_2_num = num - part_1_num;
-                src_begin = data_ptr_ + begin_index;
-                src_end = src_begin + part_1_num;
-                CreateAndCopyObjectsP(dst, src_begin, src_end);
-                src_begin = src_end + num;
-                src_end = src_begin + part_2_num;
-                CreateAndCopyObjectsP(dst + part_1_num, src_begin, src_end);
+                SrcIteratorType temp_src = src_begin + part_1_num;
+                CreateAndCopyObjectsP(dst, src_begin, temp_src);
+                CreateAndCopyObjectsP(dst + part_1_num, temp_src + num, src_end + num);
             }
         }
         else {
-            if (index <= end_index) {
-                src_begin = data_ptr_ + begin_index;
-                src_end = data_ptr_ + end_index;
+            if (index > begin_index) {
                 CreateAndCopyObjectsP(dst, src_begin, src_end);
             }
-            else if (index > begin_index) {
-                src_begin = data_ptr_ + begin_index + num;
-                src_end = data_ptr_ + end_index + num;
-                CreateAndCopyObjectsP(dst, src_begin, src_end);
+            else if (index <= end_index) {
+                CreateAndCopyObjectsP(dst, src_begin - num, src_end - num);
             }
             else {
                 IndexType part_1_num = begin_index - index + 1;
                 IndexType part_2_num = num - part_1_num;
-                src_begin = data_ptr_ + begin_index + num;
-                src_end = src_begin + part_1_num;
-                CreateAndCopyObjectsP(dst, src_begin, src_end);
-                src_begin = src_end + num;
-                src_end = src_begin + part_2_num;
-                CreateAndCopyObjectsP(dst + part_1_num, src_begin, src_end);
+                SrcIteratorType temp_src = src_begin + part_1_num;
+                CreateAndCopyObjectsP(dst, src_begin - num, temp_src - num);
+                CreateAndCopyObjectsP(dst + part_1_num, temp_src, src_end);
             }
         }
     }
