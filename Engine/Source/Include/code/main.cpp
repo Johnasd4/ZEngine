@@ -40,7 +40,7 @@ Int32 main() {
     ZVector<ZVector<Int32>> vector_2(vector_3.Begin(), vector_3.Begin() + 5);
     vector_1 = vector_0;
     vector_2 = vector_3;
-    vector_1.PushBacks(vector_0.ConstBegin(), vector_0.ConstBegin() + 3);
+    vector_1.Inserts(2, vector_1.ReverseBegin(), vector_1.ReverseBegin() + 3);
 
     cout << "vector_1:" << endl;
     for (int i = 0; i < vector_1.size(); i++) {

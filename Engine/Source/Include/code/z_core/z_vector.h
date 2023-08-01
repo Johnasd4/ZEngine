@@ -498,7 +498,7 @@ public:
     */
     template<typename... ArgsType>
     FORCEINLINE Iterator Inserts(IndexType index, IndexType num, ArgsType&&... args) {
-        return InsertsP(Iterator(index), num, std::forward<ArgsType>(args)...);
+        return InsertsP(Iterator(data_ptr_ + index), num, std::forward<ArgsType>(args)...);
     }
     /*
         Inserts before the iterator. Returns the iterator that points at the first new object.
@@ -520,28 +520,28 @@ public:
         given place. Returns the iterator that points at the first new object.
     */
     FORCEINLINE Iterator Inserts(IndexType index, Iterator src_begin, Iterator src_end) {
-        return InsertsP(Iterator(index), src_begin, src_end);
+        return InsertsP(Iterator(data_ptr_ + index), src_begin, src_end);
     }
     /*
         Makes a copy of the objects between the iterators and insert them to the
         given place. Returns the iterator that points at the first new object.
     */
     FORCEINLINE Iterator Inserts(IndexType index, ConstIterator src_begin, ConstIterator src_end) {
-        return InsertsP(Iterator(index), src_begin, src_end);
+        return InsertsP(Iterator(data_ptr_ + index), src_begin, src_end);
     }
     /*
         Makes a copy of the objects between the iterators and insert them to the
         given place. Returns the iterator that points at the first new object.
     */
     FORCEINLINE Iterator Inserts(IndexType index, ReverseIterator src_begin,ReverseIterator src_end) {
-        return InsertsP(Iterator(index), src_begin, src_end);
+        return InsertsP(Iterator(data_ptr_ + index), src_begin, src_end);
     }
     /*
         Makes a copy of the objects between the iterators and insert them to the
         given place. Returns the iterator that points at the first new object.
     */
     FORCEINLINE Iterator Inserts(IndexType index, ConstReverseIterator src_begin, ConstReverseIterator src_end) {
-        return InsertsP(Iterator(index), src_begin, src_end);
+        return InsertsP(Iterator(data_ptr_ + index), src_begin, src_end);
     }
 
     /*
