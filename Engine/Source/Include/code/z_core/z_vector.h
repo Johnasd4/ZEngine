@@ -925,7 +925,7 @@ private:
         Construct the vector by filling it objects between the iterators.
     */
     template<typename SrcIteratorType, typename... ArgsType>
-    requires internal::kIsNonConstVectorIterator<SrcIteratorType, ObjectType>
+    requires internal::kIsVectorIterator<SrcIteratorType, ObjectType>
     Void AssignP(SrcIteratorType src_begin, SrcIteratorType src_end) noexcept;
 
     ObjectType* data_ptr_;
@@ -1170,13 +1170,14 @@ FORCEINLINE Void ZVector<ObjectType, kIfUnique>::CopyObjectsBaseP(DstIteratorTyp
     }
     else {
         if constexpr (internal::kIsOrderVectorIterator<DstIteratorType, ObjectType>) {
-            memcpy(reinterpret_cast<Void*>(dst.object_ptr()), reinterpret_cast<Void*>(src_begin.object_ptr()),
+            memcpy(reinterpret_cast<Void*>(dst.object_ptr()), 
+                   reinterpret_cast<Void*>(const_cast<ObjectType*>(src_begin.object_ptr())),
                    static_cast<SizeType>(src_end - src_begin) * sizeof(ObjectType));
         }
         else {
             IndexType length = src_end - src_begin;
             memcpy(reinterpret_cast<Void*>(dst.object_ptr() - (length - 1)), 
-                   reinterpret_cast<Void*>(src_end.object_ptr() + 1),
+                   reinterpret_cast<Void*>(const_cast<ObjectType*>(src_end.object_ptr() + 1)),
                    length * sizeof(ObjectType));
         }
     }
@@ -1452,7 +1453,7 @@ inline Void ZVector<ObjectType, kIfUnique>::EmplaceP(DstIteratorType dst, ArgsTy
 
 template<typename ObjectType, Bool kIfUnique>
 template<typename SrcIteratorType, typename... ArgsType>
-requires internal::kIsNonConstVectorIterator<SrcIteratorType, ObjectType>
+requires internal::kIsVectorIterator<SrcIteratorType, ObjectType>
 Void ZVector<ObjectType, kIfUnique>::AssignP(SrcIteratorType src_begin, SrcIteratorType src_end) noexcept {
     DEBUG(src_begin > src_end, "Begin iterator after end iterator!");
     IndexType new_size = src_end - src_begin;
@@ -1466,14 +1467,16 @@ Void ZVector<ObjectType, kIfUnique>::AssignP(SrcIteratorType src_begin, SrcItera
                 DestroyObjectsP(SrcIteratorType(data_ptr_), src_begin);
                 DestroyObjectsP(src_end, SrcIteratorType(data_ptr_ + size_));
                 //Move the objects to the front.
-                memmove(reinterpret_cast<Void*>(data_ptr_), reinterpret_cast<Void*>(src_begin.object_ptr()),
+                memmove(reinterpret_cast<Void*>(data_ptr_), 
+                        reinterpret_cast<Void*>(const_cast<ObjectType*>(src_begin.object_ptr())),
                         new_size * sizeof(ObjectType));
             }
             else {
                 DestroyObjectsP(SrcIteratorType(data_ptr_ + (size_ - 1)), src_begin);
                 DestroyObjectsP(src_end, SrcIteratorType(data_ptr_ - 1));
                 //Move the objects to the front.
-                memmove(reinterpret_cast<Void*>(data_ptr_), reinterpret_cast<Void*>(src_end.object_ptr() + 1),
+                memmove(reinterpret_cast<Void*>(data_ptr_), 
+                        reinterpret_cast<Void*>(const_cast<ObjectType*>(src_end.object_ptr() + 1)),
                         new_size * sizeof(ObjectType));
                 //Reverses the objects.
                 ObjectType* begin_ptr = data_ptr_;
