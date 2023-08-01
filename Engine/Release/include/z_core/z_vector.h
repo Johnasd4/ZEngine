@@ -40,10 +40,6 @@ public:
         MoveP(std::forward<ZVectorIteratorBase>(iterator)); 
     }
 
-    FORCEINLINE ZVectorIteratorBase& operator=(ObjectType* object_ptr) {
-        object_ptr_ = object_ptr;
-        return *this;
-    }
     FORCEINLINE ZVectorIteratorBase& operator=(const ZVectorIteratorBase& iterator) {
         CopyP(iterator);
         return *this;
@@ -88,6 +84,11 @@ private:
 template<typename ObjectType>
 class ZVectorIterator : public ZVectorIteratorBase<ObjectType> {
 public:
+    FORCEINLINE ZVectorIterator& operator=(ObjectType* object_ptr) {
+        SuperType::object_ptr_ = object_ptr;
+        return *this;
+    }
+
     NODISCARD FORCEINLINE ObjectType& operator[](IndexType index) const { return SuperType::object_ptr_[index]; }
 
     FORCEINLINE ZVectorIterator& operator+=(IndexType data_num) {
@@ -146,6 +147,11 @@ protected:
 template<typename ObjectType>
 class ZVectorReverseIterator : public ZVectorIteratorBase<ObjectType> {
 public:
+    FORCEINLINE ZVectorReverseIterator& operator=(ObjectType* object_ptr) {
+        SuperType::object_ptr_ = object_ptr;
+        return *this;
+    }
+
     NODISCARD FORCEINLINE ObjectType& operator[](IndexType index) const { return SuperType::object_ptr_[-index]; }
 
     FORCEINLINE ZVectorReverseIterator& operator+=(IndexType data_num) {
@@ -1033,13 +1039,13 @@ FORCEINLINE Void ZVector<ObjectType, kIfUnique>::ShrinkToFit() {
 template<typename ObjectType, Bool kIfUnique>
 FORCEINLINE Void ZVector<ObjectType, kIfUnique>::PopBack() {               
     DEBUG(size_ == 0, "No existing object to pop!");
-    DestroyObjectP(Iterator(data_ptr_ + size_--));
+    DestroyObjectP(Iterator(data_ptr_ + --size_));
 }
 
 template<typename ObjectType, Bool kIfUnique>
 FORCEINLINE Void ZVector<ObjectType, kIfUnique>::PopBack(ObjectType* object_ptr) {
     DEBUG(size_ == 0, "No existing object to pop!");
-    *object_ptr = std::move(data_ptr_[size_--]);
+    *object_ptr = std::move(data_ptr_[--size_]);
 }
 
 template<typename ObjectType, Bool kIfUnique>

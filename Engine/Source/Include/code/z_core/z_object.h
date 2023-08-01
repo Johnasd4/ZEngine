@@ -45,7 +45,7 @@ public:
     NODISCARD FORCEINLINE static Void operator delete(Void* memory_ptr) {
         memory_pool::ReleaseMemory(reinterpret_cast<Void*>(memory_ptr));
     }
-
+    NODISCARD FORCEINLINE static Void operator delete(Void* delete_memory, Void* memory_ptr) {}
 
 protected:
     FORCEINLINE constexpr ZObject() {}

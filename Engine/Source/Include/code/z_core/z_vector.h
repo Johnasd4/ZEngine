@@ -40,10 +40,6 @@ public:
         MoveP(std::forward<ZVectorIteratorBase>(iterator)); 
     }
 
-    FORCEINLINE ZVectorIteratorBase& operator=(ObjectType* object_ptr) {
-        object_ptr_ = object_ptr;
-        return *this;
-    }
     FORCEINLINE ZVectorIteratorBase& operator=(const ZVectorIteratorBase& iterator) {
         CopyP(iterator);
         return *this;
@@ -88,6 +84,11 @@ private:
 template<typename ObjectType>
 class ZVectorIterator : public ZVectorIteratorBase<ObjectType> {
 public:
+    FORCEINLINE ZVectorIterator& operator=(ObjectType* object_ptr) {
+        SuperType::object_ptr_ = object_ptr;
+        return *this;
+    }
+
     NODISCARD FORCEINLINE ObjectType& operator[](IndexType index) const { return SuperType::object_ptr_[index]; }
 
     FORCEINLINE ZVectorIterator& operator+=(IndexType data_num) {
@@ -146,6 +147,11 @@ protected:
 template<typename ObjectType>
 class ZVectorReverseIterator : public ZVectorIteratorBase<ObjectType> {
 public:
+    FORCEINLINE ZVectorReverseIterator& operator=(ObjectType* object_ptr) {
+        SuperType::object_ptr_ = object_ptr;
+        return *this;
+    }
+
     NODISCARD FORCEINLINE ObjectType& operator[](IndexType index) const { return SuperType::object_ptr_[-index]; }
 
     FORCEINLINE ZVectorReverseIterator& operator+=(IndexType data_num) {

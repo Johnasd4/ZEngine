@@ -30,10 +30,24 @@ using namespace zengine;
 using namespace std;
 
 Int32 main() {
-
-    ZVector<ZVector<Int32>> vector_2;
-    vector_2.Resize(11);
-
+    ZVector<Int32> vector_0;
+    ZVector<ZVector<Int32>> vector_3;
+    for (IndexType index = 0; index < 5; ++index) {
+        vector_0.PushBack(index);
+        vector_3.PushBacks(2, vector_0);
+    }
+    ZVector<Int32> vector_1(vector_0.ReverseBegin(), vector_0.ReverseBegin() + 5);
+    ZVector<ZVector<Int32>> vector_2(vector_3.Begin(), vector_3.Begin() + 5);
+    vector_1 = vector_0;
+    vector_2 = vector_3;
+    vector_1.PushBacks(vector_0.Begin(), vector_0.Begin() + 3);
+    auto a = vector_1.Begin();
+    auto b = vector_1.Begin();
+    cout << "vector_1:" << endl;
+    for (int i = 0; i < vector_1.size(); i++) {
+        cout << vector_1[i] << " ";
+    }
+    cout << endl << vector_1.size() << " " << vector_1.capacity() << endl << "vector_2:" << endl;
     for (int i = 0; i < vector_2.size(); i++)
     {
         for (int j = 0; j < vector_2[i].size(); j++)
@@ -43,6 +57,7 @@ Int32 main() {
         cout << endl << vector_2[i].size() << " " << vector_2[i].capacity() << endl;
     }
     cout << vector_2.size() << " " << vector_2.capacity() << endl;
+
     //IndexType a = 1;
     //IndexType b = 1;
     //if (a == b) {
