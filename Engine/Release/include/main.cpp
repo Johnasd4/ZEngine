@@ -30,22 +30,10 @@ using namespace zengine;
 using namespace std;
 
 Int32 main() {
-    ZVector<Int32> vector_0(2, 1);
-    ZVector<Int32> vector_1(vector_0.ConstBegin(), vector_0.ConstBegin() + 1);
-    ZVector<ZVector<Int32>> vector_2;
-    ZVector<ZVector<Int32>> vector_3;
-    for (IndexType index = 0; index < 6; ++index) {
-        vector_0.PushBack(index);
-        vector_3.PushBacks(2, vector_0);
-    }
-    vector_1 = vector_0;
-    vector_2 = vector_3;
 
-    cout << "vector_1:" << endl;
-    for (int i = 0; i < vector_1.size(); i++) {
-        cout << vector_1[i] << " ";
-    }
-    cout << endl << vector_1.size() << " " << vector_1.capacity() << endl << "vector_2:" << endl;
+    ZVector<ZVector<Int32>> vector_2;
+    vector_2.Resize(11);
+
     for (int i = 0; i < vector_2.size(); i++)
     {
         for (int j = 0; j < vector_2[i].size(); j++)

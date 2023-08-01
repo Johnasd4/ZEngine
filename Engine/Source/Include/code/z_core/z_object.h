@@ -42,18 +42,10 @@ public:
     NODISCARD FORCEINLINE static Void* operator new(SizeType size, Void* memory_ptr) {
         return memory_ptr;
     }
-    NODISCARD FORCEINLINE static Void* operator new[](SizeType size) {
-        return memory_pool::ApplyMemory(static_cast<MemoryType>(size));
-    }
-    NODISCARD FORCEINLINE static Void* operator new[](SizeType size, Void* memory_ptr) {
-        return memory_ptr;
-    }
     NODISCARD FORCEINLINE static Void operator delete(Void* memory_ptr) {
         memory_pool::ReleaseMemory(reinterpret_cast<Void*>(memory_ptr));
     }
-    NODISCARD FORCEINLINE static Void operator delete[](Void* memory_ptr) {
-        memory_pool::ReleaseMemory(reinterpret_cast<Void*>(memory_ptr));
-    }
+
 
 protected:
     FORCEINLINE constexpr ZObject() {}
@@ -69,6 +61,11 @@ protected:
     FORCEINLINE constexpr ~ZObject() {}
 
 private:
+
+    static Void* operator new[](SizeType) = delete;
+    static Void* operator new[](SizeType, Void*) = delete;;
+    static Void operator delete[](Void*) = delete;;
+
     /*
         Reset the object to null when moved.
     */

@@ -1127,7 +1127,7 @@ requires internal::kIsNonConstVectorIterator<DstIteratorType, ObjectType>
 FORCEINLINE static Void ZVector<ObjectType, kIfUnique>::CreateDestroyObjectsBaseP(DstIteratorType dst_begin, 
                                                                                   DstIteratorType dst_end,
                                                                                   ArgsType&&... args) {
-    if constexpr (sizeof...(args) != 0 || (!kIfCreate && kIfUnique)) {
+    if constexpr (sizeof...(args) != 0 || kIfUnique) {
         while (dst_begin < dst_end) {
             if constexpr (kIfCreate) {
                 new(reinterpret_cast<Void*>(dst_begin.object_ptr())) ObjectType(std::forward<ArgsType>(args)...);
@@ -1136,14 +1136,6 @@ FORCEINLINE static Void ZVector<ObjectType, kIfUnique>::CreateDestroyObjectsBase
                 dst_begin->~ObjectType();
             }
             ++dst_begin;
-        }
-    }
-    else if constexpr (kIfUnique){
-        if constexpr (internal::kIsOrderVectorIterator<DstIteratorType, ObjectType>) {
-            new(reinterpret_cast<Void*>(dst_begin.object_ptr())) ObjectType[dst_end - dst_begin];
-        }
-        else {
-            new(reinterpret_cast<Void*>(dst_end.object_ptr() + 1)) ObjectType[dst_end - dst_begin];
         }
     }
 }
