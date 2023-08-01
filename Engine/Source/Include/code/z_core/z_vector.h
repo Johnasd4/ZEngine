@@ -927,6 +927,23 @@ private:
     inline Void EmplaceP(DstIteratorType dst, ArgsType&&... args) noexcept;
 
     /*
+        Inserts before the index. Returns the iterator that points at the first new object.
+    */
+    template<typename DstIteratorType, typename... ArgsType>
+    requires internal::kIsNonConstVectorIterator<DstIteratorType, ObjectType>
+    NODISCARD DstIteratorType EmplaceP(DstIteratorType dst, IndexType num, ArgsType&&... args) noexcept;
+
+    /*
+        Makes a copy of the objects between the iterators and insert them to the
+        given place. Returns the iterator that points at the first new object.
+    */
+    template<typename DstIteratorType, typename SrcIteratorType>
+    requires (internal::kIsNonConstVectorIterator<DstIteratorType, ObjectType> &&
+              internal::kIsVectorIterator<SrcIteratorType, ObjectType>)
+    NODISCARD DstIteratorType EmplaceP(DstIteratorType dst, SrcIteratorType src_begin, SrcIteratorType src_end) noexcept;
+
+
+    /*
         Construct the vector by filling it objects between the iterators.
     */
     template<typename SrcIteratorType, typename... ArgsType>

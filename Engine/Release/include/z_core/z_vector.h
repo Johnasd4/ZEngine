@@ -825,7 +825,7 @@ private:
     }
 
     /*
-        Copy objects by the given pointer. Will call the copy assignment operator
+        Copy objects by the given iterator. Will call the copy assignment operator
         if this object class's member kIfUnique is true.
     */
     template<typename DstIteratorType, typename SrcIteratorType>
@@ -881,14 +881,14 @@ private:
     Void PushBacksP(SrcIteratorType src_begin, SrcIteratorType src_end) noexcept;
 
     /*
-        Inserts before the index. Returns the pointer that points at the newest object.
+        Inserts before the index. Returns the iterator that points at the newest object.
     */
     template<typename DstIteratorType, typename... ArgsType>
     requires internal::kIsNonConstVectorIterator<DstIteratorType, ObjectType>
     NODISCARD DstIteratorType InsertP(DstIteratorType dst, ArgsType&&... args) noexcept;
 
     /*
-        Inserts before the index. Returns the pointer that points at the first new object.
+        Inserts before the index. Returns the iterator that points at the first new object.
     */
     template<typename DstIteratorType, typename... ArgsType>
     requires internal::kIsNonConstVectorIterator<DstIteratorType, ObjectType>
@@ -896,7 +896,7 @@ private:
 
     /*
         Makes a copy of the objects between the iterators and insert them to the
-        given place. Returns the pointer that points at the first new object.
+        given place. Returns the iterator that points at the first new object.
     */
     template<typename DstIteratorType, typename SrcIteratorType>
     requires (internal::kIsNonConstVectorIterator<DstIteratorType, ObjectType> &&
@@ -905,7 +905,7 @@ private:
 
     /*
         Erases the object by the index.
-        Returns the pointer that points at the next object.
+        Returns the iterator that points at the next object.
     */
     template<typename DstIteratorType, typename... ArgsType>
     requires internal::kIsNonConstVectorIterator<DstIteratorType, ObjectType>
@@ -913,7 +913,7 @@ private:
 
     /*
         Erases the num of objects that starts at the given index.
-        Returns the pointer that points at the next object.
+        Returns the iterator that points at the next object.
     */
     template<typename DstIteratorType, typename... ArgsType>
     requires internal::kIsNonConstVectorIterator<DstIteratorType, ObjectType>
@@ -925,6 +925,23 @@ private:
     template<typename DstIteratorType, typename... ArgsType>
     requires internal::kIsNonConstVectorIterator<DstIteratorType, ObjectType>
     inline Void EmplaceP(DstIteratorType dst, ArgsType&&... args) noexcept;
+
+    /*
+        Inserts before the index. Returns the iterator that points at the first new object.
+    */
+    template<typename DstIteratorType, typename... ArgsType>
+    requires internal::kIsNonConstVectorIterator<DstIteratorType, ObjectType>
+    NODISCARD DstIteratorType EmplaceP(DstIteratorType dst, IndexType num, ArgsType&&... args) noexcept;
+
+    /*
+        Makes a copy of the objects between the iterators and insert them to the
+        given place. Returns the iterator that points at the first new object.
+    */
+    template<typename DstIteratorType, typename SrcIteratorType>
+    requires (internal::kIsNonConstVectorIterator<DstIteratorType, ObjectType> &&
+              internal::kIsVectorIterator<SrcIteratorType, ObjectType>)
+    NODISCARD DstIteratorType EmplaceP(DstIteratorType dst, SrcIteratorType src_begin, SrcIteratorType src_end) noexcept;
+
 
     /*
         Construct the vector by filling it objects between the iterators.
@@ -1441,8 +1458,15 @@ NODISCARD inline DstIteratorType ZVector<ObjectType, kIfUnique>::ErasesP(DstIter
     DEBUG(dst_end.object_ptr() < data_ptr_ || dst_end.object_ptr() > data_ptr_ + size_, "Erase index out of bounds!");
     DEBUG(dst_begin > dst_end, "Begin iterator after end iterator!");
     DestroyObjectsP(dst_begin, dst_end);
-    memmove(reinterpret_cast<Void*>(dst_begin.object_ptr()), reinterpret_cast<Void*>(dst_end.object_ptr()),
-        (size_ - static_cast<SizeType>(dst_end.object_ptr() - data_ptr_)) * sizeof(ObjectType));
+    if constexpr (internal::kIsOrderVectorIterator<DstIteratorType, ObjectType>) {
+        memmove(reinterpret_cast<Void*>(dst_begin.object_ptr()), reinterpret_cast<Void*>(dst_end.object_ptr()),
+                (size_ - static_cast<SizeType>(dst_end.object_ptr() - data_ptr_)) * sizeof(ObjectType));
+    }
+    else {
+        memmove(reinterpret_cast<Void*>(dst_end.object_ptr() + 1), reinterpret_cast<Void*>(dst_begin.object_ptr() + 1),
+                (size_ - static_cast<SizeType>(dst_end.object_ptr() - data_ptr_)) * sizeof(ObjectType));
+    }
+
     size_ -= dst_end - dst_begin;
     if constexpr (internal::kIsOrderVectorIterator<DstIteratorType, ObjectType>) {
         return dst_begin - 1;
