@@ -498,7 +498,7 @@ public:
     */
     template<typename... ArgsType>
     FORCEINLINE Iterator Inserts(IndexType index, IndexType num, ArgsType&&... args) {
-        return InsertsP(Iterator(index), num, std::forward<ArgsType>(args)...);
+        return InsertsP(Iterator(data_ptr_ + index), num, std::forward<ArgsType>(args)...);
     }
     /*
         Inserts before the iterator. Returns the iterator that points at the first new object.
@@ -520,28 +520,28 @@ public:
         given place. Returns the iterator that points at the first new object.
     */
     FORCEINLINE Iterator Inserts(IndexType index, Iterator src_begin, Iterator src_end) {
-        return InsertsP(Iterator(index), src_begin, src_end);
+        return InsertsP(Iterator(data_ptr_ + index), src_begin, src_end);
     }
     /*
         Makes a copy of the objects between the iterators and insert them to the
         given place. Returns the iterator that points at the first new object.
     */
     FORCEINLINE Iterator Inserts(IndexType index, ConstIterator src_begin, ConstIterator src_end) {
-        return InsertsP(Iterator(index), src_begin, src_end);
+        return InsertsP(Iterator(data_ptr_ + index), src_begin, src_end);
     }
     /*
         Makes a copy of the objects between the iterators and insert them to the
         given place. Returns the iterator that points at the first new object.
     */
     FORCEINLINE Iterator Inserts(IndexType index, ReverseIterator src_begin,ReverseIterator src_end) {
-        return InsertsP(Iterator(index), src_begin, src_end);
+        return InsertsP(Iterator(data_ptr_ + index), src_begin, src_end);
     }
     /*
         Makes a copy of the objects between the iterators and insert them to the
         given place. Returns the iterator that points at the first new object.
     */
     FORCEINLINE Iterator Inserts(IndexType index, ConstReverseIterator src_begin, ConstReverseIterator src_end) {
-        return InsertsP(Iterator(index), src_begin, src_end);
+        return InsertsP(Iterator(data_ptr_ + index), src_begin, src_end);
     }
 
     /*
@@ -1364,39 +1364,68 @@ NODISCARD DstIteratorType ZVector<ObjectType, kIfUnique>::InsertsP(DstIteratorTy
         }
         memmove(reinterpret_cast<Void*>(dst.object_ptr() + num), reinterpret_cast<Void*>(dst.object_ptr()),
                 (size_ - static_cast<SizeType>(dst.object_ptr() - data_ptr_)) * sizeof(ObjectType));
-        if (index >= end_index) {
-            src_begin = data_ptr_ + begin_index;
-            src_end = data_ptr_ + end_index;
-            CreateAndCopyObjectsP(dst, src_begin, src_end);
+        if constexpr (internal::kIsReverseVectorIterator<DstIteratorType, ObjectType>) {
+            dst -= num - 1;
         }
-        else if (index < begin_index) {
-            src_begin = data_ptr_ + begin_index + num;
-            src_end = data_ptr_ + end_index + num;
-            CreateAndCopyObjectsP(dst, src_begin, src_end);
+        if constexpr (internal::kIsOrderVectorIterator<SrcIteratorType, ObjectType>) {
+            if (index >= end_index) {
+                src_begin = data_ptr_ + begin_index;
+                src_end = data_ptr_ + end_index;
+                CreateAndCopyObjectsP(dst, src_begin, src_end);
+            }
+            else if (index < begin_index) {
+                src_begin = data_ptr_ + begin_index + num;
+                src_end = data_ptr_ + end_index + num;
+                CreateAndCopyObjectsP(dst, src_begin, src_end);
+            }
+            else {
+                IndexType part_1_num = index - begin_index;
+                IndexType part_2_num = num - part_1_num;
+                src_begin = data_ptr_ + begin_index;
+                src_end = src_begin + part_1_num;
+                CreateAndCopyObjectsP(dst, src_begin, src_end);
+                src_begin = src_end + num;
+                src_end = src_begin + part_2_num;
+                CreateAndCopyObjectsP(dst + part_1_num, src_begin, src_end);
+            }
         }
         else {
-            IndexType part_1_num = index - begin_index;
-            IndexType part_2_num = num - part_1_num;
-            src_begin = data_ptr_ + begin_index;
-            src_end = src_begin + part_1_num;
-            CreateAndCopyObjectsP(dst, src_begin, src_end);
-            src_begin = dst + num;
-            src_end = src_begin + part_2_num;
-            CreateAndCopyObjectsP(dst + part_1_num, src_begin, src_end);
+            if (index <= end_index) {
+                src_begin = data_ptr_ + begin_index;
+                src_end = data_ptr_ + end_index;
+                CreateAndCopyObjectsP(dst, src_begin, src_end);
+            }
+            else if (index > begin_index) {
+                src_begin = data_ptr_ + begin_index + num;
+                src_end = data_ptr_ + end_index + num;
+                CreateAndCopyObjectsP(dst, src_begin, src_end);
+            }
+            else {
+                IndexType part_1_num = begin_index - index + 1;
+                IndexType part_2_num = num - part_1_num;
+                src_begin = data_ptr_ + begin_index + num;
+                src_end = src_begin + part_1_num;
+                CreateAndCopyObjectsP(dst, src_begin, src_end);
+                src_begin = src_end + num;
+                src_end = src_begin + part_2_num;
+                CreateAndCopyObjectsP(dst + part_1_num, src_begin, src_end);
+            }
         }
     }
     else {
         if (new_size > capacity_) {
+            IndexType index = static_cast<IndexType>(dst.object_ptr() - data_ptr_);
             ExtendContainerP(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+            dst = data_ptr_ + index;
         }
         memmove(reinterpret_cast<Void*>(dst.object_ptr() + num), reinterpret_cast<Void*>(dst.object_ptr()),
                 (size_ - static_cast<SizeType>(dst.object_ptr() - data_ptr_)) * sizeof(ObjectType));
+        if constexpr (internal::kIsReverseVectorIterator<DstIteratorType, ObjectType>) {
+            dst -= num - 1;
+        }
         CreateAndCopyObjectsP(dst, src_begin, src_end);
     }
     size_ = new_size;
-    if constexpr (internal::kIsOrderVectorIterator<DstIteratorType, ObjectType>) {
-        dst -= num - 1;
-    }
     return dst;
 }
 

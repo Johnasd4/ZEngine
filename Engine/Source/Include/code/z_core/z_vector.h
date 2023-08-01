@@ -1364,39 +1364,68 @@ NODISCARD DstIteratorType ZVector<ObjectType, kIfUnique>::InsertsP(DstIteratorTy
         }
         memmove(reinterpret_cast<Void*>(dst.object_ptr() + num), reinterpret_cast<Void*>(dst.object_ptr()),
                 (size_ - static_cast<SizeType>(dst.object_ptr() - data_ptr_)) * sizeof(ObjectType));
-        if (index >= end_index) {
-            src_begin = data_ptr_ + begin_index;
-            src_end = data_ptr_ + end_index;
-            CreateAndCopyObjectsP(dst, src_begin, src_end);
+        if constexpr (internal::kIsReverseVectorIterator<DstIteratorType, ObjectType>) {
+            dst -= num - 1;
         }
-        else if (index < begin_index) {
-            src_begin = data_ptr_ + begin_index + num;
-            src_end = data_ptr_ + end_index + num;
-            CreateAndCopyObjectsP(dst, src_begin, src_end);
+        if constexpr (internal::kIsOrderVectorIterator<SrcIteratorType, ObjectType>) {
+            if (index >= end_index) {
+                src_begin = data_ptr_ + begin_index;
+                src_end = data_ptr_ + end_index;
+                CreateAndCopyObjectsP(dst, src_begin, src_end);
+            }
+            else if (index < begin_index) {
+                src_begin = data_ptr_ + begin_index + num;
+                src_end = data_ptr_ + end_index + num;
+                CreateAndCopyObjectsP(dst, src_begin, src_end);
+            }
+            else {
+                IndexType part_1_num = index - begin_index;
+                IndexType part_2_num = num - part_1_num;
+                src_begin = data_ptr_ + begin_index;
+                src_end = src_begin + part_1_num;
+                CreateAndCopyObjectsP(dst, src_begin, src_end);
+                src_begin = src_end + num;
+                src_end = src_begin + part_2_num;
+                CreateAndCopyObjectsP(dst + part_1_num, src_begin, src_end);
+            }
         }
         else {
-            IndexType part_1_num = index - begin_index;
-            IndexType part_2_num = num - part_1_num;
-            src_begin = data_ptr_ + begin_index;
-            src_end = src_begin + part_1_num;
-            CreateAndCopyObjectsP(dst, src_begin, src_end);
-            src_begin = dst + num;
-            src_end = src_begin + part_2_num;
-            CreateAndCopyObjectsP(dst + part_1_num, src_begin, src_end);
+            if (index <= end_index) {
+                src_begin = data_ptr_ + begin_index;
+                src_end = data_ptr_ + end_index;
+                CreateAndCopyObjectsP(dst, src_begin, src_end);
+            }
+            else if (index > begin_index) {
+                src_begin = data_ptr_ + begin_index + num;
+                src_end = data_ptr_ + end_index + num;
+                CreateAndCopyObjectsP(dst, src_begin, src_end);
+            }
+            else {
+                IndexType part_1_num = begin_index - index + 1;
+                IndexType part_2_num = num - part_1_num;
+                src_begin = data_ptr_ + begin_index + num;
+                src_end = src_begin + part_1_num;
+                CreateAndCopyObjectsP(dst, src_begin, src_end);
+                src_begin = src_end + num;
+                src_end = src_begin + part_2_num;
+                CreateAndCopyObjectsP(dst + part_1_num, src_begin, src_end);
+            }
         }
     }
     else {
         if (new_size > capacity_) {
+            IndexType index = static_cast<IndexType>(dst.object_ptr() - data_ptr_);
             ExtendContainerP(static_cast<IndexType>(static_cast<Float32>(new_size) * kAutoExtendMulFactor));
+            dst = data_ptr_ + index;
         }
         memmove(reinterpret_cast<Void*>(dst.object_ptr() + num), reinterpret_cast<Void*>(dst.object_ptr()),
                 (size_ - static_cast<SizeType>(dst.object_ptr() - data_ptr_)) * sizeof(ObjectType));
+        if constexpr (internal::kIsReverseVectorIterator<DstIteratorType, ObjectType>) {
+            dst -= num - 1;
+        }
         CreateAndCopyObjectsP(dst, src_begin, src_end);
     }
     size_ = new_size;
-    if constexpr (internal::kIsOrderVectorIterator<DstIteratorType, ObjectType>) {
-        dst -= num - 1;
-    }
     return dst;
 }
 

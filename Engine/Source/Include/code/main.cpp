@@ -40,7 +40,8 @@ Int32 main() {
     ZVector<ZVector<Int32>> vector_2(vector_3.Begin(), vector_3.Begin() + 5);
     vector_1 = vector_0;
     vector_2 = vector_3;
-    vector_1.Inserts(2, vector_1.ReverseBegin(), vector_1.ReverseBegin() + 3);
+    //vector_1.Inserts(2, vector_1.ReverseBegin(), vector_1.ReverseBegin() + 3);
+    vector_1.Inserts(vector_1.ReverseBegin() + 2, vector_1.ReverseBegin(), vector_1.ReverseBegin() + 3);
 
     cout << "vector_1:" << endl;
     for (int i = 0; i < vector_1.size(); i++) {
@@ -56,7 +57,6 @@ Int32 main() {
         cout << endl << vector_2[i].size() << " " << vector_2[i].capacity() << endl;
     }
     cout << vector_2.size() << " " << vector_2.capacity() << endl;
-
     //IndexType a = 1;
     //IndexType b = 1;
     //if (a == b) {
