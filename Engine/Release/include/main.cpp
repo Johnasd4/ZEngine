@@ -40,12 +40,23 @@ Int32 main() {
     ZVector<ZVector<Int32>> vector_2(vector_3.Begin(), vector_3.Begin() + 5);
     vector_1 = vector_0;
     vector_2 = vector_3;
-    vector_1.Assign(vector_1.ConstReverseBegin() + 10, vector_1.ConstReverseBegin() + 20);
+    vector_2.Emplaces(vector_2.ReverseBegin() + 3, 5, 5, 5);
     cout << "vector_1:" << endl;
     for (int i = 0; i < vector_1.size(); i++) {
         cout << vector_1[i] << " ";
     }
     cout << endl << vector_1.size() << " " << vector_1.capacity();
+    cout << endl << "vector_2:" << endl;
+    for (int i = 0; i < vector_2.size(); i++)
+    {
+        for (int j = 0; j < vector_2[i].size(); j++)
+        {
+            cout << vector_2[i][j] << " ";
+        }
+        cout << endl;
+        cout << vector_2[i].size() << " " << vector_2[i].capacity() << endl;
+    }
+    cout << vector_2.size() << " " << vector_2.capacity() << endl;
     //IndexType a = 1;
     //IndexType b = 1;
     //if (a == b) {

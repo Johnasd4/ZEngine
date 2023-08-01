@@ -677,100 +677,100 @@ public:
         the object constructed by the given arguements.
     */
     template<typename... ArgsType>
-    FORCEINLINE Iterator Emplaces(IndexType index, IndexType num, ArgsType&&... args) {
-        return EmplacesP(Iterator(data_ptr_ + index), num, std::forward<ArgsType>(args)...);
+    FORCEINLINE Void Emplaces(IndexType index, IndexType num, ArgsType&&... args) {
+        EmplacesP(Iterator(data_ptr_ + index), num, std::forward<ArgsType>(args)...);
     }
     /*
         Replace the certain num of objects that starts at the given place with
         the object constructed by the given arguements.
     */
     template<typename... ArgsType>
-    NODISCARD FORCEINLINE Iterator Emplaces(Iterator dst, IndexType num, ArgsType&&... args) {
-        return EmplacesP(dst, num, std::forward<ArgsType>(args)...);
+    NODISCARD FORCEINLINE Void Emplaces(Iterator dst, IndexType num, ArgsType&&... args) {
+        EmplacesP(dst, num, std::forward<ArgsType>(args)...);
     }
     /*
         Replace the certain num of objects that starts at the given place with
         the object constructed by the given arguements.
     */
     template<typename... ArgsType>
-    NODISCARD FORCEINLINE ReverseIterator Emplaces(ReverseIterator dst, IndexType num, ArgsType&&... args) {
-        return EmplacesP(dst, num, std::forward<ArgsType>(args)...);
+    NODISCARD FORCEINLINE Void Emplaces(ReverseIterator dst, IndexType num, ArgsType&&... args) {
+        EmplacesP(dst, num, std::forward<ArgsType>(args)...);
     }
 
     /*
         Replace the objects that starts at the given place with the other objects given.
     */
-    FORCEINLINE Iterator Emplaces(IndexType index, Iterator src_begin, Iterator src_end) {
-        return EmplacesP(Iterator(data_ptr_ + index), src_begin, src_end);
+    FORCEINLINE Void Emplaces(IndexType index, Iterator src_begin, Iterator src_end) {
+        EmplacesP(Iterator(data_ptr_ + index), src_begin, src_end);
     }
     /*
         Replace the objects that starts at the given place with the other objects given.
     */
-    FORCEINLINE Iterator Emplaces(IndexType index, ConstIterator src_begin, ConstIterator src_end) {
-        return EmplacesP(Iterator(data_ptr_ + index), src_begin, src_end);
+    FORCEINLINE Void Emplaces(IndexType index, ConstIterator src_begin, ConstIterator src_end) {
+        EmplacesP(Iterator(data_ptr_ + index), src_begin, src_end);
     }
     /*
         Replace the objects that starts at the given place with the other objects given.
     */
-    FORCEINLINE Iterator Emplaces(IndexType index, ReverseIterator src_begin,ReverseIterator src_end) {
-        return EmplacesP(Iterator(data_ptr_ + index), src_begin, src_end);
+    FORCEINLINE Void Emplaces(IndexType index, ReverseIterator src_begin,ReverseIterator src_end) {
+        EmplacesP(Iterator(data_ptr_ + index), src_begin, src_end);
     }
     /*
         Replace the objects that starts at the given place with the other objects given.
     */
-    FORCEINLINE Iterator Emplaces(IndexType index, ConstReverseIterator src_begin, ConstReverseIterator src_end) {
-        return EmplacesP(Iterator(data_ptr_ + index), src_begin, src_end);
+    FORCEINLINE Void Emplaces(IndexType index, ConstReverseIterator src_begin, ConstReverseIterator src_end) {
+        EmplacesP(Iterator(data_ptr_ + index), src_begin, src_end);
     }
 
     /*
         Replace the objects that starts at the given place with the other objects given.
     */
-    FORCEINLINE Iterator Emplaces(Iterator dst, Iterator src_begin, Iterator src_end) {
-        return EmplacesP(dst, src_begin, src_end);
+    FORCEINLINE Void Emplaces(Iterator dst, Iterator src_begin, Iterator src_end) {
+        EmplacesP(dst, src_begin, src_end);
     }
     /*
         Replace the objects that starts at the given place with the other objects given.
     */
-    FORCEINLINE Iterator Emplaces(Iterator dst, ConstIterator src_begin, ConstIterator src_end) {
-        return EmplacesP(dst, src_begin, src_end);
+    FORCEINLINE Void Emplaces(Iterator dst, ConstIterator src_begin, ConstIterator src_end) {
+        EmplacesP(dst, src_begin, src_end);
     }
     /*
         Replace the objects that starts at the given place with the other objects given.
     */
-    FORCEINLINE Iterator Emplaces(Iterator dst, ReverseIterator src_begin, ReverseIterator src_end) {
-        return EmplacesP(dst, src_begin, src_end);
+    FORCEINLINE Void Emplaces(Iterator dst, ReverseIterator src_begin, ReverseIterator src_end) {
+        EmplacesP(dst, src_begin, src_end);
     }
     /*
         Replace the objects that starts at the given place with the other objects given.
     */
-    FORCEINLINE Iterator Emplaces(Iterator dst, ConstReverseIterator src_begin, ConstReverseIterator src_end) {
-        return EmplacesP(dst, src_begin, src_end);
+    FORCEINLINE Void Emplaces(Iterator dst, ConstReverseIterator src_begin, ConstReverseIterator src_end) {
+        EmplacesP(dst, src_begin, src_end);
     }
 
     /*
         Replace the objects that starts at the given place with the other objects given.
     */
     FORCEINLINE ReverseIterator Emplaces(ReverseIterator dst, Iterator src_begin, Iterator src_end) {
-        return EmplacesP(dst, src_begin, src_end);
+        EmplacesP(dst, src_begin, src_end);
     }
     /*
         Replace the objects that starts at the given place with the other objects given.
     */
-    FORCEINLINE ReverseIterator Emplaces(ReverseIterator dst, ConstIterator src_begin, ConstIterator src_end) {
-        return EmplacesP(dst, src_begin, src_end);
+    FORCEINLINE Void Emplaces(ReverseIterator dst, ConstIterator src_begin, ConstIterator src_end) {
+        EmplacesP(dst, src_begin, src_end);
     }
     /*
         Replace the objects that starts at the given place with the other objects given.
     */
-    FORCEINLINE ReverseIterator Emplaces(ReverseIterator dst, ReverseIterator src_begin, ReverseIterator src_end) {
-        return EmplacesP(dst, src_begin, src_end);
+    FORCEINLINE Void Emplaces(ReverseIterator dst, ReverseIterator src_begin, ReverseIterator src_end) {
+        EmplacesP(dst, src_begin, src_end);
     }
     /*
         Replace the objects that starts at the given place with the other objects given.
     */
-    FORCEINLINE ReverseIterator Emplaces(ReverseIterator dst, 
+    FORCEINLINE Void Emplaces(ReverseIterator dst, 
                                         ConstReverseIterator src_begin, ConstReverseIterator src_end) {
-        return EmplacesP(dst, src_begin, src_end);
+        EmplacesP(dst, src_begin, src_end);
     }
 
 
@@ -1593,7 +1593,7 @@ template<typename DstIteratorType, typename... ArgsType>
 requires internal::kIsNonConstVectorIterator<DstIteratorType, ObjectType>
 inline Void ZVector<ObjectType, kIfUnique>::EmplacesP(DstIteratorType dst, IndexType num, ArgsType&&... args) noexcept {
     DEBUG(dst.object_ptr() < data_ptr_ || dst.object_ptr() >= data_ptr_ + size_, "Emplace place out of bounds!");
-    DEBUG(dst.object_ptr() + num - 1 < data_ptr_ || dst.object_ptr() + num - 1 >= data_ptr_ + size_, 
+    DEBUG((dst + num - 1).object_ptr() < data_ptr_ || (dst + num - 1).object_ptr() >= data_ptr_ + size_,
           "Emplace place out of bounds!");
     DEBUG(num < 0, "Negative insert num not valid!");
     DestroyObjectsP(dst, dst + num);
