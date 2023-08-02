@@ -1,20 +1,21 @@
 /*
-  Copyright 2023 YuLin Zhu
-  Email:1152325286@qq.com
+    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
 
-  Licensed under the Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0).
-  You may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
+    This code file is licensed under the Creative Commons
+    Attribution-NonCommercial 4.0 International License.
 
-      https://creativecommons.org/licenses/by-nc/4.0/
+    You may obtain a copy of the License at
+    https://creativecommons.org/licenses/by-nc/4.0/
 
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Contact: 1152325286@qq.com
 */
-
 #ifndef Z_CORE_INTERNAL_DRIVE_H_
 #define Z_CORE_INTERNAL_DRIVE_H_
 

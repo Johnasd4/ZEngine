@@ -1,3 +1,21 @@
+/*
+    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+
+    This code file is licensed under the Creative Commons
+    Attribution-NonCommercial 4.0 International License.
+
+    You may obtain a copy of the License at
+    https://creativecommons.org/licenses/by-nc/4.0/
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Contact: 1152325286@qq.com
+*/
 #ifndef Z_CORE_Z_ARRAY_H_
 #define Z_CORE_Z_ARRAY_H_
 
@@ -186,13 +204,16 @@ template<typename ObjectType, IndexType kCapacity, Bool kIfUnique = kIsClass<Obj
 requires kIsNotZero<kCapacity>
 class ZArray : public ZObject {
 public:
-    using IteratorType = internal::ZArrayIterator<ObjectType>;
-    using ConstIteratorType = internal::ZArrayIterator<const ObjectType>;
-    using ReverseIteratorType = internal::ZArrayReverseIterator<ObjectType>;
-    using ConstReverseIteratorType = internal::ZArrayReverseIterator<const ObjectType>;
+    using Iterator = internal::ZArrayIterator<ObjectType>;
+    using ConstIterator = internal::ZArrayIterator<const ObjectType>;
+    using ReverseIterator = internal::ZArrayReverseIterator<ObjectType>;
+    using ConstReverseIterator = internal::ZArrayReverseIterator<const ObjectType>;
 
 #pragma warning(disable : 26495)
     FORCEINLINE ZArray() : SuperType() {}
+    inline ZArray(const ZArray& array) noexcept;
+    inline ZArray(ZArray&& array) noexcept;
+
 #pragma warning(default : 26495)
     /*
         Constexpr array, the work is done at compile time.
@@ -218,8 +239,6 @@ public:
     FORCEINLINE constexpr ZArray(InitFunction&& init_function, ArgsType&&... args) : SuperType() {
         init_function(this, std::forward<ArgsType>(args)...);
     }
-    inline ZArray(const ZArray& array) noexcept;
-    inline ZArray(ZArray&& array) noexcept;
 
     inline ZArray& operator=(const ZArray& array) noexcept;
     inline ZArray& operator=(ZArray&& array) noexcept;
@@ -271,17 +290,17 @@ public:
     /*
         The iterator funcions.
     */
-    NODISCARD FORCEINLINE IteratorType Begin() { return IteratorType(data_); }
-    NODISCARD FORCEINLINE ConstIteratorType ConstBegin() const { return ConstIteratorType(data_); }
-    NODISCARD FORCEINLINE ReverseIteratorType ReverseBegin() { return ReverseIteratorType(data_ + kCapacity - 1); }
-    NODISCARD FORCEINLINE ConstReverseIteratorType ConstReverseBegin() const {
-        return ConstReverseIteratorType(data_ + kCapacity - 1);
+    NODISCARD FORCEINLINE Iterator Begin() { return Iterator(data_); }
+    NODISCARD FORCEINLINE ConstIterator ConstBegin() const { return ConstIterator(data_); }
+    NODISCARD FORCEINLINE ReverseIterator ReverseBegin() { return ReverseIterator(data_ + kCapacity - 1); }
+    NODISCARD FORCEINLINE ConstReverseIterator ConstReverseBegin() const {
+        return ConstReverseIterator(data_ + kCapacity - 1);
     }
-    NODISCARD FORCEINLINE IteratorType End() { return IteratorType(data_ + kCapacity); }
-    NODISCARD FORCEINLINE ConstIteratorType ConstEnd() const { return ConstIteratorType(data_ + kCapacity); }
-    NODISCARD FORCEINLINE ReverseIteratorType ReverseEnd() { return ReverseIteratorType(data_ - 1); }
-    NODISCARD FORCEINLINE ConstReverseIteratorType ConstReverseEnd() const {
-        return ConstReverseIteratorType(data_ - 1);
+    NODISCARD FORCEINLINE Iterator End() { return Iterator(data_ + kCapacity); }
+    NODISCARD FORCEINLINE ConstIterator ConstEnd() const { return ConstIterator(data_ + kCapacity); }
+    NODISCARD FORCEINLINE ReverseIterator ReverseEnd() { return ReverseIterator(data_ - 1); }
+    NODISCARD FORCEINLINE ConstReverseIterator ConstReverseEnd() const {
+        return ConstReverseIterator(data_ - 1);
     }
 
 
@@ -312,24 +331,23 @@ public:
     /*
         The small object on the front.
     */
-    Void Sort(const IteratorType& begin, const IteratorType& end) noexcept;
+    Void Sort(Iterator begin, Iterator end) noexcept;
     /*
         Will exchange the two objects when the function is true.
     */
     template<typename CompareFunction>
         requires kIsCompareFunction<CompareFunction, ObjectType>
-    Void Sort(const IteratorType& begin, const IteratorType& end, CompareFunction&& compare_function) noexcept;
+    Void Sort(Iterator begin, Iterator end, CompareFunction&& compare_function) noexcept;
     /*
         The small object on the front.
     */
-    Void Sort(const ReverseIteratorType& begin, const ReverseIteratorType& end) noexcept;
+    Void Sort(ReverseIterator begin, ReverseIterator end) noexcept;
     /*
         Will exchange the two objects when the function is true.
     */
     template<typename CompareFunction>
         requires kIsCompareFunction<CompareFunction, ObjectType>
-    Void Sort(const ReverseIteratorType& begin, const ReverseIteratorType& end, 
-              CompareFunction&& compare_function) noexcept;
+    Void Sort(ReverseIterator begin, const ReverseIterator end, CompareFunction&& compare_function) noexcept;
 
 protected:
     using SuperType = ZObject;

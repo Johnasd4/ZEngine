@@ -1,38 +1,88 @@
-﻿#include "z_engine.h"
+﻿/*
+    Copyright (c) YuLin Zhu (朱雨林)
+
+    This code file is licensed under the Creative Commons
+    Attribution-NonCommercial 4.0 International License.
+
+    You may obtain a copy of the License at
+    https://creativecommons.org/licenses/by-nc/4.0/
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+    Author: YuLin Zhu (朱雨林)
+    Contact: 1152325286@qq.com
+*/
 
 
 #include <iomanip>
 #include <vector>
 #include <queue>
 #include <deque>
-#include "z_core/z_vector.h"
+
+#include "z_engine.h"
+
 
 using namespace zengine;
 using namespace std;
 
-int main() {
-    IndexType a = 1;
-    IndexType b = 1;
-    if (a == b) {
-        a = b;
-    }
-    cout << a << b << endl;
-    IndexType* c = nullptr;
-    auto d = c - c;
-    //cout << (-4) % 3;
-    //ZArray<Int32, 19> test_1;
-    //ZArray<Int32, 19> test_2(test_1);
-
-    ZVector<Int32> vector_1;
-    for (IndexType index = 1; index < 13; ++index) {
-        vector_1.PushBacks(10,index);
-    }
-    ZVector<ZVector<Int32>> vector_2;
+Int32 main() {
+    ZVector<Int32> vector_0;
     ZVector<ZVector<Int32>> vector_3;
-    for (IndexType index = 1; index < 13; ++index) {
-        vector_1.PushBack(index);
-        vector_2.PushBack(vector_1);
+    for (IndexType index = 0; index < 20; ++index) {
+        vector_0.PushBack(index);
+        vector_3.PushBack(vector_0);
     }
+    ZVector<Int32> vector_1(vector_0.ReverseBegin(), vector_0.ReverseBegin() + 5);
+    ZVector<ZVector<Int32>> vector_2(vector_3.Begin(), vector_3.Begin() + 5);
+    vector_1 = vector_0;
+    vector_2 = vector_3;
+    vector_2.Emplaces(vector_2.ReverseBegin() + 3, 5, 5, 5);
+    cout << "vector_1:" << endl;
+    for (int i = 0; i < vector_1.size(); i++) {
+        cout << vector_1[i] << " ";
+    }
+    cout << endl << vector_1.size() << " " << vector_1.capacity();
+    cout << endl << "vector_2:" << endl;
+    for (int i = 0; i < vector_2.size(); i++)
+    {
+        for (int j = 0; j < vector_2[i].size(); j++)
+        {
+            cout << vector_2[i][j] << " ";
+        }
+        cout << endl;
+        cout << vector_2[i].size() << " " << vector_2[i].capacity() << endl;
+    }
+    cout << vector_2.size() << " " << vector_2.capacity() << endl;
+    //IndexType a = 1;
+    //IndexType b = 1;
+    //if (a == b) {
+    //    a = b;
+    //}
+    //cout << a << b << endl;
+    //IndexType* c = nullptr;
+    //auto d = c - c;
+    ////cout << (-4) % 3;
+    ////ZArray<Int32, 19> test_1;
+    ////ZArray<Int32, 19> test_2(test_1);
+    ////
+    //ZVector<Int32> vector_1;
+    //for (IndexType index = 1; index < 13; ++index) {
+    //    vector_1.PushBacks(10,index);
+    //}
+    //ZVector<ZVector<Int32>> vector_2;
+    //ZVector<ZVector<Int32>> vector_3;
+    //for (IndexType index = 1; index < 13; ++index) {
+    //    vector_1.PushBack(index);
+    //    vector_2.PushBack(vector_1);
+    //}
+    //ZVector<ZVector<Int32>> vector_4(std::move(vector_3));
+    //std::deque<int> qwe;
+    //auto asd = qwe.begin();
+    //sizeof(asd);
     //auto begin = vector_2.ReverseBegin();
     //auto end = vector_2.ReverseEnd();
     //vector_2.Assign(begin, end);
