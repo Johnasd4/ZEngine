@@ -28,11 +28,9 @@ namespace zengine {
 
 namespace internal {
 
-class ZDequeDataNodeMap;
-
 template<typename ObjectType>
-struct ZDequeDataNode { 
-public: 
+struct ZDequeDataNode {
+public:
     NODISCARD FORCEINLINE ObjectType& operator[](IndexType index) {
         return front_ptr[index];
     }
@@ -42,7 +40,7 @@ public:
 
     NODISCARD FORCEINLINE ObjectType& At(IndexType index) {
         return front_ptr[index];
-    }   
+    }
     NODISCARD FORCEINLINE const ObjectType& At(IndexType index) const {
         return front_ptr[index];
     } 
@@ -54,23 +52,12 @@ public:
         return front_ptr + index;
     }
 
-    ZDequeDataNodeMap* map_ptr;
+    ZDequeDataNode* next_node_ptr;
+    ZDequeDataNode* previous_node_ptr;
     ObjectType* front_ptr;
     ObjectType* back_ptr;
     IndexType capacity;
-    IndexType node_index;
 };
-
-/*
-    The center controller of the deques data node.
-*/
-class ZDequeDataNodeMap {
-
-private:
-    Void* data_node_ptr;
-    IndexType capacity;
-};
-
 
 template<typename ObjectType>
 class ZDequeIteratorBase {
