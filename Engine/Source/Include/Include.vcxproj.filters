@@ -51,6 +51,9 @@
     <ClInclude Include="code\z_core\m_test.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="code\z_core\z_deque_backup.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
     <ClInclude Include="code\z_core\z_deque.h">
       <Filter>头文件</Filter>
     </ClInclude>
