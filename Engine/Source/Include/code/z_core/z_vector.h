@@ -26,9 +26,6 @@
 
 namespace zengine {
 
-template<typename ObjectType, Bool kIfUnique>
-class ZVector;
-
 namespace internal {
 
 template<typename ObjectType>
@@ -50,10 +47,10 @@ public:
     }
 
     NODISCARD FORCEINLINE Bool operator==(const ZVectorIteratorBase& iterator) const {
-        return this == &iterator;
+        return object_ptr_ == iterator.object_ptr_;
     }
     NODISCARD FORCEINLINE Bool operator!=(const ZVectorIteratorBase& iterator) const {
-        return this != &iterator;
+        return object_ptr_ != iterator.object_ptr_;
     }
 
     NODISCARD FORCEINLINE ObjectType& operator*() const { return *object_ptr_; }
@@ -466,7 +463,7 @@ public:
     }
 
     /*
-        Calls the constructor with the arguements.
+        Replace the back object with the object constructed by the arguements.
     */
     template<typename... ArgsType>
     inline Void EmplaceBack(ArgsType&&... args) noexcept;
