@@ -61,7 +61,6 @@ public:
 
     FORCEINLINE ~ZVectorIteratorBase() {}
 
-    NODISCARD FORCEINLINE ObjectType& object() const { return *object_ptr_; }
     NODISCARD FORCEINLINE ObjectType* object_ptr() const { return object_ptr_; }
 
 protected:
@@ -765,11 +764,9 @@ public:
     /*
         Replace the objects that starts at the given place with the other objects given.
     */
-    FORCEINLINE Void Emplaces(ReverseIterator dst, 
-                                        ConstReverseIterator src_begin, ConstReverseIterator src_end) {
+    FORCEINLINE Void Emplaces(ReverseIterator dst, ConstReverseIterator src_begin, ConstReverseIterator src_end) {
         EmplacesP(dst, src_begin, src_end);
     }
-
 
     /*
         Construct the vector by filling it with the given amount of objects.
