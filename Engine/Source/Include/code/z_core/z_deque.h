@@ -1409,122 +1409,78 @@ FORCEINLINE Void ZSimpleDeque<ObjectType, kIfUnique>::CopyObjectsBaseP(DstIterat
     }
     else {
         IndexType src_size = src_end - src_begin;
-        IndexType dst_left_size = dst.SizeToEnd();
+        IndexType dst_left_size;
+        ObjectType* dst_ptr;
+        ObjectType* src_begin_ptr;
+        ObjectType* src_end_ptr;
         if constexpr (internal::kIsOrderSimpleDequeIterator<DstIteratorType, ObjectType>) {
-            if (dst_left_size > src_size) {
-                if (src_end > src_begin) {
-                    memcpy(reinterpret_cast<Void*>(dst.object_ptr()),
-                           reinterpret_cast<Void*>(const_cast<ObjectType*>(src_begin.object_ptr())),
-                           static_cast<SizeType>(src_end - src_begin) * sizeof(ObjectType));
-                }
-                else {
-                    IndexType src_part_1_size = src_begin.SizeToEnd();   
-                    memcpy(reinterpret_cast<Void*>(dst.object_ptr()),
-                           reinterpret_cast<Void*>(const_cast<ObjectType*>(src_begin.object_ptr())),
-                           static_cast<SizeType>(src_part_1_size) * sizeof(ObjectType));
-                    memcpy(reinterpret_cast<Void*>(dst.object_ptr() + src_part_1_size),
-                           reinterpret_cast<Void*>(const_cast<ObjectType*>(src_begin.begin_ptr())),
-                           static_cast<SizeType>(src_size - src_part_1_size) * sizeof(ObjectType));
-                }
+            dst_ptr = dst.object_ptr();
+            src_begin_ptr = const_cast<ObjectType*>(src_begin.object_ptr());
+            src_end_ptr = const_cast<ObjectType*>(src_end.object_ptr());
+            dst_left_size = dst.SizeToEnd();
+        }
+        else {
+            dst += src_size - 1;
+            dst_ptr = dst.object_ptr();
+            src_begin_ptr = const_cast<ObjectType*>((--src_end).object_ptr());
+            src_end_ptr = const_cast<ObjectType*>((--src_begin).object_ptr());
+            dst_left_size = dst.SizeToEnd();
+
+        }
+        if (dst_left_size > src_size) {
+            if (src_end_ptr > src_begin_ptr) {
+                memcpy(reinterpret_cast<Void*>(dst_ptr),
+                    reinterpret_cast<Void*>(src_begin_ptr),
+                    static_cast<SizeType>(src_size) * sizeof(ObjectType));
             }
             else {
-                IndexType src_left_size = src_begin.SizeToEnd();
-                if (src_end > src_begin) {
-                    memcpy(reinterpret_cast<Void*>(dst.object_ptr()),
-                           reinterpret_cast<Void*>(const_cast<ObjectType*>(src_begin.object_ptr())),
-                           static_cast<SizeType>(src_left_size) * sizeof(ObjectType));
-                    memcpy(reinterpret_cast<Void*>(dst.begin_ptr()),
-                           reinterpret_cast<Void*>(const_cast<ObjectType*>(src_begin.object_ptr() + src_left_size)),
-                           static_cast<SizeType>(src_size - src_left_size) * sizeof(ObjectType));
-                }
-                else {
-                    if (src_left_size > dst_left_size) {
-                        IndexType part_1_size = dst_left_size;
-                        IndexType part_2_size = src_left_size - part_1_size;
-                        IndexType part_3_size = src_size - src_left_size;
-                        memcpy(reinterpret_cast<Void*>(dst.object_ptr()),
-                               reinterpret_cast<Void*>(const_cast<ObjectType*>(src_begin.object_ptr())),
-                               static_cast<SizeType>(part_1_size) * sizeof(ObjectType));
-                        memcpy(reinterpret_cast<Void*>(dst.begin_ptr()),
-                               reinterpret_cast<Void*>(const_cast<ObjectType*>(src_begin.object_ptr() + part_1_size)),
-                               static_cast<SizeType>(part_2_size) * sizeof(ObjectType));
-                        memcpy(reinterpret_cast<Void*>(dst.begin_ptr() + part_2_size),
-                               reinterpret_cast<Void*>(const_cast<ObjectType*>(src_begin.begin_ptr())),
-                               static_cast<SizeType>(part_3_size) * sizeof(ObjectType));
-                    }
-                    else {
-                        IndexType part_1_size = src_left_size;
-                        IndexType part_2_size = dst_left_size - part_1_size; 
-                        IndexType part_3_size = src_size - dst_left_size;
-                        memcpy(reinterpret_cast<Void*>(dst.object_ptr()),
-                               reinterpret_cast<Void*>(const_cast<ObjectType*>(src_begin.object_ptr())),
-                               static_cast<SizeType>(part_1_size) * sizeof(ObjectType));
-                        memcpy(reinterpret_cast<Void*>(dst.object_ptr() + part_1_size),
-                               reinterpret_cast<Void*>(const_cast<ObjectType*>(src_begin.begin_ptr())),
-                               static_cast<SizeType>(part_2_size) * sizeof(ObjectType));
-                        memcpy(reinterpret_cast<Void*>(dst.begin_ptr()),
-                               reinterpret_cast<Void*>(const_cast<ObjectType*>(src_begin.begin_ptr() + part_2_size)),
-                               static_cast<SizeType>(part_3_size) * sizeof(ObjectType));
-                    }
-                }
+                IndexType src_left_size = static_cast<IndexType>(data_ptr_ - src_begin_ptr) + capacity_;
+                memcpy(reinterpret_cast<Void*>(dst_ptr),
+                    reinterpret_cast<Void*>(src_begin_ptr),
+                    static_cast<SizeType>(src_left_size) * sizeof(ObjectType));
+                memcpy(reinterpret_cast<Void*>(dst_ptr + src_left_size),
+                    reinterpret_cast<Void*>(data_ptr_),
+                    static_cast<SizeType>(src_size - src_left_size) * sizeof(ObjectType));
             }
         }
         else {
-            if (dst_left_size > src_size) {
-                if (src_end > src_begin) {
-                    memcpy(reinterpret_cast<Void*>(dst.object_ptr()),
-                           reinterpret_cast<Void*>(const_cast<ObjectType*>(src_begin.object_ptr())),
-                           static_cast<SizeType>(src_end - src_begin) * sizeof(ObjectType));
-                }
-                else {
-                    IndexType src_part_1_size = src_begin.SizeToEnd();   
-                    memcpy(reinterpret_cast<Void*>(dst.object_ptr()),
-                           reinterpret_cast<Void*>(const_cast<ObjectType*>(src_begin.object_ptr())),
-                           static_cast<SizeType>(src_part_1_size) * sizeof(ObjectType));
-                    memcpy(reinterpret_cast<Void*>(dst.object_ptr() + src_part_1_size),
-                           reinterpret_cast<Void*>(const_cast<ObjectType*>(src_begin.begin_ptr())),
-                           static_cast<SizeType>(src_size - src_part_1_size) * sizeof(ObjectType));
-                }
+            IndexType src_left_size = static_cast<IndexType>(data_ptr_ - src_begin_ptr) + capacity_;
+            if (src_end_ptr > src_begin_ptr) {
+                memcpy(reinterpret_cast<Void*>(dst_ptr),
+                    reinterpret_cast<Void*>(src_begin_ptr),
+                    static_cast<SizeType>(src_left_size) * sizeof(ObjectType));
+                memcpy(reinterpret_cast<Void*>(data_ptr_),
+                    reinterpret_cast<Void*>(src_begin_ptr + src_left_size),
+                    static_cast<SizeType>(src_size - src_left_size) * sizeof(ObjectType));
             }
             else {
-                IndexType src_left_size = src_begin.SizeToEnd();
-                if (src_end > src_begin) {
-                    memcpy(reinterpret_cast<Void*>(dst.object_ptr()),
-                           reinterpret_cast<Void*>(const_cast<ObjectType*>(src_begin.object_ptr())),
-                           static_cast<SizeType>(src_left_size) * sizeof(ObjectType));
-                    memcpy(reinterpret_cast<Void*>(dst.begin_ptr()),
-                           reinterpret_cast<Void*>(const_cast<ObjectType*>(src_begin.object_ptr() + src_left_size)),
-                           static_cast<SizeType>(src_size - src_left_size) * sizeof(ObjectType));
+                if (src_left_size > dst_left_size) {
+                    IndexType part_1_size = dst_left_size;
+                    IndexType part_2_size = src_left_size - part_1_size;
+                    IndexType part_3_size = src_size - src_left_size;
+                    memcpy(reinterpret_cast<Void*>(dst_ptr),
+                        reinterpret_cast<Void*>(src_begin_ptr),
+                        static_cast<SizeType>(part_1_size) * sizeof(ObjectType));
+                    memcpy(reinterpret_cast<Void*>(data_ptr_),
+                        reinterpret_cast<Void*>(src_begin_ptr + part_1_size),
+                        static_cast<SizeType>(part_2_size) * sizeof(ObjectType));
+                    memcpy(reinterpret_cast<Void*>(data_ptr_ + part_2_size),
+                        reinterpret_cast<Void*>(data_ptr_),
+                        static_cast<SizeType>(part_3_size) * sizeof(ObjectType));
                 }
                 else {
-                    if (src_left_size > dst_left_size) {
-                        IndexType part_1_size = dst_left_size;
-                        IndexType part_2_size = src_left_size - part_1_size;
-                        IndexType part_3_size = src_size - src_left_size;
-                        memcpy(reinterpret_cast<Void*>(dst.object_ptr()),
-                               reinterpret_cast<Void*>(const_cast<ObjectType*>(src_begin.object_ptr())),
-                               static_cast<SizeType>(part_1_size) * sizeof(ObjectType));
-                        memcpy(reinterpret_cast<Void*>(dst.begin_ptr()),
-                               reinterpret_cast<Void*>(const_cast<ObjectType*>(src_begin.object_ptr() + part_1_size)),
-                               static_cast<SizeType>(part_2_size) * sizeof(ObjectType));
-                        memcpy(reinterpret_cast<Void*>(dst.begin_ptr() + part_2_size),
-                               reinterpret_cast<Void*>(const_cast<ObjectType*>(src_begin.begin_ptr())),
-                               static_cast<SizeType>(part_3_size) * sizeof(ObjectType));
-                    }
-                    else {
-                        IndexType part_1_size = src_left_size;
-                        IndexType part_2_size = dst_left_size - part_1_size; 
-                        IndexType part_3_size = src_size - dst_left_size;
-                        memcpy(reinterpret_cast<Void*>(dst.object_ptr()),
-                               reinterpret_cast<Void*>(const_cast<ObjectType*>(src_begin.object_ptr())),
-                               static_cast<SizeType>(part_1_size) * sizeof(ObjectType));
-                        memcpy(reinterpret_cast<Void*>(dst.object_ptr() + part_1_size),
-                               reinterpret_cast<Void*>(const_cast<ObjectType*>(src_begin.begin_ptr())),
-                               static_cast<SizeType>(part_2_size) * sizeof(ObjectType));
-                        memcpy(reinterpret_cast<Void*>(dst.begin_ptr()),
-                               reinterpret_cast<Void*>(const_cast<ObjectType*>(src_begin.begin_ptr() + part_2_size)),
-                               static_cast<SizeType>(part_3_size) * sizeof(ObjectType));
-                    }
+                    IndexType part_1_size = src_left_size;
+                    IndexType part_2_size = dst_left_size - part_1_size;
+                    IndexType part_3_size = src_size - dst_left_size;
+                    memcpy(reinterpret_cast<Void*>(dst_ptr),
+                        reinterpret_cast<Void*>(src_begin_ptr),
+                        static_cast<SizeType>(part_1_size) * sizeof(ObjectType));
+                    memcpy(reinterpret_cast<Void*>(dst_ptr + part_1_size),
+                        reinterpret_cast<Void*>(data_ptr_),
+                        static_cast<SizeType>(part_2_size) * sizeof(ObjectType));
+                    memcpy(reinterpret_cast<Void*>(data_ptr_),
+                        reinterpret_cast<Void*>(data_ptr_ + part_2_size),
+                        static_cast<SizeType>(part_3_size) * sizeof(ObjectType));
                 }
             }
         }
