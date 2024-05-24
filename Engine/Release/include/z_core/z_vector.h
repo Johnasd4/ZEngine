@@ -26,9 +26,6 @@
 
 namespace zengine {
 
-template<typename ObjectType, Bool kIfUnique>
-class ZVector;
-
 namespace internal {
 
 template<typename ObjectType>
@@ -50,10 +47,10 @@ public:
     }
 
     NODISCARD FORCEINLINE Bool operator==(const ZVectorIteratorBase& iterator) const {
-        return this == &iterator;
+        return object_ptr_ == iterator.object_ptr_;
     }
     NODISCARD FORCEINLINE Bool operator!=(const ZVectorIteratorBase& iterator) const {
-        return this != &iterator;
+        return object_ptr_ != iterator.object_ptr_;
     }
 
     NODISCARD FORCEINLINE ObjectType& operator*() const { return *object_ptr_; }
@@ -64,7 +61,6 @@ public:
 
     FORCEINLINE ~ZVectorIteratorBase() {}
 
-    NODISCARD FORCEINLINE ObjectType& object() const { return *object_ptr_; }
     NODISCARD FORCEINLINE ObjectType* object_ptr() const { return object_ptr_; }
 
 protected:
@@ -466,7 +462,7 @@ public:
     }
 
     /*
-        Calls the constructor with the arguements.
+        Replace the back object with the object constructed by the arguements.
     */
     template<typename... ArgsType>
     inline Void EmplaceBack(ArgsType&&... args) noexcept;
@@ -768,11 +764,9 @@ public:
     /*
         Replace the objects that starts at the given place with the other objects given.
     */
-    FORCEINLINE Void Emplaces(ReverseIterator dst, 
-                                        ConstReverseIterator src_begin, ConstReverseIterator src_end) {
+    FORCEINLINE Void Emplaces(ReverseIterator dst, ConstReverseIterator src_begin, ConstReverseIterator src_end) {
         EmplacesP(dst, src_begin, src_end);
     }
-
 
     /*
         Construct the vector by filling it with the given amount of objects.

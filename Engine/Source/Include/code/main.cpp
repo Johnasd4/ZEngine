@@ -29,34 +29,86 @@
 using namespace zengine;
 using namespace std;
 
+class test {
+public:
+    test() {
+        a = 1;
+        cout << 123;
+    }
+
+    int a;
+
+};
+
+
 Int32 main() {
-    ZVector<Int32> vector_0;
-    ZVector<ZVector<Int32>> vector_3;
-    for (IndexType index = 0; index < 20; ++index) {
-        vector_0.PushBack(index);
-        vector_3.PushBack(vector_0);
-    }
-    ZVector<Int32> vector_1(vector_0.ReverseBegin(), vector_0.ReverseBegin() + 5);
-    ZVector<ZVector<Int32>> vector_2(vector_3.Begin(), vector_3.Begin() + 5);
-    vector_1 = vector_0;
-    vector_2 = vector_3;
-    vector_2.Emplaces(vector_2.ReverseBegin() + 3, 5, 5, 5);
-    cout << "vector_1:" << endl;
-    for (int i = 0; i < vector_1.size(); i++) {
-        cout << vector_1[i] << " ";
-    }
-    cout << endl << vector_1.size() << " " << vector_1.capacity();
-    cout << endl << "vector_2:" << endl;
-    for (int i = 0; i < vector_2.size(); i++)
-    {
-        for (int j = 0; j < vector_2[i].size(); j++)
-        {
-            cout << vector_2[i][j] << " ";
-        }
-        cout << endl;
-        cout << vector_2[i].size() << " " << vector_2[i].capacity() << endl;
-    }
-    cout << vector_2.size() << " " << vector_2.capacity() << endl;
+
+    //std::vector<int> test_vector(10);
+    std::vector<int, ZAllocator<int>> test_vector(2);
+
+    //test_vector.push_back(1);
+    //IndexType ans_1 = 0;
+    //IndexType ans_2 = 0;
+    //Float64 ans_3 = 1.0 / 1.1;
+    //Float64 ans_4 = 0;
+    //Float64 ans_5 = 1.0 / 1.09;
+    //Float64 ans_6 = 0;
+    //for (IndexType count = 1; count <= 100; ++count) {
+    //    ans_1 += count * count;
+    //    ans_2 += ans_1;
+    //    ans_3 *= 1.1;
+    //    ans_4 += ans_3;
+    //    ans_5 *= 1.09;
+    //    ans_6 += ans_5;
+    //}
+    //cout << ans_1 << endl;
+    //cout << ans_2 << endl;
+    //cout << ans_3 << endl;
+    //cout << ans_4 << endl;
+    //cout << ans_5 << endl;
+    //cout << ans_6 << endl;
+    //ans_1 = 0;
+    //ans_2 = 0;
+    //ans_3 = 1.0 / 1.1;
+    //ans_4 = 0;
+    //for (IndexType count = 1; count <= 90; ++count) {
+    //    ans_1 += count * count;
+    //    ans_2 += ans_1;
+    //    ans_3 *= 1.1;
+    //    ans_4 += ans_3;
+    //}
+    //cout << ans_1 << endl;
+    //cout << ans_2 << endl;
+    //cout << ans_3 << endl;
+    //cout << ans_4 << endl;
+    //ZVector<Int32> vector_0;
+    //ZVector<ZVector<Int32>> vector_3;
+    //for (IndexType index = 0; index < 20; ++index) {
+    //    vector_0.PushBack(index);
+    //    vector_3.PushBack(vector_0);
+    //}
+    //ZVector<Int32> vector_1(vector_0.ReverseBegin(), vector_0.ReverseBegin() + 5);
+    //ZVector<ZVector<Int32>> vector_2(vector_3.Begin(), vector_3.Begin() + 5);
+    //vector_1 = vector_0;
+    //vector_2 = vector_3;
+    //vector_2.Emplaces(vector_2.ReverseBegin() + 3, 5, 5, 5);
+    //cout << "vector_1:" << endl;
+    //for (int i = 0; i < vector_1.size(); i++) {
+    //    cout << vector_1[i] << " ";
+    //}
+    //cout << endl << vector_1.size() << " " << vector_1.capacity();
+    //cout << endl << "vector_2:" << endl;
+    //for (int i = 0; i < vector_2.size(); i++)
+    //{
+    //    for (int j = 0; j < vector_2[i].size(); j++)
+    //    {
+    //        cout << vector_2[i][j] << " ";
+    //    }
+    //    cout << endl;
+    //    cout << vector_2[i].size() << " " << vector_2[i].capacity() << endl;
+    //}
+    //cout << vector_2.size() << " " << vector_2.capacity() << endl;
+    //
     //IndexType a = 1;
     //IndexType b = 1;
     //if (a == b) {

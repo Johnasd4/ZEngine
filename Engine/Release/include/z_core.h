@@ -23,6 +23,7 @@
 #include "z_core/f_memory_pool.h"
 #include "z_core/m_error_message.h"
 #include "z_core/m_test.h"
+#include "z_core/z_allocator.h"
 #include "z_core/z_array.h"
 //#include "z_core/z_deque.h"
 #include "z_core/z_mutex.h" 

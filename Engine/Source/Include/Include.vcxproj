@@ -19,7 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="code\z_core\z_deque.h" />
+    <ClInclude Include="code\z_core\z_allocator.h" />
+    <ClInclude Include="code\z_core\z_deque_backup_1.h" />
     <ClInclude Include="code\z_core\m_test.h" />
     <ClInclude Include="code\z_core\m_error_message.h" />
     <ClInclude Include="code\z_core\z_array.h" />
