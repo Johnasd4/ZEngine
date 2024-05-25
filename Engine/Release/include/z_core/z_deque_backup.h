@@ -100,7 +100,7 @@ public:
     NODISCARD FORCEINLINE DataNode* data_node_ptr() const { return node_ptr_; }
 
 protected:
-    ObjectType* FindObject(IndexType index) noexcept {
+    ObjectType* FindObjectP(IndexType index) noexcept {
         DataNode* temp_node_ptr = node_ptr_;
         index = static_cast<IndexType>(object_ptr_ - temp_node_ptr->front_ptr) + index;
         while (index >= temp_node_ptr->capacity) {
@@ -114,18 +114,18 @@ protected:
         return temp_node_ptr->AtPtr(index);
     }
 
-    Void MoveIterator(IndexType offset) noexcept {
+    Void MovePlace(IndexType offset) noexcept {
         DataNode* temp_node_ptr = node_ptr_;
-        IndexType index = static_cast<IndexType>(object_ptr_ - temp_node_ptr->front_ptr) + offset;
-        while (index >= temp_node_ptr->capacity) {
-            index -= temp_node_ptr->capacity;
+        offset = static_cast<IndexType>(object_ptr_ - temp_node_ptr->front_ptr) + offset;
+        while (offset >= temp_node_ptr->capacity) {
+            offset -= temp_node_ptr->capacity;
             temp_node_ptr = temp_node_ptr->next_node_ptr;
         }
-        while (index < 0) {
+        while (offset < 0) {
             temp_node_ptr = temp_node_ptr->previous_node_ptr;
-            index += temp_node_ptr->capacity;
+            offset += temp_node_ptr->capacity;
         }
-        object_ptr_ = temp_node_ptr->AtPtr(index);
+        object_ptr_ = temp_node_ptr->AtPtr(offset);
         node_ptr_ = temp_node_ptr;
     }
 
@@ -646,7 +646,7 @@ public:
     /*
         Construct the deque by filling it objects between the iterators.
     */
-    Void Assign(const ConstReverseIterator& begin, const ConstReverseIterator& end) noexcept;
+    Void Assign(const ConstReverseIterator& begin, const ConstReverseIterator& end) noexcept; 
     
     /*
         Destroys all the objects in the deque, does not release the memory.
