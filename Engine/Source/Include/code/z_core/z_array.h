@@ -21,7 +21,7 @@
 
 #include "internal/drive.h"
 
-#include "m_error_message.h"
+#include "m_log.h"
 #include "z_object.h"
 
 namespace zengine {
@@ -250,28 +250,21 @@ public:
         return this != &array;
     }
 
-    NODISCARD FORCEINLINE constexpr ObjectType& operator[](IndexType index) { 
-        DEBUG(index < 0 || index >= kCapacity, "Index out of bounds!");
-        return this->data_[index]; }
+    NODISCARD FORCEINLINE constexpr ObjectType& operator[](IndexType index) { return this->data_[index]; }  
     NODISCARD FORCEINLINE constexpr const ObjectType& operator[](IndexType index) const {
-        DEBUG(index < 0 || index >= kCapacity, "Index out of bounds!");
         return this->data_[index]; 
     }
 
     NODISCARD FORCEINLINE constexpr ObjectType& At(IndexType index) {
-        DEBUG(index < 0 || index >= kCapacity, "Index out of bounds!");
         return data_[index];
     }
     NODISCARD FORCEINLINE constexpr const ObjectType& At(IndexType index) const {
-        DEBUG(index < 0 || index >= kCapacity, "Index out of bounds!");
         return data_[index];
     }
     NODISCARD FORCEINLINE ObjectType* AtPtr(IndexType index) {
-        DEBUG(index < 0 || index >= kCapacity, "Index out of bounds!");
         return data_ + index;
     }
     NODISCARD FORCEINLINE const ObjectType* AtPtr(IndexType index) const {
-        DEBUG(index < 0 || index >= kCapacity, "Index out of bounds!");
         return data_ + index;
     }
     NODISCARD FORCEINLINE constexpr ObjectType& Front() { return data_[0]; }

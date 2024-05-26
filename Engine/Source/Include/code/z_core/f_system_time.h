@@ -16,36 +16,22 @@
     Author: YuLin Zhu (÷Ï”Í¡÷)
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_Z_LOCK_GUARD_H_
-#define Z_CORE_Z_LOCK_GUARD_H_
+#ifndef Z_CORE_F_SYSTEM_TIME_H_
+#define Z_CORE_F_SYSTEM_TIME_H_
+
+#pragma warning(disable : 26439)
 
 #include "internal/drive.h"
 
-#include "z_object.h"
-
 namespace zengine {
+namespace system_time {
 
 /*
-    A simple mutex.
+    The string length is 19, without '\0'. Format is "YYYY/MM/DD-HH:MM:SS".
 */
-class ZMutex : public ZObject {
-public:
-    FORCEINLINE ZMutex() :handle_(CreateMutex(nullptr, FALSE, nullptr)) {}
-    FORCEINLINE ~ZMutex() { CloseHandle(handle_); }
+CORE_DLLAPI Void GetTimeString(CChar* str) noexcept;
 
-    FORCEINLINE Void Lock() { WaitForSingleObject(handle_, INFINITE); }   
-    FORCEINLINE Void Unlock() { ReleaseMutex(handle_); }
-
-private:
-    ZMutex(const ZMutex&) = delete;
-    ZMutex(ZMutex&&) = delete;
-
-    ZMutex& operator=(const ZMutex&) = delete;
-    ZMutex& operator=(ZMutex&&) = delete;
-
-    Handle handle_;
-};
-
+}//system_time
 }//zengine
 
-#endif // !Z_CORE_Z_LOCK_GUARD_H_
+#endif // !Z_CORE_F_SYSTEM_TIME_H_

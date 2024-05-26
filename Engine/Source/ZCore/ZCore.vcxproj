@@ -22,6 +22,7 @@
     <ClCompile Include="code\f_console.cpp" />
     <ClCompile Include="code\m_error_message.cpp" />
     <ClCompile Include="code\f_memory_pool.cpp" />
+    <ClCompile Include="code\z_system_time.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\memory_pool\z_heap_memory_pool.h" />

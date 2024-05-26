@@ -36,33 +36,33 @@
     <ClInclude Include="code\z_core\f_console_output.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\z_core\z_vector.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="code\z_core\z_array.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\z_core\z_lookup_table.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\z_core\m_error_message.h">
+    <ClInclude Include="code\z_core\m_log.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\z_core\m_test.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\z_core\z_deque_backup.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\z_core\z_deque_backup_1.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="code\z_core\z_allocator.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_core\z_vector.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_core\f_system_time.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\z_core\z_thread.h">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

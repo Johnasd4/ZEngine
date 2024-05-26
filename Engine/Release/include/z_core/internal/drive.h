@@ -40,7 +40,7 @@
 #define NODISCARD [[nodiscard]]
 #endif
 
-//Define if at the start of the z_math cpp file.
+//Define if at the start of the z_core cpp file.
 #ifdef CORE_DLLFILE
 #define CORE_DLLAPI DLLEXPORT
 #else
@@ -204,6 +204,8 @@ concept kIsCompareFunction = requires(Function function, ObjectType object) {
 
 #pragma region basic constant
 
+#pragma warning(disable : 5260)
+
 constexpr Float32 kFloat32Max = 3.402823466e+38F;
 constexpr Float32 kFloat32Min = -3.402823466e+38F;
 
@@ -214,6 +216,8 @@ constexpr MemoryType kGB = 1073741824;
 
 //The unit size when applying memory.
 constexpr MemoryType kHeapMemoryUnitSize = 4 * kKB;
+
+#pragma warning(default : 5260)
 
 #pragma endregion basic constant
 

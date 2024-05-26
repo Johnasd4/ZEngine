@@ -19,14 +19,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="code\z_core\f_system_time.h" />
+    <ClInclude Include="code\z_core\z_vector.h" />
     <ClInclude Include="code\z_core\z_allocator.h" />
-    <ClInclude Include="code\z_core\z_deque_backup_1.h" />
     <ClInclude Include="code\z_core\m_test.h" />
-    <ClInclude Include="code\z_core\m_error_message.h" />
+    <ClInclude Include="code\z_core\m_log.h" />
     <ClInclude Include="code\z_core\z_array.h" />
     <ClInclude Include="code\z_core\z_lookup_table.h" />
-    <ClInclude Include="code\z_core\z_deque_backup.h" />
-    <ClInclude Include="code\z_core\z_vector.h" />
     <ClInclude Include="code\z_core\f_console_output.h" />
     <ClInclude Include="code\z_core\f_memory_pool.h" />
     <ClInclude Include="code\z_core\z_mutex.h" />
@@ -37,6 +36,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\main.cpp" />
+    <ClCompile Include="code\z_core\z_thread.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

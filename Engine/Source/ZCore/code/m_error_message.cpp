@@ -18,14 +18,14 @@
 */
 #define CORE_DLLFILE
 
-#include "m_error_message.h"
+#include "m_log.h"
 
 #include "f_console_output.h"
 
 namespace zengine {
 namespace internal {
 
-CORE_DLLAPI Void ConsolePrintErrorMessage(const CChar* error_title, 
+CORE_DLLAPI extern Void ConsoleLogMessage(const CChar* error_title,
                                           const CChar* error_file, 
                                           const CChar* error_funcion,
                                           Int32 error_line, 

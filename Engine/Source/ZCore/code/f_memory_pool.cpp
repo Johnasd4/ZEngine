@@ -20,7 +20,7 @@
 
 #include "f_memory_pool.h"
 
-#include "m_error_message.h"
+#include "m_log.h"
 
 #include "memory_pool/z_small_memory_block_list_memory_pool.h"
 
@@ -38,7 +38,6 @@ using SmallMemoryBlockListMemoryPool = ZSmallMemoryBlockListMemoryPool<MEMORY_PO
 
 
 CORE_DLLAPI NODISCARD Void* ApplyMemory(MemoryType size) noexcept {
-    DEBUG(size < 0, "Negaive size not valid!");
     //small memory block
     if (size <= internal::SmallMemoryBlockListMemoryPool::memory_block_memory_max_size()) {
         return internal::SmallMemoryBlockListMemoryPool::ApplyMemory(size);
@@ -51,7 +50,6 @@ CORE_DLLAPI NODISCARD Void* ApplyMemory(MemoryType size) noexcept {
 }
 
 CORE_DLLAPI NODISCARD Void* ApplyMemory(MemoryType size, MemoryType* memory_size_ptr) noexcept {
-    DEBUG(size < 0, "Negaive size not valid!");
     //small memory blocka
     if (size <= internal::SmallMemoryBlockListMemoryPool::memory_block_memory_max_size()){
         return internal::SmallMemoryBlockListMemoryPool::ApplyMemory(size, memory_size_ptr);
@@ -64,7 +62,6 @@ CORE_DLLAPI NODISCARD Void* ApplyMemory(MemoryType size, MemoryType* memory_size
 }
 
 CORE_DLLAPI NODISCARD Bool CheckMemory(Void* memory_ptr, MemoryType size) noexcept {
-    DEBUG(size < 0, "Negaive size not valid!");
     if (memory_ptr == nullptr) {
         return false;
     }
@@ -86,7 +83,6 @@ CORE_DLLAPI NODISCARD Bool CheckMemory(Void* memory_ptr, MemoryType size) noexce
 }
 
 CORE_DLLAPI NODISCARD Bool CheckMemory(Void* memory_ptr, MemoryType size, MemoryType* memory_size_ptr) noexcept {
-    DEBUG(size < 0, "Negaive size not valid!");
     if (memory_ptr == nullptr) {
         return false;
     }
@@ -108,7 +104,6 @@ CORE_DLLAPI NODISCARD Bool CheckMemory(Void* memory_ptr, MemoryType size, Memory
 }
 
 CORE_DLLAPI NODISCARD MemoryType CalculateMemory(MemoryType size) noexcept {
-    DEBUG(size < 0, "Negaive size not valid!");
     //small memory blocka
     if (size <= internal::SmallMemoryBlockListMemoryPool::memory_block_memory_max_size()) {
         return internal::SmallMemoryBlockListMemoryPool::CalculateMemory(size);

@@ -27,35 +27,23 @@
 namespace zengine {
 
 /*
-    The acllocator for stl containers..
+    The acllocator for stl containers.
 */
 template<typename ObjectType>
 class ZAllocator {
 public:
-
     using value_type = ObjectType;
-
 
     FORCEINLINE ZAllocator() {}
     template<typename T>
     FORCEINLINE ZAllocator(const ZAllocator<T>& alocator) {}
     FORCEINLINE ~ZAllocator() {}
 
-    NODISCARD FORCEINLINE ObjectType* allocate(std::size_t capacity) noexcept {
-        std::cout << capacity << std::endl;
+    NODISCARD FORCEINLINE ObjectType* allocate(SizeType capacity) noexcept {
         return reinterpret_cast<ObjectType*>(memory_pool::ApplyMemory(capacity * sizeof(ObjectType)));
     }
 
-    FORCEINLINE Void deallocate(ObjectType* object_ptr, std::size_t capacity) noexcept {
-        std::cout << capacity << std::endl;
-        memory_pool::ReleaseMemory(reinterpret_cast<Void*>(object_ptr));
-    }
-
-    FORCEINLINE Void construct(ObjectType* object_ptr, std::size_t capacity) noexcept {
-        memory_pool::ReleaseMemory(reinterpret_cast<Void*>(object_ptr));
-    }
-
-    FORCEINLINE Void destroy(ObjectType* object_ptr) noexcept {
+    FORCEINLINE Void deallocate(ObjectType* object_ptr, SizeType capacity) noexcept {
         memory_pool::ReleaseMemory(reinterpret_cast<Void*>(object_ptr));
     }
 };

@@ -21,18 +21,20 @@
 
 #include "internal/drive.h"
 
+#include "z_object.h"
+
 namespace zengine {
 
 /*
     A simple mutex.
 */
-class ZMutex {
+class ZMutex : public ZObject {
 public:
-    FORCEINLINE ZMutex() :handle_(CreateMutex(nullptr, FALSE, nullptr)) {}
-    FORCEINLINE ~ZMutex() { CloseHandle(handle_); }
+    FORCEINLINE ZMutex() noexcept : handle_(CreateMutex(nullptr, FALSE, nullptr)) {}
+    FORCEINLINE ~ZMutex() noexcept { CloseHandle(handle_); }
 
-    FORCEINLINE Void Lock() { WaitForSingleObject(handle_, INFINITE); }   
-    FORCEINLINE Void Unlock() { ReleaseMutex(handle_); }
+    FORCEINLINE Void Lock() noexcept { WaitForSingleObject(handle_, INFINITE); }
+    FORCEINLINE Void Unlock() noexcept { ReleaseMutex(handle_); }
 
 private:
     ZMutex(const ZMutex&) = delete;

@@ -21,7 +21,7 @@
 
 #include "internal/drive.h"
 
-#include "m_error_message.h"
+#include "m_log.h"
 #include "z_object.h"
 
 namespace zengine {
@@ -66,11 +66,9 @@ public:
     }
 
     NODISCARD FORCEINLINE constexpr ObjectType& operator[](IndexType index) {
-        DEBUG(index < 0 || index >= kTableSize, "Index out of bounds!");
         return this->data_[index];
     }
     NODISCARD FORCEINLINE constexpr const ObjectType& operator[](IndexType index) const {
-        DEBUG(index < 0 || index >= kTableSize, "Index out of bounds!");
         return this->data_[index];
     }
 
@@ -80,7 +78,6 @@ public:
         Find the object at the certain index.
     */
     NODISCARD FORCEINLINE constexpr const ObjectType& At(IndexType index) const {
-        DEBUG(index < 0 || index >= kTableSize, "Index out of bounds!");
         return data_[index];
     }
     /*
@@ -88,7 +85,6 @@ public:
         Will search the table over again if the index is bigger then the table size.
     */
     NODISCARD FORCEINLINE constexpr const ObjectType& LoopAt(IndexType index) const {
-        DEBUG(index < 0, "Index out of bounds!");
         return data_[index % kTableSize];
     }
 
