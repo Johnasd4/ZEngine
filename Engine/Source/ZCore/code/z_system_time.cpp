@@ -23,11 +23,11 @@
 
 #include "internal/drive.h"
 
-#include<ctime>
+#include <ctime>
 
 #include "z_mutex.h"
 #include "z_object.h"
-#include "z_thread.h"
+#include "z_thread.h"                 
 
 namespace zengine {
 namespace system_time {
@@ -38,7 +38,7 @@ namespace internal {
 */
 class ZSystemTime : public ZObject {
 private:
-    static constexpr Int32 kTimeStringSize = sizeof("YYYY/MM/DD-HH:MM:SS");
+    static constexpr Int32 kTimeStringSize_YMDHMS = sizeof("YYYY/MM/DD-HH:MM:SS") - 1;
 
 public:
     static ZSystemTime& Instance() noexcept {
@@ -47,7 +47,7 @@ public:
     }
 
     ~ZSystemTime() noexcept {
-        finished_ = true;
+        time_thread_finished_ = true;
         if (time_thread_.Joinable()) {
             time_thread_.Join();
         }
@@ -56,10 +56,10 @@ public:
     /*
         The string length is 19, without '\0'.
     */
-    Void GetTimeString(CChar* str) noexcept { 
-        time_str_mutex_.Lock();
-        memcpy(reinterpret_cast<Void*>(str), reinterpret_cast<Void*>(time_str_), ZSystemTime::kTimeStringSize - 1);
-        time_str_mutex_.Unlock();
+    Void GetTimeString_YMDHMS(CChar* str) noexcept {
+        time_str_mutex_ymdhms_.Lock();
+        memcpy(reinterpret_cast<Void*>(str), reinterpret_cast<Void*>(time_str_ymdhms_), ZSystemTime::kTimeStringSize_YMDHMS);
+        time_str_mutex_ymdhms_.Unlock();
     }
 
 protected:
@@ -68,39 +68,39 @@ protected:
 private:
     static Void SystemTimeThread() noexcept {
         ZSystemTime& system_time = ZSystemTime::Instance();
-        while (!system_time.finished_) {
+        while (!system_time.time_thread_finished_) {
             //get current time
-            time(&system_time.time_raw_);
-            localtime_s(&system_time.time_, &system_time.time_raw_);
-            
-            //to string
-            system_time.time_str_mutex_.Lock();
-            sprintf(system_time.time_str_, "%04d/%02d/%02d-%02d:%02d:%02d",
-                1900 + system_time.time_.tm_year, 1 + system_time.time_.tm_mon, system_time.time_.tm_mday, 
-                8 + system_time.time_.tm_hour, system_time.time_.tm_min, system_time.time_.tm_sec);
+            time_t temp_time_raw;
+            time(&temp_time_raw);
+            if (system_time.time_raw_ != temp_time_raw) {
+                localtime_s(&system_time.time_, &system_time.time_raw_);
+                //to string
+                system_time.time_str_mutex_ymdhms_.Lock();
+                sprintf(system_time.time_str_ymdhms_, "%04d/%02d/%02d-%02d:%02d:%02d",
+                    1900 + system_time.time_.tm_year, 1 + system_time.time_.tm_mon, system_time.time_.tm_mday, 
+                    8 + system_time.time_.tm_hour, system_time.time_.tm_min, system_time.time_.tm_sec);
 
-            system_time.time_str_mutex_.Unlock();
-            
-            //sleep until next second
-            Sleep(system_time.time_raw_ % 1000);
+                system_time.time_str_mutex_ymdhms_.Unlock();
+            }
+            Sleep(10);
         }
     }
 
     ZSystemTime() noexcept {
         time(&time_raw_);
         localtime_s(&time_, &time_raw_);
-        sprintf(time_str_, "%04d/%02d/%02d-%02d:%02d:%02d",
+        sprintf(time_str_ymdhms_, "%04d/%02d/%02d-%02d:%02d:%02d",
             1900 + time_.tm_year, 1 + time_.tm_mon, time_.tm_mday, 8 + time_.tm_hour, time_.tm_min, time_.tm_sec);
-        finished_ = false;
+        time_thread_finished_ = false;
         time_thread_ = ZThread(&ZSystemTime::SystemTimeThread);
     }
 
     time_t time_raw_;
     tm time_;
-    CChar time_str_[kTimeStringSize];
-    Bool finished_;
+    CChar time_str_ymdhms_[kTimeStringSize_YMDHMS];
+    ZMutex time_str_mutex_ymdhms_;
+    Bool time_thread_finished_;
     ZThread time_thread_;
-    ZMutex time_str_mutex_;
 };
 
 }//internal
@@ -108,9 +108,9 @@ private:
 /*
     The string length is 19, without '\0'. Format is "YYYY/MM/DD-HH:MM:SS".
 */
-CORE_DLLAPI Void GetTimeString(CChar* str) noexcept {
+CORE_DLLAPI Void GetTimeString_YMDHMS(CChar* str) noexcept {
     internal::ZSystemTime& system_time = internal::ZSystemTime::Instance();
-    system_time.GetTimeString(str);
+    system_time.GetTimeString_YMDHMS(str);
 }
 
 }//system_time

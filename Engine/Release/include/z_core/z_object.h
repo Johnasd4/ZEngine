@@ -63,8 +63,8 @@ protected:
 private:
 
     static Void* operator new[](SizeType) = delete;
-    static Void* operator new[](SizeType, Void*) = delete;;
-    static Void operator delete[](Void*) = delete;;
+    static Void* operator new[](SizeType, Void*) = delete;
+    static Void operator delete[](Void*) = delete;
 
     /*
         Reset the object to null when moved.

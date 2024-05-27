@@ -21,7 +21,7 @@
     <ClCompile Include="code\f_memory_pool.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="code\m_error_message.cpp">
+    <ClCompile Include="code\m_log.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="code\z_system_time.cpp">

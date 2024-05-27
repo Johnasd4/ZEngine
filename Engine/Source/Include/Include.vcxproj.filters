@@ -33,7 +33,7 @@
     <ClInclude Include="code\z_engine.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\z_core\f_console_output.h">
+    <ClInclude Include="code\z_core\f_console.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\z_core\z_array.h">

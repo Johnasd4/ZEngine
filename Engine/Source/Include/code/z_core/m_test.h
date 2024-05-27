@@ -21,16 +21,16 @@
 
 #include "internal/drive.h"
 
-#include "f_console_output.h"
+#include "f_console.h"
 
-#define TIME_TEST_ONE_TIME(code) {\
+#define Z_TIME_TEST_ONE_TIME(code) {\
 		Int32 start_time,end_time;\
 		start_time = clock();\
 		code;\
 		end_time = clock();\
 		zengine::console::Print(\
-			zengine::console::ConsoleOutputTextColour::kConsoleTextColourLightYellow,\
-			zengine::console::ConsoleOutputBackgroundColour::kConsoleBackgroundColourDarkBlack,\
+			zengine::console::ConsoleOutputTextColourType::kConsoleTextColourLightYellow,\
+			zengine::console::ConsoleOutputBackgroundColourType::kConsoleBackgroundColourDarkBlack,\
 			"The code used %d ms\n",\
 			end_time - start_time);\
 	}

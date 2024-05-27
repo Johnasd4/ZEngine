@@ -18,13 +18,13 @@
 */
 #define CORE_DLLFILE
 
-#include "f_console_output.h"
+#include "f_console.h"
 
 namespace zengine {
 namespace console {
 
-CORE_DLLAPI Void SetConsoleOutputColour(ConsoleOutputTextColour test_colour,
-                                        ConsoleOutputBackgroundColour background_colour) noexcept {
+CORE_DLLAPI Void SetConsoleOutputColour(ConsoleOutputTextColourType test_colour,
+                                        ConsoleOutputBackgroundColourType background_colour) noexcept {
     internal::ZConsoleOutputSettings::InstanceP().set_text_colour(test_colour);
     internal::ZConsoleOutputSettings::InstanceP().set_background_colour(background_colour);
     //Changes the console output colour.

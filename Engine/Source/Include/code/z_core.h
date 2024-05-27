@@ -19,10 +19,10 @@
 #ifndef Z_CORE_H_
 #define Z_CORE_H_
 
-#include "z_core/f_console_output.h"
+#include "z_core/f_console.h"
 #include "z_core/f_memory_pool.h"
 #include "z_core/f_system_time.h"
-//#include "z_core/m_log.h"
+#include "z_core/m_log.h"
 #include "z_core/m_test.h"
 #include "z_core/z_allocator.h"
 #include "z_core/z_array.h"

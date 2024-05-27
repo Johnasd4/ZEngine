@@ -29,7 +29,7 @@ namespace system_time {
 /*
     The string length is 19, without '\0'. Format is "YYYY/MM/DD-HH:MM:SS".
 */
-CORE_DLLAPI Void GetTimeString(CChar* str) noexcept;
+CORE_DLLAPI Void GetTimeString_YMDHMS(CChar* str) noexcept;
 
 }//system_time
 }//zengine

@@ -21,7 +21,7 @@
 
 #include "internal/drive.h"
 
-#include "f_console_output.h"
+#include "f_console.h"
 #include "z_array.h"
 #include "z_lookup_table.h"
 
@@ -229,17 +229,17 @@ ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::~ZSmallMemoryBlockListMemoryPool
     //The first pool realsed.
     if (SuperType::memory_block_size() == kMemoryBlockMaxSize) {
         zengine::console::Print(
-            zengine::console::ConsoleOutputTextColour::kConsoleTextColourLightGreen,
-            zengine::console::ConsoleOutputBackgroundColour::kConsoleBackgroundColourDarkBlack,
+            zengine::console::ConsoleOutputTextColourType::kConsoleTextColourLightGreen,
+            zengine::console::ConsoleOutputBackgroundColourType::kConsoleBackgroundColourDarkBlack,
             "\n\n***** small memory block pool *****\n\n");
         zengine::console::Print(
-            zengine::console::ConsoleOutputTextColour::kConsoleTextColourLightGreen,
-            zengine::console::ConsoleOutputBackgroundColour::kConsoleBackgroundColourDarkBlack,
+            zengine::console::ConsoleOutputTextColourType::kConsoleTextColourLightGreen,
+            zengine::console::ConsoleOutputBackgroundColourType::kConsoleBackgroundColourDarkBlack,
             "    size    | usable size |  total num  | applied times | used peak num | unused num\n");
     }
     zengine::console::Print(
-        zengine::console::ConsoleOutputTextColour::kConsoleTextColourLightYellow,
-        zengine::console::ConsoleOutputBackgroundColour::kConsoleBackgroundColourDarkBlack,
+        zengine::console::ConsoleOutputTextColourType::kConsoleTextColourLightYellow,
+        zengine::console::ConsoleOutputBackgroundColourType::kConsoleBackgroundColourDarkBlack,
         "  %8u  |  %9u  |  %9d  |   %9d   |   %9d   |  %8d\n",
         SuperType::memory_block_size(),
         SuperType::memory_block_memory_size(),

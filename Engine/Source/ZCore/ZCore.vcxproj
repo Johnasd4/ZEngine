@@ -20,7 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\f_console.cpp" />
-    <ClCompile Include="code\m_error_message.cpp" />
+    <ClCompile Include="code\m_log.cpp" />
     <ClCompile Include="code\f_memory_pool.cpp" />
     <ClCompile Include="code\z_system_time.cpp" />
   </ItemGroup>

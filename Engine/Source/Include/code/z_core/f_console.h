@@ -16,8 +16,8 @@
     Author: YuLin Zhu (÷Ï”Í¡÷)
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_F_CONSOLE_OUTPUT_H_
-#define Z_CORE_F_CONSOLE_OUTPUT_H_
+#ifndef Z_CORE_F_CONSOLE_H_
+#define Z_CORE_F_CONSOLE_H_
 
 #include "internal/drive.h"
 
@@ -28,7 +28,7 @@ namespace console{
 
 using ConsoleOutputColourType = UInt16;
 
-enum ConsoleOutputTextColour : ConsoleOutputColourType {
+enum ConsoleOutputTextColourType : ConsoleOutputColourType {
     kConsoleTextColourDarkBlack = 0x00u,
     kConsoleTextColourDarkBlue = 0x01u,
     kConsoleTextColourDarkGreen = 0x02u,
@@ -47,7 +47,7 @@ enum ConsoleOutputTextColour : ConsoleOutputColourType {
     kConsoleTextColourLightWhite = 0x0Fu
 };
 
-enum ConsoleOutputBackgroundColour : ConsoleOutputColourType {
+enum ConsoleOutputBackgroundColourType : ConsoleOutputColourType {
     kConsoleBackgroundColourDarkBlack = 0x00u,
     kConsoleBackgroundColourDarkBlue = 0x10u,
     kConsoleBackgroundColourDarkGreen = 0x20u,
@@ -73,8 +73,8 @@ namespace internal {
 */
 class ZConsoleOutputSettings {
 private:
-    static constexpr ConsoleOutputTextColour kDefaultTextColour = kConsoleTextColourLightWhite;
-    static constexpr ConsoleOutputBackgroundColour kDefaultBackgroundColour = kConsoleBackgroundColourDarkBlack;
+    static constexpr ConsoleOutputTextColourType kDefaultTextColour = kConsoleTextColourLightWhite;
+    static constexpr ConsoleOutputBackgroundColourType kDefaultBackgroundColour = kConsoleBackgroundColourDarkBlack;
 
 public:
 
@@ -83,27 +83,27 @@ public:
         return instance;
     }
 
-    FORCEINLINE Void set_text_colour(ConsoleOutputTextColour test_colour) { text_colour_ = test_colour; }
-    FORCEINLINE Void set_background_colour(ConsoleOutputBackgroundColour background_colour) { 
+    FORCEINLINE Void set_text_colour(ConsoleOutputTextColourType test_colour) { text_colour_ = test_colour; }
+    FORCEINLINE Void set_background_colour(ConsoleOutputBackgroundColourType background_colour) { 
         background_colour_ = background_colour; 
     }
 
-    NODISCARD FORCEINLINE ConsoleOutputTextColour text_colour() { return text_colour_; }
-    NODISCARD FORCEINLINE ConsoleOutputBackgroundColour background_colour() { return background_colour_; }
+    NODISCARD FORCEINLINE ConsoleOutputTextColourType text_colour() { return text_colour_; }
+    NODISCARD FORCEINLINE ConsoleOutputBackgroundColourType background_colour() { return background_colour_; }
     NODISCARD FORCEINLINE ZMutex& console_output_mutex() { return console_output_mutex_; }
 
 private:
     ZConsoleOutputSettings() : text_colour_(kDefaultTextColour), background_colour_(kDefaultBackgroundColour) {}
 
-    ConsoleOutputTextColour text_colour_;
-    ConsoleOutputBackgroundColour background_colour_;
+    ConsoleOutputTextColourType text_colour_;
+    ConsoleOutputBackgroundColourType background_colour_;
     ZMutex console_output_mutex_;
 };
 
 }//internal
 
-CORE_DLLAPI extern Void SetConsoleOutputColour(ConsoleOutputTextColour test_colour,
-                                               ConsoleOutputBackgroundColour background_colour) noexcept;
+CORE_DLLAPI extern Void SetConsoleOutputColour(ConsoleOutputTextColourType test_colour,
+                                               ConsoleOutputBackgroundColourType background_colour) noexcept;
 
 /*
     Use it as the same as printf, it's thread safe. You can add text colour and 
@@ -124,7 +124,7 @@ Void Print(FormatType&& format, ArgsType&&... args) noexcept {
     output.
 */
 template<typename FormatType, typename... ArgsType>
-Void Print(ConsoleOutputTextColour text_colour, ConsoleOutputBackgroundColour background_colour, 
+Void Print(ConsoleOutputTextColourType text_colour, ConsoleOutputBackgroundColourType background_colour, 
            FormatType&& format, ArgsType&&... args) noexcept{
     internal::ZConsoleOutputSettings& settings = internal::ZConsoleOutputSettings::InstanceP();
     settings.console_output_mutex().Lock();
@@ -143,4 +143,4 @@ Void Print(ConsoleOutputTextColour text_colour, ConsoleOutputBackgroundColour ba
 }//console
 }//zengine
 
-#endif // !Z_CORE_F_CONSOLE_OUTPUT_H_
+#endif // !Z_CORE_F_CONSOLE_H_

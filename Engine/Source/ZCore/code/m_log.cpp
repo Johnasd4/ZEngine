@@ -16,24 +16,26 @@
     Author: YuLin Zhu (÷Ï”Í¡÷)
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_M_TEST_H_
-#define Z_CORE_M_TEST_H_
+#define CORE_DLLFILE
 
-#include "internal/drive.h"
+#include "m_log.h"
 
 #include "f_console.h"
 
-#define Z_TIME_TEST_ONE_TIME(code) {\
-		Int32 start_time,end_time;\
-		start_time = clock();\
-		code;\
-		end_time = clock();\
-		zengine::console::Print(\
-			zengine::console::ConsoleOutputTextColourType::kConsoleTextColourLightYellow,\
-			zengine::console::ConsoleOutputBackgroundColourType::kConsoleBackgroundColourDarkBlack,\
-			"The code used %d ms\n",\
-			end_time - start_time);\
-	}
+namespace zengine {
+namespace internal {
 
+/*
+    Log error message and error location.
+*/
+CORE_DLLAPI extern Void LogError(const time_t time_raw,
+                                 const CChar* error_file, 
+                                 const CChar* error_funcion,
+                                 Int32 error_line, 
+                                 const CChar* format,
+                                 ...) noexcept {
 
-#endif // !Z_CORE_M_TEST_H_
+}
+
+}//internal
+}//zengine
