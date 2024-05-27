@@ -70,19 +70,44 @@ int main() {
     hour = (hour + 8) % 24;
     cout << "hour:" << hour << endl;
     
-    t = t - 30 * 365 - 6;//2000
+    t = t - 30 * 365 - 7;//2000
 
     int year = 2000;
-    year += 400 * (t / ((365 * 100 + 24) * 4 + 1));    //400
-    t -= year / 400 * ((365 * 100 + 24) * 4 + 1);
-    year += 100 * (t / (365 * 100 + 24));    //100
-    t -= year / 100 * (365 * 100 + 24);
-    year += 4 * (t / (365 * 4 + 1));    //4
-    t -= year / 4 * (365 * 4 + 1);
-    year += 4 * (t / 365);    //1
-    t -= year * 365;
-    cout << "year:" << year << endl;
+    int year_400 = t / ((365 * 100 + 24) * 4 + 1);    //400
+    t -= year_400 * ((365 * 100 + 24) * 4 + 1);
+    int year_100 = t / (365 * 100 + 24);    //100
+    t -= year_100 * (365 * 100 + 24);
+    int year_4 = t / (365 * 4 + 1);    //4
+    t -= year_4 * (365 * 4 + 1);
+    int year_1 = t / 365;    //1
+    t -= year_1 * 365;
 
+    int month_offset[12] = { 0, -1, 1, 0, 0, -1, -1, -2, -3, -3, -4, -4 };
+
+    year += year_400 * 400 + year_100 * 100 + year_4 * 4 + year_1;
+    cout << "year:" << year << endl;
+    int month = 0;
+    int day = t;
+    if ((year_1 == 0 && year_4 != 0) || year % 400 == 0) {
+        int month_day[12] = { 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+        while (day >= month_day[month]) {
+            day -= month_day[month];
+            ++month;
+        }
+    }
+    else
+    {
+        int month_day[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+        while (day >= month_day[month]) {
+            day -= month_day[month];
+            ++month;
+        }
+    }
+    day += 1;
+    month += 1;
+
+    cout << "month:" << month << endl;
+    cout << "day:" << day << endl;
     cout << t << endl;
 
     return 0;
