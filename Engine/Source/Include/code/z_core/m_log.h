@@ -51,7 +51,9 @@ namespace internal {
 /*
     Log error message and error location.
 */
-CORE_DLLAPI extern Void LogError(const time_t time_raw, 
+CORE_DLLAPI extern Void LogError(time_t raw_time,
+                                 ErrorType err_val,
+                                 ErrorType link_val,
                                  const CChar* error_file, 
                                  const CChar* error_funcion,
                                  Int32 error_line, 
@@ -64,9 +66,9 @@ CORE_DLLAPI extern Void LogError(const time_t time_raw,
 /*
     Return the specified value and output an error message when the condition is true.
 */
-#define Z_RETURN(condition, return_value, format, ...)\
+#define Z_RETURN(condition, err_val, link_val, format, ...)\
     if(condition) {\
-        zengine::internal::LogError(clock(), __FILE__, __func__, __LINE__, format, ##__VA_ARGS__);\
+        zengine::internal::LogError(time(nullptr), err_val, link_val, __FILE__, __func__, __LINE__, format, ##__VA_ARGS__);\
         return return_value;\
     }
 
