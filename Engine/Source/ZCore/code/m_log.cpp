@@ -21,19 +21,70 @@
 #include "m_log.h"
 
 #include "f_console.h"
+#include "z_thread.h"
 
 namespace zengine {
 namespace internal {
 
+struct LogErrorInfo {
+
+};
+
+/*
+    The log manager, log's the error and info to the console, file and any place that needs to log.
+*/
+class ZLogManager : public ZObject {
+private:
+    static constexpr Int32 kTimeStringSize_YMDHMS = sizeof("YYYY/MM/DD-HH:MM:SS") - 1;
+
+public:
+    static ZLogManager& Instance() noexcept {
+        static ZLogManager log_manager;
+        return log_manager;
+    }
+
+    ~ZLogManager() noexcept {
+        log_thread_finished_ = true;
+        if (log_thread_.Joinable()) {
+            log_thread_.Join();
+        }
+    }
+
+protected:
+    using SuperType = ZObject;
+
+private:
+    static Void LogThread() noexcept {
+        static ZLogManager& log_manager = ZLogManager::Instance();
+        while (log_manager.log_thread_finished_ == false) {
+
+        }
+    }
+
+    ZLogManager() noexcept {
+        log_thread_finished_ = false;
+        log_thread_ = ZThread(&ZLogManager::LogThread);
+    }
+
+    
+
+    Bool log_thread_finished_;
+    ZThread log_thread_;
+};
+
 /*
     Log error message and error location.
 */
-CORE_DLLAPI extern Void LogError(const time_t time_raw,
+CORE_DLLAPI extern Void LogError(time_t raw_time,
+                                 ReturnType err_val,
+                                 ReturnType link_val,
                                  const CChar* error_file, 
                                  const CChar* error_funcion,
                                  Int32 error_line, 
                                  const CChar* format,
                                  ...) noexcept {
+
+
 
 }
 
