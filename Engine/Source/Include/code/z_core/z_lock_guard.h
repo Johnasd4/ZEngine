@@ -21,29 +21,31 @@
 
 #include "internal/drive.h"
 
+#include "z_mutex.h"
 #include "z_object.h"
 
 namespace zengine {
 
 /*
-    A simple mutex.
+    Locks the mutex when constructed and release when destructed.
 */
-class ZMutex : public ZObject {
+class ZLockGuard : public ZObject {
 public:
-    FORCEINLINE ZMutex() :handle_(CreateMutex(nullptr, FALSE, nullptr)) {}
-    FORCEINLINE ~ZMutex() { CloseHandle(handle_); }
+    FORCEINLINE ZLockGuard(ZMutex* mutex_ptr) noexcept : SuperType(), mutex_ptr_(mutex_ptr) { mutex_ptr_->Lock(); }
+    FORCEINLINE ~ZLockGuard() noexcept { mutex_ptr_->Unlock(); }
 
-    FORCEINLINE Void Lock() { WaitForSingleObject(handle_, INFINITE); }   
-    FORCEINLINE Void Unlock() { ReleaseMutex(handle_); }
+protected:
+    using SuperType = ZObject;
 
 private:
-    ZMutex(const ZMutex&) = delete;
-    ZMutex(ZMutex&&) = delete;
+    ZLockGuard() = delete;
+    ZLockGuard(const ZLockGuard&) = delete;
+    ZLockGuard(ZLockGuard&&) = delete;
 
-    ZMutex& operator=(const ZMutex&) = delete;
-    ZMutex& operator=(ZMutex&&) = delete;
+    ZLockGuard& operator=(const ZLockGuard&) = delete;
+    ZLockGuard& operator=(ZLockGuard&&) = delete;
 
-    Handle handle_;
+    ZMutex* mutex_ptr_;
 };
 
 }//zengine

@@ -35,8 +35,8 @@ namespace memory_pool {
 template<Bool kIsThreadSafe>
 class ZMemoryPoolThreadSafeBase {
 protected:
-    FORCEINLINE Void Lock() { if constexpr (kIsThreadSafe) { mutex_.Lock(); } }
-    FORCEINLINE Void Unlock() { if constexpr (kIsThreadSafe) { mutex_.Unlock(); } }
+    FORCEINLINE Void Lock() noexcept { if constexpr (kIsThreadSafe) { mutex_.Lock(); } }
+    FORCEINLINE Void Unlock() noexcept { if constexpr (kIsThreadSafe) { mutex_.Unlock(); } }
 
 private:
     ZMutex mutex_;
@@ -44,8 +44,8 @@ private:
 template<>
 class ZMemoryPoolThreadSafeBase<false> {
 protected:
-    FORCEINLINE Void Lock() {}
-    FORCEINLINE Void Unlock() {}
+    FORCEINLINE Void Lock() noexcept {}
+    FORCEINLINE Void Unlock() noexcept {}
 };
 
 }//memory_pool

@@ -36,10 +36,7 @@
     <ClInclude Include="code\z_core\f_console.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\z_core\z_array.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\z_core\z_lookup_table.h">
+    <ClInclude Include="code\z_core\t_lookup_table.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\z_core\m_log.h">
@@ -60,12 +57,18 @@
     <ClInclude Include="code\z_core\t_array.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="code\z_core\z_lock_guard.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="code\z_core\z_thread.h">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\z_core\t_fixed_queue.h">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

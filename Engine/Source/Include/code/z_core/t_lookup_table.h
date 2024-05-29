@@ -36,14 +36,14 @@ concept kIsLookupTableInitFunction = requires(LookupTableType * lookup_table, Fu
 }//internal
 
 template<typename ObjectType, IndexType kTableSize>
-class ZLookupTable : public ZObject {
+class TLookupTable : public ZObject {
 public:
     /*
         The work is done at compile time.
         Tne first parameter is added to the index when using the table.
         Tne second parameter is distance between the table values.
         The Constructor's third parameter is the initial funtion of the table.
-        The first parameter of the initial funtion must be ZLookupTable*.
+        The first parameter of the initial funtion must be TLookupTable*.
         Constructor Template Parameters:
         - InitFunction: The function type that initial the array.
         - ArgsType...: The parameters type.
@@ -51,53 +51,46 @@ public:
         - init_function: The function to initial the array.
         - ArgsType...: The parameters of the function except for the fisrt.
         Example:
-        constexpr auto init_function = [](ZLookupTable<Float32, 10, true>* table_ptr) {
+        constexpr auto init_function = [](TLookupTable<Float32, 10, true>* table_ptr) {
             for (IndexType index = 0; index < table_ptr->size(); ++index) {
                 (*table_ptr)[index] = 1.0F;
             }
         };
-        constexpr ZLookupTable<Int32, 10, true> test(init_function);
+        constexpr TLookupTable<Int32, 10, true> test(init_function);
     */
     template<typename InitFunction, typename... ArgsType>
-    requires internal::kIsLookupTableInitFunction<ZLookupTable<ObjectType, kTableSize>,
+    requires internal::kIsLookupTableInitFunction<TLookupTable<ObjectType, kTableSize>,
                                                   InitFunction, ArgsType...>
-    FORCEINLINE constexpr ZLookupTable(InitFunction&& init_function, ArgsType&&... args) : SuperType() {
+    FORCEINLINE constexpr TLookupTable(InitFunction&& init_function, ArgsType&&... args) : SuperType() {
         init_function(this, std::forward<ArgsType>(args)...);
     }
 
-    NODISCARD FORCEINLINE constexpr ObjectType& operator[](IndexType index) {
-        return this->data_[index];
-    }
-    NODISCARD FORCEINLINE constexpr const ObjectType& operator[](IndexType index) const {
-        return this->data_[index];
-    }
+    NODISCARD FORCEINLINE constexpr ObjectType& operator[](IndexType index) { return data_[index]; }
+    NODISCARD FORCEINLINE constexpr const ObjectType& operator[](IndexType index) const { return data_[index]; }
 
-    NODISCARD FORCEINLINE static constexpr IndexType size() { return kTableSize; }
+    NODISCARD FORCEINLINE static constexpr IndexType Size() { return kTableSize; }
 
     /*
         Find the object at the certain index.
     */
-    NODISCARD FORCEINLINE constexpr const ObjectType& At(IndexType index) const {
-        return data_[index];
-    }
+    NODISCARD FORCEINLINE constexpr ObjectType& At(IndexType index) { return data_[index]; }
+    NODISCARD FORCEINLINE constexpr const ObjectType& At(IndexType index) const { return data_[index]; }
     /*
         Find the object at the certain index.
         Will search the table over again if the index is bigger then the table size.
     */
-    NODISCARD FORCEINLINE constexpr const ObjectType& LoopAt(IndexType index) const {
-        return data_[index % kTableSize];
-    }
+    NODISCARD FORCEINLINE constexpr const ObjectType& LoopAt(IndexType index) const { return data_[index % kTableSize]; }
 
 protected:
     using SuperType = ZObject;
 
 private:
-    ZLookupTable() = delete;
-    ZLookupTable(const ZLookupTable&) = delete;
-    ZLookupTable(ZLookupTable&&) = delete;
+    TLookupTable() = delete;
+    TLookupTable(const TLookupTable&) = delete;
+    TLookupTable(TLookupTable&&) = delete;
 
-    ZLookupTable& operator=(const ZLookupTable&) = delete;
-    ZLookupTable& operator=(ZLookupTable&&) = delete;
+    TLookupTable& operator=(const TLookupTable&) = delete;
+    TLookupTable& operator=(TLookupTable&&) = delete;
 
     ObjectType data_[kTableSize];
 };

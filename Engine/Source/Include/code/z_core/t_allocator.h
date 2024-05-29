@@ -30,13 +30,13 @@ namespace zengine {
     The acllocator for stl containers.
 */
 template<typename ObjectType>
-class TAllocator {
+class TAllocator : public ZObject {
 public:
     using value_type = ObjectType;
 
-    FORCEINLINE TAllocator() {}
+    FORCEINLINE TAllocator() : SuperType() {}
     template<typename T>
-    FORCEINLINE TAllocator(const TAllocator<T>& alocator) {}
+    FORCEINLINE TAllocator(const TAllocator<T>& alocator) : SuperType() {}
     FORCEINLINE ~TAllocator() {}
 
     NODISCARD FORCEINLINE ObjectType* allocate(SizeType capacity) noexcept {
@@ -46,6 +46,9 @@ public:
     FORCEINLINE Void deallocate(ObjectType* object_ptr, SizeType capacity) noexcept {
         memory_pool::ReleaseMemory(reinterpret_cast<Void*>(object_ptr));
     }
+
+protected:
+    using SuperType = ZObject;
 };
 
 }//zengine

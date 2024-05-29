@@ -37,7 +37,7 @@ concept kIsArrayInitFunction = requires(ArrayType* array, Function function, Arg
 }//internal
 
 /*
-    Arrayr caintainer.
+    Array caintainer.
 */
 template<typename ObjectType, IndexType kCapacity>
 class TArray : public ZObject {
@@ -49,10 +49,10 @@ public:
     using ConstReverseIterator = STDArray::const_reverse_iterator;
     using InitializerList = std::initializer_list<ObjectType>;
 
-    FORCEINLINE constexpr TArray() noexcept : array_() {}
-    FORCEINLINE constexpr TArray(const TArray& array) noexcept : array_(array.array_) {}
-    FORCEINLINE constexpr TArray(TArray&& array) noexcept : array_(std::move(array.array_)) {}
-    FORCEINLINE TArray(InitializerList init_list) noexcept : array_(init_list) {}
+    FORCEINLINE constexpr TArray() noexcept : SuperType(), array_() {}
+    FORCEINLINE constexpr TArray(const TArray& array) noexcept : SuperType(), array_(array.array_) {}
+    FORCEINLINE constexpr TArray(TArray&& array) noexcept : SuperType(), array_(std::move(array.array_)) {}
+    FORCEINLINE TArray(InitializerList init_list) noexcept : SuperType(), array_(init_list) {}
 
     /*
         Constexpr array, the work is done at compile time.
@@ -66,7 +66,7 @@ public:
         - ArgsType...: The parameters of the function except for the fisrt.
         Example:
         constexpr auto init_function = [](TArray<Int32, 10>* array_ptr) {
-            for (IndexType index = 0; index < array_ptr->size(); ++index) {
+            for (IndexType index = 0; index < array_ptr->Size(); ++index) {
                 (*array_ptr)[index] = 1;
             }
         };
@@ -74,61 +74,44 @@ public:
     */
     template<typename InitFunction, typename... ArgsType>
     requires internal::kIsArrayInitFunction<TArray<ObjectType, kCapacity>, InitFunction, ArgsType...>
-    FORCEINLINE constexpr TArray(InitFunction&& init_function, ArgsType&&... args) : SuperType() {
+    FORCEINLINE constexpr TArray(InitFunction&& init_function, ArgsType&&... args) noexcept : SuperType() {
         init_function(this, std::forward<ArgsType>(args)...);
     }
 
+    FORCEINLINE constexpr ~TArray() noexcept {}
+
     NODISCARD FORCEINLINE constexpr Bool operator==(const TArray& array) noexcept { return array_ == array.array_; }
     NODISCARD FORCEINLINE constexpr Bool operator!=(const TArray& array) noexcept { return array_ != array.array_; }
+     
+    NODISCARD FORCEINLINE constexpr ObjectType& operator[](IndexType index) noexcept { return array_[index]; }
+    NODISCARD FORCEINLINE constexpr const ObjectType& operator[](IndexType index) const noexcept { return array_[index]; }
 
-    NODISCARD FORCEINLINE constexpr ObjectType& operator[](IndexType index) { return array_[index]; }
-    NODISCARD FORCEINLINE constexpr const ObjectType& operator[](IndexType index) const { return array_[index]; }
+    NODISCARD FORCEINLINE constexpr ObjectType& At(IndexType index) noexcept { return array_.at(index); }
+    NODISCARD FORCEINLINE constexpr const ObjectType& At(IndexType index) const noexcept { return array_.at(index); }
+    NODISCARD FORCEINLINE constexpr ObjectType& Front() noexcept { return array_.front(); }
+    NODISCARD FORCEINLINE constexpr const ObjectType& Front() const noexcept { return array_.front(); }
+    NODISCARD FORCEINLINE constexpr ObjectType& Back() noexcept { return array_.back(); }
+    NODISCARD FORCEINLINE constexpr const ObjectType& Back() const noexcept { return array_.back(); }
+    NODISCARD FORCEINLINE constexpr ObjectType* DataPtr() noexcept { return array_.data(); }
+    NODISCARD FORCEINLINE constexpr const ObjectType* DataPtr() const noexcept { return array_.data(); }
 
-    NODISCARD FORCEINLINE constexpr ObjectType& At(IndexType index) {
-        return data_[index];
-    }
-    NODISCARD FORCEINLINE constexpr const ObjectType& At(IndexType index) const {
-        return data_[index];
-    }
-    NODISCARD FORCEINLINE ObjectType* AtPtr(IndexType index) {
-        return data_ + index;
-    }
-    NODISCARD FORCEINLINE const ObjectType* AtPtr(IndexType index) const {
-        return data_ + index;
-    }
-    NODISCARD FORCEINLINE constexpr ObjectType& Front() { return data_[0]; }
-    NODISCARD FORCEINLINE constexpr const ObjectType& Front() const { return data_[0]; }
-    NODISCARD FORCEINLINE ObjectType* FrontPtr() { return data_; }
-    NODISCARD FORCEINLINE const ObjectType* FrontPtr() const { return data_; }
-    NODISCARD FORCEINLINE constexpr ObjectType& Back() { return data_[kCapacity - 1]; }
-    NODISCARD FORCEINLINE constexpr const ObjectType& Back() const { return data_[kCapacity - 1]; }
-    NODISCARD FORCEINLINE ObjectType* BackPtr() { return data_ + (kCapacity - 1); }
-    NODISCARD FORCEINLINE const ObjectType* BackPtr() const { return data_ + (kCapacity - 1); }
+    NODISCARD FORCEINLINE static constexpr IndexType Size() noexcept { return kCapacity; }
 
-    NODISCARD FORCEINLINE constexpr const ObjectType* data_ptr() const { return data_; }
+    NODISCARD FORCEINLINE Iterator Begin() noexcept { return array_.begin(); }
+    NODISCARD FORCEINLINE ConstIterator Begin() const noexcept { return array_.begin(); }
+    NODISCARD FORCEINLINE ConstIterator ConstBegin() const noexcept { return array_.cbegin(); }
+    NODISCARD FORCEINLINE ReverseIterator ReverseBegin() noexcept { return array_.rbegin(); }
+    NODISCARD FORCEINLINE ConstReverseIterator ReverseBegin() const noexcept { return array_.rbegin(); }
+    NODISCARD FORCEINLINE ConstReverseIterator ConstReverseBegin() const noexcept { return array_.crbegin(); }
+    NODISCARD FORCEINLINE Iterator End() noexcept { return array_.end(); }
+    NODISCARD FORCEINLINE ConstIterator End() const noexcept { return array_.end(); }
+    NODISCARD FORCEINLINE ConstIterator ConstEnd() const noexcept { return array_.cend(); }
+    NODISCARD FORCEINLINE ReverseIterator ReverseEnd() noexcept { return array_.rend(); }
+    NODISCARD FORCEINLINE ConstReverseIterator ReverseEnd() const noexcept { return array_.rend(); }
+    NODISCARD FORCEINLINE ConstReverseIterator ConstReverseEnd() const noexcept { return array_.crend(); }
 
-    NODISCARD static constexpr IndexType size() { return kCapacity; }
-
-    /*
-        The iterator funcions.
-    */
-    NODISCARD FORCEINLINE Iterator Begin() { return Iterator(data_); }
-    NODISCARD FORCEINLINE ConstIterator ConstBegin() const { return ConstIterator(data_); }
-    NODISCARD FORCEINLINE ReverseIterator ReverseBegin() { return ReverseIterator(data_ + kCapacity - 1); }
-    NODISCARD FORCEINLINE ConstReverseIterator ConstReverseBegin() const {
-        return ConstReverseIterator(data_ + kCapacity - 1);
-    }
-    NODISCARD FORCEINLINE Iterator End() { return Iterator(data_ + kCapacity); }
-    NODISCARD FORCEINLINE ConstIterator ConstEnd() const { return ConstIterator(data_ + kCapacity); }
-    NODISCARD FORCEINLINE ReverseIterator ReverseEnd() { return ReverseIterator(data_ - 1); }
-    NODISCARD FORCEINLINE ConstReverseIterator ConstReverseEnd() const {
-        return ConstReverseIterator(data_ - 1);
-    }
-
-
-
-    template<typename... ArgsType>
-    inline Void Fill(ArgsType&&... args) noexcept;
+    FORCEINLINE Void Fill(const ObjectType& value) noexcept { array_.fill(value); }
+    FORCEINLINE Void Swap(TArray& array) noexcept { array_.swap(array); }
 
 protected:
     using SuperType = ZObject;

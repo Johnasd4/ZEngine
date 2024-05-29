@@ -39,12 +39,12 @@ enum MemoryPoolType : IndexType {
 template<Bool kIsThreadSafe>
 class ZMemoryPoolBase :public ZMemoryPoolThreadSafeBase<kIsThreadSafe> {
 public:
-    NODISCARD FORCEINLINE MemoryPoolType memory_pool_type() const { return memory_pool_type_; }
+    NODISCARD FORCEINLINE MemoryPoolType PoolType() const noexcept { return pool_type_; }
 
 protected:
-    FORCEINLINE ZMemoryPoolBase() {}
+    FORCEINLINE ZMemoryPoolBase() noexcept {}
 
-    FORCEINLINE Void InitializeP(MemoryPoolType memory_pool_type) { memory_pool_type_ = memory_pool_type; }
+    FORCEINLINE Void InitializeP(MemoryPoolType pool_type) noexcept { pool_type_ = pool_type; }
 
 private:
     ZMemoryPoolBase(const ZMemoryPoolBase&) = delete;
@@ -53,7 +53,7 @@ private:
     ZMemoryPoolBase& operator=(const ZMemoryPoolBase&) = delete;
     ZMemoryPoolBase& operator=(ZMemoryPoolBase&&) = delete;
 
-    MemoryPoolType memory_pool_type_;
+    MemoryPoolType pool_type_;
 };
 
 }//memory_pool

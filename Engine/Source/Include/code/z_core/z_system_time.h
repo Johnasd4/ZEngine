@@ -25,12 +25,16 @@
 
 #include <ctime>
 
+#include "z_object.h"
+
 namespace zengine {
+
+using TimeType = time_t;
 
 /*
     The time struct, contains [year, month, day, hour, min ,sec].
 */
-class ZSystemTime {
+class ZSystemTime : public ZObject {
 public:
     CORE_DLLAPI ZSystemTime() noexcept;
     CORE_DLLAPI ~ZSystemTime() noexcept;
@@ -47,13 +51,16 @@ public:
         Parameters:
         time_raw: use time(time_t) to get the raw value.
     */
-    CORE_DLLAPI Void UpdateTime(Int64 time_raw = time(nullptr)) noexcept;
+    CORE_DLLAPI Void UpdateTime(TimeType time_raw = time(nullptr)) noexcept;
     /*
         Update system time, use UpdateTime instead if updated only a few times pur day.
         Parameters:
         time_raw: use time(time_t) to get the raw value.
     */
-    CORE_DLLAPI Void UpdateTimeFast(Int64 time_raw = time(nullptr)) noexcept;
+    CORE_DLLAPI Void UpdateTimeFast(TimeType time_raw = time(nullptr)) noexcept;
+
+protected:
+    using SuperType = ZObject;
 
 private:
     Int32 year_;

@@ -39,7 +39,7 @@ using SmallMemoryBlockListMemoryPool = ZSmallMemoryBlockListMemoryPool<MEMORY_PO
 
 CORE_DLLAPI NODISCARD Void* ApplyMemory(MemoryType size) noexcept {
     //small memory block
-    if (size <= internal::SmallMemoryBlockListMemoryPool::memory_block_memory_max_size()) {
+    if (size <= internal::SmallMemoryBlockListMemoryPool::MemoryBlockMemoryMaxSize()) {
         return internal::SmallMemoryBlockListMemoryPool::ApplyMemory(size);
     }
     else {
@@ -51,7 +51,7 @@ CORE_DLLAPI NODISCARD Void* ApplyMemory(MemoryType size) noexcept {
 
 CORE_DLLAPI NODISCARD Void* ApplyMemory(MemoryType size, MemoryType* memory_size_ptr) noexcept {
     //small memory blocka
-    if (size <= internal::SmallMemoryBlockListMemoryPool::memory_block_memory_max_size()){
+    if (size <= internal::SmallMemoryBlockListMemoryPool::MemoryBlockMemoryMaxSize()){
         return internal::SmallMemoryBlockListMemoryPool::ApplyMemory(size, memory_size_ptr);
     }
     else{
@@ -67,7 +67,7 @@ CORE_DLLAPI NODISCARD Bool CheckMemory(Void* memory_ptr, MemoryType size) noexce
     }
     internal::MemoryPoolBase* owner_memory_pool_ptr =
         *reinterpret_cast<internal::MemoryPoolBase**>(reinterpret_cast<PointerType>(memory_ptr) - sizeof(Void*));
-    switch (owner_memory_pool_ptr->memory_pool_type())
+    switch (owner_memory_pool_ptr->PoolType())
     {
         //small memory block
     case MemoryPoolType::kZSmallMemoryBlockListMemoryPool:
@@ -88,7 +88,7 @@ CORE_DLLAPI NODISCARD Bool CheckMemory(Void* memory_ptr, MemoryType size, Memory
     }
     internal::MemoryPoolBase* owner_memory_pool_ptr =
         *reinterpret_cast<internal::MemoryPoolBase**>(reinterpret_cast<PointerType>(memory_ptr) - sizeof(Void*));
-    switch (owner_memory_pool_ptr->memory_pool_type())
+    switch (owner_memory_pool_ptr->PoolType())
     {
         //small memory block
     case MemoryPoolType::kZSmallMemoryBlockListMemoryPool:
@@ -105,7 +105,7 @@ CORE_DLLAPI NODISCARD Bool CheckMemory(Void* memory_ptr, MemoryType size, Memory
 
 CORE_DLLAPI NODISCARD MemoryType CalculateMemory(MemoryType size) noexcept {
     //small memory blocka
-    if (size <= internal::SmallMemoryBlockListMemoryPool::memory_block_memory_max_size()) {
+    if (size <= internal::SmallMemoryBlockListMemoryPool::MemoryBlockMemoryMaxSize()) {
         return internal::SmallMemoryBlockListMemoryPool::CalculateMemory(size);
     }
     else {
@@ -122,7 +122,7 @@ CORE_DLLAPI Void ReleaseMemory(Void* memory_ptr) noexcept {
     //Gets the memory pool's pointer that owns the memory block.
     internal::MemoryPoolBase* owner_memory_pool_ptr =
         reinterpret_cast<internal::SmallMemoryBlock*>(memory_ptr)[-1].owner_memory_pool_ptr;
-    switch (owner_memory_pool_ptr->memory_pool_type())
+    switch (owner_memory_pool_ptr->PoolType())
     {
         //small memory block
     case MemoryPoolType::kZSmallMemoryBlockListMemoryPool:

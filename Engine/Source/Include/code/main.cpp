@@ -19,7 +19,7 @@
 
 #include "z_engine.h"
 
-#include <array>
+#include <queue>
 
 using namespace zengine;
 using namespace std;
@@ -32,6 +32,10 @@ int main() {
     cout << t.Hour() << endl;
     cout << t.Min() << endl;
     cout << t.Sec() << endl;
+
+    queue<int> b;
+
+    TVector<Int32> a;
 
     return 0;
 }
