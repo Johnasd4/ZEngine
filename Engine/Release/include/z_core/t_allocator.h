@@ -16,8 +16,8 @@
     Author: YuLin Zhu (÷Ï”Í¡÷)
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_Z_ALLOCATOR_H_
-#define Z_CORE_Z_ALLOCATOR_H_
+#ifndef Z_CORE_T_ALLOCATOR_H_
+#define Z_CORE_T_ALLOCATOR_H_
 
 #pragma warning(disable : 26439)
 
@@ -30,14 +30,14 @@ namespace zengine {
     The acllocator for stl containers.
 */
 template<typename ObjectType>
-class ZAllocator {
+class TAllocator {
 public:
     using value_type = ObjectType;
 
-    FORCEINLINE ZAllocator() {}
+    FORCEINLINE TAllocator() {}
     template<typename T>
-    FORCEINLINE ZAllocator(const ZAllocator<T>& alocator) {}
-    FORCEINLINE ~ZAllocator() {}
+    FORCEINLINE TAllocator(const TAllocator<T>& alocator) {}
+    FORCEINLINE ~TAllocator() {}
 
     NODISCARD FORCEINLINE ObjectType* allocate(SizeType capacity) noexcept {
         return reinterpret_cast<ObjectType*>(memory_pool::ApplyMemory(capacity * sizeof(ObjectType)));
@@ -50,4 +50,4 @@ public:
 
 }//zengine
 
-#endif // !Z_CORE_Z_ALLOCATOR_H_
+#endif // !Z_CORE_T_ALLOCATOR_H_

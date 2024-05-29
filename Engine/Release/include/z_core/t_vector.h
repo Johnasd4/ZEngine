@@ -16,15 +16,15 @@
     Author: YuLin Zhu (÷Ï”Í¡÷)
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_Z_VECTOR_H_
-#define Z_CORE_Z_VECTOR_H_
+#ifndef Z_CORE_T_VECTOR_H_
+#define Z_CORE_T_VECTOR_H_
 
 #include "internal/drive.h"
 
 #include <vector>
 
 #include "m_log.h"
-#include "z_allocator.h"
+#include "t_allocator.h"
 #include "z_object.h"
 
 namespace zengine {
@@ -33,38 +33,38 @@ namespace zengine {
     Vector caintainer.
 */
 template<typename ObjectType>
-class ZVector : public ZObject {
+class TVector : public ZObject {
 public:
-    using STDVector = std::vector<ObjectType, ZAllocator<ObjectType>>;
+    using STDVector = std::vector<ObjectType, TAllocator<ObjectType>>;
     using Iterator = STDVector::iterator;
     using ConstIterator = STDVector::const_iterator;
     using ReverseIterator = STDVector::reverse_iterator;
     using ConstReverseIterator = STDVector::const_reverse_iterator;
     using InitializerList = std::initializer_list<ObjectType>;
 
-    FORCEINLINE ZVector() noexcept : vector_() {}
-    FORCEINLINE ZVector(const ZVector& vector) noexcept : vector_(vector) {}
-    FORCEINLINE ZVector(ZVector&& vector) noexcept : vector_(std::move(vector.vector_)) {}
+    FORCEINLINE TVector() noexcept : vector_() {}
+    FORCEINLINE TVector(const TVector& vector) noexcept : vector_(vector) {}
+    FORCEINLINE TVector(TVector&& vector) noexcept : vector_(std::move(vector.vector_)) {}
 
-    FORCEINLINE ZVector(SizeType capacity) noexcept : vector_(capacity) {}
-    FORCEINLINE ZVector(SizeType capacity, const ZObject& value) noexcept : vector_(capacity, value) {}
+    FORCEINLINE TVector(SizeType capacity) noexcept : vector_(capacity) {}
+    FORCEINLINE TVector(SizeType capacity, const ZObject& value) noexcept : vector_(capacity, value) {}
     template <typename InputIterator>
-    FORCEINLINE ZVector(InputIterator first, InputIterator last) noexcept : vector_(first, last) {}
-    FORCEINLINE ZVector(InitializerList init_list) noexcept : vector_(init_list) {}
+    FORCEINLINE TVector(InputIterator first, InputIterator last) noexcept : vector_(first, last) {}
+    FORCEINLINE TVector(InitializerList init_list) noexcept : vector_(init_list) {}
  
-    FORCEINLINE ~ZVector() noexcept {}
+    FORCEINLINE ~TVector() noexcept {}
 
-    FORCEINLINE ZVector& operator=(const ZVector& vector) noexcept { 
+    FORCEINLINE TVector& operator=(const TVector& vector) noexcept { 
         vector_.operator=(vector);
         return *this;
     }
-    FORCEINLINE ZVector& operator=(ZVector&& vector) noexcept { 
+    FORCEINLINE TVector& operator=(TVector&& vector) noexcept { 
         vector_.operator=(std::move(vector.vector_));
         return *this;
     }
 
-    NODISCARD FORCEINLINE Bool operator==(const ZVector& vector) noexcept { return vector_ == vector; }
-    NODISCARD FORCEINLINE Bool operator!=(const ZVector& vector) noexcept { return vector_ != vector; }
+    NODISCARD FORCEINLINE Bool operator==(const TVector& vector) noexcept { return vector_ == vector; }
+    NODISCARD FORCEINLINE Bool operator!=(const TVector& vector) noexcept { return vector_ != vector; }
 
     NODISCARD FORCEINLINE ObjectType& operator[](const SizeType index) noexcept { return vector_[index]; }
     NODISCARD FORCEINLINE const ObjectType& operator[](const SizeType index) const noexcept { return vector_[index]; }
@@ -135,7 +135,7 @@ public:
 
     FORCEINLINE Void Reserve(SizeType capacity) noexcept { vector_.reserve(capacity); }
 
-    FORCEINLINE Void Swap(ZVector& vector) noexcept { vector_.swap(vector); }
+    FORCEINLINE Void Swap(TVector& vector) noexcept { vector_.swap(vector); }
 
 protected:
     using SuperType = ZObject;
@@ -146,4 +146,4 @@ private:
 
 }//zengine
 
-#endif // !Z_CORE_Z_VECTOR_H_
+#endif // !Z_CORE_T_VECTOR_H_

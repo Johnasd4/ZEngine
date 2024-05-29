@@ -23,12 +23,12 @@
 #include "z_core/f_memory_pool.h"
 #include "z_core/m_log.h"
 #include "z_core/m_test.h"
-#include "z_core/z_allocator.h"
+#include "z_core/t_allocator.h"
+#include "z_core/t_vector.h"
 #include "z_core/z_array.h"
 #include "z_core/z_mutex.h" 
 #include "z_core/z_object.h"
 #include "z_core/z_system_time.h"
 #include "z_core/z_thread.h"
-#include "z_core/z_vector.h"
 
 #endif // !Z_CORE_H_  

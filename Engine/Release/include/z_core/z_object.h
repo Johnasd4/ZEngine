@@ -31,7 +31,7 @@ namespace zengine {
     Inheriting from this class allows the instance to apply memory from the memorypool,
     instead of applying memory directly from the system.
 */
-class ZObject{
+class ZObject {
 public:
     /*
         Overwrite the new and delete operator to use the memory from the memorypool.

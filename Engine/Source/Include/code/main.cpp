@@ -30,6 +30,6 @@ int main() {
     cout << t.Hour() << endl;
     cout << t.Min() << endl;
     cout << t.Sec() << endl;
-
+    std::array<int, 5> arr1 = {0};
     return 0;
 }

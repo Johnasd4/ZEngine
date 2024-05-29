@@ -20,8 +20,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\z_core\z_system_time.h" />
-    <ClInclude Include="code\z_core\z_vector.h" />
-    <ClInclude Include="code\z_core\z_allocator.h" />
+    <ClInclude Include="code\z_core\t_vector.h" />
+    <ClInclude Include="code\z_core\t_allocator.h" />
     <ClInclude Include="code\z_core\m_test.h" />
     <ClInclude Include="code\z_core\m_log.h" />
     <ClInclude Include="code\z_core\z_array.h" />

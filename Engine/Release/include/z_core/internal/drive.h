@@ -98,6 +98,8 @@ using PointerType = SizeType;
 using MemoryType = UInt32;
 //The type of the index.
 using IndexType = Int32;
+//The tyoe if return value.
+using ReturnType = Int32;
 
 using Bool = bool;
 using Byte = unsigned char;
