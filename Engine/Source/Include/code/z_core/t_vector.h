@@ -43,7 +43,7 @@ public:
     using InitializerList = std::initializer_list<ObjectType>;
 
     FORCEINLINE TVector() noexcept : vector_() {}
-    FORCEINLINE TVector(const TVector& vector) noexcept : vector_(vector) {}
+    FORCEINLINE TVector(const TVector& vector) noexcept : vector_(vector.vector_) {}
     FORCEINLINE TVector(TVector&& vector) noexcept : vector_(std::move(vector.vector_)) {}
 
     FORCEINLINE TVector(SizeType capacity) noexcept : vector_(capacity) {}

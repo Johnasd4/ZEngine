@@ -19,6 +19,8 @@
 
 #include "z_engine.h"
 
+#include <array>
+
 using namespace zengine;
 using namespace std;
 
@@ -30,6 +32,6 @@ int main() {
     cout << t.Hour() << endl;
     cout << t.Min() << endl;
     cout << t.Sec() << endl;
-
+    constexpr array<int, 5> arr1 = { 1,2,3,4,5 };
     return 0;
 }

@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="code\z_core\t_array.h" />
     <ClInclude Include="code\z_core\z_system_time.h" />
     <ClInclude Include="code\z_core\t_vector.h" />
     <ClInclude Include="code\z_core\t_allocator.h" />
