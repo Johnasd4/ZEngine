@@ -30,11 +30,14 @@ namespace zengine {
 */
 class ZMutex : public ZObject {
 public:
-    FORCEINLINE ZMutex() noexcept : handle_(CreateMutex(nullptr, FALSE, nullptr)) {}
+    FORCEINLINE ZMutex() noexcept : SuperType(), handle_(CreateMutex(nullptr, FALSE, nullptr)) {}
     FORCEINLINE ~ZMutex() noexcept { CloseHandle(handle_); }
 
     FORCEINLINE Void Lock() noexcept { WaitForSingleObject(handle_, INFINITE); }
     FORCEINLINE Void Unlock() noexcept { ReleaseMutex(handle_); }
+
+protected:
+    using SuperType = ZObject;
 
 private:
     ZMutex(const ZMutex&) = delete;

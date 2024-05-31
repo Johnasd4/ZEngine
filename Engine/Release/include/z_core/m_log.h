@@ -37,7 +37,7 @@
 
 namespace zengine {
 
-enum LogMessageType : Int32 {
+enum LogMessageType : IndexType {
     kLogMessage,
     kLogStart,
     kLogProcess,

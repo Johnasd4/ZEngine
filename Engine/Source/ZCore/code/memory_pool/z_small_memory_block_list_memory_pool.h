@@ -103,7 +103,7 @@ private:
     static constexpr TArray<MemoryType, kMemoryBlockTypeNum> kMemoryBlockSizeArray =
         TArray<MemoryType, kMemoryBlockTypeNum>([](TArray<MemoryType, kMemoryBlockTypeNum>* array_ptr) {
         (*array_ptr)[0] = kMemoryBlockMinSize;
-            for (IndexType index = 1; index < array_ptr->Size(); ++index) {
+            for (IndexType index = 1; index < array_ptr->Capacity(); ++index) {
                 (*array_ptr)[index] = (*array_ptr)[index - 1] * kMemoryBlockSizeMulGrowFactor;
             }
         });
@@ -114,7 +114,7 @@ private:
     //The sizes of the memorys that can be uesd.
     static constexpr TArray<MemoryType, kMemoryBlockTypeNum> kMemoryBlockMemorySizeArray =
         TArray<MemoryType, kMemoryBlockTypeNum>([](TArray<MemoryType, kMemoryBlockTypeNum>* array_ptr) {
-            for (IndexType index = 0; index < array_ptr->Size(); ++index) {
+            for (IndexType index = 0; index < array_ptr->Capacity(); ++index) {
                 (*array_ptr)[index] = kMemoryBlockSizeArray[index] - SuperType::NodeHeadOffset();
             }
         });
@@ -123,7 +123,7 @@ private:
     static constexpr Int32 kMemoryBlockDefaultNum = 0;
     static constexpr TArray<IndexType, kMemoryBlockTypeNum> kMemoryBlockDefaultNumArray =
         TArray<IndexType, kMemoryBlockTypeNum>([](TArray<IndexType, kMemoryBlockTypeNum>* array_ptr) {
-            for (IndexType index = 0; index < array_ptr->Size(); ++index) {
+            for (IndexType index = 0; index < array_ptr->Capacity(); ++index) {
                 (*array_ptr)[index] = kMemoryBlockDefaultNum;
             }
         });
@@ -219,7 +219,7 @@ Void ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::ReleaseMemory(ZSmallMemoryB
 template<Bool kIsThreadSafe>
 Void ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::MemoryPoolArrayInitFunction(
         TArray<ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>* array_ptr) noexcept {
-    for (IndexType index = 0; index < array_ptr->Size(); ++index) {
+    for (IndexType index = 0; index < array_ptr->Capacity(); ++index) {
         (*array_ptr)[index].InitializeP(kMemoryBlockSizeArray[index], kMemoryBlockMemorySizeArray[index],
                                        kMemoryBlockDefaultNumArray[index]);
     }

@@ -36,7 +36,7 @@ class ZThread : public ZObject {
 public:
     using STDThread = std::thread;
 
-    FORCEINLINE ZThread() noexcept : thread_() {}
+    FORCEINLINE ZThread() noexcept : SuperType(), thread_() {}
     FORCEINLINE ZThread(ZThread&& thread) noexcept : thread_(std::move(thread.thread_)) {}
 
     template <typename Function, typename... ArgsType>

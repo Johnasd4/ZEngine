@@ -60,15 +60,18 @@
     <ClInclude Include="code\z_core\z_lock_guard.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="code\z_core\t_fixed_string.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_core\t_fixed_deque.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="code\z_core\z_thread.h">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\z_core\t_fixed_queue.h">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

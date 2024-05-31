@@ -42,15 +42,15 @@ public:
     using ConstReverseIterator = STDVector::const_reverse_iterator;
     using InitializerList = std::initializer_list<ObjectType>;
 
-    FORCEINLINE TVector() noexcept : vector_() {}
-    FORCEINLINE TVector(const TVector& vector) noexcept : vector_(vector) {}
-    FORCEINLINE TVector(TVector&& vector) noexcept : vector_(std::move(vector.vector_)) {}
+    FORCEINLINE TVector() noexcept : SuperType(), vector_() {}
+    FORCEINLINE TVector(const TVector& vector) noexcept : SuperType(), vector_(vector.vector_) {}
+    FORCEINLINE TVector(TVector&& vector) noexcept : SuperType(), vector_(std::move(vector.vector_)) {}
 
-    FORCEINLINE TVector(SizeType capacity) noexcept : vector_(capacity) {}
-    FORCEINLINE TVector(SizeType capacity, const ZObject& value) noexcept : vector_(capacity, value) {}
+    FORCEINLINE TVector(SizeType capacity) noexcept : SuperType(), vector_(capacity) {}
+    FORCEINLINE TVector(SizeType capacity, const ZObject& value) noexcept : SuperType(), vector_(capacity, value) {}
     template <typename InputIterator>
-    FORCEINLINE TVector(InputIterator first, InputIterator last) noexcept : vector_(first, last) {}
-    FORCEINLINE TVector(InitializerList init_list) noexcept : vector_(init_list) {}
+    FORCEINLINE TVector(InputIterator first, InputIterator last) noexcept : SuperType(), vector_(first, last) {}
+    FORCEINLINE TVector(InitializerList init_list) noexcept : SuperType(), vector_(init_list) {}
  
     FORCEINLINE ~TVector() noexcept {}
 

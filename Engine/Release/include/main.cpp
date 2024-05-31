@@ -19,11 +19,11 @@
 
 #include "z_engine.h"
 
-#include <array>
+#include <queue>
 
 using namespace zengine;
 using namespace std;
-
+constexpr array<int, 5> arr1 = { 1,2,3,4,5 };
 int main() {
     ZSystemTime t;
     cout << t.Year() << endl;
@@ -32,6 +32,10 @@ int main() {
     cout << t.Hour() << endl;
     cout << t.Min() << endl;
     cout << t.Sec() << endl;
-    constexpr array<int, 5> arr1 = { 1,2,3,4,5 };
+
+    queue<int> b;
+
+    TVector<Int32> a;
+
     return 0;
 }

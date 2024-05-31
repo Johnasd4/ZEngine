@@ -95,7 +95,7 @@ public:
     NODISCARD FORCEINLINE constexpr ObjectType* DataPtr() noexcept { return array_.data(); }
     NODISCARD FORCEINLINE constexpr const ObjectType* DataPtr() const noexcept { return array_.data(); }
 
-    NODISCARD FORCEINLINE static constexpr IndexType Capacity() noexcept { return kCapacity; }
+    NODISCARD FORCEINLINE static constexpr IndexType Size() noexcept { return kCapacity; }
 
     NODISCARD FORCEINLINE Iterator Begin() noexcept { return array_.begin(); }
     NODISCARD FORCEINLINE ConstIterator Begin() const noexcept { return array_.begin(); }
