@@ -48,18 +48,18 @@ public:
 
     FORCEINLINE constexpr ~TFixedString() noexcept {}
 
-    NODISCARD FORCEINLINE constexpr Bool operator==(const TFixedString& array) noexcept { return string_ == array.string_; }
-    NODISCARD FORCEINLINE constexpr Bool operator!=(const TFixedString& array) noexcept { return string_ != array.string_; }
+    NODISCARD FORCEINLINE Bool operator==(const TFixedString& str) noexcept { 
+        return strcmp(DataPtr(), str.DataPtr()) == 0;
+    }
+    NODISCARD FORCEINLINE Bool operator!=(const TFixedString& str) noexcept {
+        return strcmp(DataPtr(), str.DataPtr()) != 0;
+    }
      
     NODISCARD FORCEINLINE constexpr CharType& operator[](IndexType index) noexcept { return string_[index]; }
     NODISCARD FORCEINLINE constexpr const CharType& operator[](IndexType index) const noexcept { return string_[index]; }
 
     NODISCARD FORCEINLINE constexpr CharType& At(IndexType index) noexcept { return string_.at(index); }
     NODISCARD FORCEINLINE constexpr const CharType& At(IndexType index) const noexcept { return string_.at(index); }
-    NODISCARD FORCEINLINE constexpr CharType& Front() noexcept { return string_.front(); }
-    NODISCARD FORCEINLINE constexpr const CharType& Front() const noexcept { return string_.front(); }
-    NODISCARD FORCEINLINE constexpr CharType& Back() noexcept { return string_.back(); }
-    NODISCARD FORCEINLINE constexpr const CharType& Back() const noexcept { return string_.back(); }
     NODISCARD FORCEINLINE constexpr CharType* DataPtr() noexcept { return string_.data(); }
     NODISCARD FORCEINLINE constexpr const CharType* DataPtr() const noexcept { return string_.data(); }
 
