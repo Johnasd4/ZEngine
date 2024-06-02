@@ -20,8 +20,6 @@
 
 #include "z_system_time.h"
 
-#include <ctime>         
-
 namespace zengine {
 
 static constexpr TimeType kSecPurMin = 60;
@@ -41,7 +39,7 @@ static constexpr TimeType kStartTimeOffset = 62167219200LL;  //start at year 0 i
 namespace internal {
 
 static TimeType CalculateRegionTimeOffset() noexcept {
-    time_t raw_time = time(NULL);
+    time_t raw_time = time(nullptr);
     tm local_time = *localtime(&raw_time);
     tm utc_time = *gmtime(&raw_time);
 

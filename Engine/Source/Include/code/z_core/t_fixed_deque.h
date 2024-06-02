@@ -16,12 +16,10 @@
     Author: YuLin Zhu (÷Ï”Í¡÷)
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_T_FIEXED_QUEUE_H_
-#define Z_CORE_T_FIEXED_QUEUE_H_
+#ifndef Z_CORE_T_FIXED_DEQUE_H_
+#define Z_CORE_T_FIXED_DEQUE_H_
 
 #include "internal/drive.h"
-
-#include <deque>
 
 #include "z_object.h"
 
@@ -37,8 +35,7 @@ concept kIsFixedDequeInitFunction = requires(FixedDequeType * deque, Function fu
 }//internal
 
 /*
-    Fixed deque caintainer, front points at the first object, back points at the last object, when the deque is 
-    empty, the front points at 0 and back points at -1.
+    Fixed deque caintainer, front points at the first object, back points at the last object.
 */
 template<typename ObjectType, IndexType kCapacity>
 class TFixedDeque : public ZObject {
@@ -46,13 +43,15 @@ public:
     using STDArray = std::array<ObjectType, kCapacity>;
     using InitializerList = std::initializer_list<ObjectType>;
 
-    FORCEINLINE constexpr TFixedDeque() noexcept : SuperType(), deque_(), front_index_(0), back_index_(-1) {}
-    FORCEINLINE constexpr TFixedDeque(const TFixedDeque& deque) noexcept : 
-        SuperType(), deque_(deque.deque_), front_index_(deque.front_index_), back_index_(deque.back_index_) {}
-    FORCEINLINE constexpr TFixedDeque(TFixedDeque&& deque) noexcept : 
-        SuperType(), deque_(std::move(deque.deque_)), front_index_(deque.front_index_), back_index_(deque.back_index_) {}
-    FORCEINLINE TFixedDeque(InitializerList init_list) noexcept : 
-        SuperType(), deque_(init_list), front_index_(0), back_index_(kCapacity - 1) {}
+    FORCEINLINE constexpr TFixedDeque() noexcept : SuperType(), 
+        deque_(), front_index_(0), back_index_(kCapacity - 1), size_(0) {}
+    FORCEINLINE constexpr TFixedDeque(const TFixedDeque& deque) noexcept : SuperType(), 
+        deque_(deque.deque_), front_index_(deque.front_index_), back_index_(deque.back_index_), size_(deque.size_) {}
+    FORCEINLINE constexpr TFixedDeque(TFixedDeque&& deque) noexcept : SuperType(), 
+        deque_(std::move(deque.deque_)), front_index_(deque.front_index_), back_index_(deque.back_index_), 
+        size_(deque.size_) {}
+    FORCEINLINE TFixedDeque(InitializerList init_list) noexcept : SuperType(), 
+        deque_(init_list), front_index_(0), back_index_(kCapacity - 1), size_(kCapacity) {}
 
     /*
         Constexpr deque, the work is done at compile time.
@@ -91,10 +90,10 @@ public:
     }
 
     NODISCARD FORCEINLINE constexpr ObjectType& At(IndexType index) noexcept { 
-        return deque_.at((front_index_ + index) % kCapacity);
+        return deque_.at((SizeType)((front_index_ + index) % kCapacity));
     }
     NODISCARD FORCEINLINE constexpr const ObjectType& At(IndexType index) const noexcept { 
-        return deque_.at((front_index_ + index) % kCapacity); 
+        return deque_.at((SizeType)((front_index_ + index) % kCapacity));
     }
     NODISCARD FORCEINLINE constexpr ObjectType& Front() noexcept { return deque_[front_index_]; }
     NODISCARD FORCEINLINE constexpr const ObjectType& Front() const noexcept { return deque_[front_index_]; }
@@ -104,32 +103,76 @@ public:
     NODISCARD FORCEINLINE constexpr const ObjectType* DataPtr() const noexcept { return deque_.data(); }
 
     NODISCARD FORCEINLINE static constexpr IndexType Capacity() noexcept { return kCapacity; }
-    NODISCARD FORCEINLINE constexpr IndexType Size() noexcept { return kCapacity; }  //TODO
+    NODISCARD FORCEINLINE constexpr IndexType Size() noexcept { return size_; }
+    NODISCARD FORCEINLINE constexpr Bool Empty() noexcept { return size_ == 0; }
 
-    NODISCARD FORCEINLINE constexpr IndexType PopFront() noexcept { return kCapacity; }  //TODO
-    NODISCARD FORCEINLINE constexpr IndexType PopBack() noexcept { return kCapacity; }  //TODO
-    NODISCARD FORCEINLINE constexpr IndexType PushFront() noexcept { return kCapacity; }  //TODO
-    NODISCARD FORCEINLINE constexpr IndexType PushBack() noexcept { return kCapacity; }  //TODO
+    constexpr Void PopFront() noexcept { 
+        --size_;
+        front_index_ = (front_index_ + 1) % kCapacity;
+    }  
+    constexpr Void PopBack() noexcept {
+        --size_;
+        back_index_ = (back_index_ + (kCapacity - 1)) % kCapacity;
+    }
+    constexpr Void PushFront(const ObjectType& object) noexcept {
+        front_index_ = (front_index_ + (kCapacity - 1)) % kCapacity;
+        deque_[front_index_] = object;
+        ++size_;
+    }
+    constexpr Void PushFront(ObjectType&& object) noexcept {
+        front_index_ = (front_index_ + (kCapacity - 1)) % kCapacity;
+        deque_[front_index_] = object;
+        ++size_;
+    }
+    template<typename... ArgsType>
+    constexpr Void PushFront(ArgsType&&... args) noexcept {
+        front_index_ = (front_index_ + 1) % kCapacity;
+        new(&deque_[front_index_]) ObjectType(std::forward<ArgsType>(args)...);
+        ++size_;
+    }
+    constexpr Void PushBack(const ObjectType& object) noexcept {
+        back_index_ = (back_index_ + 1) % kCapacity;
+        deque_[back_index_] = object;
+        ++size_;
+    }
+    constexpr Void PushBack(ObjectType&& object) noexcept {
+        back_index_ = (back_index_ + 1) % kCapacity;
+        deque_[back_index_] = object;
+        ++size_;
+    }
+    template<typename... ArgsType>
+    constexpr Void PushBack(ArgsType&&... args) noexcept {
+        back_index_ = (back_index_ + 1) % kCapacity;
+        new(&deque_[back_index_]) ObjectType(std::forward<ArgsType>(args)...);
+        ++size_;
+    }
 
-    NODISCARD FORCEINLINE constexpr IndexType SetSize() noexcept { return kCapacity; }  //TODO
-    NODISCARD FORCEINLINE constexpr IndexType Clear() noexcept { return kCapacity; }  //TODO
-    FORCEINLINE Void Fill(const ObjectType& value) noexcept { 
+    constexpr Void SetSize(IndexType size) noexcept {
+        size_ = size; 
+        back_index_ = (front_index_ + size_ - 1) % kCapacity;
+    }
+    constexpr Void Clear() noexcept { 
+        size_ = 0;
+        front_index_ = 0;
+        back_index_ = kCapacity - 1;
+    }
+    constexpr Void Fill(const ObjectType& value) noexcept {
         deque_.fill(value); 
         front_index_ = 0;
         back_index_ = kCapacity - 1;
-
     }
-    FORCEINLINE Void Swap(TFixedDeque& deque) noexcept { deque_.swap(deque); }
+    FORCEINLINE constexpr Void Swap(TFixedDeque& deque) noexcept { deque_.swap(deque); }
 
 protected:
     using SuperType = ZObject;
 
 private:
+    STDArray deque_;
     IndexType front_index_;
     IndexType back_index_;
-    STDArray deque_;
+    IndexType size_;
 };
 
 }//zengine
 
-#endif // !Z_CORE_T_FIEXED_QUEUE_H_
+#endif // !Z_CORE_T_FIXED_DEQUE_H_

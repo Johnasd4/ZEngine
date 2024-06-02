@@ -81,7 +81,7 @@ private:
 
 template<Bool kIsThreadSafe>
 NODISCARD Void* ZHeapMemoryPool<kIsThreadSafe>::ApplyMemory(MemoryType size) noexcept {
-    ZHeapMemoryPool& memory_pool = InstanceP();
+    static ZHeapMemoryPool& memory_pool = InstanceP();
     Void* heap_memory_ptr = malloc(size);
     memory_pool.MutexType::Lock();
     //applys new node when the memory runs out.

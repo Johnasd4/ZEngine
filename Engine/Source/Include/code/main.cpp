@@ -17,25 +17,29 @@
     Contact: 1152325286@qq.com
 */
 
+#include <condition_variable>
+#include <mutex>
 #include "z_engine.h"
 
 #include <queue>
 
 using namespace zengine;
 using namespace std;
-constexpr array<int, 5> arr1 = { 1,2,3,4,5 };
+
 int main() {
-    ZSystemTime t;
-    cout << t.Year() << endl;
-    cout << t.Month() << endl;
-    cout << t.Day() << endl;
-    cout << t.Hour() << endl;
-    cout << t.Min() << endl;
-    cout << t.Sec() << endl;
-
-    queue<int> b;
-
-    TVector<Int32> a;
-
+    Z_LOG_ERROR(1, 2, "TEST%d%d%d%d%d", 3, 4, 5, 6, 7);
+    Z_LOG_ERROR(1, 2, "TEST%d%d%d%d%d", 3, 4, 5, 6, 7);
+    console::PrintMessage("Message...\n");
+    console::PrintStart("Start...\n");
+    console::PrintProcess("Process 1...\n");
+    console::PrintProcess("Process 2...\n");
+    console::PrintProcess("Process 3...\n");
+    console::PrintFinish("Finish...\n");
+    console::PrintSuccess("Success...\n");
+    console::PrintFailure("Failure...\n");
+    console::PrintError("Error...\n");
+    Sleep(1);
+    std::unique_lock<std::mutex> b;
+    std::condition_variable cv;
     return 0;
 }

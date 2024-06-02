@@ -83,14 +83,14 @@ public:
         return instance;
     }
 
-    FORCEINLINE Void set_text_colour(ConsoleOutputTextColourType test_colour) { text_colour_ = test_colour; }
-    FORCEINLINE Void set_background_colour(ConsoleOutputBackgroundColourType background_colour) { 
+    FORCEINLINE Void SetTextColour(ConsoleOutputTextColourType test_colour) { text_colour_ = test_colour; }
+    FORCEINLINE Void SetBackgroundColour(ConsoleOutputBackgroundColourType background_colour) { 
         background_colour_ = background_colour; 
     }
 
-    NODISCARD FORCEINLINE ConsoleOutputTextColourType text_colour() { return text_colour_; }
-    NODISCARD FORCEINLINE ConsoleOutputBackgroundColourType background_colour() { return background_colour_; }
-    NODISCARD FORCEINLINE ZMutex& console_output_mutex() { return console_output_mutex_; }
+    NODISCARD FORCEINLINE ConsoleOutputTextColourType TextColour() const { return text_colour_; }
+    NODISCARD FORCEINLINE ConsoleOutputBackgroundColourType BackgroundColour() const { return background_colour_; }
+    NODISCARD FORCEINLINE ZMutex& ConsoleOutputMutex() { return console_output_mutex_; }
 
 private:
     ZConsoleOutputSettings() : text_colour_(kDefaultTextColour), background_colour_(kDefaultBackgroundColour) {}
@@ -110,12 +110,17 @@ CORE_DLLAPI extern Void SetConsoleOutputColour(ConsoleOutputTextColourType test_
     background colour infront of the format to change the colour only for this
     output.
 */
-template<typename FormatType, typename... ArgsType>
-Void Print(FormatType&& format, ArgsType&&... args) noexcept {
-    internal::ZConsoleOutputSettings& settings = internal::ZConsoleOutputSettings::InstanceP();
-    settings.console_output_mutex().Lock();
-    printf(std::forward<FormatType>(format), std::forward<ArgsType>(args)...);
-    settings.console_output_mutex().Unlock();
+template<typename CharType, typename... ArgsType>
+Void Print(const CharType* format, ArgsType&&... args) noexcept {
+    static internal::ZConsoleOutputSettings& settings = internal::ZConsoleOutputSettings::InstanceP();
+    settings.ConsoleOutputMutex().Lock();
+    if constexpr (kSameType<CharType, CChar>) {
+        printf(format, std::forward<ArgsType>(args)...);
+    }
+    else if constexpr (kSameType<CharType, TChar>) {
+        wprintf(format, std::forward<ArgsType>(args)...);
+    }
+    settings.ConsoleOutputMutex().Unlock();
 }
 
 /*
@@ -123,21 +128,184 @@ Void Print(FormatType&& format, ArgsType&&... args) noexcept {
     background colour infront of the format to change the colour only for this
     output.
 */
-template<typename FormatType, typename... ArgsType>
+template<typename CharType, typename... ArgsType>
 Void Print(ConsoleOutputTextColourType text_colour, ConsoleOutputBackgroundColourType background_colour, 
-           FormatType&& format, ArgsType&&... args) noexcept{
-    internal::ZConsoleOutputSettings& settings = internal::ZConsoleOutputSettings::InstanceP();
-    settings.console_output_mutex().Lock();
+           const CharType* format, ArgsType&&... args) noexcept{
+    static internal::ZConsoleOutputSettings& settings = internal::ZConsoleOutputSettings::InstanceP();
+    settings.ConsoleOutputMutex().Lock();
     //Changes the console output colour.
     SetConsoleTextAttribute(
         GetStdHandle(STD_OUTPUT_HANDLE), static_cast<UInt16>(text_colour) | static_cast<UInt16>(background_colour));
-    printf(std::forward<FormatType>(format), std::forward<ArgsType>(args)...);
+    if constexpr (kSameType<CharType, CChar>) {
+        printf(format, std::forward<ArgsType>(args)...);
+    }
+    else if constexpr (kSameType<CharType, TChar>) {
+        wprintf(format, std::forward<ArgsType>(args)...);
+    }
     //Changes the console output colour back.
     SetConsoleTextAttribute(
         GetStdHandle(STD_OUTPUT_HANDLE), 
-        static_cast<UInt16>(settings.text_colour()) |
-        static_cast<UInt16>(settings.background_colour()));
-    settings.console_output_mutex().Unlock();
+        static_cast<UInt16>(settings.TextColour()) |
+        static_cast<UInt16>(settings.BackgroundColour()));
+    settings.ConsoleOutputMutex().Unlock();
+}
+
+template<typename CharType, typename... ArgsType>
+Void PrintMessage(const CharType* format, ArgsType&&... args) noexcept {
+    static internal::ZConsoleOutputSettings& settings = internal::ZConsoleOutputSettings::InstanceP();
+    settings.ConsoleOutputMutex().Lock();
+    //Changes the console output colour.
+    SetConsoleTextAttribute(
+        GetStdHandle(STD_OUTPUT_HANDLE), static_cast<UInt16>(kConsoleTextColourDarkWhite) |
+                                         static_cast<UInt16>(kConsoleBackgroundColourDarkBlack));
+    if constexpr (kSameType<CharType, CChar>) {
+        printf(format, std::forward<ArgsType>(args)...);
+    }
+    else if constexpr (kSameType<CharType, TChar>) {
+        wprintf(format, std::forward<ArgsType>(args)...);
+    }
+    //Changes the console output colour back.
+    SetConsoleTextAttribute(
+        GetStdHandle(STD_OUTPUT_HANDLE),
+        static_cast<UInt16>(settings.TextColour()) |
+        static_cast<UInt16>(settings.BackgroundColour()));
+    settings.ConsoleOutputMutex().Unlock();
+}
+
+template<typename CharType, typename... ArgsType>
+Void PrintStart(const CharType* format, ArgsType&&... args) noexcept {
+    static internal::ZConsoleOutputSettings& settings = internal::ZConsoleOutputSettings::InstanceP();
+    settings.ConsoleOutputMutex().Lock();
+    //Changes the console output colour.
+    SetConsoleTextAttribute(
+        GetStdHandle(STD_OUTPUT_HANDLE), static_cast<UInt16>(kConsoleTextColourLightYellow) |
+                                         static_cast<UInt16>(kConsoleBackgroundColourDarkBlack));
+    if constexpr (kSameType<CharType, CChar>) {
+        printf(format, std::forward<ArgsType>(args)...);
+    }
+    else if constexpr (kSameType<CharType, TChar>) {
+        wprintf(format, std::forward<ArgsType>(args)...);
+    }
+    //Changes the console output colour back.
+    SetConsoleTextAttribute(
+        GetStdHandle(STD_OUTPUT_HANDLE),
+        static_cast<UInt16>(settings.TextColour()) |
+        static_cast<UInt16>(settings.BackgroundColour()));
+    settings.ConsoleOutputMutex().Unlock();
+}
+
+template<typename CharType, typename... ArgsType>
+Void PrintProcess(const CharType* format, ArgsType&&... args) noexcept {
+    static internal::ZConsoleOutputSettings& settings = internal::ZConsoleOutputSettings::InstanceP();
+    settings.ConsoleOutputMutex().Lock();
+    //Changes the console output colour.
+    SetConsoleTextAttribute(
+        GetStdHandle(STD_OUTPUT_HANDLE), static_cast<UInt16>(kConsoleTextColourDarkYellow) |
+                                         static_cast<UInt16>(kConsoleBackgroundColourDarkBlack));
+    if constexpr (kSameType<CharType, CChar>) {
+        printf(format, std::forward<ArgsType>(args)...);
+    }
+    else if constexpr (kSameType<CharType, TChar>) {
+        wprintf(format, std::forward<ArgsType>(args)...);
+    }
+    //Changes the console output colour back.
+    SetConsoleTextAttribute(
+        GetStdHandle(STD_OUTPUT_HANDLE),
+        static_cast<UInt16>(settings.TextColour()) |
+        static_cast<UInt16>(settings.BackgroundColour()));
+    settings.ConsoleOutputMutex().Unlock();
+}
+
+template<typename CharType, typename... ArgsType>
+Void PrintFinish(const CharType* format, ArgsType&&... args) noexcept {
+    static internal::ZConsoleOutputSettings& settings = internal::ZConsoleOutputSettings::InstanceP();
+    settings.ConsoleOutputMutex().Lock();
+    //Changes the console output colour.
+    SetConsoleTextAttribute(
+        GetStdHandle(STD_OUTPUT_HANDLE), static_cast<UInt16>(kConsoleTextColourLightGreen) |
+                                         static_cast<UInt16>(kConsoleBackgroundColourDarkBlack));
+    if constexpr (kSameType<CharType, CChar>) {
+        printf(format, std::forward<ArgsType>(args)...);
+    }
+    else if constexpr (kSameType<CharType, TChar>) {
+        wprintf(format, std::forward<ArgsType>(args)...);
+    }
+    //Changes the console output colour back.
+    SetConsoleTextAttribute(
+        GetStdHandle(STD_OUTPUT_HANDLE),
+        static_cast<UInt16>(settings.TextColour()) |
+        static_cast<UInt16>(settings.BackgroundColour()));
+    settings.ConsoleOutputMutex().Unlock();
+}
+
+template<typename CharType, typename... ArgsType>
+Void PrintSuccess(const CharType* format, ArgsType&&... args) noexcept {
+    static internal::ZConsoleOutputSettings& settings = internal::ZConsoleOutputSettings::InstanceP();
+    settings.ConsoleOutputMutex().Lock();
+    //Changes the console output colour.
+    SetConsoleTextAttribute(
+        GetStdHandle(STD_OUTPUT_HANDLE), static_cast<UInt16>(kConsoleTextColourDarkGreen) |
+                                         static_cast<UInt16>(kConsoleBackgroundColourDarkBlack));
+    if constexpr (kSameType<CharType, CChar>) {
+        printf(format, std::forward<ArgsType>(args)...);
+    }
+    else if constexpr (kSameType<CharType, TChar>) {
+        wprintf(format, std::forward<ArgsType>(args)...);
+    }
+    //Changes the console output colour back.
+    SetConsoleTextAttribute(
+        GetStdHandle(STD_OUTPUT_HANDLE),
+        static_cast<UInt16>(settings.TextColour()) |
+        static_cast<UInt16>(settings.BackgroundColour()));
+    settings.ConsoleOutputMutex().Unlock();
+}
+
+template<typename CharType, typename... ArgsType>
+Void PrintFailure(const CharType* format, ArgsType&&... args) noexcept {
+    static internal::ZConsoleOutputSettings& settings = internal::ZConsoleOutputSettings::InstanceP();
+    settings.ConsoleOutputMutex().Lock();
+    //Changes the console output colour.
+    SetConsoleTextAttribute(
+        GetStdHandle(STD_OUTPUT_HANDLE), static_cast<UInt16>(kConsoleTextColourDarkRed) |
+                                         static_cast<UInt16>(kConsoleBackgroundColourDarkBlack));
+    if constexpr (kSameType<CharType, CChar>) {
+        printf(format, std::forward<ArgsType>(args)...);
+    }
+    else if constexpr (kSameType<CharType, TChar>) {
+        wprintf(format, std::forward<ArgsType>(args)...);
+    }
+    //Changes the console output colour back.
+    SetConsoleTextAttribute(
+        GetStdHandle(STD_OUTPUT_HANDLE),
+        static_cast<UInt16>(settings.TextColour()) |
+        static_cast<UInt16>(settings.BackgroundColour()));
+    settings.ConsoleOutputMutex().Unlock();
+}
+
+template<typename CharType, typename... ArgsType>
+Void PrintError(const CharType* format, ArgsType&&... args) noexcept {
+    static internal::ZConsoleOutputSettings& settings = internal::ZConsoleOutputSettings::InstanceP();
+    settings.ConsoleOutputMutex().Lock();
+    //Changes the console output colour.
+    SetConsoleTextAttribute(
+        GetStdHandle(STD_OUTPUT_HANDLE), static_cast<UInt16>(kConsoleTextColourDarkPurple) |
+                                         static_cast<UInt16>(kConsoleBackgroundColourDarkBlack));
+    if constexpr (kSameType<CharType, CChar>) {
+        printf("\n--------------------------------------------------------------------------------\n");
+        printf(format, std::forward<ArgsType>(args)...);
+        printf("--------------------------------------------------------------------------------\n");
+    }
+    else if constexpr (kSameType<CharType, TChar>) {
+        wprintf(L"\n--------------------------------------------------------------------------------\n");
+        wprintf(format, std::forward<ArgsType>(args)...);
+        wprintf(L"--------------------------------------------------------------------------------\n");
+    }
+    //Changes the console output colour back.
+    SetConsoleTextAttribute(
+        GetStdHandle(STD_OUTPUT_HANDLE),
+        static_cast<UInt16>(settings.TextColour()) |
+        static_cast<UInt16>(settings.BackgroundColour()));
+    settings.ConsoleOutputMutex().Unlock();
 }
 
 }//console

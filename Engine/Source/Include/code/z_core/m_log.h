@@ -21,7 +21,7 @@
 
 #include "internal/drive.h"
 
-#include <ctime>
+#include "z_system_time.h"
 
 #ifdef _DEBUG
 //If console log.
@@ -37,6 +37,8 @@
 
 namespace zengine {
 
+static constexpr ReturnType kReturnOK = 0; 
+
 enum LogMessageType : IndexType {
     kLogMessage,
     kLogStart,
@@ -51,12 +53,12 @@ namespace internal {
 /*
     Log error message and error location.
 */
-CORE_DLLAPI extern Void LogError(time_t raw_time,
-                                 ReturnType err_val,
-                                 ReturnType link_val,
-                                 const CChar* error_file, 
-                                 const CChar* error_funcion,
-                                 Int32 error_line, 
+CORE_DLLAPI extern Void LogError(TimeType raw_time,
+                                 const CChar* err_file, 
+                                 const CChar* err_func,
+                                 Int32 err_line, 
+                                 ReturnType err_code,
+                                 ReturnType link_code,
                                  const CChar* format,
                                  ...) noexcept;
 
@@ -64,18 +66,18 @@ CORE_DLLAPI extern Void LogError(time_t raw_time,
 }//zengine
 
 /*
-    Return the err_val and output an error message when the condition is true.
+    Return the err_code and output an error message when the condition is true.
 */
-#define Z_RETURN(condition, err_val, link_val, format, ...)\
+#define Z_RETURN(condition, err_code, link_code, format, ...)\
     if(condition) {\
-        zengine::internal::LogError(time(nullptr), err_val, link_val, __FILE__, __func__, __LINE__, format, ##__VA_ARGS__);\
+        zengine::internal::LogError(time(nullptr), __FILE__, __func__, __LINE__, err_code, link_code, format, __VA_ARGS__);\
         return return_value;\
     }
 
 /*
     Log error.
 */
-#define Z_LOG_ERROR(err_val, link_val, format, ...)\
-    zengine::internal::LogError(time(nullptr), err_val, link_val, __FILE__, __func__, __LINE__, format, ##__VA_ARGS__);
+#define Z_LOG_ERROR(err_code, link_code, format, ...)\
+    zengine::internal::LogError(time(nullptr), __FILE__, __func__, __LINE__, err_code, link_code, format, ##__VA_ARGS__);
 
 #endif // !Z_CORE_M_LOG_H_

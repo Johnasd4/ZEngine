@@ -82,7 +82,7 @@ public:
     }
 
     NODISCARD FORCEINLINE static MemoryType CalculateMemory(MemoryType size) noexcept {
-        TArray<ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>& memory_pool_array = InstanceP();
+        static TArray<ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>& memory_pool_array = InstanceP();
         IndexType size_index = (size + SuperType::NodeHeadOffset() - 1) / kMemoryBlockMinSize;
         return memory_pool_array[kMemorySize2MemoryPoolTable.At(size_index)].SuperType::MemoryBlockMemorySize();
     }
@@ -173,7 +173,7 @@ private:
 
 template<Bool kIsThreadSafe>
 NODISCARD Void* ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::ApplyMemory(const MemoryType size) noexcept {
-    TArray<ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>& memory_pool_array = InstanceP();
+    static TArray<ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>& memory_pool_array = InstanceP();
     IndexType size_index = (size + SuperType::NodeHeadOffset() - 1)/ kMemoryBlockMinSize;
     IndexType memory_pool_index = kMemorySize2MemoryPoolTable.At(size_index);
 #ifdef USE_MEMORY_POOL_TEST
@@ -191,7 +191,7 @@ NODISCARD Void* ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::ApplyMemory(cons
 template<Bool kIsThreadSafe>
 NODISCARD Void* ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::ApplyMemory(const MemoryType size, 
                                                                             MemoryType* memory_size_ptr) noexcept {
-    TArray<ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>& memory_pool_array = InstanceP();
+    static TArray<ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>& memory_pool_array = InstanceP();
     IndexType size_index = (size + SuperType::NodeHeadOffset() - 1) / kMemoryBlockMinSize;
     IndexType memory_pool_index = kMemorySize2MemoryPoolTable.At(size_index);
 #ifdef USE_MEMORY_POOL_TEST
@@ -230,18 +230,10 @@ ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::~ZSmallMemoryBlockListMemoryPool
 #if USE_MEMORY_POOL_TEST
     //The first pool realsed.
     if (SuperType::MemoryBlockSize() == kMemoryBlockMaxSize) {
-        zengine::console::Print(
-            zengine::console::ConsoleOutputTextColourType::kConsoleTextColourLightGreen,
-            zengine::console::ConsoleOutputBackgroundColourType::kConsoleBackgroundColourDarkBlack,
-            "\n\n***** small memory block pool *****\n\n");
-        zengine::console::Print(
-            zengine::console::ConsoleOutputTextColourType::kConsoleTextColourLightGreen,
-            zengine::console::ConsoleOutputBackgroundColourType::kConsoleBackgroundColourDarkBlack,
-            "    size    | usable size |  total num  | applied times | used peak num | unused num\n");
+        zengine::console::PrintMessage("\n\n***** small memory block pool *****\n\n");
+        zengine::console::PrintMessage("    size    | usable size |  total num  | applied times | used peak num | unused num\n");
     }
-    zengine::console::Print(
-        zengine::console::ConsoleOutputTextColourType::kConsoleTextColourLightYellow,
-        zengine::console::ConsoleOutputBackgroundColourType::kConsoleBackgroundColourDarkBlack,
+    zengine::console::PrintMessage(
         "  %8u  |  %9u  |  %9d  |   %9d   |   %9d   |  %8d\n",
         SuperType::MemoryBlockSize(),
         SuperType::MemoryBlockMemorySize(),

@@ -40,7 +40,7 @@ public:
     FORCEINLINE ~TAllocator() {}
 
     NODISCARD FORCEINLINE ObjectType* allocate(SizeType capacity) noexcept {
-        return reinterpret_cast<ObjectType*>(memory_pool::ApplyMemory(capacity * sizeof(ObjectType)));
+        return reinterpret_cast<ObjectType*>(memory_pool::ApplyMemory((MemoryType)(capacity * sizeof(ObjectType))));
     }
 
     FORCEINLINE Void deallocate(ObjectType* object_ptr, SizeType capacity) noexcept {

@@ -45,6 +45,15 @@ public:
     FORCEINLINE constexpr TFixedString(const TFixedString& array) noexcept : SuperType(), string_(array.string_) {}
     FORCEINLINE constexpr TFixedString(TFixedString&& array) noexcept : SuperType(), string_(std::move(array.string_)) {}
     FORCEINLINE TFixedString(InitializerList init_list) noexcept : SuperType(), string_(init_list) {}
+    template<typename... ArgsType>
+    FORCEINLINE constexpr TFixedString(CharType* fotmat, ArgsType&&... args) noexcept : SuperType() {
+        if constexpr (kSameType<CharType, CChar>) {
+            sprintf(DataPtr(), fotmat, std::forward<ArgsType>(args)...);
+        }
+        else if constexpr (kSameType<CharType, TChar>) {
+            swprintf(DataPtr(), fotmat, std::forward<ArgsType>(args)...);
+        }
+    }
 
     FORCEINLINE constexpr ~TFixedString() noexcept {}
 
@@ -78,6 +87,23 @@ public:
     NODISCARD FORCEINLINE ConstReverseIterator ReverseEnd() const noexcept { return string_.rend(); }
     NODISCARD FORCEINLINE ConstReverseIterator ConstReverseEnd() const noexcept { return string_.crend(); }
 
+    template<typename... ArgsType>
+    FORCEINLINE constexpr Void SetString(const CharType* fotmat, ArgsType&&... args) noexcept {
+        if constexpr (kSameType<CharType, CChar>) {
+            sprintf(DataPtr(), fotmat, std::forward<ArgsType>(args)...);
+        }
+        else if constexpr (kSameType<CharType, TChar>) {
+            swprintf(DataPtr(), fotmat, std::forward<ArgsType>(args)...);
+        }
+    }
+    FORCEINLINE constexpr Void SetString(const CharType* fotmat, ArgsType args) noexcept {
+        if constexpr (kSameType<CharType, CChar>) {
+            vsprintf(DataPtr(), fotmat, args);
+        }
+        else if constexpr (kSameType<CharType, TChar>) {
+            vswprintf(DataPtr(), fotmat, args);
+        }
+    }
     FORCEINLINE Void Fill(const CharType& value) noexcept { string_.fill(value); }
     FORCEINLINE Void Swap(TFixedString& array) noexcept { string_.swap(array); }
 

@@ -42,7 +42,7 @@ public:
     NODISCARD FORCEINLINE MemoryPoolType PoolType() const noexcept { return pool_type_; }
 
 protected:
-    FORCEINLINE ZMemoryPoolBase() noexcept {}
+    FORCEINLINE ZMemoryPoolBase() noexcept : pool_type_() {}
 
     FORCEINLINE Void InitializeP(MemoryPoolType pool_type) noexcept { pool_type_ = pool_type; }
 

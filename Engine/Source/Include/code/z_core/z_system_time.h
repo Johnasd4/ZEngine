@@ -23,28 +23,24 @@
 
 #include "internal/drive.h"
 
-#include <ctime>
-
 #include "z_object.h"
 
 namespace zengine {
-
-using TimeType = time_t;
-
 /*
     The time struct, contains [year, month, day, hour, min ,sec].
 */
 class ZSystemTime : public ZObject {
+
 public:
     CORE_DLLAPI ZSystemTime() noexcept;
     CORE_DLLAPI ~ZSystemTime() noexcept;
 
-    NODISCARD FORCEINLINE Int32 Year() noexcept { return year_; }
-    NODISCARD FORCEINLINE Int32 Month() noexcept { return month_; }
-    NODISCARD FORCEINLINE Int32 Day() noexcept { return day_; }
-    NODISCARD FORCEINLINE Int32 Hour() noexcept { return hour_; }
-    NODISCARD FORCEINLINE Int32 Min() noexcept { return min_; }
-    NODISCARD FORCEINLINE Int32 Sec() noexcept { return sec_; }
+    NODISCARD FORCEINLINE Int32 Year() const noexcept { return year_; }
+    NODISCARD FORCEINLINE Int32 Month() const noexcept { return month_; }
+    NODISCARD FORCEINLINE Int32 Day() const noexcept { return day_; }
+    NODISCARD FORCEINLINE Int32 Hour() const noexcept { return hour_; }
+    NODISCARD FORCEINLINE Int32 Min() const noexcept { return min_; }
+    NODISCARD FORCEINLINE Int32 Sec() const noexcept { return sec_; }
 
     /*
         Update system time, use UpdateTimeFast instead if updated frequently.

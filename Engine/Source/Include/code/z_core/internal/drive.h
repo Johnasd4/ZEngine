@@ -28,6 +28,8 @@
 
 #include<iostream>
 #include<windows.h>
+#include <ctime>
+#include <stdarg.h>
 
 #ifndef DLLEXPORT
 #define DLLEXPORT __declspec(dllexport)
@@ -98,8 +100,12 @@ using PointerType = SizeType;
 using MemoryType = UInt32;
 //The type of the index.
 using IndexType = Int32;
-//The tyoe if return value.
+//The type of return value.
 using ReturnType = Int32;
+//The type of time.
+using TimeType = time_t;
+//The type of time.
+using ArgsType = va_list;
 
 using Bool = bool;
 using Byte = unsigned char;

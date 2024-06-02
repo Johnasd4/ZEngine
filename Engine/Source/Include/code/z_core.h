@@ -25,6 +25,8 @@
 #include "z_core/m_test.h"
 #include "z_core/t_allocator.h"
 #include "z_core/t_array.h"
+#include "z_core/t_fixed_queue.h"
+#include "z_core/t_fixed_deque.h"
 #include "z_core/t_fixed_string.h"
 #include "z_core/t_vector.h"
 #include "z_core/z_lock_guard.h" 

@@ -110,8 +110,8 @@ public:
     NODISCARD FORCEINLINE ConstReverseIterator ReverseEnd() const noexcept { return array_.rend(); }
     NODISCARD FORCEINLINE ConstReverseIterator ConstReverseEnd() const noexcept { return array_.crend(); }
 
-    FORCEINLINE Void Fill(const ObjectType& value) noexcept { array_.fill(value); }
-    FORCEINLINE Void Swap(TArray& array) noexcept { array_.swap(array); }
+    FORCEINLINE constexpr Void Fill(const ObjectType& value) noexcept { array_.fill(value); }
+    FORCEINLINE constexpr Void Swap(TArray& array) noexcept { array_.swap(array); }
 
 protected:
     using SuperType = ZObject;
