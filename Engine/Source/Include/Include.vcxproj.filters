@@ -69,6 +69,9 @@
     <ClInclude Include="code\z_core\t_fixed_queue.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="code\z_core\z_file.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\main.cpp">
