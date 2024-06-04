@@ -19,7 +19,7 @@
 #ifndef Z_CORE_Z_LOCK_GUARD_H_
 #define Z_CORE_Z_LOCK_GUARD_H_
 
-#include "internal/drive.h"
+#include "internal/z_drive.h"
 
 #include "z_mutex.h"
 #include "z_object.h"

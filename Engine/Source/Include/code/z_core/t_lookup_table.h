@@ -19,7 +19,7 @@
 #ifndef Z_CORE_Z_LOOKUP_TABLE_H_
 #define Z_CORE_Z_LOOKUP_TABLE_H_
 
-#include "internal/drive.h"
+#include "internal/z_drive.h"
 
 #include "m_log.h"
 #include "z_object.h"

@@ -19,7 +19,7 @@
 #ifndef Z_CORE_MEMORY_POOL_Z_MEMORY_POOL_BASE_H_
 #define Z_CORE_MEMORY_POOL_Z_MEMORY_POOL_BASE_H_
 
-#include "internal/drive.h"
+#include "internal/z_drive.h"
 
 #include "z_memory_pool_thread_safe_base.h"
 

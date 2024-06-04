@@ -24,7 +24,7 @@
     <ClInclude Include="code\z_core\z_object.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\z_core\internal\drive.h">
+    <ClInclude Include="code\z_core\internal\z_drive.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\z_core.h">
@@ -72,12 +72,30 @@
     <ClInclude Include="code\z_core\z_file.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="code\z_core\internal\d_type.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_core\internal\d_lib.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_core\internal\d_function.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_core\internal\d_concept.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_core\internal\d_error_code.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="code\z_core\z_thread.h">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\z_core\internal\d_constant.h">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

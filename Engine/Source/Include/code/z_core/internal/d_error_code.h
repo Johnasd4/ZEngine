@@ -16,22 +16,20 @@
     Author: YuLin Zhu (÷Ï”Í¡÷)
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_MEMORY_POOL_Z_MEMORY_BLOCK_BASE_H_
-#define Z_CORE_MEMORY_POOL_Z_MEMORY_BLOCK_BASE_H_
+#ifndef Z_CORE_INTERNAL_D_ERROR_CODE_H_
+#define Z_CORE_INTERNAL_D_ERROR_CODE_H_
 
-#include "internal/z_drive.h"
+#include "d_lib.h"
+#include "d_type.h"
 
 namespace zengine {
-namespace memory_pool {
 
-/*
-    The base type of all memory block.
-*/
-struct ZMemoryBlockBase {
-    FORCEINLINE Void InitializeP(Void* pool_ptr) noexcept {}
-};
+static constexpr ReturnType kOK = 0;
 
-}//memory_pool
+static constexpr ReturnType kErrCodeBasePCore = 0x00100000u;
+static constexpr ReturnType kErrCodeBaseZFile = kErrCodeBasePCore + 0x100u;
+
+
 }//zengine
 
-#endif // !Z_CORE_MEMORY_POOL_Z_MEMORY_BLOCK_BASE_H_
+#endif // !Z_CORE_INTERNAL_D_ERROR_CODE_H_

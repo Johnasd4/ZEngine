@@ -19,6 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="code\z_core\internal\d_concept.h" />
+    <ClInclude Include="code\z_core\internal\d_error_code.h" />
+    <ClInclude Include="code\z_core\internal\d_function.h" />
+    <ClInclude Include="code\z_core\internal\d_lib.h" />
+    <ClInclude Include="code\z_core\internal\d_type.h" />
     <ClInclude Include="code\z_core\t_array.h" />
     <ClInclude Include="code\z_core\t_fixed_deque.h" />
     <ClInclude Include="code\z_core\t_fixed_queue.h" />
@@ -36,11 +41,12 @@
     <ClInclude Include="code\z_core\z_mutex.h" />
     <ClInclude Include="code\z_core\z_object.h" />
     <ClInclude Include="code\z_core.h" />
-    <ClInclude Include="code\z_core\internal\drive.h" />
+    <ClInclude Include="code\z_core\internal\z_drive.h" />
     <ClInclude Include="code\z_engine.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\main.cpp" />
+    <ClCompile Include="code\z_core\internal\d_constant.h" />
     <ClCompile Include="code\z_core\z_thread.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

@@ -19,7 +19,7 @@
 #ifndef Z_CORE_MEMORY_POOL_Z_SMALL_MEMORY_BLOCK_LIST_MEMORY_POOL_H_
 #define Z_CORE_MEMORY_POOL_Z_SMALL_MEMORY_BLOCK_LIST_MEMORY_POOL_H_
 
-#include "internal/drive.h"
+#include "internal/z_drive.h"
 
 #include "f_console.h"
 #include "t_array.h"
@@ -56,7 +56,7 @@ private:
     //The sizes of the memory blocks(includes the memory size).
     static constexpr IndexType kMemoryBlockTypeNum = 10;
     static constexpr MemoryType kMemoryBlockMinSize = 64;
-    static constexpr MemoryType kMemoryBlockSizeMulGrowFactor = 2;
+    static constexpr MemoryType kMemoryBlockSizeMultGrowFactor = 2;
 
 public:
     NODISCARD static TArray<ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>& InstanceP() noexcept {
@@ -104,7 +104,7 @@ private:
         TArray<MemoryType, kMemoryBlockTypeNum>([](TArray<MemoryType, kMemoryBlockTypeNum>* array_ptr) {
         (*array_ptr)[0] = kMemoryBlockMinSize;
             for (IndexType index = 1; index < array_ptr->Capacity(); ++index) {
-                (*array_ptr)[index] = (*array_ptr)[index - 1] * kMemoryBlockSizeMulGrowFactor;
+                (*array_ptr)[index] = (*array_ptr)[index - 1] * kMemoryBlockSizeMultGrowFactor;
             }
         });
     static constexpr MemoryType kMemoryBlockMaxSize = kMemoryBlockSizeArray[kMemoryBlockTypeNum - 1];
@@ -142,7 +142,7 @@ private:
                     }
                     else {
                         ++current_pool_index;
-                        current_pool_index_max_index *= static_cast<IndexType>(kMemoryBlockSizeMulGrowFactor);
+                        current_pool_index_max_index *= static_cast<IndexType>(kMemoryBlockSizeMultGrowFactor);
                         (*table_ptr)[index] = current_pool_index;
                     }
                 }

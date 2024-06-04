@@ -27,6 +27,9 @@
     <ClCompile Include="code\z_system_time.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="code\z_file.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\memory_pool\z_memory_pool_base.h">

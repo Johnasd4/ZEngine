@@ -19,7 +19,7 @@
 #ifndef Z_CORE_Z_FILE_H_
 #define Z_CORE_Z_FILE_H_
 
-#include "internal/drive.h"
+#include "internal/z_drive.h"
 
 #include "z_mutex.h"
 #include "z_object.h"
@@ -31,6 +31,16 @@ namespace zengine {
 */
 class ZFile : public ZObject {
 public:
+
+    /*
+        File error code.
+    */
+    enum ErrorCode : ReturnType {
+        kErrCodeZFileOpenFileFailed = kErrCodeBasePCore,
+        kErrCodeZFileCloseFileFailed,
+        kErrCodeZFileFilePtrNull,
+    };
+
     //Read only.
     static constexpr CChar kOpenTypeRead[] = "r";
     //Write only, will clear the file.
@@ -43,9 +53,40 @@ public:
     static constexpr CChar kOpenTypeWritePlus[] = "w+";
     //Read and write, starts at the end of the file.
     static constexpr CChar kOpenTypeAppendPlus[] = "a+";
+    //Read only.(binary file)
+    static constexpr CChar kOpenTypeReadBin[] = "rb";
+    //Write only, will clear the file.(binary file)
+    static constexpr CChar kOpenTypeWriteBin[] = "wb";
+    //Append at the end of the file.(binary file)
+    static constexpr CChar kOpenTypeAppendBin[] = "ab";
+    //Read and write.(binary file)
+    static constexpr CChar kOpenTypeReadPlusBin[] = "rb+";
+    //Read and write, will clear the file.(binary file)
+    static constexpr CChar kOpenTypeWritePlusBin[] = "wb+";
+    //Read and write, starts at the end of the file.(binary file)
+    static constexpr CChar kOpenTypeAppendPlusBin[] = "ab+";
 
     FORCEINLINE ZFile() noexcept : SuperType(), file_ptr(nullptr) {}
     FORCEINLINE ~ZFile() noexcept { if (file_ptr != nullptr) { fclose(file_ptr); } }
+
+    CORE_DLLAPI ZFile& operator<<(const CChar* path_dir) noexcept;
+    CORE_DLLAPI ZFile& operator>>(const CChar* path_dir) noexcept;
+
+    CORE_DLLAPI NODISCARD Bool Read() noexcept;
+    CORE_DLLAPI NODISCARD Bool ReadBin() noexcept;
+    CORE_DLLAPI NODISCARD Bool Write() noexcept;
+    CORE_DLLAPI NODISCARD Bool WriteBin() noexcept;
+
+    CORE_DLLAPI NODISCARD Bool SetPtr() noexcept;
+    CORE_DLLAPI NODISCARD Bool GetPtr() noexcept;
+
+    CORE_DLLAPI NODISCARD Bool CheckPath(const CChar* path_dir) noexcept;
+    CORE_DLLAPI NODISCARD Bool CreatePath(const CChar* path_dir) noexcept;
+    CORE_DLLAPI NODISCARD ReturnType Open(const CChar* file_dir,const CChar* open_type) noexcept;
+    CORE_DLLAPI NODISCARD Bool OpenSafe(const CChar* path_dir, const CChar* file_dir, const CChar* open_type) noexcept;
+    CORE_DLLAPI NODISCARD ReturnType Close() noexcept;
+
+    FORCEINLINE NODISCARD Bool IfOpen() noexcept { return file_ptr != nullptr; }
 
 protected:
     using SuperType = ZObject;
