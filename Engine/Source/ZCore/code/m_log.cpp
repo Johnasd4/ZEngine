@@ -61,7 +61,7 @@ public:
                   ReturnType err_code,
                   ReturnType link_code,
                   const CChar* format,
-                  ArgsType args) noexcept :
+                  ArgListType args) noexcept :
             raw_time(raw_time),
             err_file(err_file),
             err_func(err_func),
@@ -80,7 +80,7 @@ public:
                          ReturnType err_code,
                          ReturnType link_code,
                          const CChar* format,
-                         ArgsType args) noexcept {
+                         ArgListType args) noexcept {
         static ZLogManager& log_manager = ZLogManager::InstanceP();
         log_manager.err_log_mutex_.Lock();
         log_manager.err_info_queue_.Push(raw_time, err_file, err_func, err_line, err_code, link_code, format, args);
@@ -161,7 +161,7 @@ CORE_DLLAPI extern Void LogError(TimeType raw_time,
                                  ReturnType link_code,
                                  const CChar* format,
                                  ...) noexcept {
-    ArgsType args;
+    ArgListType args;
     va_start(args, format);
     ZLogManager::LogError(raw_time, err_file, err_func, err_line, err_code, link_code,  format, args);
     va_end(args);

@@ -23,31 +23,98 @@
 
 namespace zengine {
 
+CORE_DLLAPI NODISCARD Bool ZFile::PathExist(const CChar* path_dir) noexcept {
+    return GetFileAttributesA(path_dir) == INVALID_FILE_ATTRIBUTES;
+}
+
+CORE_DLLAPI NODISCARD Bool ZFile::PathExist(const TChar* path_dir) noexcept {
+    return GetFileAttributesW(path_dir) == INVALID_FILE_ATTRIBUTES;
+}
+
+CORE_DLLAPI NODISCARD ReturnType ZFile::CreatePath(const CChar* path_dir) noexcept {
+    ReturnType ret_val = kOK;
+
+    if (!CreateDirectoryA(path_dir, NULL) && GetLastError() != ERROR_ALREADY_EXISTS) {
+        ret_val = kErrorCodeZFileCreatePathFailed;
+        Z_LOG_ERROR(ret_val, 0, "Create path failed! path_dir %s", path_dir);
+        return ret_val;
+    }
+    return ret_val;
+}
+
+CORE_DLLAPI NODISCARD ReturnType ZFile::CreatePath(const TChar* path_dir) noexcept {
+    ReturnType ret_val = kOK;
+
+    if (!CreateDirectoryW(path_dir, NULL) && GetLastError() != ERROR_ALREADY_EXISTS) {
+        ret_val = kErrorCodeZFileCreatePathFailed;
+        Z_LOG_ERROR(ret_val, 0, "Create path failed! path_dir %s", path_dir);
+        return ret_val;
+    }
+    return ret_val;
+}
+
 CORE_DLLAPI NODISCARD ReturnType ZFile::Open(const CChar* file_dir, const CChar* open_type) noexcept {
     ReturnType ret_val = kOK;
 
     file_ptr = fopen(file_dir, open_type);
     if (file_ptr == nullptr) {
-        ret_val = kErrCodeZFileOpenFileFailed;
-        Z_LOG_ERR(ret_val, 0, "Open file failed! file_dir: %s, open_type: %s", file_dir, open_type);
+        ret_val = kErrorCodeZFileOpenFileFailed;
+        Z_LOG_ERROR(ret_val, 0, "Open file failed! file_dir: %s, open_type: %s", file_dir, open_type);
+        return ret_val;
+    }
+
+    return ret_val;
+}
+
+CORE_DLLAPI NODISCARD ReturnType ZFile::Open(const TChar* file_dir, const TChar* open_type) noexcept {
+    ReturnType ret_val = kOK;
+
+    file_ptr = _wfopen(file_dir, open_type);
+    if (file_ptr == nullptr) {
+        ret_val = kErrorCodeZFileOpenFileFailed;
+        Z_LOG_ERROR(ret_val, 0, "Open file failed! file_dir: %s, open_type: %s", file_dir, open_type);
         return ret_val;
     }
     
     return ret_val;
 }
 
+CORE_DLLAPI NODISCARD ReturnType ZFile::OpenSafe(const TChar* path_dir, const TChar* file_dir, 
+                                                 const TChar* open_type) noexcept {
+    ReturnType ret_val = kOK;
+    ReturnType link_code = kOK;
+
+    if (!PathExist(path_dir)) {
+        link_code = CreatePath(path_dir);
+        if (link_code != kOK) {
+            ret_val = kErrorCodeZFileLinkError;
+            Z_LOG_ERROR(ret_val, link_code, "ZFile::CreatePath() link error!");
+            return ret_val;
+        }
+    }
+
+    link_code = Open(file_dir, open_type);
+    if (link_code != kOK) {
+        ret_val = kErrorCodeZFileLinkError;
+        Z_LOG_ERROR(ret_val, link_code, "ZFile::Open() link error!");
+        return ret_val;
+    }
+
+    return ret_val;
+}
+
 CORE_DLLAPI NODISCARD ReturnType ZFile::Close() noexcept {
     ReturnType ret_val = kOK;
 
-    Z_CHECK(file_ptr == nullptr, kErrCodeZFileFilePtrNull, 0, "No file opened!");
+    Z_CHECK(file_ptr == nullptr, kErrorCodeZFileNoFileOpened, "No file opened!");
     
     if (fclose(file_ptr) != 0) {
-        ret_val = kErrCodeZFileCloseFileFailed;
-        Z_LOG_ERR(ret_val, 0, "Close file failed!");
+        ret_val = kErrorCodeZFileCloseFileFailed;
+        Z_LOG_ERROR(ret_val, 0, "Close file failed!");
         return ret_val;
     }
     
-    file_ptr == nullptr;
+    file_ptr = nullptr;
 
     return ret_val;
 }

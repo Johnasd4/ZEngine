@@ -36,9 +36,11 @@ public:
         File error code.
     */
     enum ErrorCode : ReturnType {
-        kErrCodeZFileOpenFileFailed = kErrCodeBasePCore,
-        kErrCodeZFileCloseFileFailed,
-        kErrCodeZFileFilePtrNull,
+        kErrorCodeZFileLinkError = kErrorCodeBasePCore,
+        kErrorCodeZFileOpenFileFailed,
+        kErrorCodeZFileCloseFileFailed,
+        kErrorCodeZFileNoFileOpened,
+        kErrorCodeZFileCreatePathFailed,
     };
 
     //Read only.
@@ -80,10 +82,14 @@ public:
     CORE_DLLAPI NODISCARD Bool SetPtr() noexcept;
     CORE_DLLAPI NODISCARD Bool GetPtr() noexcept;
 
-    CORE_DLLAPI NODISCARD Bool CheckPath(const CChar* path_dir) noexcept;
-    CORE_DLLAPI NODISCARD Bool CreatePath(const CChar* path_dir) noexcept;
-    CORE_DLLAPI NODISCARD ReturnType Open(const CChar* file_dir,const CChar* open_type) noexcept;
-    CORE_DLLAPI NODISCARD Bool OpenSafe(const CChar* path_dir, const CChar* file_dir, const CChar* open_type) noexcept;
+    CORE_DLLAPI NODISCARD Bool PathExist(const CChar* path_dir) noexcept;
+    CORE_DLLAPI NODISCARD Bool PathExist(const TChar* path_dir) noexcept;
+    CORE_DLLAPI NODISCARD ReturnType CreatePath(const CChar* path_dir) noexcept;
+    CORE_DLLAPI NODISCARD ReturnType CreatePath(const TChar* path_dir) noexcept;
+    CORE_DLLAPI NODISCARD ReturnType Open(const CChar* file_dir, const CChar* open_type) noexcept;
+    CORE_DLLAPI NODISCARD ReturnType Open(const TChar* file_dir,const TChar* open_type) noexcept;
+    CORE_DLLAPI NODISCARD ReturnType OpenSafe(const TChar* path_dir, const TChar* file_dir, 
+                                              const TChar* open_type) noexcept;
     CORE_DLLAPI NODISCARD ReturnType Close() noexcept;
 
     FORCEINLINE NODISCARD Bool IfOpen() noexcept { return file_ptr != nullptr; }

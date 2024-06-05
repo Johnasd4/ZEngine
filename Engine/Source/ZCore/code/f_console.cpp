@@ -23,9 +23,18 @@
 namespace zengine {
 namespace console {
 
+namespace internal {
+
+CORE_DLLAPI NODISCARD ZConsoleOutputSettings& ZConsoleOutputSettings::Instance() {
+    static ZConsoleOutputSettings instance;
+    return instance;
+}
+
+}//internal
+
 CORE_DLLAPI Void SetConsoleOutputColour(ConsoleOutputTextColourType test_colour,
                                         ConsoleOutputBackgroundColourType background_colour) noexcept {
-    static internal::ZConsoleOutputSettings& output_settings = internal::ZConsoleOutputSettings::InstanceP();
+    static internal::ZConsoleOutputSettings& output_settings = internal::ZConsoleOutputSettings::Instance();
     output_settings.SetTextColour(test_colour);
     output_settings.SetBackgroundColour(background_colour);
     //Changes the console output colour.

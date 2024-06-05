@@ -96,7 +96,7 @@ public:
             swprintf(DataPtr(), fotmat, std::forward<ArgsType>(args)...);
         }
     }
-    FORCEINLINE constexpr Void SetString(const CharType* fotmat, ArgsType args) noexcept {
+    FORCEINLINE constexpr Void SetString(const CharType* fotmat, ArgListType args) noexcept {
         if constexpr (kSameType<CharType, CChar>) {
             vsprintf(DataPtr(), fotmat, args);
         }

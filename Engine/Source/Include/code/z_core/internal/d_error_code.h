@@ -26,8 +26,8 @@ namespace zengine {
 
 static constexpr ReturnType kOK = 0;
 
-static constexpr ReturnType kErrCodeBasePCore = 0x00100000u;
-static constexpr ReturnType kErrCodeBaseZFile = kErrCodeBasePCore + 0x100u;
+static constexpr ReturnType kErrorCodeBasePCore = 0x00100000u;
+static constexpr ReturnType kErrorCodeBaseZFile = kErrorCodeBasePCore + 0x100u;
 
 
 }//zengine

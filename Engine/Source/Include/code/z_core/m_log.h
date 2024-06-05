@@ -37,8 +37,6 @@
 
 namespace zengine {
 
-static constexpr ReturnType kOK = 0; 
-
 enum LogMessageType : IndexType {
     kLogMessage,
     kLogStart,
@@ -68,16 +66,16 @@ CORE_DLLAPI extern Void LogError(TimeType raw_time,
 /*
     Checks the condition, returns if true.
 */
-#define Z_CHECK(condition, err_code, link_code, format, ...)\
+#define Z_CHECK(condition, err_code, format, ...)\
     if(condition) {\
-        zengine::internal::LogError(time(nullptr), __FILE__, __func__, __LINE__, err_code, link_code, format, __VA_ARGS__);\
+        zengine::internal::LogError(time(nullptr), __FILE__, __func__, __LINE__, err_code, 0, format, __VA_ARGS__);\
         return err_code;\
     }
 
 /*
     Log error.
 */
-#define Z_LOG_ERR(err_code, link_code, format, ...)\
-    zengine::internal::LogError(time(nullptr), __FILE__, __func__, __LINE__, err_code, link_code, format, ##__VA_ARGS__);
+#define Z_LOG_ERROR(err_code, link_code, format, ...)\
+    zengine::internal::LogError(time(nullptr), __FILE__, __func__, __LINE__, err_code, link_code, format, __VA_ARGS__);
 
 #endif // !Z_CORE_M_LOG_H_

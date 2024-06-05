@@ -62,7 +62,7 @@ using ReturnType = UInt32;
 //The type of time.
 using TimeType = time_t;
 //The type of time.
-using ArgsType = va_list;
+using ArgListType = va_list;
 
 using Bool = bool;
 using Byte = unsigned char;
