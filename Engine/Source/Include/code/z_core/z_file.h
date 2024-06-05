@@ -31,16 +31,23 @@ namespace zengine {
 */
 class ZFile : public ZObject {
 public:
-
     /*
         File error code.
     */
     enum ErrorCode : ReturnType {
-        kErrorCodeZFileLinkError = kErrorCodeBasePCore,
-        kErrorCodeZFileOpenFileFailed,
-        kErrorCodeZFileCloseFileFailed,
-        kErrorCodeZFileNoFileOpened,
-        kErrorCodeZFileCreatePathFailed,
+        kZFileErrorCodeLinkError = kErrorCodeBasePCore,
+        kZFileErrorCodeOpenFileFailed,
+        kZFileErrorCodeCloseFileFailed,
+        kZFileErrorCodeNoFileOpened,
+        kZFileErrorCodeOtherFileOpened,
+        kZFileErrorCodeCreatePathFailed,
+    };
+
+    enum SeekType : Int32 {
+        kZFileSeekTypeFileHead = SEEK_SET,
+        kZFileSeekTypeCurrntPtr = SEEK_CUR,
+        kZFileSeekTypeFileEnd = SEEK_END,
+
     };
 
     //Read only.
@@ -71,28 +78,69 @@ public:
     FORCEINLINE ZFile() noexcept : SuperType(), file_ptr(nullptr) {}
     FORCEINLINE ~ZFile() noexcept { if (file_ptr != nullptr) { fclose(file_ptr); } }
 
-    CORE_DLLAPI ZFile& operator<<(const CChar* path_dir) noexcept;
-    CORE_DLLAPI ZFile& operator>>(const CChar* path_dir) noexcept;
-
     CORE_DLLAPI NODISCARD Bool Read() noexcept;
     CORE_DLLAPI NODISCARD Bool ReadBin() noexcept;
     CORE_DLLAPI NODISCARD Bool Write() noexcept;
     CORE_DLLAPI NODISCARD Bool WriteBin() noexcept;
 
-    CORE_DLLAPI NODISCARD Bool SetPtr() noexcept;
-    CORE_DLLAPI NODISCARD Bool GetPtr() noexcept;
+    /*
+        Sets the ptr where to read and write.
+        Parameters:
+        offset: The offset to the start place.
+        seek_type: Where to start to seek, 
+    */
+    CORE_DLLAPI NODISCARD ReturnType Seek(Int32 offset, SeekType seek_type) noexcept;
+    /*
+        Gets the ptr where to read and write.
+        Parameters:
+        pos_ptr: returns the pos of the current ptr.
+    */
+    CORE_DLLAPI NODISCARD ReturnType Tell(Int32* pos_ptr) noexcept;
 
-    CORE_DLLAPI NODISCARD Bool PathExist(const CChar* path_dir) noexcept;
-    CORE_DLLAPI NODISCARD Bool PathExist(const TChar* path_dir) noexcept;
+    /*
+        Creates the path if the path doesn't exist.
+    */
     CORE_DLLAPI NODISCARD ReturnType CreatePath(const CChar* path_dir) noexcept;
+    /*
+        Creates the path if the path doesn't exist.
+    */
     CORE_DLLAPI NODISCARD ReturnType CreatePath(const TChar* path_dir) noexcept;
+
+    /*
+        Opens the file, needs the path exist.
+    */
     CORE_DLLAPI NODISCARD ReturnType Open(const CChar* file_dir, const CChar* open_type) noexcept;
+    /*
+        Opens the file, needs the path exist.
+    */
     CORE_DLLAPI NODISCARD ReturnType Open(const TChar* file_dir,const TChar* open_type) noexcept;
-    CORE_DLLAPI NODISCARD ReturnType OpenSafe(const TChar* path_dir, const TChar* file_dir, 
+    /*
+        Opens the file safe, will create the path if the path doesn't exist.
+    */
+    CORE_DLLAPI NODISCARD ReturnType OpenSafe(const CChar* path_dir, const CChar* file_dir,
+                                              const CChar* open_type) noexcept;
+    /*
+        Opens the file safe, will create the path if the path doesn't exist.
+    */
+    CORE_DLLAPI NODISCARD ReturnType OpenSafe(const TChar* path_dir, const TChar* file_dir,
                                               const TChar* open_type) noexcept;
+    /*
+        Close the current file.
+    */
     CORE_DLLAPI NODISCARD ReturnType Close() noexcept;
 
+    /*
+        If a file is opened.
+    */
     FORCEINLINE NODISCARD Bool IfOpen() noexcept { return file_ptr != nullptr; }
+    /*
+        If the path exists.
+    */
+    CORE_DLLAPI NODISCARD Bool PathExist(const CChar* path_dir) noexcept;
+    /*
+        If the path exists.
+    */
+    CORE_DLLAPI NODISCARD Bool PathExist(const TChar* path_dir) noexcept;
 
 protected:
     using SuperType = ZObject;
