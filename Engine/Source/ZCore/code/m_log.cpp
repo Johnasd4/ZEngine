@@ -127,7 +127,7 @@ private:
                 if_str_logged = true;
             }
             else {
-                Sleep(1000);
+                Sleep(1);
             }
         }
     }
