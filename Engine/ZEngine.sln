@@ -6,15 +6,11 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Include", "Source\Include\Include.vcxproj", "{595B5FB5-B60A-435C-A661-A945D0C155F6}"
 	ProjectSection(ProjectDependencies) = postProject
 		{06FFBAA3-AC24-4BC6-AA7C-4342A544F959} = {06FFBAA3-AC24-4BC6-AA7C-4342A544F959}
-		{D863DD67-1A72-4DD6-8F17-1B6490C15604} = {D863DD67-1A72-4DD6-8F17-1B6490C15604}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ZCore", "Source\ZCore\ZCore.vcxproj", "{06FFBAA3-AC24-4BC6-AA7C-4342A544F959}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ZMath", "Source\ZMath\ZMath.vcxproj", "{D863DD67-1A72-4DD6-8F17-1B6490C15604}"
-	ProjectSection(ProjectDependencies) = postProject
-		{06FFBAA3-AC24-4BC6-AA7C-4342A544F959} = {06FFBAA3-AC24-4BC6-AA7C-4342A544F959}
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

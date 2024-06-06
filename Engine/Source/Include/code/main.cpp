@@ -43,8 +43,8 @@ int main() {
     std::condition_variable cv;
 
     ZFile test_file;
-    test_file.CreatePath("F:\\test");
-    test_file.OpenSafe("F:\\test", "F:\\test\\test_file.log", ZFile::kOpenTypeAppend);
+    test_file.CreatePath("z:\\test");
+    test_file.OpenSafe("z:\\test", "z:\\test\\test_file.log", ZFile::kOpenTypeAppend);
     test_file.Print("test_string %d", 10);
     Sleep(10);
     return 0;
