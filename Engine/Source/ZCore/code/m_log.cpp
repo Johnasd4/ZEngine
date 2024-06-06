@@ -108,7 +108,7 @@ private:
                 ErrorInfo& err_info = log_manager.err_info_queue_.Front();
                 system_time.UpdateTimeFast(err_info.raw_time);
                 log_str.SetString(
-                    "Time: %04d/%02d/%02d-%02d:%02d:%02d\nFile: %s\nFunction: %s\nLine: %d\nError Code: %d\nLink Code: %d\nMessage: %s\n",
+                    "\nTime: %04d/%02d/%02d-%02d:%02d:%02d\nFile: %s\nFunction: %s\nLine: %d\nError Code: %d\nLink Code: %d\nMessage: %s\n",
                     system_time.Year(), system_time.Month(), system_time.Day(), 
                     system_time.Hour(), system_time.Min(), system_time.Sec(),
                     err_info.err_file, err_info.err_func, err_info.err_line, 

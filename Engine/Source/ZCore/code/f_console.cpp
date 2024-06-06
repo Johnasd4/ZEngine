@@ -20,27 +20,185 @@
 
 #include "f_console.h"
 
+#include "m_log.h"
+
 namespace zengine {
 namespace console {
 
 namespace internal {
 
-CORE_DLLAPI NODISCARD ZConsoleOutputSettings& ZConsoleOutputSettings::Instance() {
-    static ZConsoleOutputSettings instance;
-    return instance;
-}
+/*
+    Singleton class that contains the console settings.
+*/
+class ZPrintManager : public ZObject {
+public:
+    static Void SetColour(PrintTextColourType text_colour, PrintBackgroundColourType background_colour) noexcept {
+        static ZPrintManager& print_manager = ZPrintManager::InstanceP();
+
+        print_manager.print_mutex_.Lock();
+        print_manager.text_colour_ = text_colour;
+        print_manager.background_colour_ = background_colour;
+        //Changes the console output colour.
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 
+                                (PrintColourType)text_colour | (PrintColourType)background_colour);
+        print_manager.print_mutex_.Unlock();
+    }
+
+    static Void Print(const CChar* format, ArgListType args) noexcept {
+        static ZPrintManager& print_manager = ZPrintManager::InstanceP();
+
+        print_manager.print_mutex_.Lock();
+        vprintf(format, args);
+        print_manager.print_mutex_.Unlock();
+    }
+
+    static Void Print(const TChar* format, ArgListType args) noexcept {
+        static ZPrintManager& print_manager = ZPrintManager::InstanceP();
+
+        print_manager.print_mutex_.Lock();
+        vwprintf(format, args);
+        print_manager.print_mutex_.Unlock();
+    }
+
+    static Void Print(PrintTextColourType text_colour, PrintBackgroundColourType background_colour, 
+                      const CChar* format, ArgListType args) noexcept {
+        static ZPrintManager& print_manager = ZPrintManager::InstanceP();
+
+        print_manager.print_mutex_.Lock();
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 
+                                (PrintColourType)text_colour | (PrintColourType)background_colour);
+        vprintf(format, args);
+        SetConsoleTextAttribute(
+            GetStdHandle(STD_OUTPUT_HANDLE), 
+            (PrintColourType)print_manager.text_colour_ | (PrintColourType)print_manager.background_colour_);
+        print_manager.print_mutex_.Unlock();
+    }
+
+    static Void Print(PrintTextColourType text_colour, PrintBackgroundColourType background_colour, 
+                      const TChar* format, ArgListType args) noexcept {
+        static ZPrintManager& print_manager = ZPrintManager::InstanceP();
+
+        print_manager.print_mutex_.Lock();
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 
+                                (PrintColourType)text_colour | (PrintColourType)background_colour);
+        vwprintf(format, args);
+        SetConsoleTextAttribute(
+            GetStdHandle(STD_OUTPUT_HANDLE), 
+            (PrintColourType)print_manager.text_colour_ | (PrintColourType)print_manager.background_colour_);
+        print_manager.print_mutex_.Unlock();
+    }
+
+protected:
+    using SuperType = ZObject;
+
+private:
+    static constexpr PrintTextColourType kDefaultTextColour = kPrintTextColourLightWhite;
+    static constexpr PrintBackgroundColourType kDefaultBackgroundColour = kPrintBackgroundColourDarkBlack;
+
+    NODISCARD static ZPrintManager& InstanceP() {
+        static ZPrintManager instance;
+        return instance;
+    }
+
+    ZPrintManager() : SuperType(), text_colour_(kDefaultTextColour), background_colour_(kDefaultBackgroundColour) {}
+
+    PrintTextColourType text_colour_;
+    PrintBackgroundColourType background_colour_;
+    ZMutex print_mutex_;
+};
 
 }//internal
 
-CORE_DLLAPI Void SetConsoleOutputColour(ConsoleOutputTextColourType test_colour,
-                                        ConsoleOutputBackgroundColourType background_colour) noexcept {
-    static internal::ZConsoleOutputSettings& output_settings = internal::ZConsoleOutputSettings::Instance();
-    output_settings.SetTextColour(test_colour);
-    output_settings.SetBackgroundColour(background_colour);
-    //Changes the console output colour.
-    SetConsoleTextAttribute(
-        GetStdHandle(STD_OUTPUT_HANDLE), 
-        (ConsoleOutputColourType)test_colour | (ConsoleOutputColourType)background_colour);    
+CORE_DLLAPI Void SetPrintColour(PrintTextColourType text_colour, PrintBackgroundColourType background_colour) noexcept {
+    internal::ZPrintManager::SetColour(text_colour, background_colour);
+}
+
+/*
+    Use it as the same as printf, it's thread safe. You can add text colour and 
+    background colour infront of the format to change the colour only for this
+    output.
+*/
+CORE_DLLAPI Void Print(const CChar * format, ...) noexcept {
+    ArgListType args;
+    va_start(args, format);
+    internal::ZPrintManager::Print(format, args);
+    va_end(args);
+}
+
+/*
+    Use it as the same as printf, it's thread safe. You can add text colour and
+    background colour infront of the format to change the colour only for this
+    output.
+*/
+CORE_DLLAPI Void Print(const CChar* format, ArgListType args) noexcept {
+    internal::ZPrintManager::Print(format, args);
+}
+
+/*
+    Use it as the same as printf, it's thread safe. You can add text colour and
+    background colour infront of the format to change the colour only for this
+    output.
+*/
+CORE_DLLAPI Void Print(const TChar* format, ...) noexcept {
+    ArgListType args;
+    va_start(args, format);
+    internal::ZPrintManager::Print(format, args);
+    va_end(args);
+}
+
+/*
+    Use it as the same as printf, it's thread safe. You can add text colour and
+    background colour infront of the format to change the colour only for this
+    output.
+*/
+CORE_DLLAPI Void Print(const TChar* format, ArgListType args) noexcept {
+    internal::ZPrintManager::Print(format, args);
+}
+
+/*
+    Use it as the same as printf, it's thread safe. You can add text colour and
+    background colour infront of the format to change the colour only for this
+    output.
+*/
+CORE_DLLAPI Void Print(PrintTextColourType text_colour, PrintBackgroundColourType background_colour,
+                       const CChar* format, ...) noexcept{
+    ArgListType args;
+    va_start(args, format);
+    internal::ZPrintManager::Print(text_colour, background_colour, format, args);
+    va_end(args);
+}
+
+/*
+    Use it as the same as printf, it's thread safe. You can add text colour and
+    background colour infront of the format to change the colour only for this
+    output.
+*/
+CORE_DLLAPI Void Print(PrintTextColourType text_colour, PrintBackgroundColourType background_colour,
+                       const CChar* format, ArgListType args) noexcept{
+    internal::ZPrintManager::Print(text_colour, background_colour, format, args);
+}
+
+/*
+    Use it as the same as printf, it's thread safe. You can add text colour and
+    background colour infront of the format to change the colour only for this
+    output.
+*/
+CORE_DLLAPI Void Print(PrintTextColourType text_colour, PrintBackgroundColourType background_colour,
+                       const TChar* format, ...) noexcept{
+    ArgListType args;
+    va_start(args, format);
+    internal::ZPrintManager::Print(text_colour, background_colour, format, args);
+    va_end(args);
+}
+
+/*
+    Use it as the same as printf, it's thread safe. You can add text colour and
+    background colour infront of the format to change the colour only for this
+    output.
+*/
+CORE_DLLAPI Void Print(PrintTextColourType text_colour, PrintBackgroundColourType background_colour,
+                       const TChar* format, ArgListType args) noexcept{
+    internal::ZPrintManager::Print(text_colour, background_colour, format, args);
 }
 
 }//console

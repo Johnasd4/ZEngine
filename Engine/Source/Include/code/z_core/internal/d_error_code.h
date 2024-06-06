@@ -28,7 +28,7 @@ static constexpr ReturnType kOK = 0;
 
 static constexpr ReturnType kErrorCodeBasePCore = 0x00100000u;
 static constexpr ReturnType kErrorCodeBaseZFile = kErrorCodeBasePCore + 0x100u;
-
+static constexpr ReturnType kErrorCodeBaseZPrintManager = kErrorCodeBasePCore + 0x200u;
 
 }//zengine
 

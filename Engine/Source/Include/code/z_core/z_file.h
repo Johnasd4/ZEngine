@@ -26,24 +26,26 @@
 
 namespace zengine {
 
+namespace error_code {
+
+enum ZFileErrorCode : ReturnType {
+    kZFileErrorCodeLinkError = kErrorCodeBasePCore,
+    kZFileErrorCodeOpenFileFailed,
+    kZFileErrorCodeCloseFileFailed,
+    kZFileErrorCodeNoFileOpened,
+    kZFileErrorCodeOtherFileOpened,
+    kZFileErrorCodeCreatePathFailed,
+    kZFileErrorCodeReadFailed,
+    kZFileErrorCodeWriteFailed
+};
+
+}//error_code
+
 /*
     File class.
 */
 class ZFile : public ZObject {
 public:
-    /*
-        File error code.
-    */
-    enum ErrorCode : ReturnType {
-        kZFileErrorCodeLinkError = kErrorCodeBasePCore,
-        kZFileErrorCodeOpenFileFailed,
-        kZFileErrorCodeCloseFileFailed,
-        kZFileErrorCodeNoFileOpened,
-        kZFileErrorCodeOtherFileOpened,
-        kZFileErrorCodeCreatePathFailed,
-        kZFileErrorCodeReadFailed,
-        kZFileErrorCodeWriteFailed
-    };
 
     enum SeekType : Int32 {
         kZFileSeekTypeFileHead = SEEK_SET,
@@ -79,7 +81,6 @@ public:
 
     FORCEINLINE ZFile() noexcept : SuperType(), file_ptr_(nullptr) {}
     FORCEINLINE ~ZFile() noexcept { if (file_ptr_ != nullptr) { fclose(file_ptr_); } }
-
 
     /*
         Read binary out of the file.
