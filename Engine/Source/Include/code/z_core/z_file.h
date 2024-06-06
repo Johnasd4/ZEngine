@@ -41,6 +41,8 @@ public:
         kZFileErrorCodeNoFileOpened,
         kZFileErrorCodeOtherFileOpened,
         kZFileErrorCodeCreatePathFailed,
+        kZFileErrorCodeReadFailed,
+        kZFileErrorCodeWriteFailed
     };
 
     enum SeekType : Int32 {
@@ -50,52 +52,88 @@ public:
 
     };
 
-    //Read only.
+    /*Read only.*/
     static constexpr CChar kOpenTypeRead[] = "r";
-    //Write only, will clear the file.
+    /*Write only, will clear the file.*/
     static constexpr CChar kOpenTypeWrite[] = "w";
-    //Append at the end of the file.
+    /*Append at the end of the file.*/
     static constexpr CChar kOpenTypeAppend[] = "a";
-    //Read and write.
+    /*Read and write.*/
     static constexpr CChar kOpenTypeReadPlus[] = "r+";
-    //Read and write, will clear the file.
+    /*Read and write, will clear the file.*/
     static constexpr CChar kOpenTypeWritePlus[] = "w+";
-    //Read and write, starts at the end of the file.
+    /*Read and write, starts at the end of the file.*/
     static constexpr CChar kOpenTypeAppendPlus[] = "a+";
-    //Read only.(binary file)
+    /*Read only.(binary file)*/
     static constexpr CChar kOpenTypeReadBin[] = "rb";
-    //Write only, will clear the file.(binary file)
+    /*Write only, will clear the file.(binary file)*/
     static constexpr CChar kOpenTypeWriteBin[] = "wb";
-    //Append at the end of the file.(binary file)
+    /*Append at the end of the file.(binary file)*/
     static constexpr CChar kOpenTypeAppendBin[] = "ab";
-    //Read and write.(binary file)
+    /*Read and write.(binary file)*/
     static constexpr CChar kOpenTypeReadPlusBin[] = "rb+";
-    //Read and write, will clear the file.(binary file)
+    /*Read and write, will clear the file.(binary file)*/
     static constexpr CChar kOpenTypeWritePlusBin[] = "wb+";
-    //Read and write, starts at the end of the file.(binary file)
+    /*Read and write, starts at the end of the file.(binary file)*/
     static constexpr CChar kOpenTypeAppendPlusBin[] = "ab+";
 
-    FORCEINLINE ZFile() noexcept : SuperType(), file_ptr(nullptr) {}
-    FORCEINLINE ~ZFile() noexcept { if (file_ptr != nullptr) { fclose(file_ptr); } }
+    FORCEINLINE ZFile() noexcept : SuperType(), file_ptr_(nullptr) {}
+    FORCEINLINE ~ZFile() noexcept { if (file_ptr_ != nullptr) { fclose(file_ptr_); } }
 
-    CORE_DLLAPI NODISCARD Bool Read() noexcept;
-    CORE_DLLAPI NODISCARD Bool ReadBin() noexcept;
-    CORE_DLLAPI NODISCARD Bool Write() noexcept;
-    CORE_DLLAPI NODISCARD Bool WriteBin() noexcept;
 
     /*
-        Sets the ptr where to read and write.
-        Parameters:
-        offset: The offset to the start place.
-        seek_type: Where to start to seek, 
+        Read binary out of the file.
     */
-    CORE_DLLAPI NODISCARD ReturnType Seek(Int32 offset, SeekType seek_type) noexcept;
+    CORE_DLLAPI NODISCARD ReturnType Read(Void* data_ptr, SizeType data_size) noexcept;
     /*
-        Gets the ptr where to read and write.
-        Parameters:
-        pos_ptr: returns the pos of the current ptr.
+        Write binary in to the file.
     */
-    CORE_DLLAPI NODISCARD ReturnType Tell(Int32* pos_ptr) noexcept;
+    CORE_DLLAPI NODISCARD ReturnType Write(Void* data_ptr, SizeType data_size) noexcept;
+    /*
+        Scans from the file.
+    */
+    CORE_DLLAPI NODISCARD ReturnType Scan(const CChar* format, ArgListType args) noexcept;
+    /*
+        Scans from the file.
+    */
+    CORE_DLLAPI NODISCARD ReturnType Scan(const CChar* format, ...) noexcept;
+    /*
+        Scans from the file.
+    */
+    CORE_DLLAPI NODISCARD ReturnType Scan(const TChar* format, ArgListType args) noexcept;
+    /*
+        Scans from the file.
+    */
+    CORE_DLLAPI NODISCARD ReturnType Scan(const TChar* format, ...) noexcept;
+    /*
+        Prints in the file.
+    */
+    CORE_DLLAPI NODISCARD ReturnType Print(const CChar* format, ArgListType args) noexcept;
+    /*
+        Prints in the file.
+    */
+    CORE_DLLAPI NODISCARD ReturnType Print(const CChar* format, ...) noexcept;
+    /*
+        Prints in the file.
+    */
+    CORE_DLLAPI NODISCARD ReturnType Print(const TChar* format, ArgListType args) noexcept;
+    /*
+        Prints in the file.
+    */
+    CORE_DLLAPI NODISCARD ReturnType Print(const TChar* format, ...) noexcept;
+
+    /*
+        If a file is opened.
+    */
+    FORCEINLINE NODISCARD Bool IfOpen() noexcept { return file_ptr_ != nullptr; }
+    /*
+        If the path exists.
+    */
+    CORE_DLLAPI NODISCARD Bool PathExist(const CChar* path_dir) noexcept;
+    /*
+        If the path exists.
+    */
+    CORE_DLLAPI NODISCARD Bool PathExist(const TChar* path_dir) noexcept;
 
     /*
         Creates the path if the path doesn't exist.
@@ -130,17 +168,20 @@ public:
     CORE_DLLAPI NODISCARD ReturnType Close() noexcept;
 
     /*
-        If a file is opened.
+        Sets the ptr where to read and write.
+        Parameters:
+        offset: The offset to the start place.
+        seek_type: Where to start to seek,
     */
-    FORCEINLINE NODISCARD Bool IfOpen() noexcept { return file_ptr != nullptr; }
+    CORE_DLLAPI NODISCARD ReturnType Seek(Int32 offset, SeekType seek_type) noexcept;
     /*
-        If the path exists.
+        Gets the ptr where to read and write.
+        Parameters:
+        pos_ptr: returns the pos of the current ptr.
     */
-    CORE_DLLAPI NODISCARD Bool PathExist(const CChar* path_dir) noexcept;
-    /*
-        If the path exists.
-    */
-    CORE_DLLAPI NODISCARD Bool PathExist(const TChar* path_dir) noexcept;
+    CORE_DLLAPI NODISCARD ReturnType Tell(Int32* pos_ptr) noexcept;
+
+
 
 protected:
     using SuperType = ZObject;
@@ -152,7 +193,7 @@ private:
     ZFile& operator=(const ZFile&) = delete;
     ZFile& operator=(ZFile&&) = delete;
 
-    FILE* file_ptr;
+    FILE* file_ptr_;
 };
 
 }//zengine

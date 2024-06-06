@@ -38,9 +38,14 @@ int main() {
     console::PrintSuccess("Success...\n");
     console::PrintFailure("Failure...\n");
     console::PrintError("Error...\n");
-    Sleep(1);
+
     std::unique_lock<std::mutex> b;
     std::condition_variable cv;
 
+    ZFile test_file;
+    test_file.CreatePath("F:\\test");
+    test_file.OpenSafe("F:\\test", "F:\\test\\test_file.log", ZFile::kOpenTypeAppend);
+    test_file.Print("test_string %d", 10);
+    Sleep(10);
     return 0;
 }

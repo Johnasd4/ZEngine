@@ -29,6 +29,7 @@
 #include "z_core/t_fixed_deque.h"
 #include "z_core/t_fixed_string.h"
 #include "z_core/t_vector.h"
+#include "z_core/z_file.h" 
 #include "z_core/z_lock_guard.h" 
 #include "z_core/z_mutex.h" 
 #include "z_core/z_object.h"

@@ -46,12 +46,12 @@ public:
     FORCEINLINE constexpr TFixedString(TFixedString&& array) noexcept : SuperType(), string_(std::move(array.string_)) {}
     FORCEINLINE TFixedString(InitializerList init_list) noexcept : SuperType(), string_(init_list) {}
     template<typename... ArgsType>
-    FORCEINLINE constexpr TFixedString(CharType* fotmat, ArgsType&&... args) noexcept : SuperType() {
+    FORCEINLINE constexpr TFixedString(CharType* format, ArgsType&&... args) noexcept : SuperType() {
         if constexpr (kSameType<CharType, CChar>) {
-            sprintf(DataPtr(), fotmat, std::forward<ArgsType>(args)...);
+            sprintf(DataPtr(), format, std::forward<ArgsType>(args)...);
         }
         else if constexpr (kSameType<CharType, TChar>) {
-            swprintf(DataPtr(), fotmat, std::forward<ArgsType>(args)...);
+            swprintf(DataPtr(), format, std::forward<ArgsType>(args)...);
         }
     }
 
@@ -88,20 +88,20 @@ public:
     NODISCARD FORCEINLINE ConstReverseIterator ConstReverseEnd() const noexcept { return string_.crend(); }
 
     template<typename... ArgsType>
-    FORCEINLINE constexpr Void SetString(const CharType* fotmat, ArgsType&&... args) noexcept {
+    FORCEINLINE constexpr Void SetString(const CharType* format, ArgsType&&... args) noexcept {
         if constexpr (kSameType<CharType, CChar>) {
-            sprintf(DataPtr(), fotmat, std::forward<ArgsType>(args)...);
+            sprintf(DataPtr(), format, std::forward<ArgsType>(args)...);
         }
         else if constexpr (kSameType<CharType, TChar>) {
-            swprintf(DataPtr(), fotmat, std::forward<ArgsType>(args)...);
+            swprintf(DataPtr(), format, std::forward<ArgsType>(args)...);
         }
     }
-    FORCEINLINE constexpr Void SetString(const CharType* fotmat, ArgListType args) noexcept {
+    FORCEINLINE constexpr Void SetString(const CharType* format, ArgListType args) noexcept {
         if constexpr (kSameType<CharType, CChar>) {
-            vsprintf(DataPtr(), fotmat, args);
+            vsprintf(DataPtr(), format, args);
         }
         else if constexpr (kSameType<CharType, TChar>) {
-            vswprintf(DataPtr(), fotmat, args);
+            vswprintf(DataPtr(), format, args);
         }
     }
     FORCEINLINE Void Fill(const CharType& value) noexcept { string_.fill(value); }
