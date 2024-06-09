@@ -69,24 +69,32 @@ using Byte = unsigned char;
 using Void = void;
 using Handle = void*;
 
-union Size32Type {
-    FORCEINLINE constexpr Size32Type(const Int32 int_32) : int_32(int_32) {}
-    FORCEINLINE constexpr Size32Type(const UInt32 u_int_32) : u_int_32(u_int_32) {}
-    FORCEINLINE constexpr Size32Type(const Float32 float_32) : float_32(float_32) {}
+union Size32Union {
+    FORCEINLINE constexpr Size32Union(const Int32 int_32) : int_32(int_32) {}
+    FORCEINLINE constexpr Size32Union(const UInt32 u_int_32) : u_int_32(u_int_32) {}
+    FORCEINLINE constexpr Size32Union(const Float32 float_32) : float_32(float_32) {}
 
     Int32 int_32;
     UInt32 u_int_32;
     Float32 float_32;
 };
 
-union Size64Type {
-    FORCEINLINE constexpr Size64Type(const Int64 int_64) : int_64(int_64) {}
-    FORCEINLINE constexpr Size64Type(const UInt64 u_int_64) : u_int_64(u_int_64) {}
-    FORCEINLINE constexpr Size64Type(const Float64 float_64) : float_64(float_64) {}
+union Size64Union {
+    FORCEINLINE constexpr Size64Union(const Int64 int_64) : int_64(int_64) {}
+    FORCEINLINE constexpr Size64Union(const UInt64 u_int_64) : u_int_64(u_int_64) {}
+    FORCEINLINE constexpr Size64Union(const Float64 float_64) : float_64(float_64) {}
 
     Int64 int_64;
     UInt64 u_int_64;
     Float64 float_64;
+};
+
+enum StringEnum : IndexType{
+    kStringMin = 0,
+    kStringCStr = kStringMin,
+    kStringTStr,
+    kStringMax
+
 };
 
 }//zengine

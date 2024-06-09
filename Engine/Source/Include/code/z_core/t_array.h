@@ -111,6 +111,7 @@ public:
     NODISCARD FORCEINLINE ConstReverseIterator ConstReverseEnd() const noexcept { return array_.crend(); }
 
     FORCEINLINE constexpr Void Fill(const ObjectType& value) noexcept { array_.fill(value); }
+    FORCEINLINE constexpr Void FillZero() noexcept { memset(array_.data(), 0, sizeof(ObjectType) * kCapacity); }
     FORCEINLINE constexpr Void Swap(TArray& array) noexcept { array_.swap(array); }
 
 protected:

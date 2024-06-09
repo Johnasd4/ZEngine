@@ -16,8 +16,8 @@
     Author: YuLin Zhu (÷Ï”Í¡÷)
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_MEMORY_POOL_Z_MEMORY_POOL_THREAD_SAFE_BASE_H_
-#define Z_CORE_MEMORY_POOL_Z_MEMORY_POOL_THREAD_SAFE_BASE_H_
+#ifndef Z_CORE_MEMORY_POOL_T_MEMORY_POOL_THREAD_SAFE_BASE_H_
+#define Z_CORE_MEMORY_POOL_T_MEMORY_POOL_THREAD_SAFE_BASE_H_
 
 #include "internal/z_drive.h"
 #include "z_mutex.h"
@@ -33,7 +33,7 @@ namespace memory_pool {
     - kIsThreadSafe: thread safe or not.  
 */
 template<Bool kIsThreadSafe>
-class ZMemoryPoolThreadSafeBase {
+class TMemoryPoolThreadSafeBase {
 protected:
     FORCEINLINE Void Lock() noexcept { if constexpr (kIsThreadSafe) { mutex_.Lock(); } }
     FORCEINLINE Void Unlock() noexcept { if constexpr (kIsThreadSafe) { mutex_.Unlock(); } }
@@ -42,7 +42,7 @@ private:
     ZMutex mutex_;
 };
 template<>
-class ZMemoryPoolThreadSafeBase<false> {
+class TMemoryPoolThreadSafeBase<false> {
 protected:
     FORCEINLINE Void Lock() noexcept {}
     FORCEINLINE Void Unlock() noexcept {}
@@ -51,4 +51,4 @@ protected:
 }//memory_pool
 }//zengine
 
-#endif // !Z_CORE_MEMORY_POOL_Z_MEMORY_POOL_THREAD_SAFE_BASE_H_
+#endif // !Z_CORE_MEMORY_POOL_T_MEMORY_POOL_THREAD_SAFE_BASE_H_

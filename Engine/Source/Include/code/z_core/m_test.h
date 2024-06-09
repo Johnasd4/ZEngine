@@ -29,8 +29,8 @@
 		code;\
 		end_time = clock();\
 		zengine::console::Print(\
-			zengine::console::PrintTextColourType::kPrintTextColourLightYellow,\
-			zengine::console::PrintBackgroundColourType::kPrintBackgroundColourDarkBlack,\
+			zengine::console::PrintTextColourEnum::kPrintTextColourLightYellow,\
+			zengine::console::PrintBackgroundColourEnum::kPrintBackgroundColourDarkBlack,\
 			"The code used %d ms\n",\
 			end_time - start_time);\
 	}

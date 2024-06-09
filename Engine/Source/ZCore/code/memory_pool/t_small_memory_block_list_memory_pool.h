@@ -16,8 +16,8 @@
     Author: YuLin Zhu (÷Ï”Í¡÷)
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_MEMORY_POOL_Z_SMALL_MEMORY_BLOCK_LIST_MEMORY_POOL_H_
-#define Z_CORE_MEMORY_POOL_Z_SMALL_MEMORY_BLOCK_LIST_MEMORY_POOL_H_
+#ifndef Z_CORE_MEMORY_POOL_T_SMALL_MEMORY_BLOCK_LIST_MEMORY_POOL_H_
+#define Z_CORE_MEMORY_POOL_T_SMALL_MEMORY_BLOCK_LIST_MEMORY_POOL_H_
 
 #include "internal/z_drive.h"
 
@@ -25,18 +25,18 @@
 #include "t_array.h"
 #include "t_lookup_table.h"
 
-#include "z_list_memory_pool_base.h"
-#include "z_memory_block_base.h"
+#include "t_list_memory_pool_base.h"
+#include "t_memory_block_base.h"
 
 namespace zengine {
 namespace memory_pool {
 
 template<Bool kIsThreadSafe>
-struct ZSmallMemoryBlock : ZMemoryBlockBase{
-    ZMemoryPoolBase<kIsThreadSafe>* owner_memory_pool_ptr;
+struct TSmallMemoryBlock : TMemoryBlockBase{
+    TMemoryPoolBase<kIsThreadSafe>* owner_memory_pool_ptr;
 
     FORCEINLINE Void InitializeP(Void* pool_ptr) noexcept {
-        owner_memory_pool_ptr = reinterpret_cast<ZMemoryPoolBase<kIsThreadSafe>*>(pool_ptr);
+        owner_memory_pool_ptr = reinterpret_cast<TMemoryPoolBase<kIsThreadSafe>*>(pool_ptr);
     }
 };
 
@@ -49,8 +49,8 @@ struct ZSmallMemoryBlock : ZMemoryBlockBase{
     - kIsThreadSafe: Thread safe or not.
 */
 template<Bool kIsThreadSafe>
-class ZSmallMemoryBlockListMemoryPool : 
-    public ZListMemoryPoolBase<ZSmallMemoryBlock<kIsThreadSafe>, sizeof(ZSmallMemoryBlock<kIsThreadSafe>), 
+class TSmallMemoryBlockListMemoryPool : 
+    public TListMemoryPoolBase<TSmallMemoryBlock<kIsThreadSafe>, sizeof(TSmallMemoryBlock<kIsThreadSafe>), 
                                kIsThreadSafe> {
 private:
     //The sizes of the memory blocks(includes the memory size).
@@ -59,8 +59,8 @@ private:
     static constexpr MemoryType kMemoryBlockSizeMultGrowFactor = 2;
 
 public:
-    NODISCARD static TArray<ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>& InstanceP() noexcept {
-        static TArray<ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum> memory_pool_array(
+    NODISCARD static TArray<TSmallMemoryBlockListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>& InstanceP() noexcept {
+        static TArray<TSmallMemoryBlockListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum> memory_pool_array(
             MemoryPoolArrayInitFunction);
         return memory_pool_array;
     }
@@ -72,31 +72,31 @@ public:
         Checks if the memory can extend without moving to a new memory, If can
         then it will auto extend and return true.
     */
-    NODISCARD FORCEINLINE static Bool CheckMemory(ZSmallMemoryBlockListMemoryPool* memory_pool_ptr, 
+    NODISCARD FORCEINLINE static Bool CheckMemory(TSmallMemoryBlockListMemoryPool* memory_pool_ptr, 
                                                   MemoryType size) noexcept {
         return memory_pool_ptr->SuperType::MemoryBlockMemorySize() >= size;
     }
-    NODISCARD FORCEINLINE static Bool CheckMemory(ZSmallMemoryBlockListMemoryPool* memory_pool_ptr, MemoryType size, 
+    NODISCARD FORCEINLINE static Bool CheckMemory(TSmallMemoryBlockListMemoryPool* memory_pool_ptr, MemoryType size, 
                                                   MemoryType* memory_size_ptr) noexcept {
         return (*memory_size_ptr = memory_pool_ptr->SuperType::MemoryBlockMemorySize()) >= size;
     }
 
     NODISCARD FORCEINLINE static MemoryType CalculateMemory(MemoryType size) noexcept {
-        static TArray<ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>& memory_pool_array = InstanceP();
+        static TArray<TSmallMemoryBlockListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>& memory_pool_array = InstanceP();
         IndexType size_index = (size + SuperType::NodeHeadOffset() - 1) / kMemoryBlockMinSize;
         return memory_pool_array[kMemorySize2MemoryPoolTable.At(size_index)].SuperType::MemoryBlockMemorySize();
     }
 
-    static Void ReleaseMemory(ZSmallMemoryBlockListMemoryPool* memory_pool_ptr, Void* memory_ptr) noexcept;
+    static Void ReleaseMemory(TSmallMemoryBlockListMemoryPool* memory_pool_ptr, Void* memory_ptr) noexcept;
 
     NODISCARD static constexpr MemoryType MemoryBlockMemoryMaxSize() noexcept { return kMemoryBlockMemoryMaxSize; }
     NODISCARD static constexpr IndexType MemoryBlockTypeNum() noexcept { return kMemoryBlockTypeNum; }
 
-    FORCEINLINE ZSmallMemoryBlockListMemoryPool() : SuperType() {}
-    ~ZSmallMemoryBlockListMemoryPool() noexcept;
+    FORCEINLINE TSmallMemoryBlockListMemoryPool() : SuperType() {}
+    ~TSmallMemoryBlockListMemoryPool() noexcept;
 protected:
     using SuperType =
-        ZListMemoryPoolBase<ZSmallMemoryBlock<kIsThreadSafe>, sizeof(ZSmallMemoryBlock<kIsThreadSafe>), kIsThreadSafe>;
+        TListMemoryPoolBase<TSmallMemoryBlock<kIsThreadSafe>, sizeof(TSmallMemoryBlock<kIsThreadSafe>), kIsThreadSafe>;
 
 private:
     static constexpr MemoryType kMemoryBlockHeadSize = SuperType::NodeHeadOffset();
@@ -149,17 +149,17 @@ private:
             });
 
     static Void MemoryPoolArrayInitFunction(
-        TArray<ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>* array_ptr) noexcept;
+        TArray<TSmallMemoryBlockListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>* array_ptr) noexcept;
 
-    ZSmallMemoryBlockListMemoryPool(const ZSmallMemoryBlockListMemoryPool&) = delete;
-    ZSmallMemoryBlockListMemoryPool(ZSmallMemoryBlockListMemoryPool&&) = delete;
+    TSmallMemoryBlockListMemoryPool(const TSmallMemoryBlockListMemoryPool&) = delete;
+    TSmallMemoryBlockListMemoryPool(TSmallMemoryBlockListMemoryPool&&) = delete;
 
-    ZSmallMemoryBlockListMemoryPool& operator=(const ZSmallMemoryBlockListMemoryPool&) = delete;
-    ZSmallMemoryBlockListMemoryPool& operator=(ZSmallMemoryBlockListMemoryPool&&) = delete;
+    TSmallMemoryBlockListMemoryPool& operator=(const TSmallMemoryBlockListMemoryPool&) = delete;
+    TSmallMemoryBlockListMemoryPool& operator=(TSmallMemoryBlockListMemoryPool&&) = delete;
 
     FORCEINLINE Void InitializeP(MemoryType memory_block_size, MemoryType memory_block_memory_size, 
                                  Int32 capacity) noexcept {
-        SuperType::InitializeP(MemoryPoolType::kZSmallMemoryBlockListMemoryPool, memory_block_size,
+        SuperType::InitializeP(MemoryPoolEnum::kTSmallMemoryBlockListMemoryPool, memory_block_size,
                                memory_block_memory_size, capacity);
     }
 
@@ -172,8 +172,8 @@ private:
 };
 
 template<Bool kIsThreadSafe>
-NODISCARD Void* ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::ApplyMemory(const MemoryType size) noexcept {
-    static TArray<ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>& memory_pool_array = InstanceP();
+NODISCARD Void* TSmallMemoryBlockListMemoryPool<kIsThreadSafe>::ApplyMemory(const MemoryType size) noexcept {
+    static TArray<TSmallMemoryBlockListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>& memory_pool_array = InstanceP();
     IndexType size_index = (size + SuperType::NodeHeadOffset() - 1)/ kMemoryBlockMinSize;
     IndexType memory_pool_index = kMemorySize2MemoryPoolTable.At(size_index);
 #ifdef USE_MEMORY_POOL_TEST
@@ -189,9 +189,9 @@ NODISCARD Void* ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::ApplyMemory(cons
 }
 
 template<Bool kIsThreadSafe>
-NODISCARD Void* ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::ApplyMemory(const MemoryType size, 
+NODISCARD Void* TSmallMemoryBlockListMemoryPool<kIsThreadSafe>::ApplyMemory(const MemoryType size, 
                                                                             MemoryType* memory_size_ptr) noexcept {
-    static TArray<ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>& memory_pool_array = InstanceP();
+    static TArray<TSmallMemoryBlockListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>& memory_pool_array = InstanceP();
     IndexType size_index = (size + SuperType::NodeHeadOffset() - 1) / kMemoryBlockMinSize;
     IndexType memory_pool_index = kMemorySize2MemoryPoolTable.At(size_index);
 #ifdef USE_MEMORY_POOL_TEST
@@ -208,7 +208,7 @@ NODISCARD Void* ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::ApplyMemory(cons
 }
 
 template<Bool kIsThreadSafe>
-Void ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::ReleaseMemory(ZSmallMemoryBlockListMemoryPool* memory_pool_ptr, 
+Void TSmallMemoryBlockListMemoryPool<kIsThreadSafe>::ReleaseMemory(TSmallMemoryBlockListMemoryPool* memory_pool_ptr, 
                                                                    Void* memory_ptr) noexcept {
 #ifdef USE_MEMORY_POOL_TEST
     memory_pool_ptr->memory_block_used_current_num_ -= 1;
@@ -217,8 +217,8 @@ Void ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::ReleaseMemory(ZSmallMemoryB
 }
 
 template<Bool kIsThreadSafe>
-Void ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::MemoryPoolArrayInitFunction(
-        TArray<ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>* array_ptr) noexcept {
+Void TSmallMemoryBlockListMemoryPool<kIsThreadSafe>::MemoryPoolArrayInitFunction(
+        TArray<TSmallMemoryBlockListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>* array_ptr) noexcept {
     for (IndexType index = 0; index < array_ptr->Capacity(); ++index) {
         (*array_ptr)[index].InitializeP(kMemoryBlockSizeArray[index], kMemoryBlockMemorySizeArray[index],
                                        kMemoryBlockDefaultNumArray[index]);
@@ -226,7 +226,7 @@ Void ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::MemoryPoolArrayInitFunction
 }
 
 template<Bool kIsThreadSafe>
-ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::~ZSmallMemoryBlockListMemoryPool() noexcept {
+TSmallMemoryBlockListMemoryPool<kIsThreadSafe>::~TSmallMemoryBlockListMemoryPool() noexcept {
 #if USE_MEMORY_POOL_TEST
     //The first pool realsed.
     if (SuperType::MemoryBlockSize() == kMemoryBlockMaxSize) {
@@ -247,4 +247,4 @@ ZSmallMemoryBlockListMemoryPool<kIsThreadSafe>::~ZSmallMemoryBlockListMemoryPool
 }//memory_pool
 }//zengine
 
-#endif // !Z_CORE_MEMORY_POOL_Z_SMALL_MEMORY_BLOCK_LIST_MEMORY_POOL_H_
+#endif // !Z_CORE_MEMORY_POOL_T_SMALL_MEMORY_BLOCK_LIST_MEMORY_POOL_H_

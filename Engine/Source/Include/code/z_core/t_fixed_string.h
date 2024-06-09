@@ -57,6 +57,10 @@ public:
 
     FORCEINLINE constexpr ~TFixedString() noexcept {}
 
+    NODISCARD FORCEINLINE Bool operator=(const TFixedString& str) noexcept {
+        return memcpy(DataPtr(), str.DataPtr(), sizeof(CharType) * kCapacity);
+    }
+
     NODISCARD FORCEINLINE Bool operator==(const TFixedString& str) noexcept { 
         return strcmp(DataPtr(), str.DataPtr()) == 0;
     }
@@ -112,6 +116,23 @@ protected:
 
 private:
     STDArray string_;
+};
+
+template <IndexType kCapacity>
+union FixedStringUnion {
+public:
+    FORCEINLINE FixedStringUnion() noexcept : c_str() {}
+    FORCEINLINE FixedStringUnion(const FixedStringUnion& string) noexcept { 
+        c_str = string.c_str;
+    }
+    FORCEINLINE ~FixedStringUnion() noexcept {}
+
+    FORCEINLINE FixedStringUnion& operator=(const FixedStringUnion& string) noexcept {
+        c_str = string.c_str;
+    }
+
+    TFixedString<CChar, kCapacity / sizeof(CChar)> c_str;
+    TFixedString<TChar, kCapacity / sizeof(TChar)> t_str;
 };
 
 }//zengine

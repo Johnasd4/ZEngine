@@ -22,17 +22,17 @@
 
 #include "m_log.h"
 
-#include "memory_pool/z_small_memory_block_list_memory_pool.h"
+#include "memory_pool/t_small_memory_block_list_memory_pool.h"
 
 namespace zengine {
 namespace memory_pool {
 
 namespace internal {
 
-using MemoryPoolBase = ZMemoryPoolBase<MEMORY_POOL_THREAD_SAFE>;
+using MemoryPoolBase = TMemoryPoolBase<MEMORY_POOL_THREAD_SAFE>;
 
-using SmallMemoryBlock = ZSmallMemoryBlock<MEMORY_POOL_THREAD_SAFE>;
-using SmallMemoryBlockListMemoryPool = ZSmallMemoryBlockListMemoryPool<MEMORY_POOL_THREAD_SAFE>;
+using SmallMemoryBlock = TSmallMemoryBlock<MEMORY_POOL_THREAD_SAFE>;
+using SmallMemoryBlockListMemoryPool = TSmallMemoryBlockListMemoryPool<MEMORY_POOL_THREAD_SAFE>;
 
 }
 
@@ -70,7 +70,7 @@ CORE_DLLAPI NODISCARD Bool CheckMemory(Void* memory_ptr, MemoryType size) noexce
     switch (owner_memory_pool_ptr->PoolType())
     {
         //small memory block
-    case MemoryPoolType::kZSmallMemoryBlockListMemoryPool:
+    case MemoryPoolEnum::kTSmallMemoryBlockListMemoryPool:
         return internal::SmallMemoryBlockListMemoryPool::CheckMemory(
             static_cast<internal::SmallMemoryBlockListMemoryPool*>(owner_memory_pool_ptr), size);
         break;
@@ -91,7 +91,7 @@ CORE_DLLAPI NODISCARD Bool CheckMemory(Void* memory_ptr, MemoryType size, Memory
     switch (owner_memory_pool_ptr->PoolType())
     {
         //small memory block
-    case MemoryPoolType::kZSmallMemoryBlockListMemoryPool:
+    case MemoryPoolEnum::kTSmallMemoryBlockListMemoryPool:
         return internal::SmallMemoryBlockListMemoryPool::CheckMemory(
             static_cast<internal::SmallMemoryBlockListMemoryPool*>(owner_memory_pool_ptr), size, memory_size_ptr);
         break;
@@ -125,7 +125,7 @@ CORE_DLLAPI Void ReleaseMemory(Void* memory_ptr) noexcept {
     switch (owner_memory_pool_ptr->PoolType())
     {
         //small memory block
-    case MemoryPoolType::kZSmallMemoryBlockListMemoryPool:
+    case MemoryPoolEnum::kTSmallMemoryBlockListMemoryPool:
         internal::SmallMemoryBlockListMemoryPool::ReleaseMemory(
             static_cast<internal::SmallMemoryBlockListMemoryPool*>(owner_memory_pool_ptr), memory_ptr);
         break;

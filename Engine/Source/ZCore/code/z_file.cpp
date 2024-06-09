@@ -18,8 +18,9 @@
 */
 #define CORE_DLLFILE
 
-#include "z_file.h"
 #include "m_log.h"
+
+#include "z_file.h"
 
 namespace zengine {
 

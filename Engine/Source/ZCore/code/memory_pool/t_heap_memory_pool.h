@@ -16,12 +16,12 @@
     Author: YuLin Zhu (÷Ï”Í¡÷)
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_MEMORY_POOL_Z_HEAP_MEMORY_POOL_H_
-#define Z_CORE_MEMORY_POOL_Z_HEAP_MEMORY_POOL_H_
+#ifndef Z_CORE_MEMORY_POOL_T_HEAP_MEMORY_POOL_H_
+#define Z_CORE_MEMORY_POOL_T_HEAP_MEMORY_POOL_H_
 
 #include "internal/z_drive.h"
 
-#include "z_memory_pool_thread_safe_base.h"
+#include "t_memory_pool_thread_safe_base.h"
 
 namespace zengine {
 namespace memory_pool {
@@ -36,12 +36,12 @@ namespace memory_pool {
     - kIsThreadSafe: Thread safe or not.
 */
 template<Bool kIsThreadSafe>
-class ZHeapMemoryPool :protected ZMemoryPoolThreadSafeBase<kIsThreadSafe> {
+class THeapMemoryPool :protected TMemoryPoolThreadSafeBase<kIsThreadSafe> {
 public:
     NODISCARD static Void* ApplyMemory(MemoryType size) noexcept;
 
 protected:
-    using MutexType = ZMemoryPoolThreadSafeBase<kIsThreadSafe>;
+    using MutexType = TMemoryPoolThreadSafeBase<kIsThreadSafe>;
 
 private:
     struct HeapMemoryPtrArrayNode {
@@ -51,12 +51,12 @@ private:
         HeapMemoryPtrArrayNode* next_node_ptr;
     };
 
-    NODISCARD static ZHeapMemoryPool<kIsThreadSafe>& InstanceP() noexcept {
-        static ZHeapMemoryPool<kIsThreadSafe> heap_memory_pool;;
+    NODISCARD static THeapMemoryPool<kIsThreadSafe>& InstanceP() noexcept {
+        static THeapMemoryPool<kIsThreadSafe> heap_memory_pool;;
         return heap_memory_pool;
     }
 
-    ZHeapMemoryPool() noexcept 
+    THeapMemoryPool() noexcept 
         : current_node_ptr_(static_cast<HeapMemoryPtrArrayNode*>(malloc(sizeof(HeapMemoryPtrArrayNode))))
         , head_node_ptr_(current_node_ptr_)
         , current_node_heap_memory_ptr_num_(0) {}
@@ -64,13 +64,13 @@ private:
         Release all the heap memory.
     */
 
-    ZHeapMemoryPool(const ZHeapMemoryPool&) = delete;
-    ZHeapMemoryPool(ZHeapMemoryPool&&) = delete;
+    THeapMemoryPool(const THeapMemoryPool&) = delete;
+    THeapMemoryPool(THeapMemoryPool&&) = delete;
 
-    ZHeapMemoryPool& operator=(const ZHeapMemoryPool&) = delete;
-    ZHeapMemoryPool& operator=(ZHeapMemoryPool&&) = delete;
+    THeapMemoryPool& operator=(const THeapMemoryPool&) = delete;
+    THeapMemoryPool& operator=(THeapMemoryPool&&) = delete;
 
-    ~ZHeapMemoryPool() noexcept;
+    ~THeapMemoryPool() noexcept;
 
     HeapMemoryPtrArrayNode* current_node_ptr_;
     HeapMemoryPtrArrayNode* head_node_ptr_;
@@ -80,8 +80,8 @@ private:
 #pragma warning(disable : 6011)
 
 template<Bool kIsThreadSafe>
-NODISCARD Void* ZHeapMemoryPool<kIsThreadSafe>::ApplyMemory(MemoryType size) noexcept {
-    static ZHeapMemoryPool& memory_pool = InstanceP();
+NODISCARD Void* THeapMemoryPool<kIsThreadSafe>::ApplyMemory(MemoryType size) noexcept {
+    static THeapMemoryPool& memory_pool = InstanceP();
     Void* heap_memory_ptr = malloc(size);
     memory_pool.MutexType::Lock();
     //applys new node when the memory runs out.
@@ -102,7 +102,7 @@ NODISCARD Void* ZHeapMemoryPool<kIsThreadSafe>::ApplyMemory(MemoryType size) noe
 #pragma warning(disable : 6001)
 
 template<Bool kIsThreadSafe>
-ZHeapMemoryPool<kIsThreadSafe>::~ZHeapMemoryPool() noexcept {
+THeapMemoryPool<kIsThreadSafe>::~THeapMemoryPool() noexcept {
     //Delete the filled nodes.
     HeapMemoryPtrArrayNode* head_node_ptr = head_node_ptr_;
     HeapMemoryPtrArrayNode* current_node_ptr = current_node_ptr_;
@@ -130,4 +130,4 @@ ZHeapMemoryPool<kIsThreadSafe>::~ZHeapMemoryPool() noexcept {
 }//memory_pool
 }//zengine
 
-#endif // !Z_CORE_MEMORY_POOL_Z_HEAP_MEMORY_POOL_H_
+#endif // !Z_CORE_MEMORY_POOL_T_HEAP_MEMORY_POOL_H_

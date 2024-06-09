@@ -16,8 +16,8 @@
     Author: YuLin Zhu (÷Ï”Í¡÷)
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_MEMORY_POOL_Z_MEMORY_BLOCK_BASE_H_
-#define Z_CORE_MEMORY_POOL_Z_MEMORY_BLOCK_BASE_H_
+#ifndef Z_CORE_MEMORY_POOL_T_MEMORY_BLOCK_BASE_H_
+#define Z_CORE_MEMORY_POOL_T_MEMORY_BLOCK_BASE_H_
 
 #include "internal/z_drive.h"
 
@@ -27,11 +27,11 @@ namespace memory_pool {
 /*
     The base type of all memory block.
 */
-struct ZMemoryBlockBase {
+struct TMemoryBlockBase {
     FORCEINLINE Void InitializeP(Void* pool_ptr) noexcept {}
 };
 
 }//memory_pool
 }//zengine
 
-#endif // !Z_CORE_MEMORY_POOL_Z_MEMORY_BLOCK_BASE_H_
+#endif // !Z_CORE_MEMORY_POOL_T_MEMORY_BLOCK_BASE_H_

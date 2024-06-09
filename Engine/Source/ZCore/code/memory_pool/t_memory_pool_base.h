@@ -16,18 +16,18 @@
     Author: YuLin Zhu (÷Ï”Í¡÷)
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_MEMORY_POOL_Z_MEMORY_POOL_BASE_H_
-#define Z_CORE_MEMORY_POOL_Z_MEMORY_POOL_BASE_H_
+#ifndef Z_CORE_MEMORY_POOL_T_MEMORY_POOL_BASE_H_
+#define Z_CORE_MEMORY_POOL_T_MEMORY_POOL_BASE_H_
 
 #include "internal/z_drive.h"
 
-#include "z_memory_pool_thread_safe_base.h"
+#include "t_memory_pool_thread_safe_base.h"
 
 namespace zengine {
 namespace memory_pool {
 
-enum MemoryPoolType : IndexType {
-    kZSmallMemoryBlockListMemoryPool = 1
+enum MemoryPoolEnum : IndexType {
+    kTSmallMemoryBlockListMemoryPool = 1
 };
 
 /*
@@ -37,26 +37,26 @@ enum MemoryPoolType : IndexType {
     - kIsThreadSafe: thread safe or not.
 */
 template<Bool kIsThreadSafe>
-class ZMemoryPoolBase :public ZMemoryPoolThreadSafeBase<kIsThreadSafe> {
+class TMemoryPoolBase :public TMemoryPoolThreadSafeBase<kIsThreadSafe> {
 public:
-    NODISCARD FORCEINLINE MemoryPoolType PoolType() const noexcept { return pool_type_; }
+    NODISCARD FORCEINLINE MemoryPoolEnum PoolType() const noexcept { return pool_type_; }
 
 protected:
-    FORCEINLINE ZMemoryPoolBase() noexcept : pool_type_() {}
+    FORCEINLINE TMemoryPoolBase() noexcept : pool_type_() {}
 
-    FORCEINLINE Void InitializeP(MemoryPoolType pool_type) noexcept { pool_type_ = pool_type; }
+    FORCEINLINE Void InitializeP(MemoryPoolEnum pool_type) noexcept { pool_type_ = pool_type; }
 
 private:
-    ZMemoryPoolBase(const ZMemoryPoolBase&) = delete;
-    ZMemoryPoolBase(ZMemoryPoolBase&&) = delete;
+    TMemoryPoolBase(const TMemoryPoolBase&) = delete;
+    TMemoryPoolBase(TMemoryPoolBase&&) = delete;
 
-    ZMemoryPoolBase& operator=(const ZMemoryPoolBase&) = delete;
-    ZMemoryPoolBase& operator=(ZMemoryPoolBase&&) = delete;
+    TMemoryPoolBase& operator=(const TMemoryPoolBase&) = delete;
+    TMemoryPoolBase& operator=(TMemoryPoolBase&&) = delete;
 
-    MemoryPoolType pool_type_;
+    MemoryPoolEnum pool_type_;
 };
 
 }//memory_pool
 }//zengine
 
-#endif // !Z_CORE_MEMORY_POOL_Z_MEMORY_POOL_BASE_H_
+#endif // !Z_CORE_MEMORY_POOL_T_MEMORY_POOL_BASE_H_

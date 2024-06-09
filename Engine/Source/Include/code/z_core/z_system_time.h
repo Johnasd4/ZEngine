@@ -32,6 +32,8 @@ namespace zengine {
 class ZSystemTime : public ZObject {
 
 public:
+    CORE_DLLAPI static ZSystemTime& Instance() noexcept;
+
     CORE_DLLAPI ZSystemTime() noexcept;
     CORE_DLLAPI ~ZSystemTime() noexcept;
 

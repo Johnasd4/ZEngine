@@ -79,6 +79,33 @@ public:
     /*Read and write, starts at the end of the file.(binary file)*/
     static constexpr CChar kOpenTypeAppendPlusBin[] = "ab+";
 
+    /*Read only.*/
+    static constexpr TChar kOpenTypeReadT[] = L"r";
+    /*Write only, will clear the file.*/
+    static constexpr TChar kOpenTypeWriteT[] = L"w";
+    /*Append at the end of the file.*/
+    static constexpr TChar kOpenTypeAppendT[] = L"a";
+    /*Read and write.*/
+    static constexpr TChar kOpenTypeReadPlusT[] = L"r+";
+    /*Read and write, will clear the file.*/
+    static constexpr TChar kOpenTypeWritePlusT[] = L"w+";
+    /*Read and write, starts at the end of the file.*/
+    static constexpr TChar kOpenTypeAppendPlusT[] = L"a+";
+    /*Read only.(binary file)*/
+    static constexpr TChar kOpenTypeReadBinT[] = L"rb";
+    /*Write only, will clear the file.(binary file)*/
+    static constexpr TChar kOpenTypeWriteBinT[] = L"wb";
+    /*Append at the end of the file.(binary file)*/
+    static constexpr TChar kOpenTypeAppendBinT[] = L"ab";
+    /*Read and write.(binary file)*/
+    static constexpr TChar kOpenTypeReadPlusBinT[] = L"rb+";
+    /*Read and write, will clear the file.(binary file)*/
+    static constexpr TChar kOpenTypeWritePlusBinT[] = L"wb+";
+    /*Read and write, starts at the end of the file.(binary file)*/
+    static constexpr TChar kOpenTypeAppendPlusBinT[] = L"ab+";
+    /*The max length of the file name.*/
+    static constexpr IndexType kFileNameLength = 512;
+
     FORCEINLINE ZFile() noexcept : SuperType(), file_ptr_(nullptr) {}
     FORCEINLINE ~ZFile() noexcept { if (file_ptr_ != nullptr) { fclose(file_ptr_); } }
 

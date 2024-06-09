@@ -16,13 +16,13 @@
     Author: YuLin Zhu (÷Ï”Í¡÷)
     Contact: 1152325286@qq.com
 */
-#ifndef Z_MEMORY_POOL_INTERNAL_Z_LIST_MEMORY_POOL_BASE_H_
-#define Z_MEMORY_POOL_INTERNAL_Z_LIST_MEMORY_POOL_BASE_H_
+#ifndef Z_MEMORY_POOL_INTERNAL_T_LIST_MEMORY_POOL_BASE_H_
+#define Z_MEMORY_POOL_INTERNAL_T_LIST_MEMORY_POOL_BASE_H_
 
 #include "internal/z_drive.h"
 
-#include "z_memory_pool_base.h"
-#include "z_heap_memory_pool.h"
+#include "t_memory_pool_base.h"
+#include "t_heap_memory_pool.h"
 
 namespace zengine {
 namespace memory_pool {
@@ -37,7 +37,7 @@ namespace memory_pool {
     - kIsThreadSafe: Thread safe or not.
 */
 template<typename MemoryBlockType, PointerType kMemoryBlockHeadOffset, Bool kIsThreadSafe>
-class ZListMemoryPoolBase :public ZMemoryPoolBase<kIsThreadSafe> {
+class TListMemoryPoolBase :public TMemoryPoolBase<kIsThreadSafe> {
 private:
     //The multipul factor that container auto extends based on the origin size.
     static constexpr Float32 kAutoExtendMulFactor = 0.2F;
@@ -49,8 +49,8 @@ private:
     static constexpr MemoryType kApplyHeapMemoryUnitSize = 4 * kHeapMemoryUnitSize;
 
 protected:
-    using SuperType = ZMemoryPoolBase<kIsThreadSafe>;
-    using MutexType = ZMemoryPoolThreadSafeBase<kIsThreadSafe>;
+    using SuperType = TMemoryPoolBase<kIsThreadSafe>;
+    using MutexType = TMemoryPoolThreadSafeBase<kIsThreadSafe>;
     
     struct Node{
         Node* next_node_ptr;
@@ -58,9 +58,9 @@ protected:
     };
 
 #pragma warning(disable : 26495)
-    FORCEINLINE ZListMemoryPoolBase() noexcept : SuperType() {}
+    FORCEINLINE TListMemoryPoolBase() noexcept : SuperType() {}
 #pragma warning(default : 26495)
-    Void InitializeP(MemoryPoolType memory_pool_type, MemoryType memory_block_size,
+    Void InitializeP(MemoryPoolEnum memory_pool_type, MemoryType memory_block_size,
                      MemoryType memory_block_memory_size, IndexType capacity) noexcept;
     
     FORCEINLINE static constexpr MemoryType NodeHeadOffset() noexcept { return kNodeHeadOffset; }
@@ -84,11 +84,11 @@ private:
     //The total offset of the memory block.
     static constexpr PointerType kNodeHeadOffset = sizeof(Node*) + kMemoryBlockHeadOffset;
 
-    ZListMemoryPoolBase(const ZListMemoryPoolBase&) = delete;
-    ZListMemoryPoolBase(ZListMemoryPoolBase&&) = delete;
+    TListMemoryPoolBase(const TListMemoryPoolBase&) = delete;
+    TListMemoryPoolBase(TListMemoryPoolBase&&) = delete;
 
-    ZListMemoryPoolBase& operator=(const ZListMemoryPoolBase&) = delete;
-    ZListMemoryPoolBase& operator=(ZListMemoryPoolBase&&) = delete;
+    TListMemoryPoolBase& operator=(const TListMemoryPoolBase&) = delete;
+    TListMemoryPoolBase& operator=(TListMemoryPoolBase&&) = delete;
 
     /*
         Called when the memory pool runs out. It aoto extends the memory pool.
@@ -111,8 +111,8 @@ private:
 };
 
 template<typename MemoryBlockType, PointerType kMemoryBlockHeadOffset, Bool kIsThreadSafe>
-Void ZListMemoryPoolBase<MemoryBlockType, kMemoryBlockHeadOffset, kIsThreadSafe>::InitializeP(
-        MemoryPoolType memory_pool_type, MemoryType memory_block_size,
+Void TListMemoryPoolBase<MemoryBlockType, kMemoryBlockHeadOffset, kIsThreadSafe>::InitializeP(
+        MemoryPoolEnum memory_pool_type, MemoryType memory_block_size,
         MemoryType memory_block_memory_size, IndexType capacity) noexcept {
     SuperType::InitializeP(memory_pool_type);
     memory_block_size_ = memory_block_size;
@@ -124,7 +124,7 @@ Void ZListMemoryPoolBase<MemoryBlockType, kMemoryBlockHeadOffset, kIsThreadSafe>
 
 
 template<typename MemoryBlockType, PointerType kMemoryBlockHeadOffset, Bool kIsThreadSafe>
-NODISCARD FORCEINLINE Void* ZListMemoryPoolBase<MemoryBlockType, kMemoryBlockHeadOffset, kIsThreadSafe>::ApplyMemory(
+NODISCARD FORCEINLINE Void* TListMemoryPoolBase<MemoryBlockType, kMemoryBlockHeadOffset, kIsThreadSafe>::ApplyMemory(
         ) noexcept {
     MutexType::Lock();
     if (head_node_ptr_ == nullptr) {
@@ -137,7 +137,7 @@ NODISCARD FORCEINLINE Void* ZListMemoryPoolBase<MemoryBlockType, kMemoryBlockHea
 }
 
 template<typename MemoryBlockType, PointerType kMemoryBlockHeadOffset, Bool kIsThreadSafe>
-FORCEINLINE Void ZListMemoryPoolBase<MemoryBlockType, kMemoryBlockHeadOffset, kIsThreadSafe>::ReleaseMemory(
+FORCEINLINE Void TListMemoryPoolBase<MemoryBlockType, kMemoryBlockHeadOffset, kIsThreadSafe>::ReleaseMemory(
         Void* memory_ptr) noexcept {
     MutexType::Lock();
     Node* node_ptr = reinterpret_cast<Node*>(reinterpret_cast<PointerType>(memory_ptr) - kNodeHeadOffset);
@@ -147,7 +147,7 @@ FORCEINLINE Void ZListMemoryPoolBase<MemoryBlockType, kMemoryBlockHeadOffset, kI
 }
 
 template<typename MemoryBlockType, PointerType kMemoryBlockHeadOffset, Bool kIsThreadSafe>
-FORCEINLINE Void ZListMemoryPoolBase<MemoryBlockType, kMemoryBlockHeadOffset, kIsThreadSafe>::AutoExtendCapcityP(
+FORCEINLINE Void TListMemoryPoolBase<MemoryBlockType, kMemoryBlockHeadOffset, kIsThreadSafe>::AutoExtendCapcityP(
         ) noexcept {
     IndexType extend_num = static_cast<IndexType>(capacity_ * kAutoExtendMulFactor);
     if (extend_num < kAutoExtendMinNum) {
@@ -157,7 +157,7 @@ FORCEINLINE Void ZListMemoryPoolBase<MemoryBlockType, kMemoryBlockHeadOffset, kI
 }
 
 template<typename MemoryBlockType, PointerType kMemoryBlockHeadOffset, Bool kIsThreadSafe>
-Void ZListMemoryPoolBase<MemoryBlockType, kMemoryBlockHeadOffset, kIsThreadSafe>::ExtendCapacityP(
+Void TListMemoryPoolBase<MemoryBlockType, kMemoryBlockHeadOffset, kIsThreadSafe>::ExtendCapacityP(
         IndexType memory_block_added_num) noexcept {
     if (memory_block_added_num == 0) {
         return;
@@ -173,7 +173,7 @@ Void ZListMemoryPoolBase<MemoryBlockType, kMemoryBlockHeadOffset, kIsThreadSafe>
             + kApplyHeapMemoryUnitSize;
     }
     //Apply heap memory.
-    Void* apply_memory_ptr = ZHeapMemoryPool<kIsThreadSafe>::ApplyMemory(apply_heap_memory_size);
+    Void* apply_memory_ptr = THeapMemoryPool<kIsThreadSafe>::ApplyMemory(apply_heap_memory_size);
     PointerType temp_memory_ptr = reinterpret_cast<PointerType>(apply_memory_ptr);
     SuperType* this_memory_pool_ptr = static_cast<SuperType*>(this);
     //Recaculate the real memory block num added. 
@@ -200,4 +200,4 @@ Void ZListMemoryPoolBase<MemoryBlockType, kMemoryBlockHeadOffset, kIsThreadSafe>
 }//memory_pool
 }//zengine
 
-#endif // !Z_MEMORY_POOL_INTERNAL_Z_LIST_MEMORY_POOL_BASE_H_
+#endif // !Z_MEMORY_POOL_INTERNAL_T_LIST_MEMORY_POOL_BASE_H_

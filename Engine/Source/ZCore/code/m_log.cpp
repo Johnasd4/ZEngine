@@ -21,151 +21,90 @@
 #include "m_log.h"
 
 #include "f_console.h"
-#include "t_fixed_queue.h"
 #include "t_fixed_string.h"
-#include "z_mutex.h"
+#include "z_file.h"
 #include "z_system_time.h"
-#include "z_thread.h"
+#include "log/z_log_manager.h"
 
 namespace zengine {
-namespace internal {
+namespace log {
 
-/*
-    The log manager, log's the error and info to the console, file and any place that needs to log.
-*/
-class ZLogManager : public ZObject {
-public:
-    static constexpr Int32 klogLen = 4096;
+CORE_DLLAPI ZLog::ZLog() noexcept : SuperType(), log_msg_str_() {}
 
-    static constexpr Int32 kErrMsgMaxLen = 512;
-    static constexpr Int32 kErrMsgMaxNum = 128;
+CORE_DLLAPI ZLog::ZLog(const CChar* format, ...) noexcept : SuperType() {
+    ArgListType args;
+    va_start(args, format);
+    vsprintf(log_msg_str_.c_str.DataPtr(), format, args);
+    va_end(args);
+}
 
-    struct ErrorInfo {
-    public:
-        TimeType raw_time;
-        const CChar* err_file;
-        const CChar* err_func;
-        Int32 err_line;
-        ReturnType err_code;
-        ReturnType link_code;
-        TFixedString<CChar, kErrMsgMaxLen> err_msg;
+CORE_DLLAPI ZLog::ZLog(const CChar* format, ArgListType args) noexcept : SuperType() {
+    vsprintf(log_msg_str_.c_str.DataPtr(), format, args);
+}
 
-        ErrorInfo& operator=(ErrorInfo&& info) {
-            raw_time = info.raw_time;
-        }
-        ErrorInfo() noexcept : raw_time(), err_file(), err_func(), err_line(), err_code(), link_code(), err_msg() {}
-        ErrorInfo(TimeType raw_time,
-                  const CChar* err_file,
-                  const CChar* err_func,
-                  Int32 err_line,
-                  ReturnType err_code,
-                  ReturnType link_code,
-                  const CChar* format,
-                  ArgListType args) noexcept :
-            raw_time(raw_time),
-            err_file(err_file),
-            err_func(err_func),
-            err_line(err_line),
-            err_code(err_code),
-            link_code(link_code)
-        {
-            err_msg.SetString(format, args);
-        }
-    };
+CORE_DLLAPI ZLog::ZLog(const TChar* format, ...) noexcept : SuperType() {
+    ArgListType args;
+    va_start(args, format);
+    vswprintf(log_msg_str_.t_str.DataPtr(), format, args);
+    va_end(args);
+}
 
-    static Void LogError(TimeType raw_time,
-                         const CChar* err_file, 
-                         const CChar* err_func,
-                         Int32 err_line, 
-                         ReturnType err_code,
-                         ReturnType link_code,
-                         const CChar* format,
-                         ArgListType args) noexcept {
-        static ZLogManager& log_manager = ZLogManager::InstanceP();
-        log_manager.err_log_mutex_.Lock();
-        log_manager.err_info_queue_.Push(raw_time, err_file, err_func, err_line, err_code, link_code, format, args);
-        log_manager.err_log_mutex_.Unlock();
+CORE_DLLAPI ZLog::ZLog(const TChar* format, ArgListType args) noexcept : SuperType() {
+    vswprintf(log_msg_str_.t_str.DataPtr(), format, args);
+}
+
+CORE_DLLAPI Void ZLog::GenerateLogString(const ZLog* log_ptr, OutputString* output_str_ptr) noexcept {
+    //copy the full msg.
+    memcpy(&(output_str_ptr->c_str), &(log_ptr->log_msg_str_.c_str), sizeof(log_ptr->log_msg_str_.c_str.Capacity()));
+}
+
+static ZFile& GetLogFile() noexcept {
+
+    static ZFile file;
+    ReturnType link_code = kOK;
+    TFixedString<TChar, ZFile::kFileNameLength> file_str;
+    ZSystemTime system_time;
+
+    file_str.SetString(L"%lsdefault_log_%04d%02d%02d%02d%02d%02d.log", ZLog::kPathTString,
+                       system_time.Year(), system_time.Month(), system_time.Day(), 
+                       system_time.Hour(), system_time.Min(), system_time.Sec());
+    link_code = file.OpenSafe(ZLog::kPathTString, file_str.DataPtr(), ZFile::kOpenTypeAppendT);
+    if (link_code != kOK) {
+        Z_LOG_ERROR(error_code::kMLogErrorCodeLinkError, link_code, "ZFile::OpenSafe() link error!");
     }
+    return file;
+}
 
+CORE_DLLAPI Void ZLog::FileOutputLogString(const ZLog::OutputString& output_str) noexcept {
+    static ZFile& file = GetLogFile();
+    ReturnType link_code = kOK;
 
-protected:
-    using SuperType = ZObject;
-
-private:
-    static ZLogManager& InstanceP() noexcept {
-        static ZLogManager log_manager;
-        return log_manager;
+    link_code = file.Print(L"%s\n", output_str.t_str.DataPtr());
+    if (link_code != kOK) {
+        Z_LOG_ERROR(error_code::kMLogErrorCodeLinkError, link_code, "ZFile::Print() link error!");
     }
+}
 
-    static Void LogThread() noexcept {
-        static ZLogManager& log_manager = ZLogManager::InstanceP();
-        static ZSystemTime system_time;
-        TFixedString<CChar, klogLen> log_str;
-        Bool if_str_logged = true;
-        while (log_manager.log_thread_finished_ == false || !log_manager.err_info_queue_.Empty()) {
-            //genrate err log str
-            if (log_manager.err_info_queue_.Size() != 0) {
-                ErrorInfo& err_info = log_manager.err_info_queue_.Front();
-                system_time.UpdateTimeFast(err_info.raw_time);
-                log_str.SetString(
-                    "\nTime: %04d/%02d/%02d-%02d:%02d:%02d\nFile: %s\nFunction: %s\nLine: %d\nError Code: 0x%x\nLink Code: 0x%x\nMessage: %s\n",
-                    system_time.Year(), system_time.Month(), system_time.Day(), 
-                    system_time.Hour(), system_time.Min(), system_time.Sec(),
-                    err_info.err_file, err_info.err_func, err_info.err_line, 
-                    err_info.err_code,err_info.link_code, err_info.err_msg.DataPtr());
-                log_manager.err_log_mutex_.Lock();
-                log_manager.err_info_queue_.Pop();
-                log_manager.err_log_mutex_.Unlock();
-                if_str_logged = false;
-            }
- 
-            //log str
-            if (if_str_logged == false) {
-#if USE_CONSOLE_LOG
-                console::PrintError(log_str.DataPtr());
-#endif
-                if_str_logged = true;
-            }
-            else {
-                Sleep(1);
-            }
-        }
-    }
-
-    ZLogManager() noexcept : SuperType(), 
-        err_info_queue_(), log_thread_finished_(false), err_log_mutex_(), msg_log_mutex_(),
-        log_thread_(&ZLogManager::LogThread) {}
-
-    ~ZLogManager() noexcept {
-        log_thread_finished_ = true;
-        if (log_thread_.Joinable()) {
-            log_thread_.Join();
-        }
-    }
-
-    TFixedQueue<ErrorInfo, kErrMsgMaxNum> err_info_queue_;
-    Bool log_thread_finished_;
-    ZMutex err_log_mutex_;
-    ZMutex msg_log_mutex_;
-    ZThread log_thread_;
-};
+CORE_DLLAPI Void ZLog::ConsoleOutputLogString(const ZLog::OutputString& output_str) noexcept {
+    console::PrintMessage(L"%ls\n", output_str.t_str.DataPtr());
+}
 
 /*
     Log error message and error location.
 */
-CORE_DLLAPI extern Void LogError(TimeType raw_time,
-                                 const CChar* err_file, 
-                                 const CChar* err_func,
-                                 Int32 err_line, 
-                                 ReturnType err_code,
-                                 ReturnType link_code,
-                                 const CChar* format,
-                                 ...) noexcept {
+CORE_DLLAPI Void LogError(TimeType raw_time,
+                          const CChar* err_file, 
+                          const CChar* err_func,
+                          Int32 err_line, 
+                          ReturnType err_code,
+                          ReturnType link_code,
+                          const CChar* format,
+                          ...) noexcept {
     ArgListType args;
     va_start(args, format);
     ZLogManager::LogError(raw_time, err_file, err_func, err_line, err_code, link_code,  format, args);
     va_end(args);
 }
 
-}//internal
+}//log
 }//zengine

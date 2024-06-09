@@ -46,20 +46,20 @@
 #ifdef CORE_DLLFILE
 #define CORE_DLLAPI DLLEXPORT
 #else
+#define CORE_DLLAPI DLLIMPORT
 #ifdef _WIN64
 #ifdef _DEBUG
 #pragma comment(lib,"ZCore_x64_Debug.lib")
 #else
 #pragma comment(lib,"ZCore_x64_Release.lib")
-#endif
+#endif//_DEBUG
 #else
 #ifdef _DEBUG
 #pragma comment(lib,"ZCore_Win32_Debug.lib")
 #else
 #pragma comment(lib,"ZCore_Win32_Release.lib")
-#endif
-#endif
-#define CORE_DLLAPI DLLIMPORT
-#endif
+#endif//_DEBUG
+#endif//_WIN64
+#endif//CORE_DLLFILE
 
 #endif // !Z_CORE_INTERNAL_D_LIB_H_

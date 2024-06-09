@@ -27,7 +27,7 @@ namespace zengine{
 
 namespace error_code {
 
-enum ZPrintManagerErrorCode : ReturnType {
+enum ZPrintManagerErrorCodeEnum : ReturnType {
     kZPrintManagerErrorCodeLinkError = kErrorCodeBaseZPrintManager,
     kZPrintManagerErrorCodeParamOutOfRange,
 };
@@ -38,7 +38,7 @@ namespace console{
 
 using PrintColourType = UInt16;
 
-enum PrintTextColourType : PrintColourType {
+enum PrintTextColourEnum : PrintColourType {
     kPrintTextColourMin = 0x00u,
     kPrintTextColourDarkBlack = 0x00u,
     kPrintTextColourDarkBlue = 0x01u,
@@ -59,7 +59,7 @@ enum PrintTextColourType : PrintColourType {
     kPrintTextColourMax = 0x10u,
 };
 
-enum PrintBackgroundColourType : PrintColourType {
+enum PrintBackgroundColourEnum : PrintColourType {
     kPrintBackgroundColourMin = 0x00u,
     kPrintBackgroundColourDarkBlack = 0x00u,
     kPrintBackgroundColourDarkBlue = 0x10u,
@@ -83,7 +83,7 @@ enum PrintBackgroundColourType : PrintColourType {
 /*
     Sets the current print colour.
 */
-CORE_DLLAPI Void SetPrintColour(PrintTextColourType text_colour, PrintBackgroundColourType background_colour) noexcept;
+CORE_DLLAPI Void SetPrintColour(PrintTextColourEnum text_colour, PrintBackgroundColourEnum background_colour) noexcept;
 
 /*
     Use it as the same as printf, it's thread safe. You can add text colour and 
@@ -118,7 +118,7 @@ CORE_DLLAPI Void Print(const TChar* format, ArgListType args) noexcept;
     background colour infront of the format to change the colour only for this
     output.
 */
-CORE_DLLAPI Void Print(PrintTextColourType text_colour, PrintBackgroundColourType background_colour,
+CORE_DLLAPI Void Print(PrintTextColourEnum text_colour, PrintBackgroundColourEnum background_colour,
                        const CChar* format, ...) noexcept;
 
 /*
@@ -126,7 +126,7 @@ CORE_DLLAPI Void Print(PrintTextColourType text_colour, PrintBackgroundColourTyp
     background colour infront of the format to change the colour only for this
     output.
 */
-CORE_DLLAPI Void Print(PrintTextColourType text_colour, PrintBackgroundColourType background_colour,
+CORE_DLLAPI Void Print(PrintTextColourEnum text_colour, PrintBackgroundColourEnum background_colour,
                        const CChar* format, ArgListType args) noexcept;
 
 /*
@@ -134,7 +134,7 @@ CORE_DLLAPI Void Print(PrintTextColourType text_colour, PrintBackgroundColourTyp
     background colour infront of the format to change the colour only for this
     output.
 */
-CORE_DLLAPI Void Print(PrintTextColourType text_colour, PrintBackgroundColourType background_colour,
+CORE_DLLAPI Void Print(PrintTextColourEnum text_colour, PrintBackgroundColourEnum background_colour,
                        const TChar* format, ...) noexcept;
 
 /*
@@ -142,7 +142,7 @@ CORE_DLLAPI Void Print(PrintTextColourType text_colour, PrintBackgroundColourTyp
     background colour infront of the format to change the colour only for this
     output.
 */
-CORE_DLLAPI Void Print(PrintTextColourType text_colour, PrintBackgroundColourType background_colour,
+CORE_DLLAPI Void Print(PrintTextColourEnum text_colour, PrintBackgroundColourEnum background_colour,
                        const TChar* format, ArgListType args) noexcept;
 
 template<typename CharType, typename... ArgsType>

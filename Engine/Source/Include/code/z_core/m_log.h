@@ -21,6 +21,7 @@
 
 #include "internal/z_drive.h"
 
+#include "t_fixed_string.h"
 #include "z_system_time.h"
 
 #ifdef _DEBUG
@@ -37,6 +38,66 @@
 
 namespace zengine {
 
+namespace error_code {
+
+enum MLogErrorCode : ReturnType {
+    kMLogErrorCodeLinkError = kErrorCodeBaseMLog,
+    kMLogErrorCodeLogPortOutputFunctionFull,
+    kMLogErrorCodeLogPortOutputFunctionAlreadyRegistered,
+    kMLogErrorCodeLogPortInputFunctionAlreadyRegistered,
+    kMLogErrorCodeLogPortFull
+};
+
+}//error_code
+
+namespace log {
+
+/*
+    Base class of the log.
+*/
+class ZLog : public ZObject {
+public:
+    //max size of the log message string.
+    static constexpr Int32 kMsgMaxSize = 512;
+    //max size of the output log string.
+    static constexpr Int32 kLogMaxSize = 2048;
+    //log file path.
+    static constexpr CChar kPathCString[] = "./log/";
+    //log file path.
+    static constexpr TChar kPathTString[] = L"./log/";
+
+    using MsgString = FixedStringUnion<kMsgMaxSize>;
+    using OutputString = FixedStringUnion<kLogMaxSize>;
+
+    /*
+        Override it to output different formats, uses TString(wchar_t).
+    */
+    CORE_DLLAPI static Void GenerateLogString(const ZLog* log_ptr, OutputString* output_str_ptr) noexcept;
+
+    /*
+        Default console output log string, uses TString(wchar_t).
+    */
+    CORE_DLLAPI static Void FileOutputLogString(const ZLog::OutputString& output_str) noexcept;
+
+    /*
+        Default file output log string, uses TString(wchar_t).
+    */
+    CORE_DLLAPI static Void ConsoleOutputLogString(const ZLog::OutputString& output_str) noexcept;
+
+    CORE_DLLAPI ZLog() noexcept;
+    CORE_DLLAPI ZLog(const CChar* format, ...) noexcept;
+    CORE_DLLAPI ZLog(const CChar* format, ArgListType args) noexcept;
+    CORE_DLLAPI ZLog(const TChar* format, ...) noexcept;
+    CORE_DLLAPI ZLog(const TChar* format, ArgListType args) noexcept;
+
+protected:
+    using SuperType = ZObject;
+
+    NODISCARD FORCEINLINE const MsgString& LogMsgPtr() const noexcept { return log_msg_str_; }
+private:
+    MsgString log_msg_str_;
+};
+
 enum LogMessageType : IndexType {
     kLogMessage,
     kLogStart,
@@ -46,36 +107,34 @@ enum LogMessageType : IndexType {
     kLogFailure
 };
 
-namespace internal {
-
 /*
     Log error message and error location.
 */
-CORE_DLLAPI extern Void LogError(TimeType raw_time,
-                                 const CChar* err_file, 
-                                 const CChar* err_func,
-                                 Int32 err_line, 
-                                 ReturnType err_code,
-                                 ReturnType link_code,
-                                 const CChar* format,
-                                 ...) noexcept;
+CORE_DLLAPI Void LogError(TimeType raw_time,
+                          const CChar* err_file, 
+                          const CChar* err_func,
+                          Int32 err_line, 
+                          ReturnType err_code,
+                          ReturnType link_code,
+                          const CChar* format,
+                          ...) noexcept;
 
-}//internal
+}//log
 }//zengine
 
 /*
     Checks the condition, returns if true.
 */
-#define Z_CHECK(condition, err_code, format, ...)\
+#define Z_CHECK(condition, err_code, ...)\
     if(condition) {\
-        zengine::internal::LogError(time(nullptr), __FILE__, __func__, __LINE__, err_code, 0, format, __VA_ARGS__);\
+        zengine::log::LogError(time(nullptr), __FILE__, __func__, __LINE__, err_code, 0, __VA_ARGS__);\
         return err_code;\
     }
 
 /*
     Log error.
 */
-#define Z_LOG_ERROR(err_code, link_code, format, ...)\
-    zengine::internal::LogError(time(nullptr), __FILE__, __func__, __LINE__, err_code, link_code, format, __VA_ARGS__);
+#define Z_LOG_ERROR(err_code, link_code, ...)\
+    zengine::log::LogError(time(nullptr), __FILE__, __func__, __LINE__, err_code, link_code, __VA_ARGS__);
 
 #endif // !Z_CORE_M_LOG_H_

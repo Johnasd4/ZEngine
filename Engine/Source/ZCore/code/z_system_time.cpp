@@ -68,6 +68,11 @@ static TimeType GetTimeOffset() noexcept {
     return region_time_offset;
 }
 
+CORE_DLLAPI ZSystemTime& ZSystemTime::Instance() noexcept {
+    static ZSystemTime system_time;
+    return system_time;
+}
+
 CORE_DLLAPI ZSystemTime::ZSystemTime() noexcept : SuperType() { UpdateTime(); }
 CORE_DLLAPI ZSystemTime::~ZSystemTime() noexcept {}
 
