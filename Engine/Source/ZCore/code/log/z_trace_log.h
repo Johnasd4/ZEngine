@@ -16,8 +16,8 @@
     Author: YuLin Zhu (÷Ï”Í¡÷)
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_LOG_Z_ERROR_LOG_H_
-#define Z_CORE_LOG_Z_ERROR_LOG_H_
+#ifndef Z_CORE_LOG_Z_TRACE_LOG_H_
+#define Z_CORE_LOG_Z_TRACE_LOG_H_
 
 #include "internal/z_drive.h"
 
@@ -30,17 +30,12 @@ namespace log {
 /*
     Error log info.
 */
-class ZErrorLog : public ZLog {
+class ZTraceLog : public ZLog {
 public:
-    ZErrorLog() noexcept;
-    ZErrorLog(TimeType raw_time,
-              const CChar* err_project,
-              const CChar* err_file,
-              const CChar* err_func,
-              Int32 err_line,
-              ReturnType err_code,
-              ReturnType link_code,
-              const CChar* format,
+    ZTraceLog() noexcept;
+    ZTraceLog(TimeType raw_time,
+              const TChar* project,
+              const TChar* format,
               ArgListType args) noexcept;
 
     /*
@@ -63,15 +58,10 @@ protected:
 
 private:
     TimeType raw_time_;
-    const CChar* err_project_;
-    const CChar* err_file_;
-    const CChar* err_func_;
-    Int32 err_line_;
-    ReturnType err_code_;
-    ReturnType link_code_;
+    const TChar* project_;
 };
 
 }//log
 }//zengine
 
-#endif // !Z_CORE_LOG_Z_ERROR_LOG_H_
+#endif // !Z_CORE_LOG_Z_TRACE_LOG_H_

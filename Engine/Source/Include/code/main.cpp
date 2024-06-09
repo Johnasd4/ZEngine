@@ -16,7 +16,8 @@
     Author: YuLin Zhu (朱雨林)
     Contact: 1152325286@qq.com
 */
-#include "z_core/internal/z_drive.h"
+#define PROJECT_NAME_C_STRING "Include"
+#define PROJECT_NAME_T_STRING L"Include"
 
 #include "z_engine.h"
 
@@ -26,6 +27,7 @@ using namespace std;
 int main() {
     Z_LOG_ERROR(1, 2, "TEST%d%d%d%d%d", 3, 4, 5, 6, 7);
     Z_LOG_ERROR(1, 2, "TEST%d%d%d%d%d", 3, 4, 5, 6, 7);
+    Z_LOG_TRACE(1, 2, L"TEST%d%d%d%d%d", 3, 4, 5, 6, 7);
     console::PrintMessage("Message...\n");
     console::PrintStart("Start...\n");
     console::PrintProcess("Process 1...\n");
@@ -35,11 +37,8 @@ int main() {
     console::PrintSuccess("Success...\n");
     console::PrintFailure("Failure...\n");
     console::PrintError("Error...\n");
-
-    ZFile test_file;
-    test_file.CreatePath("z:\\test");
-    test_file.OpenSafe("z:\\test", "z:\\test\\test_file.log", ZFile::kOpenTypeAppend);
-    test_file.Print("test_string %d", 10);
-    Sleep(10);
+    console::PrintMessage(L"Message...\n");
+    
+    Sleep(100);
     return 0;
 }

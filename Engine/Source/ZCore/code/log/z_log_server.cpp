@@ -64,13 +64,19 @@ NODISCARD ReturnType ZLogServer::RegisterInputFunction(IndexType port_id,
     return ret_val;
 }
 
-Void ZLogServer::UnregisterInputFunction(Void(*input_func)(const ZLog*, ZLog::OutputString*)) noexcept {
-    for (IndexType port_id = 0; port_id < port_array_.Capacity(); ++port_id) {
-        if (port_array_[port_id].input_func_ == input_func) {
-            port_array_[port_id].input_func_ = nullptr;
-            break;
-        }
+NODISCARD ReturnType ZLogServer::UnregisterInputFunction(IndexType port_id,
+                                         Void(*input_func)(const ZLog*, ZLog::OutputString*)) noexcept {
+    ReturnType ret_val = kOK;
+    if (port_array_[port_id].input_func_ != input_func) {
+        ret_val = error_code::kMLogErrorCodeLogPortInputFunctionUnregisteredFailed;
+        Z_LOG_ERROR(ret_val, 0, "Unregister failed, port %d function does't match!", port_id);
+
+        return ret_val;
     }
+
+    port_array_[port_id].input_func_ = nullptr;
+    
+    return ret_val;
 }
 
 NODISCARD ReturnType ZLogServer::RegisterOutputFunction(IndexType port_id, 
@@ -79,7 +85,7 @@ NODISCARD ReturnType ZLogServer::RegisterOutputFunction(IndexType port_id,
     Bool registered = false;
 
     for (IndexType index = 0; index < port_array_[port_id].output_func_array_.Capacity(); ++index) {
-        if (port_array_[port_id].output_func_array_[index] == nullptr) {
+        if (port_array_[port_id].output_func_array_[index] != nullptr) {
             //Check for same output.
             if (port_array_[port_id].output_func_array_[index] == output_func) {
                 ret_val = error_code::kMLogErrorCodeLogPortOutputFunctionAlreadyRegistered;

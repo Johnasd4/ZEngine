@@ -45,6 +45,8 @@
 //Define if at the start of the z_core cpp file.
 #ifdef CORE_DLLFILE
 #define CORE_DLLAPI DLLEXPORT
+#define PROJECT_NAME_C_STRING "ZCore"
+#define PROJECT_NAME_T_STRING L"ZCore"
 #else
 #define CORE_DLLAPI DLLIMPORT
 #ifdef _WIN64

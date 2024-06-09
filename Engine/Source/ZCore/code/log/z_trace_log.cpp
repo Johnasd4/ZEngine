@@ -18,7 +18,7 @@
 */
 #define CORE_DLLFILE
 
-#include "z_error_log.h"
+#include "z_trace_log.h"
 
 #include "f_console.h"
 #include "z_file.h"
@@ -27,36 +27,20 @@
 namespace zengine {
 namespace log {
 
-ZErrorLog::ZErrorLog() noexcept : 
-    raw_time_(), err_project_(), err_file_(), err_func_(), err_line_(), err_code_(), link_code_(), SuperType() {}
-ZErrorLog::ZErrorLog(TimeType raw_time,
-                     const CChar* err_project,
-                     const CChar* err_file,
-                     const CChar* err_func,
-                     Int32 err_line,
-                     ReturnType err_code,
-                     ReturnType link_code,
-                     const CChar* format,
-                     ArgListType args) noexcept :
-    raw_time_(raw_time),
-    err_project_(err_project),
-    err_file_(err_file),
-    err_func_(err_func),
-    err_line_(err_line),
-    err_code_(err_code),
-    link_code_(link_code),
-    SuperType(format, args) {}
+ZTraceLog::ZTraceLog() noexcept : 
+    raw_time_(), project_(), SuperType() {}
+ZTraceLog::ZTraceLog(TimeType raw_time, const TChar* project, const TChar* format, ArgListType args) noexcept :
+    raw_time_(raw_time), project_(project), SuperType(format, args) {}
 
-Void ZErrorLog::GenerateLogString(const ZLog* log_ptr, OutputString* output_str_ptr) noexcept {
+Void ZTraceLog::GenerateLogString(const ZLog* log_ptr, OutputString* output_str_ptr) noexcept {
     static ZSystemTime system_time;
-    ZErrorLog& err_log = *(ZErrorLog*)log_ptr;
-    system_time.UpdateTimeFast(err_log.raw_time_);
-    output_str_ptr->c_str.SetString(
-        "\nTime: %04d/%02d/%02d-%02d:%02d:%02d\nProject: %s\nFile: %s\nFunction: %s\nLine: %d\nError Code: 0x%x\nLink Code: 0x%x\nMessage: %s",
+    ZTraceLog& trace_log = *(ZTraceLog*)log_ptr;
+    system_time.UpdateTimeFast(trace_log.raw_time_);
+    output_str_ptr->t_str.SetString(
+        L"%04d/%02d/%02d-%02d:%02d:%02d <%ls> %s",
         system_time.Year(), system_time.Month(), system_time.Day(),
         system_time.Hour(), system_time.Min(), system_time.Sec(),
-        err_log.err_project_, err_log.err_file_, err_log.err_func_, err_log.err_line_, 
-        err_log.err_code_, err_log.link_code_, err_log.LogMsgPtr().c_str.DataPtr());
+        trace_log.project_, trace_log.LogMsgPtr().c_str.DataPtr());
 }
 
 static ZFile& GetLogFile() noexcept {
@@ -65,7 +49,7 @@ static ZFile& GetLogFile() noexcept {
     TFixedString<TChar, ZFile::kFileNameLength> file_str;
     ZSystemTime system_time;
 
-    file_str.SetString(L"%lserror_log_%04d%02d%02d%02d%02d%02d.log", ZLog::kPathTString,
+    file_str.SetString(L"%lstrace_log_%04d%02d%02d%02d%02d%02d.log", ZLog::kPathTString,
         system_time.Year(), system_time.Month(), system_time.Day(),
         system_time.Hour(), system_time.Min(), system_time.Sec());
     link_code = file.OpenSafe(ZLog::kPathTString, file_str.DataPtr(), ZFile::kOpenTypeAppendT);
@@ -75,18 +59,18 @@ static ZFile& GetLogFile() noexcept {
     return file;
 }
 
-Void ZErrorLog::FileOutputLogString(const ZLog::OutputString& output_str) noexcept {
+Void ZTraceLog::FileOutputLogString(const ZLog::OutputString& output_str) noexcept {
     static ZFile& file = GetLogFile();
     ReturnType link_code = kOK;
 
-    link_code = file.Print("%s\n", output_str.c_str.DataPtr());
+    link_code = file.Print(L"%ls\n", output_str.t_str.DataPtr());
     if (link_code != kOK) {
         Z_LOG_ERROR(error_code::kMLogErrorCodeLinkError, link_code, "ZFile::Print() link error!");
     }
 }
 
-Void ZErrorLog::ConsoleOutputLogString(const ZLog::OutputString& output_str) noexcept {
-    console::PrintError("%s\n", output_str.c_str.DataPtr());
+Void ZTraceLog::ConsoleOutputLogString(const ZLog::OutputString& output_str) noexcept {
+    console::PrintMessage("%ls\n", output_str.t_str.DataPtr());
 }
 
 }//log

@@ -89,10 +89,8 @@ CORE_DLLAPI Void ZLog::ConsoleOutputLogString(const ZLog::OutputString& output_s
     console::PrintMessage(L"%ls\n", output_str.t_str.DataPtr());
 }
 
-/*
-    Log error message and error location.
-*/
 CORE_DLLAPI Void LogError(TimeType raw_time,
+                          const CChar* err_project,
                           const CChar* err_file, 
                           const CChar* err_func,
                           Int32 err_line, 
@@ -102,8 +100,64 @@ CORE_DLLAPI Void LogError(TimeType raw_time,
                           ...) noexcept {
     ArgListType args;
     va_start(args, format);
-    ZLogManager::LogError(raw_time, err_file, err_func, err_line, err_code, link_code,  format, args);
+    ZLogManager::LogError(raw_time, err_project, err_file, err_func, err_line, err_code, link_code, format, args);
     va_end(args);
+}
+
+CORE_DLLAPI Void LogTrace(TimeType raw_time,
+                          const TChar* project,
+                          const TChar* format,
+                          ...) noexcept {
+    ArgListType args;
+    va_start(args, format);
+    ZLogManager::LogTrace(raw_time, project, format, args);
+    va_end(args);
+}
+
+CORE_DLLAPI NODISCARD ReturnType RegisterLogServerInputFunction(
+        IndexType port_id, Void(*input_func)(const ZLog*, ZLog::OutputString*)) noexcept {
+    ReturnType ret_val = kOK;
+    ReturnType link_code = kOK;
+    link_code = ZLogManager::RegisterLogServerInputFunction(port_id, input_func);
+    if (link_code != kOK) {
+        ret_val = error_code::kMLogErrorCodeLinkError;
+        Z_LOG_ERROR(ret_val, link_code, "ZLogManager::RegisterLogServerInputFunction() link error!");
+        return ret_val;
+    }
+
+    return ret_val;
+}
+
+CORE_DLLAPI NODISCARD ReturnType UnregisterLogServerInputFunction(
+        IndexType port_id, Void(*input_func)(const ZLog*, ZLog::OutputString*)) noexcept {
+    ReturnType ret_val = kOK;
+    ReturnType link_code = kOK;
+    link_code = ZLogManager::RegisterLogServerInputFunction(port_id, input_func);
+    if (link_code != kOK) {
+        ret_val = error_code::kMLogErrorCodeLinkError;
+        Z_LOG_ERROR(ret_val, link_code, "ZLogManager::RegisterLogServerInputFunction() link error!");
+        return ret_val;
+    }
+
+    return ret_val;
+}
+
+CORE_DLLAPI NODISCARD ReturnType RegisterLogServerOutputFunction(
+        IndexType port_id, Void(*output_func)(const ZLog::OutputString&)) noexcept {
+    ReturnType ret_val = kOK;
+    ReturnType link_code = kOK;
+    link_code = ZLogManager::RegisterLogServerOutputFunction(port_id, output_func);
+    if (link_code != kOK) {
+        ret_val = error_code::kMLogErrorCodeLinkError;
+        Z_LOG_ERROR(ret_val, link_code, "ZLogManager::RegisterLogServerInputFunction() link error!");
+        return ret_val;
+    }
+
+    return ret_val;
+}
+
+CORE_DLLAPI Void UnregisterLogServerOutputFunction(Void(*output_func)(const ZLog::OutputString&)) noexcept {
+    ZLogManager::UnregisterLogServerOutputFunction(output_func);
 }
 
 }//log

@@ -36,6 +36,10 @@
 #define USE_FILE_LOG true
 #endif
 
+#ifndef PROJECT_NAME_C_STRING
+#define PROJECT_NAME_C_STRING "Unknown"
+#endif
+
 namespace zengine {
 
 namespace error_code {
@@ -45,6 +49,7 @@ enum MLogErrorCode : ReturnType {
     kMLogErrorCodeLogPortOutputFunctionFull,
     kMLogErrorCodeLogPortOutputFunctionAlreadyRegistered,
     kMLogErrorCodeLogPortInputFunctionAlreadyRegistered,
+    kMLogErrorCodeLogPortInputFunctionUnregisteredFailed,
     kMLogErrorCodeLogPortFull
 };
 
@@ -61,8 +66,6 @@ public:
     static constexpr Int32 kMsgMaxSize = 512;
     //max size of the output log string.
     static constexpr Int32 kLogMaxSize = 2048;
-    //log file path.
-    static constexpr CChar kPathCString[] = "./log/";
     //log file path.
     static constexpr TChar kPathTString[] = L"./log/";
 
@@ -111,6 +114,7 @@ enum LogMessageType : IndexType {
     Log error message and error location.
 */
 CORE_DLLAPI Void LogError(TimeType raw_time,
+                          const CChar* err_project,
                           const CChar* err_file, 
                           const CChar* err_func,
                           Int32 err_line, 
@@ -118,6 +122,37 @@ CORE_DLLAPI Void LogError(TimeType raw_time,
                           ReturnType link_code,
                           const CChar* format,
                           ...) noexcept;
+
+/*
+    Log trace message and error location.
+*/
+CORE_DLLAPI Void LogTrace(TimeType raw_time,
+                          const TChar* project,
+                          const TChar* format,
+                          ...) noexcept;
+
+/*
+    Register the log server port input function, the function will be called when log happens.
+*/
+CORE_DLLAPI NODISCARD ReturnType RegisterLogServerInputFunction(
+    IndexType port_id, Void(*input_func)(const ZLog*, ZLog::OutputString*)) noexcept;
+
+/*
+    Removes the log server port output function.
+*/
+CORE_DLLAPI NODISCARD ReturnType UnregisterLogServerInputFunction(
+    IndexType port_id, Void(*input_func)(const ZLog*, ZLog::OutputString*)) noexcept;
+
+/*
+    Register the log server port output function, the function will be called when log happens.
+*/
+CORE_DLLAPI NODISCARD ReturnType RegisterLogServerOutputFunction(
+    IndexType port_id, Void(*output_func)(const ZLog::OutputString&)) noexcept;
+
+/*
+    Removes the log server port output function.
+*/
+CORE_DLLAPI Void UnregisterLogServerOutputFunction(Void(*output_func)(const ZLog::OutputString&)) noexcept;
 
 }//log
 }//zengine
@@ -127,7 +162,7 @@ CORE_DLLAPI Void LogError(TimeType raw_time,
 */
 #define Z_CHECK(condition, err_code, ...)\
     if(condition) {\
-        zengine::log::LogError(time(nullptr), __FILE__, __func__, __LINE__, err_code, 0, __VA_ARGS__);\
+        zengine::log::LogError(time(nullptr), PROJECT_NAME_C_STRING, __FILE__, __func__, __LINE__, err_code, 0, __VA_ARGS__);\
         return err_code;\
     }
 
@@ -135,6 +170,13 @@ CORE_DLLAPI Void LogError(TimeType raw_time,
     Log error.
 */
 #define Z_LOG_ERROR(err_code, link_code, ...)\
-    zengine::log::LogError(time(nullptr), __FILE__, __func__, __LINE__, err_code, link_code, __VA_ARGS__);
+    zengine::log::LogError(time(nullptr), PROJECT_NAME_C_STRING, __FILE__, __func__, __LINE__, err_code, link_code, __VA_ARGS__);
+
+/*
+    Log trace.
+*/
+#define Z_LOG_TRACE(err_code, link_code, ...)\
+    zengine::log::LogTrace(time(nullptr), PROJECT_NAME_T_STRING, __VA_ARGS__);
+
 
 #endif // !Z_CORE_M_LOG_H_

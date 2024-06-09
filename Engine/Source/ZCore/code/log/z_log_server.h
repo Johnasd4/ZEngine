@@ -59,7 +59,8 @@ public:
     /*
         Removes the output function.
     */
-    Void UnregisterInputFunction(Void(*input_func)(const ZLog*, ZLog::OutputString*)) noexcept;
+    NODISCARD ReturnType UnregisterInputFunction(IndexType port_id, 
+                                                 Void(*input_func)(const ZLog*, ZLog::OutputString*)) noexcept;
 
     /*
         Register the output function, the function will be called when log happens.

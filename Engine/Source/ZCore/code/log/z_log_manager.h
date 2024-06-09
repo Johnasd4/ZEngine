@@ -25,6 +25,7 @@
 #include "z_error_log.h"
 #include "z_log_server.h"
 #include "z_thread.h"
+#include "z_trace_log.h"
 
 namespace zengine {
 namespace log {
@@ -38,10 +39,11 @@ class ZLogManager : public ZObject {
 public:
     static constexpr IndexType kLogQueueSize = 128;
 
-    static constexpr IndexType ErrorLogPortID = ZLogServer::kMaxPortNum - 1;
-    static constexpr IndexType TraceLogPortID = ZLogServer::kMaxPortNum - 2;
+    static constexpr IndexType kErrorLogPortID = ZLogServer::kMaxPortNum - 1;
+    static constexpr IndexType kTraceLogPortID = ZLogServer::kMaxPortNum - 2;
 
     static Void LogError(TimeType raw_time,
+                         const CChar* err_project,
                          const CChar* err_file, 
                          const CChar* err_func,
                          Int32 err_line, 
@@ -50,6 +52,33 @@ public:
                          const CChar* format,
                          ArgListType args) noexcept;
 
+    static Void LogTrace(TimeType raw_time,
+                         const TChar* project,
+                         const TChar* format,
+                         ArgListType args) noexcept;
+
+    /*
+        Register the log server port input function, the function will be called when log happens.
+    */
+    NODISCARD static ReturnType RegisterLogServerInputFunction(
+        IndexType port_id, Void(*input_func)(const ZLog*, ZLog::OutputString*)) noexcept;
+
+    /*
+        Removes the log server port output function.
+    */
+    NODISCARD static ReturnType UnregisterLogServerInputFunction(
+        IndexType port_id, Void(*input_func)(const ZLog*, ZLog::OutputString*)) noexcept;
+
+    /*
+        Register the log server port output function, the function will be called when log happens.
+    */
+    NODISCARD static ReturnType RegisterLogServerOutputFunction(
+        IndexType port_id, Void(*output_func)(const ZLog::OutputString&)) noexcept;
+
+    /*
+        Removes the log server port output function.
+    */
+    static Void UnregisterLogServerOutputFunction(Void(*output_func)(const ZLog::OutputString&)) noexcept;
 
 protected:
     using SuperType = ZObject;
@@ -67,6 +96,7 @@ private:
     ~ZLogManager() noexcept;
 
     TLogQueue<ZErrorLog, kLogQueueSize> error_log_queue_;
+    TLogQueue<ZTraceLog, kLogQueueSize> trace_log_queue_;
     TArray<TLogQueue<ZErrorLog, kLogQueueSize>, ZLogServer::kMaxPortNum - 2> log_queue_array_;
     ZLogServer log_server_;
     Bool log_thread_finished_;

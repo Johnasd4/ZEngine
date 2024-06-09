@@ -89,7 +89,7 @@ union Size64Union {
     Float64 float_64;
 };
 
-enum StringEnum : IndexType{
+enum StringEnum : IndexType {
     kStringMin = 0,
     kStringCStr = kStringMin,
     kStringTStr,
