@@ -20,25 +20,31 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\f_console.cpp" />
-    <ClCompile Include="code\f_memory_pool.cpp" />
     <ClCompile Include="code\log\z_error_log.cpp" />
     <ClCompile Include="code\log\z_log_manager.cpp" />
     <ClCompile Include="code\log\z_log_server.cpp" />
-    <ClCompile Include="code\log\z_log_server.h" />
-    <ClCompile Include="code\log\t_log_queue.h" />
     <ClCompile Include="code\m_log.cpp" />
+    <ClCompile Include="code\f_memory_pool.cpp" />
     <ClCompile Include="code\z_file.cpp" />
     <ClCompile Include="code\z_system_time.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="code\log\t_log_queue.h" />
     <ClInclude Include="code\log\z_error_log.h" />
     <ClInclude Include="code\log\z_log_manager.h" />
+    <ClInclude Include="code\log\z_log_server.h" />
     <ClInclude Include="code\memory_pool\t_heap_memory_pool.h" />
     <ClInclude Include="code\memory_pool\t_list_memory_pool_base.h" />
     <ClInclude Include="code\memory_pool\t_memory_block_base.h" />
     <ClInclude Include="code\memory_pool\t_memory_pool_base.h" />
-    <ClInclude Include="code\memory_pool\t_small_memory_block_list_memory_pool.h" />
     <ClInclude Include="code\memory_pool\t_memory_pool_thread_safe_base.h" />
+    <ClInclude Include="code\memory_pool\t_small_memory_block_list_memory_pool.h" />
+    <ClInclude Include="code\memory_pool\z_heap_memory_pool.h" />
+    <ClInclude Include="code\memory_pool\z_list_memory_pool_base.h" />
+    <ClInclude Include="code\memory_pool\z_memory_block_base.h" />
+    <ClInclude Include="code\memory_pool\z_memory_pool_base.h" />
+    <ClInclude Include="code\memory_pool\z_small_memory_block_list_memory_pool.h" />
+    <ClInclude Include="code\memory_pool\z_memory_pool_thread_safe_base.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

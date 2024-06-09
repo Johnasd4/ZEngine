@@ -20,8 +20,6 @@
 
 #include "f_memory_pool.h"
 
-#include "m_log.h"
-
 #include "memory_pool/t_small_memory_block_list_memory_pool.h"
 
 namespace zengine {

@@ -16,12 +16,9 @@
     Author: YuLin Zhu (朱雨林)
     Contact: 1152325286@qq.com
 */
+#include "z_core/internal/z_drive.h"
 
-#include <condition_variable>
-#include <mutex>
 #include "z_engine.h"
-
-#include <queue>
 
 using namespace zengine;
 using namespace std;
@@ -38,9 +35,6 @@ int main() {
     console::PrintSuccess("Success...\n");
     console::PrintFailure("Failure...\n");
     console::PrintError("Error...\n");
-
-    std::unique_lock<std::mutex> b;
-    std::condition_variable cv;
 
     ZFile test_file;
     test_file.CreatePath("z:\\test");
