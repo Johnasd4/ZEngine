@@ -30,6 +30,7 @@ static constexpr ReturnType kErrorCodeBasePCore = 0x00100000u;
 static constexpr ReturnType kErrorCodeBaseZFile = kErrorCodeBasePCore + 0x100u;
 static constexpr ReturnType kErrorCodeBaseZPrintManager = kErrorCodeBasePCore + 0x200u;
 static constexpr ReturnType kErrorCodeBaseMLog = kErrorCodeBasePCore + 0x300u;
+static constexpr ReturnType kErrorCodeBaseTUniqueLock = kErrorCodeBasePCore + 0x400u;
 
 }//zengine
 

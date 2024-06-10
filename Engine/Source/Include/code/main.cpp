@@ -21,24 +21,69 @@
 
 #include "z_engine.h"
 
+#include <mutex>
+#include <condition_variable>
+#include <queue>
+#include <tuple>
 using namespace zengine;
 using namespace std;
+
+
+std::mutex mtx;
+std::condition_variable cv;
+std::queue<int> data_queue;
+bool finished = false;
+
+void producer() {
+    for (int i = 0; i < 10; ++i) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::lock_guard<std::mutex> lock(mtx);
+        data_queue.push(i);
+        cv.notify_one();
+    }
+    {
+        std::lock_guard<std::mutex> lock(mtx);
+        finished = true;
+        cv.notify_all();
+    }
+}
+
+void consumer() {
+    while (true) {
+        std::unique_lock<std::mutex> lock(mtx);
+        cv.wait(lock, [] { return !data_queue.empty() || finished; });
+        while (!data_queue.empty()) {
+            int data = data_queue.front();
+            data_queue.pop();
+            std::cout << "Consumed: " << data << std::endl;
+        }
+        if (finished) break;
+    }
+}
 
 int main() {
     Z_LOG_ERROR(1, 2, "TEST%d%d%d%d%d", 3, 4, 5, 6, 7);
     Z_LOG_ERROR(1, 2, "TEST%d%d%d%d%d", 3, 4, 5, 6, 7);
-    Z_LOG_TRACE(1, 2, L"TEST%d%d%d%d%d", 3, 4, 5, 6, 7);
-    console::PrintMessage("Message...\n");
-    console::PrintStart("Start...\n");
-    console::PrintProcess("Process 1...\n");
-    console::PrintProcess("Process 2...\n");
-    console::PrintProcess("Process 3...\n");
-    console::PrintFinish("Finish...\n");
-    console::PrintSuccess("Success...\n");
-    console::PrintFailure("Failure...\n");
-    console::PrintError("Error...\n");
-    console::PrintMessage(L"Message...\n");
-    
+    Z_LOG_TRACE(L"TEST%d%d%d%d%d", 3, 4, 5, 6, 7);
+    Z_LOG_MESSAGE(L"Message...");
+    Z_LOG_START(L"Start...");
+    Z_LOG_PROCESS(L"Process 1...");
+    Z_LOG_PROCESS(L"Process 2...");
+    Z_LOG_PROCESS(L"Process 3...");
+    Z_LOG_FINISH(L"Finish...");
+    Z_LOG_SUCCESS(L"Success...");
+    Z_LOG_FAILURE(L"Failure...");
+    ZMutex mutex;
+    TUniqueLock<ZMutex> lock(mutex);
+    condition_variable;
     Sleep(100);
+    std::thread prod(producer);
+    std::thread cons(consumer);
+
+    prod.join();
+    cons.join();
+
+    DWORD;
+
     return 0;
 }

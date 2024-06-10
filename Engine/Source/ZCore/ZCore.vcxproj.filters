@@ -36,10 +36,13 @@
     <ClCompile Include="code\log\z_log_manager.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="code\log\z_error_log.cpp">
+    <ClCompile Include="code\log\type\z_error_log.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="code\log\z_trace_log.cpp">
+    <ClCompile Include="code\log\type\z_trace_log.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\log\type\z_info_log.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -86,13 +89,16 @@
     <ClInclude Include="code\log\z_log_manager.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\log\z_error_log.h">
+    <ClInclude Include="code\log\type\z_error_log.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\log\t_log_queue.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\log\z_trace_log.h">
+    <ClInclude Include="code\log\type\z_trace_log.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\log\type\z_info_log.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

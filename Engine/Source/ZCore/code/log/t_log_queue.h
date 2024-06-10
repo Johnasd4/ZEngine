@@ -51,12 +51,20 @@ public:
     Void Push(const LogType& log) noexcept {
         log_mutex_.Lock();
         log_queue_.Push(log);
+        if (log_queue_.Size() > log_queue_.Capacity()) {
+            log_queue_.Clear();
+            Z_LOG_ERROR(error_code::kMLogErrorCodeLogQueueOverflow, 0, "Log queue overflow! Clear all logs!");
+        }
         log_mutex_.Unlock();
     }
     template<typename... ArgsType>
     Void Push(ArgsType&&... args) noexcept {
         log_mutex_.Lock();
         log_queue_.Push(std::forward<ArgsType>(args)...);
+        if (log_queue_.Size() > log_queue_.Capacity()) {
+            log_queue_.Clear();
+            Z_LOG_ERROR(error_code::kMLogErrorCodeLogQueueOverflow, 0, "Log queue overflow! Clear all logs!");
+        }
         log_mutex_.Unlock();
     }
 

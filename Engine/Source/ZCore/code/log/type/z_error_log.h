@@ -22,7 +22,6 @@
 #include "internal/z_drive.h"
 
 #include "m_log.h"
-#include "z_mutex.h"
 
 namespace zengine {
 namespace log {
@@ -51,12 +50,12 @@ public:
     /*
         Console output error log string.
     */
-    static Void FileOutputLogString(const ZLog::OutputString& output_str) noexcept;
+    static Void FileOutputLogString(const ZLog* log_ptr, const ZLog::OutputString& output_str) noexcept;
 
     /*
         File output error log string.
     */
-    static Void ConsoleOutputLogString(const ZLog::OutputString& output_str) noexcept;
+    static Void ConsoleOutputLogString(const ZLog* log_ptr, const ZLog::OutputString& output_str) noexcept;
 
 protected:
     using SuperType = ZLog;

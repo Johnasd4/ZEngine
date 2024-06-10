@@ -52,7 +52,7 @@ Void ZErrorLog::GenerateLogString(const ZLog* log_ptr, OutputString* output_str_
     ZErrorLog& err_log = *(ZErrorLog*)log_ptr;
     system_time.UpdateTimeFast(err_log.raw_time_);
     output_str_ptr->c_str.SetString(
-        "\nTime: %04d/%02d/%02d-%02d:%02d:%02d\nProject: %s\nFile: %s\nFunction: %s\nLine: %d\nError Code: 0x%x\nLink Code: 0x%x\nMessage: %s",
+        "--------------------------------------------------------------------------------\nTime: %04d/%02d/%02d-%02d:%02d:%02d\nProject: %s\nFile: %s\nFunction: %s\nLine: %d\nError Code: 0x%x\nLink Code: 0x%x\nMessage: %s\n--------------------------------------------------------------------------------",
         system_time.Year(), system_time.Month(), system_time.Day(),
         system_time.Hour(), system_time.Min(), system_time.Sec(),
         err_log.err_project_, err_log.err_file_, err_log.err_func_, err_log.err_line_, 
@@ -65,7 +65,7 @@ static ZFile& GetLogFile() noexcept {
     TFixedString<TChar, ZFile::kFileNameLength> file_str;
     ZSystemTime system_time;
 
-    file_str.SetString(L"%lserror_log_%04d%02d%02d%02d%02d%02d.log", ZLog::kPathTString,
+    file_str.SetString(L"%lserror_%04d%02d%02d%02d%02d%02d.log", ZLog::kPathTString,
         system_time.Year(), system_time.Month(), system_time.Day(),
         system_time.Hour(), system_time.Min(), system_time.Sec());
     link_code = file.OpenSafe(ZLog::kPathTString, file_str.DataPtr(), ZFile::kOpenTypeAppendT);
@@ -75,7 +75,7 @@ static ZFile& GetLogFile() noexcept {
     return file;
 }
 
-Void ZErrorLog::FileOutputLogString(const ZLog::OutputString& output_str) noexcept {
+Void ZErrorLog::FileOutputLogString(const ZLog* log_ptr, const ZLog::OutputString& output_str) noexcept {
     static ZFile& file = GetLogFile();
     ReturnType link_code = kOK;
 
@@ -85,7 +85,7 @@ Void ZErrorLog::FileOutputLogString(const ZLog::OutputString& output_str) noexce
     }
 }
 
-Void ZErrorLog::ConsoleOutputLogString(const ZLog::OutputString& output_str) noexcept {
+Void ZErrorLog::ConsoleOutputLogString(const ZLog* log_ptr, const ZLog::OutputString& output_str) noexcept {
     console::PrintError("%s\n", output_str.c_str.DataPtr());
 }
 

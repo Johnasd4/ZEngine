@@ -146,6 +146,11 @@ CORE_DLLAPI Void Print(PrintTextColourEnum text_colour, PrintBackgroundColourEnu
                        const TChar* format, ArgListType args) noexcept;
 
 template<typename CharType, typename... ArgsType>
+FORCEINLINE Void PrintTrace(const CharType* format, ArgsType&&... args) noexcept {
+    Print(kPrintTextColourLightWhite, kPrintBackgroundColourDarkBlack, format, std::forward<ArgsType>(args)...);
+}
+
+template<typename CharType, typename... ArgsType>
 FORCEINLINE Void PrintMessage(const CharType* format, ArgsType&&... args) noexcept {
     Print(kPrintTextColourDarkWhite, kPrintBackgroundColourDarkBlack, format, std::forward<ArgsType>(args)...);
 }

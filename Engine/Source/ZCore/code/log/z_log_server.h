@@ -40,7 +40,7 @@ public:
     */
     struct ZLogPort {
         Void(*input_func_)(const ZLog*, ZLog::OutputString*) = nullptr;
-        TArray<Void(*)(const ZLog::OutputString&), kMaxOutputPurPort> output_func_array_;
+        TArray<Void(*)(const ZLog*, const ZLog::OutputString&), kMaxOutputPurPort> output_func_array_;
     };
 
     ZLogServer() noexcept;
@@ -66,12 +66,12 @@ public:
         Register the output function, the function will be called when log happens.
     */
     NODISCARD ReturnType RegisterOutputFunction(IndexType port_id, 
-                                                Void(*output_func)(const ZLog::OutputString&)) noexcept;
+                                                Void(*output_func)(const ZLog*, const ZLog::OutputString&)) noexcept;
 
     /*
         Removes the output function.
     */
-    Void UnregisterOutputFunction(Void(*output_func)(const ZLog::OutputString&)) noexcept;
+    Void UnregisterOutputFunction(Void(*output_func)(const ZLog*, const ZLog::OutputString&)) noexcept;
 
 
 protected:

@@ -28,6 +28,7 @@
     <ClInclude Include="code\z_core\t_fixed_deque.h" />
     <ClInclude Include="code\z_core\t_fixed_queue.h" />
     <ClInclude Include="code\z_core\t_fixed_string.h" />
+    <ClInclude Include="code\z_core\t_unique_lock.h" />
     <ClInclude Include="code\z_core\z_file.h" />
     <ClInclude Include="code\z_core\z_lock_guard.h" />
     <ClInclude Include="code\z_core\z_system_time.h" />

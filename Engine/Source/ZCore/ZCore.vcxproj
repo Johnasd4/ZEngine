@@ -20,10 +20,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\f_console.cpp" />
-    <ClCompile Include="code\log\z_error_log.cpp" />
+    <ClCompile Include="code\log\type\z_error_log.cpp" />
+    <ClCompile Include="code\log\type\z_info_log.cpp" />
     <ClCompile Include="code\log\z_log_manager.cpp" />
     <ClCompile Include="code\log\z_log_server.cpp" />
-    <ClCompile Include="code\log\z_trace_log.cpp" />
+    <ClCompile Include="code\log\type\z_trace_log.cpp" />
     <ClCompile Include="code\m_log.cpp" />
     <ClCompile Include="code\f_memory_pool.cpp" />
     <ClCompile Include="code\z_file.cpp" />
@@ -31,10 +32,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\log\t_log_queue.h" />
-    <ClInclude Include="code\log\z_error_log.h" />
+    <ClInclude Include="code\log\type\z_error_log.h" />
+    <ClInclude Include="code\log\type\z_info_log.h" />
     <ClInclude Include="code\log\z_log_manager.h" />
     <ClInclude Include="code\log\z_log_server.h" />
-    <ClInclude Include="code\log\z_trace_log.h" />
+    <ClInclude Include="code\log\type\z_trace_log.h" />
     <ClInclude Include="code\memory_pool\t_heap_memory_pool.h" />
     <ClInclude Include="code\memory_pool\t_list_memory_pool_base.h" />
     <ClInclude Include="code\memory_pool\t_memory_block_base.h" />

@@ -21,11 +21,12 @@
 
 #include "internal/z_drive.h"
 
+#include "type/z_error_log.h"
+#include "type/z_info_log.h"
+#include "type/z_trace_log.h"
 #include "t_log_queue.h"
-#include "z_error_log.h"
 #include "z_log_server.h"
 #include "z_thread.h"
-#include "z_trace_log.h"
 
 namespace zengine {
 namespace log {
@@ -41,6 +42,9 @@ public:
 
     static constexpr IndexType kErrorLogPortID = ZLogServer::kMaxPortNum - 1;
     static constexpr IndexType kTraceLogPortID = ZLogServer::kMaxPortNum - 2;
+    static constexpr IndexType kInfoLogPortID = ZLogServer::kMaxPortNum - 3;
+    static constexpr IndexType kLogPortIDMin = - 3;
+    static constexpr IndexType kLogPortIDMax = ZLogServer::kMaxPortNum - kLogPortIDMin;
 
     static Void LogError(TimeType raw_time,
                          const CChar* err_project,
@@ -56,6 +60,11 @@ public:
                          const TChar* project,
                          const TChar* format,
                          ArgListType args) noexcept;
+
+    static Void LogInfo(TimeType raw_time,
+                        LogInfoEnum info_type,
+                        const TChar* format,
+                        ArgListType args) noexcept;
 
     /*
         Register the log server port input function, the function will be called when log happens.
@@ -73,12 +82,12 @@ public:
         Register the log server port output function, the function will be called when log happens.
     */
     NODISCARD static ReturnType RegisterLogServerOutputFunction(
-        IndexType port_id, Void(*output_func)(const ZLog::OutputString&)) noexcept;
+        IndexType port_id, Void(*output_func)(const ZLog*, const ZLog::OutputString&)) noexcept;
 
     /*
         Removes the log server port output function.
     */
-    static Void UnregisterLogServerOutputFunction(Void(*output_func)(const ZLog::OutputString&)) noexcept;
+    static Void UnregisterLogServerOutputFunction(Void(*output_func)(const ZLog*, const ZLog::OutputString&)) noexcept;
 
 protected:
     using SuperType = ZObject;
@@ -97,7 +106,8 @@ private:
 
     TLogQueue<ZErrorLog, kLogQueueSize> error_log_queue_;
     TLogQueue<ZTraceLog, kLogQueueSize> trace_log_queue_;
-    TArray<TLogQueue<ZErrorLog, kLogQueueSize>, ZLogServer::kMaxPortNum - 2> log_queue_array_;
+    TLogQueue<ZInfoLog, kLogQueueSize> info_log_queue_;
+    TArray<TLogQueue<ZErrorLog, kLogQueueSize>, ZLogServer::kMaxPortNum - kLogPortIDMin> log_queue_array_;
     ZLogServer log_server_;
     Bool log_thread_finished_;
     ZThread log_thread_;

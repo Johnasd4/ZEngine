@@ -19,8 +19,6 @@
 #ifndef Z_CORE_T_ALLOCATOR_H_
 #define Z_CORE_T_ALLOCATOR_H_
 
-#pragma warning(disable : 26439)
-
 #include "internal/z_drive.h"
 #include "f_memory_pool.h"
 

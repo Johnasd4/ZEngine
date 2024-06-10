@@ -18,7 +18,7 @@
 */
 #define CORE_DLLFILE
 
-#include "z_trace_log.h"
+#include "z_info_log.h"
 
 #include "f_console.h"
 #include "z_file.h"
@@ -27,20 +27,20 @@
 namespace zengine {
 namespace log {
 
-ZTraceLog::ZTraceLog() noexcept : 
-    raw_time_(), project_(), SuperType() {}
-ZTraceLog::ZTraceLog(TimeType raw_time, const TChar* project, const TChar* format, ArgListType args) noexcept :
-    raw_time_(raw_time), project_(project), SuperType(format, args) {}
+ZInfoLog::ZInfoLog() noexcept : 
+    raw_time_(), info_type_(), SuperType() {}
+ZInfoLog::ZInfoLog(TimeType raw_time, LogInfoEnum info_type, const TChar* format, ArgListType args) noexcept :
+    raw_time_(raw_time), info_type_(info_type), SuperType(format, args) {}
 
-Void ZTraceLog::GenerateLogString(const ZLog* log_ptr, OutputString* output_str_ptr) noexcept {
+Void ZInfoLog::GenerateLogString(const ZLog* log_ptr, OutputString* output_str_ptr) noexcept {
     static ZSystemTime system_time;
-    ZTraceLog& trace_log = *(ZTraceLog*)log_ptr;
-    system_time.UpdateTimeFast(trace_log.raw_time_);
+    ZInfoLog& info_log = *(ZInfoLog*)log_ptr;
+    system_time.UpdateTimeFast(info_log.raw_time_);
     output_str_ptr->t_str.SetString(
-        L"%04d/%02d/%02d-%02d:%02d:%02d <%ls> %s",
+        L"%04d/%02d/%02d-%02d:%02d:%02d | %ls: %ls",
         system_time.Year(), system_time.Month(), system_time.Day(),
         system_time.Hour(), system_time.Min(), system_time.Sec(),
-        trace_log.project_, trace_log.LogMsgPtr().c_str.DataPtr());
+        kLogInfoString[info_log.info_type_], info_log.LogMsgPtr().t_str.DataPtr());
 }
 
 static ZFile& GetLogFile() noexcept {
@@ -49,7 +49,7 @@ static ZFile& GetLogFile() noexcept {
     TFixedString<TChar, ZFile::kFileNameLength> file_str;
     ZSystemTime system_time;
 
-    file_str.SetString(L"%lstrace_log_%04d%02d%02d%02d%02d%02d.log", ZLog::kPathTString,
+    file_str.SetString(L"%lsinfo_%04d%02d%02d%02d%02d%02d.log", ZLog::kPathTString,
         system_time.Year(), system_time.Month(), system_time.Day(),
         system_time.Hour(), system_time.Min(), system_time.Sec());
     link_code = file.OpenSafe(ZLog::kPathTString, file_str.DataPtr(), ZFile::kOpenTypeAppendT);
@@ -59,7 +59,7 @@ static ZFile& GetLogFile() noexcept {
     return file;
 }
 
-Void ZTraceLog::FileOutputLogString(const ZLog::OutputString& output_str) noexcept {
+Void ZInfoLog::FileOutputLogString(const ZLog* log_ptr, const ZLog::OutputString& output_str) noexcept {
     static ZFile& file = GetLogFile();
     ReturnType link_code = kOK;
 
@@ -69,8 +69,28 @@ Void ZTraceLog::FileOutputLogString(const ZLog::OutputString& output_str) noexce
     }
 }
 
-Void ZTraceLog::ConsoleOutputLogString(const ZLog::OutputString& output_str) noexcept {
-    console::PrintMessage("%ls\n", output_str.t_str.DataPtr());
+Void ZInfoLog::ConsoleOutputLogString(const ZLog* log_ptr, const ZLog::OutputString& output_str) noexcept {
+    ZInfoLog& info_log = *(ZInfoLog*)log_ptr;
+    switch (info_log.info_type_) {
+    case kLogInfoMessage:
+        console::PrintMessage("%ls\n", output_str.t_str.DataPtr());
+        break;
+    case kLogInfoStart:
+        console::PrintStart("%ls\n", output_str.t_str.DataPtr());
+        break;
+    case kLogInfoProcess:
+        console::PrintProcess("%ls\n", output_str.t_str.DataPtr());
+        break;
+    case kLogInfoFinish:
+        console::PrintFinish("%ls\n", output_str.t_str.DataPtr());
+        break;
+    case kLogInfoSuccess:
+        console::PrintSuccess("%ls\n", output_str.t_str.DataPtr());
+        break;
+    case kLogInfoFailure:
+        console::PrintFailure("%ls\n", output_str.t_str.DataPtr());
+        break;
+    }
 }
 
 }//log

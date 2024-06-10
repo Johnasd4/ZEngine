@@ -42,7 +42,7 @@ Void ZLogServer::OutputLog(IndexType port_id, const ZLog* log_ptr) noexcept {
     //call the output functions
     for (IndexType func_index = 0; func_index < port_array_[port_id].output_func_array_.Capacity(); ++func_index) {
         if (port_array_[port_id].output_func_array_[func_index] != nullptr) {
-            port_array_[port_id].output_func_array_[func_index](output_str);
+            port_array_[port_id].output_func_array_[func_index](log_ptr, output_str);
         }
     }
 }
@@ -79,8 +79,8 @@ NODISCARD ReturnType ZLogServer::UnregisterInputFunction(IndexType port_id,
     return ret_val;
 }
 
-NODISCARD ReturnType ZLogServer::RegisterOutputFunction(IndexType port_id, 
-                                                        Void(*output_func)(const ZLog::OutputString&)) noexcept {
+NODISCARD ReturnType ZLogServer::RegisterOutputFunction(
+        IndexType port_id, Void(*output_func)(const ZLog*, const ZLog::OutputString&)) noexcept {
     ReturnType ret_val = kOK;
     Bool registered = false;
 
@@ -112,7 +112,7 @@ NODISCARD ReturnType ZLogServer::RegisterOutputFunction(IndexType port_id,
     return ret_val;
 }
 
-Void ZLogServer::UnregisterOutputFunction(Void(*output_func)(const ZLog::OutputString&)) noexcept {
+Void ZLogServer::UnregisterOutputFunction(Void(*output_func)(const ZLog*, const ZLog::OutputString&)) noexcept {
     for (IndexType port_id = 0; port_id < port_array_.Capacity(); ++port_id) {
         for (IndexType func_index = 0; func_index < port_array_[port_id].output_func_array_.Capacity(); ++func_index) {
             if (port_array_[port_id].output_func_array_[func_index] == output_func) {
