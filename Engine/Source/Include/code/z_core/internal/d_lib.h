@@ -30,6 +30,7 @@
 #include <windows.h>
 #include <ctime>
 #include <stdarg.h>
+#include <process.h>
 
 #ifndef DLLEXPORT
 #define DLLEXPORT __declspec(dllexport)

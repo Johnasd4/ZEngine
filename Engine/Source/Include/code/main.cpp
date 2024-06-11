@@ -25,6 +25,7 @@
 #include <condition_variable>
 #include <queue>
 #include <tuple>
+#include <thread>
 using namespace zengine;
 using namespace std;
 
@@ -76,14 +77,8 @@ int main() {
     ZMutex mutex;
     TUniqueLock<ZMutex> lock(mutex);
     Sleep(100);
-    auto a = MakeTuple(1, 1.1f);
-    float c;
-    int b;
-    Tie(b, c) = a;
     //std::thread prod(producer);
     //std::thread cons(consumer);
-    cout << b << endl;
-    cout << c << endl;
     //prod.join();
     //cons.join();
 

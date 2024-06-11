@@ -68,15 +68,15 @@ static TimeType GetTimeOffset() noexcept {
     return region_time_offset;
 }
 
-CORE_DLLAPI ZSystemTime& ZSystemTime::Instance() noexcept {
+ZSystemTime& ZSystemTime::Instance() noexcept {
     static ZSystemTime system_time;
     return system_time;
 }
 
-CORE_DLLAPI ZSystemTime::ZSystemTime() noexcept : SuperType() { UpdateTime(); }
-CORE_DLLAPI ZSystemTime::~ZSystemTime() noexcept {}
+ZSystemTime::ZSystemTime() noexcept : SuperType() { UpdateTime(); }
+ZSystemTime::~ZSystemTime() noexcept {}
 
-CORE_DLLAPI Void ZSystemTime::UpdateTime(TimeType time_raw) noexcept {
+Void ZSystemTime::UpdateTime(TimeType time_raw) noexcept {
     time_raw += GetTimeOffset();
     sec_ = (Int32)(time_raw % kSecPurMin);
     time_raw = time_raw / kSecPurMin;
@@ -114,7 +114,7 @@ CORE_DLLAPI Void ZSystemTime::UpdateTime(TimeType time_raw) noexcept {
     month_ = month + 1;
 }
 
-CORE_DLLAPI Void ZSystemTime::UpdateTimeFast(TimeType time_raw) noexcept {
+Void ZSystemTime::UpdateTimeFast(TimeType time_raw) noexcept {
     Int32 pre_hour = hour_;
 
     time_raw += GetTimeOffset();

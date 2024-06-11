@@ -44,12 +44,13 @@
     <ClInclude Include="code\z_core\z_object.h" />
     <ClInclude Include="code\z_core.h" />
     <ClInclude Include="code\z_core\internal\z_drive.h" />
+    <ClInclude Include="code\z_core\z_thread.h" />
     <ClInclude Include="code\z_engine.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\main.cpp" />
     <ClCompile Include="code\z_core\internal\d_constant.h" />
-    <ClCompile Include="code\z_core\z_thread.h" />
+    <ClCompile Include="code\z_core\z_thread_b.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

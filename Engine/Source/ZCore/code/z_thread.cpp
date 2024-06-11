@@ -1,0 +1,62 @@
+/*
+    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+
+    This code file is licensed under the Creative Commons
+    Attribution-NonCommercial 4.0 International License.
+
+    You may obtain a copy of the License at
+    https://creativecommons.org/licenses/by-nc/4.0/
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Contact: 1152325286@qq.com
+*/
+#define CORE_DLLFILE
+
+#include "z_thread.h"
+
+namespace zengine {
+
+ZThread::ZThread() noexcept : SuperType(), id_(NULL), handle_(nullptr) {}
+
+ZThread::ZThread(ZThread&& thread) noexcept : SuperType(), id_(thread.id_), handle_(thread.handle_) { 
+    thread.id_ = NULL; 
+    thread.handle_ = nullptr;
+}
+
+ZThread::~ZThread() noexcept {}
+
+ZThread& ZThread::operator=(ZThread&& thread) noexcept {
+    id_ = thread.id_;
+    handle_ = thread.handle_;
+    thread.id_ = NULL;
+    thread.handle_ = nullptr;
+    return *this;
+}
+
+NODISCARD Bool ZThread::Joinable() noexcept { return WaitForSingleObject(handle_, 0) == WAIT_TIMEOUT; }
+
+Void ZThread::Join() noexcept { WaitForSingleObject(handle_, INFINITE); }
+
+Void ZThread::Detach() noexcept { 
+    CloseHandle(handle_); 
+    id_ = NULL;
+    handle_ = nullptr;
+}
+
+Void ZThread::Swap(ZThread& thread) noexcept { 
+    UInt32 temp_id = id_;
+    Handle temp_handle_ = handle_;
+    id_ = thread.id_;
+    handle_ = thread.handle_;
+    thread.id_ = id_;
+    thread.handle_ = handle_;
+}
+
+
+}//zengine

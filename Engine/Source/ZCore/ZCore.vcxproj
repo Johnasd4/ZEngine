@@ -29,6 +29,7 @@
     <ClCompile Include="code\f_memory_pool.cpp" />
     <ClCompile Include="code\z_file.cpp" />
     <ClCompile Include="code\z_system_time.cpp" />
+    <ClCompile Include="code\z_thread.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\log\t_log_queue.h" />

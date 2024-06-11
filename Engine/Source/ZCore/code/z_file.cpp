@@ -24,7 +24,7 @@
 
 namespace zengine {
 
-CORE_DLLAPI NODISCARD ReturnType ZFile::Read(Void* data_ptr, SizeType data_size) noexcept {
+NODISCARD ReturnType ZFile::Read(Void* data_ptr, SizeType data_size) noexcept {
     ReturnType ret_val = kOK;
 
     Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, "No file opened!");
@@ -39,7 +39,7 @@ CORE_DLLAPI NODISCARD ReturnType ZFile::Read(Void* data_ptr, SizeType data_size)
     return ret_val;
 }
 
-CORE_DLLAPI NODISCARD ReturnType ZFile::Write(Void* data_ptr, SizeType data_size) noexcept {
+NODISCARD ReturnType ZFile::Write(Void* data_ptr, SizeType data_size) noexcept {
     ReturnType ret_val = kOK;
 
     Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, "No file opened!");
@@ -54,7 +54,7 @@ CORE_DLLAPI NODISCARD ReturnType ZFile::Write(Void* data_ptr, SizeType data_size
     return ret_val;
 }
 
-CORE_DLLAPI NODISCARD ReturnType ZFile::Scan(const CChar* format, ArgListType args) noexcept {
+NODISCARD ReturnType ZFile::Scan(const CChar* format, ArgListType args) noexcept {
     ReturnType ret_val = kOK;
 
     Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, "No file opened!");
@@ -68,7 +68,7 @@ CORE_DLLAPI NODISCARD ReturnType ZFile::Scan(const CChar* format, ArgListType ar
     return ret_val;
 }
 
-CORE_DLLAPI NODISCARD ReturnType ZFile::Scan(const CChar* format, ...) noexcept {
+NODISCARD ReturnType ZFile::Scan(const CChar* format, ...) noexcept {
     ReturnType ret_val = kOK;
 
     Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, "No file opened!");
@@ -87,7 +87,7 @@ CORE_DLLAPI NODISCARD ReturnType ZFile::Scan(const CChar* format, ...) noexcept 
     return ret_val;
 }
 
-CORE_DLLAPI NODISCARD ReturnType ZFile::Scan(const TChar* format, ArgListType args) noexcept {
+NODISCARD ReturnType ZFile::Scan(const TChar* format, ArgListType args) noexcept {
     ReturnType ret_val = kOK;
 
     Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, "No file opened!");
@@ -101,7 +101,7 @@ CORE_DLLAPI NODISCARD ReturnType ZFile::Scan(const TChar* format, ArgListType ar
     return ret_val;
 }
 
-CORE_DLLAPI NODISCARD ReturnType ZFile::Scan(const TChar* format, ...) noexcept {
+NODISCARD ReturnType ZFile::Scan(const TChar* format, ...) noexcept {
     ReturnType ret_val = kOK;
 
     Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, "No file opened!");
@@ -120,7 +120,7 @@ CORE_DLLAPI NODISCARD ReturnType ZFile::Scan(const TChar* format, ...) noexcept 
     return ret_val;
 }
 
-CORE_DLLAPI NODISCARD ReturnType ZFile::Print(const CChar* format, ArgListType args) noexcept {
+NODISCARD ReturnType ZFile::Print(const CChar* format, ArgListType args) noexcept {
     ReturnType ret_val = kOK;
 
     Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, "No file opened!");
@@ -134,7 +134,7 @@ CORE_DLLAPI NODISCARD ReturnType ZFile::Print(const CChar* format, ArgListType a
     return ret_val;
 }
 
-CORE_DLLAPI NODISCARD ReturnType ZFile::Print(const CChar* format, ...) noexcept {
+NODISCARD ReturnType ZFile::Print(const CChar* format, ...) noexcept {
     ReturnType ret_val = kOK;
 
     Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, "No file opened!");
@@ -153,7 +153,7 @@ CORE_DLLAPI NODISCARD ReturnType ZFile::Print(const CChar* format, ...) noexcept
     return ret_val;
 }
 
-CORE_DLLAPI NODISCARD ReturnType ZFile::Print(const TChar* format, ArgListType args) noexcept {
+NODISCARD ReturnType ZFile::Print(const TChar* format, ArgListType args) noexcept {
     ReturnType ret_val = kOK;
 
     Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, "No file opened!");
@@ -168,7 +168,7 @@ CORE_DLLAPI NODISCARD ReturnType ZFile::Print(const TChar* format, ArgListType a
 }
 
 
-CORE_DLLAPI NODISCARD ReturnType ZFile::Print(const TChar* format, ...) noexcept {
+NODISCARD ReturnType ZFile::Print(const TChar* format, ...) noexcept {
     ReturnType ret_val = kOK;
 
     Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, "No file opened!");
@@ -187,15 +187,15 @@ CORE_DLLAPI NODISCARD ReturnType ZFile::Print(const TChar* format, ...) noexcept
     return ret_val;
 }
 
-CORE_DLLAPI NODISCARD Bool ZFile::PathExist(const CChar* path_dir) noexcept {
+NODISCARD Bool ZFile::PathExist(const CChar* path_dir) noexcept {
     return GetFileAttributesA(path_dir) != INVALID_FILE_ATTRIBUTES;
 }
 
-CORE_DLLAPI NODISCARD Bool ZFile::PathExist(const TChar* path_dir) noexcept {
+NODISCARD Bool ZFile::PathExist(const TChar* path_dir) noexcept {
     return GetFileAttributesW(path_dir) != INVALID_FILE_ATTRIBUTES;
 }
 
-CORE_DLLAPI NODISCARD ReturnType ZFile::CreatePath(const CChar* path_dir) noexcept {
+NODISCARD ReturnType ZFile::CreatePath(const CChar* path_dir) noexcept {
     ReturnType ret_val = kOK;
 
     if (!CreateDirectoryA(path_dir, NULL) && GetLastError() != ERROR_ALREADY_EXISTS) {
@@ -206,7 +206,7 @@ CORE_DLLAPI NODISCARD ReturnType ZFile::CreatePath(const CChar* path_dir) noexce
     return ret_val;
 }
 
-CORE_DLLAPI NODISCARD ReturnType ZFile::CreatePath(const TChar* path_dir) noexcept {
+NODISCARD ReturnType ZFile::CreatePath(const TChar* path_dir) noexcept {
     ReturnType ret_val = kOK;
 
     if (!CreateDirectoryW(path_dir, NULL) && GetLastError() != ERROR_ALREADY_EXISTS) {
@@ -217,7 +217,7 @@ CORE_DLLAPI NODISCARD ReturnType ZFile::CreatePath(const TChar* path_dir) noexce
     return ret_val;
 }
 
-CORE_DLLAPI NODISCARD ReturnType ZFile::Open(const CChar* file_dir, const CChar* open_type) noexcept {
+NODISCARD ReturnType ZFile::Open(const CChar* file_dir, const CChar* open_type) noexcept {
     ReturnType ret_val = kOK;
 
     Z_CHECK(file_ptr_ != nullptr, error_code::kZFileErrorCodeOtherFileOpened, "Another file is opened!");
@@ -232,7 +232,7 @@ CORE_DLLAPI NODISCARD ReturnType ZFile::Open(const CChar* file_dir, const CChar*
     return ret_val;
 }
 
-CORE_DLLAPI NODISCARD ReturnType ZFile::Open(const TChar* file_dir, const TChar* open_type) noexcept {
+NODISCARD ReturnType ZFile::Open(const TChar* file_dir, const TChar* open_type) noexcept {
     ReturnType ret_val = kOK;
 
     Z_CHECK(file_ptr_ != nullptr, error_code::kZFileErrorCodeOtherFileOpened, "Another file is opened!");
@@ -247,7 +247,7 @@ CORE_DLLAPI NODISCARD ReturnType ZFile::Open(const TChar* file_dir, const TChar*
     return ret_val;
 }
 
-CORE_DLLAPI NODISCARD ReturnType ZFile::OpenSafe(const CChar* path_dir, const CChar* file_dir,
+NODISCARD ReturnType ZFile::OpenSafe(const CChar* path_dir, const CChar* file_dir,
                                                  const CChar* open_type) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
@@ -272,7 +272,7 @@ CORE_DLLAPI NODISCARD ReturnType ZFile::OpenSafe(const CChar* path_dir, const CC
 }
 
 
-CORE_DLLAPI NODISCARD ReturnType ZFile::OpenSafe(const TChar* path_dir, const TChar* file_dir, 
+NODISCARD ReturnType ZFile::OpenSafe(const TChar* path_dir, const TChar* file_dir, 
                                                  const TChar* open_type) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
@@ -296,7 +296,7 @@ CORE_DLLAPI NODISCARD ReturnType ZFile::OpenSafe(const TChar* path_dir, const TC
     return ret_val;
 }
 
-CORE_DLLAPI NODISCARD ReturnType ZFile::Close() noexcept {
+NODISCARD ReturnType ZFile::Close() noexcept {
     ReturnType ret_val = kOK;
 
     Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, "No file opened!");
@@ -312,7 +312,7 @@ CORE_DLLAPI NODISCARD ReturnType ZFile::Close() noexcept {
     return ret_val;
 }
 
-CORE_DLLAPI NODISCARD ReturnType ZFile::Seek(Int32 offset, SeekType seek_type) noexcept {
+NODISCARD ReturnType ZFile::Seek(Int32 offset, SeekType seek_type) noexcept {
     ReturnType ret_val = kOK;
 
     Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, "No file opened!");
@@ -326,7 +326,7 @@ CORE_DLLAPI NODISCARD ReturnType ZFile::Seek(Int32 offset, SeekType seek_type) n
     return ret_val;
 }
 
-CORE_DLLAPI NODISCARD ReturnType ZFile::Tell(Int32* pos_ptr) noexcept {
+NODISCARD ReturnType ZFile::Tell(Int32* pos_ptr) noexcept {
     ReturnType ret_val = kOK;
 
     Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, "No file opened!");
