@@ -16,26 +16,24 @@
     Author: YuLin Zhu (÷Ï”Í¡÷)
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_H_
-#define Z_CORE_H_
+#ifndef Z_CORE_M_TEST_H_
+#define Z_CORE_M_TEST_H_
 
-#include "z_core/f_console.h"
-#include "z_core/f_memory_pool.h"
-#include "z_core/m_log.h"
-#include "z_core/m_test.h"
-#include "z_core/t_allocator.h"
-#include "z_core/t_array.h"
-#include "z_core/t_fixed_queue.h"
-#include "z_core/t_fixed_deque.h"
-#include "z_core/t_fixed_string.h"
-#include "z_core/t_unique_lock.h"
-#include "z_core/t_tuple.h"
-#include "z_core/t_vector.h"
-#include "z_core/z_file.h" 
-#include "z_core/z_lock_guard.h" 
-#include "z_core/z_mutex.h" 
-#include "z_core/z_object.h"
-#include "z_core/z_system_time.h"
-#include "z_core/z_thread.h"
+#include "internal/z_drive.h"
 
-#endif // !Z_CORE_H_  
+#include "f_console.h"
+
+#define Z_TIME_TEST_ONE_TIME(code) {\
+		Int32 start_time,end_time;\
+		start_time = clock();\
+		code;\
+		end_time = clock();\
+		zengine::console::Print(\
+			zengine::console::PrintTextColourEnum::kPrintTextColourLightYellow,\
+			zengine::console::PrintBackgroundColourEnum::kPrintBackgroundColourDarkBlack,\
+			"The code used %d ms\n",\
+			end_time - start_time);\
+	}
+
+
+#endif // !Z_CORE_M_TEST_H_

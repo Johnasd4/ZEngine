@@ -16,26 +16,14 @@
     Author: YuLin Zhu (÷Ï”Í¡÷)
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_H_
-#define Z_CORE_H_
+#ifndef Z_CORE_INTERNAL_Z_DRIVE_H_
+#define Z_CORE_INTERNAL_Z_DRIVE_H_
 
-#include "z_core/f_console.h"
-#include "z_core/f_memory_pool.h"
-#include "z_core/m_log.h"
-#include "z_core/m_test.h"
-#include "z_core/t_allocator.h"
-#include "z_core/t_array.h"
-#include "z_core/t_fixed_queue.h"
-#include "z_core/t_fixed_deque.h"
-#include "z_core/t_fixed_string.h"
-#include "z_core/t_unique_lock.h"
-#include "z_core/t_tuple.h"
-#include "z_core/t_vector.h"
-#include "z_core/z_file.h" 
-#include "z_core/z_lock_guard.h" 
-#include "z_core/z_mutex.h" 
-#include "z_core/z_object.h"
-#include "z_core/z_system_time.h"
-#include "z_core/z_thread.h"
+#include "d_concept.h"
+#include "d_constant.h"
+#include "d_error_code.h"
+#include "d_function.h"
+#include "d_lib.h"
+#include "d_type.h"
 
-#endif // !Z_CORE_H_  
+#endif // !Z_CORE_INTERNAL_Z_DRIVE_H_

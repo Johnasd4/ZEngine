@@ -16,26 +16,25 @@
     Author: YuLin Zhu (÷Ï”Í¡÷)
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_H_
-#define Z_CORE_H_
+#ifndef Z_CORE_INTERNAL_D_CONSTANT_H_
+#define Z_CORE_INTERNAL_D_CONSTANT_H_
 
-#include "z_core/f_console.h"
-#include "z_core/f_memory_pool.h"
-#include "z_core/m_log.h"
-#include "z_core/m_test.h"
-#include "z_core/t_allocator.h"
-#include "z_core/t_array.h"
-#include "z_core/t_fixed_queue.h"
-#include "z_core/t_fixed_deque.h"
-#include "z_core/t_fixed_string.h"
-#include "z_core/t_unique_lock.h"
-#include "z_core/t_tuple.h"
-#include "z_core/t_vector.h"
-#include "z_core/z_file.h" 
-#include "z_core/z_lock_guard.h" 
-#include "z_core/z_mutex.h" 
-#include "z_core/z_object.h"
-#include "z_core/z_system_time.h"
-#include "z_core/z_thread.h"
+#include "d_lib.h"
+#include "d_type.h"
 
-#endif // !Z_CORE_H_  
+namespace zengine {
+
+static constexpr Float32 kFloat32Max = 3.402823466e+38F;
+static constexpr Float32 kFloat32Min = -3.402823466e+38F;
+
+static constexpr MemoryType kB = 1;
+static constexpr MemoryType kKB = 1024;
+static constexpr MemoryType kMB = 1048576;
+static constexpr MemoryType kGB = 1073741824;
+
+//The unit size when applying memory.
+static constexpr MemoryType kHeapMemoryUnitSize = 4 * kKB;
+
+}//zengine
+
+#endif // !Z_CORE_INTERNAL_D_CONSTANT_H_
