@@ -39,10 +39,6 @@ ZThread& ZThread::operator=(ZThread&& thread) noexcept {
     return *this;
 }
 
-NODISCARD Bool ZThread::Joinable() noexcept { return WaitForSingleObject(handle_, 0) == WAIT_TIMEOUT; }
-
-Void ZThread::Join() noexcept { WaitForSingleObject(handle_, INFINITE); }
-
 Void ZThread::Detach() noexcept { 
     CloseHandle(handle_); 
     id_ = NULL;

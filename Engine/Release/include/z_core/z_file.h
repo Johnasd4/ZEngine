@@ -44,7 +44,7 @@ enum ZFileErrorCode : ReturnType {
 /*
     File class.
 */
-class ZFile : public ZObject {
+class CORE_DLLAPI ZFile : public ZObject {
 public:
 
     enum SeekType : Int32 {
@@ -112,43 +112,43 @@ public:
     /*
         Read binary out of the file.
     */
-    CORE_DLLAPI NODISCARD ReturnType Read(Void* data_ptr, SizeType data_size) noexcept;
+    NODISCARD ReturnType Read(Void* data_ptr, SizeType data_size) noexcept;
     /*
         Write binary in to the file.
     */
-    CORE_DLLAPI NODISCARD ReturnType Write(Void* data_ptr, SizeType data_size) noexcept;
+    NODISCARD ReturnType Write(Void* data_ptr, SizeType data_size) noexcept;
     /*
         Scans from the file.
     */
-    CORE_DLLAPI NODISCARD ReturnType Scan(const CChar* format, ArgListType args) noexcept;
+    NODISCARD ReturnType Scan(const CChar* format, ArgListType args) noexcept;
     /*
         Scans from the file.
     */
-    CORE_DLLAPI NODISCARD ReturnType Scan(const CChar* format, ...) noexcept;
+    NODISCARD ReturnType Scan(const CChar* format, ...) noexcept;
     /*
         Scans from the file.
     */
-    CORE_DLLAPI NODISCARD ReturnType Scan(const TChar* format, ArgListType args) noexcept;
+    NODISCARD ReturnType Scan(const TChar* format, ArgListType args) noexcept;
     /*
         Scans from the file.
     */
-    CORE_DLLAPI NODISCARD ReturnType Scan(const TChar* format, ...) noexcept;
+    NODISCARD ReturnType Scan(const TChar* format, ...) noexcept;
     /*
         Prints in the file.
     */
-    CORE_DLLAPI NODISCARD ReturnType Print(const CChar* format, ArgListType args) noexcept;
+    NODISCARD ReturnType Print(const CChar* format, ArgListType args) noexcept;
     /*
         Prints in the file.
     */
-    CORE_DLLAPI NODISCARD ReturnType Print(const CChar* format, ...) noexcept;
+    NODISCARD ReturnType Print(const CChar* format, ...) noexcept;
     /*
         Prints in the file.
     */
-    CORE_DLLAPI NODISCARD ReturnType Print(const TChar* format, ArgListType args) noexcept;
+    NODISCARD ReturnType Print(const TChar* format, ArgListType args) noexcept;
     /*
         Prints in the file.
     */
-    CORE_DLLAPI NODISCARD ReturnType Print(const TChar* format, ...) noexcept;
+    NODISCARD ReturnType Print(const TChar* format, ...) noexcept;
 
     /*
         If a file is opened.
@@ -157,43 +157,43 @@ public:
     /*
         If the path exists.
     */
-    CORE_DLLAPI NODISCARD Bool PathExist(const CChar* path_dir) noexcept;
+    NODISCARD Bool PathExist(const CChar* path_dir) noexcept;
     /*
         If the path exists.
     */
-    CORE_DLLAPI NODISCARD Bool PathExist(const TChar* path_dir) noexcept;
+    NODISCARD Bool PathExist(const TChar* path_dir) noexcept;
 
     /*
         Creates the path if the path doesn't exist.
     */
-    CORE_DLLAPI NODISCARD ReturnType CreatePath(const CChar* path_dir) noexcept;
+    NODISCARD ReturnType CreatePath(const CChar* path_dir) noexcept;
     /*
         Creates the path if the path doesn't exist.
     */
-    CORE_DLLAPI NODISCARD ReturnType CreatePath(const TChar* path_dir) noexcept;
+    NODISCARD ReturnType CreatePath(const TChar* path_dir) noexcept;
 
     /*
         Opens the file, needs the path exist.
     */
-    CORE_DLLAPI NODISCARD ReturnType Open(const CChar* file_dir, const CChar* open_type) noexcept;
+    NODISCARD ReturnType Open(const CChar* file_dir, const CChar* open_type) noexcept;
     /*
         Opens the file, needs the path exist.
     */
-    CORE_DLLAPI NODISCARD ReturnType Open(const TChar* file_dir,const TChar* open_type) noexcept;
+    NODISCARD ReturnType Open(const TChar* file_dir,const TChar* open_type) noexcept;
     /*
         Opens the file safe, will create the path if the path doesn't exist.
     */
-    CORE_DLLAPI NODISCARD ReturnType OpenSafe(const CChar* path_dir, const CChar* file_dir,
+    NODISCARD ReturnType OpenSafe(const CChar* path_dir, const CChar* file_dir,
                                               const CChar* open_type) noexcept;
     /*
         Opens the file safe, will create the path if the path doesn't exist.
     */
-    CORE_DLLAPI NODISCARD ReturnType OpenSafe(const TChar* path_dir, const TChar* file_dir,
+    NODISCARD ReturnType OpenSafe(const TChar* path_dir, const TChar* file_dir,
                                               const TChar* open_type) noexcept;
     /*
         Close the current file.
     */
-    CORE_DLLAPI NODISCARD ReturnType Close() noexcept;
+    NODISCARD ReturnType Close() noexcept;
 
     /*
         Sets the ptr where to read and write.
@@ -201,13 +201,13 @@ public:
         offset: The offset to the start place.
         seek_type: Where to start to seek,
     */
-    CORE_DLLAPI NODISCARD ReturnType Seek(Int32 offset, SeekType seek_type) noexcept;
+    NODISCARD ReturnType Seek(Int32 offset, SeekType seek_type) noexcept;
     /*
         Gets the ptr where to read and write.
         Parameters:
         pos_ptr: returns the pos of the current ptr.
     */
-    CORE_DLLAPI NODISCARD ReturnType Tell(Int32* pos_ptr) noexcept;
+    NODISCARD ReturnType Tell(Int32* pos_ptr) noexcept;
 
 
 

@@ -23,8 +23,7 @@
 
 #include "internal/z_drive.h"
 
-#include <thread>
-
+#include "t_tuple.h"
 #include "z_object.h"
 
 namespace zengine {
@@ -32,39 +31,46 @@ namespace zengine {
 /*
     Thread class.
 */
-class ZThread : public ZObject {
+class CORE_DLLAPI ZThread : public ZObject {
 public:
-    using STDThread = std::thread;
-
-    FORCEINLINE ZThread() noexcept : SuperType(), thread_() {}
-    FORCEINLINE ZThread(ZThread&& thread) noexcept : thread_(std::move(thread.thread_)) {}
+    ZThread() noexcept;
+    ZThread(ZThread&& thread) noexcept;
 
     template <typename Function, typename... ArgsType>
-    FORCEINLINE ZThread(Function&& func, ArgsType&&... args) noexcept : 
-        thread_(std::forward<Function>(func), std::forward<ArgsType>(args)...) {}
-
-    FORCEINLINE ~ZThread() noexcept {}
-
-    FORCEINLINE ZThread& operator=(ZThread&& thread) noexcept {
-        thread_.operator=(std::move(thread.thread_));
-        return *this;
+    ZThread(Function&& func, ArgsType&&... args) noexcept {
+        using ParamsType = TTuple<Function, TTuple<ArgsType...>>;
+        ParamsType* params_ptr = new ParamsType(std::forward<Function>(func), MakeTuple(std::forward<ArgsType>(args)...));
+        auto thread_func = [](Void* params) -> UInt32 {
+            ParamsType temp_params(*(ParamsType*)params);
+            delete (ParamsType*)params;
+            Apply(temp_params.Get<0>(), std::move(temp_params.Get<1>()));
+            return 0; 
+        };
+        handle_ = (Handle)_beginthreadex(NULL,
+                                         0,
+                                         thread_func,
+                                         (Void*)params_ptr,
+                                         0,
+                                         &id_);
     }
 
-    NODISCARD FORCEINLINE UInt32 GetID() noexcept { 
-        auto id = thread_.get_id();
-        return *(UInt32*)&id; 
-    }
-    NODISCARD FORCEINLINE Bool Joinable() noexcept { return thread_.joinable(); }
+    ~ZThread() noexcept;
 
-    FORCEINLINE Void Join() noexcept { thread_.join(); }
-    FORCEINLINE Void Detach() noexcept { thread_.detach(); }
-    FORCEINLINE Void Swap(ZThread& thread) noexcept { thread_.swap(thread.thread_); }
+    ZThread& operator=(ZThread&& thread) noexcept;
+
+    NODISCARD FORCEINLINE UInt32 ID() const noexcept { return id_; }
+    NODISCARD Bool Joinable() noexcept;
+
+    Void Join() noexcept;
+    Void Detach() noexcept;
+    Void Swap(ZThread& thread) noexcept;
 
 protected:
     using SuperType = ZObject;
 
 private:
-    std::thread thread_;
+    UInt32 id_;
+    Handle handle_;
 };
 
 }//zengine

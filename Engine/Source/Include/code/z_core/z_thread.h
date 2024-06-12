@@ -38,12 +38,13 @@ public:
 
     template <typename Function, typename... ArgsType>
     ZThread(Function&& func, ArgsType&&... args) noexcept {
-        using ParamsType = TTuple<Function, ArgsType...>;
-        ParamsType* params_ptr = new ParamsType(std::forward<Function>(func), std::forward<ArgsType>(args)...);
-        auto thread_func = [](Void* args) -> UInt32 { 
-            ParamsType params(*(ParamsType*)args);
-            delete (ParamsType*)args;
-            args.Get<0>();
+        using ParamsType = TTuple<Function, TTuple<ArgsType...>>;
+        ParamsType* params_ptr = new ParamsType(std::forward<Function>(func), 
+                                                MakeTuple(std::forward<ArgsType>(args)...));
+        auto thread_func = [](Void* params) -> UInt32 {
+            ParamsType temp_params(*(ParamsType*)params);
+            delete (ParamsType*)params;
+            Apply(temp_params.Get<0>(), std::move(temp_params.Get<1>()));
             return 0; 
         };
         handle_ = (Handle)_beginthreadex(NULL,
@@ -59,9 +60,9 @@ public:
     ZThread& operator=(ZThread&& thread) noexcept;
 
     NODISCARD FORCEINLINE UInt32 ID() const noexcept { return id_; }
-    NODISCARD Bool Joinable() noexcept;
+    NODISCARD FORCEINLINE Bool Joinable() noexcept { WaitForSingleObject(handle_, 0) == WAIT_TIMEOUT; }
 
-    Void Join() noexcept;
+    FORCEINLINE Void Join() noexcept { WaitForSingleObject(handle_, INFINITE); }
     Void Detach() noexcept;
     Void Swap(ZThread& thread) noexcept;
 

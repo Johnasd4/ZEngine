@@ -29,13 +29,13 @@ namespace zengine {
 /*
     The time struct, contains [year, month, day, hour, min ,sec].
 */
-class ZSystemTime : public ZObject {
+class CORE_DLLAPI ZSystemTime : public ZObject {
 
 public:
-    CORE_DLLAPI static ZSystemTime& Instance() noexcept;
+    static ZSystemTime& Instance() noexcept;
 
-    CORE_DLLAPI ZSystemTime() noexcept;
-    CORE_DLLAPI ~ZSystemTime() noexcept;
+    ZSystemTime() noexcept;
+    ~ZSystemTime() noexcept;
 
     NODISCARD FORCEINLINE Int32 Year() const noexcept { return year_; }
     NODISCARD FORCEINLINE Int32 Month() const noexcept { return month_; }
@@ -49,13 +49,13 @@ public:
         Parameters:
         time_raw: use time(time_t) to get the raw value.
     */
-    CORE_DLLAPI Void UpdateTime(TimeType time_raw = time(nullptr)) noexcept;
+    Void UpdateTime(TimeType time_raw = time(nullptr)) noexcept;
     /*
         Update system time, use UpdateTime instead if updated only a few times pur day.
         Parameters:
         time_raw: use time(time_t) to get the raw value.
     */
-    CORE_DLLAPI Void UpdateTimeFast(TimeType time_raw = time(nullptr)) noexcept;
+    Void UpdateTimeFast(TimeType time_raw = time(nullptr)) noexcept;
 
 protected:
     using SuperType = ZObject;

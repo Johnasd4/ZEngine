@@ -21,6 +21,8 @@
 
 #include "internal/z_drive.h"
 
+#include "t_unique_lock.h"
+#include "z_mutex.h"
 #include "z_object.h"
 
 namespace zengine {
@@ -30,8 +32,10 @@ namespace zengine {
 */
 class ZConditionVariable : public ZObject {
 public:
-    FORCEINLINE ZConditionVariable() noexcept : SuperType(), handle_(CreateMutex(nullptr, FALSE, nullptr)) {}
-
+    ZConditionVariable() noexcept;
+    ~ZConditionVariable() noexcept;
+    Void Wait(TUniqueLock<ZMutex>& mutex);
+    Void Wait(TUniqueLock<ZMutex>& mutex);
 protected:
     using SuperType = ZObject;
 

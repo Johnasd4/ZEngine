@@ -76,6 +76,7 @@ int main() {
     Z_LOG_FAILURE(L"Failure...");
     ZMutex mutex;
     TUniqueLock<ZMutex> lock(mutex);
+    condition_variable
     Sleep(100);
     //std::thread prod(producer);
     //std::thread cons(consumer);
