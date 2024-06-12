@@ -23,7 +23,6 @@
 
 #include <vector>
 
-#include "m_log.h"
 #include "t_allocator.h"
 #include "z_object.h"
 
@@ -46,8 +45,8 @@ public:
     FORCEINLINE TVector(const TVector& vector) noexcept : SuperType(), vector_(vector.vector_) {}
     FORCEINLINE TVector(TVector&& vector) noexcept : SuperType(), vector_(std::move(vector.vector_)) {}
 
-    FORCEINLINE TVector(SizeType capacity) noexcept : SuperType(), vector_(capacity) {}
-    FORCEINLINE TVector(SizeType capacity, const ZObject& value) noexcept : SuperType(), vector_(capacity, value) {}
+    FORCEINLINE TVector(SizeType size) noexcept : SuperType(), vector_(size) {}
+    FORCEINLINE TVector(SizeType size, const ZObject& value) noexcept : SuperType(), vector_(size, value) {}
     template <typename InputIterator>
     FORCEINLINE TVector(InputIterator first, InputIterator last) noexcept : SuperType(), vector_(first, last) {}
     FORCEINLINE TVector(InitializerList init_list) noexcept : SuperType(), vector_(init_list) {}
@@ -61,6 +60,21 @@ public:
     FORCEINLINE TVector& operator=(TVector&& vector) noexcept { 
         vector_.operator=(std::move(vector.vector_));
         return *this;
+    }
+    FORCEINLINE TVector& operator=(InitializerList init_list) noexcept {
+        vector_.operator=(init_list);
+        return *this;
+    }
+
+    FORCEINLINE Void Assign(SizeType size, const ObjectType& value) noexcept {
+        return vector_.assign(size, value);
+    }
+    template <class InputIterator>
+    FORCEINLINE Void Assign(InputIterator first, InputIterator last) noexcept {
+        return vector_.assign(first, last);
+    }
+    FORCEINLINE Void Assign(InitializerList init_list) noexcept {
+        return vector_.assign(init_list);
     }
 
     NODISCARD FORCEINLINE Bool operator==(const TVector& vector) noexcept { return vector_ == vector; }

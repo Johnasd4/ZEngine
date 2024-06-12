@@ -28,6 +28,8 @@
 #include "z_core/t_fixed_queue.h"
 #include "z_core/t_fixed_deque.h"
 #include "z_core/t_fixed_string.h"
+#include "z_core/t_forward_list.h"
+#include "z_core/t_list.h"
 #include "z_core/t_unique_lock.h"
 #include "z_core/t_tuple.h"
 #include "z_core/t_vector.h"
