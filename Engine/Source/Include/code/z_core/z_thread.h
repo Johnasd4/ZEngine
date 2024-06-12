@@ -60,7 +60,7 @@ public:
     ZThread& operator=(ZThread&& thread) noexcept;
 
     NODISCARD FORCEINLINE UInt32 ID() const noexcept { return id_; }
-    NODISCARD FORCEINLINE Bool Joinable() noexcept { WaitForSingleObject(handle_, 0) == WAIT_TIMEOUT; }
+    NODISCARD FORCEINLINE Bool Joinable() noexcept { return WaitForSingleObject(handle_, 0) == WAIT_TIMEOUT; }
 
     FORCEINLINE Void Join() noexcept { WaitForSingleObject(handle_, INFINITE); }
     Void Detach() noexcept;

@@ -49,8 +49,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\main.cpp" />
-    <ClCompile Include="code\z_core\internal\d_constant.h" />
-    <ClCompile Include="code\z_core\z_thread_b.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

@@ -101,11 +101,5 @@
     <ClCompile Include="code\main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="code\z_core\z_thread_b.h">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\z_core\internal\d_constant.h">
-      <Filter>源文件</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>
