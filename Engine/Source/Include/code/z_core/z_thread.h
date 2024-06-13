@@ -40,11 +40,11 @@ public:
     ZThread(Function&& func, ArgsType&&... args) noexcept {
         using ParamsType = TTuple<Function, TTuple<ArgsType...>>;
         ParamsType* params_ptr = new ParamsType(std::forward<Function>(func), 
-                                                MakeTuple(std::forward<ArgsType>(args)...));
+                                                tuple::MakeTuple(std::forward<ArgsType>(args)...));
         auto thread_func = [](Void* params) -> UInt32 {
             ParamsType temp_params(*(ParamsType*)params);
             delete (ParamsType*)params;
-            Apply(temp_params.Get<0>(), std::move(temp_params.Get<1>()));
+            tuple::Apply(temp_params.Get<0>(), std::move(temp_params.Get<1>()));
             return 0; 
         };
         handle_ = (Handle)_beginthreadex(NULL,

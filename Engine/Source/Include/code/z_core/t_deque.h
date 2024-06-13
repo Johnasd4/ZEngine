@@ -16,8 +16,8 @@
     Author: YuLin Zhu (÷Ï”Í¡÷)
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_T_VECTOR_H_
-#define Z_CORE_T_VECTOR_H_
+#ifndef Z_CORE_T_DEQUE_H_
+#define Z_CORE_T_DEQUE_H_
 
 #include "internal/z_drive.h"
 
@@ -32,7 +32,7 @@ namespace zengine {
     Vector caintainer.
 */
 template<typename ObjectType>
-class TVector : public ZObject {
+class TDeque : public ZObject {
 public:
     using STDVector = std::vector<ObjectType, TAllocator<ObjectType>>;
     using Iterator = STDVector::iterator;
@@ -41,27 +41,27 @@ public:
     using ConstReverseIterator = STDVector::const_reverse_iterator;
     using InitializerList = std::initializer_list<ObjectType>;
 
-    FORCEINLINE TVector() noexcept : SuperType(), vector_() {}
-    FORCEINLINE TVector(const TVector& vector) noexcept : SuperType(), vector_(vector.vector_) {}
-    FORCEINLINE TVector(TVector&& vector) noexcept : SuperType(), vector_(std::move(vector.vector_)) {}
+    FORCEINLINE TDeque() noexcept : SuperType(), vector_() {}
+    FORCEINLINE TDeque(const TDeque& vector) noexcept : SuperType(), vector_(vector.vector_) {}
+    FORCEINLINE TDeque(TDeque&& vector) noexcept : SuperType(), vector_(std::move(vector.vector_)) {}
 
-    FORCEINLINE TVector(SizeType size) noexcept : SuperType(), vector_(size) {}
-    FORCEINLINE TVector(SizeType size, const ZObject& value) noexcept : SuperType(), vector_(size, value) {}
+    FORCEINLINE TDeque(SizeType size) noexcept : SuperType(), vector_(size) {}
+    FORCEINLINE TDeque(SizeType size, const ZObject& value) noexcept : SuperType(), vector_(size, value) {}
     template <typename InputIterator>
-    FORCEINLINE TVector(InputIterator first, InputIterator last) noexcept : SuperType(), vector_(first, last) {}
-    FORCEINLINE TVector(InitializerList init_list) noexcept : SuperType(), vector_(init_list) {}
+    FORCEINLINE TDeque(InputIterator first, InputIterator last) noexcept : SuperType(), vector_(first, last) {}
+    FORCEINLINE TDeque(InitializerList init_list) noexcept : SuperType(), vector_(init_list) {}
  
-    FORCEINLINE ~TVector() noexcept {}
+    FORCEINLINE ~TDeque() noexcept {}
 
-    FORCEINLINE TVector& operator=(const TVector& vector) noexcept { 
+    FORCEINLINE TDeque& operator=(const TDeque& vector) noexcept { 
         vector_.operator=(vector.vector_);
         return *this;
     }
-    FORCEINLINE TVector& operator=(TVector&& vector) noexcept { 
+    FORCEINLINE TDeque& operator=(TDeque&& vector) noexcept { 
         vector_.operator=(std::move(vector.vector_));
         return *this;
     }
-    FORCEINLINE TVector& operator=(InitializerList init_list) noexcept {
+    FORCEINLINE TDeque& operator=(InitializerList init_list) noexcept {
         vector_.operator=(init_list);
         return *this;
     }
@@ -77,8 +77,8 @@ public:
         return vector_.assign(init_list);
     }
 
-    NODISCARD FORCEINLINE Bool operator==(const TVector& vector) noexcept { return vector_ == vector; }
-    NODISCARD FORCEINLINE Bool operator!=(const TVector& vector) noexcept { return vector_ != vector; }
+    NODISCARD FORCEINLINE Bool operator==(const TDeque& vector) noexcept { return vector_ == vector; }
+    NODISCARD FORCEINLINE Bool operator!=(const TDeque& vector) noexcept { return vector_ != vector; }
 
     NODISCARD FORCEINLINE ObjectType& operator[](const SizeType index) noexcept { return vector_[index]; }
     NODISCARD FORCEINLINE const ObjectType& operator[](const SizeType index) const noexcept { return vector_[index]; }
@@ -149,7 +149,7 @@ public:
 
     FORCEINLINE Void Reserve(SizeType capacity) noexcept { vector_.reserve(capacity); }
 
-    FORCEINLINE Void Swap(TVector& vector) noexcept { vector_.swap(vector); }
+    FORCEINLINE Void Swap(TDeque& vector) noexcept { vector_.swap(vector); }
 
 protected:
     using SuperType = ZObject;
@@ -160,4 +160,4 @@ private:
 
 }//zengine
 
-#endif // !Z_CORE_T_VECTOR_H_
+#endif // !Z_CORE_T_DEQUE_H_

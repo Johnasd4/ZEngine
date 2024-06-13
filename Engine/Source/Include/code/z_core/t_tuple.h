@@ -114,6 +114,8 @@ private:
     STDTuple tuple_;
 };
 
+namespace tuple {
+
 template<typename... ArgsType>
 NODISCARD FORCEINLINE constexpr TTuple<ArgsType...> MakeTuple(ArgsType&&... args) noexcept {
     return TTuple(std::forward<ArgsType>(args)...);
@@ -177,6 +179,7 @@ NODISCARD FORCEINLINE constexpr decltype(auto) Apply(Function&& func, TTuple<Arg
     return tuple.Apply(std::forward<Function>(func));
 }
 
+}//tuple
 }//zengine
 
 #endif //!Z_CORE_T_TUPLE_H_
