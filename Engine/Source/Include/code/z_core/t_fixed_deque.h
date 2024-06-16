@@ -43,15 +43,30 @@ public:
     using STDArray = std::array<ObjectType, kCapacity>;
     using InitializerList = std::initializer_list<ObjectType>;
 
-    FORCEINLINE constexpr TFixedDeque() noexcept : SuperType(), 
-        deque_(), front_index_(0), back_index_(kCapacity - 1), size_(0) {}
-    FORCEINLINE constexpr TFixedDeque(const TFixedDeque& deque) noexcept : SuperType(), 
-        deque_(deque.deque_), front_index_(deque.front_index_), back_index_(deque.back_index_), size_(deque.size_) {}
-    FORCEINLINE constexpr TFixedDeque(TFixedDeque&& deque) noexcept : SuperType(), 
-        deque_(std::move(deque.deque_)), front_index_(deque.front_index_), back_index_(deque.back_index_), 
-        size_(deque.size_) {}
-    FORCEINLINE TFixedDeque(InitializerList init_list) noexcept : SuperType(), 
-        deque_(init_list), front_index_(0), back_index_(kCapacity - 1), size_(kCapacity) {}
+    FORCEINLINE constexpr TFixedDeque() noexcept 
+            : SuperType()
+            , deque_()
+            , front_index_(0)
+            , back_index_(kCapacity - 1)
+            , size_(0) {}
+    FORCEINLINE constexpr TFixedDeque(const TFixedDeque& deque) noexcept 
+            : SuperType()
+            , deque_(deque.deque_)
+            , front_index_(deque.front_index_)
+            , back_index_(deque.back_index_)
+            , size_(deque.size_) {}
+    FORCEINLINE constexpr TFixedDeque(TFixedDeque&& deque) noexcept 
+            : SuperType()
+            , deque_(std::move(deque.deque_))
+            , front_index_(deque.front_index_)
+            , back_index_(deque.back_index_)
+            , size_(deque.size_) {}
+    FORCEINLINE TFixedDeque(InitializerList init_list) noexcept 
+            : SuperType()
+            , deque_(init_list)
+            , front_index_(0)
+            , back_index_(kCapacity - 1)
+            , size_(kCapacity) {}
 
     /*
         Constexpr deque, the work is done at compile time.
@@ -121,14 +136,15 @@ public:
     }
     constexpr Void PushFront(ObjectType&& object) noexcept {
         front_index_ = (front_index_ + (kCapacity - 1)) % kCapacity;
-        deque_[front_index_] = object;
+        deque_[front_index_] = std::forward<ObjectType>(object);
         ++size_;
     }
     template<typename... ArgsType>
-    constexpr Void PushFront(ArgsType&&... args) noexcept {
+    constexpr ObjectType& EmplaceFront(ArgsType&&... args) noexcept {
         front_index_ = (front_index_ + 1) % kCapacity;
         new(&deque_[front_index_]) ObjectType(std::forward<ArgsType>(args)...);
         ++size_;
+        return deque_[front_index_];
     }
     constexpr Void PushBack(const ObjectType& object) noexcept {
         back_index_ = (back_index_ + 1) % kCapacity;
@@ -137,14 +153,15 @@ public:
     }
     constexpr Void PushBack(ObjectType&& object) noexcept {
         back_index_ = (back_index_ + 1) % kCapacity;
-        deque_[back_index_] = object;
+        deque_[back_index_] = std::forward<ObjectType>(object);
         ++size_;
     }
     template<typename... ArgsType>
-    constexpr Void PushBack(ArgsType&&... args) noexcept {
+    constexpr ObjectType& EmplaceBack(ArgsType&&... args) noexcept {
         back_index_ = (back_index_ + 1) % kCapacity;
         new(&deque_[back_index_]) ObjectType(std::forward<ArgsType>(args)...);
         ++size_;
+        return deque_[back_index_];
     }
 
     constexpr Void SetSize(IndexType size) noexcept {

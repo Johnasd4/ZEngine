@@ -41,6 +41,16 @@
 
 namespace zengine {
 
+namespace error_code {
+
+enum FMemoryPoolErrorCode : ReturnType {
+    kFMemoryPoolErrorCodeLinkError = kErrorCodeBaseFMemoryPool,
+    kFMemoryPoolErrorCodeMemorySizeOutOfBound,
+    kFMemoryPoolErrorCodePoolTypeUnknown,
+};
+
+}//error_code
+
 /*
     The namespace contains the function that controls the heap memory.
     It has it's own garbage collection.

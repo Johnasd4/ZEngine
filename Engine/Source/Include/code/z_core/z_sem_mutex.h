@@ -16,8 +16,8 @@
     Author: YuLin Zhu (ÖìÓêÁÖ)
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_Z_MUTEX_H_
-#define Z_CORE_Z_MUTEX_H_
+#ifndef Z_CORE_Z_SEM_MUTEX_H_
+#define Z_CORE_Z_SEM_MUTEX_H_
 
 #include "internal/z_drive.h"
 
@@ -27,12 +27,12 @@
 namespace zengine {
 
 /*
-    A simple mutex.
+    A semaphore mutex.
 */
-class ZMutex : public ZObject {
+class ZSemMutex : public ZObject {
 public:
-    FORCEINLINE ZMutex() noexcept : SuperType(), handle_(CreateMutex(nullptr, FALSE, nullptr)) {}
-    FORCEINLINE ~ZMutex() noexcept { CloseHandle(handle_); }
+    FORCEINLINE ZSemMutex() noexcept : SuperType(), handle_(CreateSemaphore(nullptr, 1, 1, nullptr)) {}
+    FORCEINLINE ~ZSemMutex() noexcept { CloseHandle(handle_); }
 
     FORCEINLINE Void Lock() noexcept { WaitForSingleObject(handle_, INFINITE);}
     /*
@@ -50,20 +50,20 @@ public:
         time -= clock();
         return WaitForSingleObject(handle_, time > 0 ? time : 0) == WAIT_OBJECT_0; 
     }
-    FORCEINLINE Void Unlock() noexcept { ReleaseMutex(handle_); }
+    FORCEINLINE Void Unlock() noexcept { ReleaseSemaphore(handle_, 1, NULL); }
 protected:
     using SuperType = ZObject;
 
 private:
-    ZMutex(const ZMutex&) = delete;
-    ZMutex(ZMutex&&) = delete;
+    ZSemMutex(const ZSemMutex&) = delete;
+    ZSemMutex(ZSemMutex&&) = delete;
 
-    ZMutex& operator=(const ZMutex&) = delete;
-    ZMutex& operator=(ZMutex&&) = delete;
+    ZSemMutex& operator=(const ZSemMutex&) = delete;
+    ZSemMutex& operator=(ZSemMutex&&) = delete;
 
     Handle handle_;
 };
 
 }//zengine
 
-#endif // !Z_CORE_Z_MUTEX_H_
+#endif // !Z_CORE_Z_SEM_MUTEX_H_

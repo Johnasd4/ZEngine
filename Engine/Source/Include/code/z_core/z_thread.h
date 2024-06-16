@@ -33,6 +33,10 @@ namespace zengine {
 */
 class CORE_DLLAPI ZThread : public ZObject {
 public:
+    using ThreadIDType = UInt32;
+
+    NODISCARD FORCEINLINE static ThreadIDType GetCurrnetThreadID() noexcept { return GetCurrentThreadId(); }
+
     ZThread() noexcept;
     ZThread(ZThread&& thread) noexcept;
 
@@ -59,7 +63,26 @@ public:
 
     ZThread& operator=(ZThread&& thread) noexcept;
 
-    NODISCARD FORCEINLINE UInt32 ID() const noexcept { return id_; }
+    NODISCARD FORCEINLINE constexpr Bool operator==(const ZThread& thread) noexcept {
+        return id_ == thread.id_;
+    }
+    NODISCARD FORCEINLINE constexpr Bool operator!=(const ZThread& thread) noexcept {
+        return id_ != thread.id_;
+    }
+    NODISCARD FORCEINLINE constexpr Bool operator>(const ZThread& thread) noexcept {
+        return id_ > thread.id_;
+    }
+    NODISCARD FORCEINLINE constexpr Bool operator>=(const ZThread& thread) noexcept {
+        return id_ >= thread.id_;
+    }
+    NODISCARD FORCEINLINE constexpr Bool operator<(const ZThread& thread) noexcept {
+        return id_ < thread.id_;
+    }
+    NODISCARD FORCEINLINE constexpr Bool operator<=(const ZThread& thread) noexcept {
+        return id_ <= thread.id_;
+    }
+
+    NODISCARD FORCEINLINE ThreadIDType ID() const noexcept { return id_; }
     NODISCARD FORCEINLINE Bool Joinable() noexcept { return WaitForSingleObject(handle_, 0) == WAIT_TIMEOUT; }
 
     FORCEINLINE Void Join() noexcept { WaitForSingleObject(handle_, INFINITE); }
@@ -70,7 +93,7 @@ protected:
     using SuperType = ZObject;
 
 private:
-    UInt32 id_;
+    ThreadIDType id_;
     Handle handle_;
 };
 

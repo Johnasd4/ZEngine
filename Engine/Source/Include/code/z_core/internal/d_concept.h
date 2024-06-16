@@ -77,7 +77,7 @@ concept kIsMovable = requires(ObjectType object_1, ObjectType object_2) {
 };
 
 template<typename Function, typename ObjectType>
-concept kIsCompareFunction = requires(Function function, ObjectType object) {
+concept kIsPredicateFunction = requires(Function function, ObjectType object) {
     { function(object, object) } -> kSameType<Bool>;
 };
 

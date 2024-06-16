@@ -39,8 +39,8 @@ public:
         Single port.
     */
     struct ZLogPort {
-        Void(*input_func_)(const ZLog*, ZLog::OutputString*) = nullptr;
-        TArray<Void(*)(const ZLog*, const ZLog::OutputString&), kMaxOutputPurPort> output_func_array_;
+        Void(*input_func)(const ZLog*, ZLog::OutputString*) = nullptr;
+        TArray<Void(*)(const ZLog*, const ZLog::OutputString&), kMaxOutputPurPort> output_func_array;
     };
 
     ZLogServer() noexcept;

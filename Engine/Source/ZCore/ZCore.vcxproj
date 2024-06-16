@@ -27,9 +27,11 @@
     <ClCompile Include="code\log\type\z_trace_log.cpp" />
     <ClCompile Include="code\m_log.cpp" />
     <ClCompile Include="code\f_memory_pool.cpp" />
+    <ClCompile Include="code\z_condition_variable.cpp" />
     <ClCompile Include="code\z_file.cpp" />
     <ClCompile Include="code\z_system_time.cpp" />
     <ClCompile Include="code\z_thread.cpp" />
+    <ClCompile Include="code\z_thread_pool.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\log\t_log_queue.h" />

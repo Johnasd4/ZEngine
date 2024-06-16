@@ -23,7 +23,7 @@
 
 #include "m_log.h"
 #include "t_fixed_queue.h"
-#include "z_mutex.h"
+#include "z_cs_mutex.h"
 
 namespace zengine {
 namespace log {
@@ -34,7 +34,7 @@ namespace log {
 template<typename LogType, IndexType kCapacity>
 class TLogQueue : public ZObject {
 public:
-    TLogQueue() noexcept : log_queue_(), log_mutex_() {}
+    TLogQueue() noexcept : log_queue_(), log_cs_() {}
 
     NODISCARD FORCEINLINE LogType& Front() noexcept { return log_queue_.Front(); }
     NODISCARD FORCEINLINE const LogType& Front() const noexcept { return log_queue_.Front(); }
@@ -43,29 +43,29 @@ public:
     NODISCARD FORCEINLINE Bool Empty() noexcept { return log_queue_.Empty(); }
 
     Void Pop() noexcept {
-        log_mutex_.Lock();
-        log_queue_.Pop();
-        log_mutex_.Unlock();
+        log_cs_.Lock();
+        log_queue_.PopFront();
+        log_cs_.Unlock();
     }
 
     Void Push(const LogType& log) noexcept {
-        log_mutex_.Lock();
+        log_cs_.Lock();
         log_queue_.Push(log);
         if (log_queue_.Size() > log_queue_.Capacity()) {
             log_queue_.Clear();
             Z_LOG_ERROR(error_code::kMLogErrorCodeLogQueueOverflow, 0, "Log queue overflow! Clear all logs!");
         }
-        log_mutex_.Unlock();
+        log_cs_.Unlock();
     }
     template<typename... ArgsType>
     Void Push(ArgsType&&... args) noexcept {
-        log_mutex_.Lock();
-        log_queue_.Push(std::forward<ArgsType>(args)...);
+        log_cs_.Lock();
+        log_queue_.EmplaceBack(std::forward<ArgsType>(args)...);
         if (log_queue_.Size() > log_queue_.Capacity()) {
             log_queue_.Clear();
             Z_LOG_ERROR(error_code::kMLogErrorCodeLogQueueOverflow, 0, "Log queue overflow! Clear all logs!");
         }
-        log_mutex_.Unlock();
+        log_cs_.Unlock();
     }
 
 protected:
@@ -73,7 +73,7 @@ protected:
 
 private:
     TFixedQueue<LogType, kCapacity> log_queue_;
-    ZMutex log_mutex_;
+    ZCSMutex log_cs_;
 };
 
 }//log

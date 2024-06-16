@@ -151,9 +151,13 @@ Void ZLogManager::LogThread() noexcept {
     }
 }
 
-ZLogManager::ZLogManager() noexcept : SuperType(), 
-        error_log_queue_(), log_queue_array_(), 
-        log_server_(), log_thread_finished_(false), log_thread_(&ZLogManager::LogThread) {
+ZLogManager::ZLogManager() noexcept 
+        : SuperType() 
+        , error_log_queue_()
+        , log_queue_array_()
+        , log_server_()
+        , log_thread_finished_(false)
+        , log_thread_(&ZLogManager::LogThread) {
     ReturnType link_code = kOK;
     link_code = log_server_.RegisterInputFunction(kErrorLogPortID, ZErrorLog::GenerateLogString);
     if (link_code != kOK) {

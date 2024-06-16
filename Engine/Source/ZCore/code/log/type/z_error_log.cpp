@@ -27,8 +27,8 @@
 namespace zengine {
 namespace log {
 
-ZErrorLog::ZErrorLog() noexcept : 
-    raw_time_(), err_project_(), err_file_(), err_func_(), err_line_(), err_code_(), link_code_(), SuperType() {}
+ZErrorLog::ZErrorLog() noexcept 
+        : raw_time_(), err_project_(), err_file_(), err_func_(), err_line_(), err_code_(), link_code_(), SuperType() {}
 ZErrorLog::ZErrorLog(TimeType raw_time,
                      const CChar* err_project,
                      const CChar* err_file,
@@ -37,15 +37,15 @@ ZErrorLog::ZErrorLog(TimeType raw_time,
                      ReturnType err_code,
                      ReturnType link_code,
                      const CChar* format,
-                     ArgListType args) noexcept :
-    raw_time_(raw_time),
-    err_project_(err_project),
-    err_file_(err_file),
-    err_func_(err_func),
-    err_line_(err_line),
-    err_code_(err_code),
-    link_code_(link_code),
-    SuperType(format, args) {}
+                     ArgListType args) noexcept 
+    : raw_time_(raw_time)
+    , err_project_(err_project)
+    , err_file_(err_file)
+    , err_func_(err_func)
+    , err_line_(err_line)
+    , err_code_(err_code)
+    , link_code_(link_code)
+    , SuperType(format, args) {}
 
 Void ZErrorLog::GenerateLogString(const ZLog* log_ptr, OutputString* output_str_ptr) noexcept {
     static ZSystemTime system_time;

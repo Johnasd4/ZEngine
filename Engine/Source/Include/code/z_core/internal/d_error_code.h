@@ -24,13 +24,15 @@
 
 namespace zengine {
 
-static constexpr ReturnType kOK = 0;
+inline constexpr ReturnType kOK = 0;
 
-static constexpr ReturnType kErrorCodeBasePCore = 0x00100000u;
-static constexpr ReturnType kErrorCodeBaseZFile = kErrorCodeBasePCore + 0x100u;
-static constexpr ReturnType kErrorCodeBaseZPrintManager = kErrorCodeBasePCore + 0x200u;
-static constexpr ReturnType kErrorCodeBaseMLog = kErrorCodeBasePCore + 0x300u;
-static constexpr ReturnType kErrorCodeBaseTUniqueLock = kErrorCodeBasePCore + 0x400u;
+inline constexpr ReturnType kErrorCodeBasePCore = 0x00100000u;
+inline constexpr ReturnType kErrorCodeBaseZFile = kErrorCodeBasePCore + 0x100u;
+inline constexpr ReturnType kErrorCodeBaseZPrintManager = kErrorCodeBasePCore + 0x200u;
+inline constexpr ReturnType kErrorCodeBaseMLog = kErrorCodeBasePCore + 0x300u;
+inline constexpr ReturnType kErrorCodeBaseTUniqueLock = kErrorCodeBasePCore + 0x400u;
+inline constexpr ReturnType kErrorCodeBaseZThreadPool = kErrorCodeBasePCore + 0x500u;
+inline constexpr ReturnType kErrorCodeBaseFMemoryPool = kErrorCodeBasePCore + 0x600u;
 
 }//zengine
 

@@ -57,7 +57,7 @@
     <ClInclude Include="code\z_core\t_array.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\z_core\z_lock_guard.h">
+    <ClInclude Include="code\z_core\t_lock_guard.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\z_core\t_fixed_string.h">
@@ -102,9 +102,39 @@
     <ClInclude Include="code\z_core\t_list.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="code\z_core\t_deque.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_core\internal\d_constant.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_core\t_queue.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_core\t_stack.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_core\z_condition_variable.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_core\t_set.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_core\t_pair.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_core\z_sem_mutex.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\z_core\z_cs_mutex.h">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\z_core\z_thread_pool.h">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

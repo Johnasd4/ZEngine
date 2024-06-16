@@ -40,16 +40,16 @@ public:
     using InitializerList = std::initializer_list<ObjectType>;
 
     FORCEINLINE TForwardList() noexcept : SuperType(), forward_list_() {}
-    FORCEINLINE TForwardList(const TForwardList& forward_list) noexcept : 
-        SuperType(), forward_list_(forward_list.forward_list_) {}
-    FORCEINLINE TForwardList(TForwardList&& forward_list) noexcept : 
-        SuperType(), forward_list_(std::move(forward_list.forward_list_)) {}
+    FORCEINLINE TForwardList(const TForwardList& forward_list) noexcept 
+            : SuperType(), forward_list_(forward_list.forward_list_) {}
+    FORCEINLINE TForwardList(TForwardList&& forward_list) noexcept 
+            : SuperType(), forward_list_(std::move(forward_list.forward_list_)) {}
 
     FORCEINLINE TForwardList(SizeType size) noexcept : SuperType(), forward_list_(size) {}
     FORCEINLINE TForwardList(SizeType size, const ZObject& value) noexcept : SuperType(), forward_list_(size, value) {}
     template <typename InputIterator>
-    FORCEINLINE TForwardList(InputIterator first, InputIterator last) noexcept : 
-        SuperType(), forward_list_(first, last) {}
+    FORCEINLINE TForwardList(InputIterator first, InputIterator last) noexcept 
+            : SuperType(), forward_list_(first, last) {}
     FORCEINLINE TForwardList(InitializerList init_list) noexcept : SuperType(), forward_list_(init_list) {}
  
     FORCEINLINE ~TForwardList() noexcept {}
@@ -88,7 +88,7 @@ public:
     NODISCARD FORCEINLINE ObjectType& Front() noexcept { return forward_list_.front(); }
     NODISCARD FORCEINLINE const ObjectType& Front() const noexcept { return forward_list_.front(); }
 
-    NODISCARD FORCEINLINE IndexType Capacity() const noexcept { return forward_list_.max_size(); }
+    NODISCARD FORCEINLINE IndexType Capacity() const noexcept { return kIndexTypeMax; }
     NODISCARD FORCEINLINE Bool Empty() const noexcept { return forward_list_.empty(); }
 
     NODISCARD FORCEINLINE Iterator BeforeBegin() noexcept { return forward_list_.before_begin(); }
@@ -102,6 +102,11 @@ public:
     NODISCARD FORCEINLINE ConstIterator ConstEnd() const noexcept { return forward_list_.cend(); }
 
     template <typename... ArgsType>
+    FORCEINLINE Iterator Emplace(ConstIterator pos, ArgsType&&... args) noexcept {
+        return forward_list_.emplace(pos, std::forward<ArgsType>(args)...);
+    }
+
+    template <typename... ArgsType>
     FORCEINLINE Iterator EmplaceFront(ArgsType&&... args) noexcept {
         return forward_list_.emplace_front(std::forward<ArgsType>(args)...);
     }
@@ -113,6 +118,7 @@ public:
     FORCEINLINE Iterator EmplaceAfter(ConstIterator pos, ArgsType&&... args) noexcept {
         return forward_list_.emplace_after(pos, std::forward<ArgsType>(args)...);
     }
+
     FORCEINLINE Iterator InsertAfter(ConstIterator pos, const ObjectType& value) noexcept {
         return forward_list_.insert_after(pos, value);
     }
@@ -134,13 +140,13 @@ public:
         return forward_list_.splice_after(pos, forward_list.forward_list_);
     }
     FORCEINLINE Iterator SpliceAfter(ConstIterator pos, TForwardList&& forward_list) noexcept {
-        return forward_list_.splice_after(pos, std::move(forward_list.forward_list_));
+        return forward_list_.splice_after(pos, std::forward<ObjectType>(forward_list.forward_list_));
     }
     FORCEINLINE Iterator SpliceAfter(ConstIterator pos, TForwardList& forward_list, ConstIterator start_pos) noexcept {
         return forward_list_.splice_after(pos, forward_list.forward_list_, start_pos);
     }
     FORCEINLINE Iterator SpliceAfter(ConstIterator pos, TForwardList&& forward_list, ConstIterator start_pos) noexcept {
-        return forward_list_.splice_after(pos, std::move(forward_list.forward_list_), start_pos);
+        return forward_list_.splice_after(pos, std::forward<ObjectType>(forward_list.forward_list_), start_pos);
     }
     FORCEINLINE Iterator SpliceAfter(ConstIterator pos, TForwardList& forward_list, 
                                      ConstIterator first, ConstIterator last) noexcept {
@@ -148,7 +154,7 @@ public:
     }
     FORCEINLINE Iterator SpliceAfter(ConstIterator pos, TForwardList&& forward_list, 
                                      ConstIterator first, ConstIterator last) noexcept {
-        return forward_list_.splice_after(pos, std::move(forward_list.forward_list_), first, last);
+        return forward_list_.splice_after(pos, std::forward<ObjectType>(forward_list.forward_list_), first, last);
     }
 
     FORCEINLINE Iterator EraseAfter(ConstIterator pos) noexcept { return forward_list_.erase_after(pos); }
@@ -165,8 +171,8 @@ public:
     /*
         Remove all the objects that comply with the fucntion.
     */
-    template <typename JudgeFunction>
-    FORCEINLINE Void RemoveIf(JudgeFunction func) noexcept {
+    template <typename PredicateFunction>
+    FORCEINLINE Void RemoveIf(PredicateFunction func) noexcept {
         forward_list_.remove_if(func);
     }
     /*
@@ -178,8 +184,8 @@ public:
     /*
         Make all the objects unique that comply with the fucntion.
     */
-    template <typename JudgeFunction>
-    FORCEINLINE Void UniqueIf(JudgeFunction func) noexcept {
+    template <typename PredicateFunction>
+    FORCEINLINE Void UniqueIf(PredicateFunction func) noexcept {
         forward_list_.unique(func);
     }
 
@@ -198,27 +204,27 @@ public:
     /*
         Merge the two lists together sorted.
     */
-    template <typename CompareFunction>
-    FORCEINLINE Void Merge(TForwardList& forward_list, CompareFunction func) {
+    template <typename PredicateFunction>
+    FORCEINLINE Void Merge(TForwardList& forward_list, PredicateFunction func) {
         forward_list_.unique(forward_list.forward_list_, func);
     }
     /*
         Merge the two lists together sorted.
     */
-    template <typename CompareFunction>
-    FORCEINLINE Void Merge(TForwardList&& forward_list, CompareFunction func) {
+    template <typename PredicateFunction>
+    FORCEINLINE Void Merge(TForwardList&& forward_list, PredicateFunction func) {
         forward_list_.unique(std::move(forward_list.forward_list_), func);
     }
 
     FORCEINLINE Void Sort() noexcept {
         forward_list_.sort();
     }
-    template <typename CompareFunction>
-    FORCEINLINE Void Sort(CompareFunction func) noexcept {
+    template <typename PredicateFunction>
+    FORCEINLINE Void Sort(PredicateFunction func) noexcept {
         forward_list_.sort(func);
     }
 
-    FORCEINLINE Void Clear() const noexcept { forward_list_.clear(); }
+    FORCEINLINE Void Clear() noexcept { forward_list_.clear(); }
 
     FORCEINLINE Void Resize(SizeType size) noexcept { forward_list_.resize(size); }
     FORCEINLINE Void Resize(SizeType size, const ObjectType& value) noexcept { forward_list_.resize(size, value); }
