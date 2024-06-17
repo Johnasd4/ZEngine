@@ -26,9 +26,10 @@
 using namespace zengine;
 using namespace std;
 
-Void test_func(Int32& test) {
+Int32 test_func(Int32 test) {
     test = test + 1;
     cout << test << endl;
+    return test;
 }
 
 int main() {
@@ -51,8 +52,12 @@ int main() {
     test_mutex.Lock();
     Int32 i = 1;
     ZThreadPool thread_pool(1);
-    thread_pool.AddTask(test_func, Ref(i));
-    thread_pool.LockUntilTaskDone();
+    //thread_pool.AddTask(test_func, i);
+    //thread_pool.LockUntilTaskDone();
     Sleep(100);
+    auto test_task = task::MakeTask([]() {return 1; }, i);
+    //test_task.BindReturn(&i);
+    test_task.Run();
+    cout << endl << i << endl;
     return 0;
 }

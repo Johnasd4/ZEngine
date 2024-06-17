@@ -32,7 +32,13 @@ namespace zengine {
 class ZMutex : public ZObject {
 public:
     FORCEINLINE ZMutex() noexcept : SuperType(), handle_(CreateMutex(nullptr, FALSE, nullptr)) {}
+    ZMutex(ZMutex&& mutex) noexcept : SuperType(), handle_(mutex.handle_) { handle_ = nullptr; }
     FORCEINLINE ~ZMutex() noexcept { CloseHandle(handle_); }
+
+    ZMutex& operator=(ZMutex&& mutex) noexcept {
+        handle_ = mutex.handle_;
+        mutex.handle_ = nullptr;
+    }
 
     FORCEINLINE Void Lock() noexcept { WaitForSingleObject(handle_, INFINITE);}
     /*
@@ -56,10 +62,8 @@ protected:
 
 private:
     ZMutex(const ZMutex&) = delete;
-    ZMutex(ZMutex&&) = delete;
 
     ZMutex& operator=(const ZMutex&) = delete;
-    ZMutex& operator=(ZMutex&&) = delete;
 
     Handle handle_;
 };

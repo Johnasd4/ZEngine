@@ -93,6 +93,10 @@ protected:
     using SuperType = ZObject;
 
 private:
+    ZThread(const ZThread&) = delete;
+
+    ZThread& operator=(const ZThread&) = delete;
+
     ThreadIDType id_;
     Handle handle_;
 };

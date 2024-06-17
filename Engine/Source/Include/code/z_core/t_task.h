@@ -21,10 +21,13 @@
 
 #include "internal/z_drive.h"
 
+#include <type_traits>
+
 #include "m_log.h"
+#include "t_lock_guard.h"
 #include "t_tuple.h"
 #include "z_object.h"
-#include "z_sem_mutex.h"
+#include "z_mutex.h"
 
 namespace zengine {
 
@@ -32,199 +35,139 @@ namespace error_code {
 
 enum TTaskErrorCode : ReturnType {
     kTTaskErrorCodeLinkError = kErrorCodeBasePCore,
-    kTTaskErrorCodeReturnValAlreadyGet
+    kTTaskErrorCodeReturnValAlreadyGet,
+    kTTaskErrorCodeTaskNotExist,
+    kTTaskErrorCodeTaskAlreadyExist,
 };
 
 }//error_code
 
+//TODO
+template<typename TaskFunction>
+class TTask : public ZObject {};
+
 /*
     Task class, package a function and it's params, can run at any time.
 */
-template<Bool kNeedReturn, typename TaskFunction, typename... ArgsType>
+template<typename TaskFunction, typename... ArgsType>
 class TTask : public ZObject {
 public:
-    using ReturnType = std::invoke_result<TaskFunction, ArgsType...>::type;
+    using TaskReturnType = typename std::invoke_result<TaskFunction, ArgsType...>::type;
     using TaskParamsTuple = TTuple<ArgsType...>;
 
-    TTask() noexcept : SuperType(), task_func_ptr_(nullptr), task_params_ptr_(nullptr), ret_val_ptr_(nullptr) {}
-    TTask(const TTask& task) noexcept 
+    TTask() noexcept 
             : SuperType()
-            , task_func_ptr_(task.task_func_ptr_)
-            , task_params_ptr_(nullptr)
-            , ret_val_ptr_(nullptr) {
-        if (task.task_params_ptr_ != nullptr) {
-            task_params_ptr_ = new TaskParamsTuple(*task.task_params_ptr_);
-        }
-        if (task.ret_val_ptr_ != nullptr) {
-            ret_val_ptr_ = new ReturnType(*task.ret_val_ptr_);
-        }
-    }
-    TTask(TTask&& task) noexcept 
+            , func_(nullptr)
+            , params_ptr_(nullptr)
+            , ret_val_ptr_(nullptr)
+            , mutex_(nullptr) {}
+    TTask(TTask&& task) noexcept
             : SuperType()
-            , task_func_ptr_(task.task_func_ptr_)
-            , task_params_ptr_(task.task_params_ptr_)
-            , ret_val_ptr_(task.ret_val_ptr_) {
-        task.task_func_ptr_ = nullptr;
-        task.task_params_ptr_ = nullptr;
+            , func_(std::move(task.func_))
+            , params_ptr_(task.params_ptr_)
+            , ret_val_ptr_(task.ret_val_ptr_) 
+            , mutex_(std::move(task.mutex_)) {
+        task.params_ptr_ = nullptr;
         task.ret_val_ptr_ = nullptr;
     }
-    TTask(TaskFunction&& func, ArgsType&&... args) noexcept 
+    TTask(TaskFunction func, ArgsType&&... args) noexcept 
             : SuperType()
-            , task_func_ptr_(&func)
-            , task_params_ptr_(new TaskParamsTuple(std::forward<ArgsType>(args)...)) 
-            , ret_val_ptr_(nullptr) {}
+            , func_(std::forward<TaskFunction>(func))
+            , params_ptr_(new TaskParamsTuple(std::forward<ArgsType>(args)...)) 
+            , ret_val_ptr_(nullptr)
+            , mutex_() {}
     ~TTask() noexcept {
-        if (task_params_ptr_ != nullptr) {
-            delete task_params_ptr_;
-        }
-        if (ret_val_ptr_ != nullptr) {
-            delete ret_val_ptr_;
+        if (params_ptr_ != nullptr) {
+            delete params_ptr_;
         }
     }
 
-    TTask& operator=(const TTask& task) noexcept {
-        task_func_ptr_ = task.task_func_ptr_;
-        if (task.task_params_ptr_ != nullptr) {
-            task_params_ptr_ = new TaskParamsTuple(*task.task_params_ptr_);
-        }
-        else {
-            task_params_ptr_ = nullptr;
-        }
-        if (task.ret_val_ptr_ != nullptr) {
-            ret_val_ptr_ = new ReturnType(*task.ret_val_ptr_);
-        }
-        else {
-            ret_val_ptr_ = nullptr;
-        }
-        return *this;
-    }
     TTask& operator=(TTask&& task) noexcept {
-        task_func_ptr_ = task.task_func_ptr_;
-        task_params_ptr_ = task.task_params_ptr_;
+        func_ = task.func_;
+        params_ptr_ = task.params_ptr_;
         ret_val_ptr_ = task.ret_val_ptr_;
-        task.task_func_ptr_ = nullptr;
-        task.task_params_ptr_ = nullptr;
+        mutex_ = std::move(task.mutex_);
+        task.params_ptr_ = nullptr;
         task.ret_val_ptr_ = nullptr;
         return *this;
     }
 
-    template<typename ObjectType>
     FORCEINLINE Void Swap(TTask& task) noexcept {
         zengine::Swap(this, &task);
     }
 
-    NODISCARD ReturnType* GetReturn() noexcept {
-        ReturnType* temp_ret_val_ptr = ret_val_ptr_;
-        if (ret_val_ptr_ == nullptr) {
-            Z_LOG_ERROR(error_code::kTTaskErrorCodeReturnValAlreadyGet, 0, "Return value already get! ");
-            return nullptr;
-        }
+    Void BindReturn(TaskReturnType* ret_val_ptr) noexcept {
+        mutex_.Lock();
+        ret_val_ptr_ = ret_val_ptr;
+        mutex_.Unlock();
+    }
+
+    Void SetTask(TaskFunction&& func, ArgsType&&... args) noexcept {
+        mutex_.Lock();
+        func_ = std::forward<TaskFunction>(func);
+        params_ptr_ = new TaskParamsTuple(std::forward<ArgsType>(args)...);
         ret_val_ptr_ = nullptr;
-        return temp_ret_val_ptr;
+        mutex_.Unlock();
     }
 
-    template<IndexType kIndex>
-    FORCEINLINE constexpr Void Set(const TaskObjectType<kIndex>& object) noexcept {
-        std::get<kIndex>(task_) = object;
-    }
-    template<IndexType kIndex>
-    FORCEINLINE constexpr Void Set(TaskObjectType<kIndex>&& object) noexcept {
-        std::get<kIndex>(task_) = std::forward<TaskObjectType<kIndex>>(object);
-    }
-    template<typename ObjectType>
-    FORCEINLINE constexpr Void Set(const ObjectType& object) noexcept {
-        std::get<ObjectType>(task_) = object;
-    }
-    template<typename ObjectType>
-    FORCEINLINE constexpr Void Set(ObjectType&& object) noexcept {
-        std::get<ObjectType>(task_) = std::forward<ObjectType>(object);
+    Void Clear() noexcept {
+        mutex_.Lock();
+        delete params_ptr_;
+        params_ptr_ = nullptr;
+        ret_val_ptr_ = nullptr;
+        mutex_.Unlock();
     }
 
-    NODISCARD FORCEINLINE constexpr const IndexType Size() const noexcept {
-        return static_cast<IndexType>(std::task_size<STDTask>::value);
-    }
-    template<typename Function>
-    NODISCARD FORCEINLINE constexpr decltype(auto) Apply(Function&& func) noexcept {
-        return std::apply(std::forward<Function>(func), std::move(task_));
+#pragma warning(push)
+#pragma warning(disable: 6031)
+
+    NODISCARD ReturnType Run() noexcept {
+        ReturnType ret_val = kOK;
+        TLockGuard<ZMutex> lock_guard(mutex_);
+        if (params_ptr_ == nullptr) {
+            ret_val = error_code::kTTaskErrorCodeTaskNotExist;
+            Z_LOG_ERROR(ret_val, 0, "Task not exist! ");
+            return ret_val;
+        }
+        if constexpr (kSameType<TaskReturnType, Void>) {
+            params_ptr_->Apply(func_);
+        }
+        else {
+            if (ret_val_ptr_ != nullptr) {
+                *ret_val_ptr_ = params_ptr_->Apply(func_);
+            }
+            else {
+                params_ptr_->Apply(func_);
+            }
+        }
+        delete params_ptr_;
+        params_ptr_ = nullptr;
+        return ret_val;
     }
 
+#pragma warning(pop)
+
+    FORCEINLINE Bool Finished() noexcept { return func_ == nullptr; }
 
 protected:
     using SuperType = ZObject;
 
 private:
-    template<typename... OtherArgsType>
-    friend class TTask;
+    TTask(const TTask&) = delete;
 
-    TaskFunction* task_func_ptr_;
-    TaskParamsTuple* task_params_ptr_;
-    ReturnType* ret_val_ptr_;
-    ZSemMutex task_mutex_;
+    TTask& operator=(const TTask&) = delete;
+
+    TaskFunction func_;
+    TaskParamsTuple* params_ptr_;
+    TaskReturnType* ret_val_ptr_;
+    ZMutex mutex_;
 };
 
 namespace task {
 
-template<typename... ArgsType>
-NODISCARD FORCEINLINE constexpr TTask<ArgsType...> MakeTask(ArgsType&&... args) noexcept {
-    return TTask(std::forward<ArgsType>(args)...);
-}
-
-template<typename... ArgsType>
-NODISCARD FORCEINLINE constexpr TTask<ArgsType&...> Tie(ArgsType&... args) noexcept {
-    return TTask<ArgsType&...>(args...);
-}
-
-template<IndexType kIndex, typename... ArgsType>
-NODISCARD FORCEINLINE constexpr decltype(auto) Get(TTask<ArgsType...>& task) noexcept {
-    return task.Get<kIndex>();
-}
-template<IndexType kIndex, typename... ArgsType>
-NODISCARD FORCEINLINE constexpr decltype(auto) Get(const TTask<ArgsType...>& task) noexcept {
-    return task.Get<kIndex>();
-}
-template<IndexType kIndex, typename... ArgsType>
-NODISCARD FORCEINLINE constexpr decltype(auto) Get(TTask<ArgsType...>&& task) noexcept {
-    return std::move(task.Get<kIndex>());
-}
-template<IndexType kIndex, typename... ArgsType>
-NODISCARD FORCEINLINE constexpr decltype(auto) Get(const TTask<ArgsType...>&& task) noexcept {
-    return std::move(task.Get<kIndex>());
-}
-template<typename ObjectType, typename... ArgsType>
-NODISCARD FORCEINLINE constexpr ObjectType& Get(TTask<ArgsType...>& task) noexcept {
-    return task.Get<ObjectType>();
-}
-template<typename ObjectType, typename... ArgsType>
-NODISCARD FORCEINLINE constexpr const ObjectType& Get(const TTask<ArgsType...>& task) noexcept {
-    return task.Get<ObjectType>();
-}
-template<typename ObjectType, typename... ArgsType>
-NODISCARD FORCEINLINE constexpr ObjectType&& Get(TTask<ArgsType...>&& task) noexcept {
-    return std::move(task.Get<ObjectType>());
-}
-template<typename ObjectType, typename... ArgsType>
-NODISCARD FORCEINLINE constexpr const ObjectType&& Get(const TTask<ArgsType...>&& task) noexcept {
-    return std::move(task.Get<ObjectType>());
-}
-
-template<IndexType kIndex, typename ObjectType, typename... ArgsType>
-FORCEINLINE constexpr Void Set(TTask<ArgsType...>* task, ObjectType&& object) noexcept {
-    task->Set<kIndex>(std::forward<ObjectType>(object));
-}
-
-template<typename ObjectType, typename... ArgsType>
-FORCEINLINE constexpr Void Set(TTask<ArgsType...>* task, ObjectType&& object) noexcept {
-    task->Set<ObjectType>(std::forward<ObjectType>(object));
-}
-
-template<typename... ArgsType>
-NODISCARD FORCEINLINE constexpr const IndexType Size(const TTask<ArgsType...>& task) noexcept {
-    return task.Size();
-}
-
-template<typename Function,typename... ArgsType>
-NODISCARD FORCEINLINE constexpr decltype(auto) Apply(Function&& func, TTask<ArgsType...>&& task) noexcept {
-    return task.Apply(std::forward<Function>(func));
+template<typename TaskFunction, typename... ArgsType>
+NODISCARD FORCEINLINE TTask<TaskFunction, ArgsType...> MakeTask(TaskFunction&& func, ArgsType&&... args) noexcept {
+    return TTask<TaskFunction, ArgsType...>(std::forward<TaskFunction>(func), std::forward<ArgsType>(args)...);
 }
 
 }//task
