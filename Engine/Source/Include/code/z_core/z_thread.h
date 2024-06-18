@@ -45,11 +45,10 @@ public:
         using ParamsType = TTuple<Function, TTuple<ArgsType...>>;
         ParamsType* params_ptr = new ParamsType(std::forward<Function>(func), 
                                                 tuple::MakeTuple(std::forward<ArgsType>(args)...));
-        auto thread_func = [](Void* params) -> UInt32 {
-            ParamsType temp_params(*(ParamsType*)params);
-            delete (ParamsType*)params;
-            tuple::Apply(temp_params.Get<0>(), std::move(temp_params.Get<1>()));
-            return 0; 
+        auto thread_func = [](Void* params_ptr) -> UInt32 {
+            tuple::Apply(((ParamsType*)params_ptr)->Get<0>(), std::move(((ParamsType*)params_ptr)->Get<1>()));
+            delete (ParamsType*)params_ptr;
+            return 0;
         };
         handle_ = (Handle)_beginthreadex(NULL,
                                          0,

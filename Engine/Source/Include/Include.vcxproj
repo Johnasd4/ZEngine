@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="code\z_core\internal\d_macro.h" />
     <ClInclude Include="code\z_core\internal\d_concept.h" />
     <ClInclude Include="code\z_core\internal\d_constant.h" />
     <ClInclude Include="code\z_core\internal\d_error_code.h" />

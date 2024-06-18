@@ -85,10 +85,31 @@ public:
         if (max_thread_num_ == free_thread_num_) {
             pool_idle_mutex_.TryLock();
         }
-        task_queue_.Push([&]() { (func)(std::forward<ArgsType>(args)...); });
+        task_queue_.Push([func = std::forward<TaskFunction>(func), ...args = std::forward<ArgsType>(args)]() mutable {
+            func(std::forward<ArgsType>(args)...);
+        });
         cv_.NotifyOne();
         return ret_val;
     }
+
+    template<typename TaskType>
+    NODISCARD ReturnType AddTask(TaskType& task) noexcept {
+        ReturnType ret_val = kOK;
+        TUniqueLock<ZMutex> lock(pool_mutex_);
+        if (finished_) {
+            ret_val = error_code::kZThreadPoolErrorCodePoolFinished;
+            Z_LOG_ERROR(ret_val, 0, "Thread pool finished, can't add task!");
+            return ret_val;
+        }
+        //when idle.
+        if (max_thread_num_ == free_thread_num_) {
+            pool_idle_mutex_.TryLock();
+        }
+        task_queue_.Push([&]() mutable { task.Run(); });
+        cv_.NotifyOne();
+        return ret_val;
+    }
+
     CORE_DLLAPI Void ClearTask() noexcept;
 
 protected:

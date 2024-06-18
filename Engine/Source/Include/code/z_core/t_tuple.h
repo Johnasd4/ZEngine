@@ -100,7 +100,6 @@ public:
         return std::apply(std::forward<Function>(func), std::move(tuple_));
     }
 
-
 protected:
     using SuperType = ZObject;
 

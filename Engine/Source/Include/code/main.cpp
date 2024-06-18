@@ -26,11 +26,13 @@
 using namespace zengine;
 using namespace std;
 
-Int32 test_func(Int32 test) {
+Int32 test_func(Int32 &test) {
     test = test + 1;
     cout << test << endl;
     return test;
 }
+
+
 
 int main() {
     //Z_LOG_ERROR(1, 2, "TEST%d%d%d%d%d", 3, 4, 5, 6, 7);
@@ -50,17 +52,20 @@ int main() {
     //cons.join();
     ZSemMutex test_mutex;
     test_mutex.Lock();
-    Int32 i = 1;
+
     ZThreadPool thread_pool(1);
-    //thread_pool.AddTask(test_func, i);
-    //thread_pool.LockUntilTaskDone();
+    {
+        Int32 i = 1;
+        thread_pool.AddTask(test_func, Ref(i));
+    }
     Sleep(100);
-    auto test_task = task::MakeTask([]() {; });
-    test_task.BindReturn(&i);
-    test_task.Run();
+    auto test_task = task::MakeTask([]() {cout<<3; });
+    thread_pool.AddTask(test_task);
+    //test_task.Run();
     TArray<Int32,10>* a = nullptr;
     delete a;
     sizeof(TTuple<Int32>);
-    cout << endl << i << endl;
+    thread_pool.LockUntilTaskDone();
+
     return 0;
 }
