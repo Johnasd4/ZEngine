@@ -42,17 +42,58 @@ enum TUniqueLockErrorCode : ReturnType {
 */
 template<typename MutexType>
 class TUniqueLock : public ZObject {
+private:
+    struct NoLockType { Int32 value; };
+    struct TryLockType { Int32 value; };
+    struct TryLockForType { Int32 value; };
+    struct TryLockUntilType { Int32 value; };
+
 public:
+    static constexpr NoLockType kNoLock = { 0 };
+    static constexpr TryLockType kTryLock = { 0 };
+    static constexpr TryLockForType kTryLockFor = { 0 };
+    static constexpr TryLockUntilType kTryLockUntil = { 0 };
+
     TUniqueLock() noexcept : SuperType(), mutex_ptr_(nullptr), owns_lock_(false) {}
-    TUniqueLock(TUniqueLock&& unique_lock) noexcept : 
-            SuperType(), mutex_ptr_(unique_lock.mutex_ptr_), owns_lock_(unique_lock.owns_lock_)  {
+    TUniqueLock(TUniqueLock&& unique_lock) noexcept 
+            : SuperType(), mutex_ptr_(unique_lock.mutex_ptr_), owns_lock_(unique_lock.owns_lock_)  {
         unique_lock.mutex_ptr_ = nullptr;
-        unique_lock.owns_lock_ = false;
+        unique_lock.owns_lock_ = true;
     }
     /*
-        Doesn't the mutex.
+        Locks the mutex.
     */
-    TUniqueLock(MutexType& mutex) noexcept : SuperType(), mutex_ptr_(&mutex), owns_lock_(false) {}
+    TUniqueLock(MutexType& mutex) noexcept : SuperType(), mutex_ptr_(&mutex) {
+        mutex_ptr_->Lock();
+        owns_lock_ = true;
+    }
+    /*
+        Don't lock the mutex.
+    */
+    explicit TUniqueLock(MutexType& mutex, NoLockType value) noexcept : SuperType(), mutex_ptr_(&mutex) {
+        owns_lock_ = false;
+    }
+    /*
+        Try to get the lock.
+    */
+    explicit TUniqueLock(MutexType& mutex, TryLockType value) noexcept : SuperType(), mutex_ptr_(&mutex) {
+        owns_lock_ = mutex_ptr_->TryLock();
+    }
+    /*
+         Try to get the lock in a certain time(ms).
+    */
+    explicit TUniqueLock(MutexType& mutex, TryLockForType value, UInt32 time) noexcept 
+            : SuperType(), mutex_ptr_(&mutex) {
+        owns_lock_ = mutex_ptr_->TryLockFor(time);
+    }
+    /*
+         Try to get the lock before a certain time(ms), use clock() to get the current time.
+    */
+    explicit TUniqueLock(MutexType& mutex, TryLockUntilType value, UInt32 time) noexcept
+        : SuperType(), mutex_ptr_(&mutex) {
+        owns_lock_ = mutex_ptr_->TryLockUntil(time);
+    }
+
     /*
         Unlocks the mutex if owns.
     */
@@ -127,6 +168,7 @@ public:
                         "TUniqueLock::UnlockValidCheckP() link error!");
             return;
         }
+        mutex_ptr_->Unlock();
         owns_lock_ = false;
     }
 

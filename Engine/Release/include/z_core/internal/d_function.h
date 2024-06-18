@@ -31,6 +31,21 @@ FORCEINLINE constexpr Void Swap(ObjectType* object_1, ObjectType* object_2) {
     *object_2 = std::move(temp_object);
 }
 
+template<typename ObjectType>
+NODISCARD FORCEINLINE constexpr decltype(auto) Ref(ObjectType& object) {
+    return std::ref(object);
+}
+
+template<typename ObjectType>
+NODISCARD FORCEINLINE constexpr decltype(auto) Ref(const ObjectType& object) {
+    return std::ref(object);
+}
+
+template<typename ObjectType>
+NODISCARD FORCEINLINE constexpr decltype(auto) Ref(std::reference_wrapper<ObjectType> object) {
+    return std::ref(object);
+}
+
 }//zengine
 
 #endif // !Z_CORE_INTERNAL_D_FUNCTION_H_

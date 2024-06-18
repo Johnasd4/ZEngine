@@ -21,9 +21,12 @@
 
 #include "internal/z_drive.h"
 
+#include "t_stack.h"
 #include "t_unique_lock.h"
+#include "z_cs_mutex.h"
 #include "z_mutex.h"
 #include "z_object.h"
+#include "z_thread.h"
 
 namespace zengine {
 
@@ -32,17 +35,67 @@ namespace zengine {
 */
 class ZConditionVariable : public ZObject {
 public:
-    ZConditionVariable() noexcept;
-    ~ZConditionVariable() noexcept;
-    Void Wait(TUniqueLock<ZMutex>& mutex);
-    Void Wait(TUniqueLock<ZMutex>& mutex);
+    CORE_DLLAPI ZConditionVariable() noexcept;
+    CORE_DLLAPI ~ZConditionVariable() noexcept;
+
+    CORE_DLLAPI NODISCARD Int32 WaitThreadNum() noexcept;
+    CORE_DLLAPI NODISCARD Bool Empty() noexcept;
+
+    CORE_DLLAPI Void Wait(TUniqueLock<ZMutex>& mutex) noexcept;
+    template <typename PredicateFunction>
+    Void Wait(TUniqueLock<ZMutex>& mutex, PredicateFunction func) noexcept {
+        LockP(mutex);
+        while (!func() && !cv_finished_) {
+            SleepConditionVariableCS(&cv_, &cs_mutex_.mutex_, INFINITE);
+        }
+        UnlockP(mutex);
+    }
+    /*
+       Wait for a certain time(ms).
+    */
+    CORE_DLLAPI Void WaitFor(TUniqueLock<ZMutex>& mutex, UInt32 time) noexcept;
+    /*
+       Wait for a certain time(ms), use clock() to get the current time.
+    */
+    template <typename PredicateFunction>
+    Void WaitFor(TUniqueLock<ZMutex>& mutex, UInt32 time, PredicateFunction func) noexcept {
+        LockP(mutex);
+        while (!func() && !cv_finished_) {
+            SleepConditionVariableCS(&cv_, &cs_mutex_.mutex_, time);
+        }
+        UnlockP(mutex);
+    }
+    /*
+       Wait for a certain time(ms), use clock() to get the current time.
+    */
+    CORE_DLLAPI Void WaitUntil(TUniqueLock<ZMutex>& mutex, UInt32 time) noexcept;
+    /*
+       Wait for a certain time(ms), use clock() to get the current time.
+    */
+    template <typename PredicateFunction>
+    Void WaitUntil(TUniqueLock<ZMutex>& mutex, UInt32 time, PredicateFunction func) noexcept {
+        time -= clock();
+        LockP(mutex);
+        while (!func() && !cv_finished_) {
+            SleepConditionVariableCS(&cv_, &cs_mutex_.mutex_, time);
+        }
+        UnlockP(mutex);
+    }
+
+    CORE_DLLAPI Void NotifyOne() noexcept;
+    CORE_DLLAPI Void NotifyAll() noexcept;
+
 protected:
     using SuperType = ZObject;
 
 private:
+    CORE_DLLAPI Void LockP(TUniqueLock<ZMutex>& mutex) noexcept;
+    CORE_DLLAPI Void UnlockP(TUniqueLock<ZMutex>& mutex) noexcept;
 
-
-    Handle handle_;
+    ZCSMutex cs_mutex_;
+    CONDITION_VARIABLE cv_;
+    Int32 wait_thread_num_;
+    Bool cv_finished_;
 };
 
 }//zengine

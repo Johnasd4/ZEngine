@@ -24,16 +24,21 @@
 
 namespace zengine {
 
-static constexpr Float32 kFloat32Max = 3.402823466e+38F;
-static constexpr Float32 kFloat32Min = -3.402823466e+38F;
+inline constexpr Int32 kInt32Max = 2147483647;
+inline constexpr Int32 kInt32Min = -2147483647;
+inline constexpr Float32 kFloat32Max = 3.402823466e+38F;
+inline constexpr Float32 kFloat32Min = -3.402823466e+38F;
 
-static constexpr MemoryType kB = 1;
-static constexpr MemoryType kKB = 1024;
-static constexpr MemoryType kMB = 1048576;
-static constexpr MemoryType kGB = 1073741824;
+inline constexpr Int32 kIndexTypeMax = kInt32Max;
+inline constexpr Int32 kIndexTypeMin = kInt32Min;
+
+inline constexpr MemoryType kB = 1;
+inline constexpr MemoryType kKB = 1024;
+inline constexpr MemoryType kMB = 1048576;
+inline constexpr MemoryType kGB = 1073741824;
 
 //The unit size when applying memory.
-static constexpr MemoryType kHeapMemoryUnitSize = 4 * kKB;
+inline constexpr MemoryType kHeapMemoryUnitSize = 4 * kKB;
 
 }//zengine
 

@@ -93,7 +93,7 @@ public:
     NODISCARD FORCEINLINE ObjectType* DataPtr() noexcept { return vector_.data(); }
     NODISCARD FORCEINLINE const ObjectType* DataPtr() const noexcept { return vector_.data(); }
 
-    NODISCARD FORCEINLINE IndexType Size() const noexcept { return vector_.size(); }
+    NODISCARD FORCEINLINE IndexType Size() const noexcept { return static_cast<IndexType>(vector_.size()); }
     NODISCARD FORCEINLINE IndexType Capacity() const noexcept { return vector_.capacity(); }
     NODISCARD FORCEINLINE Bool Empty() const noexcept { return vector_.empty(); }
 
@@ -133,15 +133,15 @@ public:
 
     FORCEINLINE Iterator Erase(ConstIterator pos) noexcept { return vector_.erase(pos); }
     FORCEINLINE Iterator Erase(ConstIterator first, ConstIterator last) noexcept { return vector_.erase(first, last); }
-    FORCEINLINE Void Clear() const noexcept { vector_.clear(); }
+    FORCEINLINE Void Clear() noexcept { vector_.clear(); }
 
     template <typename... ArgsType>
     FORCEINLINE Iterator Emplace(ConstIterator pos, ArgsType&&... args) noexcept {
         return vector_.emplace(pos, std::forward<ArgsType>(args)...);
     }
     template <typename... ArgsType>
-    FORCEINLINE Void EmplaceBack(ArgsType&&... args) noexcept { 
-        vector_.emplace_back(std::forward<ArgsType>(args)...); 
+    FORCEINLINE ObjectType& EmplaceBack(ArgsType&&... args) noexcept {
+        return vector_.emplace_back(std::forward<ArgsType>(args)...); 
     }
 
     FORCEINLINE Void Resize(SizeType size) noexcept { vector_.resize(size); }

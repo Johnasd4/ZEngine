@@ -36,15 +36,22 @@ public:
     using STDArray = std::array<ObjectType, kCapacity>;
     using InitializerList = std::initializer_list<ObjectType>;
 
-    FORCEINLINE constexpr TFixedQueue() noexcept : SuperType(), 
-        queue_(), front_index_(0), back_index_(kCapacity - 1), size_(0) {}
-    FORCEINLINE constexpr TFixedQueue(const TFixedQueue& queue) noexcept : SuperType(), 
-        queue_(queue.queue_), front_index_(queue.front_index_), back_index_(queue.back_index_), size_(queue.size_) {}
-    FORCEINLINE constexpr TFixedQueue(TFixedQueue&& queue) noexcept : SuperType(), 
-        queue_(std::move(queue.queue_)), front_index_(queue.front_index_), back_index_(queue.back_index_), 
-        size_(queue.size_) {}
-    FORCEINLINE TFixedQueue(InitializerList init_list) noexcept : SuperType(), 
-        queue_(init_list), front_index_(0), back_index_(kCapacity - 1), size_(kCapacity) {}
+    FORCEINLINE constexpr TFixedQueue() noexcept 
+            : SuperType(), queue_(), front_index_(0), back_index_(kCapacity - 1), size_(0) {}
+    FORCEINLINE constexpr TFixedQueue(const TFixedQueue& queue) noexcept 
+            : SuperType()
+            , queue_(queue.queue_)
+            , front_index_(queue.front_index_)
+            , back_index_(queue.back_index_)
+            , size_(queue.size_) {}
+    FORCEINLINE constexpr TFixedQueue(TFixedQueue&& queue) noexcept 
+            : SuperType()
+            , queue_(std::move(queue.queue_))
+            , front_index_(queue.front_index_)
+            , back_index_(queue.back_index_)
+            ,size_(queue.size_) {}
+    FORCEINLINE TFixedQueue(InitializerList init_list) noexcept 
+            : SuperType(), queue_(init_list), front_index_(0), back_index_(kCapacity - 1), size_(kCapacity) {}
 
 
     FORCEINLINE constexpr ~TFixedQueue() noexcept {}
@@ -76,25 +83,26 @@ public:
     NODISCARD FORCEINLINE constexpr IndexType Size() noexcept { return size_; }
     NODISCARD FORCEINLINE constexpr Bool Empty() noexcept { return size_ == 0; }
 
-    constexpr Void Pop() noexcept { 
+    constexpr Void PopFront() noexcept { 
         --size_;
         front_index_ = (front_index_ + 1) % kCapacity;
     }  
-    constexpr Void Push(const ObjectType& object) noexcept {
+    constexpr Void PushBack(const ObjectType& object) noexcept {
         back_index_ = (back_index_ + 1) % kCapacity;
         queue_[back_index_] = object;
         ++size_;
     }
-    constexpr Void Push(ObjectType&& object) noexcept {
+    constexpr Void PushBack(ObjectType&& object) noexcept {
         back_index_ = (back_index_ + 1) % kCapacity;
-        queue_[back_index_] = object;
+        queue_[back_index_] = std::forward<ObjectType>(object);
         ++size_;
     }
     template<typename... ArgsType>
-    constexpr Void Push(ArgsType&&... args) noexcept {
+    constexpr ObjectType& EmplaceBack(ArgsType&&... args) noexcept {
         back_index_ = (back_index_ + 1) % kCapacity;
         new(&queue_[back_index_]) ObjectType(std::forward<ArgsType>(args)...);
         ++size_;
+        return queue_[back_index_];
     }
 
     constexpr Void Clear() noexcept { 

@@ -39,17 +39,9 @@ enum TTaskErrorCode : ReturnType {
     kTTaskErrorCodeTaskNotExist,
     kTTaskErrorCodeTaskAlreadyExist,
     kTTaskErrorCodeCanNotBindVoidReturn,
-    kTTaskErrorCodeTaskStateCanNotBind,
 };
 
 }//error_code
-
-enum TTaskState : IndexType {
-    kTTaskStateNoTask =         0x1,
-    kTTaskStateTaskSet =        0x2,
-    kTTaskStateTaskRunning =    0x4, 
-    kTTaskStateReturnReady =    0x8,
-};
 
 //TODO
 //template<typename TaskFunction>
@@ -64,17 +56,25 @@ public:
     using TaskReturnType = typename std::invoke_result<TaskFunction, ArgsType...>::type;
     using TaskParamsTuple = TTuple<ArgsType...>;
 
+    enum TaskState : IndexType {
+        kTaskStateNoTask,
+        kTaskStateWaiting,
+        kTaskStateOperating,
+        kTaskStateFinished,
+
+    };
+
     TTask() noexcept 
             : SuperType()
             , func_(nullptr)
             , params_ptr_(nullptr)
             , ret_val_ptr_(nullptr)
-            , mutex_(nullptr)
-            , state_(kTTaskStateNoTask) {}
-    TTask(TTask&& task) noexcept {
-        task.mutex_.Lock();
-        func_ = std::move(task.func_);
-        params_ptr_ = task.params_ptr_;
+            , mutex_(nullptr) {}
+    TTask(TTask&& task) noexcept
+            : SuperType()
+            , func_(std::move(task.func_))
+            , params_ptr_(task.params_ptr_)
+            , mutex_(std::move(task.mutex_)) {
         task.params_ptr_ = nullptr;
         if constexpr (kSameType<TaskReturnType, Void>) {
             ret_val_ptr_ = nullptr;
@@ -83,18 +83,13 @@ public:
             ret_val_ptr_ = task.ret_val_ptr_;
             task.ret_val_ptr_ = nullptr;
         }
-        state_ = task.state_;
-        task.state_ = kTTaskStateNoTask;
-        task.mutex_.Unlock();
-        mutex_ = std::move(task.mutex_);
     }
     TTask(TaskFunction func, ArgsType&&... args) noexcept 
             : SuperType()
             , func_(std::forward<TaskFunction>(func))
             , params_ptr_(new TaskParamsTuple(std::forward<ArgsType>(args)...)) 
             , ret_val_ptr_(nullptr)
-            , mutex_() 
-            , state_(kTTaskStateTaskSet) {}
+            , mutex_() {}
     ~TTask() noexcept {
         if constexpr (!kSameType<TaskReturnType, Void>) {
             if (params_ptr_ != nullptr) {
@@ -104,17 +99,13 @@ public:
     }
 
     TTask& operator=(TTask&& task) noexcept {
-        task.mutex_.Lock();
-        func_ = std::move(task.func_);
+        func_ = task.func_;
         params_ptr_ = task.params_ptr_;
         task.params_ptr_ = nullptr;
         if constexpr (!kSameType<TaskReturnType, Void>) {
             ret_val_ptr_ = task.ret_val_ptr_;
             task.ret_val_ptr_ = nullptr;
         }
-        state_ = task.state_;
-        task.state_ = kTTaskStateNoTask;
-        task.mutex_.Unlock();
         mutex_ = std::move(task.mutex_);
         return *this;
     }
@@ -125,18 +116,14 @@ public:
 
     NODISCARD ReturnType BindReturn(TaskReturnType* ret_val_ptr) noexcept {
         ReturnType ret_val = kOK;
-        TLockGuard<ZMutex> lock_guard(mutex_);
         if constexpr (kSameType<TaskReturnType, Void>) {
             ret_val = error_code::kTTaskErrorCodeCanNotBindVoidReturn;
             Z_LOG_ERROR(ret_val, 0, "Can not bind a Void return!");
             return ret_val;
         }
-        if (!IN_STATE(state_, kTTaskStateNoTask | kTTaskStateTaskSet)) {
-            ret_val = error_code::kTTaskErrorCodeTaskStateCanNotBind;
-            Z_LOG_ERROR(ret_val, 0, "Current state can not bind return! State: state_");
-            return ret_val;
-        }
+        mutex_.Lock();
         ret_val_ptr_ = ret_val_ptr;
+        mutex_.Unlock();
         return ret_val;
     }
 
@@ -153,7 +140,7 @@ public:
         mutex_.Unlock();
     }
 
-    NODISCARD Bool Clear() noexcept {
+    Void Clear() noexcept {
         mutex_.Lock();
         if (params_ptr_ != nullptr) {
             delete params_ptr_;
@@ -208,7 +195,6 @@ private:
     TaskParamsTuple* params_ptr_;
     TaskReturnType* ret_val_ptr_;
     ZMutex mutex_;
-    TTaskState state_;
 };
 
 namespace task {

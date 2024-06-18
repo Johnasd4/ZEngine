@@ -32,16 +32,7 @@
 #include <stdarg.h>
 #include <process.h>
 
-#ifndef DLLEXPORT
-#define DLLEXPORT __declspec(dllexport)
-#endif
-#ifndef DLLIMPORT
-#define DLLIMPORT __declspec(dllimport)
-#endif
-
-#ifndef NODISCARD
-#define NODISCARD [[nodiscard]]
-#endif
+#include "d_macro.h"
 
 //Define if at the start of the z_core cpp file.
 #ifdef CORE_DLLFILE

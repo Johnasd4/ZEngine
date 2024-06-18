@@ -24,6 +24,7 @@
     <ClInclude Include="code\z_core\internal\d_error_code.h" />
     <ClInclude Include="code\z_core\internal\d_function.h" />
     <ClInclude Include="code\z_core\internal\d_lib.h" />
+    <ClInclude Include="code\z_core\internal\d_macro.h" />
     <ClInclude Include="code\z_core\internal\d_type.h" />
     <ClInclude Include="code\z_core\t_task.h" />
     <ClInclude Include="code\z_core\z_sem_mutex.h" />

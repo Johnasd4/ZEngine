@@ -42,16 +42,13 @@ public:
     using InitializerList = std::initializer_list<ObjectType>;
 
     FORCEINLINE TList() noexcept : SuperType(), list_() {}
-    FORCEINLINE TList(const TList& list) noexcept : 
-        SuperType(), list_(list.list_) {}
-    FORCEINLINE TList(TList&& list) noexcept : 
-        SuperType(), list_(std::move(list.list_)) {}
+    FORCEINLINE TList(const TList& list) noexcept : SuperType(), list_(list.list_) {}
+    FORCEINLINE TList(TList&& list) noexcept : SuperType(), list_(std::move(list.list_)) {}
 
     FORCEINLINE TList(SizeType size) noexcept : SuperType(), list_(size) {}
     FORCEINLINE TList(SizeType size, const ZObject& value) noexcept : SuperType(), list_(size, value) {}
     template <typename InputIterator>
-    FORCEINLINE TList(InputIterator first, InputIterator last) noexcept : 
-        SuperType(), list_(first, last) {}
+    FORCEINLINE TList(InputIterator first, InputIterator last) noexcept : SuperType(), list_(first, last) {}
     FORCEINLINE TList(InitializerList init_list) noexcept : SuperType(), list_(init_list) {}
  
     FORCEINLINE ~TList() noexcept {}
@@ -92,8 +89,8 @@ public:
     NODISCARD FORCEINLINE ObjectType& Back() noexcept { return list_.back(); }
     NODISCARD FORCEINLINE const ObjectType& Back() const noexcept { return list_.back(); }
 
-    NODISCARD FORCEINLINE IndexType Size() const noexcept { return list_.size(); }
-    NODISCARD FORCEINLINE IndexType Capacity() const noexcept { return list_.max_size(); }
+    NODISCARD FORCEINLINE IndexType Size() const noexcept { return static_cast<IndexType>(list_.size()); }
+    NODISCARD FORCEINLINE IndexType Capacity() const noexcept { return kIndexTypeMax; }
     NODISCARD FORCEINLINE Bool Empty() const noexcept { return list_.empty(); }
 
     NODISCARD FORCEINLINE Iterator Begin() noexcept { return list_.begin(); }
@@ -110,7 +107,12 @@ public:
     NODISCARD FORCEINLINE ConstReverseIterator ConstReverseEnd() const noexcept { return list_.crend(); }
 
     template <typename... ArgsType>
-    FORCEINLINE Iterator EmplaceFront(ArgsType&&... args) noexcept {
+    FORCEINLINE Iterator Emplace(ConstIterator pos, ArgsType&&... args) noexcept {
+        return list_.emplace(pos, std::forward<ArgsType>(args)...);
+    }
+
+    template <typename... ArgsType>
+    FORCEINLINE ObjectType& EmplaceFront(ArgsType&&... args) noexcept {
         return list_.emplace_front(std::forward<ArgsType>(args)...);
     }
     FORCEINLINE Void PushFront(const ObjectType& value) noexcept { list_.push_front(value); }
@@ -118,17 +120,13 @@ public:
     FORCEINLINE Void PopFront() noexcept { list_.pop_front(); }
 
     template <typename... ArgsType>
-    FORCEINLINE Iterator EmplaceBack(ArgsType&&... args) noexcept {
+    FORCEINLINE ObjectType& EmplaceBack(ArgsType&&... args) noexcept {
         return list_.emplace_back(std::forward<ArgsType>(args)...);
     }
     FORCEINLINE Void PushBack(const ObjectType& value) noexcept { list_.push_back(value); }
     FORCEINLINE Void PushBack(ObjectType&& value) noexcept { list_.push_back(std::forward<ObjectType>(value)); }
-    FORCEINLINE Void PopBack() noexcept { list_.push_back(); }
+    FORCEINLINE Void PopBack() noexcept { list_.pop_back(); }
 
-    template <typename... ArgsType>
-    FORCEINLINE Iterator Emplace(ConstIterator pos, ArgsType&&... args) noexcept {
-        return list_.emplace(pos, std::forward<ArgsType>(args)...);
-    }
     FORCEINLINE Iterator Insert(ConstIterator pos, const ObjectType& value) noexcept {
         return list_.insert(pos, value);
     }
@@ -181,8 +179,8 @@ public:
     /*
         Remove all the objects that comply with the fucntion.
     */
-    template <typename JudgeFunction>
-    FORCEINLINE Void RemoveIf(JudgeFunction func) noexcept {
+    template <typename PredicateFunction>
+    FORCEINLINE Void RemoveIf(PredicateFunction func) noexcept {
         list_.remove_if(func);
     }
     /*
@@ -194,8 +192,8 @@ public:
     /*
         Make all the objects unique that comply with the fucntion.
     */
-    template <typename JudgeFunction>
-    FORCEINLINE Void UniqueIf(JudgeFunction func) noexcept {
+    template <typename PredicateFunction>
+    FORCEINLINE Void UniqueIf(PredicateFunction func) noexcept {
         list_.unique(func);
     }
 
@@ -214,27 +212,27 @@ public:
     /*
         Merge the two lists together sorted.
     */
-    template <typename CompareFunction>
-    FORCEINLINE Void Merge(TList& list, CompareFunction func) {
+    template <typename PredicateFunction>
+    FORCEINLINE Void Merge(TList& list, PredicateFunction func) {
         list_.unique(list, func);
     }
     /*
         Merge the two lists together sorted.
     */
-    template <typename CompareFunction>
-    FORCEINLINE Void Merge(TList&& list, CompareFunction func) {
+    template <typename PredicateFunction>
+    FORCEINLINE Void Merge(TList&& list, PredicateFunction func) {
         list_.unique(std::move(list.list_), func);
     }
 
     FORCEINLINE Void Sort() noexcept {
         list_.sort();
     }
-    template <typename CompareFunction>
-    FORCEINLINE Void Sort(CompareFunction func) noexcept {
+    template <typename PredicateFunction>
+    FORCEINLINE Void Sort(PredicateFunction func) noexcept {
         list_.sort(func);
     }
 
-    FORCEINLINE Void Clear() const noexcept { list_.clear(); }
+    FORCEINLINE Void Clear() noexcept { list_.clear(); }
 
     FORCEINLINE Void Resize(SizeType size) noexcept { list_.resize(size); }
     FORCEINLINE Void Resize(SizeType size, const ObjectType& value) noexcept { list_.resize(size, value); }

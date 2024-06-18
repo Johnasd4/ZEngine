@@ -21,41 +21,46 @@
 
 #include "z_engine.h"
 
-#include <list>
-#include <condition_variable>
+#include <functional>
 
 using namespace zengine;
 using namespace std;
 
-
+Int32 test_func(Int32 test) {
+    test = test + 1;
+    cout << test << endl;
+    return test;
+}
 
 int main() {
-    Z_LOG_ERROR(1, 2, "TEST%d%d%d%d%d", 3, 4, 5, 6, 7);
-    Z_LOG_ERROR(1, 2, "TEST%d%d%d%d%d", 3, 4, 5, 6, 7);
-    Z_LOG_TRACE(L"TEST%d%d%d%d%d", 3, 4, 5, 6, 7);
-    Z_LOG_MESSAGE(L"Message...");
-    Z_LOG_START(L"Start...");
-    Z_LOG_PROCESS(L"Process 1...");
-    Z_LOG_PROCESS(L"Process 2...");
-    Z_LOG_PROCESS(L"Process 3...");
-    Z_LOG_FINISH(L"Finish...");
-    Z_LOG_SUCCESS(L"Success...");
-    Z_LOG_FAILURE(L"Failure...");
-    ZMutex mutex;
-    TUniqueLock<ZMutex> lock(mutex);
+    //Z_LOG_ERROR(1, 2, "TEST%d%d%d%d%d", 3, 4, 5, 6, 7);
+    //Z_LOG_ERROR(1, 2, "TEST%d%d%d%d%d", 3, 4, 5, 6, 7);
+    //Z_LOG_TRACE(L"TEST%d%d%d%d%d", 3, 4, 5, 6, 7);
+    //Z_LOG_MESSAGE(L"Message...");
+    //Z_LOG_START(L"Start...");
+    //Z_LOG_PROCESS(L"Process 1...");
+    //Z_LOG_PROCESS(L"Process 2...");
+    //Z_LOG_PROCESS(L"Process 3...");
+    //Z_LOG_FINISH(L"Finish...");
+    //Z_LOG_SUCCESS(L"Success...");
+    //Z_LOG_FAILURE(L"Failure...");
     //std::thread prod(producer);
     //std::thread cons(consumer);
     //prod.join();
     //cons.join();
+    ZSemMutex test_mutex;
+    test_mutex.Lock();
+    Int32 i = 1;
+    ZThreadPool thread_pool(1);
+    //thread_pool.AddTask(test_func, i);
+    //thread_pool.LockUntilTaskDone();
     Sleep(100);
-    TList<Int32> forward_list;
-    for (Int32 i = 0; i < 10; ++i) {
-        forward_list.PushBack(i);
-    }
-    while (!forward_list.Empty()) {
-        cout << forward_list.Front() << endl;
-        forward_list.PopFront();
-    }
-    bool qqq = forward_list == forward_list;
+    auto test_task = task::MakeTask([]() {; });
+    test_task.BindReturn(&i);
+    test_task.Run();
+    TArray<Int32,10>* a = nullptr;
+    delete a;
+    sizeof(TTuple<Int32>);
+    cout << endl << i << endl;
     return 0;
 }

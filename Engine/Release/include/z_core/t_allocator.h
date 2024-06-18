@@ -20,7 +20,9 @@
 #define Z_CORE_T_ALLOCATOR_H_
 
 #include "internal/z_drive.h"
+
 #include "f_memory_pool.h"
+#include "z_object.h"
 
 namespace zengine {
 

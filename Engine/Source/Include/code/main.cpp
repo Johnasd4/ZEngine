@@ -55,9 +55,12 @@ int main() {
     //thread_pool.AddTask(test_func, i);
     //thread_pool.LockUntilTaskDone();
     Sleep(100);
-    auto test_task = task::MakeTask([]() {return 1; }, i);
-    //test_task.BindReturn(&i);
+    auto test_task = task::MakeTask([]() {; });
+    test_task.BindReturn(&i);
     test_task.Run();
+    TArray<Int32,10>* a = nullptr;
+    delete a;
+    sizeof(TTuple<Int32>);
     cout << endl << i << endl;
     return 0;
 }
