@@ -28,6 +28,7 @@
     <ClInclude Include="code\z_core\internal\d_lib.h" />
     <ClInclude Include="code\z_core\internal\d_type.h" />
     <ClInclude Include="code\z_core\t_task.h" />
+    <ClInclude Include="code\z_core\t_task_b.h" />
     <ClInclude Include="code\z_core\z_sem_mutex.h" />
     <ClInclude Include="code\z_core\t_array.h" />
     <ClInclude Include="code\z_core\t_deque.h" />
@@ -64,11 +65,6 @@
     <ClCompile Include="code\main.cpp" />
     <ClCompile Include="code\z_core\z_cs_mutex.h" />
     <ClCompile Include="code\z_core\z_thread_pool.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Page Include="code\t_task_b.xaml">
-      <SubType>Designer</SubType>
-    </Page>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

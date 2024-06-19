@@ -135,6 +135,9 @@
     <ClInclude Include="code\z_core\internal\d_macro.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="code\z_core\t_task_b.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\main.cpp">
@@ -146,9 +149,6 @@
     <ClCompile Include="code\z_core\z_thread_pool.h">
       <Filter>源文件</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Include="code\t_task_b.xaml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
