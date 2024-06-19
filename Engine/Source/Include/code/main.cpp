@@ -60,7 +60,7 @@ int main() {
     }
     Sleep(100);
     auto test_task = task::MakeTask([]() {cout<<3; });
-    thread_pool.AddTask(test_task);
+    thread_pool.AddTask(std::move(test_task));
     //test_task.Run();
     TArray<Int32,10>* a = nullptr;
     delete a;

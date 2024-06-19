@@ -28,6 +28,7 @@
 
 #include "t_list.h"
 #include "t_queue.h"
+#include "t_task.h"
 #include "t_unique_lock.h"
 #include "z_condition_variable.h"
 #include "z_mutex.h"
@@ -93,7 +94,7 @@ public:
     }
 
     template<typename TaskType>
-    NODISCARD ReturnType AddTask(TaskType& task) noexcept {
+    NODISCARD ReturnType AddTask(TaskType&& task) noexcept {
         ReturnType ret_val = kOK;
         TUniqueLock<ZMutex> lock(pool_mutex_);
         if (finished_) {
@@ -105,7 +106,7 @@ public:
         if (max_thread_num_ == free_thread_num_) {
             pool_idle_mutex_.TryLock();
         }
-        task_queue_.Push([&]() mutable { task.Run(); });
+        task_queue_.Push([std::forward<TaskType>(task)]() mutable { task.Run(); });
         cv_.NotifyOne();
         return ret_val;
     }
