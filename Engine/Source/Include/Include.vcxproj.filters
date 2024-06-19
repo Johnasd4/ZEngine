@@ -126,7 +126,7 @@
     <ClInclude Include="code\z_core\z_sem_mutex.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\z_core\t_task.h">
+    <ClInclude Include="code\z_core\z_task.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\z_core\internal\d_macro.h">

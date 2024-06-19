@@ -36,7 +36,6 @@
 #include "z_core/t_set.h"
 #include "z_core/t_unique_lock.h"
 #include "z_core/t_queue.h"
-#include "z_core/t_task.h"
 #include "z_core/t_tuple.h"
 #include "z_core/t_vector.h"
 #include "z_core/z_condition_variable.h" 
@@ -46,6 +45,7 @@
 #include "z_core/z_object.h"
 #include "z_core/z_sem_mutex.h"
 #include "z_core/z_system_time.h"
+#include "z_core/z_task.h"
 #include "z_core/z_thread.h"
 #include "z_core/z_thread_pool.h"
 

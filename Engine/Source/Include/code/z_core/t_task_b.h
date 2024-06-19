@@ -33,40 +33,40 @@ namespace zengine {
 
     namespace error_code {
 
-        enum TTaskErrorCode : ReturnType {
-            kTTaskErrorCodeLinkError = kErrorCodeBasePCore,
-            kTTaskErrorCodeTaskStateError,
-            kTTaskErrorCodeReturnValAlreadyGet,
-            kTTaskErrorCodeTaskAlreadyExist,
-            kTTaskErrorCodeCanNotBindVoidReturn
+        enum ZTaskErrorCode : ReturnType {
+            kZTaskErrorCodeLinkError = kErrorCodeBasePCore,
+            kZTaskErrorCodeTaskStateError,
+            kZTaskErrorCodeReturnValAlreadyGet,
+            kZTaskErrorCodeTaskAlreadyExist,
+            kZTaskErrorCodeCanNotBindVoidReturn
         };
 
     }//error_code
 
-    enum TTaskState : IndexType {
-        kTTaskStateNoTask = 0x1,
-        kTTaskStateTaskSet = 0x2,
-        kTTaskStateTaskRunning = 0x4,
-        kTTaskStateReturnReady = 0x8,
+    enum ZTaskState : IndexType {
+        kZTaskStateNoTask = 0x1,
+        kZTaskStateTaskSet = 0x2,
+        kZTaskStateTaskRunning = 0x4,
+        kZTaskStateReturnReady = 0x8,
     };
 
     /*
         Task class, package a function and it's params, the task can only run one time.
     */
     template<typename TaskFunction, typename... ArgsType>
-    class TTask : public ZObject {
+    class ZTask : public ZObject {
     public:
         using TaskReturnType = typename std::invoke_result<TaskFunction, ArgsType...>::type;
         using TaskParamsTuple = TTuple<ArgsType...>;
 
-        TTask() noexcept
+        ZTask() noexcept
             : SuperType()
             , func_(nullptr)
             , params_ptr_(nullptr)
             , ret_val_ptr_(nullptr)
             , mutex_()
-            , state_(kTTaskStateNoTask) {}
-        TTask(TTask&& task) noexcept {
+            , state_(kZTaskStateNoTask) {}
+        ZTask(ZTask&& task) noexcept {
             task.mutex_.Lock();
             func_ = std::move(task.func_);
             params_ptr_ = task.params_ptr_;
@@ -79,23 +79,23 @@ namespace zengine {
                 task.ret_val_ptr_ = nullptr;
             }
             state_ = task.state_;
-            task.state_ = kTTaskStateNoTask;
+            task.state_ = kZTaskStateNoTask;
             task.mutex_.Unlock();
         }
-        TTask(TaskFunction func, ArgsType&&... args) noexcept
+        ZTask(TaskFunction func, ArgsType&&... args) noexcept
             : SuperType()
             , func_(std::forward<TaskFunction>(func))
             , params_ptr_(new TaskParamsTuple(std::forward<ArgsType>(args)...))
             , ret_val_ptr_(nullptr)
             , mutex_()
-            , state_(kTTaskStateTaskSet) {}
-        ~TTask() noexcept {
+            , state_(kZTaskStateTaskSet) {}
+        ~ZTask() noexcept {
             if (params_ptr_ != nullptr) {
                 delete params_ptr_;
             }
         }
 
-        TTask& operator=(TTask&& task) noexcept {
+        ZTask& operator=(ZTask&& task) noexcept {
             task.mutex_.Lock();
             mutex_.Lock();
             func_ = std::move(task.func_);
@@ -106,13 +106,13 @@ namespace zengine {
                 task.ret_val_ptr_ = nullptr;
             }
             state_ = task.state_;
-            task.state_ = kTTaskStateNoTask;
+            task.state_ = kZTaskStateNoTask;
             mutex_.Unlock();
             task.mutex_.Unlock();
             return *this;
         }
 
-        FORCEINLINE Void Swap(TTask& task) noexcept {
+        FORCEINLINE Void Swap(ZTask& task) noexcept {
             zengine::Swap(this, &task);
         }
 
@@ -123,19 +123,19 @@ namespace zengine {
         */
         NODISCARD ReturnType BindReturn(TaskReturnType* ret_val_ptr) noexcept {
             ReturnType ret_val = kOK;
-            if (IN_STATE(state_, kTTaskStateTaskRunning)) {
-                ret_val = error_code::kTTaskErrorCodeTaskStateError;
+            if (IN_STATE(state_, kZTaskStateTaskRunning)) {
+                ret_val = error_code::kZTaskErrorCodeTaskStateError;
                 Z_LOG_ERROR(ret_val, 0, "Task Running, can not bind return! state_: %d", state_);
                 return ret_val;
             }
             TLockGuard<ZMutex> lock_guard(mutex_);
             if constexpr (kSameType<TaskReturnType, Void>) {
-                ret_val = error_code::kTTaskErrorCodeCanNotBindVoidReturn;
+                ret_val = error_code::kZTaskErrorCodeCanNotBindVoidReturn;
                 Z_LOG_ERROR(ret_val, 0, "Can not bind a Void return!");
                 return ret_val;
             }
-            if (IN_STATE(state_, kTTaskStateReturnReady)) {
-                state_ = kTTaskStateNoTask;
+            if (IN_STATE(state_, kZTaskStateReturnReady)) {
+                state_ = kZTaskStateNoTask;
             }
             ret_val_ptr_ = ret_val_ptr;
             return ret_val;
@@ -151,7 +151,7 @@ namespace zengine {
             if constexpr (!kSameType<TaskReturnType, Void>) {
                 ret_val_ptr_ = nullptr;
             }
-            state_ = kTTaskStateTaskSet;
+            state_ = kZTaskStateTaskSet;
             mutex_.Unlock();
         }
 
@@ -164,7 +164,7 @@ namespace zengine {
             if constexpr (!kSameType<TaskReturnType, Void>) {
                 ret_val_ptr_ = nullptr;
             }
-            state_ = kTTaskStateNoTask;
+            state_ = kZTaskStateNoTask;
             mutex_.Unlock();
         }
 
@@ -174,13 +174,13 @@ namespace zengine {
         NODISCARD ReturnType Run() noexcept {
             ReturnType ret_val = kOK;
             TLockGuard<ZMutex> lock_guard(mutex_);
-            if (!IN_STATE(state_, kTTaskStateTaskSet)) {
-                ret_val = error_code::kTTaskErrorCodeTaskStateError;
+            if (!IN_STATE(state_, kZTaskStateTaskSet)) {
+                ret_val = error_code::kZTaskErrorCodeTaskStateError;
                 Z_LOG_ERROR(ret_val, 0, "Task stata error, can not run! state_: %d expect state: %d",
-                    state_, kTTaskStateTaskSet);
+                    state_, kZTaskStateTaskSet);
                 return ret_val;
             }
-            state_ = kTTaskStateTaskRunning;
+            state_ = kZTaskStateTaskRunning;
             if constexpr (kSameType<TaskReturnType, Void>) {
                 params_ptr_->Apply(func_);
             }
@@ -192,7 +192,7 @@ namespace zengine {
                     params_ptr_->Apply(func_);
                 }
             }
-            state_ = kTTaskStateReturnReady;
+            state_ = kZTaskStateReturnReady;
             delete params_ptr_;
             params_ptr_ = nullptr;
             return ret_val;
@@ -200,39 +200,39 @@ namespace zengine {
 
 #pragma warning(pop)
 
-        FORCEINLINE Bool ReturnReady() const noexcept { return state_ == kTTaskStateReturnReady; }
-        FORCEINLINE TTaskState State() const noexcept { return state_; }
+        FORCEINLINE Bool ReturnReady() const noexcept { return state_ == kZTaskStateReturnReady; }
+        FORCEINLINE ZTaskState State() const noexcept { return state_; }
 
     protected:
         using SuperType = ZObject;
 
     private:
-        TTask(const TTask&) = delete;
+        ZTask(const ZTask&) = delete;
 
-        TTask& operator=(const TTask&) = delete;
+        ZTask& operator=(const ZTask&) = delete;
 
         TaskFunction func_;
         TaskParamsTuple* params_ptr_;
         TaskReturnType* ret_val_ptr_;
         ZMutex mutex_;
-        TTaskState state_;
+        ZTaskState state_;
     };
 
     /*
         Task class, package a function and it's params, the task can only run one time.
     */
     template<typename TaskFunction>
-    class TTask<TaskFunction> : public ZObject {
+    class ZTask<TaskFunction> : public ZObject {
     public:
         using TaskReturnType = typename std::invoke_result<TaskFunction>::type;
 
-        TTask() noexcept
+        ZTask() noexcept
             : SuperType()
             , func_(nullptr)
             , ret_val_ptr_(nullptr)
             , mutex_()
-            , state_(kTTaskStateNoTask) {}
-        TTask(TTask&& task) noexcept {
+            , state_(kZTaskStateNoTask) {}
+        ZTask(ZTask&& task) noexcept {
             task.mutex_.Lock();
             func_ = std::move(task.func_);
             if constexpr (kSameType<TaskReturnType, Void>) {
@@ -243,18 +243,18 @@ namespace zengine {
                 task.ret_val_ptr_ = nullptr;
             }
             state_ = task.state_;
-            task.state_ = kTTaskStateNoTask;
+            task.state_ = kZTaskStateNoTask;
             task.mutex_.Unlock();
         }
-        TTask(TaskFunction func) noexcept
+        ZTask(TaskFunction func) noexcept
             : SuperType()
             , func_(std::forward<TaskFunction>(func))
             , ret_val_ptr_(nullptr)
             , mutex_()
-            , state_(kTTaskStateTaskSet) {}
-        ~TTask() noexcept {}
+            , state_(kZTaskStateTaskSet) {}
+        ~ZTask() noexcept {}
 
-        TTask& operator=(TTask&& task) noexcept {
+        ZTask& operator=(ZTask&& task) noexcept {
             task.mutex_.Lock();
             mutex_.Lock();
             func_ = std::move(task.func_);
@@ -263,13 +263,13 @@ namespace zengine {
                 task.ret_val_ptr_ = nullptr;
             }
             state_ = task.state_;
-            task.state_ = kTTaskStateNoTask;
+            task.state_ = kZTaskStateNoTask;
             mutex_.Unlock();
             task.mutex_.Unlock();
             return *this;
         }
 
-        FORCEINLINE Void Swap(TTask& task) noexcept {
+        FORCEINLINE Void Swap(ZTask& task) noexcept {
             zengine::Swap(this, &task);
         }
 
@@ -280,19 +280,19 @@ namespace zengine {
         */
         NODISCARD ReturnType BindReturn(TaskReturnType* ret_val_ptr) noexcept {
             ReturnType ret_val = kOK;
-            if (IN_STATE(state_, kTTaskStateTaskRunning)) {
-                ret_val = error_code::kTTaskErrorCodeTaskStateError;
+            if (IN_STATE(state_, kZTaskStateTaskRunning)) {
+                ret_val = error_code::kZTaskErrorCodeTaskStateError;
                 Z_LOG_ERROR(ret_val, 0, "Task Running, can not bind return! state_: %d", state_);
                 return ret_val;
             }
             TLockGuard<ZMutex> lock_guard(mutex_);
             if constexpr (kSameType<TaskReturnType, Void>) {
-                ret_val = error_code::kTTaskErrorCodeCanNotBindVoidReturn;
+                ret_val = error_code::kZTaskErrorCodeCanNotBindVoidReturn;
                 Z_LOG_ERROR(ret_val, 0, "Can not bind a Void return!");
                 return ret_val;
             }
-            if (IN_STATE(state_, kTTaskStateReturnReady)) {
-                state_ = kTTaskStateNoTask;
+            if (IN_STATE(state_, kZTaskStateReturnReady)) {
+                state_ = kZTaskStateNoTask;
             }
             ret_val_ptr_ = ret_val_ptr;
             return ret_val;
@@ -304,7 +304,7 @@ namespace zengine {
             if constexpr (!kSameType<TaskReturnType, Void>) {
                 ret_val_ptr_ = nullptr;
             }
-            state_ = kTTaskStateTaskSet;
+            state_ = kZTaskStateTaskSet;
             mutex_.Unlock();
         }
 
@@ -313,7 +313,7 @@ namespace zengine {
             if constexpr (!kSameType<TaskReturnType, Void>) {
                 ret_val_ptr_ = nullptr;
             }
-            state_ = kTTaskStateNoTask;
+            state_ = kZTaskStateNoTask;
             mutex_.Unlock();
         }
 
@@ -323,13 +323,13 @@ namespace zengine {
         NODISCARD ReturnType Run() noexcept {
             ReturnType ret_val = kOK;
             TLockGuard<ZMutex> lock_guard(mutex_);
-            if (!IN_STATE(state_, kTTaskStateTaskSet)) {
-                ret_val = error_code::kTTaskErrorCodeTaskStateError;
+            if (!IN_STATE(state_, kZTaskStateTaskSet)) {
+                ret_val = error_code::kZTaskErrorCodeTaskStateError;
                 Z_LOG_ERROR(ret_val, 0, "Task stata error, can not run! state_: %d expect state: %d",
-                    state_, kTTaskStateTaskSet);
+                    state_, kZTaskStateTaskSet);
                 return ret_val;
             }
-            state_ = kTTaskStateTaskRunning;
+            state_ = kZTaskStateTaskRunning;
             if constexpr (kSameType<TaskReturnType, Void>) {
                 func_();
             }
@@ -341,65 +341,65 @@ namespace zengine {
                     func_();
                 }
             }
-            state_ = kTTaskStateReturnReady;
+            state_ = kZTaskStateReturnReady;
             return ret_val;
         }
 
 #pragma warning(pop)
 
-        FORCEINLINE Bool ReturnReady() const noexcept { return state_ == kTTaskStateReturnReady; }
-        FORCEINLINE TTaskState State() const noexcept { return state_; }
+        FORCEINLINE Bool ReturnReady() const noexcept { return state_ == kZTaskStateReturnReady; }
+        FORCEINLINE ZTaskState State() const noexcept { return state_; }
 
     protected:
         using SuperType = ZObject;
 
     public:
-        TTask(const TTask&) = delete;
+        ZTask(const ZTask&) = delete;
 
-        TTask& operator=(const TTask&) = delete;
+        ZTask& operator=(const ZTask&) = delete;
 
         TaskFunction func_;
         TaskReturnType* ret_val_ptr_;
         ZMutex mutex_;
-        TTaskState state_;
+        ZTaskState state_;
     };
 
     /*
         Task class, package a function and it's params, no returns, no state check, not thread safe.
     */
     template<typename TaskFunction, typename... ArgsType>
-    class TTaskFast : public ZObject {
+    class ZTaskFast : public ZObject {
     public:
         using TaskParamsTuple = TTuple<ArgsType...>;
 
-        TTaskFast() noexcept
+        ZTaskFast() noexcept
             : SuperType()
             , func_(nullptr)
             , params_ptr_(nullptr) {}
-        TTaskFast(TTaskFast&& task) noexcept
+        ZTaskFast(ZTaskFast&& task) noexcept
             : SuperType()
             , func_(std::move(task.func_))
             , params_ptr_(task.params_ptr_) {
             task.params_ptr_ = nullptr;
         }
-        TTaskFast(TaskFunction func, ArgsType&&... args) noexcept
+        ZTaskFast(TaskFunction func, ArgsType&&... args) noexcept
             : SuperType()
             , func_(std::forward<TaskFunction>(func))
             , params_ptr_(new TaskParamsTuple(std::forward<ArgsType>(args)...)) {}
-        ~TTaskFast() noexcept {
+        ~ZTaskFast() noexcept {
             if (params_ptr_ != nullptr) {
                 delete params_ptr_;
             }
         }
 
-        TTaskFast& operator=(TTaskFast&& task) noexcept {
+        ZTaskFast& operator=(ZTaskFast&& task) noexcept {
             func_ = std::move(task.func_);
             params_ptr_ = task.params_ptr_;
             task.params_ptr_ = nullptr;
             return *this;
         }
 
-        FORCEINLINE Void Swap(TTaskFast& task) noexcept {
+        FORCEINLINE Void Swap(ZTaskFast& task) noexcept {
             zengine::Swap(this, &task);
         }
 
@@ -433,9 +433,9 @@ namespace zengine {
         using SuperType = ZObject;
 
     private:
-        TTaskFast(const TTaskFast&) = delete;
+        ZTaskFast(const ZTaskFast&) = delete;
 
-        TTaskFast& operator=(const TTaskFast&) = delete;
+        ZTaskFast& operator=(const ZTaskFast&) = delete;
 
         TaskFunction func_;
         TaskParamsTuple* params_ptr_;
@@ -445,26 +445,26 @@ namespace zengine {
         Task class, package a function and it's params, no returns, no state check, not thread safe.
     */
     template<typename TaskFunction>
-    class TTaskFast<TaskFunction> : public ZObject {
+    class ZTaskFast<TaskFunction> : public ZObject {
     public:
-        FORCEINLINE TTaskFast() noexcept
+        FORCEINLINE ZTaskFast() noexcept
             : SuperType()
             , func_(nullptr) {}
-        FORCEINLINE TTaskFast(TTaskFast&& task) noexcept
+        FORCEINLINE ZTaskFast(ZTaskFast&& task) noexcept
             : SuperType()
             , func_(std::move(task.func_)) {
         }
-        FORCEINLINE TTaskFast(TaskFunction func) noexcept
+        FORCEINLINE ZTaskFast(TaskFunction func) noexcept
             : SuperType()
             , func_(std::forward<TaskFunction>(func)) {}
-        FORCEINLINE ~TTaskFast() noexcept {}
+        FORCEINLINE ~ZTaskFast() noexcept {}
 
-        FORCEINLINE TTaskFast& operator=(TTaskFast&& task) noexcept {
+        FORCEINLINE ZTaskFast& operator=(ZTaskFast&& task) noexcept {
             func_ = std::move(task.func_);
             return *this;
         }
 
-        FORCEINLINE Void Swap(TTaskFast& task) noexcept {
+        FORCEINLINE Void Swap(ZTaskFast& task) noexcept {
             zengine::Swap(this, &task);
         }
 
@@ -485,9 +485,9 @@ namespace zengine {
         using SuperType = ZObject;
 
     private:
-        TTaskFast(const TTaskFast&) = delete;
+        ZTaskFast(const ZTaskFast&) = delete;
 
-        TTaskFast& operator=(const TTaskFast&) = delete;
+        ZTaskFast& operator=(const ZTaskFast&) = delete;
 
         TaskFunction func_;
     };
@@ -495,23 +495,23 @@ namespace zengine {
     namespace task {
 
         template<typename TaskFunction, typename... ArgsType>
-        NODISCARD FORCEINLINE TTask<TaskFunction, ArgsType...> MakeTask(TaskFunction&& func, ArgsType&&... args) noexcept {
-            return TTask<TaskFunction, ArgsType...>(std::forward<TaskFunction>(func), std::forward<ArgsType>(args)...);
+        NODISCARD FORCEINLINE ZTask<TaskFunction, ArgsType...> MakeTask(TaskFunction&& func, ArgsType&&... args) noexcept {
+            return ZTask<TaskFunction, ArgsType...>(std::forward<TaskFunction>(func), std::forward<ArgsType>(args)...);
         }
 
         template<typename TaskFunction>
-        NODISCARD FORCEINLINE TTask<TaskFunction> MakeTask(TaskFunction&& func) noexcept {
-            return TTask<TaskFunction>(std::forward<TaskFunction>(func));
+        NODISCARD FORCEINLINE ZTask<TaskFunction> MakeTask(TaskFunction&& func) noexcept {
+            return ZTask<TaskFunction>(std::forward<TaskFunction>(func));
         }
 
         template<typename TaskFunction, typename... ArgsType>
-        NODISCARD FORCEINLINE TTask<TaskFunction, ArgsType...> MakeTaskFast(TaskFunction&& func, ArgsType&&... args) noexcept {
-            return TTaskFast<TaskFunction, ArgsType...>(std::forward<TaskFunction>(func), std::forward<ArgsType>(args)...);
+        NODISCARD FORCEINLINE ZTask<TaskFunction, ArgsType...> MakeTaskFast(TaskFunction&& func, ArgsType&&... args) noexcept {
+            return ZTaskFast<TaskFunction, ArgsType...>(std::forward<TaskFunction>(func), std::forward<ArgsType>(args)...);
         }
 
         template<typename TaskFunction>
-        NODISCARD FORCEINLINE TTask<TaskFunction> MakeTaskFast(TaskFunction&& func) noexcept {
-            return TTaskFast<TaskFunction>(std::forward<TaskFunction>(func));
+        NODISCARD FORCEINLINE ZTask<TaskFunction> MakeTaskFast(TaskFunction&& func) noexcept {
+            return ZTaskFast<TaskFunction>(std::forward<TaskFunction>(func));
         }
 
     }//task

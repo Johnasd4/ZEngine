@@ -22,31 +22,31 @@
 
 namespace zengine {
 
-CORE_DLLAPI ZConditionVariable::ZConditionVariable() noexcept 
+ZConditionVariable::ZConditionVariable() noexcept 
         : SuperType(), cs_mutex_(), wait_thread_num_(0), cv_finished_(false){
     InitializeConditionVariable(&cv_);
 }
 
-CORE_DLLAPI ZConditionVariable::~ZConditionVariable() noexcept {
+ZConditionVariable::~ZConditionVariable() noexcept {
     cv_finished_ = true;
     WakeAllConditionVariable(&cv_);
 }
 
-CORE_DLLAPI NODISCARD Int32 ZConditionVariable::WaitThreadNum() noexcept {
+NODISCARD Int32 ZConditionVariable::WaitThreadNum() noexcept {
     cs_mutex_.Lock();
     Int32 thread_num = wait_thread_num_;
     cs_mutex_.Unlock();
     return thread_num;
 }
 
-CORE_DLLAPI NODISCARD Bool ZConditionVariable::Empty() noexcept {
+NODISCARD Bool ZConditionVariable::Empty() noexcept {
     cs_mutex_.Lock();
     Bool empty = (wait_thread_num_ == 0);
     cs_mutex_.Unlock();
     return empty;
 }
 
-CORE_DLLAPI Void ZConditionVariable::Wait(TUniqueLock<ZMutex>& mutex) noexcept {
+Void ZConditionVariable::Wait(TUniqueLock<ZMutex>& mutex) noexcept {
     LockP(mutex);
     if (!cv_finished_) {
         SleepConditionVariableCS(&cv_, &cs_mutex_.mutex_, INFINITE);
@@ -54,7 +54,7 @@ CORE_DLLAPI Void ZConditionVariable::Wait(TUniqueLock<ZMutex>& mutex) noexcept {
     UnlockP(mutex);
 }
 
-CORE_DLLAPI Void ZConditionVariable::WaitFor(TUniqueLock<ZMutex>& mutex, UInt32 time) noexcept {
+Void ZConditionVariable::WaitFor(TUniqueLock<ZMutex>& mutex, UInt32 time) noexcept {
     LockP(mutex);
     if (!cv_finished_) {
         SleepConditionVariableCS(&cv_, &cs_mutex_.mutex_, INFINITE);
@@ -62,7 +62,7 @@ CORE_DLLAPI Void ZConditionVariable::WaitFor(TUniqueLock<ZMutex>& mutex, UInt32 
     UnlockP(mutex);
 }
 
-CORE_DLLAPI Void ZConditionVariable::WaitUntil(TUniqueLock<ZMutex>& mutex, UInt32 time) noexcept {
+Void ZConditionVariable::WaitUntil(TUniqueLock<ZMutex>& mutex, UInt32 time) noexcept {
     time -= clock();
     LockP(mutex);
     if (!cv_finished_) {
@@ -71,20 +71,20 @@ CORE_DLLAPI Void ZConditionVariable::WaitUntil(TUniqueLock<ZMutex>& mutex, UInt3
     UnlockP(mutex);
 }
 
-CORE_DLLAPI Void ZConditionVariable::NotifyOne() noexcept {
+Void ZConditionVariable::NotifyOne() noexcept {
     WakeConditionVariable(&cv_);
 }
-CORE_DLLAPI Void ZConditionVariable::NotifyAll() noexcept {
+Void ZConditionVariable::NotifyAll() noexcept {
     WakeAllConditionVariable(&cv_);
 }
 
-CORE_DLLAPI Void ZConditionVariable::LockP(TUniqueLock<ZMutex>& mutex) noexcept {
+Void ZConditionVariable::LockP(TUniqueLock<ZMutex>& mutex) noexcept {
     mutex.Unlock();
     cs_mutex_.Lock();
     ++wait_thread_num_;
 }
 
-CORE_DLLAPI Void ZConditionVariable::UnlockP(TUniqueLock<ZMutex>& mutex) noexcept {
+Void ZConditionVariable::UnlockP(TUniqueLock<ZMutex>& mutex) noexcept {
     --wait_thread_num_;
     cs_mutex_.Unlock();
     mutex.Lock();

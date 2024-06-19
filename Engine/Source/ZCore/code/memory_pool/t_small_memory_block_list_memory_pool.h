@@ -55,7 +55,7 @@ class TSmallMemoryBlockListMemoryPool :
 private:
     //The sizes of the memory blocks(includes the memory size).
     static constexpr IndexType kMemoryBlockTypeNum = 10;
-    static constexpr MemoryType kMemoryBlockMinSize = 64;
+    static constexpr MemoryType kMemoryBlockMinSize = 32;
     static constexpr MemoryType kMemoryBlockSizeMultGrowFactor = 2;
 
 public:

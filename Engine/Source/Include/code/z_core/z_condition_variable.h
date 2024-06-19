@@ -31,17 +31,17 @@
 namespace zengine {
 
 /*
-    A simple mutex.
+    A condition variable class.
 */
-class ZConditionVariable : public ZObject {
+class CORE_DLLAPI ZConditionVariable : public ZObject {
 public:
-    CORE_DLLAPI ZConditionVariable() noexcept;
-    CORE_DLLAPI ~ZConditionVariable() noexcept;
+    ZConditionVariable() noexcept;
+    ~ZConditionVariable() noexcept;
 
-    CORE_DLLAPI NODISCARD Int32 WaitThreadNum() noexcept;
-    CORE_DLLAPI NODISCARD Bool Empty() noexcept;
+    NODISCARD Int32 WaitThreadNum() noexcept;
+    NODISCARD Bool Empty() noexcept;
 
-    CORE_DLLAPI Void Wait(TUniqueLock<ZMutex>& mutex) noexcept;
+    Void Wait(TUniqueLock<ZMutex>& mutex) noexcept;
     template <typename PredicateFunction>
     Void Wait(TUniqueLock<ZMutex>& mutex, PredicateFunction func) noexcept {
         LockP(mutex);
@@ -53,7 +53,7 @@ public:
     /*
        Wait for a certain time(ms).
     */
-    CORE_DLLAPI Void WaitFor(TUniqueLock<ZMutex>& mutex, UInt32 time) noexcept;
+    Void WaitFor(TUniqueLock<ZMutex>& mutex, UInt32 time) noexcept;
     /*
        Wait for a certain time(ms), use clock() to get the current time.
     */
@@ -68,7 +68,7 @@ public:
     /*
        Wait for a certain time(ms), use clock() to get the current time.
     */
-    CORE_DLLAPI Void WaitUntil(TUniqueLock<ZMutex>& mutex, UInt32 time) noexcept;
+    Void WaitUntil(TUniqueLock<ZMutex>& mutex, UInt32 time) noexcept;
     /*
        Wait for a certain time(ms), use clock() to get the current time.
     */
@@ -82,15 +82,15 @@ public:
         UnlockP(mutex);
     }
 
-    CORE_DLLAPI Void NotifyOne() noexcept;
-    CORE_DLLAPI Void NotifyAll() noexcept;
+    Void NotifyOne() noexcept;
+    Void NotifyAll() noexcept;
 
 protected:
     using SuperType = ZObject;
 
 private:
-    CORE_DLLAPI Void LockP(TUniqueLock<ZMutex>& mutex) noexcept;
-    CORE_DLLAPI Void UnlockP(TUniqueLock<ZMutex>& mutex) noexcept;
+    Void LockP(TUniqueLock<ZMutex>& mutex) noexcept;
+    Void UnlockP(TUniqueLock<ZMutex>& mutex) noexcept;
 
     ZCSMutex cs_mutex_;
     CONDITION_VARIABLE cv_;

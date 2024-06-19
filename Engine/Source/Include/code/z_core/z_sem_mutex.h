@@ -38,6 +38,7 @@ public:
     ZSemMutex& operator=(ZSemMutex&& mutex) noexcept {
         handle_ = mutex.handle_;
         mutex.handle_ = nullptr;
+        return *this;
     }
 
     FORCEINLINE Void Lock() noexcept { WaitForSingleObject(handle_, INFINITE);}

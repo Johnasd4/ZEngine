@@ -87,6 +87,8 @@ public:
 
     FORCEINLINE Void Push(const ObjectType& value) noexcept { queue_.PushBack(value); }
     FORCEINLINE Void Push(ObjectType&& value) noexcept { queue_.PushBack(std::forward<ObjectType>(value)); }
+    template <typename... ArgsType>
+    FORCEINLINE Void Push(ArgsType&&... args) noexcept { queue_.EmplaceBack(std::forward<ArgsType>(args)...); }
 
     FORCEINLINE Void Clear() noexcept { queue_.Clear(); }
 

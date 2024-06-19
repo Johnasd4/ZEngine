@@ -29,7 +29,7 @@ namespace zengine {
 /*
     A simple mutex.
 */
-class ZMutex : public ZObject {
+class CORE_DLLAPI ZMutex : public ZObject {
 public:
     FORCEINLINE ZMutex() noexcept : SuperType(), handle_(CreateMutex(nullptr, FALSE, nullptr)) {}
     ZMutex(ZMutex&& mutex) noexcept : SuperType(), handle_(mutex.handle_) { handle_ = nullptr; }
@@ -38,6 +38,7 @@ public:
     ZMutex& operator=(ZMutex&& mutex) noexcept {
         handle_ = mutex.handle_;
         mutex.handle_ = nullptr;
+        return *this;
     }
 
     FORCEINLINE Void Lock() noexcept { WaitForSingleObject(handle_, INFINITE);}

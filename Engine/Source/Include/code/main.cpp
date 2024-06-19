@@ -56,11 +56,12 @@ int main() {
     ZThreadPool thread_pool(1);
     {
         Int32 i = 1;
-        thread_pool.AddTask(test_func, Ref(i));
+        //thread_pool.AddTask(test_func, Ref(i));
     }
     Sleep(100);
-    auto test_task = task::MakeTask([]() {cout<<3; });
-    thread_pool.AddTask(std::move(test_task));
+    ZTaskFast test_task([]() {cout<<1; });
+    auto test_lambda = [&](Int32 i) {cout << i + 1; };
+    thread_pool.AddTask(test_lambda, 1);
     //test_task.Run();
     TArray<Int32,10>* a = nullptr;
     delete a;

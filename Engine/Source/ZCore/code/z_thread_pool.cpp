@@ -24,7 +24,7 @@
 
 namespace zengine {
 
-CORE_DLLAPI ZThreadPool::ZThreadPool() noexcept 
+ZThreadPool::ZThreadPool() noexcept 
         : SuperType()
         , thread_list_()
         , task_queue_()
@@ -37,7 +37,7 @@ CORE_DLLAPI ZThreadPool::ZThreadPool() noexcept
     pool_idle_mutex_.Lock();
 }
 
-CORE_DLLAPI ZThreadPool::ZThreadPool(Int32 thread_num_) noexcept
+ZThreadPool::ZThreadPool(Int32 thread_num_) noexcept
         : SuperType()
         , thread_list_()
         , task_queue_()
@@ -53,7 +53,7 @@ CORE_DLLAPI ZThreadPool::ZThreadPool(Int32 thread_num_) noexcept
     }
 }
 
-CORE_DLLAPI ZThreadPool::~ZThreadPool() noexcept {
+ZThreadPool::~ZThreadPool() noexcept {
     //Clear the unstarted tasks.
     pool_mutex_.Lock();
     task_queue_.Clear();
@@ -76,7 +76,7 @@ CORE_DLLAPI ZThreadPool::~ZThreadPool() noexcept {
     }
 }
 
-CORE_DLLAPI NODISCARD ReturnType ZThreadPool::AddThreadNum(Int32 thread_num_) noexcept {
+NODISCARD ReturnType ZThreadPool::AddThreadNum(Int32 thread_num_) noexcept {
     ReturnType ret_val = kOK;
     if (thread_num_ < 0) {
         ret_val = error_code::kZThreadPoolErrorCodeAddNegitiveNumThread;
@@ -93,18 +93,53 @@ CORE_DLLAPI NODISCARD ReturnType ZThreadPool::AddThreadNum(Int32 thread_num_) no
 /*
     Suspend until all the tasks are done.
 */
-CORE_DLLAPI NODISCARD Void ZThreadPool::LockUntilTaskDone() noexcept {
+NODISCARD Void ZThreadPool::LockUntilTaskDone() noexcept {
     pool_idle_mutex_.Lock();
     pool_idle_mutex_.Unlock();
 }
 
-CORE_DLLAPI Void ZThreadPool::ClearTask() noexcept {
+NODISCARD ReturnType ZThreadPool::AddTask(ZTaskFast&& task) noexcept {
+    ReturnType ret_val = kOK;
+    TUniqueLock<ZMutex> lock(pool_mutex_);
+    if (finished_) {
+        ret_val = error_code::kZThreadPoolErrorCodePoolFinished;
+        Z_LOG_ERROR(ret_val, 0, "Thread pool finished, can't add task!");
+        return ret_val;
+    }
+    //when idle.
+    if (max_thread_num_ == free_thread_num_) {
+        pool_idle_mutex_.TryLock();
+    }
+    task_queue_.Push(std::forward<ZTaskFast>(task));
+    cv_.NotifyOne();
+    return ret_val;
+}
+
+NODISCARD ReturnType ZThreadPool::AddTask(ZTask&& task) noexcept {
+    ReturnType ret_val = kOK;
+    TUniqueLock<ZMutex> lock(pool_mutex_);
+    if (finished_) {
+        ret_val = error_code::kZThreadPoolErrorCodePoolFinished;
+        Z_LOG_ERROR(ret_val, 0, "Thread pool finished, can't add task!");
+        return ret_val;
+    }
+    //when idle.
+    if (max_thread_num_ == free_thread_num_) {
+        pool_idle_mutex_.TryLock();
+    }
+    task_queue_.Push(std::forward<ZTaskFast>(task));
+    cv_.NotifyOne();
+    return ret_val;
+}
+
+Void ZThreadPool::ClearTask() noexcept {
     TUniqueLock<ZMutex> lock(pool_mutex_);
     task_queue_.Clear();
 }
 
 Void ZThreadPool::ThreadFunc(ZThreadPool& thread_pool) noexcept {
-    std::function<Void()> task_func = nullptr;
+    ZTaskFast task;
+    ReturnType link_code = kOK;
     while(true) {
         //atom operation, do not remove the brace.
         {
@@ -124,10 +159,14 @@ Void ZThreadPool::ThreadFunc(ZThreadPool& thread_pool) noexcept {
             if (thread_pool.task_queue_.Empty()) {
                 continue;
             }
-            task_func = thread_pool.task_queue_.Front();
+            task = std::move(thread_pool.task_queue_.Front());
             thread_pool.task_queue_.Pop();
         }
-        task_func();
+        link_code = task.Run();
+        if (link_code != kOK) {
+            Z_LOG_ERROR(error_code::kZTaskErrorCodeLinkError, link_code, "ZFastTask::Run() link error!");
+        }
+        task.Clear();
     }
 }
 
