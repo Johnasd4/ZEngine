@@ -88,8 +88,8 @@ public:
         return ret_val;
     }
 
-    NODISCARD ReturnType AddTask(ZTaskFast&& task) noexcept;
     NODISCARD ReturnType AddTask(ZTask&& task) noexcept;
+    NODISCARD ReturnType AddTask(ZTaskSafe&& task) noexcept;
 
     Void ClearTask() noexcept;
 
@@ -108,7 +108,7 @@ private:
     ReturnType AddTask(const ZTask&) = delete;
 
     TList<ZThread> thread_list_;
-    TQueue<ZTaskFast> task_queue_;
+    TQueue<ZTask> task_queue_;
     ZMutex pool_mutex_;
     ZSemMutex pool_idle_mutex_;
     ZConditionVariable cv_;

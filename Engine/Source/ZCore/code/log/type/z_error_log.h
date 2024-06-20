@@ -33,13 +33,13 @@ class ZErrorLog : public ZLog {
 public:
     ZErrorLog() noexcept;
     ZErrorLog(TimeType raw_time,
-              const CChar* err_project,
-              const CChar* err_file,
-              const CChar* err_func,
+              const Char* err_project,
+              const Char* err_file,
+              const Char* err_func,
               Int32 err_line,
               ReturnType err_code,
               ReturnType link_code,
-              const CChar* format,
+              const Char* format,
               ArgListType args) noexcept;
 
     /*
@@ -62,9 +62,9 @@ protected:
 
 private:
     TimeType raw_time_;
-    const CChar* err_project_;
-    const CChar* err_file_;
-    const CChar* err_func_;
+    const Char* err_project_;
+    const Char* err_file_;
+    const Char* err_func_;
     Int32 err_line_;
     ReturnType err_code_;
     ReturnType link_code_;

@@ -32,9 +32,9 @@ namespace log {
 */
 class ZInfoLog : public ZLog {
 public:
-    static constexpr TArray<const TChar*, kLogInfoMax> kLogInfoString = 
-        TArray<const TChar*, kLogInfoMax>(
-            [](TArray<const TChar*, kLogInfoMax>* array_ptr) {
+    static constexpr TArray<const WChar*, kLogInfoMax> kLogInfoString = 
+        TArray<const WChar*, kLogInfoMax>(
+            [](TArray<const WChar*, kLogInfoMax>* array_ptr) {
                 (*array_ptr)[0] = L"Message";
                 (*array_ptr)[1] = L"Start";
                 (*array_ptr)[2] = L"Process";
@@ -46,7 +46,7 @@ public:
     ZInfoLog() noexcept;
     ZInfoLog(TimeType raw_time,
              LogInfoEnum info_type,
-             const TChar* format,
+             const WChar* format,
              ArgListType args) noexcept;
 
     /*

@@ -41,7 +41,7 @@ public:
     FORCEINLINE TStack(TStack&& stack) noexcept : SuperType(), stack_(std::move(stack.stack_)) {}
 
     FORCEINLINE TStack(SizeType size) noexcept : SuperType(), stack_(size) {}
-    FORCEINLINE TStack(SizeType size, const ZObject& value) noexcept : SuperType(), stack_(size, value) {}
+    FORCEINLINE TStack(SizeType size, const ObjectType& value) noexcept : SuperType(), stack_(size, value) {}
     template <typename InputIterator>
     FORCEINLINE TStack(InputIterator first, InputIterator last) noexcept : SuperType(), stack_(first, last) {}
     FORCEINLINE TStack(InitializerList init_list) noexcept : SuperType(), stack_(init_list) {}

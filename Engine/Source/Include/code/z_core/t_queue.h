@@ -40,7 +40,7 @@ public:
     FORCEINLINE TQueue(TQueue&& queue) noexcept : SuperType(), queue_(std::move(queue.queue_)) {}
 
     FORCEINLINE TQueue(SizeType size) noexcept : SuperType(), queue_(size) {}
-    FORCEINLINE TQueue(SizeType size, const ZObject& value) noexcept : SuperType(), queue_(size, value) {}
+    FORCEINLINE TQueue(SizeType size, const ObjectType& value) noexcept : SuperType(), queue_(size, value) {}
     template <typename InputIterator>
     FORCEINLINE TQueue(InputIterator first, InputIterator last) noexcept : SuperType(), queue_(first, last) {}
     FORCEINLINE TQueue(InitializerList init_list) noexcept : SuperType(), queue_(init_list) {}

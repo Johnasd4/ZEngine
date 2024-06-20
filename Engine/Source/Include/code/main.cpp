@@ -59,7 +59,7 @@ int main() {
         //thread_pool.AddTask(test_func, Ref(i));
     }
     Sleep(100);
-    ZTaskFast test_task([]() {cout<<1; });
+    ZTask test_task([]() {cout<<1; });
     auto test_lambda = [&](Int32 i) {cout << i + 1; };
     thread_pool.AddTask(test_lambda, 1);
     //test_task.Run();
@@ -67,6 +67,9 @@ int main() {
     delete a;
     sizeof(TTuple<Int32>);
     thread_pool.LockUntilTaskDone();
+
+    ZString str = "asd";
+    cout << str.String();
 
     return 0;
 }

@@ -24,13 +24,13 @@ namespace zengine {
 namespace log {
 
 Void ZLogManager::LogError(TimeType raw_time,
-                           const CChar* err_project,
-                           const CChar* err_file,
-                           const CChar* err_func,
+                           const Char* err_project,
+                           const Char* err_file,
+                           const Char* err_func,
                            Int32 err_line,
                            ReturnType err_code,
                            ReturnType link_code,
-                           const CChar* format,
+                           const Char* format,
                            ArgListType args) noexcept {
     static ZLogManager& log_manager = ZLogManager::InstanceP();
     log_manager.error_log_queue_.Push(
@@ -38,8 +38,8 @@ Void ZLogManager::LogError(TimeType raw_time,
 }
 
 Void ZLogManager::LogTrace(TimeType raw_time,
-                           const TChar* project,
-                           const TChar* format,
+                           const WChar* project,
+                           const WChar* format,
                            ArgListType args) noexcept {
     static ZLogManager& log_manager = ZLogManager::InstanceP();
     log_manager.trace_log_queue_.Push(raw_time, project, format, args);
@@ -47,7 +47,7 @@ Void ZLogManager::LogTrace(TimeType raw_time,
 
 Void ZLogManager::LogInfo(TimeType raw_time,
                           LogInfoEnum info_type,
-                          const TChar* format,
+                          const WChar* format,
                           ArgListType args) noexcept {
     static ZLogManager& log_manager = ZLogManager::InstanceP();
     log_manager.info_log_queue_.Push(raw_time, info_type, format, args);

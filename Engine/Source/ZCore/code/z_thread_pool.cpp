@@ -98,23 +98,6 @@ NODISCARD Void ZThreadPool::LockUntilTaskDone() noexcept {
     pool_idle_mutex_.Unlock();
 }
 
-NODISCARD ReturnType ZThreadPool::AddTask(ZTaskFast&& task) noexcept {
-    ReturnType ret_val = kOK;
-    TUniqueLock<ZMutex> lock(pool_mutex_);
-    if (finished_) {
-        ret_val = error_code::kZThreadPoolErrorCodePoolFinished;
-        Z_LOG_ERROR(ret_val, 0, "Thread pool finished, can't add task!");
-        return ret_val;
-    }
-    //when idle.
-    if (max_thread_num_ == free_thread_num_) {
-        pool_idle_mutex_.TryLock();
-    }
-    task_queue_.Push(std::forward<ZTaskFast>(task));
-    cv_.NotifyOne();
-    return ret_val;
-}
-
 NODISCARD ReturnType ZThreadPool::AddTask(ZTask&& task) noexcept {
     ReturnType ret_val = kOK;
     TUniqueLock<ZMutex> lock(pool_mutex_);
@@ -127,7 +110,24 @@ NODISCARD ReturnType ZThreadPool::AddTask(ZTask&& task) noexcept {
     if (max_thread_num_ == free_thread_num_) {
         pool_idle_mutex_.TryLock();
     }
-    task_queue_.Push(std::forward<ZTaskFast>(task));
+    task_queue_.Push(std::forward<ZTask>(task));
+    cv_.NotifyOne();
+    return ret_val;
+}
+
+NODISCARD ReturnType ZThreadPool::AddTask(ZTaskSafe&& task) noexcept {
+    ReturnType ret_val = kOK;
+    TUniqueLock<ZMutex> lock(pool_mutex_);
+    if (finished_) {
+        ret_val = error_code::kZThreadPoolErrorCodePoolFinished;
+        Z_LOG_ERROR(ret_val, 0, "Thread pool finished, can't add task!");
+        return ret_val;
+    }
+    //when idle.
+    if (max_thread_num_ == free_thread_num_) {
+        pool_idle_mutex_.TryLock();
+    }
+    task_queue_.Push(std::forward<ZTaskSafe>(task));
     cv_.NotifyOne();
     return ret_val;
 }
@@ -138,7 +138,7 @@ Void ZThreadPool::ClearTask() noexcept {
 }
 
 Void ZThreadPool::ThreadFunc(ZThreadPool& thread_pool) noexcept {
-    ZTaskFast task;
+    ZTask task;
     ReturnType link_code = kOK;
     while(true) {
         //atom operation, do not remove the brace.

@@ -46,7 +46,7 @@ public:
     FORCEINLINE TVector(TVector&& vector) noexcept : SuperType(), vector_(std::move(vector.vector_)) {}
 
     FORCEINLINE TVector(SizeType size) noexcept : SuperType(), vector_(size) {}
-    FORCEINLINE TVector(SizeType size, const ZObject& value) noexcept : SuperType(), vector_(size, value) {}
+    FORCEINLINE TVector(SizeType size, const ObjectType& value) noexcept : SuperType(), vector_(size, value) {}
     template <typename InputIterator>
     FORCEINLINE TVector(InputIterator first, InputIterator last) noexcept : SuperType(), vector_(first, last) {}
     FORCEINLINE TVector(InitializerList init_list) noexcept : SuperType(), vector_(init_list) {}

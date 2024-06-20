@@ -90,36 +90,28 @@ CORE_DLLAPI Void SetPrintColour(PrintTextColourEnum text_colour, PrintBackground
     background colour infront of the format to change the colour only for this
     output.
 */
-CORE_DLLAPI Void Print(const CChar* format, ...) noexcept;
+CORE_DLLAPI Void Print(const Char* format, ...) noexcept;
 
 /*
     Use it as the same as printf, it's thread safe. You can add text colour and
     background colour infront of the format to change the colour only for this
     output.
 */
-CORE_DLLAPI Void Print(const CChar* format, ArgListType args) noexcept;
+CORE_DLLAPI Void Print(const Char* format, ArgListType args) noexcept;
 
 /*
     Use it as the same as printf, it's thread safe. You can add text colour and
     background colour infront of the format to change the colour only for this
     output.
 */
-CORE_DLLAPI Void Print(const TChar* format, ...) noexcept;
+CORE_DLLAPI Void Print(const WChar* format, ...) noexcept;
 
 /*
     Use it as the same as printf, it's thread safe. You can add text colour and
     background colour infront of the format to change the colour only for this
     output.
 */
-CORE_DLLAPI Void Print(const TChar* format, ArgListType args) noexcept;
-
-/*
-    Use it as the same as printf, it's thread safe. You can add text colour and
-    background colour infront of the format to change the colour only for this
-    output.
-*/
-CORE_DLLAPI Void Print(PrintTextColourEnum text_colour, PrintBackgroundColourEnum background_colour,
-                       const CChar* format, ...) noexcept;
+CORE_DLLAPI Void Print(const WChar* format, ArgListType args) noexcept;
 
 /*
     Use it as the same as printf, it's thread safe. You can add text colour and
@@ -127,7 +119,7 @@ CORE_DLLAPI Void Print(PrintTextColourEnum text_colour, PrintBackgroundColourEnu
     output.
 */
 CORE_DLLAPI Void Print(PrintTextColourEnum text_colour, PrintBackgroundColourEnum background_colour,
-                       const CChar* format, ArgListType args) noexcept;
+                       const Char* format, ...) noexcept;
 
 /*
     Use it as the same as printf, it's thread safe. You can add text colour and
@@ -135,7 +127,7 @@ CORE_DLLAPI Void Print(PrintTextColourEnum text_colour, PrintBackgroundColourEnu
     output.
 */
 CORE_DLLAPI Void Print(PrintTextColourEnum text_colour, PrintBackgroundColourEnum background_colour,
-                       const TChar* format, ...) noexcept;
+                       const Char* format, ArgListType args) noexcept;
 
 /*
     Use it as the same as printf, it's thread safe. You can add text colour and
@@ -143,7 +135,15 @@ CORE_DLLAPI Void Print(PrintTextColourEnum text_colour, PrintBackgroundColourEnu
     output.
 */
 CORE_DLLAPI Void Print(PrintTextColourEnum text_colour, PrintBackgroundColourEnum background_colour,
-                       const TChar* format, ArgListType args) noexcept;
+                       const WChar* format, ...) noexcept;
+
+/*
+    Use it as the same as printf, it's thread safe. You can add text colour and
+    background colour infront of the format to change the colour only for this
+    output.
+*/
+CORE_DLLAPI Void Print(PrintTextColourEnum text_colour, PrintBackgroundColourEnum background_colour,
+                       const WChar* format, ArgListType args) noexcept;
 
 template<typename CharType, typename... ArgsType>
 FORCEINLINE Void PrintTrace(const CharType* format, ArgsType&&... args) noexcept {

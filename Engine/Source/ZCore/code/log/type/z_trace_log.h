@@ -33,8 +33,8 @@ class ZTraceLog : public ZLog {
 public:
     ZTraceLog() noexcept;
     ZTraceLog(TimeType raw_time,
-              const TChar* project,
-              const TChar* format,
+              const WChar* project,
+              const WChar* format,
               ArgListType args) noexcept;
 
     /*
@@ -57,7 +57,7 @@ protected:
 
 private:
     TimeType raw_time_;
-    const TChar* project_;
+    const WChar* project_;
 };
 
 }//log

@@ -31,26 +31,26 @@ namespace log {
 
 CORE_DLLAPI ZLog::ZLog() noexcept : SuperType(), log_msg_str_() {}
 
-CORE_DLLAPI ZLog::ZLog(const CChar* format, ...) noexcept : SuperType() {
+CORE_DLLAPI ZLog::ZLog(const Char* format, ...) noexcept : SuperType() {
     ArgListType args;
     va_start(args, format);
     vsprintf(log_msg_str_.c_str.DataPtr(), format, args);
     va_end(args);
 }
 
-CORE_DLLAPI ZLog::ZLog(const CChar* format, ArgListType args) noexcept : SuperType() {
+CORE_DLLAPI ZLog::ZLog(const Char* format, ArgListType args) noexcept : SuperType() {
     vsprintf(log_msg_str_.c_str.DataPtr(), format, args);
 }
 
-CORE_DLLAPI ZLog::ZLog(const TChar* format, ...) noexcept : SuperType() {
+CORE_DLLAPI ZLog::ZLog(const WChar* format, ...) noexcept : SuperType() {
     ArgListType args;
     va_start(args, format);
-    vswprintf(log_msg_str_.t_str.DataPtr(), format, args);
+    vswprintf(log_msg_str_.w_str.DataPtr(), format, args);
     va_end(args);
 }
 
-CORE_DLLAPI ZLog::ZLog(const TChar* format, ArgListType args) noexcept : SuperType() {
-    vswprintf(log_msg_str_.t_str.DataPtr(), format, args);
+CORE_DLLAPI ZLog::ZLog(const WChar* format, ArgListType args) noexcept : SuperType() {
+    vswprintf(log_msg_str_.w_str.DataPtr(), format, args);
 }
 
 CORE_DLLAPI Void ZLog::GenerateLogString(const ZLog* log_ptr, OutputString* output_str_ptr) noexcept {
@@ -62,7 +62,7 @@ static ZFile& GetLogFile() noexcept {
 
     static ZFile file;
     ReturnType link_code = kOK;
-    TFixedString<TChar, ZFile::kFileNameLength> file_str;
+    TWFixedString<ZFile::kFileNameLength> file_str;
     ZSystemTime system_time;
 
     file_str.SetString(L"%lsdefault_log_%04d%02d%02d%02d%02d%02d.log", ZLog::kPathTString,
@@ -79,24 +79,24 @@ CORE_DLLAPI Void ZLog::FileOutputLogString(const ZLog* log_ptr, const ZLog::Outp
     static ZFile& file = GetLogFile();
     ReturnType link_code = kOK;
 
-    link_code = file.Print(L"%s\n", output_str.t_str.DataPtr());
+    link_code = file.Print(L"%s\n", output_str.w_str.DataPtr());
     if (link_code != kOK) {
         Z_LOG_ERROR(error_code::kMLogErrorCodeLinkError, link_code, "ZFile::Print() link error!");
     }
 }
 
 CORE_DLLAPI Void ZLog::ConsoleOutputLogString(const ZLog* log_ptr, const ZLog::OutputString& output_str) noexcept {
-    console::PrintMessage(L"%ls\n", output_str.t_str.DataPtr());
+    console::PrintMessage(L"%ls\n", output_str.w_str.DataPtr());
 }
 
 CORE_DLLAPI Void LogError(TimeType raw_time,
-                          const CChar* err_project,
-                          const CChar* err_file, 
-                          const CChar* err_func,
+                          const Char* err_project,
+                          const Char* err_file, 
+                          const Char* err_func,
                           Int32 err_line, 
                           ReturnType err_code,
                           ReturnType link_code,
-                          const CChar* format,
+                          const Char* format,
                           ...) noexcept {
     ArgListType args;
     va_start(args, format);
@@ -105,8 +105,8 @@ CORE_DLLAPI Void LogError(TimeType raw_time,
 }
 
 CORE_DLLAPI Void LogTrace(TimeType raw_time,
-                          const TChar* project,
-                          const TChar* format,
+                          const WChar* project,
+                          const WChar* format,
                           ...) noexcept {
     ArgListType args;
     va_start(args, format);
@@ -116,7 +116,7 @@ CORE_DLLAPI Void LogTrace(TimeType raw_time,
 
 CORE_DLLAPI Void LogInfo(TimeType raw_time,
                          LogInfoEnum info_type,
-                         const TChar* format,
+                         const WChar* format,
                          ...) noexcept {
     ArgListType args;
     va_start(args, format);

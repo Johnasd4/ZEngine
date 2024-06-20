@@ -46,7 +46,7 @@ public:
     FORCEINLINE TDeque(TDeque&& deque) noexcept : SuperType(), deque_(std::move(deque.deque_)) {}
 
     FORCEINLINE TDeque(SizeType size) noexcept : SuperType(), deque_(size) {}
-    FORCEINLINE TDeque(SizeType size, const ZObject& value) noexcept : SuperType(), deque_(size, value) {}
+    FORCEINLINE TDeque(SizeType size, const ObjectType& value) noexcept : SuperType(), deque_(size, value) {}
     template <typename InputIterator>
     FORCEINLINE TDeque(InputIterator first, InputIterator last) noexcept : SuperType(), deque_(first, last) {}
     FORCEINLINE TDeque(InitializerList init_list) noexcept : SuperType(), deque_(init_list) {}

@@ -46,7 +46,7 @@ public:
     FORCEINLINE TList(TList&& list) noexcept : SuperType(), list_(std::move(list.list_)) {}
 
     FORCEINLINE TList(SizeType size) noexcept : SuperType(), list_(size) {}
-    FORCEINLINE TList(SizeType size, const ZObject& value) noexcept : SuperType(), list_(size, value) {}
+    FORCEINLINE TList(SizeType size, const ObjectType& value) noexcept : SuperType(), list_(size, value) {}
     template <typename InputIterator>
     FORCEINLINE TList(InputIterator first, InputIterator last) noexcept : SuperType(), list_(first, last) {}
     FORCEINLINE TList(InitializerList init_list) noexcept : SuperType(), list_(init_list) {}

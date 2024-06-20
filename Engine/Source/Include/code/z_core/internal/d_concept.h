@@ -31,7 +31,7 @@ template<typename ObjectType>
 concept kIsClass = std::is_class_v<ObjectType>;
 
 template<typename CharType>
-concept kIsChar = kSameType<CharType, CChar> || kSameType<CharType, TChar>;
+concept kIsChar = kSameType<CharType, Char> || kSameType<CharType, WChar>;
 
 template<typename NumberType>
 concept kIsSignedInt = kSameType<NumberType, Int8> || kSameType<NumberType, Int16> || kSameType<NumberType, Int32> || 

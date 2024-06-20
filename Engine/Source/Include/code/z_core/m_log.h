@@ -80,7 +80,7 @@ public:
     //max size of the output log string.
     static constexpr Int32 kLogMaxSize = 2048;
     //log file path.
-    static constexpr TChar kPathTString[] = L"./log/";
+    static constexpr WChar kPathTString[] = L"./log/";
 
     using MsgString = FixedStringUnion<kMsgMaxSize>;
     using OutputString = FixedStringUnion<kLogMaxSize>;
@@ -101,10 +101,10 @@ public:
     CORE_DLLAPI static Void ConsoleOutputLogString(const ZLog* log_ptr, const ZLog::OutputString& output_str) noexcept;
 
     CORE_DLLAPI ZLog() noexcept;
-    CORE_DLLAPI ZLog(const CChar* format, ...) noexcept;
-    CORE_DLLAPI ZLog(const CChar* format, ArgListType args) noexcept;
-    CORE_DLLAPI ZLog(const TChar* format, ...) noexcept;
-    CORE_DLLAPI ZLog(const TChar* format, ArgListType args) noexcept;
+    CORE_DLLAPI ZLog(const Char* format, ...) noexcept;
+    CORE_DLLAPI ZLog(const Char* format, ArgListType args) noexcept;
+    CORE_DLLAPI ZLog(const WChar* format, ...) noexcept;
+    CORE_DLLAPI ZLog(const WChar* format, ArgListType args) noexcept;
 
 protected:
     using SuperType = ZObject;
@@ -118,21 +118,21 @@ private:
     Log error message and error location.
 */
 CORE_DLLAPI Void LogError(TimeType raw_time,
-                          const CChar* err_project,
-                          const CChar* err_file, 
-                          const CChar* err_func,
+                          const Char* err_project,
+                          const Char* err_file, 
+                          const Char* err_func,
                           Int32 err_line, 
                           ReturnType err_code,
                           ReturnType link_code,
-                          const CChar* format,
+                          const Char* format,
                           ...) noexcept;
 
 /*
     Log trace message and trace location.
 */
 CORE_DLLAPI Void LogTrace(TimeType raw_time,
-                          const TChar* project,
-                          const TChar* format,
+                          const WChar* project,
+                          const WChar* format,
                           ...) noexcept;
 
 /*
@@ -140,7 +140,7 @@ CORE_DLLAPI Void LogTrace(TimeType raw_time,
 */
 CORE_DLLAPI Void LogInfo(TimeType raw_time,
                          LogInfoEnum info_type,
-                         const TChar* format,
+                         const WChar* format,
                          ...) noexcept;
 
 

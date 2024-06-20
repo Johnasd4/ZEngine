@@ -23,8 +23,8 @@
 
 namespace zengine {
 
-using CChar = char;
-using TChar = wchar_t;
+using Char = char;
+using WChar = wchar_t;
 
 //range£º-128~127£¨3 digits£©
 using Int8 = char;

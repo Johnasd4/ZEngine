@@ -27,6 +27,8 @@
 
 namespace zengine {
 
+namespace internal {
+
 /*
     Array caintainer.
 */
@@ -47,10 +49,10 @@ public:
     FORCEINLINE TFixedString(InitializerList init_list) noexcept : SuperType(), string_(init_list) {}
     template<typename... ArgsType>
     FORCEINLINE constexpr TFixedString(CharType* format, ArgsType&&... args) noexcept : SuperType() {
-        if constexpr (kSameType<CharType, CChar>) {
+        if constexpr (kSameType<CharType, Char>) {
             sprintf(DataPtr(), format, std::forward<ArgsType>(args)...);
         }
-        else if constexpr (kSameType<CharType, TChar>) {
+        else if constexpr (kSameType<CharType, WChar>) {
             swprintf(DataPtr(), format, std::forward<ArgsType>(args)...);
         }
     }
@@ -93,18 +95,18 @@ public:
 
     template<typename... ArgsType>
     FORCEINLINE constexpr Void SetString(const CharType* format, ArgsType&&... args) noexcept {
-        if constexpr (kSameType<CharType, CChar>) {
+        if constexpr (kSameType<CharType, Char>) {
             sprintf(DataPtr(), format, std::forward<ArgsType>(args)...);
         }
-        else if constexpr (kSameType<CharType, TChar>) {
+        else if constexpr (kSameType<CharType, WChar>) {
             swprintf(DataPtr(), format, std::forward<ArgsType>(args)...);
         }
     }
     FORCEINLINE constexpr Void SetString(const CharType* format, ArgListType args) noexcept {
-        if constexpr (kSameType<CharType, CChar>) {
+        if constexpr (kSameType<CharType, Char>) {
             vsprintf(DataPtr(), format, args);
         }
-        else if constexpr (kSameType<CharType, TChar>) {
+        else if constexpr (kSameType<CharType, WChar>) {
             vswprintf(DataPtr(), format, args);
         }
     }
@@ -118,11 +120,18 @@ private:
     STDArray string_;
 };
 
+}//internal
+
+template<IndexType kCapacity>
+using TFixedString = internal::TFixedString<Char, kCapacity>;
+template<IndexType kCapacity>
+using TWFixedString = internal::TFixedString<WChar, kCapacity>;
+
 template <IndexType kCapacity>
 union FixedStringUnion {
 public:
     FORCEINLINE FixedStringUnion() noexcept : c_str() {}
-    FORCEINLINE FixedStringUnion(const FixedStringUnion& string) noexcept { 
+    FORCEINLINE FixedStringUnion(const FixedStringUnion& string) noexcept {
         c_str = string.c_str;
     }
     FORCEINLINE ~FixedStringUnion() noexcept {}
@@ -131,8 +140,8 @@ public:
         c_str = string.c_str;
     }
 
-    TFixedString<CChar, kCapacity / sizeof(CChar)> c_str;
-    TFixedString<TChar, kCapacity / sizeof(TChar)> t_str;
+    TFixedString<kCapacity / sizeof(Char)> c_str;
+    TWFixedString<kCapacity / sizeof(WChar)> w_str;
 };
 
 }//zengine

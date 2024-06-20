@@ -28,24 +28,24 @@ namespace zengine {
 namespace log {
 
 ZInfoLog::ZInfoLog() noexcept : raw_time_(), info_type_(), SuperType() {}
-ZInfoLog::ZInfoLog(TimeType raw_time, LogInfoEnum info_type, const TChar* format, ArgListType args) noexcept 
+ZInfoLog::ZInfoLog(TimeType raw_time, LogInfoEnum info_type, const WChar* format, ArgListType args) noexcept 
         : raw_time_(raw_time), info_type_(info_type), SuperType(format, args) {}
 
 Void ZInfoLog::GenerateLogString(const ZLog* log_ptr, OutputString* output_str_ptr) noexcept {
     static ZSystemTime system_time;
     ZInfoLog& info_log = *(ZInfoLog*)log_ptr;
     system_time.UpdateTimeFast(info_log.raw_time_);
-    output_str_ptr->t_str.SetString(
+    output_str_ptr->w_str.SetString(
         L"%04d/%02d/%02d-%02d:%02d:%02d | %ls: %ls",
         system_time.Year(), system_time.Month(), system_time.Day(),
         system_time.Hour(), system_time.Min(), system_time.Sec(),
-        kLogInfoString[info_log.info_type_], info_log.LogMsgPtr().t_str.DataPtr());
+        kLogInfoString[info_log.info_type_], info_log.LogMsgPtr().w_str.DataPtr());
 }
 
 static ZFile& GetLogFile() noexcept {
     static ZFile file;
     ReturnType link_code = kOK;
-    TFixedString<TChar, ZFile::kFileNameLength> file_str;
+    TWFixedString<ZFile::kFileNameLength> file_str;
     ZSystemTime system_time;
 
     file_str.SetString(L"%lsinfo_%04d%02d%02d%02d%02d%02d.log", ZLog::kPathTString,
@@ -62,7 +62,7 @@ Void ZInfoLog::FileOutputLogString(const ZLog* log_ptr, const ZLog::OutputString
     static ZFile& file = GetLogFile();
     ReturnType link_code = kOK;
 
-    link_code = file.Print(L"%ls\n", output_str.t_str.DataPtr());
+    link_code = file.Print(L"%ls\n", output_str.w_str.DataPtr());
     if (link_code != kOK) {
         Z_LOG_ERROR(error_code::kMLogErrorCodeLinkError, link_code, "ZFile::Print() link error!");
     }
@@ -72,22 +72,22 @@ Void ZInfoLog::ConsoleOutputLogString(const ZLog* log_ptr, const ZLog::OutputStr
     ZInfoLog& info_log = *(ZInfoLog*)log_ptr;
     switch (info_log.info_type_) {
     case kLogInfoMessage:
-        console::PrintMessage("%ls\n", output_str.t_str.DataPtr());
+        console::PrintMessage("%ls\n", output_str.w_str.DataPtr());
         break;
     case kLogInfoStart:
-        console::PrintStart("%ls\n", output_str.t_str.DataPtr());
+        console::PrintStart("%ls\n", output_str.w_str.DataPtr());
         break;
     case kLogInfoProcess:
-        console::PrintProcess("%ls\n", output_str.t_str.DataPtr());
+        console::PrintProcess("%ls\n", output_str.w_str.DataPtr());
         break;
     case kLogInfoFinish:
-        console::PrintFinish("%ls\n", output_str.t_str.DataPtr());
+        console::PrintFinish("%ls\n", output_str.w_str.DataPtr());
         break;
     case kLogInfoSuccess:
-        console::PrintSuccess("%ls\n", output_str.t_str.DataPtr());
+        console::PrintSuccess("%ls\n", output_str.w_str.DataPtr());
         break;
     case kLogInfoFailure:
-        console::PrintFailure("%ls\n", output_str.t_str.DataPtr());
+        console::PrintFailure("%ls\n", output_str.w_str.DataPtr());
         break;
     }
 }

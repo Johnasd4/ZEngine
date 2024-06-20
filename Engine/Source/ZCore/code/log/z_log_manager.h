@@ -47,23 +47,23 @@ public:
     static constexpr IndexType kLogPortIDMax = ZLogServer::kMaxPortNum - kLogPortIDMin;
 
     static Void LogError(TimeType raw_time,
-                         const CChar* err_project,
-                         const CChar* err_file, 
-                         const CChar* err_func,
+                         const Char* err_project,
+                         const Char* err_file, 
+                         const Char* err_func,
                          Int32 err_line, 
                          ReturnType err_code,
                          ReturnType link_code,
-                         const CChar* format,
+                         const Char* format,
                          ArgListType args) noexcept;
 
     static Void LogTrace(TimeType raw_time,
-                         const TChar* project,
-                         const TChar* format,
+                         const WChar* project,
+                         const WChar* format,
                          ArgListType args) noexcept;
 
     static Void LogInfo(TimeType raw_time,
                         LogInfoEnum info_type,
-                        const TChar* format,
+                        const WChar* format,
                         ArgListType args) noexcept;
 
     /*

@@ -30,13 +30,13 @@ namespace log {
 ZErrorLog::ZErrorLog() noexcept 
         : raw_time_(), err_project_(), err_file_(), err_func_(), err_line_(), err_code_(), link_code_(), SuperType() {}
 ZErrorLog::ZErrorLog(TimeType raw_time,
-                     const CChar* err_project,
-                     const CChar* err_file,
-                     const CChar* err_func,
+                     const Char* err_project,
+                     const Char* err_file,
+                     const Char* err_func,
                      Int32 err_line,
                      ReturnType err_code,
                      ReturnType link_code,
-                     const CChar* format,
+                     const Char* format,
                      ArgListType args) noexcept 
     : raw_time_(raw_time)
     , err_project_(err_project)
@@ -62,7 +62,7 @@ Void ZErrorLog::GenerateLogString(const ZLog* log_ptr, OutputString* output_str_
 static ZFile& GetLogFile() noexcept {
     static ZFile file;
     ReturnType link_code = kOK;
-    TFixedString<TChar, ZFile::kFileNameLength> file_str;
+    TWFixedString<ZFile::kFileNameLength> file_str;
     ZSystemTime system_time;
 
     file_str.SetString(L"%lserror_%04d%02d%02d%02d%02d%02d.log", ZLog::kPathTString,

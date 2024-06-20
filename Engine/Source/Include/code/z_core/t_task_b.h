@@ -368,38 +368,38 @@ namespace zengine {
         Task class, package a function and it's params, no returns, no state check, not thread safe.
     */
     template<typename TaskFunction, typename... ArgsType>
-    class ZTaskFast : public ZObject {
+    class ZTask : public ZObject {
     public:
         using TaskParamsTuple = TTuple<ArgsType...>;
 
-        ZTaskFast() noexcept
+        ZTask() noexcept
             : SuperType()
             , func_(nullptr)
             , params_ptr_(nullptr) {}
-        ZTaskFast(ZTaskFast&& task) noexcept
+        ZTask(ZTask&& task) noexcept
             : SuperType()
             , func_(std::move(task.func_))
             , params_ptr_(task.params_ptr_) {
             task.params_ptr_ = nullptr;
         }
-        ZTaskFast(TaskFunction func, ArgsType&&... args) noexcept
+        ZTask(TaskFunction func, ArgsType&&... args) noexcept
             : SuperType()
             , func_(std::forward<TaskFunction>(func))
             , params_ptr_(new TaskParamsTuple(std::forward<ArgsType>(args)...)) {}
-        ~ZTaskFast() noexcept {
+        ~ZTask() noexcept {
             if (params_ptr_ != nullptr) {
                 delete params_ptr_;
             }
         }
 
-        ZTaskFast& operator=(ZTaskFast&& task) noexcept {
+        ZTask& operator=(ZTask&& task) noexcept {
             func_ = std::move(task.func_);
             params_ptr_ = task.params_ptr_;
             task.params_ptr_ = nullptr;
             return *this;
         }
 
-        FORCEINLINE Void Swap(ZTaskFast& task) noexcept {
+        FORCEINLINE Void Swap(ZTask& task) noexcept {
             zengine::Swap(this, &task);
         }
 
@@ -433,9 +433,9 @@ namespace zengine {
         using SuperType = ZObject;
 
     private:
-        ZTaskFast(const ZTaskFast&) = delete;
+        ZTask(const ZTask&) = delete;
 
-        ZTaskFast& operator=(const ZTaskFast&) = delete;
+        ZTask& operator=(const ZTask&) = delete;
 
         TaskFunction func_;
         TaskParamsTuple* params_ptr_;
@@ -445,26 +445,26 @@ namespace zengine {
         Task class, package a function and it's params, no returns, no state check, not thread safe.
     */
     template<typename TaskFunction>
-    class ZTaskFast<TaskFunction> : public ZObject {
+    class ZTask<TaskFunction> : public ZObject {
     public:
-        FORCEINLINE ZTaskFast() noexcept
+        FORCEINLINE ZTask() noexcept
             : SuperType()
             , func_(nullptr) {}
-        FORCEINLINE ZTaskFast(ZTaskFast&& task) noexcept
+        FORCEINLINE ZTask(ZTask&& task) noexcept
             : SuperType()
             , func_(std::move(task.func_)) {
         }
-        FORCEINLINE ZTaskFast(TaskFunction func) noexcept
+        FORCEINLINE ZTask(TaskFunction func) noexcept
             : SuperType()
             , func_(std::forward<TaskFunction>(func)) {}
-        FORCEINLINE ~ZTaskFast() noexcept {}
+        FORCEINLINE ~ZTask() noexcept {}
 
-        FORCEINLINE ZTaskFast& operator=(ZTaskFast&& task) noexcept {
+        FORCEINLINE ZTask& operator=(ZTask&& task) noexcept {
             func_ = std::move(task.func_);
             return *this;
         }
 
-        FORCEINLINE Void Swap(ZTaskFast& task) noexcept {
+        FORCEINLINE Void Swap(ZTask& task) noexcept {
             zengine::Swap(this, &task);
         }
 
@@ -485,9 +485,9 @@ namespace zengine {
         using SuperType = ZObject;
 
     private:
-        ZTaskFast(const ZTaskFast&) = delete;
+        ZTask(const ZTask&) = delete;
 
-        ZTaskFast& operator=(const ZTaskFast&) = delete;
+        ZTask& operator=(const ZTask&) = delete;
 
         TaskFunction func_;
     };
@@ -506,12 +506,12 @@ namespace zengine {
 
         template<typename TaskFunction, typename... ArgsType>
         NODISCARD FORCEINLINE ZTask<TaskFunction, ArgsType...> MakeTaskFast(TaskFunction&& func, ArgsType&&... args) noexcept {
-            return ZTaskFast<TaskFunction, ArgsType...>(std::forward<TaskFunction>(func), std::forward<ArgsType>(args)...);
+            return ZTask<TaskFunction, ArgsType...>(std::forward<TaskFunction>(func), std::forward<ArgsType>(args)...);
         }
 
         template<typename TaskFunction>
         NODISCARD FORCEINLINE ZTask<TaskFunction> MakeTaskFast(TaskFunction&& func) noexcept {
-            return ZTaskFast<TaskFunction>(std::forward<TaskFunction>(func));
+            return ZTask<TaskFunction>(std::forward<TaskFunction>(func));
         }
 
     }//task

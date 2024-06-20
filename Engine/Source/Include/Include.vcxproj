@@ -20,16 +20,20 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="code\z_core\internal\d_macro.h" />
+    <ClInclude Include="code\z_core.h" />
+    <ClInclude Include="code\z_core\f_console.h" />
+    <ClInclude Include="code\z_core\f_memory_pool.h" />
     <ClInclude Include="code\z_core\internal\d_concept.h" />
     <ClInclude Include="code\z_core\internal\d_constant.h" />
     <ClInclude Include="code\z_core\internal\d_error_code.h" />
     <ClInclude Include="code\z_core\internal\d_function.h" />
     <ClInclude Include="code\z_core\internal\d_lib.h" />
+    <ClInclude Include="code\z_core\internal\d_macro.h" />
     <ClInclude Include="code\z_core\internal\d_type.h" />
-    <ClInclude Include="code\z_core\z_task.h" />
-    <ClInclude Include="code\z_core\t_task_b.h" />
-    <ClInclude Include="code\z_core\z_sem_mutex.h" />
+    <ClInclude Include="code\z_core\internal\z_drive.h" />
+    <ClInclude Include="code\z_core\m_log.h" />
+    <ClInclude Include="code\z_core\m_test.h" />
+    <ClInclude Include="code\z_core\t_allocator.h" />
     <ClInclude Include="code\z_core\t_array.h" />
     <ClInclude Include="code\z_core\t_deque.h" />
     <ClInclude Include="code\z_core\t_fixed_deque.h" />
@@ -37,37 +41,32 @@
     <ClInclude Include="code\z_core\t_fixed_string.h" />
     <ClInclude Include="code\z_core\t_forward_list.h" />
     <ClInclude Include="code\z_core\t_list.h" />
+    <ClInclude Include="code\z_core\t_lock_guard.h" />
+    <ClInclude Include="code\z_core\t_lookup_table.h" />
     <ClInclude Include="code\z_core\t_pair.h" />
     <ClInclude Include="code\z_core\t_queue.h" />
     <ClInclude Include="code\z_core\t_set.h" />
+    <ClInclude Include="code\z_core\t_smart_ptr.h" />
     <ClInclude Include="code\z_core\t_stack.h" />
+    <ClInclude Include="code\z_core\t_task_b.h" />
     <ClInclude Include="code\z_core\t_tuple.h" />
     <ClInclude Include="code\z_core\t_unique_lock.h" />
-    <ClInclude Include="code\z_core\z_condition_variable.h" />
-    <ClInclude Include="code\z_core\z_file.h" />
-    <ClInclude Include="code\z_core\t_lock_guard.h" />
-    <ClInclude Include="code\z_core\z_system_time.h" />
     <ClInclude Include="code\z_core\t_vector.h" />
-    <ClInclude Include="code\z_core\t_allocator.h" />
-    <ClInclude Include="code\z_core\m_test.h" />
-    <ClInclude Include="code\z_core\m_log.h" />
-    <ClInclude Include="code\z_core\t_lookup_table.h" />
-    <ClInclude Include="code\z_core\f_console.h" />
-    <ClInclude Include="code\z_core\f_memory_pool.h" />
+    <ClInclude Include="code\z_core\z_condition_variable.h" />
+    <ClInclude Include="code\z_core\z_cs_mutex.h" />
+    <ClInclude Include="code\z_core\z_file.h" />
     <ClInclude Include="code\z_core\z_mutex.h" />
     <ClInclude Include="code\z_core\z_object.h" />
-    <ClInclude Include="code\z_core.h" />
-    <ClInclude Include="code\z_core\internal\z_drive.h" />
+    <ClInclude Include="code\z_core\z_sem_mutex.h" />
+    <ClInclude Include="code\z_core\z_string.h" />
+    <ClInclude Include="code\z_core\z_system_time.h" />
+    <ClInclude Include="code\z_core\z_task.h" />
     <ClInclude Include="code\z_core\z_thread.h" />
+    <ClInclude Include="code\z_core\z_thread_pool.h" />
     <ClInclude Include="code\z_engine.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\main.cpp" />
-    <ClCompile Include="code\z_core\z_cs_mutex.h" />
-    <ClCompile Include="code\z_core\z_thread_pool.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

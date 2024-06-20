@@ -42,7 +42,7 @@ public:
         print_manager.print_mutex_.Unlock();
     }
 
-    static Void Print(const CChar* format, ArgListType args) noexcept {
+    static Void Print(const Char* format, ArgListType args) noexcept {
         static ZPrintManager& print_manager = ZPrintManager::InstanceP();
 
         print_manager.print_mutex_.Lock();
@@ -50,7 +50,7 @@ public:
         print_manager.print_mutex_.Unlock();
     }
 
-    static Void Print(const TChar* format, ArgListType args) noexcept {
+    static Void Print(const WChar* format, ArgListType args) noexcept {
         static ZPrintManager& print_manager = ZPrintManager::InstanceP();
 
         print_manager.print_mutex_.Lock();
@@ -59,7 +59,7 @@ public:
     }
 
     static Void Print(PrintTextColourEnum text_colour, PrintBackgroundColourEnum background_colour, 
-                      const CChar* format, ArgListType args) noexcept {
+                      const Char* format, ArgListType args) noexcept {
         static ZPrintManager& print_manager = ZPrintManager::InstanceP();
 
         print_manager.print_mutex_.Lock();
@@ -73,7 +73,7 @@ public:
     }
 
     static Void Print(PrintTextColourEnum text_colour, PrintBackgroundColourEnum background_colour, 
-                      const TChar* format, ArgListType args) noexcept {
+                      const WChar* format, ArgListType args) noexcept {
         static ZPrintManager& print_manager = ZPrintManager::InstanceP();
 
         print_manager.print_mutex_.Lock();
@@ -116,7 +116,7 @@ CORE_DLLAPI Void SetPrintColour(PrintTextColourEnum text_colour, PrintBackground
     background colour infront of the format to change the colour only for this
     output.
 */
-CORE_DLLAPI Void Print(const CChar * format, ...) noexcept {
+CORE_DLLAPI Void Print(const Char * format, ...) noexcept {
     ArgListType args;
     va_start(args, format);
     internal::ZPrintManager::Print(format, args);
@@ -128,7 +128,7 @@ CORE_DLLAPI Void Print(const CChar * format, ...) noexcept {
     background colour infront of the format to change the colour only for this
     output.
 */
-CORE_DLLAPI Void Print(const CChar* format, ArgListType args) noexcept {
+CORE_DLLAPI Void Print(const Char* format, ArgListType args) noexcept {
     internal::ZPrintManager::Print(format, args);
 }
 
@@ -137,7 +137,7 @@ CORE_DLLAPI Void Print(const CChar* format, ArgListType args) noexcept {
     background colour infront of the format to change the colour only for this
     output.
 */
-CORE_DLLAPI Void Print(const TChar* format, ...) noexcept {
+CORE_DLLAPI Void Print(const WChar* format, ...) noexcept {
     ArgListType args;
     va_start(args, format);
     internal::ZPrintManager::Print(format, args);
@@ -149,7 +149,7 @@ CORE_DLLAPI Void Print(const TChar* format, ...) noexcept {
     background colour infront of the format to change the colour only for this
     output.
 */
-CORE_DLLAPI Void Print(const TChar* format, ArgListType args) noexcept {
+CORE_DLLAPI Void Print(const WChar* format, ArgListType args) noexcept {
     internal::ZPrintManager::Print(format, args);
 }
 
@@ -159,30 +159,7 @@ CORE_DLLAPI Void Print(const TChar* format, ArgListType args) noexcept {
     output.
 */
 CORE_DLLAPI Void Print(PrintTextColourEnum text_colour, PrintBackgroundColourEnum background_colour,
-                       const CChar* format, ...) noexcept{
-    ArgListType args;
-    va_start(args, format);
-    internal::ZPrintManager::Print(text_colour, background_colour, format, args);
-    va_end(args);
-}
-
-/*
-    Use it as the same as printf, it's thread safe. You can add text colour and
-    background colour infront of the format to change the colour only for this
-    output.
-*/
-CORE_DLLAPI Void Print(PrintTextColourEnum text_colour, PrintBackgroundColourEnum background_colour,
-                       const CChar* format, ArgListType args) noexcept{
-    internal::ZPrintManager::Print(text_colour, background_colour, format, args);
-}
-
-/*
-    Use it as the same as printf, it's thread safe. You can add text colour and
-    background colour infront of the format to change the colour only for this
-    output.
-*/
-CORE_DLLAPI Void Print(PrintTextColourEnum text_colour, PrintBackgroundColourEnum background_colour,
-                       const TChar* format, ...) noexcept{
+                       const Char* format, ...) noexcept{
     ArgListType args;
     va_start(args, format);
     internal::ZPrintManager::Print(text_colour, background_colour, format, args);
@@ -195,7 +172,30 @@ CORE_DLLAPI Void Print(PrintTextColourEnum text_colour, PrintBackgroundColourEnu
     output.
 */
 CORE_DLLAPI Void Print(PrintTextColourEnum text_colour, PrintBackgroundColourEnum background_colour,
-                       const TChar* format, ArgListType args) noexcept{
+                       const Char* format, ArgListType args) noexcept{
+    internal::ZPrintManager::Print(text_colour, background_colour, format, args);
+}
+
+/*
+    Use it as the same as printf, it's thread safe. You can add text colour and
+    background colour infront of the format to change the colour only for this
+    output.
+*/
+CORE_DLLAPI Void Print(PrintTextColourEnum text_colour, PrintBackgroundColourEnum background_colour,
+                       const WChar* format, ...) noexcept{
+    ArgListType args;
+    va_start(args, format);
+    internal::ZPrintManager::Print(text_colour, background_colour, format, args);
+    va_end(args);
+}
+
+/*
+    Use it as the same as printf, it's thread safe. You can add text colour and
+    background colour infront of the format to change the colour only for this
+    output.
+*/
+CORE_DLLAPI Void Print(PrintTextColourEnum text_colour, PrintBackgroundColourEnum background_colour,
+                       const WChar* format, ArgListType args) noexcept{
     internal::ZPrintManager::Print(text_colour, background_colour, format, args);
 }
 

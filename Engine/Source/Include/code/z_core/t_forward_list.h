@@ -46,7 +46,8 @@ public:
             : SuperType(), forward_list_(std::move(forward_list.forward_list_)) {}
 
     FORCEINLINE TForwardList(SizeType size) noexcept : SuperType(), forward_list_(size) {}
-    FORCEINLINE TForwardList(SizeType size, const ZObject& value) noexcept : SuperType(), forward_list_(size, value) {}
+    FORCEINLINE TForwardList(SizeType size, const ObjectType& value) noexcept 
+            : SuperType(), forward_list_(size, value) {}
     template <typename InputIterator>
     FORCEINLINE TForwardList(InputIterator first, InputIterator last) noexcept 
             : SuperType(), forward_list_(first, last) {}
