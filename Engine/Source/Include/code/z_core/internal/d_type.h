@@ -70,23 +70,23 @@ using Void = void;
 using Handle = void*;
 
 union Size32Union {
-    FORCEINLINE constexpr Size32Union(const Int32 int_32) : int_32(int_32) {}
-    FORCEINLINE constexpr Size32Union(const UInt32 u_int_32) : u_int_32(u_int_32) {}
-    FORCEINLINE constexpr Size32Union(const Float32 float_32) : float_32(float_32) {}
+    FORCEINLINE constexpr Size32Union(const Int32 _int_32) : int_32_(_int_32) {}
+    FORCEINLINE constexpr Size32Union(const UInt32 _u_int_32) : u_int_32_(_u_int_32) {}
+    FORCEINLINE constexpr Size32Union(const Float32 _float_32) : float_32_(_float_32) {}
 
-    Int32 int_32;
-    UInt32 u_int_32;
-    Float32 float_32;
+    Int32 int_32_;
+    UInt32 u_int_32_;
+    Float32 float_32_;
 };
 
 union Size64Union {
-    FORCEINLINE constexpr Size64Union(const Int64 int_64) : int_64(int_64) {}
-    FORCEINLINE constexpr Size64Union(const UInt64 u_int_64) : u_int_64(u_int_64) {}
-    FORCEINLINE constexpr Size64Union(const Float64 float_64) : float_64(float_64) {}
+    FORCEINLINE constexpr Size64Union(const Int64 _int_64) : int_64_(_int_64) {}
+    FORCEINLINE constexpr Size64Union(const UInt64 _u_int_64) : u_int_64_(_u_int_64) {}
+    FORCEINLINE constexpr Size64Union(const Float64 _float_64) : float_64_(_float_64) {}
 
-    Int64 int_64;
-    UInt64 u_int_64;
-    Float64 float_64;
+    Int64 int_64_;
+    UInt64 u_int_64_;
+    Float64 float_64_;
 };
 
 enum StringEnum : IndexType {

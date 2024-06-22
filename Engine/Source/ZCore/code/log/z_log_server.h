@@ -39,8 +39,8 @@ public:
         Single port.
     */
     struct ZLogPort {
-        Void(*input_func)(const ZLog*, ZLog::OutputString*) = nullptr;
-        TArray<Void(*)(const ZLog*, const ZLog::OutputString&), kMaxOutputPurPort> output_func_array;
+        Void(*input_func_)(const ZLog*, ZLog::OutputString_*) = nullptr;
+        TArray<Void(*)(const ZLog*, const ZLog::OutputString_&), kMaxOutputPurPort> output_func_array_;
     };
 
     ZLogServer() noexcept;
@@ -48,34 +48,40 @@ public:
     /*
         Calls the output functions.
     */
-    Void OutputLog(IndexType port_id, const ZLog* log_ptr) noexcept;
+    Void OutputLog(IndexType _port_id, const ZLog* _log_ptr) noexcept;
 
     /*
         Register the input function, the function will be called when log happens.
     */
-    NODISCARD ReturnType RegisterInputFunction(IndexType port_id, 
-                                               Void(*input_func)(const ZLog*, ZLog::OutputString*)) noexcept;
+    NODISCARD ReturnType RegisterInputFunction(
+        IndexType _port_id,
+        Void(*_input_func)(const ZLog*, ZLog::OutputString_*)
+    ) noexcept;
 
     /*
         Removes the output function.
     */
-    NODISCARD ReturnType UnregisterInputFunction(IndexType port_id, 
-                                                 Void(*input_func)(const ZLog*, ZLog::OutputString*)) noexcept;
+    NODISCARD ReturnType UnregisterInputFunction(
+        IndexType _port_id,
+        Void(*_input_func)(const ZLog*, ZLog::OutputString_*)
+    ) noexcept;
 
     /*
         Register the output function, the function will be called when log happens.
     */
-    NODISCARD ReturnType RegisterOutputFunction(IndexType port_id, 
-                                                Void(*output_func)(const ZLog*, const ZLog::OutputString&)) noexcept;
+    NODISCARD ReturnType RegisterOutputFunction(
+        IndexType _port_id,
+        Void(*_output_func)(const ZLog*, const ZLog::OutputString_&)
+    ) noexcept;
 
     /*
         Removes the output function.
     */
-    Void UnregisterOutputFunction(Void(*output_func)(const ZLog*, const ZLog::OutputString&)) noexcept;
+    Void UnregisterOutputFunction(Void(*_output_func)(const ZLog*, const ZLog::OutputString_&)) noexcept;
 
 
 protected:
-    using SuperType = ZObject;
+    using SuperType_ = ZObject;
 
 private:
     TArray<ZLogPort, kMaxPortNum> port_array_;

@@ -51,9 +51,6 @@
     <ClInclude Include="code\z_core\m_log.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\z_core\m_test.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="code\z_core\t_allocator.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -93,13 +90,7 @@
     <ClInclude Include="code\z_core\t_set.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\z_core\t_smart_ptr.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="code\z_core\t_stack.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\z_core\t_task_b.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\z_core\t_tuple.h">
@@ -129,9 +120,6 @@
     <ClInclude Include="code\z_core\z_sem_mutex.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\z_core\z_string.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="code\z_core\z_system_time.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -145,6 +133,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\z_core.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_core\z_string.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_core\z_string_b.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

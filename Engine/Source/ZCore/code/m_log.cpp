@@ -29,33 +29,36 @@
 namespace zengine {
 namespace log {
 
-CORE_DLLAPI ZLog::ZLog() noexcept : SuperType(), log_msg_str_() {}
+CORE_DLLAPI ZLog::ZLog() noexcept : SuperType_(), log_msg_str_() {}
 
-CORE_DLLAPI ZLog::ZLog(const Char* format, ...) noexcept : SuperType() {
+CORE_DLLAPI ZLog::ZLog(const Char* _format, ...) noexcept : SuperType_() {
     ArgListType args;
-    va_start(args, format);
-    vsprintf(log_msg_str_.c_str.DataPtr(), format, args);
+    va_start(args, _format);
+    vsprintf(log_msg_str_.c_str_.DataPtr(), _format, args);
     va_end(args);
 }
 
-CORE_DLLAPI ZLog::ZLog(const Char* format, ArgListType args) noexcept : SuperType() {
-    vsprintf(log_msg_str_.c_str.DataPtr(), format, args);
+CORE_DLLAPI ZLog::ZLog(const Char* _format, ArgListType _args) noexcept : SuperType_() {
+    vsprintf(log_msg_str_.c_str_.DataPtr(), _format, _args);
 }
 
-CORE_DLLAPI ZLog::ZLog(const WChar* format, ...) noexcept : SuperType() {
+CORE_DLLAPI ZLog::ZLog(const WChar* _format, ...) noexcept : SuperType_() {
     ArgListType args;
-    va_start(args, format);
-    vswprintf(log_msg_str_.w_str.DataPtr(), format, args);
+    va_start(args, _format);
+    vswprintf(log_msg_str_.w_str_.DataPtr(), _format, args);
     va_end(args);
 }
 
-CORE_DLLAPI ZLog::ZLog(const WChar* format, ArgListType args) noexcept : SuperType() {
-    vswprintf(log_msg_str_.w_str.DataPtr(), format, args);
+CORE_DLLAPI ZLog::ZLog(const WChar* _format, ArgListType _args) noexcept : SuperType_() {
+    vswprintf(log_msg_str_.w_str_.DataPtr(), _format, _args);
 }
 
-CORE_DLLAPI Void ZLog::GenerateLogString(const ZLog* log_ptr, OutputString* output_str_ptr) noexcept {
+CORE_DLLAPI Void ZLog::GenerateLogString(const ZLog* _log_ptr, OutputString_* _output_str_ptr) noexcept {
     //copy the full msg.
-    memcpy(&(output_str_ptr->c_str), &(log_ptr->log_msg_str_.c_str), sizeof(log_ptr->log_msg_str_.c_str.Capacity()));
+    memcpy(
+        &(_output_str_ptr->c_str_), 
+        &(_log_ptr->log_msg_str_.c_str_), 
+        sizeof(_log_ptr->log_msg_str_.c_str_.Capacity()));
 }
 
 static ZFile& GetLogFile() noexcept {
@@ -65,9 +68,10 @@ static ZFile& GetLogFile() noexcept {
     TWFixedString<ZFile::kFileNameLength> file_str;
     ZSystemTime system_time;
 
-    file_str.SetString(L"%lsdefault_log_%04d%02d%02d%02d%02d%02d.log", ZLog::kPathTString,
-                       system_time.Year(), system_time.Month(), system_time.Day(), 
-                       system_time.Hour(), system_time.Min(), system_time.Sec());
+    file_str.SetString(
+        L"%lsdefault_log_%04d%02d%02d%02d%02d%02d.log", ZLog::kPathTString,
+        system_time.Year(), system_time.Month(), system_time.Day(), 
+        system_time.Hour(), system_time.Min(), system_time.Sec());
     link_code = file.OpenSafe(ZLog::kPathTString, file_str.DataPtr(), ZFile::kOpenTypeAppendT);
     if (link_code != kOK) {
         Z_LOG_ERROR(error_code::kMLogErrorCodeLinkError, link_code, "ZFile::OpenSafe() link error!");
@@ -75,65 +79,75 @@ static ZFile& GetLogFile() noexcept {
     return file;
 }
 
-CORE_DLLAPI Void ZLog::FileOutputLogString(const ZLog* log_ptr, const ZLog::OutputString& output_str) noexcept {
+CORE_DLLAPI Void ZLog::FileOutputLogString(const ZLog* _log_ptr, const ZLog::OutputString_& _output_str) noexcept {
     static ZFile& file = GetLogFile();
     ReturnType link_code = kOK;
 
-    link_code = file.Print(L"%s\n", output_str.w_str.DataPtr());
+    link_code = file.Print(L"%s\n", _output_str.w_str_.DataPtr());
     if (link_code != kOK) {
         Z_LOG_ERROR(error_code::kMLogErrorCodeLinkError, link_code, "ZFile::Print() link error!");
     }
 }
 
-CORE_DLLAPI Void ZLog::ConsoleOutputLogString(const ZLog* log_ptr, const ZLog::OutputString& output_str) noexcept {
-    console::PrintMessage(L"%ls\n", output_str.w_str.DataPtr());
+CORE_DLLAPI Void ZLog::ConsoleOutputLogString(const ZLog* _log_ptr, const ZLog::OutputString_& _output_str) noexcept {
+    console::PrintMessage(L"%ls\n", _output_str.w_str_.DataPtr());
 }
 
-CORE_DLLAPI Void LogError(TimeType raw_time,
-                          const Char* err_project,
-                          const Char* err_file, 
-                          const Char* err_func,
-                          Int32 err_line, 
-                          ReturnType err_code,
-                          ReturnType link_code,
-                          const Char* format,
-                          ...) noexcept {
+CORE_DLLAPI Void LogError(
+    TimeType _raw_time,
+    const Char* _err_project,
+    const Char* _err_file, 
+    const Char* _err_func,
+    Int32 _err_line, 
+    ReturnType _err_code,
+    ReturnType _link_code,
+    const Char* _format,
+    ...
+) noexcept {
     ArgListType args;
-    va_start(args, format);
-    ZLogManager::LogError(raw_time, err_project, err_file, err_func, err_line, err_code, link_code, format, args);
+    va_start(args, _format);
+    ZLogManager::LogError(_raw_time, _err_project, _err_file, _err_func, _err_line, _err_code, _link_code, _format, args);
     va_end(args);
 }
 
-CORE_DLLAPI Void LogTrace(TimeType raw_time,
-                          const WChar* project,
-                          const WChar* format,
-                          ...) noexcept {
+CORE_DLLAPI Void LogTrace(
+    TimeType _raw_time,
+    const WChar* _project,
+    const WChar* _format,
+    ...
+) noexcept {
     ArgListType args;
-    va_start(args, format);
-    ZLogManager::LogTrace(raw_time, project, format, args);
+    va_start(args, _format);
+    ZLogManager::LogTrace(_raw_time, _project, _format, args);
     va_end(args);
 }
 
-CORE_DLLAPI Void LogInfo(TimeType raw_time,
-                         LogInfoEnum info_type,
-                         const WChar* format,
-                         ...) noexcept {
+CORE_DLLAPI Void LogInfo(
+    TimeType _raw_time,
+    LogInfoEnum _info_type,
+    const WChar* _format,
+    ...
+) noexcept {
     ArgListType args;
-    va_start(args, format);
-    ZLogManager::LogInfo(raw_time, info_type, format, args);
+    va_start(args, _format);
+    ZLogManager::LogInfo(_raw_time, _info_type, _format, args);
     va_end(args);
 }
 
 CORE_DLLAPI NODISCARD ReturnType RegisterLogServerInputFunction(
-        IndexType port_id, Void(*input_func)(const ZLog*, ZLog::OutputString*)) noexcept {
+    IndexType _port_id, 
+    Void(*_input_func)(const ZLog*, ZLog::OutputString_*)) noexcept 
+{
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
 
-    Z_CHECK(port_id < ZLogManager::kLogPortIDMin || port_id >= ZLogManager::kLogPortIDMax, 
-            error_code::kMLogErrorCodePortIDOutOfRange,
-            "port_id %d out of range!", port_id);
+    Z_CHECK(
+        _port_id < ZLogManager::kLogPortIDMin || _port_id >= ZLogManager::kLogPortIDMax, 
+        error_code::kMLogErrorCodePortIDOutOfRange,
+        "port_id %d out of range!", 
+        _port_id);
 
-    link_code = ZLogManager::RegisterLogServerInputFunction(port_id, input_func);
+    link_code = ZLogManager::RegisterLogServerInputFunction(_port_id, _input_func);
     if (link_code != kOK) {
         ret_val = error_code::kMLogErrorCodeLinkError;
         Z_LOG_ERROR(ret_val, link_code, "ZLogManager::RegisterLogServerInputFunction() link error!");
@@ -144,15 +158,19 @@ CORE_DLLAPI NODISCARD ReturnType RegisterLogServerInputFunction(
 }
 
 CORE_DLLAPI NODISCARD ReturnType UnregisterLogServerInputFunction(
-        IndexType port_id, Void(*input_func)(const ZLog*, ZLog::OutputString*)) noexcept {
+    IndexType _port_id, 
+    Void(*_input_func)(const ZLog*, ZLog::OutputString_*)
+) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
 
-    Z_CHECK(port_id < ZLogManager::kLogPortIDMin || port_id >= ZLogManager::kLogPortIDMax, 
-            error_code::kMLogErrorCodePortIDOutOfRange,
-            "port_id %d out of range!", port_id);
+    Z_CHECK(
+        _port_id < ZLogManager::kLogPortIDMin || _port_id >= ZLogManager::kLogPortIDMax, 
+        error_code::kMLogErrorCodePortIDOutOfRange,
+        "port_id %d out of range!", 
+        _port_id);
 
-    link_code = ZLogManager::RegisterLogServerInputFunction(port_id, input_func);
+    link_code = ZLogManager::RegisterLogServerInputFunction(_port_id, _input_func);
     if (link_code != kOK) {
         ret_val = error_code::kMLogErrorCodeLinkError;
         Z_LOG_ERROR(ret_val, link_code, "ZLogManager::RegisterLogServerInputFunction() link error!");
@@ -163,15 +181,19 @@ CORE_DLLAPI NODISCARD ReturnType UnregisterLogServerInputFunction(
 }
 
 CORE_DLLAPI NODISCARD ReturnType RegisterLogServerOutputFunction(
-        IndexType port_id, Void(*output_func)(const ZLog*, const ZLog::OutputString&)) noexcept {
+    IndexType _port_id, 
+    Void(*_output_func)(const ZLog*, const ZLog::OutputString_&)
+) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
 
-    Z_CHECK(port_id < ZLogManager::kLogPortIDMin || port_id >= ZLogManager::kLogPortIDMax, 
-            error_code::kMLogErrorCodePortIDOutOfRange,
-            "port_id %d out of range!", port_id);
+    Z_CHECK(
+        _port_id < ZLogManager::kLogPortIDMin || _port_id >= ZLogManager::kLogPortIDMax, 
+        error_code::kMLogErrorCodePortIDOutOfRange,
+        "port_id %d out of range!", 
+        _port_id);
 
-    link_code = ZLogManager::RegisterLogServerOutputFunction(port_id, output_func);
+    link_code = ZLogManager::RegisterLogServerOutputFunction(_port_id, _output_func);
     if (link_code != kOK) {
         ret_val = error_code::kMLogErrorCodeLinkError;
         Z_LOG_ERROR(ret_val, link_code, "ZLogManager::RegisterLogServerInputFunction() link error!");
@@ -181,8 +203,10 @@ CORE_DLLAPI NODISCARD ReturnType RegisterLogServerOutputFunction(
     return ret_val;
 }
 
-CORE_DLLAPI Void UnregisterLogServerOutputFunction(Void(*output_func)(const ZLog*, const ZLog::OutputString&)) noexcept {
-    ZLogManager::UnregisterLogServerOutputFunction(output_func);
+CORE_DLLAPI Void UnregisterLogServerOutputFunction(
+    Void(*_output_func)(const ZLog*, const ZLog::OutputString_&)
+) noexcept {
+    ZLogManager::UnregisterLogServerOutputFunction(_output_func);
 }
 
 }//log

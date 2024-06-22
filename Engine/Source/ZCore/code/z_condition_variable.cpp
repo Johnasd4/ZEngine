@@ -23,7 +23,7 @@
 namespace zengine {
 
 ZConditionVariable::ZConditionVariable() noexcept 
-        : SuperType(), cs_mutex_(), wait_thread_num_(0), cv_finished_(false){
+        : SuperType_(), cs_mutex_(), wait_thread_num_(0), cv_finished_(false){
     InitializeConditionVariable(&cv_);
 }
 
@@ -46,29 +46,29 @@ NODISCARD Bool ZConditionVariable::Empty() noexcept {
     return empty;
 }
 
-Void ZConditionVariable::Wait(TUniqueLock<ZMutex>& mutex) noexcept {
-    LockP(mutex);
+Void ZConditionVariable::Wait(TUniqueLock<ZMutex>& _mutex) noexcept {
+    LockP(_mutex);
     if (!cv_finished_) {
         SleepConditionVariableCS(&cv_, &cs_mutex_.mutex_, INFINITE);
     }
-    UnlockP(mutex);
+    UnlockP(_mutex);
 }
 
-Void ZConditionVariable::WaitFor(TUniqueLock<ZMutex>& mutex, UInt32 time) noexcept {
-    LockP(mutex);
+Void ZConditionVariable::WaitFor(TUniqueLock<ZMutex>& _mutex, UInt32 _time) noexcept {
+    LockP(_mutex);
     if (!cv_finished_) {
         SleepConditionVariableCS(&cv_, &cs_mutex_.mutex_, INFINITE);
     }
-    UnlockP(mutex);
+    UnlockP(_mutex);
 }
 
-Void ZConditionVariable::WaitUntil(TUniqueLock<ZMutex>& mutex, UInt32 time) noexcept {
-    time -= clock();
-    LockP(mutex);
+Void ZConditionVariable::WaitUntil(TUniqueLock<ZMutex>& _mutex, UInt32 _time) noexcept {
+    _time -= clock();
+    LockP(_mutex);
     if (!cv_finished_) {
         SleepConditionVariableCS(&cv_, &cs_mutex_.mutex_, INFINITE);
     }
-    UnlockP(mutex);
+    UnlockP(_mutex);
 }
 
 Void ZConditionVariable::NotifyOne() noexcept {
@@ -78,16 +78,16 @@ Void ZConditionVariable::NotifyAll() noexcept {
     WakeAllConditionVariable(&cv_);
 }
 
-Void ZConditionVariable::LockP(TUniqueLock<ZMutex>& mutex) noexcept {
-    mutex.Unlock();
+Void ZConditionVariable::LockP(TUniqueLock<ZMutex>& _mutex) noexcept {
+    _mutex.Unlock();
     cs_mutex_.Lock();
     ++wait_thread_num_;
 }
 
-Void ZConditionVariable::UnlockP(TUniqueLock<ZMutex>& mutex) noexcept {
+Void ZConditionVariable::UnlockP(TUniqueLock<ZMutex>& _mutex) noexcept {
     --wait_thread_num_;
     cs_mutex_.Unlock();
-    mutex.Lock();
+    _mutex.Lock();
 }
 
 }//zengine

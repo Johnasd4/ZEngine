@@ -1,230 +1,204 @@
-/*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+#ifndef Z_STRING_H_
+#define Z_STRING_H_
 
-    This code file is licensed under the Creative Commons
-    Attribution-NonCommercial 4.0 International License.
+#include"internal/z_drive.h"
 
-    You may obtain a copy of the License at
-    https://creativecommons.org/licenses/by-nc/4.0/
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-
-    Author: YuLin Zhu (÷Ï”Í¡÷)
-    Contact: 1152325286@qq.com
-*/
-#ifndef Z_CORE_Z_STRING_H_
-#define Z_CORE_Z_STRING_H_
-
-#include "internal/z_drive.h"
-
-#include <string>
-
-#include "t_allocator.h"
-#include "z_object.h"
+#include"z_object.h"
 
 namespace zengine {
-
 namespace internal {
 
 /*
-    String caintainer.
+    String template class.
 */
-template<typename CharType>
-class TString : public ZObject {
+template<typename _CharType>
+requires kIsChar<_CharType>
+class TString :public ZObject {
 public:
-    using STDString = std::basic_string<CharType, std::char_traits<CharType>, TAllocator<CharType>>;;
-    using Iterator = STDString::iterator;
-    using ConstIterator = STDString::const_iterator;
-    using ReverseIterator = STDString::reverse_iterator;
-    using ConstReverseIterator = STDString::const_reverse_iterator;
-    using InitializerList = std::initializer_list<Char>;
+    /*
+        The temp string type, used for the string combining.The operator+ always
+        return this.
+    */
+    class ZTempString :public TString<_CharType> {
+    public:
+        NODISCARD FORCEINLINE ZTempString& operator+(const _CharType* string) {
+            return reinterpret_cast<ZTempString&>(TString<_CharType>::Append(string));
+        }
+        NODISCARD FORCEINLINE ZTempString& operator+(const TString& string) {
+            return reinterpret_cast<ZTempString&>(TString<_CharType>::Append(string));
+        }
+        NODISCARD FORCEINLINE ZTempString& operator+(const ZTempString& string) {
+            return reinterpret_cast<ZTempString&>(TString<_CharType>::Append(string));
+        }
+    };
 
-    FORCEINLINE constexpr TString() noexcept : SuperType(), string_() {}
-    FORCEINLINE constexpr TString(const TString& string) noexcept : SuperType(), string_(string.string_) {}
-    FORCEINLINE constexpr TString(const TString& string, SizeType pos, SizeType len = -1) noexcept
-            : SuperType(), string_(string.string_, pos, len) {}
-    FORCEINLINE constexpr TString(TString&& string) noexcept : SuperType(), string_(std::move(string.string_)) {}
+    //TODO(Johnasd4): The iterators.
 
-    FORCEINLINE constexpr TString(const CharType* string) noexcept : SuperType(), string_(string) {}
-    FORCEINLINE constexpr TString(const CharType* string, SizeType size) noexcept : SuperType(), string_(string, size) {}
-    FORCEINLINE constexpr TString(SizeType size, CharType& value) noexcept : SuperType(), string_(size, value) {}
-    template <typename InputIterator>
-    FORCEINLINE constexpr TString(InputIterator first, InputIterator last) noexcept : SuperType(), string_(first, last) {}
-    FORCEINLINE constexpr TString(InitializerList init_list) noexcept : SuperType(), string_(init_list) {}
- 
-    FORCEINLINE constexpr ~TString() noexcept {}
+    FORCEINLINE TString() noexcept : SuperType_() {}
+    FORCEINLINE TString(const _CharType* string);
+    FORCEINLINE TString(const TString& string) : SuperType_(string) {}
+    FORCEINLINE TString(TString&& string): SuperType_(std::forward<ZString>(string)) {}
 
-    FORCEINLINE constexpr TString& operator=(const TString& string) noexcept {
-        string_.operator=(string.string_);
-        return *this;
+    TString& operator=(const _CharType* string) noexcept;
+    FORCEINLINE TString& operator=(const TString& string) { 
+        return reinterpret_cast<TString&>(SuperType_::operator=(string));
     }
-    FORCEINLINE constexpr TString& operator=(TString&& string) noexcept {
-        string_.operator=(std::move(string.string_));
-        return *this;
+    FORCEINLINE TString& operator=(TString&& string) { 
+        return reinterpret_cast<TString&>(SuperType_::operator=(std::forward<TString>(string)));
     }
-    FORCEINLINE constexpr TString& operator=(const CharType* string) noexcept {
-        string_.operator=(string);
-        return *this;
-    }
-    FORCEINLINE constexpr TString& operator=(CharType c) noexcept {
-        string_.operator=(c);
-        return *this;
-    }
-    FORCEINLINE constexpr TString& operator=(InitializerList init_list) noexcept {
-        string_.operator=(init_list);
-        return *this;
+    FORCEINLINE TString& operator=(const ZTempString& string) {
+        return reinterpret_cast<TString&>(SuperType_::operator=(string));
     }
 
-    FORCEINLINE constexpr TString& Assign(const TString& string) noexcept {
-        return string_.assign(string);
-    }
-    FORCEINLINE constexpr TString& Assign(const TString& string, SizeType pos, SizeType len = -1) noexcept {
-        return string_.assign(string, pos, len);
-    }
-    FORCEINLINE constexpr TString& Assign(TString&& string) noexcept {
-        return string_.assign(string);
-    }
-    FORCEINLINE constexpr TString& Assign(const CharType* string) noexcept {
-        return string_.assign(string);
-    }
-    FORCEINLINE constexpr TString& Assign(const CharType* string, SizeType size) noexcept {
-        return string_.assign(string, size);
-    }
-    FORCEINLINE constexpr TString& Assign(const SizeType size, const CharType& value) noexcept {
-        return string_.assign(size, value);
-    }
-    template <class InputIterator>
-    FORCEINLINE constexpr TString& Assign(InputIterator first, InputIterator last) noexcept {
-        return string_.assign(first, last);
-    }
-    FORCEINLINE constexpr TString& Assign(InitializerList init_list) noexcept {
-        return string_.assign(init_list);
+    NODISCARD FORCEINLINE _CharType& operator()(const IndexType index) { return SuperType_::operator()(index); }
+    NODISCARD FORCEINLINE const _CharType& operator()(const IndexType index) const { 
+        return SuperType_::operator()(index); 
     }
 
-    NODISCARD FORCEINLINE constexpr Bool operator==(const TString& string) noexcept { return string_ == string; }
-    NODISCARD FORCEINLINE constexpr Bool operator!=(const TString& string) noexcept { return string_ != string; }
+    NODISCARD FORCEINLINE ZTempString operator+(const _CharType* string) const;
+    NODISCARD FORCEINLINE ZTempString operator+(const TString& string) const;
+    NODISCARD FORCEINLINE ZTempString operator+(const ZTempString& string) const;
 
-    NODISCARD FORCEINLINE constexpr CharType& operator[](const SizeType index) noexcept { return string_[index]; }
-    NODISCARD FORCEINLINE constexpr const CharType& operator[](const SizeType index) const noexcept { 
-        return string_[index]; 
-    }
+    FORCEINLINE ~TString() {}
 
-    FORCEINLINE constexpr TString& operator+=(const TString& string) noexcept { return string_ += string.string_; }
-    FORCEINLINE constexpr TString& operator+=(const CharType* string) noexcept { return string_ += string; }
-    FORCEINLINE constexpr TString& operator+=(const CharType c) noexcept { return string_ += c; }
-    FORCEINLINE constexpr TString& operator+=(InitializerList init_list) noexcept { return string_ += init_list; }
+    NODISCARD const _CharType* char_string() const noexcept;
+    NODISCARD FORCEINLINE const IndexType& size() const { return SuperType_::size(); }
+    NODISCARD FORCEINLINE const IndexType& length() const { return SuperType_::size(); }
+    NODISCARD FORCEINLINE const IndexType& capacity() const { return SuperType_::capacity(); }
 
-    NODISCARD FORCEINLINE constexpr CharType& At(IndexType index) noexcept { return string_.at(index); }
-    NODISCARD FORCEINLINE constexpr const CharType& At(IndexType index) const noexcept { return string_.at(index); }
+    FORCEINLINE Void set_size(const IndexType need_size) { SuperType_::set_size(need_size); }
+    FORCEINLINE Void set_length(const IndexType need_length) noexcept { SuperType_::set_size(need_length); }
+    FORCEINLINE Void set_capacity(const IndexType need_capacity) noexcept { SuperType_::set_capacity(need_capacity); }
 
-    NODISCARD FORCEINLINE constexpr CharType& Front() noexcept { return string_.front(); }
-    NODISCARD FORCEINLINE constexpr const CharType& Front() const noexcept { return string_.front(); }
-    NODISCARD FORCEINLINE constexpr CharType& Back() noexcept { return string_.back(); }
-    NODISCARD FORCEINLINE constexpr const CharType& Back() const noexcept { return string_.back(); }
-    NODISCARD FORCEINLINE constexpr CharType* DataPtr() noexcept { return string_.data(); }
-    NODISCARD FORCEINLINE constexpr const CharType* DataPtr() const noexcept { return string_.data(); }
-    NODISCARD FORCEINLINE constexpr const CharType* String() const noexcept { return string_.data(); }
+    FORCEINLINE const Bool IfEmpty() { return SuperType_::IfEmpty(); }
 
-    NODISCARD FORCEINLINE constexpr IndexType Size() const noexcept { return static_cast<IndexType>(string_.size()); }
-    NODISCARD FORCEINLINE constexpr IndexType Capacity() const noexcept { return kIndexTypeMax; }
-    NODISCARD FORCEINLINE constexpr Bool Empty() const noexcept { return string_.empty(); }
+    TString& Append(const _CharType* string) noexcept;
+    TString& Append(const TString& string) noexcept;
+    TString& Append(const ZTempString& string) noexcept;
 
-    NODISCARD FORCEINLINE constexpr Iterator Begin() noexcept { return string_.begin(); }
-    NODISCARD FORCEINLINE constexpr ConstIterator Begin() const noexcept { return string_.begin(); }
-    NODISCARD FORCEINLINE constexpr ConstIterator ConstBegin() const noexcept { return string_.cbegin(); }
-    NODISCARD FORCEINLINE constexpr ReverseIterator ReverseBegin() noexcept { return string_.rbegin(); }
-    NODISCARD FORCEINLINE constexpr ConstReverseIterator ReverseBegin() const noexcept { return string_.rbegin(); }
-    NODISCARD FORCEINLINE constexpr ConstReverseIterator ConstReverseBegin() const noexcept { return string_.crbegin(); }
-    NODISCARD FORCEINLINE constexpr Iterator End() noexcept { return string_.end(); }
-    NODISCARD FORCEINLINE constexpr ConstIterator End() const noexcept { return string_.end(); }
-    NODISCARD FORCEINLINE constexpr ConstIterator ConstEnd() const noexcept { return string_.cend(); }
-    NODISCARD FORCEINLINE constexpr ReverseIterator ReverseEnd() noexcept { return string_.rend(); }
-    NODISCARD FORCEINLINE constexpr ConstReverseIterator ReverseEnd() const noexcept { return string_.rend(); }
-    NODISCARD FORCEINLINE constexpr ConstReverseIterator ConstReverseEnd() const noexcept { return string_.crend(); }
+    FORCEINLINE Void Clear() { SuperType_::Clear(); }
 
-    FORCEINLINE constexpr TString& Append(const TString& string) noexcept { return string_.append(string.string_); }
-    FORCEINLINE constexpr TString& Append(const TString& string, SizeType pos, SizeType len = -1) noexcept {
-        return string_.append(string.string_, pos, len);
-    }
-    FORCEINLINE constexpr TString& Append(const CharType* string) noexcept { return string_.append(string); }
-    FORCEINLINE constexpr TString& Append(const CharType* string, SizeType size) noexcept { 
-        return string_.append(string, size); 
-    }
-    FORCEINLINE constexpr TString& Append(SizeType size, const CharType c) noexcept { return string_.append(size, c); }
-    FORCEINLINE constexpr TString& Append(InitializerList init_list) noexcept { return string_.append(init_list); }
-
-    FORCEINLINE constexpr TString& Insert(const SizeType pos, const TString& string) noexcept {
-        return string_.insert(pos, string.string_); 
-    }
-    FORCEINLINE constexpr TString& Insert(const SizeType pos, const TString& string, SizeType str_pos, SizeType len = -1) noexcept {
-        return string_.insert(pos, string.string_, str_pos, len);
-    }
-    FORCEINLINE constexpr TString& Insert(const SizeType pos, const CharType* string) noexcept {
-        return string_.insert(pos, string);
-    }
-    FORCEINLINE constexpr TString& Insert(const SizeType pos, const CharType* string, SizeType size) noexcept {
-        return string_.insert(pos, string, size);
-    }
-    FORCEINLINE constexpr TString& Insert(const SizeType pos, SizeType size, const CharType c) noexcept {
-        return string_.insert(pos, size, c); 
-    }
-    FORCEINLINE constexpr TString& Insert(const SizeType pos, InitializerList init_list) noexcept {
-        return string_.insert(pos, init_list); 
-    }
-    FORCEINLINE constexpr TString& Insert(const ConstIterator pos, SizeType size, const CharType c) noexcept {
-        return string_.insert(pos, size, c);
-    }
-    FORCEINLINE constexpr TString& Insert(const ConstIterator pos, InitializerList init_list) noexcept {
-        return string_.insert(pos, init_list);
-    }
-    template <typename InputIterator>
-    FORCEINLINE constexpr TString& Insert(const ConstIterator pos, InputIterator first, InputIterator last) noexcept {
-        return string_.insert(pos, first, last);
-    }
-    //replace
-    //find
-    //rfind
-    //find_first_of
-    //find_first_not_of
-    //find_last_not_of
-    //substr
-    //compare
-    //erase
-    FORCEINLINE constexpr Iterator Erase(ConstIterator pos) noexcept { return string_.erase(pos); }
-    FORCEINLINE constexpr Iterator Erase(ConstIterator first, ConstIterator last) noexcept { 
-        return string_.erase(first, last); 
-    }
-    FORCEINLINE constexpr Void Clear() noexcept { string_.clear(); }
-
-    FORCEINLINE constexpr Void Resize(const SizeType size) noexcept { string_.resize(size); }
-    FORCEINLINE constexpr Void Resize(const SizeType size, const CharType& c) noexcept { string_.resize(size, c); }
-
-    FORCEINLINE constexpr Void Reserve(const SizeType capacity) noexcept { string_.reserve(capacity); }
-    FORCEINLINE constexpr Void ShrinkToFit() noexcept { string_.shrink_to_fit(); }
-
-    FORCEINLINE constexpr Void Swap(TString& string) noexcept { string_.swap(string); }
-
+    //TODO(Johnasd4):Other functions, such as find(), rfind(), cut(), replace(), 
+    //split(), erase(), substring(), compare(), >, >=, <, <=, !=, ==
+     
 protected:
-    using SuperType = ZObject;
+    using SuperType_ = internal::ZContainerBase<CharType, false>;
 
-private:
-    STDString string_;
 };
 
+template<typename CharType>
+requires kIsChar<CharType>
+NODISCARD FORCEINLINE TString<CharType>::ZTempString operator+(const CharType* dst_string,
+                                                       const TString<CharType>& src_string) {
+    typename TString<CharType>::ZTempString temp_string(dst_string);
+    return temp_string.Append(src_string);
+}
+template<typename CharType>
+requires kIsChar<CharType>
+NODISCARD FORCEINLINE TString<CharType>::ZTempString operator+(const CharType* dst_string,
+                                                       const typename TString<CharType>::ZTempString& src_string) {
+    typename TString<CharType>::ZTempString temp_string(dst_string);
+    return temp_string.Append(src_string);
+}
+template<typename CharType>
+requires kIsChar<CharType>
+NODISCARD FORCEINLINE TString<CharType>::ZTempString TString<CharType>::operator+(const CharType* string) const {
+    TString::ZTempString temp_string(*this);
+    temp_string.Append(string);
+    return temp_string;
+}
+template<typename CharType>
+requires kIsChar<CharType>
+NODISCARD FORCEINLINE TString<CharType>::ZTempString TString<CharType>::operator+(const TString& string) const {
+    TString::ZTempString temp_string(*this);
+    temp_string.Append(string);
+    return temp_string;
+}
+template<typename CharType>
+requires kIsChar<CharType>
+NODISCARD FORCEINLINE TString<CharType>::ZTempString TString<CharType>::operator+(const ZTempString& string) const {
+    TString::ZTempString temp_string(*this);
+    temp_string.Append(string);
+    return temp_string;
+}
 
+template<>
+FORCEINLINE ZString<CChar>::ZString(const CChar* string) 
+        : SuperType_(string, static_cast<IndexType>(strlen(string))) {}
+template<>
+FORCEINLINE ZString<TChar>::ZString(const TChar* string) 
+        : SuperType_(string, static_cast<IndexType>(wcslen(string))) {}
 
-//operator+
-//operator==
+template<typename CharType>
+requires kIsChar<CharType>
+TString<CharType>& TString<CharType>::operator=(const CharType* string) noexcept {
+    IndexType string_length = static_cast<IndexType>(strlen(string));
+    SuperType_::set_size(string_length);
+    memcpy(reinterpret_cast<Address>(const_cast<_CharType*>(SuperType_::data_ptr())), 
+           reinterpret_cast<Address>(const_cast<_CharType*>(string)), 
+           static_cast<SizeType>(string_length) * sizeof(SizeType));
+}
+
+template<typename CharType>
+requires kIsChar<CharType>
+NODISCARD const CharType* TString<CharType>::char_string() const noexcept {
+    //Adds \0 to the end of the stirng, makes sure the container is big enough.
+    if (SuperType_::capacity() <= SuperType_::size()) {
+        (const_cast<TString*>(this))->SuperType_::set_capacity(SuperType_::capacity() + 1);
+    }
+    (const_cast<TString*>(this))->SuperType_::operator()(SuperType_::size()) = '\0';
+    return SuperType_::data_ptr(); 
+}
+
+template<>
+ZString<CChar>& ZString<CChar>::Append(const CChar* string) noexcept {
+    IndexType add_string_length = static_cast<IndexType>(strlen(string));
+    IndexType crrent_string_length = SuperType_::size();
+    SuperType_::change_size(add_string_length);
+    memcpy(reinterpret_cast<Address>(&SuperType_::operator()(crrent_string_length)),
+           reinterpret_cast<Address>(const_cast<CChar*>(string)), 
+           static_cast<SizeType>(add_string_length) * sizeof(CChar));
+    return *this;
+}
+
+template<>
+ZString<TChar>& ZString<TChar>::Append(const TChar* string) noexcept {
+    IndexType add_string_length = static_cast<IndexType>(wcslen(string));
+    IndexType crrent_string_length = SuperType_::size();
+    SuperType_::change_size(add_string_length);
+    memcpy(reinterpret_cast<Address>(&SuperType_::operator()(crrent_string_length)),
+           reinterpret_cast<Address>(const_cast<TChar*>(string)),
+           static_cast<SizeType>(add_string_length) * sizeof(TChar));
+    return *this;
+}
+
+template<typename CharType>
+requires kIsChar<CharType>
+TString<CharType>& TString<CharType>::Append(const TString& string) noexcept {
+    IndexType crrent_string_length = SuperType_::size();
+    SuperType_::change_size(string.SuperType_::size());
+    memcpy(reinterpret_cast<Address>(&SuperType_::operator()(crrent_string_length)),
+           reinterpret_cast<Address>(const_cast<SizeType*>(string.SuperType_::data_ptr())),
+           static_cast<SizeType>(string.SuperType_::size()) * sizeof(_CharType));
+    return *this;
+}
+
+template<typename CharType>
+requires kIsChar<CharType>
+TString<CharType>& TString<CharType>::Append(const ZTempString& string) noexcept {
+    IndexType crrent_string_length = SuperType_::size();
+    SuperType_::change_size(string.SuperType_::size());
+    memcpy(reinterpret_cast<Address>(&SuperType_::operator()(crrent_string_length)),
+           reinterpret_cast<Address>(const_cast<SizeType*>(string.SuperType_::data_ptr())),
+           static_cast<SizeType>(string.SuperType_::size()) * sizeof(_CharType));
+    return *this;
+}
 
 }//internal
 
-using ZString = internal::TString<Char>;
-using ZWString = internal::TString<WChar>;
+using ZCString = internal::ZString<CChar>;
+using ZTString = internal::ZString<TChar>;
 
 }//zengine
 
-#endif // !Z_CORE_Z_STRING_H_
+#endif // !Z_STRING_H_

@@ -22,20 +22,20 @@
 
 namespace zengine {
 
-ZThread::ZThread() noexcept : SuperType(), id_(NULL), handle_(nullptr) {}
+ZThread::ZThread() noexcept : SuperType_(), id_(NULL), handle_(nullptr) {}
 
-ZThread::ZThread(ZThread&& thread) noexcept : SuperType(), id_(thread.id_), handle_(thread.handle_) { 
-    thread.id_ = NULL; 
-    thread.handle_ = nullptr;
+ZThread::ZThread(ZThread&& _thread) noexcept : SuperType_(), id_(_thread.id_), handle_(_thread.handle_) { 
+    _thread.id_ = NULL; 
+    _thread.handle_ = nullptr;
 }
 
 ZThread::~ZThread() noexcept {}
 
-ZThread& ZThread::operator=(ZThread&& thread) noexcept {
-    id_ = thread.id_;
-    handle_ = thread.handle_;
-    thread.id_ = NULL;
-    thread.handle_ = nullptr;
+ZThread& ZThread::operator=(ZThread&& _thread) noexcept {
+    id_ = _thread.id_;
+    handle_ = _thread.handle_;
+    _thread.id_ = NULL;
+    _thread.handle_ = nullptr;
     return *this;
 }
 
@@ -45,13 +45,13 @@ Void ZThread::Detach() noexcept {
     handle_ = nullptr;
 }
 
-Void ZThread::Swap(ZThread& thread) noexcept { 
+Void ZThread::Swap(ZThread& _thread) noexcept { 
     UInt32 temp_id = id_;
     Handle temp_handle_ = handle_;
-    id_ = thread.id_;
-    handle_ = thread.handle_;
-    thread.id_ = id_;
-    thread.handle_ = handle_;
+    id_ = _thread.id_;
+    handle_ = _thread.handle_;
+    _thread.id_ = id_;
+    _thread.handle_ = handle_;
 }
 
 

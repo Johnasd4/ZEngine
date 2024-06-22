@@ -83,106 +83,120 @@ enum PrintBackgroundColourEnum : PrintColourType {
 /*
     Sets the current print colour.
 */
-CORE_DLLAPI Void SetPrintColour(PrintTextColourEnum text_colour, PrintBackgroundColourEnum background_colour) noexcept;
+CORE_DLLAPI Void SetPrintColour(PrintTextColourEnum _text_colour, PrintBackgroundColourEnum _background_colour) noexcept;
 
 /*
     Use it as the same as printf, it's thread safe. You can add text colour and 
     background colour infront of the format to change the colour only for this
     output.
 */
-CORE_DLLAPI Void Print(const Char* format, ...) noexcept;
+CORE_DLLAPI Void Print(const Char* _format, ...) noexcept;
 
 /*
     Use it as the same as printf, it's thread safe. You can add text colour and
     background colour infront of the format to change the colour only for this
     output.
 */
-CORE_DLLAPI Void Print(const Char* format, ArgListType args) noexcept;
+CORE_DLLAPI Void Print(const Char* _format, ArgListType _args) noexcept;
+
+/*
+    Use it as the same as printf, it's thread safe. You can add text colour and
+    background colour infront of the _format to change the colour only for this
+    output.
+*/
+CORE_DLLAPI Void Print(const WChar* _format, ...) noexcept;
 
 /*
     Use it as the same as printf, it's thread safe. You can add text colour and
     background colour infront of the format to change the colour only for this
     output.
 */
-CORE_DLLAPI Void Print(const WChar* format, ...) noexcept;
+CORE_DLLAPI Void Print(const WChar* _format, ArgListType _args) noexcept;
 
 /*
     Use it as the same as printf, it's thread safe. You can add text colour and
     background colour infront of the format to change the colour only for this
     output.
 */
-CORE_DLLAPI Void Print(const WChar* format, ArgListType args) noexcept;
+CORE_DLLAPI Void Print(
+    PrintTextColourEnum _text_colour, 
+    PrintBackgroundColourEnum _background_colour, 
+    const Char* _format, ...
+) noexcept;
 
 /*
     Use it as the same as printf, it's thread safe. You can add text colour and
     background colour infront of the format to change the colour only for this
     output.
 */
-CORE_DLLAPI Void Print(PrintTextColourEnum text_colour, PrintBackgroundColourEnum background_colour,
-                       const Char* format, ...) noexcept;
+CORE_DLLAPI Void Print(
+    PrintTextColourEnum _text_colour, 
+    PrintBackgroundColourEnum _background_colour, 
+    const Char* _format, 
+    ArgListType _args
+) noexcept;
 
 /*
     Use it as the same as printf, it's thread safe. You can add text colour and
     background colour infront of the format to change the colour only for this
     output.
 */
-CORE_DLLAPI Void Print(PrintTextColourEnum text_colour, PrintBackgroundColourEnum background_colour,
-                       const Char* format, ArgListType args) noexcept;
+CORE_DLLAPI Void Print(
+    PrintTextColourEnum _text_colour, 
+    PrintBackgroundColourEnum _background_colour,
+    const WChar* _format, ...
+) noexcept;
 
 /*
     Use it as the same as printf, it's thread safe. You can add text colour and
     background colour infront of the format to change the colour only for this
     output.
 */
-CORE_DLLAPI Void Print(PrintTextColourEnum text_colour, PrintBackgroundColourEnum background_colour,
-                       const WChar* format, ...) noexcept;
+CORE_DLLAPI Void Print(
+    PrintTextColourEnum _text_colour, 
+    PrintBackgroundColourEnum _background_colour,
+    const WChar* _format, 
+    ArgListType _args
+) noexcept;
 
-/*
-    Use it as the same as printf, it's thread safe. You can add text colour and
-    background colour infront of the format to change the colour only for this
-    output.
-*/
-CORE_DLLAPI Void Print(PrintTextColourEnum text_colour, PrintBackgroundColourEnum background_colour,
-                       const WChar* format, ArgListType args) noexcept;
-
-template<typename CharType, typename... ArgsType>
-FORCEINLINE Void PrintTrace(const CharType* format, ArgsType&&... args) noexcept {
-    Print(kPrintTextColourLightWhite, kPrintBackgroundColourDarkBlack, format, std::forward<ArgsType>(args)...);
+template<typename _CharType, typename... _ArgsType>
+FORCEINLINE Void PrintTrace(const _CharType* _format, _ArgsType&&... _args) noexcept {
+    Print(kPrintTextColourLightWhite, kPrintBackgroundColourDarkBlack, _format, std::forward<_ArgsType>(_args)...);
 }
 
-template<typename CharType, typename... ArgsType>
-FORCEINLINE Void PrintMessage(const CharType* format, ArgsType&&... args) noexcept {
-    Print(kPrintTextColourDarkWhite, kPrintBackgroundColourDarkBlack, format, std::forward<ArgsType>(args)...);
+template<typename _CharType, typename... _ArgsType>
+FORCEINLINE Void PrintMessage(const _CharType* _format, _ArgsType&&... _args) noexcept {
+    Print(kPrintTextColourDarkWhite, kPrintBackgroundColourDarkBlack, _format, std::forward<_ArgsType>(_args)...);
 }
 
-template<typename CharType, typename... ArgsType>
-FORCEINLINE Void PrintStart(const CharType* format, ArgsType&&... args) noexcept {
-    Print(kPrintTextColourLightYellow, kPrintBackgroundColourDarkBlack, format, std::forward<ArgsType>(args)...);
+template<typename _CharType, typename... _ArgsType>
+FORCEINLINE Void PrintStart(const _CharType* _format, _ArgsType&&... _args) noexcept {
+    Print(kPrintTextColourLightYellow, kPrintBackgroundColourDarkBlack, _format, std::forward<_ArgsType>(_args)...);
 }
 
-template<typename CharType, typename... ArgsType>
-FORCEINLINE Void PrintProcess(const CharType* format, ArgsType&&... args) noexcept {
-    Print(kPrintTextColourDarkYellow, kPrintBackgroundColourDarkBlack, format, std::forward<ArgsType>(args)...);
+template<typename _CharType, typename... _ArgsType>
+FORCEINLINE Void PrintProcess(const _CharType* _format, _ArgsType&&... _args) noexcept {
+    Print(kPrintTextColourDarkYellow, kPrintBackgroundColourDarkBlack, _format, std::forward<_ArgsType>(_args)...);
 }
 
-template<typename CharType, typename... ArgsType>
-FORCEINLINE Void PrintFinish(const CharType* format, ArgsType&&... args) noexcept {
-    Print(kPrintTextColourLightGreen, kPrintBackgroundColourDarkBlack, format, std::forward<ArgsType>(args)...);
+template<typename _CharType, typename... _ArgsType>
+FORCEINLINE Void PrintFinish(const _CharType* _format, _ArgsType&&... _args) noexcept {
+    Print(kPrintTextColourLightGreen, kPrintBackgroundColourDarkBlack, _format, std::forward<_ArgsType>(_args)...);
 }
 
-template<typename CharType, typename... ArgsType>
-FORCEINLINE Void PrintSuccess(const CharType* format, ArgsType&&... args) noexcept {
-    Print(kPrintTextColourDarkGreen, kPrintBackgroundColourDarkBlack, format, std::forward<ArgsType>(args)...);
+template<typename _CharType, typename... _ArgsType>
+FORCEINLINE Void PrintSuccess(const _CharType* _format, _ArgsType&&... _args) noexcept {
+    Print(kPrintTextColourDarkGreen, kPrintBackgroundColourDarkBlack, _format, std::forward<_ArgsType>(_args)...);
 }
 
-template<typename CharType, typename... ArgsType>
-FORCEINLINE Void PrintFailure(const CharType* format, ArgsType&&... args) noexcept {
-    Print(kPrintTextColourDarkRed, kPrintBackgroundColourDarkBlack, format, std::forward<ArgsType>(args)...);
+template<typename _CharType, typename... _ArgsType>
+FORCEINLINE Void PrintFailure(const _CharType* _format, _ArgsType&&... _args) noexcept {
+    Print(kPrintTextColourDarkRed, kPrintBackgroundColourDarkBlack, _format, std::forward<_ArgsType>(_args)...);
 }
 
-template<typename CharType, typename... ArgsType>
-FORCEINLINE Void PrintError(const CharType* format, ArgsType&&... args) noexcept {
-    Print(kPrintTextColourDarkPurple, kPrintBackgroundColourDarkBlack, format, std::forward<ArgsType>(args)...);
+template<typename _CharType, typename... _ArgsType>
+FORCEINLINE Void PrintError(const _CharType* _format, _ArgsType&&... _args) noexcept {
+    Print(kPrintTextColourDarkPurple, kPrintBackgroundColourDarkBlack, _format, std::forward<_ArgsType>(_args)...);
 }
 
 }//console

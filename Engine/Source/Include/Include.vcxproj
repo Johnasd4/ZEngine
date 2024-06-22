@@ -32,7 +32,6 @@
     <ClInclude Include="code\z_core\internal\d_type.h" />
     <ClInclude Include="code\z_core\internal\z_drive.h" />
     <ClInclude Include="code\z_core\m_log.h" />
-    <ClInclude Include="code\z_core\m_test.h" />
     <ClInclude Include="code\z_core\t_allocator.h" />
     <ClInclude Include="code\z_core\t_array.h" />
     <ClInclude Include="code\z_core\t_deque.h" />
@@ -46,9 +45,7 @@
     <ClInclude Include="code\z_core\t_pair.h" />
     <ClInclude Include="code\z_core\t_queue.h" />
     <ClInclude Include="code\z_core\t_set.h" />
-    <ClInclude Include="code\z_core\t_smart_ptr.h" />
     <ClInclude Include="code\z_core\t_stack.h" />
-    <ClInclude Include="code\z_core\t_task_b.h" />
     <ClInclude Include="code\z_core\t_tuple.h" />
     <ClInclude Include="code\z_core\t_unique_lock.h" />
     <ClInclude Include="code\z_core\t_vector.h" />
@@ -59,6 +56,7 @@
     <ClInclude Include="code\z_core\z_object.h" />
     <ClInclude Include="code\z_core\z_sem_mutex.h" />
     <ClInclude Include="code\z_core\z_string.h" />
+    <ClInclude Include="code\z_core\z_string_b.h" />
     <ClInclude Include="code\z_core\z_system_time.h" />
     <ClInclude Include="code\z_core\z_task.h" />
     <ClInclude Include="code\z_core\z_thread.h" />
@@ -232,11 +230,4 @@
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\..\packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.targets')" />
   </ImportGroup>
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.props'))" />
-    <Error Condition="!Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.targets'))" />
-  </Target>
 </Project>

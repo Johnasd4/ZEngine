@@ -27,19 +27,19 @@
 namespace zengine {
 namespace log {
 
-ZInfoLog::ZInfoLog() noexcept : raw_time_(), info_type_(), SuperType() {}
-ZInfoLog::ZInfoLog(TimeType raw_time, LogInfoEnum info_type, const WChar* format, ArgListType args) noexcept 
-        : raw_time_(raw_time), info_type_(info_type), SuperType(format, args) {}
+ZInfoLog::ZInfoLog() noexcept : raw_time_(), info_type_(), SuperType_() {}
+ZInfoLog::ZInfoLog(TimeType _raw_time, LogInfoEnum _info_type, const WChar* _format, ArgListType _args) noexcept 
+    : raw_time_(_raw_time), info_type_(_info_type), SuperType_(_format, _args) {}
 
-Void ZInfoLog::GenerateLogString(const ZLog* log_ptr, OutputString* output_str_ptr) noexcept {
+Void ZInfoLog::GenerateLogString(const ZLog* _log_ptr, OutputString_* _output_str_ptr) noexcept {
     static ZSystemTime system_time;
-    ZInfoLog& info_log = *(ZInfoLog*)log_ptr;
+    ZInfoLog& info_log = *(ZInfoLog*)_log_ptr;
     system_time.UpdateTimeFast(info_log.raw_time_);
-    output_str_ptr->w_str.SetString(
+    _output_str_ptr->w_str_.SetString(
         L"%04d/%02d/%02d-%02d:%02d:%02d | %ls: %ls",
         system_time.Year(), system_time.Month(), system_time.Day(),
         system_time.Hour(), system_time.Min(), system_time.Sec(),
-        kLogInfoString[info_log.info_type_], info_log.LogMsgPtr().w_str.DataPtr());
+        kLogInfoString[info_log.info_type_], info_log.LogMsgPtr().w_str_.DataPtr());
 }
 
 static ZFile& GetLogFile() noexcept {
@@ -58,36 +58,36 @@ static ZFile& GetLogFile() noexcept {
     return file;
 }
 
-Void ZInfoLog::FileOutputLogString(const ZLog* log_ptr, const ZLog::OutputString& output_str) noexcept {
+Void ZInfoLog::FileOutputLogString(const ZLog* _log_ptr, const ZLog::OutputString_& _output_str) noexcept {
     static ZFile& file = GetLogFile();
     ReturnType link_code = kOK;
 
-    link_code = file.Print(L"%ls\n", output_str.w_str.DataPtr());
+    link_code = file.Print(L"%ls\n", _output_str.w_str_.DataPtr());
     if (link_code != kOK) {
         Z_LOG_ERROR(error_code::kMLogErrorCodeLinkError, link_code, "ZFile::Print() link error!");
     }
 }
 
-Void ZInfoLog::ConsoleOutputLogString(const ZLog* log_ptr, const ZLog::OutputString& output_str) noexcept {
-    ZInfoLog& info_log = *(ZInfoLog*)log_ptr;
+Void ZInfoLog::ConsoleOutputLogString(const ZLog* _log_ptr, const ZLog::OutputString_& _output_str) noexcept {
+    ZInfoLog& info_log = *(ZInfoLog*)_log_ptr;
     switch (info_log.info_type_) {
     case kLogInfoMessage:
-        console::PrintMessage("%ls\n", output_str.w_str.DataPtr());
+        console::PrintMessage("%ls\n", _output_str.w_str_.DataPtr());
         break;
     case kLogInfoStart:
-        console::PrintStart("%ls\n", output_str.w_str.DataPtr());
+        console::PrintStart("%ls\n", _output_str.w_str_.DataPtr());
         break;
     case kLogInfoProcess:
-        console::PrintProcess("%ls\n", output_str.w_str.DataPtr());
+        console::PrintProcess("%ls\n", _output_str.w_str_.DataPtr());
         break;
     case kLogInfoFinish:
-        console::PrintFinish("%ls\n", output_str.w_str.DataPtr());
+        console::PrintFinish("%ls\n", _output_str.w_str_.DataPtr());
         break;
     case kLogInfoSuccess:
-        console::PrintSuccess("%ls\n", output_str.w_str.DataPtr());
+        console::PrintSuccess("%ls\n", _output_str.w_str_.DataPtr());
         break;
     case kLogInfoFailure:
-        console::PrintFailure("%ls\n", output_str.w_str.DataPtr());
+        console::PrintFailure("%ls\n", _output_str.w_str_.DataPtr());
         break;
     }
 }

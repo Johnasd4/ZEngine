@@ -35,6 +35,6 @@
     Checks if the state is in thes given states.
     use | to combine the check states.
 */
-#define IN_STATE(state, check_states) ((state) & (check_states))
+#define IN_STATE(_state, _check_states) ((_state) & (_check_states))
 
 #endif // !Z_CORE_INTERNAL_D_MACRO_H_

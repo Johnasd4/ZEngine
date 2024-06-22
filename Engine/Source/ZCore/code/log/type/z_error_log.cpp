@@ -28,35 +28,37 @@ namespace zengine {
 namespace log {
 
 ZErrorLog::ZErrorLog() noexcept 
-        : raw_time_(), err_project_(), err_file_(), err_func_(), err_line_(), err_code_(), link_code_(), SuperType() {}
-ZErrorLog::ZErrorLog(TimeType raw_time,
-                     const Char* err_project,
-                     const Char* err_file,
-                     const Char* err_func,
-                     Int32 err_line,
-                     ReturnType err_code,
-                     ReturnType link_code,
-                     const Char* format,
-                     ArgListType args) noexcept 
-    : raw_time_(raw_time)
-    , err_project_(err_project)
-    , err_file_(err_file)
-    , err_func_(err_func)
-    , err_line_(err_line)
-    , err_code_(err_code)
-    , link_code_(link_code)
-    , SuperType(format, args) {}
+    : raw_time_(), err_project_(), err_file_(), err_func_(), err_line_(), err_code_(), link_code_(), SuperType_() {}
+ZErrorLog::ZErrorLog(
+    TimeType _raw_time,
+    const Char* _err_project,
+    const Char* _err_file,
+    const Char* _err_func,
+    Int32 _err_line,
+    ReturnType _err_code,
+    ReturnType _link_code,
+    const Char* _format,
+    ArgListType _args
+) noexcept 
+    : raw_time_(_raw_time)
+    , err_project_(_err_project)
+    , err_file_(_err_file)
+    , err_func_(_err_func)
+    , err_line_(_err_line)
+    , err_code_(_err_code)
+    , link_code_(_link_code)
+    , SuperType_(_format, _args) {}
 
-Void ZErrorLog::GenerateLogString(const ZLog* log_ptr, OutputString* output_str_ptr) noexcept {
+Void ZErrorLog::GenerateLogString(const ZLog* _log_ptr, OutputString_* _output_str_ptr) noexcept {
     static ZSystemTime system_time;
-    ZErrorLog& err_log = *(ZErrorLog*)log_ptr;
+    ZErrorLog& err_log = *(ZErrorLog*)_log_ptr;
     system_time.UpdateTimeFast(err_log.raw_time_);
-    output_str_ptr->c_str.SetString(
+    _output_str_ptr->c_str_.SetString(
         "--------------------------------------------------------------------------------\nTime: %04d/%02d/%02d-%02d:%02d:%02d\nProject: %s\nFile: %s\nFunction: %s\nLine: %d\nError Code: 0x%x\nLink Code: 0x%x\nMessage: %s\n--------------------------------------------------------------------------------",
         system_time.Year(), system_time.Month(), system_time.Day(),
         system_time.Hour(), system_time.Min(), system_time.Sec(),
         err_log.err_project_, err_log.err_file_, err_log.err_func_, err_log.err_line_, 
-        err_log.err_code_, err_log.link_code_, err_log.LogMsgPtr().c_str.DataPtr());
+        err_log.err_code_, err_log.link_code_, err_log.LogMsgPtr().c_str_.DataPtr());
 }
 
 static ZFile& GetLogFile() noexcept {
@@ -75,18 +77,18 @@ static ZFile& GetLogFile() noexcept {
     return file;
 }
 
-Void ZErrorLog::FileOutputLogString(const ZLog* log_ptr, const ZLog::OutputString& output_str) noexcept {
+Void ZErrorLog::FileOutputLogString(const ZLog* _log_ptr, const ZLog::OutputString_& _output_str) noexcept {
     static ZFile& file = GetLogFile();
     ReturnType link_code = kOK;
 
-    link_code = file.Print("%s\n", output_str.c_str.DataPtr());
+    link_code = file.Print("%s\n", _output_str.c_str_.DataPtr());
     if (link_code != kOK) {
         Z_LOG_ERROR(error_code::kMLogErrorCodeLinkError, link_code, "ZFile::Print() link error!");
     }
 }
 
-Void ZErrorLog::ConsoleOutputLogString(const ZLog* log_ptr, const ZLog::OutputString& output_str) noexcept {
-    console::PrintError("%s\n", output_str.c_str.DataPtr());
+Void ZErrorLog::ConsoleOutputLogString(const ZLog* _log_ptr, const ZLog::OutputString_& _output_str) noexcept {
+    console::PrintError("%s\n", _output_str.c_str_.DataPtr());
 }
 
 }//log

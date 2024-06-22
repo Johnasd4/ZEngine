@@ -23,25 +23,23 @@
 namespace zengine {
 
 ZTaskSafe::ZTaskSafe() noexcept
-        : SuperType()
-        , operate_func_ptr_(nullptr)
-        , task_func_ptr_(nullptr)
-        , params_ptr_(nullptr)
-        , ret_val_ptr_(nullptr)
-        , state_(kZTaskStateNoTask)
-        , mutex_() {}
+    : SuperType_()
+    , operate_func_ptr_(nullptr)
+    , task_func_ptr_(nullptr)
+    , params_ptr_(nullptr)
+    , ret_val_ptr_(nullptr)
+    , state_(kZTaskStateNoTask)
+    , mutex_() {}
 
-ZTaskSafe::ZTaskSafe(ZTaskSafe&& task) noexcept
-        : SuperType()
-        , mutex_() {
-    MoveP(std::forward<ZTaskSafe>(task));
+ZTaskSafe::ZTaskSafe(ZTaskSafe&& _task) noexcept : SuperType_() , mutex_() {
+    MoveP(std::forward<ZTaskSafe>(_task));
 }
 
 ZTaskSafe::~ZTaskSafe() noexcept { Clear(); }
 
-ZTaskSafe& ZTaskSafe::operator=(ZTaskSafe&& task) noexcept {
+ZTaskSafe& ZTaskSafe::operator=(ZTaskSafe&& _task) noexcept {
     mutex_.Lock();
-    MoveP(std::forward<ZTaskSafe>(task));
+    MoveP(std::forward<ZTaskSafe>(_task));
     mutex_.Unlock();
     return *this;
 }
@@ -50,7 +48,8 @@ NODISCARD ReturnType ZTaskSafe::operator()() noexcept {
     ReturnType ret_val = kOK;
     if (!IN_STATE(state_, kZTaskStateTaskSet)) {
         ret_val = error_code::kZTaskErrorCodeTaskStateError;
-        Z_LOG_ERROR(ret_val, 0, "Task stata error, can not run! state_: %d expect state: %d",
+        Z_LOG_ERROR(
+            ret_val, 0, "Task stata error, can not run! state_: %d expect state: %d",
             state_, kZTaskStateTaskSet);
         return ret_val;
     }
@@ -58,7 +57,7 @@ NODISCARD ReturnType ZTaskSafe::operator()() noexcept {
     return ret_val;
 }
 
-NODISCARD ReturnType ZTaskSafe::BindReturn(Void* ret_val_ptr) noexcept {
+NODISCARD ReturnType ZTaskSafe::BindReturn(Void* _ret_val_ptr) noexcept {
     ReturnType ret_val = kOK;
     if (IN_STATE(state_, kZTaskStateTaskRunning)) {
         ret_val = error_code::kZTaskErrorCodeTaskStateError;
@@ -69,7 +68,7 @@ NODISCARD ReturnType ZTaskSafe::BindReturn(Void* ret_val_ptr) noexcept {
     if (IN_STATE(state_, kZTaskStateFinished)) {
         operate_func_ptr_(this);
     }
-    ret_val_ptr_ = ret_val_ptr;
+    ret_val_ptr_ = _ret_val_ptr;
     mutex_.Unlock();
     return ret_val;
 }
@@ -99,42 +98,42 @@ NODISCARD ReturnType ZTaskSafe::Run() noexcept {
     return ret_val;
 }
 
-Void ZTaskSafe::MoveP(ZTaskSafe&& task) noexcept {
-    task.mutex_.Lock();
-    operate_func_ptr_ = task.operate_func_ptr_;
-    task_func_ptr_ = task.task_func_ptr_;
-    params_ptr_ = task.params_ptr_;
-    ret_val_ptr_ = task.ret_val_ptr_;
-    state_ = task.state_;
-    task.params_ptr_ = nullptr;
-    task.state_ = kZTaskStateNoTask;
-    task.mutex_.Unlock();
+Void ZTaskSafe::MoveP(ZTaskSafe&& _task) noexcept {
+    _task.mutex_.Lock();
+    operate_func_ptr_ = _task.operate_func_ptr_;
+    task_func_ptr_ = _task.task_func_ptr_;
+    params_ptr_ = _task.params_ptr_;
+    ret_val_ptr_ = _task.ret_val_ptr_;
+    state_ = _task.state_;
+    _task.params_ptr_ = nullptr;
+    _task.state_ = kZTaskStateNoTask;
+    _task.mutex_.Unlock();
 }
 
 ZTask::ZTask() noexcept
-        : SuperType()
+        : SuperType_()
         , operate_func_ptr_(nullptr)
         , task_func_ptr_(nullptr)
         , params_ptr_(nullptr)
         , ret_val_ptr_(nullptr)
         , state_(kZTaskStateNoTask) {}
 
-ZTask::ZTask(ZTask&& task) noexcept : SuperType() {
-    MoveP(std::forward<ZTask>(task));
+ZTask::ZTask(ZTask&& _task) noexcept : SuperType_() {
+    MoveP(std::forward<ZTask>(_task));
 }
 
-ZTask::ZTask(ZTaskSafe&& task) noexcept : SuperType() {
-    MoveP(std::move(*reinterpret_cast<ZTask*>(&(task))));
+ZTask::ZTask(ZTaskSafe&& _task) noexcept : SuperType_() {
+    MoveP(std::move(*reinterpret_cast<ZTask*>(&(_task))));
 }
 
 ZTask::~ZTask() noexcept { Clear(); }
 
-ZTask& ZTask::operator=(ZTask&& task) noexcept {
-    MoveP(std::forward<ZTask>(task));
+ZTask& ZTask::operator=(ZTask&& _task) noexcept {
+    MoveP(std::forward<ZTask>(_task));
     return *this;
 }
-ZTask& ZTask::operator=(ZTaskSafe&& task) noexcept {
-    MoveP(std::move(*reinterpret_cast<ZTask*>(&(task))));
+ZTask& ZTask::operator=(ZTaskSafe&& _task) noexcept {
+    MoveP(std::move(*reinterpret_cast<ZTask*>(&(_task))));
     return *this;
 }
 
@@ -142,7 +141,8 @@ NODISCARD ReturnType ZTask::operator()() noexcept {
     ReturnType ret_val = kOK;
     if (!IN_STATE(state_, kZTaskStateTaskSet)) {
         ret_val = error_code::kZTaskErrorCodeTaskStateError;
-        Z_LOG_ERROR(ret_val, 0, "Task stata error, can not run! state_: %d expect state: %d",
+        Z_LOG_ERROR(
+            ret_val, 0, "Task stata error, can not run! state_: %d expect state: %d",
             state_, kZTaskStateTaskSet);
         return ret_val;
     }
@@ -150,7 +150,7 @@ NODISCARD ReturnType ZTask::operator()() noexcept {
     return ret_val;
 }
 
-NODISCARD ReturnType ZTask::BindReturn(Void* ret_val_ptr) noexcept {
+NODISCARD ReturnType ZTask::BindReturn(Void* _ret_val_ptr) noexcept {
     ReturnType ret_val = kOK;
     if (IN_STATE(state_, kZTaskStateTaskRunning)) {
         ret_val = error_code::kZTaskErrorCodeTaskStateError;
@@ -160,7 +160,7 @@ NODISCARD ReturnType ZTask::BindReturn(Void* ret_val_ptr) noexcept {
     if (IN_STATE(state_, kZTaskStateFinished)) {
         operate_func_ptr_(this);
     }
-    ret_val_ptr_ = ret_val_ptr;
+    ret_val_ptr_ = _ret_val_ptr;
     return ret_val;
 }
 
@@ -186,14 +186,14 @@ NODISCARD ReturnType ZTask::Run() noexcept {
     return ret_val;
 }
 
-Void ZTask::MoveP(ZTask&& task) noexcept {
-    operate_func_ptr_ = task.operate_func_ptr_;
-    task_func_ptr_ = task.task_func_ptr_;
-    params_ptr_ = task.params_ptr_;
-    ret_val_ptr_ = task.ret_val_ptr_;
-    state_ = task.state_;
-    task.params_ptr_ = nullptr;
-    task.state_ = kZTaskStateNoTask;
+Void ZTask::MoveP(ZTask&& _task) noexcept {
+    operate_func_ptr_ = _task.operate_func_ptr_;
+    task_func_ptr_ = _task.task_func_ptr_;
+    params_ptr_ = _task.params_ptr_;
+    ret_val_ptr_ = _task.ret_val_ptr_;
+    state_ = _task.state_;
+    _task.params_ptr_ = nullptr;
+    _task.state_ = kZTaskStateNoTask;
 }
 
 }//zengine

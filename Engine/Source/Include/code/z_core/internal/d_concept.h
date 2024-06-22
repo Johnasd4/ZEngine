@@ -24,61 +24,61 @@
 
 namespace zengine {
 
-template<typename ObjectType1,typename ObjectType2>
-concept kSameType = std::is_same_v<ObjectType1, ObjectType2>;
+template<typename _ObjectType1,typename _ObjectType2>
+concept kSameType = std::is_same_v<_ObjectType1, _ObjectType2>;
 
-template<typename ObjectType>
-concept kIsClass = std::is_class_v<ObjectType>;
+template<typename _ObjectType>
+concept kIsClass = std::is_class_v<_ObjectType>;
 
-template<typename CharType>
-concept kIsChar = kSameType<CharType, Char> || kSameType<CharType, WChar>;
+template<typename _CharType>
+concept kIsChar = kSameType<_CharType, Char> || kSameType<_CharType, WChar>;
 
-template<typename NumberType>
-concept kIsSignedInt = kSameType<NumberType, Int8> || kSameType<NumberType, Int16> || kSameType<NumberType, Int32> || 
-                       kSameType<NumberType, Int64>;
+template<typename _NumberType>
+concept kIsSignedInt = kSameType<_NumberType, Int8> || kSameType<_NumberType, Int16> || kSameType<_NumberType, Int32> || 
+                       kSameType<_NumberType, Int64>;
 
-template<typename NumberType>
-concept kIsUnsignedInt = kSameType<NumberType, UInt8> || kSameType<NumberType, UInt16> || 
-                         kSameType<NumberType, UInt32> || kSameType<NumberType, UInt64>;
+template<typename _NumberType>
+concept kIsUnsignedInt = kSameType<_NumberType, UInt8> || kSameType<_NumberType, UInt16> || 
+                         kSameType<_NumberType, UInt32> || kSameType<_NumberType, UInt64>;
 
-template<typename NumberType>
-concept kIsInt = kIsSignedInt<NumberType> || kIsUnsignedInt<NumberType>;
+template<typename _NumberType>
+concept kIsInt = kIsSignedInt<_NumberType> || kIsUnsignedInt<_NumberType>;
 
-template<typename NumberType>
-concept kIsFloat = kSameType<NumberType, Float32> || kSameType<NumberType, Float64>;
+template<typename _NumberType>
+concept kIsFloat = kSameType<_NumberType, Float32> || kSameType<_NumberType, Float64>;
 
-template<typename NumberType>
-concept kIsNumber = kIsInt<NumberType> || kIsFloat<NumberType>;
+template<typename _NumberType>
+concept kIsNumber = kIsInt<_NumberType> || kIsFloat<_NumberType>;
 
-template<auto number>
-concept kIsZero = number == 0;
+template<auto kNumber>
+concept kIsZero = kNumber == 0;
 
-template<auto number>
-concept kIsNotZero = number != 0;
+template<auto kNumber>
+concept kIsNotZero = kNumber != 0;
 
-template<typename ObjectType>
-concept kIsComparable = requires(ObjectType object_1, ObjectType object_2) {
-    object_1 == object_2;
-    object_1 != object_2;
-    object_1 > object_2;
-    object_1 >= object_2;
-    object_1 < object_2;
-    object_1 <= object_2;
+template<typename _ObjectType>
+concept kIsComparable = requires(_ObjectType _obj_1, _ObjectType _obj_2) {
+    _obj_1 == _obj_2;
+    _obj_1 != _obj_2;
+    _obj_1 > _obj_2;
+    _obj_1 >= _obj_2;
+    _obj_1 < _obj_2;
+    _obj_1 <= _obj_2;
 };
 
-template<typename ObjectType>
-concept kIsCopyable = requires(ObjectType object_1, ObjectType object_2) {
-    object_1 = object_2;
+template<typename _ObjectType>
+concept kIsCopyable = requires(_ObjectType _obj_1, _ObjectType _obj_2) {
+    _obj_1 = _obj_2;
 };
 
-template<typename ObjectType>
-concept kIsMovable = requires(ObjectType object_1, ObjectType object_2) {
-    object_1 = std::move(object_2);
+template<typename _ObjectType>
+concept kIsMovable = requires(_ObjectType _obj_1, _ObjectType _obj_2) {
+    _obj_1 = std::move(_obj_2);
 };
 
-template<typename Function, typename ObjectType>
-concept kIsPredicateFunction = requires(Function function, ObjectType object) {
-    { function(object, object) } -> kSameType<Bool>;
+template<typename _Function, typename _ObjectType>
+concept kIsPredicateFunction = requires(_Function _func, _ObjectType _obj) {
+    { _func(_obj, _obj) } -> kSameType<Bool>;
 };
 
 }//zengine

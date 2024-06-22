@@ -32,33 +32,35 @@ namespace log {
 class ZErrorLog : public ZLog {
 public:
     ZErrorLog() noexcept;
-    ZErrorLog(TimeType raw_time,
-              const Char* err_project,
-              const Char* err_file,
-              const Char* err_func,
-              Int32 err_line,
-              ReturnType err_code,
-              ReturnType link_code,
-              const Char* format,
-              ArgListType args) noexcept;
+    ZErrorLog(
+        TimeType _raw_time,
+        const Char* _err_project,
+        const Char* _err_file,
+        const Char* _err_func,
+        Int32 _err_line,
+        ReturnType _err_code,
+        ReturnType _link_code,
+        const Char* _format,
+        ArgListType _args
+    ) noexcept;
 
     /*
         Override it to output different formats.
     */
-    static Void GenerateLogString(const ZLog* log_ptr, OutputString* output_str_ptr) noexcept;
+    static Void GenerateLogString(const ZLog* _log_ptr, OutputString_* _output_str_ptr) noexcept;
 
     /*
         Console output error log string.
     */
-    static Void FileOutputLogString(const ZLog* log_ptr, const ZLog::OutputString& output_str) noexcept;
+    static Void FileOutputLogString(const ZLog* _log_ptr, const ZLog::OutputString_& _output_str) noexcept;
 
     /*
         File output error log string.
     */
-    static Void ConsoleOutputLogString(const ZLog* log_ptr, const ZLog::OutputString& output_str) noexcept;
+    static Void ConsoleOutputLogString(const ZLog* _log_ptr, const ZLog::OutputString_& _output_str) noexcept;
 
 protected:
-    using SuperType = ZLog;
+    using SuperType_ = ZLog;
 
 private:
     TimeType raw_time_;

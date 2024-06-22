@@ -30,54 +30,54 @@ namespace zengine {
 /*
     Queue caintainer.
 */
-template<typename ObjectType, typename ContainerType = TDeque<ObjectType>>
+template<typename _ObjectType, typename _ContainerType = TDeque<_ObjectType>>
 class TQueue : public ZObject {
 public:
-    using InitializerList = std::initializer_list<ObjectType>;
+    using InitializerList_ = std::initializer_list<_ObjectType>;
 
-    FORCEINLINE TQueue() noexcept : SuperType(), queue_() {}
-    FORCEINLINE TQueue(const TQueue& queue) noexcept : SuperType(), queue_(queue.queue_) {}
-    FORCEINLINE TQueue(TQueue&& queue) noexcept : SuperType(), queue_(std::move(queue.queue_)) {}
+    FORCEINLINE TQueue() noexcept : SuperType_(), queue_() {}
+    FORCEINLINE TQueue(const TQueue& _queue) noexcept : SuperType_(), queue_(_queue.queue_) {}
+    FORCEINLINE TQueue(TQueue&& _queue) noexcept : SuperType_(), queue_(std::move(_queue.queue_)) {}
 
-    FORCEINLINE TQueue(SizeType size) noexcept : SuperType(), queue_(size) {}
-    FORCEINLINE TQueue(SizeType size, const ObjectType& value) noexcept : SuperType(), queue_(size, value) {}
-    template <typename InputIterator>
-    FORCEINLINE TQueue(InputIterator first, InputIterator last) noexcept : SuperType(), queue_(first, last) {}
-    FORCEINLINE TQueue(InitializerList init_list) noexcept : SuperType(), queue_(init_list) {}
+    FORCEINLINE TQueue(SizeType _size) noexcept : SuperType_(), queue_(_size) {}
+    FORCEINLINE TQueue(SizeType _size, const _ObjectType& _val) noexcept : SuperType_(), queue_(_size, _val) {}
+    template <typename _InputIterator>
+    FORCEINLINE TQueue(_InputIterator _first, _InputIterator _last) noexcept : SuperType_(), queue_(_first, _last) {}
+    FORCEINLINE TQueue(InitializerList_ _init_list) noexcept : SuperType_(), queue_(_init_list) {}
  
     FORCEINLINE ~TQueue() noexcept {}
 
-    FORCEINLINE TQueue& operator=(const TQueue& queue) noexcept { 
-        queue_.operator=(queue.queue_);
+    FORCEINLINE TQueue& operator=(const TQueue& _queue) noexcept { 
+        queue_.operator=(_queue.queue_);
         return *this;
     }
-    FORCEINLINE TQueue& operator=(TQueue&& queue) noexcept { 
-        queue_.operator=(std::move(queue.queue_));
+    FORCEINLINE TQueue& operator=(TQueue&& _queue) noexcept { 
+        queue_.operator=(std::move(_queue.queue_));
         return *this;
     }
-    FORCEINLINE TQueue& operator=(InitializerList init_list) noexcept {
-        queue_.operator=(init_list);
+    FORCEINLINE TQueue& operator=(InitializerList_ _init_list) noexcept {
+        queue_.operator=(_init_list);
         return *this;
     }
 
-    FORCEINLINE Void Assign(SizeType size, const ObjectType& value) noexcept {
-        return queue_.Assign(size, value);
+    FORCEINLINE Void Assign(SizeType _size, const _ObjectType& _val) noexcept {
+        return queue_.Assign(_size, _val);
     }
     template <class InputIterator>
-    FORCEINLINE Void Assign(InputIterator first, InputIterator last) noexcept {
-        return queue_.Assign(first, last);
+    FORCEINLINE Void Assign(InputIterator _first, InputIterator _last) noexcept {
+        return queue_.Assign(_first, _last);
     }
-    FORCEINLINE Void Assign(InitializerList init_list) noexcept {
-        return queue_.Assign(init_list);
+    FORCEINLINE Void Assign(InitializerList_ _init_list) noexcept {
+        return queue_.Assign(_init_list);
     }
 
-    NODISCARD FORCEINLINE Bool operator==(const TQueue& queue) noexcept { return queue_ == queue; }
-    NODISCARD FORCEINLINE Bool operator!=(const TQueue& queue) noexcept { return queue_ != queue; }
+    NODISCARD FORCEINLINE Bool operator==(const TQueue& _queue) noexcept { return queue_ == _queue; }
+    NODISCARD FORCEINLINE Bool operator!=(const TQueue& _queue) noexcept { return queue_ != _queue; }
 
-    NODISCARD FORCEINLINE ObjectType& Front() noexcept { return queue_.Front(); }
-    NODISCARD FORCEINLINE const ObjectType& Front() const noexcept { return queue_.Front(); }
-    NODISCARD FORCEINLINE ObjectType& Back() noexcept { return queue_.Back(); }
-    NODISCARD FORCEINLINE const ObjectType& Back() const noexcept { return queue_.Back(); }
+    NODISCARD FORCEINLINE _ObjectType& Front() noexcept { return queue_.Front(); }
+    NODISCARD FORCEINLINE const _ObjectType& Front() const noexcept { return queue_.Front(); }
+    NODISCARD FORCEINLINE _ObjectType& Back() noexcept { return queue_.Back(); }
+    NODISCARD FORCEINLINE const _ObjectType& Back() const noexcept { return queue_.Back(); }
 
     NODISCARD FORCEINLINE IndexType Size() const noexcept { return queue_.Size(); }
     NODISCARD FORCEINLINE IndexType Capacity() const noexcept { return queue_.Capacity(); }
@@ -85,23 +85,23 @@ public:
 
     FORCEINLINE Void Pop() noexcept { queue_.PopFront(); }
 
-    FORCEINLINE Void Push(const ObjectType& value) noexcept { queue_.PushBack(value); }
-    FORCEINLINE Void Push(ObjectType&& value) noexcept { queue_.PushBack(std::forward<ObjectType>(value)); }
+    FORCEINLINE Void Push(const _ObjectType& _val) noexcept { queue_.PushBack(_val); }
+    FORCEINLINE Void Push(_ObjectType&& _val) noexcept { queue_.PushBack(std::forward<_ObjectType>(_val)); }
     template <typename... ArgsType>
-    FORCEINLINE Void Push(ArgsType&&... args) noexcept { queue_.EmplaceBack(std::forward<ArgsType>(args)...); }
+    FORCEINLINE Void Push(ArgsType&&... _args) noexcept { queue_.EmplaceBack(std::forward<ArgsType>(_args)...); }
 
     FORCEINLINE Void Clear() noexcept { queue_.Clear(); }
 
-    FORCEINLINE Void Resize(SizeType size) noexcept { queue_.Resize(size); }
-    FORCEINLINE Void Resize(SizeType size, const ObjectType& value) noexcept { queue_.Resize(size, value); }
+    FORCEINLINE Void Resize(SizeType _size) noexcept { queue_.Resize(_size); }
+    FORCEINLINE Void Resize(SizeType _size, const _ObjectType& _val) noexcept { queue_.Resize(_size, _val); }
 
-    FORCEINLINE Void Swap(TQueue& queue) noexcept { queue_.Swap(queue); }
+    FORCEINLINE Void Swap(TQueue& _queue) noexcept { queue_.Swap(_queue); }
 
 protected:
-    using SuperType = ZObject;
+    using SuperType_ = ZObject;
 
 private:
-    ContainerType queue_;
+    _ContainerType queue_;
 };
 
 }//zengine

@@ -31,137 +31,139 @@ namespace zengine {
 /*
     Double end queue caintainer.
 */
-template<typename ObjectType>
+template<typename _ObjectType>
 class TDeque : public ZObject {
 public:
-    using STDDeque = std::deque<ObjectType, TAllocator<ObjectType>>;
-    using Iterator = STDDeque::iterator;
-    using ConstIterator = STDDeque::const_iterator;
-    using ReverseIterator = STDDeque::reverse_iterator;
-    using ConstReverseIterator = STDDeque::const_reverse_iterator;
-    using InitializerList = std::initializer_list<ObjectType>;
+    using STDDeque_ = std::deque<_ObjectType, TAllocator<_ObjectType>>;
+    using Iterator_ = STDDeque_::iterator;
+    using ConstIterator_ = STDDeque_::const_iterator;
+    using ReverseIterator_ = STDDeque_::reverse_iterator;
+    using ConstReverseIterator_ = STDDeque_::const_reverse_iterator;
+    using InitializerList_ = std::initializer_list<_ObjectType>;
 
-    FORCEINLINE TDeque() noexcept : SuperType(), deque_() {}
-    FORCEINLINE TDeque(const TDeque& deque) noexcept : SuperType(), deque_(deque.deque_) {}
-    FORCEINLINE TDeque(TDeque&& deque) noexcept : SuperType(), deque_(std::move(deque.deque_)) {}
+    FORCEINLINE TDeque() noexcept : SuperType_(), deque_() {}
+    FORCEINLINE TDeque(const TDeque& _deque) noexcept : SuperType_(), deque_(_deque.deque_) {}
+    FORCEINLINE TDeque(TDeque&& _deque) noexcept : SuperType_(), deque_(std::move(_deque.deque_)) {}
 
-    FORCEINLINE TDeque(SizeType size) noexcept : SuperType(), deque_(size) {}
-    FORCEINLINE TDeque(SizeType size, const ObjectType& value) noexcept : SuperType(), deque_(size, value) {}
-    template <typename InputIterator>
-    FORCEINLINE TDeque(InputIterator first, InputIterator last) noexcept : SuperType(), deque_(first, last) {}
-    FORCEINLINE TDeque(InitializerList init_list) noexcept : SuperType(), deque_(init_list) {}
+    FORCEINLINE TDeque(SizeType _size) noexcept : SuperType_(), deque_(_size) {}
+    FORCEINLINE TDeque(SizeType _size, const _ObjectType& _value) noexcept : SuperType_(), deque_(_size, _value) {}
+    template <typename _InputIterator>
+    FORCEINLINE TDeque(_InputIterator _first, _InputIterator _last) noexcept : SuperType_(), deque_(_first, _last) {}
+    FORCEINLINE TDeque(InitializerList_ _init_list) noexcept : SuperType_(), deque_(_init_list) {}
  
     FORCEINLINE ~TDeque() noexcept {}
 
-    FORCEINLINE TDeque& operator=(const TDeque& deque) noexcept { 
-        deque_.operator=(deque.deque_);
+    FORCEINLINE TDeque& operator=(const TDeque& _deque) noexcept { 
+        deque_.operator=(_deque.deque_);
         return *this;
     }
-    FORCEINLINE TDeque& operator=(TDeque&& deque) noexcept { 
-        deque_.operator=(std::move(deque.deque_));
+    FORCEINLINE TDeque& operator=(TDeque&& _deque) noexcept { 
+        deque_.operator=(std::move(_deque.deque_));
         return *this;
     }
-    FORCEINLINE TDeque& operator=(InitializerList init_list) noexcept {
-        deque_.operator=(init_list);
+    FORCEINLINE TDeque& operator=(InitializerList_ _init_list) noexcept {
+        deque_.operator=(_init_list);
         return *this;
     }
 
-    FORCEINLINE Void Assign(SizeType size, const ObjectType& value) noexcept {
-        return deque_.assign(size, value);
+    FORCEINLINE Void Assign(SizeType _size, const _ObjectType& _value) noexcept {
+        return deque_.assign(_size, _value);
     }
-    template <class InputIterator>
-    FORCEINLINE Void Assign(InputIterator first, InputIterator last) noexcept {
-        return deque_.assign(first, last);
+    template <class _InputIterator>
+    FORCEINLINE Void Assign(_InputIterator _first, _InputIterator _last) noexcept {
+        return deque_.assign(_first, _last);
     }
-    FORCEINLINE Void Assign(InitializerList init_list) noexcept {
-        return deque_.assign(init_list);
+    FORCEINLINE Void Assign(InitializerList_ _init_list) noexcept {
+        return deque_.assign(_init_list);
     }
 
-    NODISCARD FORCEINLINE Bool operator==(const TDeque& deque) noexcept { return deque_ == deque; }
-    NODISCARD FORCEINLINE Bool operator!=(const TDeque& deque) noexcept { return deque_ != deque; }
+    NODISCARD FORCEINLINE Bool operator==(const TDeque& _deque) noexcept { return deque_ == _deque; }
+    NODISCARD FORCEINLINE Bool operator!=(const TDeque& _deque) noexcept { return deque_ != _deque; }
 
-    NODISCARD FORCEINLINE ObjectType& operator[](const SizeType index) noexcept { return deque_[index]; }
-    NODISCARD FORCEINLINE const ObjectType& operator[](const SizeType index) const noexcept { return deque_[index]; }
+    NODISCARD FORCEINLINE _ObjectType& operator[](const SizeType _index) noexcept { return deque_[_index]; }
+    NODISCARD FORCEINLINE const _ObjectType& operator[](const SizeType _index) const noexcept { return deque_[_index]; }
 
-    NODISCARD FORCEINLINE ObjectType& At(IndexType index) noexcept { return deque_.at(index); }
-    NODISCARD FORCEINLINE const ObjectType& At(IndexType index) const noexcept { return deque_.at(index); }
+    NODISCARD FORCEINLINE _ObjectType& At(IndexType _index) noexcept { return deque_.at(_index); }
+    NODISCARD FORCEINLINE const _ObjectType& At(IndexType _index) const noexcept { return deque_.at(_index); }
 
-    NODISCARD FORCEINLINE ObjectType& Front() noexcept { return deque_.front(); }
-    NODISCARD FORCEINLINE const ObjectType& Front() const noexcept { return deque_.front(); }
-    NODISCARD FORCEINLINE ObjectType& Back() noexcept { return deque_.back(); }
-    NODISCARD FORCEINLINE const ObjectType& Back() const noexcept { return deque_.back(); }
+    NODISCARD FORCEINLINE _ObjectType& Front() noexcept { return deque_.front(); }
+    NODISCARD FORCEINLINE const _ObjectType& Front() const noexcept { return deque_.front(); }
+    NODISCARD FORCEINLINE _ObjectType& Back() noexcept { return deque_.back(); }
+    NODISCARD FORCEINLINE const _ObjectType& Back() const noexcept { return deque_.back(); }
 
     NODISCARD FORCEINLINE IndexType Size() const noexcept { return static_cast<IndexType>(deque_.size()); }
     NODISCARD FORCEINLINE IndexType Capacity() const noexcept { return kIndexTypeMax; }
     NODISCARD FORCEINLINE Bool Empty() const noexcept { return deque_.empty(); }
 
-    NODISCARD FORCEINLINE Iterator Begin() noexcept { return deque_.begin(); }
-    NODISCARD FORCEINLINE ConstIterator Begin() const noexcept { return deque_.begin(); }
-    NODISCARD FORCEINLINE ConstIterator ConstBegin() const noexcept { return deque_.cbegin(); }
-    NODISCARD FORCEINLINE ReverseIterator ReverseBegin() noexcept { return deque_.rbegin(); }
-    NODISCARD FORCEINLINE ConstReverseIterator ReverseBegin() const noexcept { return deque_.rbegin(); }
-    NODISCARD FORCEINLINE ConstReverseIterator ConstReverseBegin() const noexcept { return deque_.crbegin(); }
-    NODISCARD FORCEINLINE Iterator End() noexcept { return deque_.end(); }
-    NODISCARD FORCEINLINE ConstIterator End() const noexcept { return deque_.end(); }
-    NODISCARD FORCEINLINE ConstIterator ConstEnd() const noexcept { return deque_.cend(); }
-    NODISCARD FORCEINLINE ReverseIterator ReverseEnd() noexcept { return deque_.rend(); }
-    NODISCARD FORCEINLINE ConstReverseIterator ReverseEnd() const noexcept { return deque_.rend(); }
-    NODISCARD FORCEINLINE ConstReverseIterator ConstReverseEnd() const noexcept { return deque_.crend(); }
+    NODISCARD FORCEINLINE Iterator_ Begin() noexcept { return deque_.begin(); }
+    NODISCARD FORCEINLINE ConstIterator_ Begin() const noexcept { return deque_.begin(); }
+    NODISCARD FORCEINLINE ConstIterator_ ConstBegin() const noexcept { return deque_.cbegin(); }
+    NODISCARD FORCEINLINE ReverseIterator_ ReverseBegin() noexcept { return deque_.rbegin(); }
+    NODISCARD FORCEINLINE ConstReverseIterator_ ReverseBegin() const noexcept { return deque_.rbegin(); }
+    NODISCARD FORCEINLINE ConstReverseIterator_ ConstReverseBegin() const noexcept { return deque_.crbegin(); }
+    NODISCARD FORCEINLINE Iterator_ End() noexcept { return deque_.end(); }
+    NODISCARD FORCEINLINE ConstIterator_ End() const noexcept { return deque_.end(); }
+    NODISCARD FORCEINLINE ConstIterator_ ConstEnd() const noexcept { return deque_.cend(); }
+    NODISCARD FORCEINLINE ReverseIterator_ ReverseEnd() noexcept { return deque_.rend(); }
+    NODISCARD FORCEINLINE ConstReverseIterator_ ReverseEnd() const noexcept { return deque_.rend(); }
+    NODISCARD FORCEINLINE ConstReverseIterator_ ConstReverseEnd() const noexcept { return deque_.crend(); }
 
-    template <typename... ArgsType>
-    FORCEINLINE Iterator Emplace(ConstIterator pos, ArgsType&&... args) noexcept {
-        return deque_.emplace(pos, std::forward<ArgsType>(args)...);
+    template <typename... _ArgsType>
+    FORCEINLINE Iterator_ Emplace(ConstIterator_ _pos, _ArgsType&&... _args) noexcept {
+        return deque_.emplace(_pos, std::forward<_ArgsType>(_args)...);
     }
 
-    template <typename... ArgsType>
-    FORCEINLINE ObjectType& EmplaceFront(ArgsType&&... args) noexcept {
-        return deque_.emplace_front(std::forward<ArgsType>(args)...);
+    template <typename... _ArgsType>
+    FORCEINLINE _ObjectType& EmplaceFront(_ArgsType&&... _args) noexcept {
+        return deque_.emplace_front(std::forward<_ArgsType>(_args)...);
     }
-    FORCEINLINE Void PushFront(const ObjectType& value) noexcept { deque_.push_front(value); }
-    FORCEINLINE Void PushFront(ObjectType&& value) noexcept { deque_.push_front(std::forward<ObjectType>(value)); }
+    FORCEINLINE Void PushFront(const _ObjectType& _value) noexcept { deque_.push_front(_value); }
+    FORCEINLINE Void PushFront(_ObjectType&& _val) noexcept { deque_.push_front(std::forward<_ObjectType>(_val)); }
     FORCEINLINE Void PopFront() noexcept { deque_.pop_front(); }
 
-    template <typename... ArgsType>
-    FORCEINLINE ObjectType& EmplaceBack(ArgsType&&... args) noexcept {
-        return deque_.emplace_back(std::forward<ArgsType>(args)...);
+    template <typename... _ArgsType>
+    FORCEINLINE _ObjectType& EmplaceBack(_ArgsType&&... _args) noexcept {
+        return deque_.emplace_back(std::forward<_ArgsType>(_args)...);
     }
-    FORCEINLINE Void PushBack(const ObjectType& value) noexcept { deque_.push_back(value); }
-    FORCEINLINE Void PushBack(ObjectType&& value) noexcept { deque_.push_back(std::forward<ObjectType>(value)); }
+    FORCEINLINE Void PushBack(const _ObjectType& _val) noexcept { deque_.push_back(_val); }
+    FORCEINLINE Void PushBack(_ObjectType&& _val) noexcept { deque_.push_back(std::forward<_ObjectType>(_val)); }
     FORCEINLINE Void PopBack() noexcept { deque_.pop_back(); }
 
-    FORCEINLINE Iterator Insert(ConstIterator pos, const ObjectType& value) noexcept { 
-        return deque_.insert(pos, value);
+    FORCEINLINE Iterator_ Insert(ConstIterator_ _pos, const _ObjectType& _val) noexcept { 
+        return deque_.insert(_pos, _val);
     }
-    FORCEINLINE Iterator Insert(ConstIterator pos, ObjectType&& value) noexcept {
-        return deque_.insert(pos, std::forward<ObjectType>(value));
+    FORCEINLINE Iterator_ Insert(ConstIterator_ _pos, _ObjectType&& _val) noexcept {
+        return deque_.insert(_pos, std::forward<_ObjectType>(_val));
     }
-    FORCEINLINE Iterator Insert(ConstIterator pos, SizeType num, const ObjectType& value) noexcept {
-        return deque_.insert(pos, num, value);
+    FORCEINLINE Iterator_ Insert(ConstIterator_ _pos, SizeType _num, const _ObjectType& _val) noexcept {
+        return deque_.insert(_pos, _num, _val);
     }
     template <typename InputIterator>
-    FORCEINLINE Iterator Insert(ConstIterator pos, InputIterator first, InputIterator last) noexcept {
-        return deque_.insert(pos, first, last);
+    FORCEINLINE Iterator_ Insert(ConstIterator_ _pos, InputIterator _first, InputIterator _last) noexcept {
+        return deque_.insert(_pos, _first, _last);
     }
-    FORCEINLINE Iterator Insert(ConstIterator pos, InitializerList init_list) noexcept {
-        return deque_.insert(pos, init_list);
+    FORCEINLINE Iterator_ Insert(ConstIterator_ _pos, InitializerList_ _init_list) noexcept {
+        return deque_.insert(_pos, _init_list);
     }
 
-    FORCEINLINE Iterator Erase(ConstIterator pos) noexcept { return deque_.erase(pos); }
-    FORCEINLINE Iterator Erase(ConstIterator first, ConstIterator last) noexcept { return deque_.erase(first, last); }
+    FORCEINLINE Iterator_ Erase(ConstIterator_ _pos) noexcept { return deque_.erase(_pos); }
+    FORCEINLINE Iterator_ Erase(ConstIterator_ _first, ConstIterator_ _last) noexcept { 
+        return deque_.erase(_first, _last); 
+    }
     FORCEINLINE Void Clear() noexcept { deque_.clear(); }
 
-    FORCEINLINE Void Resize(SizeType size) noexcept { deque_.resize(size); }
-    FORCEINLINE Void Resize(SizeType size, const ObjectType& value) noexcept { deque_.resize(size, value); }
+    FORCEINLINE Void Resize(SizeType _size) noexcept { deque_.resize(_size); }
+    FORCEINLINE Void Resize(SizeType _size, const _ObjectType& _val) noexcept { deque_.resize(_size, _val); }
 
-    FORCEINLINE Void Reverse(SizeType capacity) noexcept { deque_.reverse(capacity); }
+    FORCEINLINE Void Reverse(SizeType _capacity) noexcept { deque_.reverse(_capacity); }
 
-    FORCEINLINE Void Swap(TDeque& deque) noexcept { deque_.swap(deque); }
+    FORCEINLINE Void Swap(TDeque& _deque) noexcept { deque_.swap(_deque); }
 
 protected:
-    using SuperType = ZObject;
+    using SuperType_ = ZObject;
 
 private:
-    STDDeque deque_;
+    STDDeque_ deque_;
 };
 
 }//zengine

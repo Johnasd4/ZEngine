@@ -32,92 +32,95 @@ namespace internal {
 /*
     Array caintainer.
 */
-template<typename CharType, IndexType kCapacity>
-requires kIsChar<CharType>
+template<typename _CharType, IndexType kCapacity>
+requires kIsChar<_CharType>
 class TFixedString : public ZObject {
 public:
-    using STDArray = std::array<CharType, kCapacity>;
-    using Iterator = STDArray::iterator;
-    using ConstIterator = STDArray::const_iterator;
-    using ReverseIterator = STDArray::reverse_iterator;
-    using ConstReverseIterator = STDArray::const_reverse_iterator;
-    using InitializerList = std::initializer_list<CharType>;
+    using STDArray_ = std::array<_CharType, kCapacity>;
+    using Iterator_ = STDArray_::iterator;
+    using ConstIterator_ = STDArray_::const_iterator;
+    using ReverseIterator_ = STDArray_::reverse_iterator;
+    using ConstReverseIterator_ = STDArray_::const_reverse_iterator;
+    using InitializerList_ = std::initializer_list<_CharType>;
 
-    FORCEINLINE constexpr TFixedString() noexcept : SuperType(), string_() {}
-    FORCEINLINE constexpr TFixedString(const TFixedString& array) noexcept : SuperType(), string_(array.string_) {}
-    FORCEINLINE constexpr TFixedString(TFixedString&& array) noexcept : SuperType(), string_(std::move(array.string_)) {}
-    FORCEINLINE TFixedString(InitializerList init_list) noexcept : SuperType(), string_(init_list) {}
-    template<typename... ArgsType>
-    FORCEINLINE constexpr TFixedString(CharType* format, ArgsType&&... args) noexcept : SuperType() {
-        if constexpr (kSameType<CharType, Char>) {
-            sprintf(DataPtr(), format, std::forward<ArgsType>(args)...);
+    FORCEINLINE constexpr TFixedString() noexcept : SuperType_(), string_() {}
+    FORCEINLINE constexpr TFixedString(const TFixedString& _array) noexcept : SuperType_(), string_(_array.string_) {}
+    FORCEINLINE constexpr TFixedString(TFixedString&& _array) noexcept 
+        : SuperType_(), string_(std::move(_array.string_)) {}
+    FORCEINLINE TFixedString(InitializerList_ _init_list) noexcept : SuperType_(), string_(_init_list) {}
+    template<typename... _ArgsType>
+    FORCEINLINE constexpr TFixedString(_CharType* _format, _ArgsType&&... _args) noexcept : SuperType_() {
+        if constexpr (kSameType<_CharType, Char>) {
+            sprintf(DataPtr(), _format, std::forward<_ArgsType>(_args)...);
         }
-        else if constexpr (kSameType<CharType, WChar>) {
-            swprintf(DataPtr(), format, std::forward<ArgsType>(args)...);
+        else if constexpr (kSameType<_CharType, WChar>) {
+            swprintf(DataPtr(), _format, std::forward<_ArgsType>(_args)...);
         }
     }
 
     FORCEINLINE constexpr ~TFixedString() noexcept {}
 
-    NODISCARD FORCEINLINE Bool operator=(const TFixedString& str) noexcept {
-        return memcpy(DataPtr(), str.DataPtr(), sizeof(CharType) * kCapacity);
+    NODISCARD FORCEINLINE Bool operator=(const TFixedString& _str) noexcept {
+        return memcpy(DataPtr(), _str.DataPtr(), sizeof(_CharType) * kCapacity);
     }
 
-    NODISCARD FORCEINLINE Bool operator==(const TFixedString& str) noexcept { 
-        return strcmp(DataPtr(), str.DataPtr()) == 0;
+    NODISCARD FORCEINLINE Bool operator==(const TFixedString& _str) noexcept { 
+        return strcmp(DataPtr(), _str.DataPtr()) == 0;
     }
-    NODISCARD FORCEINLINE Bool operator!=(const TFixedString& str) noexcept {
-        return strcmp(DataPtr(), str.DataPtr()) != 0;
+    NODISCARD FORCEINLINE Bool operator!=(const TFixedString& _str) noexcept {
+        return strcmp(DataPtr(), _str.DataPtr()) != 0;
     }
      
-    NODISCARD FORCEINLINE constexpr CharType& operator[](IndexType index) noexcept { return string_[index]; }
-    NODISCARD FORCEINLINE constexpr const CharType& operator[](IndexType index) const noexcept { return string_[index]; }
+    NODISCARD FORCEINLINE constexpr _CharType& operator[](IndexType _index) noexcept { return string_[_index]; }
+    NODISCARD FORCEINLINE constexpr const _CharType& operator[](IndexType _index) const noexcept { 
+        return string_[_index]; 
+    }
 
-    NODISCARD FORCEINLINE constexpr CharType& At(IndexType index) noexcept { return string_.at(index); }
-    NODISCARD FORCEINLINE constexpr const CharType& At(IndexType index) const noexcept { return string_.at(index); } 
-    NODISCARD FORCEINLINE constexpr CharType* DataPtr() noexcept { return string_.data(); }
-    NODISCARD FORCEINLINE constexpr const CharType* DataPtr() const noexcept { return string_.data(); }
+    NODISCARD FORCEINLINE constexpr _CharType& At(IndexType _index) noexcept { return string_.at(_index); }
+    NODISCARD FORCEINLINE constexpr const _CharType& At(IndexType _index) const noexcept { return string_.at(_index); } 
+    NODISCARD FORCEINLINE constexpr _CharType* DataPtr() noexcept { return string_.data(); }
+    NODISCARD FORCEINLINE constexpr const _CharType* DataPtr() const noexcept { return string_.data(); }
 
     NODISCARD FORCEINLINE static constexpr IndexType Capacity() noexcept { return kCapacity; }
 
-    NODISCARD FORCEINLINE Iterator Begin() noexcept { return string_.begin(); }
-    NODISCARD FORCEINLINE ConstIterator Begin() const noexcept { return string_.begin(); }
-    NODISCARD FORCEINLINE ConstIterator ConstBegin() const noexcept { return string_.cbegin(); }
-    NODISCARD FORCEINLINE ReverseIterator ReverseBegin() noexcept { return string_.rbegin(); }
-    NODISCARD FORCEINLINE ConstReverseIterator ReverseBegin() const noexcept { return string_.rbegin(); }
-    NODISCARD FORCEINLINE ConstReverseIterator ConstReverseBegin() const noexcept { return string_.crbegin(); }
-    NODISCARD FORCEINLINE Iterator End() noexcept { return string_.end(); }
-    NODISCARD FORCEINLINE ConstIterator End() const noexcept { return string_.end(); }
-    NODISCARD FORCEINLINE ConstIterator ConstEnd() const noexcept { return string_.cend(); }
-    NODISCARD FORCEINLINE ReverseIterator ReverseEnd() noexcept { return string_.rend(); }
-    NODISCARD FORCEINLINE ConstReverseIterator ReverseEnd() const noexcept { return string_.rend(); }
-    NODISCARD FORCEINLINE ConstReverseIterator ConstReverseEnd() const noexcept { return string_.crend(); }
+    NODISCARD FORCEINLINE Iterator_ Begin() noexcept { return string_.begin(); }
+    NODISCARD FORCEINLINE ConstIterator_ Begin() const noexcept { return string_.begin(); }
+    NODISCARD FORCEINLINE ConstIterator_ ConstBegin() const noexcept { return string_.cbegin(); }
+    NODISCARD FORCEINLINE ReverseIterator_ ReverseBegin() noexcept { return string_.rbegin(); }
+    NODISCARD FORCEINLINE ConstReverseIterator_ ReverseBegin() const noexcept { return string_.rbegin(); }
+    NODISCARD FORCEINLINE ConstReverseIterator_ ConstReverseBegin() const noexcept { return string_.crbegin(); }
+    NODISCARD FORCEINLINE Iterator_ End() noexcept { return string_.end(); }
+    NODISCARD FORCEINLINE ConstIterator_ End() const noexcept { return string_.end(); }
+    NODISCARD FORCEINLINE ConstIterator_ ConstEnd() const noexcept { return string_.cend(); }
+    NODISCARD FORCEINLINE ReverseIterator_ ReverseEnd() noexcept { return string_.rend(); }
+    NODISCARD FORCEINLINE ConstReverseIterator_ ReverseEnd() const noexcept { return string_.rend(); }
+    NODISCARD FORCEINLINE ConstReverseIterator_ ConstReverseEnd() const noexcept { return string_.crend(); }
 
-    template<typename... ArgsType>
-    FORCEINLINE constexpr Void SetString(const CharType* format, ArgsType&&... args) noexcept {
-        if constexpr (kSameType<CharType, Char>) {
-            sprintf(DataPtr(), format, std::forward<ArgsType>(args)...);
+    template<typename... _ArgsType>
+    FORCEINLINE constexpr Void SetString(const _CharType* _format, _ArgsType&&... _args) noexcept {
+        if constexpr (kSameType<_CharType, Char>) {
+            sprintf(DataPtr(), _format, std::forward<_ArgsType>(_args)...);
         }
-        else if constexpr (kSameType<CharType, WChar>) {
-            swprintf(DataPtr(), format, std::forward<ArgsType>(args)...);
-        }
-    }
-    FORCEINLINE constexpr Void SetString(const CharType* format, ArgListType args) noexcept {
-        if constexpr (kSameType<CharType, Char>) {
-            vsprintf(DataPtr(), format, args);
-        }
-        else if constexpr (kSameType<CharType, WChar>) {
-            vswprintf(DataPtr(), format, args);
+        else if constexpr (kSameType<_CharType, WChar>) {
+            swprintf(DataPtr(), _format, std::forward<_ArgsType>(_args)...);
         }
     }
-    FORCEINLINE Void Fill(const CharType& value) noexcept { string_.fill(value); }
-    FORCEINLINE Void Swap(TFixedString& array) noexcept { string_.swap(array); }
+    FORCEINLINE constexpr Void SetString(const _CharType* _format, ArgListType _args) noexcept {
+        if constexpr (kSameType<_CharType, Char>) {
+            vsprintf(DataPtr(), _format, _args);
+        }
+        else if constexpr (kSameType<_CharType, WChar>) {
+            vswprintf(DataPtr(), _format, _args);
+        }
+    }
+    FORCEINLINE Void Fill(const _CharType& _val) noexcept { string_.fill(_val); }
+    FORCEINLINE Void Swap(TFixedString& _array) noexcept { string_.swap(_array); }
 
 protected:
-    using SuperType = ZObject;
+    using SuperType_ = ZObject;
 
 private:
-    STDArray string_;
+    STDArray_ string_;
 };
 
 }//internal
@@ -130,18 +133,18 @@ using TWFixedString = internal::TFixedString<WChar, kCapacity>;
 template <IndexType kCapacity>
 union FixedStringUnion {
 public:
-    FORCEINLINE FixedStringUnion() noexcept : c_str() {}
-    FORCEINLINE FixedStringUnion(const FixedStringUnion& string) noexcept {
-        c_str = string.c_str;
+    FORCEINLINE FixedStringUnion() noexcept : c_str_() {}
+    FORCEINLINE FixedStringUnion(const FixedStringUnion& _string) noexcept {
+        c_str_ = _string.c_str_;
     }
     FORCEINLINE ~FixedStringUnion() noexcept {}
 
-    FORCEINLINE FixedStringUnion& operator=(const FixedStringUnion& string) noexcept {
-        c_str = string.c_str;
+    FORCEINLINE FixedStringUnion& operator=(const FixedStringUnion& _string) noexcept {
+        c_str_ = _string.c_str_;
     }
 
-    TFixedString<kCapacity / sizeof(Char)> c_str;
-    TWFixedString<kCapacity / sizeof(WChar)> w_str;
+    TFixedString<kCapacity / sizeof(Char)> c_str_;
+    TWFixedString<kCapacity / sizeof(WChar)> w_str_;
 };
 
 }//zengine

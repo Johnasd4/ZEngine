@@ -34,38 +34,35 @@ class ZInfoLog : public ZLog {
 public:
     static constexpr TArray<const WChar*, kLogInfoMax> kLogInfoString = 
         TArray<const WChar*, kLogInfoMax>(
-            [](TArray<const WChar*, kLogInfoMax>* array_ptr) {
-                (*array_ptr)[0] = L"Message";
-                (*array_ptr)[1] = L"Start";
-                (*array_ptr)[2] = L"Process";
-                (*array_ptr)[3] = L"Finish";
-                (*array_ptr)[4] = L"Success";
-                (*array_ptr)[5] = L"Failure";
+            [](TArray<const WChar*, kLogInfoMax>* _array_ptr) {
+                (*_array_ptr)[0] = L"Message";
+                (*_array_ptr)[1] = L"Start";
+                (*_array_ptr)[2] = L"Process";
+                (*_array_ptr)[3] = L"Finish";
+                (*_array_ptr)[4] = L"Success";
+                (*_array_ptr)[5] = L"Failure";
             });
 
     ZInfoLog() noexcept;
-    ZInfoLog(TimeType raw_time,
-             LogInfoEnum info_type,
-             const WChar* format,
-             ArgListType args) noexcept;
+    ZInfoLog(TimeType _raw_time, LogInfoEnum _info_type, const WChar* _format, ArgListType _args) noexcept;
 
     /*
         Override it to output different formats.
     */
-    static Void GenerateLogString(const ZLog* log_ptr, OutputString* output_str_ptr) noexcept;
+    static Void GenerateLogString(const ZLog* _log_ptr, OutputString_* _output_str_ptr) noexcept;
 
     /*
         Console output error log string.
     */
-    static Void FileOutputLogString(const ZLog* log_ptr, const ZLog::OutputString& output_str) noexcept;
+    static Void FileOutputLogString(const ZLog* _log_ptr, const ZLog::OutputString_& _output_str) noexcept;
 
     /*
         File output error log string.
     */
-    static Void ConsoleOutputLogString(const ZLog* log_ptr, const ZLog::OutputString& output_str) noexcept;
+    static Void ConsoleOutputLogString(const ZLog* _log_ptr, const ZLog::OutputString_& _output_str) noexcept;
 
 protected:
-    using SuperType = ZLog;
+    using SuperType_ = ZLog;
 
 private:
     TimeType raw_time_;

@@ -28,7 +28,7 @@ namespace memory_pool {
     The base type of all memory block.
 */
 struct TMemoryBlockBase {
-    FORCEINLINE Void InitializeP(Void* pool_ptr) noexcept {}
+    FORCEINLINE Void InitializeP(Void* _pool_ptr) noexcept {}
 };
 
 }//memory_pool

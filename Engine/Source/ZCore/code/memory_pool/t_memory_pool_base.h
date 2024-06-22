@@ -44,7 +44,7 @@ public:
 protected:
     FORCEINLINE TMemoryPoolBase() noexcept : pool_type_() {}
 
-    FORCEINLINE Void InitializeP(MemoryPoolEnum pool_type) noexcept { pool_type_ = pool_type; }
+    FORCEINLINE Void InitializeP(MemoryPoolEnum _pool_type) noexcept { pool_type_ = _pool_type; }
 
 private:
     TMemoryPoolBase(const TMemoryPoolBase&) = delete;

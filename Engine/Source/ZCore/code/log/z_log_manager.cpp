@@ -23,42 +23,49 @@
 namespace zengine {
 namespace log {
 
-Void ZLogManager::LogError(TimeType raw_time,
-                           const Char* err_project,
-                           const Char* err_file,
-                           const Char* err_func,
-                           Int32 err_line,
-                           ReturnType err_code,
-                           ReturnType link_code,
-                           const Char* format,
-                           ArgListType args) noexcept {
+Void ZLogManager::LogError(
+    TimeType _raw_time,
+    const Char* _err_project,
+    const Char* _err_file,
+    const Char* _err_func,
+    Int32 _err_line,
+    ReturnType _err_code,
+    ReturnType _link_code,
+    const Char* _format,
+    ArgListType _args
+) noexcept {
     static ZLogManager& log_manager = ZLogManager::InstanceP();
     log_manager.error_log_queue_.Push(
-        raw_time, err_project, err_file, err_func, err_line, err_code, link_code, format, args);
+        _raw_time, _err_project, _err_file, _err_func, _err_line, _err_code, _link_code, _format, _args);
 }
 
-Void ZLogManager::LogTrace(TimeType raw_time,
-                           const WChar* project,
-                           const WChar* format,
-                           ArgListType args) noexcept {
+Void ZLogManager::LogTrace(
+    TimeType _raw_time,
+    const WChar* _project,
+    const WChar* _format,
+    ArgListType _args
+) noexcept {
     static ZLogManager& log_manager = ZLogManager::InstanceP();
-    log_manager.trace_log_queue_.Push(raw_time, project, format, args);
+    log_manager.trace_log_queue_.Push(_raw_time, _project, _format, _args);
 }
 
-Void ZLogManager::LogInfo(TimeType raw_time,
-                          LogInfoEnum info_type,
-                          const WChar* format,
-                          ArgListType args) noexcept {
+Void ZLogManager::LogInfo(
+    TimeType _raw_time,
+    LogInfoEnum _info_type,
+    const WChar* _format,
+    ArgListType _args
+) noexcept {
     static ZLogManager& log_manager = ZLogManager::InstanceP();
-    log_manager.info_log_queue_.Push(raw_time, info_type, format, args);
+    log_manager.info_log_queue_.Push(_raw_time, _info_type, _format, _args);
 }
 
 NODISCARD ReturnType ZLogManager::RegisterLogServerInputFunction(
-        IndexType port_id, Void(*input_func)(const ZLog*, ZLog::OutputString*)) noexcept {
+    IndexType _port_id, Void(*_input_func)(const ZLog*, ZLog::OutputString_*)
+) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
-    port_id = (port_id + ZLogServer::kMaxPortNum) % ZLogServer::kMaxPortNum;
-    link_code = ZLogManager::InstanceP().log_server_.RegisterInputFunction(port_id, input_func);
+    _port_id = (_port_id + ZLogServer::kMaxPortNum) % ZLogServer::kMaxPortNum;
+    link_code = ZLogManager::InstanceP().log_server_.RegisterInputFunction(_port_id, _input_func);
     if (link_code != kOK) {
         ret_val = error_code::kMLogErrorCodeLinkError;
         Z_LOG_ERROR(ret_val, link_code, "ZLogServer::RegisterInputFunction() link error!");
@@ -69,11 +76,12 @@ NODISCARD ReturnType ZLogManager::RegisterLogServerInputFunction(
 }
 
 NODISCARD ReturnType ZLogManager::UnregisterLogServerInputFunction(
-        IndexType port_id, Void(*input_func)(const ZLog*, ZLog::OutputString*)) noexcept {
+    IndexType _port_id, Void(*_input_func)(const ZLog*, ZLog::OutputString_*)
+) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
-    port_id = (port_id + ZLogServer::kMaxPortNum) % ZLogServer::kMaxPortNum;
-    link_code = ZLogManager::InstanceP().log_server_.UnregisterInputFunction(port_id, input_func);
+    _port_id = (_port_id + ZLogServer::kMaxPortNum) % ZLogServer::kMaxPortNum;
+    link_code = ZLogManager::InstanceP().log_server_.UnregisterInputFunction(_port_id, _input_func);
     if (link_code != kOK) {
         ret_val = error_code::kMLogErrorCodeLinkError;
         Z_LOG_ERROR(ret_val, link_code, "ZLogServer::UnregisterInputFunction() link error!");
@@ -84,11 +92,12 @@ NODISCARD ReturnType ZLogManager::UnregisterLogServerInputFunction(
 }
 
 NODISCARD ReturnType ZLogManager::RegisterLogServerOutputFunction(
-        IndexType port_id, Void(*output_func)(const ZLog*, const ZLog::OutputString&)) noexcept {
+    IndexType _port_id, Void(*_output_func)(const ZLog*, const ZLog::OutputString_&)
+) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
-    port_id = (port_id + ZLogServer::kMaxPortNum) % ZLogServer::kMaxPortNum;
-    link_code = ZLogManager::InstanceP().log_server_.RegisterOutputFunction(port_id, output_func);
+    _port_id = (_port_id + ZLogServer::kMaxPortNum) % ZLogServer::kMaxPortNum;
+    link_code = ZLogManager::InstanceP().log_server_.RegisterOutputFunction(_port_id, _output_func);
     if (link_code != kOK) {
         ret_val = error_code::kMLogErrorCodeLinkError;
         Z_LOG_ERROR(ret_val, link_code, "ZLogServer::RegisterOutputFunction() link error!");
@@ -99,8 +108,9 @@ NODISCARD ReturnType ZLogManager::RegisterLogServerOutputFunction(
 }
 
 Void ZLogManager::UnregisterLogServerOutputFunction(
-        Void(*output_func)(const ZLog*, const ZLog::OutputString&)) noexcept {
-    ZLogManager::InstanceP().log_server_.UnregisterOutputFunction(output_func);
+    Void(*_output_func)(const ZLog*, const ZLog::OutputString_&)
+) noexcept {
+    ZLogManager::InstanceP().log_server_.UnregisterOutputFunction(_output_func);
 }
 
 ZLogManager& ZLogManager::InstanceP() noexcept {
@@ -152,7 +162,7 @@ Void ZLogManager::LogThread() noexcept {
 }
 
 ZLogManager::ZLogManager() noexcept 
-        : SuperType() 
+        : SuperType_() 
         , error_log_queue_()
         , log_queue_array_()
         , log_server_()

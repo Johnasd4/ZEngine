@@ -47,7 +47,7 @@ enum ZFileErrorCode : ReturnType {
 class CORE_DLLAPI ZFile : public ZObject {
 public:
 
-    enum SeekType : Int32 {
+    enum SeekType_ : Int32 {
         kZFileSeekTypeFileHead = SEEK_SET,
         kZFileSeekTypeCurrntPtr = SEEK_CUR,
         kZFileSeekTypeFileEnd = SEEK_END,
@@ -106,49 +106,49 @@ public:
     /*The max length of the file name.*/
     static constexpr IndexType kFileNameLength = 512;
 
-    FORCEINLINE ZFile() noexcept : SuperType(), file_ptr_(nullptr) {}
+    FORCEINLINE ZFile() noexcept : SuperType_(), file_ptr_(nullptr) {}
     FORCEINLINE ~ZFile() noexcept { if (file_ptr_ != nullptr) { fclose(file_ptr_); } }
 
     /*
         Read binary out of the file.
     */
-    NODISCARD ReturnType Read(Void* data_ptr, SizeType data_size) noexcept;
+    NODISCARD ReturnType Read(Void* _data_ptr, SizeType _data_size) noexcept;
     /*
         Write binary in to the file.
     */
-    NODISCARD ReturnType Write(Void* data_ptr, SizeType data_size) noexcept;
+    NODISCARD ReturnType Write(Void* _data_ptr, SizeType _data_size) noexcept;
     /*
         Scans from the file.
     */
-    NODISCARD ReturnType Scan(const Char* format, ArgListType args) noexcept;
+    NODISCARD ReturnType Scan(const Char* _format, ArgListType _args) noexcept;
     /*
         Scans from the file.
     */
-    NODISCARD ReturnType Scan(const Char* format, ...) noexcept;
+    NODISCARD ReturnType Scan(const Char* _format, ...) noexcept;
     /*
         Scans from the file.
     */
-    NODISCARD ReturnType Scan(const WChar* format, ArgListType args) noexcept;
+    NODISCARD ReturnType Scan(const WChar* _format, ArgListType _args) noexcept;
     /*
         Scans from the file.
     */
-    NODISCARD ReturnType Scan(const WChar* format, ...) noexcept;
+    NODISCARD ReturnType Scan(const WChar* _format, ...) noexcept;
     /*
         Prints in the file.
     */
-    NODISCARD ReturnType Print(const Char* format, ArgListType args) noexcept;
+    NODISCARD ReturnType Print(const Char* _format, ArgListType _args) noexcept;
     /*
         Prints in the file.
     */
-    NODISCARD ReturnType Print(const Char* format, ...) noexcept;
+    NODISCARD ReturnType Print(const Char* _format, ...) noexcept;
     /*
         Prints in the file.
     */
-    NODISCARD ReturnType Print(const WChar* format, ArgListType args) noexcept;
+    NODISCARD ReturnType Print(const WChar* _format, ArgListType _args) noexcept;
     /*
         Prints in the file.
     */
-    NODISCARD ReturnType Print(const WChar* format, ...) noexcept;
+    NODISCARD ReturnType Print(const WChar* _format, ...) noexcept;
 
     /*
         If a file is opened.
@@ -157,39 +157,37 @@ public:
     /*
         If the path exists.
     */
-    NODISCARD Bool PathExist(const Char* path_dir) noexcept;
+    NODISCARD Bool PathExist(const Char* _path_dir) noexcept;
     /*
         If the path exists.
     */
-    NODISCARD Bool PathExist(const WChar* path_dir) noexcept;
+    NODISCARD Bool PathExist(const WChar* _path_dir) noexcept;
 
     /*
         Creates the path if the path doesn't exist.
     */
-    NODISCARD ReturnType CreatePath(const Char* path_dir) noexcept;
+    NODISCARD ReturnType CreatePath(const Char* _path_dir) noexcept;
     /*
         Creates the path if the path doesn't exist.
     */
-    NODISCARD ReturnType CreatePath(const WChar* path_dir) noexcept;
+    NODISCARD ReturnType CreatePath(const WChar* _path_dir) noexcept;
 
     /*
         Opens the file, needs the path exist.
     */
-    NODISCARD ReturnType Open(const Char* file_dir, const Char* open_type) noexcept;
+    NODISCARD ReturnType Open(const Char* _file_dir, const Char* _open_type) noexcept;
     /*
         Opens the file, needs the path exist.
     */
-    NODISCARD ReturnType Open(const WChar* file_dir,const WChar* open_type) noexcept;
+    NODISCARD ReturnType Open(const WChar* _file_dir,const WChar* _open_type) noexcept;
     /*
         Opens the file safe, will create the path if the path doesn't exist.
     */
-    NODISCARD ReturnType OpenSafe(const Char* path_dir, const Char* file_dir,
-                                              const Char* open_type) noexcept;
+    NODISCARD ReturnType OpenSafe(const Char* _path_dir, const Char* _file_dir, const Char* _open_type) noexcept;
     /*
         Opens the file safe, will create the path if the path doesn't exist.
     */
-    NODISCARD ReturnType OpenSafe(const WChar* path_dir, const WChar* file_dir,
-                                              const WChar* open_type) noexcept;
+    NODISCARD ReturnType OpenSafe(const WChar* _path_dir, const WChar* _file_dir, const WChar* _open_type) noexcept;
     /*
         Close the current file.
     */
@@ -201,18 +199,18 @@ public:
         offset: The offset to the start place.
         seek_type: Where to start to seek,
     */
-    NODISCARD ReturnType Seek(Int32 offset, SeekType seek_type) noexcept;
+    NODISCARD ReturnType Seek(Int32 _offset, SeekType_ _seek_type) noexcept;
     /*
         Gets the ptr where to read and write.
         Parameters:
         pos_ptr: returns the pos of the current ptr.
     */
-    NODISCARD ReturnType Tell(Int32* pos_ptr) noexcept;
+    NODISCARD ReturnType Tell(Int32* _pos_ptr) noexcept;
 
 
 
 protected:
-    using SuperType = ZObject;
+    using SuperType_ = ZObject;
 
 private:
     ZFile(const ZFile&) = delete;

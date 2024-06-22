@@ -23,10 +23,10 @@
 
 #include "f_console.h"
 
-#define Z_TIME_TEST_ONE_TIME(code) {\
-		Int32 start_time,end_time;\
+#define Z_TIME_TEST_ONE_TIME(_code) {\
+		Int32 start_time, end_time;\
 		start_time = clock();\
-		code;\
+		_code;\
 		end_time = clock();\
 		zengine::console::Print(\
 			zengine::console::PrintTextColourEnum::kPrintTextColourLightYellow,\

@@ -40,58 +40,61 @@ enum TUniqueLockErrorCode : ReturnType {
 /*
     Unique lock class, controls the mutex.
 */
-template<typename MutexType>
+template<typename _MutexType>
 class TUniqueLock : public ZObject {
 private:
-    struct NoLockType { Int32 value; };
-    struct TryLockType { Int32 value; };
-    struct TryLockForType { Int32 value; };
-    struct TryLockUntilType { Int32 value; };
+    struct NoLockType_ { Int32 value; };
+    struct TryLockType_ { Int32 value; };
+    struct TryLockForType_ { Int32 value; };
+    struct TryLockUntilType_ { Int32 value; };
 
 public:
-    static constexpr NoLockType kNoLock = { 0 };
-    static constexpr TryLockType kTryLock = { 0 };
-    static constexpr TryLockForType kTryLockFor = { 0 };
-    static constexpr TryLockUntilType kTryLockUntil = { 0 };
+    static constexpr NoLockType_ kNoLock = { 0 };
+    static constexpr TryLockType_ kTryLock = { 0 };
+    static constexpr TryLockForType_ kTryLockFor = { 0 };
+    static constexpr TryLockUntilType_ kTryLockUntil = { 0 };
 
-    TUniqueLock() noexcept : SuperType(), mutex_ptr_(nullptr), owns_lock_(false) {}
-    TUniqueLock(TUniqueLock&& unique_lock) noexcept 
-            : SuperType(), mutex_ptr_(unique_lock.mutex_ptr_), owns_lock_(unique_lock.owns_lock_)  {
-        unique_lock.mutex_ptr_ = nullptr;
-        unique_lock.owns_lock_ = true;
+    TUniqueLock() noexcept : SuperType_(), mutex_ptr_(nullptr), owns_lock_(false) {}
+    TUniqueLock(TUniqueLock&& _unique_lock) noexcept 
+        : SuperType_(), mutex_ptr_(_unique_lock.mutex_ptr_), owns_lock_(_unique_lock.owns_lock_)  
+    {
+        _unique_lock.mutex_ptr_ = nullptr;
+        _unique_lock.owns_lock_ = true;
     }
     /*
         Locks the mutex.
     */
-    TUniqueLock(MutexType& mutex) noexcept : SuperType(), mutex_ptr_(&mutex) {
+    TUniqueLock(_MutexType& _mutex) noexcept : SuperType_(), mutex_ptr_(&_mutex) {
         mutex_ptr_->Lock();
         owns_lock_ = true;
     }
     /*
-        Don't lock the mutex.
+        Does not lock the mutex.
     */
-    explicit TUniqueLock(MutexType& mutex, NoLockType value) noexcept : SuperType(), mutex_ptr_(&mutex) {
+    explicit TUniqueLock(_MutexType& _mutex, NoLockType_ _value) noexcept : SuperType_(), mutex_ptr_(&_mutex) {
         owns_lock_ = false;
     }
     /*
         Try to get the lock.
     */
-    explicit TUniqueLock(MutexType& mutex, TryLockType value) noexcept : SuperType(), mutex_ptr_(&mutex) {
+    explicit TUniqueLock(_MutexType& _mutex, TryLockType_ _value) noexcept : SuperType_(), mutex_ptr_(&_mutex) {
         owns_lock_ = mutex_ptr_->TryLock();
     }
     /*
          Try to get the lock in a certain time(ms).
     */
-    explicit TUniqueLock(MutexType& mutex, TryLockForType value, UInt32 time) noexcept 
-            : SuperType(), mutex_ptr_(&mutex) {
-        owns_lock_ = mutex_ptr_->TryLockFor(time);
+    explicit TUniqueLock(_MutexType& _mutex, TryLockForType_ _value, UInt32 _time) noexcept
+        : SuperType_(), mutex_ptr_(&_mutex) 
+    {
+        owns_lock_ = mutex_ptr_->TryLockFor(_time);
     }
     /*
          Try to get the lock before a certain time(ms), use clock() to get the current time.
     */
-    explicit TUniqueLock(MutexType& mutex, TryLockUntilType value, UInt32 time) noexcept
-        : SuperType(), mutex_ptr_(&mutex) {
-        owns_lock_ = mutex_ptr_->TryLockUntil(time);
+    explicit TUniqueLock(_MutexType& _mutex, TryLockUntilType_ _value, UInt32 _time) noexcept
+        : SuperType_(), mutex_ptr_(&_mutex) 
+    {
+        owns_lock_ = mutex_ptr_->TryLockUntil(_time);
     }
 
     /*
@@ -103,13 +106,13 @@ public:
         }
     }
 
-    TUniqueLock& operator=(TUniqueLock&& unique_lock) noexcept {
-        mutex_ptr_ = unique_lock.mutex_ptr_;
-        owns_lock_ = unique_lock.owns_lock_;
+    TUniqueLock& operator=(TUniqueLock&& _unique_lock) noexcept {
+        mutex_ptr_ = _unique_lock.mutex_ptr_;
+        owns_lock_ = _unique_lock.owns_lock_;
         return *this;
     }
 
-    NODISCARD FORCEINLINE MutexType* MutexPtr() noexcept { return mutex_ptr_; }
+    NODISCARD FORCEINLINE _MutexType* MutexPtr() noexcept { return mutex_ptr_; }
     NODISCARD FORCEINLINE Bool OwnsLock() noexcept { return owns_lock_; }
 
     Void Lock() noexcept { 
@@ -138,27 +141,27 @@ public:
     /*
         Try to get the lock in a certain time(ms), return true if success.
     */
-    NODISCARD Bool TryLockFor(UInt32 time) noexcept {
+    NODISCARD Bool TryLockFor(UInt32 _time) noexcept {
         ReturnType link_code = LockValidCheckP();
         if (link_code != kOK) {
             Z_LOG_ERROR(error_code::kTUniqueLockErrorCodeLinkError, link_code,
                 "TUniqueLock::LockValidCheckP() link error!");
             return false;
         }
-        owns_lock_ = mutex_ptr_->TryLockFor(time);
+        owns_lock_ = mutex_ptr_->TryLockFor(_time);
         return owns_lock_;
     }
     /*
         Try to get the lock before a certain time(ms), use clock() to get the current time, return true if success.
     */
-    NODISCARD Bool TryLockUntil(UInt32 time) noexcept {
+    NODISCARD Bool TryLockUntil(UInt32 _time) noexcept {
         ReturnType link_code = LockValidCheckP();
         if (link_code != kOK) {
             Z_LOG_ERROR(error_code::kTUniqueLockErrorCodeLinkError, link_code,
                 "TUniqueLock::LockValidCheckP() link error!");
             return false;
         }
-        owns_lock_ = mutex_ptr_->TryLockUntil(time);
+        owns_lock_ = mutex_ptr_->TryLockUntil(_time);
         return owns_lock_;
     }
     Void Unlock() noexcept { 
@@ -172,24 +175,24 @@ public:
         owns_lock_ = false;
     }
 
-    Void Swap(TUniqueLock& unique_lock) noexcept {
-        MutexType* temp_mutex_ptr_ = mutex_ptr_;
+    Void Swap(TUniqueLock& _unique_lock) noexcept {
+        _MutexType* temp_mutex_ptr_ = mutex_ptr_;
         Bool temp_own = owns_lock_;
-        mutex_ptr_ = unique_lock.mutex_ptr_;
-        owns_lock_ = unique_lock.owns_lock_;
-        unique_lock.mutex_ptr_ = temp_mutex_ptr_;
-        unique_lock.owns_lock_ = temp_own;
+        mutex_ptr_ = _unique_lock.mutex_ptr_;
+        owns_lock_ = _unique_lock.owns_lock_;
+        _unique_lock.mutex_ptr_ = temp_mutex_ptr_;
+        _unique_lock.owns_lock_ = temp_own;
     }
 
-    MutexType* Release() noexcept {
-        MutexType* temp_mutex_ptr_ = mutex_ptr_;
+    _MutexType* Release() noexcept {
+        _MutexType* temp_mutex_ptr_ = mutex_ptr_;
         mutex_ptr_ = nullptr;
         owns_lock_ = false;
         return temp_mutex_ptr_;
     }
 
 protected:
-    using SuperType = ZObject;
+    using SuperType_ = ZObject;
 
 private:
     TUniqueLock(const TUniqueLock&) = delete;
@@ -231,7 +234,7 @@ private:
         return ret_val;
     }
 
-    MutexType* mutex_ptr_;
+    _MutexType* mutex_ptr_;
     Bool owns_lock_;
 };
 

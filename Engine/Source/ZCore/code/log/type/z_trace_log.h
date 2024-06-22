@@ -32,28 +32,25 @@ namespace log {
 class ZTraceLog : public ZLog {
 public:
     ZTraceLog() noexcept;
-    ZTraceLog(TimeType raw_time,
-              const WChar* project,
-              const WChar* format,
-              ArgListType args) noexcept;
+    ZTraceLog(TimeType _raw_time, const WChar* _project, const WChar* _format, ArgListType _args) noexcept;
 
     /*
         Override it to output different formats.
     */
-    static Void GenerateLogString(const ZLog* log_ptr, OutputString* output_str_ptr) noexcept;
+    static Void GenerateLogString(const ZLog* _log_ptr, OutputString_* _output_str_ptr) noexcept;
 
     /*
         Console output error log string.
     */
-    static Void FileOutputLogString(const ZLog* log_ptr, const ZLog::OutputString& output_str) noexcept;
+    static Void FileOutputLogString(const ZLog* _log_ptr, const ZLog::OutputString_& _output_str) noexcept;
 
     /*
         File output error log string.
     */
-    static Void ConsoleOutputLogString(const ZLog* log_ptr, const ZLog::OutputString& output_str) noexcept;
+    static Void ConsoleOutputLogString(const ZLog* _log_ptr, const ZLog::OutputString_& _output_str) noexcept;
 
 protected:
-    using SuperType = ZLog;
+    using SuperType_ = ZLog;
 
 private:
     TimeType raw_time_;

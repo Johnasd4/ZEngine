@@ -68,8 +68,7 @@ int main() {
     sizeof(TTuple<Int32>);
     thread_pool.LockUntilTaskDone();
 
-    ZString str = "asd";
-    cout << str.String();
+
 
     return 0;
 }

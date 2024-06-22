@@ -27,35 +27,36 @@
 
 namespace zengine {
 
-template<typename... ArgsType>
+template<typename... _ArgsType>
 class TTuple : public ZObject {
 public:
-    using STDTuple = std::tuple<ArgsType...>;
+    using STDTuple_ = std::tuple<_ArgsType...>;
     template <IndexType kIndex>
-    using TupleObjectType = std::tuple_element<kIndex, STDTuple>::type;
+    using TupleObjectType_ = std::tuple_element<kIndex, STDTuple_>::type;
 
-    FORCEINLINE constexpr TTuple(const TTuple& tuple) noexcept : SuperType(), tuple_(tuple.tuple_) {}
-    FORCEINLINE constexpr TTuple(TTuple&& tuple) noexcept : SuperType(), tuple_(std::move(tuple.tuple_)) {}
-    FORCEINLINE constexpr TTuple(ArgsType&&... args) noexcept : SuperType(), tuple_(std::forward<ArgsType>(args)...) {}
+    FORCEINLINE constexpr TTuple(const TTuple& _tuple) noexcept : SuperType_(), tuple_(_tuple.tuple_) {}
+    FORCEINLINE constexpr TTuple(TTuple&& _tuple) noexcept : SuperType_(), tuple_(std::move(_tuple.tuple_)) {}
+    FORCEINLINE constexpr TTuple(_ArgsType&&... _args) noexcept 
+        : SuperType_(), tuple_(std::forward<_ArgsType>(_args)...) {}
     FORCEINLINE constexpr ~TTuple() noexcept {}
 
-    FORCEINLINE constexpr TTuple& operator=(const TTuple& tuple) noexcept {
-        tuple_.operator=(tuple.tuple_);
+    FORCEINLINE constexpr TTuple& operator=(const TTuple& _tuple) noexcept {
+        tuple_.operator=(_tuple.tuple_);
         return *this;
     }
-    FORCEINLINE constexpr TTuple& operator=(TTuple&& tuple) noexcept {
-        tuple_.operator=(std::move(tuple.tuple_));
+    FORCEINLINE constexpr TTuple& operator=(TTuple&& _tuple) noexcept {
+        tuple_.operator=(std::move(_tuple.tuple_));
         return *this;
     }
-    template<typename... OtherTupleArgsType>
-    FORCEINLINE constexpr TTuple& operator=(const TTuple<OtherTupleArgsType...>& tuple) noexcept {
-        tuple_.operator=(tuple.tuple_);
+    template<typename... _OtherTupleArgsType>
+    FORCEINLINE constexpr TTuple& operator=(const TTuple<_OtherTupleArgsType...>& _tuple) noexcept {
+        tuple_.operator=(_tuple.tuple_);
         return *this;
     }
 
-    template<typename ObjectType>
-    FORCEINLINE constexpr Void Swap(TTuple& tuple) noexcept {
-        tuple_.swap(tuple.tuple_);
+    template<typename _ObjectType>
+    FORCEINLINE constexpr Void Swap(TTuple& _tuple) noexcept {
+        tuple_.swap(_tuple.tuple_);
     }
 
     template<IndexType kIndex>
@@ -66,113 +67,113 @@ public:
     NODISCARD FORCEINLINE constexpr decltype(auto) Get() const noexcept {
         return std::get<kIndex>(tuple_);
     }
-    template<typename ObjectType>
-    NODISCARD FORCEINLINE constexpr ObjectType& Get() noexcept {
-        return std::get<ObjectType>(tuple_);
+    template<typename _ObjectType>
+    NODISCARD FORCEINLINE constexpr _ObjectType& Get() noexcept {
+        return std::get<_ObjectType>(tuple_);
     }
-    template<typename ObjectType>
-    NODISCARD FORCEINLINE constexpr const ObjectType& Get() const noexcept {
-        return std::get<ObjectType>(tuple_);
+    template<typename _ObjectType>
+    NODISCARD FORCEINLINE constexpr const _ObjectType& Get() const noexcept {
+        return std::get<_ObjectType>(tuple_);
     }
 
     template<IndexType kIndex>
-    FORCEINLINE constexpr Void Set(const TupleObjectType<kIndex>& object) noexcept {
-        std::get<kIndex>(tuple_) = object;
+    FORCEINLINE constexpr Void Set(const TupleObjectType_<kIndex>& _object) noexcept {
+        std::get<kIndex>(tuple_) = _object;
     }
     template<IndexType kIndex>
-    FORCEINLINE constexpr Void Set(TupleObjectType<kIndex>&& object) noexcept {
-        std::get<kIndex>(tuple_) = std::forward<TupleObjectType<kIndex>>(object);
+    FORCEINLINE constexpr Void Set(TupleObjectType_<kIndex>&& _object) noexcept {
+        std::get<kIndex>(tuple_) = std::forward<TupleObjectType_<kIndex>>(_object);
     }
-    template<typename ObjectType>
-    FORCEINLINE constexpr Void Set(const ObjectType& object) noexcept {
-        std::get<ObjectType>(tuple_) = object;
+    template<typename _ObjectType>
+    FORCEINLINE constexpr Void Set(const _ObjectType& _object) noexcept {
+        std::get<_ObjectType>(tuple_) = _object;
     }
-    template<typename ObjectType>
-    FORCEINLINE constexpr Void Set(ObjectType&& object) noexcept {
-        std::get<ObjectType>(tuple_) = std::forward<ObjectType>(object);
+    template<typename _ObjectType>
+    FORCEINLINE constexpr Void Set(_ObjectType&& _object) noexcept {
+        std::get<_ObjectType>(tuple_) = std::forward<_ObjectType>(_object);
     }
 
     NODISCARD FORCEINLINE constexpr const IndexType Size() const noexcept {
-        return static_cast<IndexType>(std::tuple_size<STDTuple>::value);
+        return static_cast<IndexType>(std::tuple_size<STDTuple_>::value);
     }
-    template<typename Function>
-    NODISCARD FORCEINLINE constexpr decltype(auto) Apply(Function&& func) noexcept {
-        return std::apply(std::forward<Function>(func), std::move(tuple_));
+    template<typename _Function>
+    NODISCARD FORCEINLINE constexpr decltype(auto) Apply(_Function&& func) noexcept {
+        return std::apply(std::forward<_Function>(func), std::move(tuple_));
     }
 
 protected:
-    using SuperType = ZObject;
+    using SuperType_ = ZObject;
 
 private:
-    template<typename... OtherArgsType>
+    template<typename... _OtherArgsType>
     friend class TTuple;
 
-    STDTuple tuple_;
+    STDTuple_ tuple_;
 };
 
 namespace tuple {
 
-template<typename... ArgsType>
-NODISCARD FORCEINLINE constexpr TTuple<ArgsType...> MakeTuple(ArgsType&&... args) noexcept {
-    return TTuple(std::forward<ArgsType>(args)...);
+template<typename... _ArgsType>
+NODISCARD FORCEINLINE constexpr TTuple<_ArgsType...> MakeTuple(_ArgsType&&... _args) noexcept {
+    return TTuple(std::forward<_ArgsType>(_args)...);
 }
 
-template<typename... ArgsType>
-NODISCARD FORCEINLINE constexpr TTuple<ArgsType&...> Tie(ArgsType&... args) noexcept {
-    return TTuple<ArgsType&...>(args...);
+template<typename... _ArgsType>
+NODISCARD FORCEINLINE constexpr TTuple<_ArgsType&...> Tie(_ArgsType&... _args) noexcept {
+    return TTuple<_ArgsType&...>(_args...);
 }
 
-template<IndexType kIndex, typename... ArgsType>
-NODISCARD FORCEINLINE constexpr decltype(auto) Get(TTuple<ArgsType...>& tuple) noexcept {
-    return tuple.Get<kIndex>();
+template<IndexType kIndex, typename... _ArgsType>
+NODISCARD FORCEINLINE constexpr decltype(auto) Get(TTuple<_ArgsType...>& _tuple) noexcept {
+    return _tuple.Get<kIndex>();
 }
-template<IndexType kIndex, typename... ArgsType>
-NODISCARD FORCEINLINE constexpr decltype(auto) Get(const TTuple<ArgsType...>& tuple) noexcept {
-    return tuple.Get<kIndex>();
+template<IndexType kIndex, typename... _ArgsType>
+NODISCARD FORCEINLINE constexpr decltype(auto) Get(const TTuple<_ArgsType...>& _tuple) noexcept {
+    return _tuple.Get<kIndex>();
 }
-template<IndexType kIndex, typename... ArgsType>
-NODISCARD FORCEINLINE constexpr decltype(auto) Get(TTuple<ArgsType...>&& tuple) noexcept {
-    return std::move(tuple.Get<kIndex>());
+template<IndexType kIndex, typename... _ArgsType>
+NODISCARD FORCEINLINE constexpr decltype(auto) Get(TTuple<_ArgsType...>&& _tuple) noexcept {
+    return std::move(_tuple.Get<kIndex>());
 }
-template<IndexType kIndex, typename... ArgsType>
-NODISCARD FORCEINLINE constexpr decltype(auto) Get(const TTuple<ArgsType...>&& tuple) noexcept {
-    return std::move(tuple.Get<kIndex>());
+template<IndexType kIndex, typename... _ArgsType>
+NODISCARD FORCEINLINE constexpr decltype(auto) Get(const TTuple<_ArgsType...>&& _tuple) noexcept {
+    return std::move(_tuple.Get<kIndex>());
 }
-template<typename ObjectType, typename... ArgsType>
-NODISCARD FORCEINLINE constexpr ObjectType& Get(TTuple<ArgsType...>& tuple) noexcept {
-    return tuple.Get<ObjectType>();
+template<typename _ObjectType, typename... _ArgsType>
+NODISCARD FORCEINLINE constexpr _ObjectType& Get(TTuple<_ArgsType...>& _tuple) noexcept {
+    return _tuple.Get<_ObjectType>();
 }
-template<typename ObjectType, typename... ArgsType>
-NODISCARD FORCEINLINE constexpr const ObjectType& Get(const TTuple<ArgsType...>& tuple) noexcept {
-    return tuple.Get<ObjectType>();
+template<typename _ObjectType, typename... _ArgsType>
+NODISCARD FORCEINLINE constexpr const _ObjectType& Get(const TTuple<_ArgsType...>& _tuple) noexcept {
+    return _tuple.Get<_ObjectType>();
 }
-template<typename ObjectType, typename... ArgsType>
-NODISCARD FORCEINLINE constexpr ObjectType&& Get(TTuple<ArgsType...>&& tuple) noexcept {
-    return std::move(tuple.Get<ObjectType>());
+template<typename _ObjectType, typename... _ArgsType>
+NODISCARD FORCEINLINE constexpr _ObjectType&& Get(TTuple<_ArgsType...>&& _tuple) noexcept {
+    return std::move(_tuple.Get<_ObjectType>());
 }
-template<typename ObjectType, typename... ArgsType>
-NODISCARD FORCEINLINE constexpr const ObjectType&& Get(const TTuple<ArgsType...>&& tuple) noexcept {
-    return std::move(tuple.Get<ObjectType>());
-}
-
-template<IndexType kIndex, typename ObjectType, typename... ArgsType>
-FORCEINLINE constexpr Void Set(TTuple<ArgsType...>* tuple, ObjectType&& object) noexcept {
-    tuple->Set<kIndex>(std::forward<ObjectType>(object));
+template<typename _ObjectType, typename... _ArgsType>
+NODISCARD FORCEINLINE constexpr const _ObjectType&& Get(const TTuple<_ArgsType...>&& _tuple) noexcept {
+    return std::move(_tuple.Get<_ObjectType>());
 }
 
-template<typename ObjectType, typename... ArgsType>
-FORCEINLINE constexpr Void Set(TTuple<ArgsType...>* tuple, ObjectType&& object) noexcept {
-    tuple->Set<ObjectType>(std::forward<ObjectType>(object));
+template<IndexType kIndex, typename _ObjectType, typename... _ArgsType>
+FORCEINLINE constexpr Void Set(TTuple<_ArgsType...>* _tuple, _ObjectType&& _object) noexcept {
+    _tuple->Set<kIndex>(std::forward<_ObjectType>(_object));
 }
 
-template<typename... ArgsType>
-NODISCARD FORCEINLINE constexpr const IndexType Size(const TTuple<ArgsType...>& tuple) noexcept {
-    return tuple.Size();
+template<typename _ObjectType, typename... _ArgsType>
+FORCEINLINE constexpr Void Set(TTuple<_ArgsType...>* _tuple, _ObjectType&& _object) noexcept {
+    _tuple->Set<_ObjectType>(std::forward<_ObjectType>(_object));
 }
 
-template<typename Function,typename... ArgsType>
-NODISCARD FORCEINLINE constexpr decltype(auto) Apply(Function&& func, TTuple<ArgsType...>&& tuple) noexcept {
-    return tuple.Apply(std::forward<Function>(func));
+template<typename... _ArgsType>
+NODISCARD FORCEINLINE constexpr const IndexType Size(const TTuple<_ArgsType...>& _tuple) noexcept {
+    return _tuple.Size();
+}
+
+template<typename _Function,typename... _ArgsType>
+NODISCARD FORCEINLINE constexpr decltype(auto) Apply(_Function&& _func, TTuple<_ArgsType...>&& _tuple) noexcept {
+    return _tuple.Apply(std::forward<_Function>(_func));
 }
 
 }//tuple

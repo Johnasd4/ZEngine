@@ -36,25 +36,25 @@ public:
     /*
         Overwrite the new and delete operator to use the memory from the memorypool.
     */
-    NODISCARD FORCEINLINE static Void* operator new(SizeType size) {
-        return memory_pool::ApplyMemory(static_cast<MemoryType>(size));
+    NODISCARD FORCEINLINE static Void* operator new(SizeType _size) {
+        return memory_pool::ApplyMemory(static_cast<MemoryType>(_size));
     }
-    NODISCARD FORCEINLINE static Void* operator new(SizeType size, Void* memory_ptr) {
-        return memory_ptr;
+    NODISCARD FORCEINLINE static Void* operator new(SizeType _size, Void* _memory_ptr) {
+        return _memory_ptr;
     }
-    NODISCARD FORCEINLINE static Void operator delete(Void* memory_ptr) {
-        memory_pool::ReleaseMemory(reinterpret_cast<Void*>(memory_ptr));
+    NODISCARD FORCEINLINE static Void operator delete(Void* _memory_ptr) {
+        memory_pool::ReleaseMemory(reinterpret_cast<Void*>(_memory_ptr));
     }
-    NODISCARD FORCEINLINE static Void operator delete(Void* delete_memory, Void* memory_ptr) {}
+    NODISCARD FORCEINLINE static Void operator delete(Void* _delete_memory, Void* _memory_ptr) {}
 
 protected:
     FORCEINLINE constexpr ZObject() {}
-    FORCEINLINE constexpr ZObject(const ZObject& object) {}
-    FORCEINLINE constexpr ZObject(ZObject&& object) { MoveP(std::forward<ZObject>(object)); }
+    FORCEINLINE constexpr ZObject(const ZObject& _object) {}
+    FORCEINLINE constexpr ZObject(ZObject&& _object) { MoveP(std::forward<ZObject>(_object)); }
 
-    FORCEINLINE constexpr const ZObject& operator=(const ZObject& object) { return *this; }
-    FORCEINLINE constexpr const ZObject& operator=(ZObject&& object) {
-        MoveP(std::forward<ZObject>(object));
+    FORCEINLINE constexpr const ZObject& operator=(const ZObject& _object) { return *this; }
+    FORCEINLINE constexpr const ZObject& operator=(ZObject&& _object) {
+        MoveP(std::forward<ZObject>(_object));
         return *this;
     }
 
@@ -69,7 +69,7 @@ private:
     /*
         Reset the object to null when moved.
     */
-    FORCEINLINE constexpr Void MoveP(ZObject&& object) {}
+    FORCEINLINE constexpr Void MoveP(ZObject&& _object) {}
 };
 
 }//zengine

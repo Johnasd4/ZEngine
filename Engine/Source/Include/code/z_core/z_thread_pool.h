@@ -50,10 +50,10 @@ enum ZThreadPoolErrorCode : ReturnType {
 */
 class CORE_DLLAPI ZThreadPool : public ZObject {
 public:
-    using ThreadIDType = UInt32;
+    using ThreadIDType_ = UInt32;
 
     ZThreadPool() noexcept;
-    ZThreadPool(Int32 thread_num_) noexcept;
+    ZThreadPool(Int32 _thread_num) noexcept;
 
     ~ZThreadPool() noexcept;
 
@@ -63,15 +63,15 @@ public:
     /*
         Adds the working thread num(>0).
     */
-    NODISCARD ReturnType AddThreadNum(Int32 thread_num_) noexcept;
+    NODISCARD ReturnType AddThreadNum(Int32 _thread_num) noexcept;
 
     /*
         Suspend until all the tasks are done.
     */
     NODISCARD Void LockUntilTaskDone() noexcept;
 
-    template<typename TaskFunction, typename... ArgsType>
-    NODISCARD ReturnType AddTask(TaskFunction&& func, ArgsType&&... args) noexcept {
+    template<typename _TaskFunction, typename... _ArgsType>
+    NODISCARD ReturnType AddTask(_TaskFunction&& _func, _ArgsType&&... _args) noexcept {
         ReturnType ret_val = kOK;
         TUniqueLock<ZMutex> lock(pool_mutex_);
         if (finished_) {
@@ -83,21 +83,21 @@ public:
         if (max_thread_num_ == free_thread_num_) {
             pool_idle_mutex_.TryLock();
         }
-        task_queue_.Push(std::forward<TaskFunction>(func), std::forward<ArgsType>(args)...);
+        task_queue_.Push(std::forward<_TaskFunction>(_func), std::forward<_ArgsType>(_args)...);
         cv_.NotifyOne();
         return ret_val;
     }
 
-    NODISCARD ReturnType AddTask(ZTask&& task) noexcept;
-    NODISCARD ReturnType AddTask(ZTaskSafe&& task) noexcept;
+    NODISCARD ReturnType AddTask(ZTask&& _task) noexcept;
+    NODISCARD ReturnType AddTask(ZTaskSafe&& _task) noexcept;
 
     Void ClearTask() noexcept;
 
 protected:
-    using SuperType = ZObject;
+    using SuperType_ = ZObject;
 
 private:
-    static Void ThreadFunc(ZThreadPool& thread_pool) noexcept;
+    static Void ThreadFunc(ZThreadPool& _thread_pool) noexcept;
 
     ZThreadPool(const ZThreadPool&) = delete;
     ZThreadPool(ZThreadPool&&) = delete;

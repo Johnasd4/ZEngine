@@ -25,30 +25,32 @@
 namespace zengine {
 
 ZThreadPool::ZThreadPool() noexcept 
-        : SuperType()
-        , thread_list_()
-        , task_queue_()
-        , pool_mutex_()
-        , pool_idle_mutex_()
-        , cv_()
-        , max_thread_num_(0)
-        , free_thread_num_(0)
-        , finished_(false){
+    : SuperType_()
+    , thread_list_()
+    , task_queue_()
+    , pool_mutex_()
+    , pool_idle_mutex_()
+    , cv_()
+    , max_thread_num_(0)
+    , free_thread_num_(0)
+    , finished_(false)
+{
     pool_idle_mutex_.Lock();
 }
 
-ZThreadPool::ZThreadPool(Int32 thread_num_) noexcept
-        : SuperType()
-        , thread_list_()
-        , task_queue_()
-        , pool_mutex_()
-        , pool_idle_mutex_()
-        , cv_()
-        , max_thread_num_(thread_num_)
-        , free_thread_num_(0)
-        , finished_(false) {
+ZThreadPool::ZThreadPool(Int32 _thread_num) noexcept
+    : SuperType_()
+    , thread_list_()
+    , task_queue_()
+    , pool_mutex_()
+    , pool_idle_mutex_()
+    , cv_()
+    , max_thread_num_(_thread_num)
+    , free_thread_num_(0)
+    , finished_(false) 
+{
     pool_idle_mutex_.Lock();
-    for (IndexType thread_index = 0; thread_index < thread_num_; ++thread_index) {
+    for (IndexType thread_index = 0; thread_index < _thread_num; ++thread_index) {
         thread_list_.EmplaceBack(ThreadFunc, Ref(*this));
     }
 }
@@ -76,15 +78,15 @@ ZThreadPool::~ZThreadPool() noexcept {
     }
 }
 
-NODISCARD ReturnType ZThreadPool::AddThreadNum(Int32 thread_num_) noexcept {
+NODISCARD ReturnType ZThreadPool::AddThreadNum(Int32 _thread_num) noexcept {
     ReturnType ret_val = kOK;
-    if (thread_num_ < 0) {
+    if (_thread_num < 0) {
         ret_val = error_code::kZThreadPoolErrorCodeAddNegitiveNumThread;
-        Z_LOG_ERROR(ret_val, 0, "Add thread < 0! thread_num_: %d", thread_num_);
+        Z_LOG_ERROR(ret_val, 0, "Add thread < 0! thread_num_: %d", _thread_num);
         return ret_val;
     }
-    max_thread_num_ += thread_num_;
-    for (IndexType thread_index = 0; thread_index < thread_num_; ++thread_index) {
+    max_thread_num_ += _thread_num;
+    for (IndexType thread_index = 0; thread_index < _thread_num; ++thread_index) {
         thread_list_.EmplaceBack(std::move(ZThread(ThreadFunc, Ref(*this))));
     }
     return ret_val;
@@ -98,7 +100,7 @@ NODISCARD Void ZThreadPool::LockUntilTaskDone() noexcept {
     pool_idle_mutex_.Unlock();
 }
 
-NODISCARD ReturnType ZThreadPool::AddTask(ZTask&& task) noexcept {
+NODISCARD ReturnType ZThreadPool::AddTask(ZTask&& _task) noexcept {
     ReturnType ret_val = kOK;
     TUniqueLock<ZMutex> lock(pool_mutex_);
     if (finished_) {
@@ -110,12 +112,12 @@ NODISCARD ReturnType ZThreadPool::AddTask(ZTask&& task) noexcept {
     if (max_thread_num_ == free_thread_num_) {
         pool_idle_mutex_.TryLock();
     }
-    task_queue_.Push(std::forward<ZTask>(task));
+    task_queue_.Push(std::forward<ZTask>(_task));
     cv_.NotifyOne();
     return ret_val;
 }
 
-NODISCARD ReturnType ZThreadPool::AddTask(ZTaskSafe&& task) noexcept {
+NODISCARD ReturnType ZThreadPool::AddTask(ZTaskSafe&& _task) noexcept {
     ReturnType ret_val = kOK;
     TUniqueLock<ZMutex> lock(pool_mutex_);
     if (finished_) {
@@ -127,7 +129,7 @@ NODISCARD ReturnType ZThreadPool::AddTask(ZTaskSafe&& task) noexcept {
     if (max_thread_num_ == free_thread_num_) {
         pool_idle_mutex_.TryLock();
     }
-    task_queue_.Push(std::forward<ZTaskSafe>(task));
+    task_queue_.Push(std::forward<ZTaskSafe>(_task));
     cv_.NotifyOne();
     return ret_val;
 }
@@ -137,30 +139,30 @@ Void ZThreadPool::ClearTask() noexcept {
     task_queue_.Clear();
 }
 
-Void ZThreadPool::ThreadFunc(ZThreadPool& thread_pool) noexcept {
+Void ZThreadPool::ThreadFunc(ZThreadPool& _thread_pool) noexcept {
     ZTask task;
     ReturnType link_code = kOK;
     while(true) {
         //atom operation, do not remove the brace.
         {
-            TUniqueLock<ZMutex> lock(thread_pool.pool_mutex_);
-            ++thread_pool.free_thread_num_;
+            TUniqueLock<ZMutex> lock(_thread_pool.pool_mutex_);
+            ++_thread_pool.free_thread_num_;
             //task all done.
-            if (thread_pool.task_queue_.Empty() && thread_pool.max_thread_num_ == thread_pool.free_thread_num_) {
-                thread_pool.pool_idle_mutex_.Unlock();
+            if (_thread_pool.task_queue_.Empty() && _thread_pool.max_thread_num_ == _thread_pool.free_thread_num_) {
+                _thread_pool.pool_idle_mutex_.Unlock();
             }
-            thread_pool.cv_.Wait(lock, [&thread_pool] {
-                return thread_pool.finished_ || !thread_pool.task_queue_.Empty();
+            _thread_pool.cv_.Wait(lock, [&_thread_pool] {
+                return _thread_pool.finished_ || !_thread_pool.task_queue_.Empty();
             });
-            --thread_pool.free_thread_num_;
-            if (thread_pool.finished_) {
+            --_thread_pool.free_thread_num_;
+            if (_thread_pool.finished_) {
                 return;
             }
-            if (thread_pool.task_queue_.Empty()) {
+            if (_thread_pool.task_queue_.Empty()) {
                 continue;
             }
-            task = std::move(thread_pool.task_queue_.Front());
-            thread_pool.task_queue_.Pop();
+            task = std::move(_thread_pool.task_queue_.Front());
+            _thread_pool.task_queue_.Pop();
         }
         link_code = task.Run();
         if (link_code != kOK) {

@@ -30,56 +30,64 @@ namespace internal {
 */
 class ZPrintManager : public ZObject {
 public:
-    static Void SetColour(PrintTextColourEnum text_colour, PrintBackgroundColourEnum background_colour) noexcept {
+    static Void SetColour(PrintTextColourEnum _text_colour, PrintBackgroundColourEnum _background_colour) noexcept {
         static ZPrintManager& print_manager = ZPrintManager::InstanceP();
 
         print_manager.print_mutex_.Lock();
-        print_manager.text_colour_ = text_colour;
-        print_manager.background_colour_ = background_colour;
+        print_manager.text_colour_ = _text_colour;
+        print_manager.background_colour_ = _background_colour;
         //Changes the console output colour.
+        SetConsoleTextAttribute(
+            GetStdHandle(STD_OUTPUT_HANDLE), (PrintColourType)_text_colour | (PrintColourType)_background_colour);
+        print_manager.print_mutex_.Unlock();
+    }
+
+    static Void Print(const Char* _format, ArgListType _args) noexcept {
+        static ZPrintManager& print_manager = ZPrintManager::InstanceP();
+
+        print_manager.print_mutex_.Lock();
+        vprintf(_format, _args);
+        print_manager.print_mutex_.Unlock();
+    }
+
+    static Void Print(const WChar* _format, ArgListType _args) noexcept {
+        static ZPrintManager& print_manager = ZPrintManager::InstanceP();
+
+        print_manager.print_mutex_.Lock();
+        vwprintf(_format, _args);
+        print_manager.print_mutex_.Unlock();
+    }
+
+    static Void Print(
+        PrintTextColourEnum _text_colour, 
+        PrintBackgroundColourEnum _background_colour, 
+        const Char* _format, 
+        ArgListType _args
+    ) noexcept {
+        static ZPrintManager& print_manager = ZPrintManager::InstanceP();
+
+        print_manager.print_mutex_.Lock();
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 
-                                (PrintColourType)text_colour | (PrintColourType)background_colour);
-        print_manager.print_mutex_.Unlock();
-    }
-
-    static Void Print(const Char* format, ArgListType args) noexcept {
-        static ZPrintManager& print_manager = ZPrintManager::InstanceP();
-
-        print_manager.print_mutex_.Lock();
-        vprintf(format, args);
-        print_manager.print_mutex_.Unlock();
-    }
-
-    static Void Print(const WChar* format, ArgListType args) noexcept {
-        static ZPrintManager& print_manager = ZPrintManager::InstanceP();
-
-        print_manager.print_mutex_.Lock();
-        vwprintf(format, args);
-        print_manager.print_mutex_.Unlock();
-    }
-
-    static Void Print(PrintTextColourEnum text_colour, PrintBackgroundColourEnum background_colour, 
-                      const Char* format, ArgListType args) noexcept {
-        static ZPrintManager& print_manager = ZPrintManager::InstanceP();
-
-        print_manager.print_mutex_.Lock();
-        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 
-                                (PrintColourType)text_colour | (PrintColourType)background_colour);
-        vprintf(format, args);
+                                (PrintColourType)_text_colour | (PrintColourType)_background_colour);
+        vprintf(_format, _args);
         SetConsoleTextAttribute(
             GetStdHandle(STD_OUTPUT_HANDLE), 
             (PrintColourType)print_manager.text_colour_ | (PrintColourType)print_manager.background_colour_);
         print_manager.print_mutex_.Unlock();
     }
 
-    static Void Print(PrintTextColourEnum text_colour, PrintBackgroundColourEnum background_colour, 
-                      const WChar* format, ArgListType args) noexcept {
+    static Void Print(
+        PrintTextColourEnum _text_colour, 
+        PrintBackgroundColourEnum _background_colour, 
+        const WChar* _format, 
+        ArgListType _args
+    ) noexcept {
         static ZPrintManager& print_manager = ZPrintManager::InstanceP();
 
         print_manager.print_mutex_.Lock();
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 
-                                (PrintColourType)text_colour | (PrintColourType)background_colour);
-        vwprintf(format, args);
+                                (PrintColourType)_text_colour | (PrintColourType)_background_colour);
+        vwprintf(_format, _args);
         SetConsoleTextAttribute(
             GetStdHandle(STD_OUTPUT_HANDLE), 
             (PrintColourType)print_manager.text_colour_ | (PrintColourType)print_manager.background_colour_);
@@ -87,7 +95,7 @@ public:
     }
 
 protected:
-    using SuperType = ZObject;
+    using SuperType_ = ZObject;
 
 private:
     static constexpr PrintTextColourEnum kDefaultTextColour = kPrintTextColourLightWhite;
@@ -98,7 +106,7 @@ private:
         return instance;
     }
 
-    ZPrintManager() : SuperType(), text_colour_(kDefaultTextColour), background_colour_(kDefaultBackgroundColour) {}
+    ZPrintManager() : SuperType_(), text_colour_(kDefaultTextColour), background_colour_(kDefaultBackgroundColour) {}
 
     PrintTextColourEnum text_colour_;
     PrintBackgroundColourEnum background_colour_;
@@ -107,8 +115,11 @@ private:
 
 }//internal
 
-CORE_DLLAPI Void SetPrintColour(PrintTextColourEnum text_colour, PrintBackgroundColourEnum background_colour) noexcept {
-    internal::ZPrintManager::SetColour(text_colour, background_colour);
+CORE_DLLAPI Void SetPrintColour(
+    PrintTextColourEnum _text_colour, 
+    PrintBackgroundColourEnum _background_colour
+) noexcept {
+    internal::ZPrintManager::SetColour(_text_colour, _background_colour);
 }
 
 /*
@@ -116,10 +127,10 @@ CORE_DLLAPI Void SetPrintColour(PrintTextColourEnum text_colour, PrintBackground
     background colour infront of the format to change the colour only for this
     output.
 */
-CORE_DLLAPI Void Print(const Char * format, ...) noexcept {
+CORE_DLLAPI Void Print(const Char * _format, ...) noexcept {
     ArgListType args;
-    va_start(args, format);
-    internal::ZPrintManager::Print(format, args);
+    va_start(args, _format);
+    internal::ZPrintManager::Print(_format, args);
     va_end(args);
 }
 
@@ -128,8 +139,8 @@ CORE_DLLAPI Void Print(const Char * format, ...) noexcept {
     background colour infront of the format to change the colour only for this
     output.
 */
-CORE_DLLAPI Void Print(const Char* format, ArgListType args) noexcept {
-    internal::ZPrintManager::Print(format, args);
+CORE_DLLAPI Void Print(const Char* _format, ArgListType _args) noexcept {
+    internal::ZPrintManager::Print(_format, _args);
 }
 
 /*
@@ -137,10 +148,10 @@ CORE_DLLAPI Void Print(const Char* format, ArgListType args) noexcept {
     background colour infront of the format to change the colour only for this
     output.
 */
-CORE_DLLAPI Void Print(const WChar* format, ...) noexcept {
+CORE_DLLAPI Void Print(const WChar* _format, ...) noexcept {
     ArgListType args;
-    va_start(args, format);
-    internal::ZPrintManager::Print(format, args);
+    va_start(args, _format);
+    internal::ZPrintManager::Print(_format, args);
     va_end(args);
 }
 
@@ -149,8 +160,8 @@ CORE_DLLAPI Void Print(const WChar* format, ...) noexcept {
     background colour infront of the format to change the colour only for this
     output.
 */
-CORE_DLLAPI Void Print(const WChar* format, ArgListType args) noexcept {
-    internal::ZPrintManager::Print(format, args);
+CORE_DLLAPI Void Print(const WChar* _format, ArgListType _args) noexcept {
+    internal::ZPrintManager::Print(_format, _args);
 }
 
 /*
@@ -158,11 +169,15 @@ CORE_DLLAPI Void Print(const WChar* format, ArgListType args) noexcept {
     background colour infront of the format to change the colour only for this
     output.
 */
-CORE_DLLAPI Void Print(PrintTextColourEnum text_colour, PrintBackgroundColourEnum background_colour,
-                       const Char* format, ...) noexcept{
+CORE_DLLAPI Void Print(
+    PrintTextColourEnum _text_colour, 
+    PrintBackgroundColourEnum _background_colour,
+    const Char* format, 
+    ...
+) noexcept{
     ArgListType args;
     va_start(args, format);
-    internal::ZPrintManager::Print(text_colour, background_colour, format, args);
+    internal::ZPrintManager::Print(_text_colour, _background_colour, format, args);
     va_end(args);
 }
 
@@ -171,9 +186,13 @@ CORE_DLLAPI Void Print(PrintTextColourEnum text_colour, PrintBackgroundColourEnu
     background colour infront of the format to change the colour only for this
     output.
 */
-CORE_DLLAPI Void Print(PrintTextColourEnum text_colour, PrintBackgroundColourEnum background_colour,
-                       const Char* format, ArgListType args) noexcept{
-    internal::ZPrintManager::Print(text_colour, background_colour, format, args);
+CORE_DLLAPI Void Print(
+    PrintTextColourEnum _text_colour, 
+    PrintBackgroundColourEnum _background_colour,
+    const Char* _format, 
+    ArgListType _args
+) noexcept{
+    internal::ZPrintManager::Print(_text_colour, _background_colour, _format, _args);
 }
 
 /*
@@ -181,11 +200,15 @@ CORE_DLLAPI Void Print(PrintTextColourEnum text_colour, PrintBackgroundColourEnu
     background colour infront of the format to change the colour only for this
     output.
 */
-CORE_DLLAPI Void Print(PrintTextColourEnum text_colour, PrintBackgroundColourEnum background_colour,
-                       const WChar* format, ...) noexcept{
+CORE_DLLAPI Void Print(
+    PrintTextColourEnum _text_colour, 
+    PrintBackgroundColourEnum _background_colour,
+    const WChar* _format, 
+    ...
+) noexcept{
     ArgListType args;
-    va_start(args, format);
-    internal::ZPrintManager::Print(text_colour, background_colour, format, args);
+    va_start(args, _format);
+    internal::ZPrintManager::Print(_text_colour, _background_colour, _format, args);
     va_end(args);
 }
 
@@ -194,9 +217,13 @@ CORE_DLLAPI Void Print(PrintTextColourEnum text_colour, PrintBackgroundColourEnu
     background colour infront of the format to change the colour only for this
     output.
 */
-CORE_DLLAPI Void Print(PrintTextColourEnum text_colour, PrintBackgroundColourEnum background_colour,
-                       const WChar* format, ArgListType args) noexcept{
-    internal::ZPrintManager::Print(text_colour, background_colour, format, args);
+CORE_DLLAPI Void Print(
+    PrintTextColourEnum _text_colour, 
+    PrintBackgroundColourEnum _background_colour,
+    const WChar* _format, 
+    ArgListType _args
+) noexcept{
+    internal::ZPrintManager::Print(_text_colour, _background_colour, _format, _args);
 }
 
 }//console

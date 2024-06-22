@@ -38,17 +38,17 @@ namespace memory_pool {
 template<Bool kIsThreadSafe>
 class THeapMemoryPool :protected TMemoryPoolThreadSafeBase<kIsThreadSafe> {
 public:
-    NODISCARD static Void* ApplyMemory(MemoryType size) noexcept;
+    NODISCARD static Void* ApplyMemory(MemoryType _size) noexcept;
 
 protected:
-    using MutexType = TMemoryPoolThreadSafeBase<kIsThreadSafe>;
+    using MutexType_ = TMemoryPoolThreadSafeBase<kIsThreadSafe>;
 
 private:
-    struct HeapMemoryPtrArrayNode {
+    struct HeapMemoryPtrArrayNode_ {
         static constexpr Int32 kHeapMemoryPtrNumPurNode = (kHeapMemoryUnitSize - sizeof(Void*)) / sizeof(Void*);
 
-        Void* heap_memory_ptr[kHeapMemoryPtrNumPurNode];
-        HeapMemoryPtrArrayNode* next_node_ptr;
+        Void* heap_memory_ptr_[kHeapMemoryPtrNumPurNode];
+        HeapMemoryPtrArrayNode_* next_node_ptr_;
     };
 
     NODISCARD static THeapMemoryPool<kIsThreadSafe>& InstanceP() noexcept {
@@ -57,7 +57,7 @@ private:
     }
 
     THeapMemoryPool() noexcept 
-        : current_node_ptr_(static_cast<HeapMemoryPtrArrayNode*>(malloc(sizeof(HeapMemoryPtrArrayNode))))
+        : current_node_ptr_(static_cast<HeapMemoryPtrArrayNode_*>(malloc(sizeof(HeapMemoryPtrArrayNode_))))
         , head_node_ptr_(current_node_ptr_)
         , current_node_heap_memory_ptr_num_(0) {}
     /*
@@ -72,60 +72,52 @@ private:
 
     ~THeapMemoryPool() noexcept;
 
-    HeapMemoryPtrArrayNode* current_node_ptr_;
-    HeapMemoryPtrArrayNode* head_node_ptr_;
+    HeapMemoryPtrArrayNode_* current_node_ptr_;
+    HeapMemoryPtrArrayNode_* head_node_ptr_;
     Int32 current_node_heap_memory_ptr_num_;
 };
 
-#pragma warning(disable : 6011)
-
 template<Bool kIsThreadSafe>
-NODISCARD Void* THeapMemoryPool<kIsThreadSafe>::ApplyMemory(MemoryType size) noexcept {
+NODISCARD Void* THeapMemoryPool<kIsThreadSafe>::ApplyMemory(MemoryType size_) noexcept {
     static THeapMemoryPool& memory_pool = InstanceP();
-    Void* heap_memory_ptr = malloc(size);
-    memory_pool.MutexType::Lock();
+    Void* heap_memory_ptr = malloc(size_);
+    memory_pool.MutexType_::Lock();
     //applys new node when the memory runs out.
-    if (memory_pool.current_node_heap_memory_ptr_num_ == HeapMemoryPtrArrayNode::kHeapMemoryPtrNumPurNode) {
+    if (memory_pool.current_node_heap_memory_ptr_num_ == HeapMemoryPtrArrayNode_::kHeapMemoryPtrNumPurNode) {
         memory_pool.current_node_heap_memory_ptr_num_ = 0;
-        memory_pool.current_node_ptr_->next_node_ptr = 
-            static_cast<HeapMemoryPtrArrayNode*>(malloc(sizeof(HeapMemoryPtrArrayNode)));
-        memory_pool.current_node_ptr_ = memory_pool.current_node_ptr_->next_node_ptr;
+        memory_pool.current_node_ptr_->next_node_ptr_ =
+            static_cast<HeapMemoryPtrArrayNode_*>(malloc(sizeof(HeapMemoryPtrArrayNode_)));
+        memory_pool.current_node_ptr_ = memory_pool.current_node_ptr_->next_node_ptr_;
     }
-    memory_pool.current_node_ptr_->heap_memory_ptr[memory_pool.current_node_heap_memory_ptr_num_++] = 
+    memory_pool.current_node_ptr_->heap_memory_ptr_[memory_pool.current_node_heap_memory_ptr_num_++] = 
         heap_memory_ptr;
-    memory_pool.MutexType::Unlock();
+    memory_pool.MutexType_::Unlock();
     return heap_memory_ptr;
 }
-
-#pragma warning(default : 6011)
-
-#pragma warning(disable : 6001)
 
 template<Bool kIsThreadSafe>
 THeapMemoryPool<kIsThreadSafe>::~THeapMemoryPool() noexcept {
     //Delete the filled nodes.
-    HeapMemoryPtrArrayNode* head_node_ptr = head_node_ptr_;
-    HeapMemoryPtrArrayNode* current_node_ptr = current_node_ptr_;
+    HeapMemoryPtrArrayNode_* head_node_ptr = head_node_ptr_;
+    HeapMemoryPtrArrayNode_* current_node_ptr = current_node_ptr_;
     IndexType current_node_heap_memory_ptr_num = current_node_heap_memory_ptr_num_;
 
     for (; head_node_ptr != current_node_ptr; ) {
-        HeapMemoryPtrArrayNode* delete_node = head_node_ptr;
-        head_node_ptr = head_node_ptr->next_node_ptr;
+        HeapMemoryPtrArrayNode_* delete_node = head_node_ptr;
+        head_node_ptr = head_node_ptr->next_node_ptr_;
         //Delete the heap memory inside the node.
-        for (IndexType index = 0; index < HeapMemoryPtrArrayNode::kHeapMemoryPtrNumPurNode; ++index) {
-            free(delete_node->heap_memory_ptr[index]);
+        for (IndexType index = 0; index < HeapMemoryPtrArrayNode_::kHeapMemoryPtrNumPurNode; ++index) {
+            free(delete_node->heap_memory_ptr_[index]);
         }
         //Delete the node itself.
         free(delete_node);
     }
     //Delete the unfilled node.
     for (IndexType index = 0; index < current_node_heap_memory_ptr_num; ++index) {
-        free(head_node_ptr->heap_memory_ptr[index]);
+        free(head_node_ptr->heap_memory_ptr_[index]);
     }
     free(head_node_ptr);
 }
-
-#pragma warning(disable : 6011)
 
 }//memory_pool
 }//zengine

@@ -46,51 +46,65 @@ public:
     static constexpr IndexType kLogPortIDMin = - 3;
     static constexpr IndexType kLogPortIDMax = ZLogServer::kMaxPortNum - kLogPortIDMin;
 
-    static Void LogError(TimeType raw_time,
-                         const Char* err_project,
-                         const Char* err_file, 
-                         const Char* err_func,
-                         Int32 err_line, 
-                         ReturnType err_code,
-                         ReturnType link_code,
-                         const Char* format,
-                         ArgListType args) noexcept;
+    static Void LogError(
+        TimeType _raw_time,
+        const Char* _err_project,
+        const Char* _err_file,
+        const Char* _err_func,
+        Int32 _err_line,
+        ReturnType _err_code,
+        ReturnType _link_code,
+        const Char* _format,
+        ArgListType _args
+    ) noexcept;
 
-    static Void LogTrace(TimeType raw_time,
-                         const WChar* project,
-                         const WChar* format,
-                         ArgListType args) noexcept;
+    static Void LogTrace(
+        TimeType _raw_time,
+        const WChar* _project,
+        const WChar* _format,
+        ArgListType _args
+    ) noexcept;
 
-    static Void LogInfo(TimeType raw_time,
-                        LogInfoEnum info_type,
-                        const WChar* format,
-                        ArgListType args) noexcept;
+    static Void LogInfo(
+        TimeType _raw_time,
+        LogInfoEnum _info_type,
+        const WChar* _format,
+        ArgListType _args
+    ) noexcept;
 
     /*
         Register the log server port input function, the function will be called when log happens.
     */
     NODISCARD static ReturnType RegisterLogServerInputFunction(
-        IndexType port_id, Void(*input_func)(const ZLog*, ZLog::OutputString*)) noexcept;
+        IndexType _port_id, 
+        Void(*_input_func)(const ZLog*, ZLog::OutputString_*)
+    ) noexcept;
 
     /*
         Removes the log server port output function.
     */
     NODISCARD static ReturnType UnregisterLogServerInputFunction(
-        IndexType port_id, Void(*input_func)(const ZLog*, ZLog::OutputString*)) noexcept;
+        IndexType _port_id, 
+        Void(*_input_func)(const ZLog*, ZLog::OutputString_*)
+    ) noexcept;
 
     /*
         Register the log server port output function, the function will be called when log happens.
     */
     NODISCARD static ReturnType RegisterLogServerOutputFunction(
-        IndexType port_id, Void(*output_func)(const ZLog*, const ZLog::OutputString&)) noexcept;
+        IndexType _port_id, 
+        Void(*_output_func)(const ZLog*, const ZLog::OutputString_&)
+    ) noexcept;
 
     /*
         Removes the log server port output function.
     */
-    static Void UnregisterLogServerOutputFunction(Void(*output_func)(const ZLog*, const ZLog::OutputString&)) noexcept;
+    static Void UnregisterLogServerOutputFunction(
+        Void(*_output_func)(const ZLog*, const ZLog::OutputString_&)
+    ) noexcept;
 
 protected:
-    using SuperType = ZObject;
+    using SuperType_ = ZObject;
 
 private:
     static ZLogManager& InstanceP() noexcept;

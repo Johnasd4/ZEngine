@@ -31,157 +31,157 @@ namespace zengine {
 /*
     List caintainer.
 */
-template<typename ObjectType>
+template<typename _ObjectType>
 class TList : public ZObject {
 public:
-    using STDList = std::list<ObjectType, TAllocator<ObjectType>>;
-    using Iterator = STDList::iterator;
-    using ConstIterator = STDList::const_iterator;
-    using ReverseIterator = STDList::reverse_iterator;
-    using ConstReverseIterator = STDList::const_reverse_iterator;
-    using InitializerList = std::initializer_list<ObjectType>;
+    using STDList_ = std::list<_ObjectType, TAllocator<_ObjectType>>;
+    using Iterator_ = STDList_::iterator;
+    using ConstIterator_ = STDList_::const_iterator;
+    using ReverseIterator_ = STDList_::reverse_iterator;
+    using ConstReverseIterator_ = STDList_::const_reverse_iterator;
+    using InitializerList_ = std::initializer_list<_ObjectType>;
 
-    FORCEINLINE TList() noexcept : SuperType(), list_() {}
-    FORCEINLINE TList(const TList& list) noexcept : SuperType(), list_(list.list_) {}
-    FORCEINLINE TList(TList&& list) noexcept : SuperType(), list_(std::move(list.list_)) {}
+    FORCEINLINE TList() noexcept : SuperType_(), list_() {}
+    FORCEINLINE TList(const TList& _list) noexcept : SuperType_(), list_(_list.list_) {}
+    FORCEINLINE TList(TList&& _list) noexcept : SuperType_(), list_(std::move(_list.list_)) {}
 
-    FORCEINLINE TList(SizeType size) noexcept : SuperType(), list_(size) {}
-    FORCEINLINE TList(SizeType size, const ObjectType& value) noexcept : SuperType(), list_(size, value) {}
-    template <typename InputIterator>
-    FORCEINLINE TList(InputIterator first, InputIterator last) noexcept : SuperType(), list_(first, last) {}
-    FORCEINLINE TList(InitializerList init_list) noexcept : SuperType(), list_(init_list) {}
+    FORCEINLINE TList(SizeType _size) noexcept : SuperType_(), list_(_size) {}
+    FORCEINLINE TList(SizeType _size, const _ObjectType& _val) noexcept : SuperType_(), list_(_size, _val) {}
+    template <typename _InputIterator>
+    FORCEINLINE TList(_InputIterator _first, _InputIterator _last) noexcept : SuperType_(), list_(_first, _last) {}
+    FORCEINLINE TList(InitializerList_ _init_list) noexcept : SuperType_(), list_(_init_list) {}
  
     FORCEINLINE ~TList() noexcept {}
 
-    FORCEINLINE TList& operator=(const TList& list) noexcept { 
-        list_.operator=(list.list_);
+    FORCEINLINE TList& operator=(const TList& _list) noexcept { 
+        list_.operator=(_list.list_);
         return *this;
     }
-    FORCEINLINE TList& operator=(TList&& list) noexcept { 
-        list_.operator=(std::move(list.list_));
+    FORCEINLINE TList& operator=(TList&& _list) noexcept { 
+        list_.operator=(std::move(_list.list_));
         return *this;
     }
-    FORCEINLINE TList& operator=(InitializerList init_list) noexcept {
-        list_.operator=(init_list);
+    FORCEINLINE TList& operator=(InitializerList_ _init_list) noexcept {
+        list_.operator=(_init_list);
         return *this;
     }
 
-    FORCEINLINE Void Assign(SizeType size, const ObjectType& value) noexcept {
-        return list_.assign(size, value);
+    FORCEINLINE Void Assign(SizeType _size, const _ObjectType& _val) noexcept {
+        return list_.assign(_size, _val);
     }
     template <class InputIterator>
-    FORCEINLINE Void Assign(InputIterator first, InputIterator last) noexcept {
-        return list_.assign(first, last);
+    FORCEINLINE Void Assign(InputIterator _first, InputIterator _last) noexcept {
+        return list_.assign(_first, _last);
     }
-    FORCEINLINE Void Assign(InitializerList init_list) noexcept {
-        return list_.assign(init_list);
-    }
-
-    NODISCARD FORCEINLINE Bool operator==(const TList& list) noexcept { 
-        return list_ == list.list_;
-    }
-    NODISCARD FORCEINLINE Bool operator!=(const TList& list) noexcept { 
-        return list_ != list.list_;
+    FORCEINLINE Void Assign(InitializerList_ _init_list) noexcept {
+        return list_.assign(_init_list);
     }
 
-    NODISCARD FORCEINLINE ObjectType& Front() noexcept { return list_.front(); }
-    NODISCARD FORCEINLINE const ObjectType& Front() const noexcept { return list_.front(); }
-    NODISCARD FORCEINLINE ObjectType& Back() noexcept { return list_.back(); }
-    NODISCARD FORCEINLINE const ObjectType& Back() const noexcept { return list_.back(); }
+    NODISCARD FORCEINLINE Bool operator==(const TList& _list) noexcept { 
+        return list_ == _list.list_;
+    }
+    NODISCARD FORCEINLINE Bool operator!=(const TList& _list) noexcept { 
+        return list_ != _list.list_;
+    }
+
+    NODISCARD FORCEINLINE _ObjectType& Front() noexcept { return list_.front(); }
+    NODISCARD FORCEINLINE const _ObjectType& Front() const noexcept { return list_.front(); }
+    NODISCARD FORCEINLINE _ObjectType& Back() noexcept { return list_.back(); }
+    NODISCARD FORCEINLINE const _ObjectType& Back() const noexcept { return list_.back(); }
 
     NODISCARD FORCEINLINE IndexType Size() const noexcept { return static_cast<IndexType>(list_.size()); }
     NODISCARD FORCEINLINE IndexType Capacity() const noexcept { return kIndexTypeMax; }
     NODISCARD FORCEINLINE Bool Empty() const noexcept { return list_.empty(); }
 
-    NODISCARD FORCEINLINE Iterator Begin() noexcept { return list_.begin(); }
-    NODISCARD FORCEINLINE ConstIterator Begin() const noexcept { return list_.begin(); }
-    NODISCARD FORCEINLINE ConstIterator ConstBegin() const noexcept { return list_.cbegin(); }
-    NODISCARD FORCEINLINE ReverseIterator ReverseBegin() noexcept { return list_.rbegin(); }
-    NODISCARD FORCEINLINE ConstReverseIterator ReverseBegin() const noexcept { return list_.rbegin(); }
-    NODISCARD FORCEINLINE ConstReverseIterator ConstReverseBegin() const noexcept { return list_.crbegin(); }
-    NODISCARD FORCEINLINE Iterator End() noexcept { return list_.end(); }
-    NODISCARD FORCEINLINE ConstIterator End() const noexcept { return list_.end(); }
-    NODISCARD FORCEINLINE ConstIterator ConstEnd() const noexcept { return list_.cend(); }
-    NODISCARD FORCEINLINE ReverseIterator ReverseEnd() noexcept { return list_.rend(); }
-    NODISCARD FORCEINLINE ConstReverseIterator ReverseEnd() const noexcept { return list_.rend(); }
-    NODISCARD FORCEINLINE ConstReverseIterator ConstReverseEnd() const noexcept { return list_.crend(); }
+    NODISCARD FORCEINLINE Iterator_ Begin() noexcept { return list_.begin(); }
+    NODISCARD FORCEINLINE ConstIterator_ Begin() const noexcept { return list_.begin(); }
+    NODISCARD FORCEINLINE ConstIterator_ ConstBegin() const noexcept { return list_.cbegin(); }
+    NODISCARD FORCEINLINE ReverseIterator_ ReverseBegin() noexcept { return list_.rbegin(); }
+    NODISCARD FORCEINLINE ConstReverseIterator_ ReverseBegin() const noexcept { return list_.rbegin(); }
+    NODISCARD FORCEINLINE ConstReverseIterator_ ConstReverseBegin() const noexcept { return list_.crbegin(); }
+    NODISCARD FORCEINLINE Iterator_ End() noexcept { return list_.end(); }
+    NODISCARD FORCEINLINE ConstIterator_ End() const noexcept { return list_.end(); }
+    NODISCARD FORCEINLINE ConstIterator_ ConstEnd() const noexcept { return list_.cend(); }
+    NODISCARD FORCEINLINE ReverseIterator_ ReverseEnd() noexcept { return list_.rend(); }
+    NODISCARD FORCEINLINE ConstReverseIterator_ ReverseEnd() const noexcept { return list_.rend(); }
+    NODISCARD FORCEINLINE ConstReverseIterator_ ConstReverseEnd() const noexcept { return list_.crend(); }
 
-    template <typename... ArgsType>
-    FORCEINLINE Iterator Emplace(ConstIterator pos, ArgsType&&... args) noexcept {
-        return list_.emplace(pos, std::forward<ArgsType>(args)...);
+    template <typename... _ArgsType>
+    FORCEINLINE Iterator_ Emplace(ConstIterator_ _pos, _ArgsType&&... _args) noexcept {
+        return list_.emplace(_pos, std::forward<_ArgsType>(_args)...);
     }
 
-    template <typename... ArgsType>
-    FORCEINLINE ObjectType& EmplaceFront(ArgsType&&... args) noexcept {
-        return list_.emplace_front(std::forward<ArgsType>(args)...);
+    template <typename... _ArgsType>
+    FORCEINLINE _ObjectType& EmplaceFront(_ArgsType&&... _args) noexcept {
+        return list_.emplace_front(std::forward<_ArgsType>(_args)...);
     }
-    FORCEINLINE Void PushFront(const ObjectType& value) noexcept { list_.push_front(value); }
-    FORCEINLINE Void PushFront(ObjectType&& value) noexcept { list_.push_front(std::forward<ObjectType>(value)); }
+    FORCEINLINE Void PushFront(const _ObjectType& _val) noexcept { list_.push_front(_val); }
+    FORCEINLINE Void PushFront(_ObjectType&& _val) noexcept { list_.push_front(std::forward<_ObjectType>(_val)); }
     FORCEINLINE Void PopFront() noexcept { list_.pop_front(); }
 
-    template <typename... ArgsType>
-    FORCEINLINE ObjectType& EmplaceBack(ArgsType&&... args) noexcept {
-        return list_.emplace_back(std::forward<ArgsType>(args)...);
+    template <typename... _ArgsType>
+    FORCEINLINE _ObjectType& EmplaceBack(_ArgsType&&... _args) noexcept {
+        return list_.emplace_back(std::forward<_ArgsType>(_args)...);
     }
-    FORCEINLINE Void PushBack(const ObjectType& value) noexcept { list_.push_back(value); }
-    FORCEINLINE Void PushBack(ObjectType&& value) noexcept { list_.push_back(std::forward<ObjectType>(value)); }
+    FORCEINLINE Void PushBack(const _ObjectType& _val) noexcept { list_.push_back(_val); }
+    FORCEINLINE Void PushBack(_ObjectType&& _val) noexcept { list_.push_back(std::forward<_ObjectType>(_val)); }
     FORCEINLINE Void PopBack() noexcept { list_.pop_back(); }
 
-    FORCEINLINE Iterator Insert(ConstIterator pos, const ObjectType& value) noexcept {
-        return list_.insert(pos, value);
+    FORCEINLINE Iterator_ Insert(ConstIterator_ _pos, const _ObjectType& _val) noexcept {
+        return list_.insert(_pos, _val);
     }
-    FORCEINLINE Iterator Insert(ConstIterator pos, ObjectType&& value) noexcept {
-        return list_.insert(pos, std::forward<ObjectType>(value));
+    FORCEINLINE Iterator_ Insert(ConstIterator_ _pos, _ObjectType&& _val) noexcept {
+        return list_.insert(_pos, std::forward<_ObjectType>(_val));
     }
-    FORCEINLINE Iterator Insert(ConstIterator pos, SizeType num, const ObjectType& value) noexcept {
-        return list_.insert(pos, num, value);
+    FORCEINLINE Iterator_ Insert(ConstIterator_ _pos, SizeType _num, const _ObjectType& _val) noexcept {
+        return list_.insert(_pos, _num, _val);
     }
-    template <typename InputIterator>
-    FORCEINLINE Iterator Insert(ConstIterator pos, InputIterator first, InputIterator last) noexcept {
-        return list_.insert(pos, first, last);
+    template <typename _InputIterator>
+    FORCEINLINE Iterator_ Insert(ConstIterator_ _pos, _InputIterator _first, _InputIterator _last) noexcept {
+        return list_.insert(_pos, _first, _last);
     }
-    FORCEINLINE Iterator Insert(ConstIterator pos, InitializerList init_list) noexcept {
-        return list_.insert(pos, init_list);
-    }
-
-    FORCEINLINE Iterator Splice(ConstIterator pos, TList& list) noexcept {
-        return list_.splice(pos, list.list_);
-    }
-    FORCEINLINE Iterator Splice(ConstIterator pos, TList&& list) noexcept {
-        return list_.splice(pos, std::move(list.list_));
-    }
-    FORCEINLINE Iterator Splice(ConstIterator pos, TList& list, ConstIterator start_pos) noexcept {
-        return list_.splice(pos, list.list_, start_pos);
-    }
-    FORCEINLINE Iterator Splice(ConstIterator pos, TList&& list, ConstIterator start_pos) noexcept {
-        return list_.splice(pos, std::move(list.list_), start_pos);
-    }
-    FORCEINLINE Iterator Splice(ConstIterator pos, TList& list,
-                                     ConstIterator first, ConstIterator last) noexcept {
-        return list_.splice(pos, list.list_, first, last);
-    }
-    FORCEINLINE Iterator Splice(ConstIterator pos, TList&& list,
-                                     ConstIterator first, ConstIterator last) noexcept {
-        return list_.splice(pos, std::move(list.list_), first, last);
+    FORCEINLINE Iterator_ Insert(ConstIterator_ _pos, InitializerList_ _init_list) noexcept {
+        return list_.insert(_pos, _init_list);
     }
 
-    FORCEINLINE Iterator Erase(ConstIterator pos) noexcept { return list_.erase(pos); }
-    FORCEINLINE Iterator Erase(ConstIterator first, ConstIterator last) noexcept {
-        return list_.erase(first, last);
+    FORCEINLINE Iterator_ Splice(ConstIterator_ _pos, TList& _list) noexcept {
+        return list_.splice(_pos, _list.list_);
+    }
+    FORCEINLINE Iterator_ Splice(ConstIterator_ _pos, TList&& _list) noexcept {
+        return list_.splice(_pos, std::move(_list.list_));
+    }
+    FORCEINLINE Iterator_ Splice(ConstIterator_ _pos, TList& _list, ConstIterator_ _start_pos) noexcept {
+        return list_.splice(_pos, _list.list_, _start_pos);
+    }
+    FORCEINLINE Iterator_ Splice(ConstIterator_ _pos, TList&& _list, ConstIterator_ _start_pos) noexcept {
+        return list_.splice(_pos, std::move(_list.list_), _start_pos);
+    }
+    FORCEINLINE Iterator_ Splice(
+            ConstIterator_ _pos, TList& _list, ConstIterator_ _first, ConstIterator_ _last) noexcept {
+        return list_.splice(_pos, _list.list_, _first, _last);
+    }
+    FORCEINLINE Iterator_ Splice(
+            ConstIterator_ _pos, TList&& _list, ConstIterator_ _first, ConstIterator_ _last) noexcept {
+        return list_.splice(_pos, std::move(_list.list_), _first, _last);
+    }
+
+    FORCEINLINE Iterator_ Erase(ConstIterator_ _pos) noexcept { return list_.erase(_pos); }
+    FORCEINLINE Iterator_ Erase(ConstIterator_ _first, ConstIterator_ _last) noexcept {
+        return list_.erase(_first, _last);
     }
 
     /*
         Remove all the objects same as the given value.
     */
-    FORCEINLINE Void Remove(const ObjectType& value) noexcept {
-        list_.remove(value);
+    FORCEINLINE Void Remove(const _ObjectType& _val) noexcept {
+        list_.remove(_val);
     }
     /*
         Remove all the objects that comply with the fucntion.
     */
-    template <typename PredicateFunction>
-    FORCEINLINE Void RemoveIf(PredicateFunction func) noexcept {
-        list_.remove_if(func);
+    template <typename _PredicateFunction>
+    FORCEINLINE Void RemoveIf(_PredicateFunction _func) noexcept {
+        list_.remove_if(_func);
     }
     /*
         Make all the objects unique.
@@ -192,60 +192,60 @@ public:
     /*
         Make all the objects unique that comply with the fucntion.
     */
-    template <typename PredicateFunction>
-    FORCEINLINE Void UniqueIf(PredicateFunction func) noexcept {
-        list_.unique(func);
+    template <typename _PredicateFunction>
+    FORCEINLINE Void UniqueIf(_PredicateFunction _func) noexcept {
+        list_.unique(_func);
     }
 
     /*
         Merge the two lists together sorted.
     */
-    FORCEINLINE Void Merge(TList& list) {
-        list_.unique(list);
+    FORCEINLINE Void Merge(TList& _list) {
+        list_.unique(_list);
     }
     /*
         Merge the two lists together sorted.
     */
-    FORCEINLINE Void Merge(TList&& list) {
-        list_.unique(std::move(list.list_));
+    FORCEINLINE Void Merge(TList&& _list) {
+        list_.unique(std::move(_list.list_));
     }
     /*
         Merge the two lists together sorted.
     */
-    template <typename PredicateFunction>
-    FORCEINLINE Void Merge(TList& list, PredicateFunction func) {
-        list_.unique(list, func);
+    template <typename _PredicateFunction>
+    FORCEINLINE Void Merge(TList& _list, _PredicateFunction _func) {
+        list_.unique(_list, _func);
     }
     /*
         Merge the two lists together sorted.
     */
-    template <typename PredicateFunction>
-    FORCEINLINE Void Merge(TList&& list, PredicateFunction func) {
-        list_.unique(std::move(list.list_), func);
+    template <typename _PredicateFunction>
+    FORCEINLINE Void Merge(TList&& _list, _PredicateFunction _func) {
+        list_.unique(std::move(_list.list_), _func);
     }
 
     FORCEINLINE Void Sort() noexcept {
         list_.sort();
     }
-    template <typename PredicateFunction>
-    FORCEINLINE Void Sort(PredicateFunction func) noexcept {
-        list_.sort(func);
+    template <typename _PredicateFunction>
+    FORCEINLINE Void Sort(_PredicateFunction _func) noexcept {
+        list_.sort(_func);
     }
 
     FORCEINLINE Void Clear() noexcept { list_.clear(); }
 
-    FORCEINLINE Void Resize(SizeType size) noexcept { list_.resize(size); }
-    FORCEINLINE Void Resize(SizeType size, const ObjectType& value) noexcept { list_.resize(size, value); }
+    FORCEINLINE Void Resize(SizeType _size) noexcept { list_.resize(_size); }
+    FORCEINLINE Void Resize(SizeType _size, const _ObjectType& _val) noexcept { list_.resize(_size, _val); }
 
     FORCEINLINE Void Reverse() noexcept { list_.reverse(); }
 
-    FORCEINLINE Void Swap(TList& list) noexcept { list_.swap(list); }
+    FORCEINLINE Void Swap(TList& _list) noexcept { list_.swap(_list); }
 
 protected:
-    using SuperType = ZObject;
+    using SuperType_ = ZObject;
 
 private:
-    STDList list_;
+    STDList_ list_;
 };
 
 }//zengine

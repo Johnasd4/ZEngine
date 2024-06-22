@@ -48,9 +48,9 @@ public:
         log_cs_.Unlock();
     }
 
-    Void Push(const LogType& log) noexcept {
+    Void Push(const LogType& _log) noexcept {
         log_cs_.Lock();
-        log_queue_.Push(log);
+        log_queue_.Push(_log);
         if (log_queue_.Size() > log_queue_.Capacity()) {
             log_queue_.Clear();
             Z_LOG_ERROR(error_code::kMLogErrorCodeLogQueueOverflow, 0, "Log queue overflow! Clear all logs!");
@@ -58,9 +58,9 @@ public:
         log_cs_.Unlock();
     }
     template<typename... ArgsType>
-    Void Push(ArgsType&&... args) noexcept {
+    Void Push(ArgsType&&... _args) noexcept {
         log_cs_.Lock();
-        log_queue_.EmplaceBack(std::forward<ArgsType>(args)...);
+        log_queue_.EmplaceBack(std::forward<ArgsType>(_args)...);
         if (log_queue_.Size() > log_queue_.Capacity()) {
             log_queue_.Clear();
             Z_LOG_ERROR(error_code::kMLogErrorCodeLogQueueOverflow, 0, "Log queue overflow! Clear all logs!");
@@ -69,7 +69,7 @@ public:
     }
 
 protected:
-    using SuperType = ZObject;
+    using SuperType_ = ZObject;
 
 private:
     TFixedQueue<LogType, kCapacity> log_queue_;

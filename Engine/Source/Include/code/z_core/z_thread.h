@@ -33,70 +33,71 @@ namespace zengine {
 */
 class CORE_DLLAPI ZThread : public ZObject {
 public:
-    using ThreadIDType = UInt32;
+    using ThreadIDType_ = UInt32;
 
-    NODISCARD FORCEINLINE static ThreadIDType GetCurrnetThreadID() noexcept { return GetCurrentThreadId(); }
+    NODISCARD FORCEINLINE static ThreadIDType_ GetCurrnetThreadID() noexcept { return GetCurrentThreadId(); }
 
     ZThread() noexcept;
-    ZThread(ZThread&& thread) noexcept;
+    ZThread(ZThread&& _thread) noexcept;
 
-    template <typename Function, typename... ArgsType>
-    ZThread(Function&& func, ArgsType&&... args) noexcept {
-        using ParamsType = TTuple<Function, TTuple<ArgsType...>>;
-        ParamsType* params_ptr = new ParamsType(std::forward<Function>(func), 
-                                                tuple::MakeTuple(std::forward<ArgsType>(args)...));
-        auto thread_func = [](Void* params_ptr) -> UInt32 {
-            tuple::Apply(((ParamsType*)params_ptr)->Get<0>(), std::move(((ParamsType*)params_ptr)->Get<1>()));
-            delete (ParamsType*)params_ptr;
+    template <typename _Function, typename... _ArgsType>
+    ZThread(_Function&& _func, _ArgsType&&... _args) noexcept {
+        using ParamsType = TTuple<_Function, TTuple<_ArgsType...>>;
+        ParamsType* params_ptr = new ParamsType(std::forward<_Function>(_func), 
+                                                tuple::MakeTuple(std::forward<_ArgsType>(_args)...));
+        auto thread_func = [](Void* _params_ptr) -> UInt32 {
+            tuple::Apply(((ParamsType*)_params_ptr)->Get<0>(), std::move(((ParamsType*)_params_ptr)->Get<1>()));
+            delete (ParamsType*)_params_ptr;
             return 0;
         };
-        handle_ = (Handle)_beginthreadex(NULL,
-                                         0,
-                                         thread_func,
-                                         (Void*)params_ptr,
-                                         0,
-                                         &id_);
+        handle_ = (Handle)_beginthreadex(
+            NULL,
+            0,
+            thread_func,
+            (Void*)params_ptr,
+            0,
+            &id_);
     }
 
     ~ZThread() noexcept;
 
-    ZThread& operator=(ZThread&& thread) noexcept;
+    ZThread& operator=(ZThread&& _thread) noexcept;
 
-    NODISCARD FORCEINLINE constexpr Bool operator==(const ZThread& thread) noexcept {
-        return id_ == thread.id_;
+    NODISCARD FORCEINLINE constexpr Bool operator==(const ZThread& _thread) noexcept {
+        return id_ == _thread.id_;
     }
-    NODISCARD FORCEINLINE constexpr Bool operator!=(const ZThread& thread) noexcept {
-        return id_ != thread.id_;
+    NODISCARD FORCEINLINE constexpr Bool operator!=(const ZThread& _thread) noexcept {
+        return id_ != _thread.id_;
     }
-    NODISCARD FORCEINLINE constexpr Bool operator>(const ZThread& thread) noexcept {
-        return id_ > thread.id_;
+    NODISCARD FORCEINLINE constexpr Bool operator>(const ZThread& _thread) noexcept {
+        return id_ > _thread.id_;
     }
-    NODISCARD FORCEINLINE constexpr Bool operator>=(const ZThread& thread) noexcept {
-        return id_ >= thread.id_;
+    NODISCARD FORCEINLINE constexpr Bool operator>=(const ZThread& _thread) noexcept {
+        return id_ >= _thread.id_;
     }
-    NODISCARD FORCEINLINE constexpr Bool operator<(const ZThread& thread) noexcept {
-        return id_ < thread.id_;
+    NODISCARD FORCEINLINE constexpr Bool operator<(const ZThread& _thread) noexcept {
+        return id_ < _thread.id_;
     }
-    NODISCARD FORCEINLINE constexpr Bool operator<=(const ZThread& thread) noexcept {
-        return id_ <= thread.id_;
+    NODISCARD FORCEINLINE constexpr Bool operator<=(const ZThread& _thread) noexcept {
+        return id_ <= _thread.id_;
     }
 
-    NODISCARD FORCEINLINE ThreadIDType ID() const noexcept { return id_; }
+    NODISCARD FORCEINLINE ThreadIDType_ ID() const noexcept { return id_; }
     NODISCARD FORCEINLINE Bool Joinable() noexcept { return WaitForSingleObject(handle_, 0) == WAIT_TIMEOUT; }
 
     FORCEINLINE Void Join() noexcept { WaitForSingleObject(handle_, INFINITE); }
     Void Detach() noexcept;
-    Void Swap(ZThread& thread) noexcept;
+    Void Swap(ZThread& _thread) noexcept;
 
 protected:
-    using SuperType = ZObject;
+    using SuperType_ = ZObject;
 
 private:
     ZThread(const ZThread&) = delete;
 
     ZThread& operator=(const ZThread&) = delete;
 
-    ThreadIDType id_;
+    ThreadIDType_ id_;
     Handle handle_;
 };
 

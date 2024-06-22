@@ -29,26 +29,26 @@ namespace zengine {
 /*
     The acllocator for stl containers.
 */
-template<typename ObjectType>
+template<typename _ObjectType>
 class TAllocator : public ZObject {
 public:
-    using value_type = ObjectType;
+    using value_type = _ObjectType;
 
-    FORCEINLINE TAllocator() : SuperType() {}
-    template<typename T>
-    FORCEINLINE TAllocator(const TAllocator<T>& alocator) : SuperType() {}
+    FORCEINLINE TAllocator() : SuperType_() {}
+    template<typename _OtherObjectType>
+    FORCEINLINE TAllocator(const TAllocator<_OtherObjectType>& _alocator) : SuperType_() {}
     FORCEINLINE ~TAllocator() {}
 
-    NODISCARD FORCEINLINE ObjectType* allocate(SizeType capacity) noexcept {
-        return reinterpret_cast<ObjectType*>(memory_pool::ApplyMemory((MemoryType)(capacity * sizeof(ObjectType))));
+    NODISCARD FORCEINLINE _ObjectType* allocate(SizeType _capacity) noexcept {
+        return reinterpret_cast<_ObjectType*>(memory_pool::ApplyMemory((MemoryType)(_capacity * sizeof(_ObjectType))));
     }
 
-    FORCEINLINE Void deallocate(ObjectType* object_ptr, SizeType capacity) noexcept {
-        memory_pool::ReleaseMemory(reinterpret_cast<Void*>(object_ptr));
+    FORCEINLINE Void deallocate(_ObjectType* _object_ptr, SizeType _capacity) noexcept {
+        memory_pool::ReleaseMemory(reinterpret_cast<Void*>(_object_ptr));
     }
 
 protected:
-    using SuperType = ZObject;
+    using SuperType_ = ZObject;
 };
 
 }//zengine

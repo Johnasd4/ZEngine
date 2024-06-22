@@ -30,7 +30,7 @@ namespace zengine {
 */
 class ZCSMutex : public ZObject {
 public:
-    FORCEINLINE ZCSMutex() noexcept : SuperType() { InitializeCriticalSection(&mutex_); }
+    FORCEINLINE ZCSMutex() noexcept : SuperType_() { InitializeCriticalSection(&mutex_); }
     FORCEINLINE ~ZCSMutex() noexcept { DeleteCriticalSection(&mutex_); }
 
     FORCEINLINE Void Lock() noexcept { EnterCriticalSection(&mutex_); }
@@ -38,7 +38,7 @@ public:
     FORCEINLINE Void Unlock() noexcept { LeaveCriticalSection(&mutex_); }
 
 protected:
-    using SuperType = ZObject;
+    using SuperType_ = ZObject;
 
 private:
     friend class ZConditionVariable;
