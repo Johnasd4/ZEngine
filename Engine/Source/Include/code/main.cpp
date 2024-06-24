@@ -68,7 +68,8 @@ int main() {
     sizeof(TTuple<Int32>);
     thread_pool.LockUntilTaskDone();
 
-
-
+    ZString temp_str_0 = "123";
+    ZString temp_str_1 = std::move(temp_str_0) + temp_str_0;
+    cout << endl << temp_str_1.String();
     return 0;
 }

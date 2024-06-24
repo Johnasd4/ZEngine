@@ -56,7 +56,6 @@
     <ClInclude Include="code\z_core\z_object.h" />
     <ClInclude Include="code\z_core\z_sem_mutex.h" />
     <ClInclude Include="code\z_core\z_string.h" />
-    <ClInclude Include="code\z_core\z_string_b.h" />
     <ClInclude Include="code\z_core\z_system_time.h" />
     <ClInclude Include="code\z_core\z_task.h" />
     <ClInclude Include="code\z_core\z_thread.h" />
