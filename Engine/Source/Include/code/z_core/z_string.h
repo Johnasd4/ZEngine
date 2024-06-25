@@ -115,11 +115,110 @@ public:
         return *this;
     }
 
-    NODISCARD FORCEINLINE constexpr Bool operator==(const TString& _string) noexcept { 
-        return string_ == _string.string_; 
+    friend NODISCARD FORCEINLINE constexpr Bool operator==(
+        const TString& _left_str, const TString& _right_str
+    ) noexcept {
+        return _left_str.string_ == _right_str.string_;
     }
-    NODISCARD FORCEINLINE constexpr Bool operator!=(const TString& _string) noexcept { 
-        return string_ != _string.string_; 
+    friend NODISCARD FORCEINLINE constexpr Bool operator==(
+        const TString& _left_str, const _CharType* _right_str
+    ) noexcept {
+        return _left_str.string_ == _right_str;
+    }
+    friend NODISCARD FORCEINLINE constexpr Bool operator==(
+        const _CharType* _left_str, const TString& _right_str
+    ) noexcept {
+        return _left_str == _right_str.string_;
+    }
+    friend NODISCARD FORCEINLINE constexpr Bool operator!=(
+        const TString& _left_str, 
+        const TString& _right_str
+    ) noexcept {
+        return _left_str.string_ != _right_str.string_;
+    }
+    friend NODISCARD FORCEINLINE constexpr Bool operator!=(
+        const TString& _left_str, 
+        const _CharType* _right_str
+    ) noexcept {
+        return _left_str.string_ != _right_str;
+    }
+    friend NODISCARD FORCEINLINE constexpr Bool operator!=(
+        const _CharType* _left_str, 
+        const TString& _right_str
+    ) noexcept {
+        return _left_str != _right_str.string_;
+    }
+    friend NODISCARD FORCEINLINE constexpr Bool operator>(
+        const TString& _left_str,
+        const TString& _right_str
+        ) noexcept {
+        return _left_str.string_ > _right_str.string_;
+    }
+    friend NODISCARD FORCEINLINE constexpr Bool operator>(
+        const TString& _left_str,
+        const _CharType* _right_str
+        ) noexcept {
+        return _left_str.string_ > _right_str;
+    }
+    friend NODISCARD FORCEINLINE constexpr Bool operator>(
+        const _CharType* _left_str,
+        const TString& _right_str
+        ) noexcept {
+        return _left_str > _right_str.string_;
+    }
+    friend NODISCARD FORCEINLINE constexpr Bool operator>=(
+        const TString& _left_str,
+        const TString& _right_str
+        ) noexcept {
+        return _left_str.string_ >= _right_str.string_;
+    }
+    friend NODISCARD FORCEINLINE constexpr Bool operator>=(
+        const TString& _left_str,
+        const _CharType* _right_str
+        ) noexcept {
+        return _left_str.string_ >= _right_str;
+    }
+    friend NODISCARD FORCEINLINE constexpr Bool operator>=(
+        const _CharType* _left_str,
+        const TString& _right_str
+        ) noexcept {
+        return _left_str >= _right_str.string_;
+    }
+    friend NODISCARD FORCEINLINE constexpr Bool operator<(
+        const TString& _left_str,
+        const TString& _right_str
+        ) noexcept {
+        return _left_str.string_ < _right_str.string_;
+    }
+    friend NODISCARD FORCEINLINE constexpr Bool operator<(
+        const TString& _left_str,
+        const _CharType* _right_str
+        ) noexcept {
+        return _left_str.string_ < _right_str;
+    }
+    friend NODISCARD FORCEINLINE constexpr Bool operator<(
+        const _CharType* _left_str,
+        const TString& _right_str
+        ) noexcept {
+        return _left_str < _right_str.string_;
+    }
+    friend NODISCARD FORCEINLINE constexpr Bool operator<=(
+        const TString& _left_str,
+        const TString& _right_str
+        ) noexcept {
+        return _left_str.string_ <= _right_str.string_;
+    }
+    friend NODISCARD FORCEINLINE constexpr Bool operator<=(
+        const TString& _left_str,
+        const _CharType* _right_str
+        ) noexcept {
+        return _left_str.string_ <= _right_str;
+    }
+    friend NODISCARD FORCEINLINE constexpr Bool operator<=(
+        const _CharType* _left_str,
+        const TString& _right_str
+        ) noexcept {
+        return _left_str <= _right_str.string_;
     }
 
     NODISCARD FORCEINLINE constexpr _CharType& operator[](const SizeType _index) noexcept { return string_[_index]; }
@@ -142,6 +241,104 @@ public:
     FORCEINLINE constexpr TString& operator+=(InitializerList_ _init_list) noexcept { 
         string_ += _init_list; 
         return *this;
+    }
+
+    friend NODISCARD FORCEINLINE constexpr TString operator+(
+        const TString& _left_str,
+        const TString& _right_str
+    ) noexcept  {
+        TString str;
+        str.Reserve(_left_str.Size() + _right_str.Size());
+        str.Append(_left_str);
+        str.Append(_right_str);
+        return str;
+    }
+    friend NODISCARD FORCEINLINE constexpr TString operator+(
+        const _CharType* _left_str,
+        const TString& _right_str
+    ) noexcept {
+        TString str;
+        if constexpr (kSameType<_CharType, Char>) {
+            str.Reserve(strlen(_left_str) + _right_str.Size());
+        }
+        else {
+            str.Reserve(wcsnlen(_left_str) + _right_str.Size());
+        }
+        str.Append(_left_str);
+        str.Append(_right_str);
+        return str;
+    }
+    friend NODISCARD FORCEINLINE constexpr TString operator+(
+        const _CharType _left_char,
+        const TString& _right_str
+    ) noexcept {
+        TString str;
+        str.Reserve(1 + _right_str.Size());
+        str.Append(1, _left_char);
+        str.Append(_right_str);
+        return str;
+    }
+    friend NODISCARD FORCEINLINE constexpr TString operator+(
+        const TString& _left_str,
+        const _CharType* _right_str
+    ) noexcept {
+        TString str;
+        if constexpr (kSameType<_CharType, Char>) {
+            str.Reserve(_left_str.Size() + strlen(_right_str));
+        }
+        else {
+            str.Reserve(_left_str.Size() + wcsnlen(_right_str));
+        }
+        str.Append(_left_str);
+        str.Append(_right_str);
+        return str;
+    }
+    friend NODISCARD FORCEINLINE constexpr TString operator+(
+        const TString& _left_str,
+        const _CharType _right_char
+    ) noexcept {
+        TString str;
+        str.Reserve(_left_str.Size() + 1);
+        str.Append(_left_str);
+        str.Append(1, _right_char);
+        return str;
+    }
+    friend NODISCARD FORCEINLINE constexpr TString operator+(
+        TString&& _left_str,
+        const TString& _right_str
+    ) noexcept {
+        return std::move(_left_str.Append(_right_str));
+    }
+    friend NODISCARD FORCEINLINE constexpr TString operator+(
+        const TString& _left_str,
+        TString&& _right_str
+    ) noexcept {
+        return std::move(_right_str.Insert(0, _left_str));
+    }
+    friend NODISCARD FORCEINLINE constexpr TString operator+(
+        const _CharType* _left_str,
+        TString&& _right_str
+    ) noexcept {
+        return std::move(_right_str.Insert(0, _left_str));
+    }
+    friend NODISCARD FORCEINLINE constexpr TString operator+(
+        const _CharType _left_char,
+        TString&& _right_str
+    ) noexcept {
+        return std::move(_right_str.Insert(0, 1, _left_char));
+    }
+    friend NODISCARD FORCEINLINE constexpr TString operator+(
+        TString&& _left_str,
+        const _CharType* _right_str
+    ) noexcept {
+        return std::move(_left_str.Append(_right_str));
+    }
+    friend NODISCARD FORCEINLINE constexpr TString operator+(
+        TString&& _left_str,
+        const _CharType _right_char
+    ) noexcept {
+        _left_str.PushBack(_right_char);
+        return std::move(_left_str);
     }
 
     NODISCARD FORCEINLINE constexpr _CharType& At(IndexType index) noexcept { return string_.at(index); }
@@ -188,7 +385,8 @@ public:
         return *this;
     }
     FORCEINLINE constexpr TString& Append(const _CharType* _string) noexcept { 
-        return string_.append(_string); 
+        string_.append(_string); 
+        return *this;
     }
     FORCEINLINE constexpr TString& Append(const _CharType* _string, SizeType _size) noexcept { 
         string_.append(_string, _size); 
@@ -249,6 +447,9 @@ public:
         string_.insert(_pos, _first, _last);
         return *this;
     }
+    
+
+    
     //replace
     //find
     //rfind
@@ -282,117 +483,6 @@ private:
 };
 
 }//internal
-
-template<typename _CharType>
-NODISCARD FORCEINLINE constexpr internal::TString<_CharType> operator+(
-    const internal::TString<_CharType>& _left_str,
-    const internal::TString<_CharType>& _right_str
-) noexcept  {
-    internal::TString<_CharType> str;
-    str.Reserve(_left_str.Size() + _right_str.Size());
-    str.Append(_left_str);
-    str.Append(_right_str);
-    return str;
-}
-template<typename _CharType>
-NODISCARD FORCEINLINE constexpr internal::TString<_CharType> operator+(
-    const _CharType* _left_str,
-    const internal::TString<_CharType>& _right_str
-) noexcept {
-    internal::TString<_CharType> str;
-    if constexpr (kSameType<_CharType, Char>) {
-        str.Reserve(strlen(_left_str) + _right_str.Size());
-    }
-    else {
-        str.Reserve(wcsnlen(_left_str) + _right_str.Size());
-    }
-    str.Append(_left_str);
-    str.Append(_right_str);
-    return str;
-}
-template<typename _CharType>
-NODISCARD FORCEINLINE constexpr internal::TString<_CharType> operator+(
-    const _CharType _left_char,
-    const internal::TString<_CharType>& _right_str
-) noexcept {
-    internal::TString<_CharType> str;
-    str.Reserve(1 + _right_str.Size());
-    str.Append(1, _left_char);
-    str.Append(_right_str);
-    return str;
-}
-template<typename _CharType>
-NODISCARD FORCEINLINE constexpr internal::TString<_CharType> operator+(
-    const internal::TString<_CharType>& _left_str,
-    const _CharType* _right_str
-) noexcept {
-    internal::TString<_CharType> str;
-    if constexpr (kSameType<_CharType, Char>) {
-        str.Reserve(_left_str.Size() + strlen(_right_str));
-    }
-    else {
-        str.Reserve(_left_str.Size() + wcsnlen(_right_str));
-    }
-    str.Append(_left_str);
-    str.Append(_right_str);
-    return str;
-}
-template<typename _CharType>
-NODISCARD FORCEINLINE constexpr internal::TString<_CharType> operator+(
-    const internal::TString<_CharType>& _left_str,
-    const _CharType _right_char
-) noexcept {
-    internal::TString<_CharType> str;
-    str.Reserve(_left_str.Size() + 1);
-    str.Append(_left_str);
-    str.Append(1, _right_char);
-    return str;
-}
-template<typename _CharType>
-NODISCARD FORCEINLINE constexpr internal::TString<_CharType> operator+(
-    internal::TString<_CharType>&& _left_str,
-    const internal::TString<_CharType>& _right_str
-) noexcept {
-    return std::move(_left_str.Append(_right_str));
-}
-template<typename _CharType>
-NODISCARD FORCEINLINE constexpr internal::TString<_CharType> operator+(
-    const internal::TString<_CharType>& _left_str,
-    internal::TString<_CharType>&& _right_str
-) noexcept {
-    return std::move(_right_str.Insert(0, _left_str));
-}
-template<typename _CharType>
-NODISCARD FORCEINLINE constexpr internal::TString<_CharType> operator+(
-    const _CharType* _left_str,
-    internal::TString<_CharType>&& _right_str
-) noexcept {
-    return std::move(_right_str.Insert(0, _left_str));
-}
-template<typename _CharType>
-NODISCARD FORCEINLINE constexpr internal::TString<_CharType> operator+(
-    const _CharType _left_char,
-    internal::TString<_CharType>&& _right_str
-) noexcept {
-    return std::move(_right_str.Insert(0, 1, _left_char));
-}
-template<typename _CharType>
-NODISCARD FORCEINLINE constexpr internal::TString<_CharType> operator+(
-    internal::TString<_CharType>&& _left_str,
-    const _CharType* _right_str
-) noexcept {
-    return std::move(_left_str.Append(_right_str));
-}
-template<typename _CharType>
-NODISCARD FORCEINLINE constexpr internal::TString<_CharType> operator+(
-    internal::TString<_CharType>&& _left_str,
-    const _CharType _right_char
-) noexcept {
-    _left_str.PushBack(_right_char);
-    return std::move(_left_str);
-}
-
-//operator==
 
 using ZString = internal::TString<Char>;
 using ZWString = internal::TString<WChar>;

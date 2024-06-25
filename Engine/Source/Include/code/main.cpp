@@ -69,7 +69,9 @@ int main() {
     thread_pool.LockUntilTaskDone();
 
     ZString temp_str_0 = "123";
-    ZString temp_str_1 = std::move(temp_str_0) + temp_str_0;
-    cout << endl << temp_str_1.String();
+    ZString temp_str_1 = temp_str_0 + "1234";
+    cout << temp_str_1.String() << endl;
+    cout << endl << ("123" == temp_str_1) << endl;
+
     return 0;
 }
