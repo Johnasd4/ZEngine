@@ -146,19 +146,23 @@ public:
         return forward_list_.splice_after(_pos, std::forward<_ObjectType>(_forward_list.forward_list_));
     }
     FORCEINLINE Iterator_ SpliceAfter(
-            ConstIterator_ _pos, TForwardList& _forward_list, ConstIterator_ _start_pos) noexcept {
+        ConstIterator_ _pos, TForwardList& _forward_list, ConstIterator_ _start_pos
+    ) noexcept {
         return forward_list_.splice_after(_pos, _forward_list.forward_list_, _start_pos);
     }
     FORCEINLINE Iterator_ SpliceAfter(
-            ConstIterator_ _pos, TForwardList&& _forward_list, ConstIterator_ _start_pos) noexcept {
+        ConstIterator_ _pos, TForwardList&& _forward_list, ConstIterator_ _start_pos
+    ) noexcept {
         return forward_list_.splice_after(_pos, std::forward<_ObjectType>(_forward_list.forward_list_), _start_pos);
     }
     FORCEINLINE Iterator_ SpliceAfter(
-            ConstIterator_ _pos, TForwardList& _forward_list, ConstIterator_ _first, ConstIterator_ _last) noexcept {
+        ConstIterator_ _pos, TForwardList& _forward_list, ConstIterator_ _first, ConstIterator_ _last
+    ) noexcept {
         return forward_list_.splice_after(_pos, _forward_list.forward_list_, _first, _last);
     }
     FORCEINLINE Iterator_ SpliceAfter(
-            ConstIterator_ _pos, TForwardList&& _forward_list, ConstIterator_ _first, ConstIterator_ _last) noexcept {
+        ConstIterator_ _pos, TForwardList&& _forward_list, ConstIterator_ _first, ConstIterator_ _last
+    ) noexcept {
         return forward_list_.splice_after(_pos, std::forward<_ObjectType>(_forward_list.forward_list_), _first, _last);
     }
 
