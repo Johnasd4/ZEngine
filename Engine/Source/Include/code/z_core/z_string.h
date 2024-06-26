@@ -445,36 +445,169 @@ public:
         string_.replace(_pos, _len, _size, _char);
         return *this;
     }
-    //TODO
-
     FORCEINLINE constexpr TString& Replace(
-        const ConstIterator_ _pos, const SizeType _len, SizeType _size, const _CharType _char
+        const ConstIterator_ _first, const ConstIterator_ _last, const TString& _string
     ) noexcept {
-        string_.replace(_pos, _size, _char);
+        string_.replace(_first, _last, _string);
         return *this;
     }
     FORCEINLINE constexpr TString& Replace(
-        const ConstIterator_ _pos, const SizeType _len, InitializerList_ _init_list
+        const ConstIterator_ _first, const ConstIterator_ _last, const _CharType* _string, SizeType _str_len
     ) noexcept {
-        string_.replace(_pos, _init_list);
+        string_.replace(_first, _last, _string, _str_len);
+        return *this;
+    }
+    FORCEINLINE constexpr TString& Replace(
+        const ConstIterator_ _first, const ConstIterator_ _last, const _CharType* _string
+    ) noexcept {
+        string_.replace(_first, _last, _string);
+        return *this;
+    }
+    FORCEINLINE constexpr TString& Replace(
+        const ConstIterator_ _first, const ConstIterator_ _last, SizeType _size, const _CharType _char
+    ) noexcept {
+        string_.replace(_first, _last, _size, _char);
         return *this;
     }
     template <typename InputIterator>
     FORCEINLINE constexpr TString& Replace(
-        const ConstIterator_ _pos, const SizeType _len, InputIterator _first, InputIterator _last
+        const ConstIterator_ _first, const ConstIterator_ _last, InputIterator _str_first, InputIterator _str_last
     ) noexcept {
-        string_.replace(_pos, _first, _last);
+        string_.replace(_first, _last, _str_first, _str_last);
         return *this;
     }
 
-    //find
-    //rfind
-    //find_first_of
-    //find_first_not_of
-    //find_last_not_of
-    //substr
-    //compare
-    //erase
+    FORCEINLINE constexpr SizeType Find(const TString& _string, const SizeType _start_pos = 0) noexcept {
+        return string_.find(_string.string_, _start_pos);
+    }
+    FORCEINLINE constexpr SizeType Find(const _CharType* _string, const SizeType _start_pos = 0) noexcept {
+        return string_.find(_string, _start_pos);
+    }
+    FORCEINLINE constexpr SizeType Find(
+        const _CharType* _str_start, const SizeType _str_len, const SizeType _start_pos = 0
+    ) noexcept {
+        return string_.find(_str_start, _start_pos, _str_len);
+    }
+    FORCEINLINE constexpr SizeType Find(const _CharType _char, const SizeType _start_pos = 0) noexcept {
+        return string_.find(_char, _start_pos);
+    }
+    FORCEINLINE constexpr SizeType ReserveFind(const TString& _string, const SizeType _start_pos = -1) noexcept {
+        return string_.rfind(_string.string_, _start_pos);
+    }
+    FORCEINLINE constexpr SizeType ReserveFind(const _CharType* _string, const SizeType _start_pos = -1) noexcept {
+        return string_.rfind(_string, _start_pos);
+    }
+    FORCEINLINE constexpr SizeType ReserveFind(
+        const _CharType* _str_start, const SizeType _str_len, const SizeType _start_pos = -1
+    ) noexcept {
+        return string_.rfind(_str_start, _start_pos, _str_len);
+    }
+    FORCEINLINE constexpr SizeType ReserveFind(const _CharType _char, const SizeType _start_pos = -1) noexcept {
+        return string_.rfind(_char, _start_pos);
+    }
+    FORCEINLINE constexpr SizeType FindFirstOf(const TString& _string, const SizeType _start_pos = 0) noexcept {
+        return string_.find_first_of(_string.string_, _start_pos);
+    }
+    FORCEINLINE constexpr SizeType FindFirstOf(const _CharType* _string, const SizeType _start_pos = 0) noexcept {
+        return string_.find_first_of(_string, _start_pos);
+    }
+    FORCEINLINE constexpr SizeType FindFirstOf(
+        const _CharType* _str_start, const SizeType _str_len, const SizeType _start_pos = 0
+    ) noexcept {
+        return string_.find_first_of(_str_start, _start_pos, _str_len);
+    }
+    FORCEINLINE constexpr SizeType FindFirstOf(const _CharType _char, const SizeType _start_pos = 0) noexcept {
+        return string_.find_first_of(_char, _start_pos);
+    }
+    FORCEINLINE constexpr SizeType FindLastOf(const TString& _string, const SizeType _start_pos = -1) noexcept {
+        return string_.find_last_of(_string.string_, _start_pos);
+    }
+    FORCEINLINE constexpr SizeType FindLastOf(const _CharType* _string, const SizeType _start_pos = -1) noexcept {
+        return string_.find_last_of(_string, _start_pos);
+    }
+    FORCEINLINE constexpr SizeType FindLastOf(
+        const _CharType* _str_start, const SizeType _str_len, const SizeType _start_pos = -1
+    ) noexcept {
+        return string_.find_last_of(_str_start, _start_pos, _str_len);
+    }
+    FORCEINLINE constexpr SizeType FindLastOf(const _CharType _char, const SizeType _start_pos = -1) noexcept {
+        return string_.find_last_of(_char, _start_pos);
+    }
+    FORCEINLINE constexpr SizeType FindFirstNotOf(const TString& _string, const SizeType _start_pos = 0) noexcept {
+        return string_.find_first_not_of(_string.string_, _start_pos);
+    }
+    FORCEINLINE constexpr SizeType FindFirstNotOf(const _CharType* _string, const SizeType _start_pos = 0) noexcept {
+        return string_.find_first_not_of(_string, _start_pos);
+    }
+    FORCEINLINE constexpr SizeType FindFirstNotOf(
+        const _CharType* _str_start, const SizeType _str_len, const SizeType _start_pos = 0
+    ) noexcept {
+        return string_.find_first_not_of(_str_start, _start_pos, _str_len);
+    }
+    FORCEINLINE constexpr SizeType FindFirstNotOf(const _CharType _char, const SizeType _start_pos = 0) noexcept {
+        return string_.find_first_not_of(_char, _start_pos);
+    }
+    FORCEINLINE constexpr SizeType FindLastNotOf(const TString& _string, const SizeType _start_pos = -1) noexcept {
+        return string_.find_last_not_of(_string.string_, _start_pos);
+    }
+    FORCEINLINE constexpr SizeType FindLastNotOf(const _CharType* _string, const SizeType _start_pos = -1) noexcept {
+        return string_.find_last_not_of(_string, _start_pos);
+    }
+    FORCEINLINE constexpr SizeType FindLastNotOf(
+        const _CharType* _str_start, const SizeType _str_len, const SizeType _start_pos = -1
+    ) noexcept {
+        return string_.find_last_not_of(_str_start, _start_pos, _str_len);
+    }
+    FORCEINLINE constexpr SizeType FindLastNotOf(const _CharType _char, const SizeType _start_pos = -1) noexcept {
+        return string_.find_last_not_of(_char, _start_pos);
+    }
+
+    FORCEINLINE constexpr TString SubString(const SizeType _pos, const SizeType _len = -1) noexcept {
+        TString string;
+        string.string_ = std::move(string_.substr(_pos, _len));
+        return *this;
+    }
+
+    FORCEINLINE constexpr Int32 Compare(const TString& _string) noexcept { return string_.compare(_string.string_); }
+    FORCEINLINE constexpr Int32 Compare(SizeType _pos, SizeType _len, const TString& _string) noexcept {
+        return string_.compare(_pos, _len, _string.string_);
+    }
+    FORCEINLINE constexpr Int32 Compare(
+        SizeType _pos, SizeType _len, const TString& _string, SizeType _str_pos, SizeType _str_len
+    ) noexcept {
+        return string_.compare(_pos, _len, _string.string_, _str_pos, _str_len);
+    }
+    FORCEINLINE constexpr Int32 Compare(const _CharType* _string) noexcept {
+        return string_.compare(_string);
+    }
+    FORCEINLINE constexpr Int32 Compare(SizeType _pos, SizeType _len, const _CharType* _string) noexcept {
+        return string_.compare(_pos, _len, _string);
+    }
+    FORCEINLINE constexpr Int32 Compare(
+        SizeType _pos, SizeType _len, const _CharType* _string, SizeType _str_len
+    ) noexcept {
+        return string_.compare(_pos, _len, _string, _str_len);
+    }
+
+    FORCEINLINE constexpr Bool StartWith(const TString& _string) noexcept { 
+        return string_.starts_with(_string.string_); 
+    }
+    FORCEINLINE constexpr Bool StartWith(const _CharType* _string) noexcept {
+        return string_.starts_with(_string);
+    }
+    FORCEINLINE constexpr Bool StartWith(const _CharType _char) noexcept {
+        return string_.starts_with(_char);
+    }
+    FORCEINLINE constexpr Bool EndWith(const TString& _string) noexcept {
+        return string_.ends_with(_string.string_);
+    }
+    FORCEINLINE constexpr Bool EndWith(const _CharType* _string) noexcept {
+        return string_.ends_with(_string);
+    }
+    FORCEINLINE constexpr Bool EndWith(const _CharType _char) noexcept {
+        return string_.ends_with(_char);
+    }
+
     FORCEINLINE constexpr Iterator_ Erase(ConstIterator_ _pos) noexcept { return string_.erase(_pos); }
     FORCEINLINE constexpr Iterator_ Erase(ConstIterator_ _first, ConstIterator_ _last) noexcept { 
         return string_.erase(_first, _last); 

@@ -72,6 +72,8 @@ int main() {
     ZString temp_str_1 = temp_str_0 + "1234";
     cout << temp_str_1.String() << endl;
     cout << endl << ("123" == temp_str_1) << endl;
-
+    std::string f = "123";
+    sizeof(f.find("1"));
+    cout << temp_str_1.StartWith(temp_str_0) << endl;
     return 0;
 }
