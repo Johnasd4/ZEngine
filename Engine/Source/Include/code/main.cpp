@@ -23,6 +23,8 @@
 
 #include <functional>
 
+#include <memory>
+
 using namespace zengine;
 using namespace std;
 
@@ -52,7 +54,7 @@ int main() {
     //cons.join();
     ZSemMutex test_mutex;
     test_mutex.Lock();
-
+    std::allocate_shared<Int32>;
     ZThreadPool thread_pool(1);
     {
         Int32 i = 1;
