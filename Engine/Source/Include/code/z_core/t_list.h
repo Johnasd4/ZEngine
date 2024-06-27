@@ -157,11 +157,13 @@ public:
         return list_.splice(_pos, std::move(_list.list_), _start_pos);
     }
     FORCEINLINE Iterator_ Splice(
-            ConstIterator_ _pos, TList& _list, ConstIterator_ _first, ConstIterator_ _last) noexcept {
+        ConstIterator_ _pos, TList& _list, ConstIterator_ _first, ConstIterator_ _last
+    ) noexcept {
         return list_.splice(_pos, _list.list_, _first, _last);
     }
     FORCEINLINE Iterator_ Splice(
-            ConstIterator_ _pos, TList&& _list, ConstIterator_ _first, ConstIterator_ _last) noexcept {
+        ConstIterator_ _pos, TList&& _list, ConstIterator_ _first, ConstIterator_ _last
+    ) noexcept {
         return list_.splice(_pos, std::move(_list.list_), _first, _last);
     }
 
