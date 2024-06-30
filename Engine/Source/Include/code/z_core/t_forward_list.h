@@ -34,7 +34,7 @@ namespace zengine {
 template<typename _ObjectType>
 class TForwardList : public ZObject {
 public:
-    using STDForwardList_ = std::forward_list<_ObjectType, TAllocator<_ObjectType>>;
+    using STDForwardList_ = std::forward_list<_ObjectType, TContainerAllocator<_ObjectType>>;
     using Iterator_ = STDForwardList_::iterator;
     using ConstIterator_ = STDForwardList_::const_iterator;
     using InitializerList_ = std::initializer_list<_ObjectType>;

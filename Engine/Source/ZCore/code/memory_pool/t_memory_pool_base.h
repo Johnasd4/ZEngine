@@ -27,7 +27,8 @@ namespace zengine {
 namespace memory_pool {
 
 enum MemoryPoolEnum : IndexType {
-    kTSmallMemoryBlockListMemoryPool = 1
+    kTSmallMemoryListMemoryPool,
+    kTSmartPointerListMemoryPool
 };
 
 /*

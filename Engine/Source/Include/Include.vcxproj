@@ -45,6 +45,7 @@
     <ClInclude Include="code\z_core\t_pair.h" />
     <ClInclude Include="code\z_core\t_queue.h" />
     <ClInclude Include="code\z_core\t_set.h" />
+    <ClInclude Include="code\z_core\t_smart_pointer.h" />
     <ClInclude Include="code\z_core\t_stack.h" />
     <ClInclude Include="code\z_core\t_tuple.h" />
     <ClInclude Include="code\z_core\t_unique_lock.h" />

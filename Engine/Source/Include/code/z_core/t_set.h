@@ -35,7 +35,7 @@ namespace zengine {
 template<typename _ObjectType>
 class TSet : public ZObject {
 public:
-    using STDSet_ = std::set<_ObjectType, std::less<_ObjectType>, TAllocator<_ObjectType>>;
+    using STDSet_ = std::set<_ObjectType, std::less<_ObjectType>, TContainerAllocator<_ObjectType>>;
     using Iterator_ = STDSet_::iterator;
     using ConstIterator_ = STDSet_::const_iterator;
     using ReverseIterator_ = STDSet_::reverse_iterator;

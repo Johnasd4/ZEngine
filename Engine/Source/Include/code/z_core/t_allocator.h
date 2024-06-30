@@ -30,14 +30,14 @@ namespace zengine {
     The acllocator for stl containers.
 */
 template<typename _ObjectType>
-class TAllocator : public ZObject {
+class TContainerAllocator : public ZObject {
 public:
     using value_type = _ObjectType;
 
-    FORCEINLINE TAllocator() : SuperType_() {}
+    FORCEINLINE TContainerAllocator() : SuperType_() {}
     template<typename _OtherObjectType>
-    FORCEINLINE TAllocator(const TAllocator<_OtherObjectType>& _alocator) : SuperType_() {}
-    FORCEINLINE ~TAllocator() {}
+    FORCEINLINE TContainerAllocator(const TContainerAllocator<_OtherObjectType>& _alocator) : SuperType_() {}
+    FORCEINLINE ~TContainerAllocator() {}
 
     NODISCARD FORCEINLINE _ObjectType* allocate(SizeType _capacity) noexcept {
         return reinterpret_cast<_ObjectType*>(memory_pool::ApplyMemory((MemoryType)(_capacity * sizeof(_ObjectType))));
@@ -45,6 +45,31 @@ public:
 
     FORCEINLINE Void deallocate(_ObjectType* _object_ptr, SizeType _capacity) noexcept {
         memory_pool::ReleaseMemory(reinterpret_cast<Void*>(_object_ptr));
+    }
+
+protected:
+    using SuperType_ = ZObject;
+};
+
+/*
+    The acllocator for smart pointers.
+*/
+template<typename _ObjectType>
+class TSmartPointerAllocator : public ZObject {
+public:
+    using value_type = _ObjectType;
+
+    FORCEINLINE TSmartPointerAllocator() : SuperType_() {}
+    template<typename _OtherObjectType>
+    FORCEINLINE TSmartPointerAllocator(const TSmartPointerAllocator<_OtherObjectType>& _alocator) : SuperType_() {}
+    FORCEINLINE ~TSmartPointerAllocator() {}
+
+    NODISCARD FORCEINLINE _ObjectType* allocate(SizeType _capacity) noexcept {
+        return reinterpret_cast<_ObjectType*>(memory_pool::ApplySmartPointerMemory());
+    }
+
+    FORCEINLINE Void deallocate(_ObjectType* _object_ptr, SizeType _capacity) noexcept {
+        memory_pool::ReleaseSmartPointerMemory(reinterpret_cast<Void*>(_object_ptr));
     }
 
 protected:

@@ -34,7 +34,7 @@ namespace zengine {
 template<typename _ObjectType>
 class TDeque : public ZObject {
 public:
-    using STDDeque_ = std::deque<_ObjectType, TAllocator<_ObjectType>>;
+    using STDDeque_ = std::deque<_ObjectType, TContainerAllocator<_ObjectType>>;
     using Iterator_ = STDDeque_::iterator;
     using ConstIterator_ = STDDeque_::const_iterator;
     using ReverseIterator_ = STDDeque_::reverse_iterator;

@@ -69,7 +69,7 @@ static ZFile& GetLogFile() noexcept {
     ZSystemTime system_time;
 
     file_str.SetString(
-        L"%lsdefault_log_%04d%02d%02d%02d%02d%02d.log", ZLog::kPathTString,
+        L"%ls%04d%02d%02d%02d%02d%02d_dfault_log.log", ZLog::kPathTString,
         system_time.Year(), system_time.Month(), system_time.Day(), 
         system_time.Hour(), system_time.Min(), system_time.Sec());
     link_code = file.OpenSafe(ZLog::kPathTString, file_str.DataPtr(), ZFile::kOpenTypeAppendT);

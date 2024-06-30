@@ -96,6 +96,15 @@ CORE_DLLAPI NODISCARD MemoryType CalculateMemory(MemoryType _size) noexcept;
 */
 CORE_DLLAPI extern Void ReleaseMemory(Void* _memory_ptr) noexcept;
 
+/*
+    Applys memory for the smart pointers, size is 24.
+*/
+CORE_DLLAPI NODISCARD Void* ApplySmartPointerMemory() noexcept;
+
+/*
+   Release the memory by the memory pointer. Only can be used by smart pointers.
+*/
+CORE_DLLAPI Void ReleaseSmartPointerMemory(Void* _memory_ptr) noexcept;
 
 }//system_memory
 }//zengine

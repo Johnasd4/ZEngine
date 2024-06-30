@@ -46,7 +46,8 @@
     <ClInclude Include="code\memory_pool\t_memory_block_base.h" />
     <ClInclude Include="code\memory_pool\t_memory_pool_base.h" />
     <ClInclude Include="code\memory_pool\t_memory_pool_thread_safe_base.h" />
-    <ClInclude Include="code\memory_pool\t_small_memory_block_list_memory_pool.h" />
+    <ClInclude Include="code\memory_pool\t_small_memory_list_memory_pool.h" />
+    <ClInclude Include="code\memory_pool\t_smart_pointer_list_memory_pool.h" />
     <ClInclude Include="code\memory_pool\z_heap_memory_pool.h" />
     <ClInclude Include="code\memory_pool\z_list_memory_pool_base.h" />
     <ClInclude Include="code\memory_pool\z_memory_block_base.h" />

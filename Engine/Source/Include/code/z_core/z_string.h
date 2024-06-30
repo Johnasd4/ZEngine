@@ -36,7 +36,7 @@ namespace internal {
 template<typename _CharType>
 class TString : public ZObject {
 public:
-    using STDString_ = std::basic_string<_CharType, std::char_traits<_CharType>, TAllocator<_CharType>>;;
+    using STDString_ = std::basic_string<_CharType, std::char_traits<_CharType>, TContainerAllocator<_CharType>>;;
     using Iterator_ = STDString_::iterator;
     using ConstIterator_ = STDString_::const_iterator;
     using ReverseIterator_ = STDString_::reverse_iterator;
