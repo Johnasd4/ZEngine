@@ -63,6 +63,8 @@ using ReturnType = UInt32;
 using TimeType = time_t;
 //The type of time.
 using ArgListType = va_list;
+//The type of nullptr.
+using NullptrType = std::nullptr_t;
 
 using Bool = bool;
 using Byte = unsigned char;

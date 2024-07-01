@@ -1,95 +1,94 @@
-#ifndef Z_CORE_Z_SMART_PTR_H_
-#define Z_CORE_Z_SMART_PTR_H_
+/*
+    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
 
-#include<atomic>
+    This code file is licensed under the Creative Commons
+    Attribution-NonCommercial 4.0 International License.
 
-#include"internal/z_drive.h"
+    You may obtain a copy of the License at
+    https://creativecommons.org/licenses/by-nc/4.0/
 
-#include"f_memory_pool.h"
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Contact: 1152325286@qq.com
+*/
+#ifndef Z_CORE_T_SMART_POINTER_H_
+#define Z_CORE_T_SMART_POINTER_H_
+
+#include "internal/z_drive.h"
+
+#include "t_allocator.h"
+#include "z_object.h"
 
 namespace zengine {
 
-template<typename ObjectType>
-class ZUniquePtr;
-template<typename ObjectType>
-class ZSharedPtr;
-template<typename ObjectType>
-class ZWeakPtr;
-
-namespace internal {
-
-    static constexpr Bool kCounterThreadSafeDefault = false;
-
 /*
-    The smart pointer counter type.
-    Template Parameters:
-    - kCounterThreadSafe: Wheather the counter is thread safe of not.
+    Unique smart pointer.
 */
-template<Bool kCounterThreadSafe>
-struct ZSmartPtrCounter {};
-
-template<>
-class ZSmartPtrCounter<true> {
+template<typename _ObjectType>
+class TUniquePointer : public ZObject {
 public:
-    FORCEINLINE ZSmartPtrCounter() : used_count(1), weak_count(1) {}
+    using STDUniquePointer_ = std::unique_ptr<_ObjectType>;
+    using Pointer = STDUniquePointer_::pointer;
 
-    std::atomic<IndexType> used_count;
-    std::atomic<IndexType> weak_count;
-};
+    FORCEINLINE TUniquePointer() noexcept : SuperType_(), unique_ptr_() {}
+    FORCEINLINE TUniquePointer(Pointer _ptr) noexcept : SuperType_(), unique_ptr_(_ptr) {}
+    FORCEINLINE TVector(TVector&& _vector) noexcept : SuperType_(), vector_(std::move(_vector.vector_)) {}
 
-template<>
-class ZSmartPtrCounter<false> {
-public:
-    FORCEINLINE ZSmartPtrCounter() : used_count(1), weak_count(1) {}
+    FORCEINLINE TVector(SizeType _size) noexcept : SuperType_(), vector_(_size) {}
+    FORCEINLINE TVector(SizeType _size, const _ObjectType& _val) noexcept : SuperType_(), vector_(_size, _val) {}
+    template <typename _InputIterator>
+    FORCEINLINE TVector(_InputIterator _first, _InputIterator _last) noexcept : SuperType_(), vector_(_first, _last) {}
+    FORCEINLINE TVector(InitializerList_ _init_list) noexcept : SuperType_(), vector_(_init_list) {}
+ 
+    FORCEINLINE ~TUniquePointer() noexcept {}
 
-    IndexType used_count;
-    IndexType weak_count;
-};
+    FORCEINLINE TVector& operator=(const TVector& _vector) noexcept { 
+        vector_.operator=(_vector.vector_);
+        return *this;
+    }
+    FORCEINLINE TVector& operator=(TVector&& _vector) noexcept { 
+        vector_.operator=(std::move(_vector.vector_));
+        return *this;
+    }
+    FORCEINLINE TVector& operator=(InitializerList_ _init_list) noexcept {
+        vector_.operator=(_init_list);
+        return *this;
+    }
 
-/*
-    The smart pointer's base type.
-    Template Parameters:
-    - kCounterThreadSafe: Wheather the counter is thread safe of not.
-*/
-template<typename ObjectType, Bool kCounterThreadSafe>
-class ZSmartPtrBase {
+    FORCEINLINE Void Assign(SizeType _size, const _ObjectType& _val) noexcept {
+        return vector_.assign(_size, _val);
+    }
+    template <class _InputIterator>
+    FORCEINLINE Void Assign(_InputIterator _first, _InputIterator _last) noexcept {
+        return vector_.assign(_first, _last);
+    }
+    FORCEINLINE Void Assign(InitializerList_ _init_list) noexcept {
+        return vector_.assign(_init_list);
+    }
+
+    NODISCARD FORCEINLINE Bool operator==(const TVector& _vector) noexcept { return vector_ == _vector; }
+    NODISCARD FORCEINLINE Bool operator!=(const TVector& _vector) noexcept { return vector_ != _vector; }
+
+    NODISCARD FORCEINLINE _ObjectType& operator[](const SizeType _index) noexcept { return vector_[_index]; }
+    NODISCARD FORCEINLINE const _ObjectType& operator[](const SizeType _index) const noexcept { return vector_[_index]; }
+
+    NODISCARD FORCEINLINE _ObjectType& At(IndexType _index) noexcept { return vector_.at(_index); }
+    NODISCARD FORCEINLINE const _ObjectType& At(IndexType _index) const noexcept { return vector_.at(_index); }
+
 protected:
-    /*
-        Calls the object's constructor
-    */
-    template<typename... Args>
-    FORCEINLINE ZSmartPtrBase(Args&&... args);
-
-    FORCEINLINE ~ZSmartPtrBase();
+    using SuperType_ = ZObject;
 
 private:
-    ZSmartPtrCounter<kCounterThreadSafe>* counter_ptr_;
-    mutable ObjectType* object_ptr_;
+
+
+    STDUniquePointer_ unique_ptr_;
 };
-
-template<typename ObjectType>
-template<typename... Args>
-FORCEINLINE ZSmartPtrBase<ObjectType>::ZSmartPtrBase(Args&&... args)
-        : object_ptr_(reinterpret_cast<ObjectType*>(memory_pool::ApplyMemory(sizeof(ObjectType)))) {
-    //Only calls the constructor if it's a class object.
-    if constexpr (std::is_class_v<ObjectType>) {
-        new(reinterpret_cast<Address>(object_ptr_)) ObjectType(std::forward<Args>(args)...);
-    }
-}
-
-template<typename ObjectType>
-FORCEINLINE ZSmartPtrBase<ObjectType>::~ZSmartPtrBase() {
-    //Only calls the desturctor if it's a class object.
-    if constexpr (std::is_class_v<ObjectType>) {
-        object_ptr_->~ObjectType();
-    }
-    memory_pool::ReleaseMemory(reinterpret_cast<Address>(object_ptr_));
-}
-
-}//internal
 
 }//zengine
 
-
-
-#endif // !Z_CORE_Z_SMART_PTR_H_
+#endif // !Z_CORE_T_SMART_POINTER_H_

@@ -31,6 +31,7 @@
 #include <ctime>
 #include <stdarg.h>
 #include <process.h>
+#include <memory>
 
 #include "d_macro.h"
 
