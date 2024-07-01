@@ -35,58 +35,45 @@ public:
     using STDUniquePointer_ = std::unique_ptr<_ObjectType>;
     using Pointer = STDUniquePointer_::pointer;
 
-    FORCEINLINE TUniquePointer() noexcept : SuperType_(), unique_ptr_() {}
-    FORCEINLINE TUniquePointer(Pointer _ptr) noexcept : SuperType_(), unique_ptr_(_ptr) {}
-    FORCEINLINE TVector(TVector&& _vector) noexcept : SuperType_(), vector_(std::move(_vector.vector_)) {}
+    FORCEINLINE TUniquePointer() noexcept : SuperType_(), ptr_() {}
+    FORCEINLINE TUniquePointer(TUniquePointer&& _ptr) noexcept : SuperType_(), ptr_(std::move(_ptr.ptr_)) {}
+    FORCEINLINE TUniquePointer(Pointer _ptr) noexcept : SuperType_(), ptr_(_ptr) {}
 
-    FORCEINLINE TVector(SizeType _size) noexcept : SuperType_(), vector_(_size) {}
-    FORCEINLINE TVector(SizeType _size, const _ObjectType& _val) noexcept : SuperType_(), vector_(_size, _val) {}
-    template <typename _InputIterator>
-    FORCEINLINE TVector(_InputIterator _first, _InputIterator _last) noexcept : SuperType_(), vector_(_first, _last) {}
-    FORCEINLINE TVector(InitializerList_ _init_list) noexcept : SuperType_(), vector_(_init_list) {}
- 
     FORCEINLINE ~TUniquePointer() noexcept {}
 
-    FORCEINLINE TVector& operator=(const TVector& _vector) noexcept { 
-        vector_.operator=(_vector.vector_);
-        return *this;
-    }
-    FORCEINLINE TVector& operator=(TVector&& _vector) noexcept { 
-        vector_.operator=(std::move(_vector.vector_));
-        return *this;
-    }
-    FORCEINLINE TVector& operator=(InitializerList_ _init_list) noexcept {
-        vector_.operator=(_init_list);
+    FORCEINLINE TUniquePointer& operator=(TUniquePointer&& _ptr) noexcept { 
+        ptr_.operator=(std::move(_ptr.ptr_));
         return *this;
     }
 
     FORCEINLINE Void Assign(SizeType _size, const _ObjectType& _val) noexcept {
-        return vector_.assign(_size, _val);
+        return ptr_.assign(_size, _val);
     }
     template <class _InputIterator>
     FORCEINLINE Void Assign(_InputIterator _first, _InputIterator _last) noexcept {
-        return vector_.assign(_first, _last);
+        return ptr_.assign(_first, _last);
     }
     FORCEINLINE Void Assign(InitializerList_ _init_list) noexcept {
-        return vector_.assign(_init_list);
+        return ptr_.assign(_init_list);
     }
 
-    NODISCARD FORCEINLINE Bool operator==(const TVector& _vector) noexcept { return vector_ == _vector; }
-    NODISCARD FORCEINLINE Bool operator!=(const TVector& _vector) noexcept { return vector_ != _vector; }
+    NODISCARD FORCEINLINE Bool operator==(const TUniquePointer& _ptr) noexcept { return ptr_ == _ptr; }
+    NODISCARD FORCEINLINE Bool operator!=(const TUniquePointer& _ptr) noexcept { return ptr_ != _ptr; }
 
-    NODISCARD FORCEINLINE _ObjectType& operator[](const SizeType _index) noexcept { return vector_[_index]; }
-    NODISCARD FORCEINLINE const _ObjectType& operator[](const SizeType _index) const noexcept { return vector_[_index]; }
+    NODISCARD FORCEINLINE _ObjectType& operator[](const SizeType _index) noexcept { return ptr_[_index]; }
+    NODISCARD FORCEINLINE const _ObjectType& operator[](const SizeType _index) const noexcept { return ptr_[_index]; }
 
-    NODISCARD FORCEINLINE _ObjectType& At(IndexType _index) noexcept { return vector_.at(_index); }
-    NODISCARD FORCEINLINE const _ObjectType& At(IndexType _index) const noexcept { return vector_.at(_index); }
+    NODISCARD FORCEINLINE _ObjectType& At(IndexType _index) noexcept { return ptr_.at(_index); }
+    NODISCARD FORCEINLINE const _ObjectType& At(IndexType _index) const noexcept { return ptr_.at(_index); }
 
 protected:
     using SuperType_ = ZObject;
 
 private:
+    TUniquePointer(const TUniquePointer&) = delete;
+    TUniquePointer& operator=(const TUniquePointer&) = delete;
 
-
-    STDUniquePointer_ unique_ptr_;
+    STDUniquePointer_ ptr_;
 };
 
 }//zengine
