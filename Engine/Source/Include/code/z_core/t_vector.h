@@ -54,15 +54,15 @@ public:
     FORCEINLINE ~TVector() noexcept {}
 
     FORCEINLINE TVector& operator=(const TVector& _vector) noexcept { 
-        vector_.operator=(_vector.vector_);
+        vector_ = _vector.vector_;
         return *this;
     }
     FORCEINLINE TVector& operator=(TVector&& _vector) noexcept { 
-        vector_.operator=(std::move(_vector.vector_));
+        vector_ = std::move(_vector.vector_);
         return *this;
     }
     FORCEINLINE TVector& operator=(InitializerList_ _init_list) noexcept {
-        vector_.operator=(_init_list);
+        vector_ = _init_list;
         return *this;
     }
 

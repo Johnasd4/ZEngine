@@ -56,15 +56,15 @@ public:
     FORCEINLINE ~TForwardList() noexcept {}
 
     FORCEINLINE TForwardList& operator=(const TForwardList& _forward_list) noexcept { 
-        forward_list_.operator=(_forward_list.forward_list_);
+        forward_list_ = _forward_list.forward_list_;
         return *this;
     }
     FORCEINLINE TForwardList& operator=(TForwardList&& _forward_list) noexcept { 
-        forward_list_.operator=(std::move(_forward_list.forward_list_));
+        forward_list_ = std::move(_forward_list.forward_list_);
         return *this;
     }
     FORCEINLINE TForwardList& operator=(InitializerList_ _init_list) noexcept {
-        forward_list_.operator=(_init_list);
+        forward_list_ = _init_list;
         return *this;
     }
 

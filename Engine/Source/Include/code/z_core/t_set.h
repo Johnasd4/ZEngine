@@ -53,15 +53,15 @@ public:
     FORCEINLINE ~TSet() noexcept {}
 
     FORCEINLINE TSet& operator=(const TSet& _set) noexcept { 
-        set_.operator=(_set.set_);
+        set_ = _set.set_;
         return *this;
     }
     FORCEINLINE TSet& operator=(TSet&& _set) noexcept { 
-        set_.operator=(std::move(_set.set_));
+        set_ = std::move(_set.set_);
         return *this;
     }
     FORCEINLINE TSet& operator=(InitializerList_ _init_list) noexcept {
-        set_.operator=(_init_list);
+        set_ = _init_list;
         return *this;
     }
 

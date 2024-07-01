@@ -32,6 +32,38 @@ Int32 test_func(Int32 &test) {
     return test;
 }
 
+//void* operator new(size_t size) {
+//    if (size == sizeof(int)) {
+//        return intPool.allocate();
+//    }
+//    else if (size == sizeof(long)) {
+//        return longPool.allocate();
+//    }
+//    else {
+//        return ::operator new(size);
+//    }
+//}
+//
+//void operator delete(void* ptr, size_t size) noexcept {
+//    if (size == sizeof(int)) {
+//        intPool.deallocate(ptr);
+//    }
+//    else if (size == sizeof(long)) {
+//        longPool.deallocate(ptr);
+//    }
+//    else {
+//        ::operator delete(ptr);
+//    }
+//}
+//
+//void* operator new[](size_t size) {
+//    return ::operator new(size);
+//    }
+//
+//    void operator delete[](void* ptr) noexcept {
+//        ::operator delete(ptr);
+//        }
+
 struct TMemoryBlockBase {
     FORCEINLINE Void Initialize(Void* _pool_ptr) noexcept {}
 };
@@ -68,10 +100,13 @@ int main() {
     //delete a;
     //sizeof(TTuple<Int32>);
     //thread_pool.LockUntilTaskDone();
-
     for (Int32 i = 0; i < 10; ++i) {
         auto sp = std::allocate_shared<int>(TSmartPointerAllocator<TArray<Int32, 10>>());
     }
+    auto b = MakeShared<Int32>(3);
+    StaticPointerCast<Int32>(b);
+    ZString string("123");
+    string == string;
     //sizeof(_Ref_count_base);
     //ZString temp_str_0 = "123";
     //ZString temp_str_1 = temp_str_0 + "1234";

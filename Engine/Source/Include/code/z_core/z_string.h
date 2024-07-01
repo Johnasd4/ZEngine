@@ -61,23 +61,23 @@ public:
     FORCEINLINE constexpr ~TString() noexcept {}
 
     FORCEINLINE constexpr TString& operator=(const TString& _string) noexcept {
-        string_.operator=(_string.string_);
+        string_ = _string.string_;
         return *this;
     }
     FORCEINLINE constexpr TString& operator=(TString&& _string) noexcept {
-        string_.operator=(std::move(_string.string_));
+        string_ = std::move(_string.string_);
         return *this;
     }
     FORCEINLINE constexpr TString& operator=(const _CharType* _string) noexcept {
-        string_.operator=(_string);
+        string_ = _string;
         return *this;
     }
     FORCEINLINE constexpr TString& operator=(_CharType _char) noexcept {
-        string_.operator=(_char);
+        string_ = _char;
         return *this;
     }
     FORCEINLINE constexpr TString& operator=(InitializerList_ _init_list) noexcept {
-        string_.operator=(_init_list);
+        string_ = _init_list;
         return *this;
     }
 

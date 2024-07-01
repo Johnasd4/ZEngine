@@ -48,15 +48,15 @@ public:
     FORCEINLINE ~TQueue() noexcept {}
 
     FORCEINLINE TQueue& operator=(const TQueue& _queue) noexcept { 
-        queue_.operator=(_queue.queue_);
+        queue_ = _queue.queue_;
         return *this;
     }
     FORCEINLINE TQueue& operator=(TQueue&& _queue) noexcept { 
-        queue_.operator=(std::move(_queue.queue_));
+        queue_ = std::move(_queue.queue_);
         return *this;
     }
     FORCEINLINE TQueue& operator=(InitializerList_ _init_list) noexcept {
-        queue_.operator=(_init_list);
+        queue_ = _init_list;
         return *this;
     }
 

@@ -54,15 +54,15 @@ public:
     FORCEINLINE ~TList() noexcept {}
 
     FORCEINLINE TList& operator=(const TList& _list) noexcept { 
-        list_.operator=(_list.list_);
+        list_ = _list.list_;
         return *this;
     }
     FORCEINLINE TList& operator=(TList&& _list) noexcept { 
-        list_.operator=(std::move(_list.list_));
+        list_ = std::move(_list.list_);
         return *this;
     }
     FORCEINLINE TList& operator=(InitializerList_ _init_list) noexcept {
-        list_.operator=(_init_list);
+        list_ = _init_list;
         return *this;
     }
 

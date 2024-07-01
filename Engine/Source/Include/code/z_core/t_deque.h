@@ -54,15 +54,15 @@ public:
     FORCEINLINE ~TDeque() noexcept {}
 
     FORCEINLINE TDeque& operator=(const TDeque& _deque) noexcept { 
-        deque_.operator=(_deque.deque_);
+        deque_ = _deque.deque_;
         return *this;
     }
     FORCEINLINE TDeque& operator=(TDeque&& _deque) noexcept { 
-        deque_.operator=(std::move(_deque.deque_));
+        deque_= std::move(_deque.deque_);
         return *this;
     }
     FORCEINLINE TDeque& operator=(InitializerList_ _init_list) noexcept {
-        deque_.operator=(_init_list);
+        deque_ = _init_list;
         return *this;
     }
 

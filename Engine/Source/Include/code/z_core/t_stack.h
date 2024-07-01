@@ -49,15 +49,15 @@ public:
     FORCEINLINE ~TStack() noexcept {}
 
     FORCEINLINE TStack& operator=(const TStack& _stack) noexcept { 
-        stack_.operator=(_stack.stack_);
+        stack_ = _stack.stack_;
         return *this;
     }
     FORCEINLINE TStack& operator=(TStack&& _stack) noexcept { 
-        stack_.operator=(std::move(_stack.stack_));
+        stack_ = std::move(_stack.stack_);
         return *this;
     }
     FORCEINLINE TStack& operator=(InitializerList_ _init_list) noexcept {
-        stack_.operator=(_init_list);
+        stack_ = _init_list;
         return *this;
     }
 

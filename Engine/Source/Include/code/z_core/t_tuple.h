@@ -41,16 +41,16 @@ public:
     FORCEINLINE constexpr ~TTuple() noexcept {}
 
     FORCEINLINE constexpr TTuple& operator=(const TTuple& _tuple) noexcept {
-        tuple_.operator=(_tuple.tuple_);
+        tuple_ = _tuple.tuple_;
         return *this;
     }
     FORCEINLINE constexpr TTuple& operator=(TTuple&& _tuple) noexcept {
-        tuple_.operator=(std::move(_tuple.tuple_));
+        tuple_ = std::move(_tuple.tuple_);
         return *this;
     }
     template<typename... _OtherTupleArgsType>
     FORCEINLINE constexpr TTuple& operator=(const TTuple<_OtherTupleArgsType...>& _tuple) noexcept {
-        tuple_.operator=(_tuple.tuple_);
+        tuple_ = _tuple.tuple_;
         return *this;
     }
 
