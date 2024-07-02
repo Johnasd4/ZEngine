@@ -28,69 +28,69 @@ namespace zengine {
 /*
     Pair struct.
 */
-template<typename ObjectType1, typename ObjectType2>
+template<typename _ObjectType1, typename _ObjectType2>
 struct TPair : public ZObject {
 public:
-    constexpr TPair() noexcept : SuperType(), first(), second() {}
-    template<typename OtherObjectType1, typename OtherObjectType2>
-    constexpr TPair(const TPair<OtherObjectType1, OtherObjectType2>& pair) noexcept
-            : SuperType(), first(pair.first), second(pair.second) {}
-    template<typename OtherObjectType1, typename OtherObjectType2>
-    constexpr TPair(TPair<OtherObjectType1, OtherObjectType2>&& pair) noexcept
-            : SuperType(), first(std::move(pair.first)), second(std::move(pair.second)) {}
-    template<typename OtherObjectType1, typename OtherObjectType2>
-    constexpr TPair(const OtherObjectType1& object1, const OtherObjectType2& object2) noexcept
-            : SuperType(), first(object1), second(object2) {}
-    template<typename OtherObjectType1, typename OtherObjectType2>
-    constexpr TPair(const OtherObjectType1&& object1, const OtherObjectType2&& object2) noexcept
-            : SuperType()
-            , first(std::forward<OtherObjectType1>(object1))
-            , second(std::forward<OtherObjectType2>(object2)) {}
+    constexpr TPair() noexcept : SuperType_(), first_(), second_() {}
+    template<typename _OtherObjectType1, typename _OtherObjectType2>
+    constexpr TPair(const TPair<_OtherObjectType1, _OtherObjectType2>& _pair) noexcept
+            : SuperType_(), first_(_pair.first_), second_(_pair.second_) {}
+    template<typename _OtherObjectType1, typename _OtherObjectType2>
+    constexpr TPair(TPair<_OtherObjectType1, _OtherObjectType2>&& _pair) noexcept
+            : SuperType_(), first_(std::move(_pair.first_)), second_(std::move(_pair.second_)) {}
+    template<typename _OtherObjectType1, typename _OtherObjectType2>
+    constexpr TPair(const _OtherObjectType1& _obj_1, const _OtherObjectType2& _obj_2) noexcept
+            : SuperType_(), first_(_obj_1), second_(_obj_2) {}
+    template<typename _OtherObjectType1, typename _OtherObjectType2>
+    constexpr TPair(const _OtherObjectType1&& _obj_1, const _OtherObjectType2&& _obj_2) noexcept
+            : SuperType_()
+            , first_(std::forward<_OtherObjectType1>(_obj_1))
+            , second_(std::forward<_OtherObjectType2>(_obj_2)) {}
 
     constexpr ~TPair() noexcept {}
 
-    template<typename OtherObjectType1, typename OtherObjectType2>
-    constexpr TPair& operator=(const TPair<OtherObjectType1, OtherObjectType2>& pair) noexcept {
-        first = pair.first;
-        second = pair.second;
+    template<typename _OtherObjectType1, typename _OtherObjectType2>
+    constexpr TPair& operator=(const TPair<_OtherObjectType1, _OtherObjectType2>& _pair) noexcept {
+        first_ = _pair.first_;
+        second_ = _pair.second_;
         return *this;
     }
-    template<typename OtherObjectType1, typename OtherObjectType2>
-    constexpr TPair& operator=(TPair<OtherObjectType1, OtherObjectType2>&& pair) noexcept {
-        first = std::move(pair.first);
-        second = std::move(pair.second);
+    template<typename _OtherObjectType1, typename _OtherObjectType2>
+    constexpr TPair& operator=(TPair<_OtherObjectType1, _OtherObjectType2>&& _pair) noexcept {
+        first_ = std::move(_pair.first_);
+        second_ = std::move(_pair.second_);
         return *this;
     }
 
-    template<typename OtherObjectType1, typename OtherObjectType2>
-    NODISCARD constexpr Bool operator==(const TPair<OtherObjectType1, OtherObjectType2>& pair) noexcept {
-        return first == pair.first && second == pair.second;
+    template<typename _OtherObjectType1, typename _OtherObjectType2>
+    NODISCARD constexpr Bool operator==(const TPair<_OtherObjectType1, _OtherObjectType2>& _pair) noexcept {
+        return first_ == _pair.first_ && second_ == _pair.second_;
     }
-    template<typename OtherObjectType1, typename OtherObjectType2>
-    NODISCARD constexpr Bool operator!=(const TPair<OtherObjectType1, OtherObjectType2>& pair) noexcept {
-        return first != pair.first || second != pair.second;
+    template<typename _OtherObjectType1, typename _OtherObjectType2>
+    NODISCARD constexpr Bool operator!=(const TPair<_OtherObjectType1, _OtherObjectType2>& _pair) noexcept {
+        return first_ != _pair.first_ || second_ != _pair.second_;
     }
-    template<typename OtherObjectType1, typename OtherObjectType2>
-    NODISCARD constexpr Bool operator>(const TPair<OtherObjectType1, OtherObjectType2>& pair) noexcept {
-        return first == pair.first ? true : second > pair.second;
+    template<typename _OtherObjectType1, typename _OtherObjectType2>
+    NODISCARD constexpr Bool operator>(const TPair<_OtherObjectType1, _OtherObjectType2>& _pair) noexcept {
+        return first_ == _pair.first_ ? true : second_ > _pair.second_;
     }
-    template<typename OtherObjectType1, typename OtherObjectType2>
-    NODISCARD constexpr Bool operator>=(const TPair<OtherObjectType1, OtherObjectType2>& pair) noexcept {
-        return first == pair.first ? true : second >= pair.second;
+    template<typename _OtherObjectType1, typename _OtherObjectType2>
+    NODISCARD constexpr Bool operator>=(const TPair<_OtherObjectType1, _OtherObjectType2>& _pair) noexcept {
+        return first_ == _pair.first_ ? true : second_ >= _pair.second_;
     }
-    template<typename OtherObjectType1, typename OtherObjectType2>
-    NODISCARD constexpr Bool operator<(const TPair<OtherObjectType1, OtherObjectType2>& pair) noexcept {
-        return first == pair.first ? true : second < pair.second;
+    template<typename _OtherObjectType1, typename _OtherObjectType2>
+    NODISCARD constexpr Bool operator<(const TPair<_OtherObjectType1, _OtherObjectType2>& _pair) noexcept {
+        return first_ == _pair.first_ ? true : second_ < _pair.second_;
     }
-    template<typename OtherObjectType1, typename OtherObjectType2>
-    NODISCARD constexpr Bool operator<=(const TPair<OtherObjectType1, OtherObjectType2>& pair) noexcept {
-        return first == pair.first ? true : second <= pair.second;
+    template<typename _OtherObjectType1, typename _OtherObjectType2>
+    NODISCARD constexpr Bool operator<=(const TPair<_OtherObjectType1, _OtherObjectType2>& _pair) noexcept {
+        return first_ == _pair.first_ ? true : second_ <= _pair.second_;
     }
 
-    ObjectType1 first;
-    ObjectType2 second;
+    _ObjectType1 first_;
+    _ObjectType2 second_;
 protected:
-    using SuperType = ZObject;
+    using SuperType_ = ZObject;
 };
 
 }//zengine

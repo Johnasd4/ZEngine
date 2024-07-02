@@ -23,9 +23,6 @@
 
 #include "internal/z_drive.h"
 
-#include <functional>
-#include <future>
-
 #include "t_list.h"
 #include "t_queue.h"
 #include "t_unique_lock.h"
@@ -33,6 +30,7 @@
 #include "z_mutex.h"
 #include "z_object.h"
 #include "z_sem_mutex.h"
+#include "z_task.h"
 #include "z_thread.h"
 
 namespace zengine {
@@ -50,14 +48,14 @@ enum ZThreadPoolErrorCode : ReturnType {
 /*
     Thread pool class.
 */
-class ZThreadPool : public ZObject {
+class CORE_DLLAPI ZThreadPool : public ZObject {
 public:
-    using ThreadIDType = UInt32;
+    using ThreadIDType_ = UInt32;
 
-    CORE_DLLAPI ZThreadPool() noexcept;
-    CORE_DLLAPI ZThreadPool(Int32 thread_num_) noexcept;
+    ZThreadPool() noexcept;
+    ZThreadPool(Int32 _thread_num) noexcept;
 
-    CORE_DLLAPI ~ZThreadPool() noexcept;
+    ~ZThreadPool() noexcept;
 
     NODISCARD FORCEINLINE Int32 MaxThreadNum() const noexcept { return max_thread_num_; }
     NODISCARD FORCEINLINE Int32 FreeThreadNum() const noexcept { return free_thread_num_; }
@@ -65,15 +63,15 @@ public:
     /*
         Adds the working thread num(>0).
     */
-    CORE_DLLAPI NODISCARD ReturnType AddThreadNum(Int32 thread_num_) noexcept;
+    NODISCARD ReturnType AddThreadNum(Int32 _thread_num) noexcept;
 
     /*
         Suspend until all the tasks are done.
     */
-    CORE_DLLAPI NODISCARD Void LockUntilTaskDone() noexcept;
+    NODISCARD Void LockUntilTaskDone() noexcept;
 
-    template<typename TaskFunction, typename... ArgsType>
-    NODISCARD ReturnType AddTask(TaskFunction&& func, ArgsType&&... args) noexcept {
+    template<typename _TaskFunction, typename... _ArgsType>
+    NODISCARD ReturnType AddTask(_TaskFunction&& _func, _ArgsType&&... _args) noexcept {
         ReturnType ret_val = kOK;
         TUniqueLock<ZMutex> lock(pool_mutex_);
         if (finished_) {
@@ -85,17 +83,21 @@ public:
         if (max_thread_num_ == free_thread_num_) {
             pool_idle_mutex_.TryLock();
         }
-        task_queue_.Push([&]() { (func)(std::forward<ArgsType>(args)...); });
+        task_queue_.Push(std::forward<_TaskFunction>(_func), std::forward<_ArgsType>(_args)...);
         cv_.NotifyOne();
         return ret_val;
     }
-    CORE_DLLAPI Void ClearTask() noexcept;
+
+    NODISCARD ReturnType AddTask(ZTask&& _task) noexcept;
+    NODISCARD ReturnType AddTask(ZTaskSafe&& _task) noexcept;
+
+    Void ClearTask() noexcept;
 
 protected:
-    using SuperType = ZObject;
+    using SuperType_ = ZObject;
 
 private:
-    static Void ThreadFunc(ZThreadPool& thread_pool) noexcept;
+    static Void ThreadFunc(ZThreadPool& _thread_pool) noexcept;
 
     ZThreadPool(const ZThreadPool&) = delete;
     ZThreadPool(ZThreadPool&&) = delete;
@@ -103,8 +105,10 @@ private:
     ZThreadPool& operator=(const ZThreadPool&) = delete;
     ZThreadPool& operator=(ZThreadPool&&) = delete;
 
+    ReturnType AddTask(const ZTask&) = delete;
+
     TList<ZThread> thread_list_;
-    TQueue<std::function<Void()>> task_queue_;
+    TQueue<ZTask> task_queue_;
     ZMutex pool_mutex_;
     ZSemMutex pool_idle_mutex_;
     ZConditionVariable cv_;

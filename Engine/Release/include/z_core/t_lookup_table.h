@@ -28,14 +28,14 @@ namespace zengine {
 
 namespace internal {
 
-template<typename LookupTableType, typename Function, typename... ArgsType>
-concept kIsLookupTableInitFunction = requires(LookupTableType * lookup_table, Function function, ArgsType&&... args) {
-    function(lookup_table, std::forward<ArgsType>(args)...);
+template<typename _LookupTableType, typename _Function, typename... _ArgsType>
+concept kIsLookupTableInitFunction = requires(_LookupTableType * _lookup_table, _Function _func, _ArgsType&&... _args) {
+    _func(_lookup_table, std::forward<_ArgsType>(_args)...);
 };
 
 }//internal
 
-template<typename ObjectType, IndexType kTableSize>
+template<typename _ObjectType, IndexType kTableSize>
 class TLookupTable : public ZObject {
 public:
     /*
@@ -58,31 +58,32 @@ public:
         };
         constexpr TLookupTable<Int32, 10, true> test(init_function);
     */
-    template<typename InitFunction, typename... ArgsType>
-    requires internal::kIsLookupTableInitFunction<TLookupTable<ObjectType, kTableSize>,
-                                                  InitFunction, ArgsType...>
-    FORCEINLINE constexpr TLookupTable(InitFunction&& init_function, ArgsType&&... args) : SuperType() {
-        init_function(this, std::forward<ArgsType>(args)...);
+    template<typename _InitFunction, typename... _ArgsType>
+    requires internal::kIsLookupTableInitFunction<TLookupTable<_ObjectType, kTableSize>, _InitFunction, _ArgsType...>
+    FORCEINLINE constexpr TLookupTable(_InitFunction&& _init_func, _ArgsType&&... _args) : SuperType_() {
+        _init_func(this, std::forward<_ArgsType>(_args)...);
     }
 
-    NODISCARD FORCEINLINE constexpr ObjectType& operator[](IndexType index) { return data_[index]; }
-    NODISCARD FORCEINLINE constexpr const ObjectType& operator[](IndexType index) const { return data_[index]; }
+    NODISCARD FORCEINLINE constexpr _ObjectType& operator[](IndexType _index) { return data_[_index]; }
+    NODISCARD FORCEINLINE constexpr const _ObjectType& operator[](IndexType _index) const { return data_[_index]; }
 
     NODISCARD FORCEINLINE static constexpr IndexType Size() { return kTableSize; }
 
     /*
         Find the object at the certain index.
     */
-    NODISCARD FORCEINLINE constexpr ObjectType& At(IndexType index) { return data_[index]; }
-    NODISCARD FORCEINLINE constexpr const ObjectType& At(IndexType index) const { return data_[index]; }
+    NODISCARD FORCEINLINE constexpr _ObjectType& At(IndexType _index) { return data_[_index]; }
+    NODISCARD FORCEINLINE constexpr const _ObjectType& At(IndexType _index) const { return data_[_index]; }
     /*
         Find the object at the certain index.
         Will search the table over again if the index is bigger then the table size.
     */
-    NODISCARD FORCEINLINE constexpr const ObjectType& LoopAt(IndexType index) const { return data_[index % kTableSize]; }
+    NODISCARD FORCEINLINE constexpr const _ObjectType& LoopAt(IndexType _index) const { 
+        return data_[_index % kTableSize]; 
+    }
 
 protected:
-    using SuperType = ZObject;
+    using SuperType_ = ZObject;
 
 private:
     TLookupTable() = delete;
@@ -92,7 +93,7 @@ private:
     TLookupTable& operator=(const TLookupTable&) = delete;
     TLookupTable& operator=(TLookupTable&&) = delete;
 
-    ObjectType data_[kTableSize];
+    _ObjectType data_[kTableSize];
 };
 
 }//zengine

@@ -31,131 +31,133 @@ namespace zengine {
 /*
     Vector caintainer.
 */
-template<typename ObjectType>
+template<typename _ObjectType>
 class TVector : public ZObject {
 public:
-    using STDVector = std::vector<ObjectType, TAllocator<ObjectType>>;
-    using Iterator = STDVector::iterator;
-    using ConstIterator = STDVector::const_iterator;
-    using ReverseIterator = STDVector::reverse_iterator;
-    using ConstReverseIterator = STDVector::const_reverse_iterator;
-    using InitializerList = std::initializer_list<ObjectType>;
+    using STDVector_ = std::vector<_ObjectType, TContainerAllocator<_ObjectType>>;
+    using Iterator_ = STDVector_::iterator;
+    using ConstIterator_ = STDVector_::const_iterator;
+    using ReverseIterator_ = STDVector_::reverse_iterator;
+    using ConstReverseIterator_ = STDVector_::const_reverse_iterator;
+    using InitializerList_ = std::initializer_list<_ObjectType>;
 
-    FORCEINLINE TVector() noexcept : SuperType(), vector_() {}
-    FORCEINLINE TVector(const TVector& vector) noexcept : SuperType(), vector_(vector.vector_) {}
-    FORCEINLINE TVector(TVector&& vector) noexcept : SuperType(), vector_(std::move(vector.vector_)) {}
+    FORCEINLINE TVector() noexcept : SuperType_(), vector_() {}
+    FORCEINLINE TVector(const TVector& _vector) noexcept : SuperType_(), vector_(_vector.vector_) {}
+    FORCEINLINE TVector(TVector&& _vector) noexcept : SuperType_(), vector_(std::move(_vector.vector_)) {}
 
-    FORCEINLINE TVector(SizeType size) noexcept : SuperType(), vector_(size) {}
-    FORCEINLINE TVector(SizeType size, const ZObject& value) noexcept : SuperType(), vector_(size, value) {}
-    template <typename InputIterator>
-    FORCEINLINE TVector(InputIterator first, InputIterator last) noexcept : SuperType(), vector_(first, last) {}
-    FORCEINLINE TVector(InitializerList init_list) noexcept : SuperType(), vector_(init_list) {}
+    FORCEINLINE TVector(SizeType _size) noexcept : SuperType_(), vector_(_size) {}
+    FORCEINLINE TVector(SizeType _size, const _ObjectType& _val) noexcept : SuperType_(), vector_(_size, _val) {}
+    template <typename _InputIterator>
+    FORCEINLINE TVector(_InputIterator _first, _InputIterator _last) noexcept : SuperType_(), vector_(_first, _last) {}
+    FORCEINLINE TVector(InitializerList_ _init_list) noexcept : SuperType_(), vector_(_init_list) {}
  
     FORCEINLINE ~TVector() noexcept {}
 
-    FORCEINLINE TVector& operator=(const TVector& vector) noexcept { 
-        vector_.operator=(vector.vector_);
+    FORCEINLINE TVector& operator=(const TVector& _vector) noexcept { 
+        vector_ = _vector.vector_;
         return *this;
     }
-    FORCEINLINE TVector& operator=(TVector&& vector) noexcept { 
-        vector_.operator=(std::move(vector.vector_));
+    FORCEINLINE TVector& operator=(TVector&& _vector) noexcept { 
+        vector_ = std::move(_vector.vector_);
         return *this;
     }
-    FORCEINLINE TVector& operator=(InitializerList init_list) noexcept {
-        vector_.operator=(init_list);
+    FORCEINLINE TVector& operator=(InitializerList_ _init_list) noexcept {
+        vector_ = _init_list;
         return *this;
     }
 
-    FORCEINLINE Void Assign(SizeType size, const ObjectType& value) noexcept {
-        return vector_.assign(size, value);
+    FORCEINLINE Void Assign(SizeType _size, const _ObjectType& _val) noexcept {
+        return vector_.assign(_size, _val);
     }
-    template <class InputIterator>
-    FORCEINLINE Void Assign(InputIterator first, InputIterator last) noexcept {
-        return vector_.assign(first, last);
+    template <class _InputIterator>
+    FORCEINLINE Void Assign(_InputIterator _first, _InputIterator _last) noexcept {
+        return vector_.assign(_first, _last);
     }
-    FORCEINLINE Void Assign(InitializerList init_list) noexcept {
-        return vector_.assign(init_list);
+    FORCEINLINE Void Assign(InitializerList_ _init_list) noexcept {
+        return vector_.assign(_init_list);
     }
 
-    NODISCARD FORCEINLINE Bool operator==(const TVector& vector) noexcept { return vector_ == vector; }
-    NODISCARD FORCEINLINE Bool operator!=(const TVector& vector) noexcept { return vector_ != vector; }
+    NODISCARD FORCEINLINE Bool operator==(const TVector& _vector) noexcept { return vector_ == _vector; }
+    NODISCARD FORCEINLINE Bool operator!=(const TVector& _vector) noexcept { return vector_ != _vector; }
 
-    NODISCARD FORCEINLINE ObjectType& operator[](const SizeType index) noexcept { return vector_[index]; }
-    NODISCARD FORCEINLINE const ObjectType& operator[](const SizeType index) const noexcept { return vector_[index]; }
+    NODISCARD FORCEINLINE _ObjectType& operator[](const SizeType _index) noexcept { return vector_[_index]; }
+    NODISCARD FORCEINLINE const _ObjectType& operator[](const SizeType _index) const noexcept { return vector_[_index]; }
 
-    NODISCARD FORCEINLINE ObjectType& At(IndexType index) noexcept { return vector_.at(index); }
-    NODISCARD FORCEINLINE const ObjectType& At(IndexType index) const noexcept { return vector_.at(index); }
+    NODISCARD FORCEINLINE _ObjectType& At(IndexType _index) noexcept { return vector_.at(_index); }
+    NODISCARD FORCEINLINE const _ObjectType& At(IndexType _index) const noexcept { return vector_.at(_index); }
 
-    NODISCARD FORCEINLINE ObjectType& Front() noexcept { return vector_.front(); }
-    NODISCARD FORCEINLINE const ObjectType& Front() const noexcept { return vector_.front(); }
-    NODISCARD FORCEINLINE ObjectType& Back() noexcept { return vector_.back(); }
-    NODISCARD FORCEINLINE const ObjectType& Back() const noexcept { return vector_.back(); }
-    NODISCARD FORCEINLINE ObjectType* DataPtr() noexcept { return vector_.data(); }
-    NODISCARD FORCEINLINE const ObjectType* DataPtr() const noexcept { return vector_.data(); }
+    NODISCARD FORCEINLINE _ObjectType& Front() noexcept { return vector_.front(); }
+    NODISCARD FORCEINLINE const _ObjectType& Front() const noexcept { return vector_.front(); }
+    NODISCARD FORCEINLINE _ObjectType& Back() noexcept { return vector_.back(); }
+    NODISCARD FORCEINLINE const _ObjectType& Back() const noexcept { return vector_.back(); }
+    NODISCARD FORCEINLINE _ObjectType* DataPtr() noexcept { return vector_.data(); }
+    NODISCARD FORCEINLINE const _ObjectType* DataPtr() const noexcept { return vector_.data(); }
 
     NODISCARD FORCEINLINE IndexType Size() const noexcept { return static_cast<IndexType>(vector_.size()); }
     NODISCARD FORCEINLINE IndexType Capacity() const noexcept { return vector_.capacity(); }
     NODISCARD FORCEINLINE Bool Empty() const noexcept { return vector_.empty(); }
 
-    NODISCARD FORCEINLINE Iterator Begin() noexcept { return vector_.begin(); }
-    NODISCARD FORCEINLINE ConstIterator Begin() const noexcept { return vector_.begin(); }
-    NODISCARD FORCEINLINE ConstIterator ConstBegin() const noexcept { return vector_.cbegin(); }
-    NODISCARD FORCEINLINE ReverseIterator ReverseBegin() noexcept { return vector_.rbegin(); }
-    NODISCARD FORCEINLINE ConstReverseIterator ReverseBegin() const noexcept { return vector_.rbegin(); }
-    NODISCARD FORCEINLINE ConstReverseIterator ConstReverseBegin() const noexcept { return vector_.crbegin(); }
-    NODISCARD FORCEINLINE Iterator End() noexcept { return vector_.end(); }
-    NODISCARD FORCEINLINE ConstIterator End() const noexcept { return vector_.end(); }
-    NODISCARD FORCEINLINE ConstIterator ConstEnd() const noexcept { return vector_.cend(); }
-    NODISCARD FORCEINLINE ReverseIterator ReverseEnd() noexcept { return vector_.rend(); }
-    NODISCARD FORCEINLINE ConstReverseIterator ReverseEnd() const noexcept { return vector_.rend(); }
-    NODISCARD FORCEINLINE ConstReverseIterator ConstReverseEnd() const noexcept { return vector_.crend(); }
+    NODISCARD FORCEINLINE Iterator_ Begin() noexcept { return vector_.begin(); }
+    NODISCARD FORCEINLINE ConstIterator_ Begin() const noexcept { return vector_.begin(); }
+    NODISCARD FORCEINLINE ConstIterator_ ConstBegin() const noexcept { return vector_.cbegin(); }
+    NODISCARD FORCEINLINE ReverseIterator_ ReverseBegin() noexcept { return vector_.rbegin(); }
+    NODISCARD FORCEINLINE ConstReverseIterator_ ReverseBegin() const noexcept { return vector_.rbegin(); }
+    NODISCARD FORCEINLINE ConstReverseIterator_ ConstReverseBegin() const noexcept { return vector_.crbegin(); }
+    NODISCARD FORCEINLINE Iterator_ End() noexcept { return vector_.end(); }
+    NODISCARD FORCEINLINE ConstIterator_ End() const noexcept { return vector_.end(); }
+    NODISCARD FORCEINLINE ConstIterator_ ConstEnd() const noexcept { return vector_.cend(); }
+    NODISCARD FORCEINLINE ReverseIterator_ ReverseEnd() noexcept { return vector_.rend(); }
+    NODISCARD FORCEINLINE ConstReverseIterator_ ReverseEnd() const noexcept { return vector_.rend(); }
+    NODISCARD FORCEINLINE ConstReverseIterator_ ConstReverseEnd() const noexcept { return vector_.crend(); }
 
-    FORCEINLINE Void PushBack(const ObjectType& value) noexcept { vector_.push_back(value); }
-    FORCEINLINE Void PushBack(ObjectType&& value) noexcept { vector_.push_back(std::forward<ObjectType>(value)); }
+    FORCEINLINE Void PushBack(const _ObjectType& _val) noexcept { vector_.push_back(_val); }
+    FORCEINLINE Void PushBack(_ObjectType&& _val) noexcept { vector_.push_back(std::forward<_ObjectType>(_val)); }
     FORCEINLINE Void PopBack() noexcept { vector_.pop_back(); }
 
-    FORCEINLINE Iterator Insert(ConstIterator pos, const ObjectType& value) noexcept { 
-        return vector_.insert(pos, value);
+    FORCEINLINE Iterator_ Insert(ConstIterator_ _pos, const _ObjectType& _val) noexcept { 
+        return vector_.insert(_pos, _val);
     }
-    FORCEINLINE Iterator Insert(ConstIterator pos, ObjectType&& value) noexcept {
-        return vector_.insert(pos, std::forward<ObjectType>(value));
+    FORCEINLINE Iterator_ Insert(ConstIterator_ _pos, _ObjectType&& _val) noexcept {
+        return vector_.insert(_pos, std::forward<_ObjectType>(_val));
     }
-    FORCEINLINE Iterator Insert(ConstIterator pos, SizeType num, const ObjectType& value) noexcept {
-        return vector_.insert(pos, num, value);
+    FORCEINLINE Iterator_ Insert(ConstIterator_ _pos, SizeType _num, const _ObjectType& _val) noexcept {
+        return vector_.insert(_pos, _num, _val);
     }
-    template <typename InputIterator>
-    FORCEINLINE Iterator Insert(ConstIterator pos, InputIterator first, InputIterator last) noexcept {
-        return vector_.insert(pos, first, last);
+    template <typename _InputIterator>
+    FORCEINLINE Iterator_ Insert(ConstIterator_ _pos, _InputIterator _first, _InputIterator _last) noexcept {
+        return vector_.insert(_pos, _first, _last);
     }
-    FORCEINLINE Iterator Insert(ConstIterator pos, InitializerList init_list) noexcept {
-        return vector_.insert(pos, init_list);
+    FORCEINLINE Iterator_ Insert(ConstIterator_ _pos, InitializerList_ _init_list) noexcept {
+        return vector_.insert(_pos, _init_list);
     }
 
-    FORCEINLINE Iterator Erase(ConstIterator pos) noexcept { return vector_.erase(pos); }
-    FORCEINLINE Iterator Erase(ConstIterator first, ConstIterator last) noexcept { return vector_.erase(first, last); }
+    FORCEINLINE Iterator_ Erase(ConstIterator_ _pos) noexcept { return vector_.erase(_pos); }
+    FORCEINLINE Iterator_ Erase(ConstIterator_ _first, ConstIterator_ _last) noexcept 
+    { return vector_.erase(_first, _last); 
+    }
     FORCEINLINE Void Clear() noexcept { vector_.clear(); }
 
-    template <typename... ArgsType>
-    FORCEINLINE Iterator Emplace(ConstIterator pos, ArgsType&&... args) noexcept {
-        return vector_.emplace(pos, std::forward<ArgsType>(args)...);
+    template <typename... _ArgsType>
+    FORCEINLINE Iterator_ Emplace(ConstIterator_ _pos, _ArgsType&&... _args) noexcept {
+        return vector_.emplace(_pos, std::forward<_ArgsType>(_args)...);
     }
-    template <typename... ArgsType>
-    FORCEINLINE ObjectType& EmplaceBack(ArgsType&&... args) noexcept {
-        return vector_.emplace_back(std::forward<ArgsType>(args)...); 
+    template <typename... _ArgsType>
+    FORCEINLINE _ObjectType& EmplaceBack(_ArgsType&&... _args) noexcept {
+        return vector_.emplace_back(std::forward<_ArgsType>(_args)...); 
     }
 
-    FORCEINLINE Void Resize(SizeType size) noexcept { vector_.resize(size); }
-    FORCEINLINE Void Resize(SizeType size, const ObjectType& value) noexcept { vector_.resize(size, value); }
+    FORCEINLINE Void Resize(SizeType _size) noexcept { vector_.resize(_size); }
+    FORCEINLINE Void Resize(SizeType _size, const _ObjectType& _val) noexcept { vector_.resize(_size, _val); }
 
-    FORCEINLINE Void Reserve(SizeType capacity) noexcept { vector_.reserve(capacity); }
+    FORCEINLINE Void Reserve(SizeType _capacity) noexcept { vector_.reserve(_capacity); }
 
-    FORCEINLINE Void Swap(TVector& vector) noexcept { vector_.swap(vector); }
+    FORCEINLINE Void Swap(TVector& _vector) noexcept { vector_.swap(_vector); }
 
 protected:
-    using SuperType = ZObject;
+    using SuperType_ = ZObject;
 
 private:
-    STDVector vector_;
+    STDVector_ vector_;
 };
 
 }//zengine

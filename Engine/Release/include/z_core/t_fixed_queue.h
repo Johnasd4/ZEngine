@@ -30,54 +30,58 @@ namespace zengine {
 /*
     Fixed queue caintainer, front points at the first object, back points at the last object.
 */
-template<typename ObjectType, IndexType kCapacity>
+template<typename _ObjectType, IndexType kCapacity>
 class TFixedQueue : public ZObject {
 public:
-    using STDArray = std::array<ObjectType, kCapacity>;
-    using InitializerList = std::initializer_list<ObjectType>;
+    using STDArray_ = std::array<_ObjectType, kCapacity>;
+    using InitializerList_ = std::initializer_list<_ObjectType>;
 
     FORCEINLINE constexpr TFixedQueue() noexcept 
-            : SuperType(), queue_(), front_index_(0), back_index_(kCapacity - 1), size_(0) {}
-    FORCEINLINE constexpr TFixedQueue(const TFixedQueue& queue) noexcept 
-            : SuperType()
-            , queue_(queue.queue_)
-            , front_index_(queue.front_index_)
-            , back_index_(queue.back_index_)
-            , size_(queue.size_) {}
-    FORCEINLINE constexpr TFixedQueue(TFixedQueue&& queue) noexcept 
-            : SuperType()
-            , queue_(std::move(queue.queue_))
-            , front_index_(queue.front_index_)
-            , back_index_(queue.back_index_)
-            ,size_(queue.size_) {}
-    FORCEINLINE TFixedQueue(InitializerList init_list) noexcept 
-            : SuperType(), queue_(init_list), front_index_(0), back_index_(kCapacity - 1), size_(kCapacity) {}
+        : SuperType_() , queue_(), front_index_(0), back_index_(kCapacity - 1), size_(0) {}
+    FORCEINLINE constexpr TFixedQueue(const TFixedQueue& _queue) noexcept 
+        : SuperType_()
+        , queue_(_queue.queue_)
+        , front_index_(_queue.front_index_)
+        , back_index_(_queue.back_index_)
+        , size_(_queue.size_) {}
+    FORCEINLINE constexpr TFixedQueue(TFixedQueue&& _queue) noexcept 
+        : SuperType_()
+        , queue_(std::move(_queue.queue_))
+        , front_index_(_queue.front_index_)
+        , back_index_(_queue.back_index_)
+        ,size_(_queue.size_) {}
+    FORCEINLINE TFixedQueue(InitializerList_ _init_list) noexcept 
+        : SuperType_(), queue_(_init_list), front_index_(0), back_index_(kCapacity - 1), size_(kCapacity) {}
 
 
     FORCEINLINE constexpr ~TFixedQueue() noexcept {}
 
-    NODISCARD FORCEINLINE constexpr Bool operator==(const TFixedQueue& queue) noexcept { return queue_ == queue.queue_; }
-    NODISCARD FORCEINLINE constexpr Bool operator!=(const TFixedQueue& queue) noexcept { return queue_ != queue.queue_; }
-     
-    NODISCARD FORCEINLINE constexpr ObjectType& operator[](IndexType index) noexcept { 
-        return queue_[(front_index_ + index) % kCapacity];
+    NODISCARD FORCEINLINE constexpr Bool operator==(const TFixedQueue& _queue) noexcept { 
+        return queue_ == _queue.queue_; 
     }
-    NODISCARD FORCEINLINE constexpr const ObjectType& operator[](IndexType index) const noexcept { 
-        return queue_[(front_index_ + index) % kCapacity];
+    NODISCARD FORCEINLINE constexpr Bool operator!=(const TFixedQueue& _queue) noexcept { 
+        return queue_ != _queue.queue_; 
+    }
+     
+    NODISCARD FORCEINLINE constexpr _ObjectType& operator[](IndexType _index) noexcept { 
+        return queue_[(front_index_ + _index) % kCapacity];
+    }
+    NODISCARD FORCEINLINE constexpr const _ObjectType& operator[](IndexType _index) const noexcept { 
+        return queue_[(front_index_ + _index) % kCapacity];
     }
 
-    NODISCARD FORCEINLINE constexpr ObjectType& At(IndexType index) noexcept { 
-        return queue_.at((SizeType)((front_index_ + index) % kCapacity));
+    NODISCARD FORCEINLINE constexpr _ObjectType& At(IndexType _index) noexcept { 
+        return queue_.at((SizeType)((front_index_ + _index) % kCapacity));
     }
-    NODISCARD FORCEINLINE constexpr const ObjectType& At(IndexType index) const noexcept { 
-        return queue_.at((SizeType)((front_index_ + index) % kCapacity));
+    NODISCARD FORCEINLINE constexpr const _ObjectType& At(IndexType _index) const noexcept { 
+        return queue_.at((SizeType)((front_index_ + _index) % kCapacity));
     }
-    NODISCARD FORCEINLINE constexpr ObjectType& Front() noexcept { return queue_[front_index_]; }
-    NODISCARD FORCEINLINE constexpr const ObjectType& Front() const noexcept { return queue_[front_index_]; }
-    NODISCARD FORCEINLINE constexpr ObjectType& Back() noexcept { return queue_[back_index_]; }
-    NODISCARD FORCEINLINE constexpr const ObjectType& Back() const noexcept { return queue_[back_index_]; }
-    NODISCARD FORCEINLINE constexpr ObjectType* DataPtr() noexcept { return queue_.data(); }
-    NODISCARD FORCEINLINE constexpr const ObjectType* DataPtr() const noexcept { return queue_.data(); }
+    NODISCARD FORCEINLINE constexpr _ObjectType& Front() noexcept { return queue_[front_index_]; }
+    NODISCARD FORCEINLINE constexpr const _ObjectType& Front() const noexcept { return queue_[front_index_]; }
+    NODISCARD FORCEINLINE constexpr _ObjectType& Back() noexcept { return queue_[back_index_]; }
+    NODISCARD FORCEINLINE constexpr const _ObjectType& Back() const noexcept { return queue_[back_index_]; }
+    NODISCARD FORCEINLINE constexpr _ObjectType* DataPtr() noexcept { return queue_.data(); }
+    NODISCARD FORCEINLINE constexpr const _ObjectType* DataPtr() const noexcept { return queue_.data(); }
 
     NODISCARD FORCEINLINE static constexpr IndexType Capacity() noexcept { return kCapacity; }
     NODISCARD FORCEINLINE constexpr IndexType Size() noexcept { return size_; }
@@ -87,20 +91,20 @@ public:
         --size_;
         front_index_ = (front_index_ + 1) % kCapacity;
     }  
-    constexpr Void PushBack(const ObjectType& object) noexcept {
+    constexpr Void PushBack(const _ObjectType& _obj) noexcept {
         back_index_ = (back_index_ + 1) % kCapacity;
-        queue_[back_index_] = object;
+        queue_[back_index_] = _obj;
         ++size_;
     }
-    constexpr Void PushBack(ObjectType&& object) noexcept {
+    constexpr Void PushBack(_ObjectType&& _obj) noexcept {
         back_index_ = (back_index_ + 1) % kCapacity;
-        queue_[back_index_] = std::forward<ObjectType>(object);
+        queue_[back_index_] = std::forward<_ObjectType>(_obj);
         ++size_;
     }
-    template<typename... ArgsType>
-    constexpr ObjectType& EmplaceBack(ArgsType&&... args) noexcept {
+    template<typename... _ArgsType>
+    constexpr _ObjectType& EmplaceBack(_ArgsType&&... _args) noexcept {
         back_index_ = (back_index_ + 1) % kCapacity;
-        new(&queue_[back_index_]) ObjectType(std::forward<ArgsType>(args)...);
+        new(&queue_[back_index_]) _ObjectType(std::forward<_ArgsType>(_args)...);
         ++size_;
         return queue_[back_index_];
     }
@@ -110,18 +114,18 @@ public:
         front_index_ = 0;
         back_index_ = kCapacity - 1;
     }
-    constexpr Void Fill(const ObjectType& value) noexcept {
-        queue_.fill(value); 
+    constexpr Void Fill(const _ObjectType& _value) noexcept {
+        queue_.fill(_value); 
         front_index_ = 0;
         back_index_ = kCapacity - 1;
     }
-    FORCEINLINE constexpr Void Swap(TFixedQueue& queue) noexcept { queue_.swap(queue); }
+    FORCEINLINE constexpr Void Swap(TFixedQueue& _queue) noexcept { queue_.swap(_queue); }
 
 protected:
-    using SuperType = ZObject;
+    using SuperType_ = ZObject;
 
 private:
-    STDArray queue_;
+    STDArray_ queue_;
     IndexType front_index_;
     IndexType back_index_;
     IndexType size_;

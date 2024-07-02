@@ -31,13 +31,14 @@ namespace zengine {
 */
 class ZSemMutex : public ZObject {
 public:
-    FORCEINLINE ZSemMutex() noexcept : SuperType(), handle_(CreateSemaphore(nullptr, 1, 1, nullptr)) {}
-    ZSemMutex(ZSemMutex&& mutex) noexcept : SuperType(), handle_(mutex.handle_) { handle_ = nullptr; }
+    FORCEINLINE ZSemMutex() noexcept : SuperType_(), handle_(CreateSemaphore(nullptr, 1, 1, nullptr)) {}
+    FORCEINLINE ZSemMutex(ZSemMutex&& _mutex) noexcept : SuperType_(), handle_(_mutex.handle_) { handle_ = nullptr; }
     FORCEINLINE ~ZSemMutex() noexcept { CloseHandle(handle_); }
 
-    ZSemMutex& operator=(ZSemMutex&& mutex) noexcept {
-        handle_ = mutex.handle_;
-        mutex.handle_ = nullptr;
+    FORCEINLINE ZSemMutex& operator=(ZSemMutex&& _mutex) noexcept {
+        handle_ = _mutex.handle_;
+        _mutex.handle_ = nullptr;
+        return *this;
     }
 
     FORCEINLINE Void Lock() noexcept { WaitForSingleObject(handle_, INFINITE);}
@@ -48,17 +49,17 @@ public:
     /*
         Try to get the lock in a certain time(ms), return true if success.
     */
-    FORCEINLINE Bool TryLockFor(UInt32 time) noexcept { return WaitForSingleObject(handle_, time) == WAIT_OBJECT_0; }
+    FORCEINLINE Bool TryLockFor(UInt32 _time) noexcept { return WaitForSingleObject(handle_, _time) == WAIT_OBJECT_0; }
     /*
         Try to get the lock before a certain time(ms), use clock() to get the current time, return true if success.
     */
-    FORCEINLINE Bool TryLockUntil(UInt32 time) noexcept { 
-        time -= clock();
-        return WaitForSingleObject(handle_, time > 0 ? time : 0) == WAIT_OBJECT_0; 
+    FORCEINLINE Bool TryLockUntil(UInt32 _time) noexcept { 
+        _time -= clock();
+        return WaitForSingleObject(handle_, _time > 0 ? _time : 0) == WAIT_OBJECT_0; 
     }
     FORCEINLINE Void Unlock() noexcept { ReleaseSemaphore(handle_, 1, NULL); }
 protected:
-    using SuperType = ZObject;
+    using SuperType_ = ZObject;
 
 private:
     ZSemMutex(const ZSemMutex&) = delete;

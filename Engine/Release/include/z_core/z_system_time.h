@@ -49,16 +49,16 @@ public:
         Parameters:
         time_raw: use time(time_t) to get the raw value.
     */
-    Void UpdateTime(TimeType time_raw = time(nullptr)) noexcept;
+    Void UpdateTime(TimeType _time_raw = time(nullptr)) noexcept;
     /*
         Update system time, use UpdateTime instead if updated only a few times pur day.
         Parameters:
         time_raw: use time(time_t) to get the raw value.
     */
-    Void UpdateTimeFast(TimeType time_raw = time(nullptr)) noexcept;
+    Void UpdateTimeFast(TimeType _time_raw = time(nullptr)) noexcept;
 
 protected:
-    using SuperType = ZObject;
+    using SuperType_ = ZObject;
 
 private:
     Int32 year_;

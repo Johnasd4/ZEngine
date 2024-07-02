@@ -47,7 +47,7 @@ enum ZFileErrorCode : ReturnType {
 class CORE_DLLAPI ZFile : public ZObject {
 public:
 
-    enum SeekType : Int32 {
+    enum SeekType_ : Int32 {
         kZFileSeekTypeFileHead = SEEK_SET,
         kZFileSeekTypeCurrntPtr = SEEK_CUR,
         kZFileSeekTypeFileEnd = SEEK_END,
@@ -55,100 +55,107 @@ public:
     };
 
     /*Read only.*/
-    static constexpr CChar kOpenTypeRead[] = "r";
+    static constexpr Char kOpenTypeRead[] = "r";
     /*Write only, will clear the file.*/
-    static constexpr CChar kOpenTypeWrite[] = "w";
+    static constexpr Char kOpenTypeWrite[] = "w";
     /*Append at the end of the file.*/
-    static constexpr CChar kOpenTypeAppend[] = "a";
+    static constexpr Char kOpenTypeAppend[] = "a";
     /*Read and write.*/
-    static constexpr CChar kOpenTypeReadPlus[] = "r+";
+    static constexpr Char kOpenTypeReadPlus[] = "r+";
     /*Read and write, will clear the file.*/
-    static constexpr CChar kOpenTypeWritePlus[] = "w+";
+    static constexpr Char kOpenTypeWritePlus[] = "w+";
     /*Read and write, starts at the end of the file.*/
-    static constexpr CChar kOpenTypeAppendPlus[] = "a+";
+    static constexpr Char kOpenTypeAppendPlus[] = "a+";
     /*Read only.(binary file)*/
-    static constexpr CChar kOpenTypeReadBin[] = "rb";
+    static constexpr Char kOpenTypeReadBin[] = "rb";
     /*Write only, will clear the file.(binary file)*/
-    static constexpr CChar kOpenTypeWriteBin[] = "wb";
+    static constexpr Char kOpenTypeWriteBin[] = "wb";
     /*Append at the end of the file.(binary file)*/
-    static constexpr CChar kOpenTypeAppendBin[] = "ab";
+    static constexpr Char kOpenTypeAppendBin[] = "ab";
     /*Read and write.(binary file)*/
-    static constexpr CChar kOpenTypeReadPlusBin[] = "rb+";
+    static constexpr Char kOpenTypeReadPlusBin[] = "rb+";
     /*Read and write, will clear the file.(binary file)*/
-    static constexpr CChar kOpenTypeWritePlusBin[] = "wb+";
+    static constexpr Char kOpenTypeWritePlusBin[] = "wb+";
     /*Read and write, starts at the end of the file.(binary file)*/
-    static constexpr CChar kOpenTypeAppendPlusBin[] = "ab+";
+    static constexpr Char kOpenTypeAppendPlusBin[] = "ab+";
 
     /*Read only.*/
-    static constexpr TChar kOpenTypeReadT[] = L"r";
+    static constexpr WChar kOpenTypeReadT[] = L"r";
     /*Write only, will clear the file.*/
-    static constexpr TChar kOpenTypeWriteT[] = L"w";
+    static constexpr WChar kOpenTypeWriteT[] = L"w";
     /*Append at the end of the file.*/
-    static constexpr TChar kOpenTypeAppendT[] = L"a";
+    static constexpr WChar kOpenTypeAppendT[] = L"a";
     /*Read and write.*/
-    static constexpr TChar kOpenTypeReadPlusT[] = L"r+";
+    static constexpr WChar kOpenTypeReadPlusT[] = L"r+";
     /*Read and write, will clear the file.*/
-    static constexpr TChar kOpenTypeWritePlusT[] = L"w+";
+    static constexpr WChar kOpenTypeWritePlusT[] = L"w+";
     /*Read and write, starts at the end of the file.*/
-    static constexpr TChar kOpenTypeAppendPlusT[] = L"a+";
+    static constexpr WChar kOpenTypeAppendPlusT[] = L"a+";
     /*Read only.(binary file)*/
-    static constexpr TChar kOpenTypeReadBinT[] = L"rb";
+    static constexpr WChar kOpenTypeReadBinT[] = L"rb";
     /*Write only, will clear the file.(binary file)*/
-    static constexpr TChar kOpenTypeWriteBinT[] = L"wb";
+    static constexpr WChar kOpenTypeWriteBinT[] = L"wb";
     /*Append at the end of the file.(binary file)*/
-    static constexpr TChar kOpenTypeAppendBinT[] = L"ab";
+    static constexpr WChar kOpenTypeAppendBinT[] = L"ab";
     /*Read and write.(binary file)*/
-    static constexpr TChar kOpenTypeReadPlusBinT[] = L"rb+";
+    static constexpr WChar kOpenTypeReadPlusBinT[] = L"rb+";
     /*Read and write, will clear the file.(binary file)*/
-    static constexpr TChar kOpenTypeWritePlusBinT[] = L"wb+";
+    static constexpr WChar kOpenTypeWritePlusBinT[] = L"wb+";
     /*Read and write, starts at the end of the file.(binary file)*/
-    static constexpr TChar kOpenTypeAppendPlusBinT[] = L"ab+";
+    static constexpr WChar kOpenTypeAppendPlusBinT[] = L"ab+";
     /*The max length of the file name.*/
     static constexpr IndexType kFileNameLength = 512;
 
-    FORCEINLINE ZFile() noexcept : SuperType(), file_ptr_(nullptr) {}
+    FORCEINLINE ZFile() noexcept : SuperType_(), file_ptr_(nullptr) {}
+    FORCEINLINE ZFile(ZFile&& _file) noexcept : SuperType_(), file_ptr_(_file.file_ptr_) {}
+
     FORCEINLINE ~ZFile() noexcept { if (file_ptr_ != nullptr) { fclose(file_ptr_); } }
+
+    FORCEINLINE ZFile& operator=(ZFile&& _file) noexcept {
+        file_ptr_ = _file.file_ptr_;
+        return *this;
+    }
 
     /*
         Read binary out of the file.
     */
-    NODISCARD ReturnType Read(Void* data_ptr, SizeType data_size) noexcept;
+    NODISCARD ReturnType Read(Void* _data_ptr, SizeType _data_size) noexcept;
     /*
         Write binary in to the file.
     */
-    NODISCARD ReturnType Write(Void* data_ptr, SizeType data_size) noexcept;
+    NODISCARD ReturnType Write(Void* _data_ptr, SizeType _data_size) noexcept;
     /*
         Scans from the file.
     */
-    NODISCARD ReturnType Scan(const CChar* format, ArgListType args) noexcept;
+    NODISCARD ReturnType Scan(const Char* _format, ArgListType _args) noexcept;
     /*
         Scans from the file.
     */
-    NODISCARD ReturnType Scan(const CChar* format, ...) noexcept;
+    NODISCARD ReturnType Scan(const Char* _format, ...) noexcept;
     /*
         Scans from the file.
     */
-    NODISCARD ReturnType Scan(const TChar* format, ArgListType args) noexcept;
+    NODISCARD ReturnType Scan(const WChar* _format, ArgListType _args) noexcept;
     /*
         Scans from the file.
     */
-    NODISCARD ReturnType Scan(const TChar* format, ...) noexcept;
+    NODISCARD ReturnType Scan(const WChar* _format, ...) noexcept;
     /*
         Prints in the file.
     */
-    NODISCARD ReturnType Print(const CChar* format, ArgListType args) noexcept;
+    NODISCARD ReturnType Print(const Char* _format, ArgListType _args) noexcept;
     /*
         Prints in the file.
     */
-    NODISCARD ReturnType Print(const CChar* format, ...) noexcept;
+    NODISCARD ReturnType Print(const Char* _format, ...) noexcept;
     /*
         Prints in the file.
     */
-    NODISCARD ReturnType Print(const TChar* format, ArgListType args) noexcept;
+    NODISCARD ReturnType Print(const WChar* _format, ArgListType _args) noexcept;
     /*
         Prints in the file.
     */
-    NODISCARD ReturnType Print(const TChar* format, ...) noexcept;
+    NODISCARD ReturnType Print(const WChar* _format, ...) noexcept;
 
     /*
         If a file is opened.
@@ -157,39 +164,37 @@ public:
     /*
         If the path exists.
     */
-    NODISCARD Bool PathExist(const CChar* path_dir) noexcept;
+    NODISCARD Bool PathExist(const Char* _path_dir) noexcept;
     /*
         If the path exists.
     */
-    NODISCARD Bool PathExist(const TChar* path_dir) noexcept;
+    NODISCARD Bool PathExist(const WChar* _path_dir) noexcept;
 
     /*
         Creates the path if the path doesn't exist.
     */
-    NODISCARD ReturnType CreatePath(const CChar* path_dir) noexcept;
+    NODISCARD ReturnType CreatePath(const Char* _path_dir) noexcept;
     /*
         Creates the path if the path doesn't exist.
     */
-    NODISCARD ReturnType CreatePath(const TChar* path_dir) noexcept;
+    NODISCARD ReturnType CreatePath(const WChar* _path_dir) noexcept;
 
     /*
         Opens the file, needs the path exist.
     */
-    NODISCARD ReturnType Open(const CChar* file_dir, const CChar* open_type) noexcept;
+    NODISCARD ReturnType Open(const Char* _file_dir, const Char* _open_type) noexcept;
     /*
         Opens the file, needs the path exist.
     */
-    NODISCARD ReturnType Open(const TChar* file_dir,const TChar* open_type) noexcept;
+    NODISCARD ReturnType Open(const WChar* _file_dir,const WChar* _open_type) noexcept;
     /*
         Opens the file safe, will create the path if the path doesn't exist.
     */
-    NODISCARD ReturnType OpenSafe(const CChar* path_dir, const CChar* file_dir,
-                                              const CChar* open_type) noexcept;
+    NODISCARD ReturnType OpenSafe(const Char* _path_dir, const Char* _file_dir, const Char* _open_type) noexcept;
     /*
         Opens the file safe, will create the path if the path doesn't exist.
     */
-    NODISCARD ReturnType OpenSafe(const TChar* path_dir, const TChar* file_dir,
-                                              const TChar* open_type) noexcept;
+    NODISCARD ReturnType OpenSafe(const WChar* _path_dir, const WChar* _file_dir, const WChar* _open_type) noexcept;
     /*
         Close the current file.
     */
@@ -201,25 +206,23 @@ public:
         offset: The offset to the start place.
         seek_type: Where to start to seek,
     */
-    NODISCARD ReturnType Seek(Int32 offset, SeekType seek_type) noexcept;
+    NODISCARD ReturnType Seek(Int32 _offset, SeekType_ _seek_type) noexcept;
     /*
         Gets the ptr where to read and write.
         Parameters:
         pos_ptr: returns the pos of the current ptr.
     */
-    NODISCARD ReturnType Tell(Int32* pos_ptr) noexcept;
+    NODISCARD ReturnType Tell(Int32* _pos_ptr) noexcept;
 
 
 
 protected:
-    using SuperType = ZObject;
+    using SuperType_ = ZObject;
 
 private:
     ZFile(const ZFile&) = delete;
-    ZFile(ZFile&&) = delete;
 
     ZFile& operator=(const ZFile&) = delete;
-    ZFile& operator=(ZFile&&) = delete;
 
     FILE* file_ptr_;
 };

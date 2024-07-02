@@ -31,66 +31,66 @@
 namespace zengine {
 
 /*
-    A simple mutex.
+    A condition variable class.
 */
-class ZConditionVariable : public ZObject {
+class CORE_DLLAPI ZConditionVariable : public ZObject {
 public:
-    CORE_DLLAPI ZConditionVariable() noexcept;
-    CORE_DLLAPI ~ZConditionVariable() noexcept;
+    ZConditionVariable() noexcept;
+    ~ZConditionVariable() noexcept;
 
-    CORE_DLLAPI NODISCARD Int32 WaitThreadNum() noexcept;
-    CORE_DLLAPI NODISCARD Bool Empty() noexcept;
+    NODISCARD Int32 WaitThreadNum() noexcept;
+    NODISCARD Bool Empty() noexcept;
 
-    CORE_DLLAPI Void Wait(TUniqueLock<ZMutex>& mutex) noexcept;
+    Void Wait(TUniqueLock<ZMutex>& _mutex) noexcept;
     template <typename PredicateFunction>
-    Void Wait(TUniqueLock<ZMutex>& mutex, PredicateFunction func) noexcept {
-        LockP(mutex);
-        while (!func() && !cv_finished_) {
+    Void Wait(TUniqueLock<ZMutex>& _mutex, PredicateFunction _func) noexcept {
+        LockP(_mutex);
+        while (!_func() && !cv_finished_) {
             SleepConditionVariableCS(&cv_, &cs_mutex_.mutex_, INFINITE);
         }
-        UnlockP(mutex);
+        UnlockP(_mutex);
     }
     /*
        Wait for a certain time(ms).
     */
-    CORE_DLLAPI Void WaitFor(TUniqueLock<ZMutex>& mutex, UInt32 time) noexcept;
+    Void WaitFor(TUniqueLock<ZMutex>& _mutex, UInt32 _time) noexcept;
     /*
        Wait for a certain time(ms), use clock() to get the current time.
     */
-    template <typename PredicateFunction>
-    Void WaitFor(TUniqueLock<ZMutex>& mutex, UInt32 time, PredicateFunction func) noexcept {
-        LockP(mutex);
-        while (!func() && !cv_finished_) {
-            SleepConditionVariableCS(&cv_, &cs_mutex_.mutex_, time);
+    template <typename _PredicateFunction>
+    Void WaitFor(TUniqueLock<ZMutex>& _mutex, UInt32 _time, _PredicateFunction _func) noexcept {
+        LockP(_mutex);
+        while (!_func() && !cv_finished_) {
+            SleepConditionVariableCS(&cv_, &cs_mutex_.mutex_, _time);
         }
-        UnlockP(mutex);
+        UnlockP(_mutex);
     }
     /*
        Wait for a certain time(ms), use clock() to get the current time.
     */
-    CORE_DLLAPI Void WaitUntil(TUniqueLock<ZMutex>& mutex, UInt32 time) noexcept;
+    Void WaitUntil(TUniqueLock<ZMutex>& _mutex, UInt32 _time) noexcept;
     /*
        Wait for a certain time(ms), use clock() to get the current time.
     */
-    template <typename PredicateFunction>
-    Void WaitUntil(TUniqueLock<ZMutex>& mutex, UInt32 time, PredicateFunction func) noexcept {
-        time -= clock();
-        LockP(mutex);
-        while (!func() && !cv_finished_) {
-            SleepConditionVariableCS(&cv_, &cs_mutex_.mutex_, time);
+    template <typename _PredicateFunction>
+    Void WaitUntil(TUniqueLock<ZMutex>& _mutex, UInt32 _time, _PredicateFunction _func) noexcept {
+        _time -= clock();
+        LockP(_mutex);
+        while (!_func() && !cv_finished_) {
+            SleepConditionVariableCS(&cv_, &cs_mutex_.mutex_, _time);
         }
-        UnlockP(mutex);
+        UnlockP(_mutex);
     }
 
-    CORE_DLLAPI Void NotifyOne() noexcept;
-    CORE_DLLAPI Void NotifyAll() noexcept;
+    Void NotifyOne() noexcept;
+    Void NotifyAll() noexcept;
 
 protected:
-    using SuperType = ZObject;
+    using SuperType_ = ZObject;
 
 private:
-    CORE_DLLAPI Void LockP(TUniqueLock<ZMutex>& mutex) noexcept;
-    CORE_DLLAPI Void UnlockP(TUniqueLock<ZMutex>& mutex) noexcept;
+    Void LockP(TUniqueLock<ZMutex>& _mutex) noexcept;
+    Void UnlockP(TUniqueLock<ZMutex>& _mutex) noexcept;
 
     ZCSMutex cs_mutex_;
     CONDITION_VARIABLE cv_;

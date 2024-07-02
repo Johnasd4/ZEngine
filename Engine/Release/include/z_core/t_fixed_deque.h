@@ -27,9 +27,9 @@ namespace zengine {
 
 namespace internal {
 
-template<typename FixedDequeType, typename Function, typename... ArgsType>
-concept kIsFixedDequeInitFunction = requires(FixedDequeType * deque, Function function, ArgsType&&... args) {
-    function(deque, std::forward<ArgsType>(args)...);
+template<typename _FixedDequeType, typename _Function, typename... _ArgsType>
+concept kIsFixedDequeInitFunction = requires(_FixedDequeType * _deque, _Function _func, _ArgsType&&... _args) {
+    _func(_deque, std::forward<_ArgsType>(_args)...);
 };
 
 }//internal
@@ -37,36 +37,36 @@ concept kIsFixedDequeInitFunction = requires(FixedDequeType * deque, Function fu
 /*
     Fixed deque caintainer, front points at the first object, back points at the last object.
 */
-template<typename ObjectType, IndexType kCapacity>
+template<typename _ObjectType, IndexType kCapacity>
 class TFixedDeque : public ZObject {
 public:
-    using STDArray = std::array<ObjectType, kCapacity>;
-    using InitializerList = std::initializer_list<ObjectType>;
+    using STDArray = std::array<_ObjectType, kCapacity>;
+    using InitializerList = std::initializer_list<_ObjectType>;
 
     FORCEINLINE constexpr TFixedDeque() noexcept 
-            : SuperType()
-            , deque_()
-            , front_index_(0)
-            , back_index_(kCapacity - 1)
-            , size_(0) {}
-    FORCEINLINE constexpr TFixedDeque(const TFixedDeque& deque) noexcept 
-            : SuperType()
-            , deque_(deque.deque_)
-            , front_index_(deque.front_index_)
-            , back_index_(deque.back_index_)
-            , size_(deque.size_) {}
-    FORCEINLINE constexpr TFixedDeque(TFixedDeque&& deque) noexcept 
-            : SuperType()
-            , deque_(std::move(deque.deque_))
-            , front_index_(deque.front_index_)
-            , back_index_(deque.back_index_)
-            , size_(deque.size_) {}
-    FORCEINLINE TFixedDeque(InitializerList init_list) noexcept 
-            : SuperType()
-            , deque_(init_list)
-            , front_index_(0)
-            , back_index_(kCapacity - 1)
-            , size_(kCapacity) {}
+        : SuperType_()
+        , deque_()
+        , front_index_(0)
+        , back_index_(kCapacity - 1)
+        , size_(0) {}
+    FORCEINLINE constexpr TFixedDeque(const TFixedDeque& _deque) noexcept 
+        : SuperType_()
+        , deque_(_deque.deque_)
+        , front_index_(_deque.front_index_)
+        , back_index_(_deque.back_index_)
+        , size_(_deque.size_) {}
+    FORCEINLINE constexpr TFixedDeque(TFixedDeque&& _deque) noexcept 
+        : SuperType_()
+        , deque_(std::move(_deque.deque_))
+        , front_index_(_deque.front_index_)
+        , back_index_(_deque.back_index_)
+        , size_(_deque.size_) {}
+    FORCEINLINE TFixedDeque(InitializerList _init_list) noexcept 
+        : SuperType_()
+        , deque_(_init_list)
+        , front_index_(0)
+        , back_index_(kCapacity - 1)
+        , size_(kCapacity) {}
 
     /*
         Constexpr deque, the work is done at compile time.
@@ -79,43 +79,47 @@ public:
         - init_function: The function to initial the deque.
         - ArgsType...: The parameters of the function except for the fisrt.
         Example:
-        constexpr auto init_function = [](TFixedDeque<Int32, 10>* deque_ptr) {
-            for (IndexType index = 0; index < deque_ptr->Size(); ++index) {
-                (*deque_ptr)[index] = 1;
+        constexpr auto init_func = [](TFixedDeque<Int32, 10>* _deque_ptr) {
+            for (IndexType index = 0; index < _deque_ptr->Size(); ++index) {
+                (*_deque_ptr)[index] = 1;
             }
         };
-        constexpr TFixedDeque<Int32, 10> test(init_function);
+        constexpr TFixedDeque<Int32, 10> test(init_func);
     */
-    template<typename InitFunction, typename... ArgsType>
-    requires internal::kIsFixedDequeInitFunction<TFixedDeque<ObjectType, kCapacity>, InitFunction, ArgsType...>
-    FORCEINLINE constexpr TFixedDeque(InitFunction&& init_function, ArgsType&&... args) noexcept : SuperType() {
-        init_function(this, std::forward<ArgsType>(args)...);
+    template<typename _InitFunction, typename... _ArgsType>
+    requires internal::kIsFixedDequeInitFunction<TFixedDeque<_ObjectType, kCapacity>, _InitFunction, _ArgsType...>
+    FORCEINLINE constexpr TFixedDeque(_InitFunction&& _init_func, _ArgsType&&... _args) noexcept : SuperType_() {
+        _init_func(this, std::forward<_ArgsType>(_args)...);
     }
 
     FORCEINLINE constexpr ~TFixedDeque() noexcept {}
 
-    NODISCARD FORCEINLINE constexpr Bool operator==(const TFixedDeque& deque) noexcept { return deque_ == deque.deque_; }
-    NODISCARD FORCEINLINE constexpr Bool operator!=(const TFixedDeque& deque) noexcept { return deque_ != deque.deque_; }
-     
-    NODISCARD FORCEINLINE constexpr ObjectType& operator[](IndexType index) noexcept { 
-        return deque_[(front_index_ + index) % kCapacity];
+    NODISCARD FORCEINLINE constexpr Bool operator==(const TFixedDeque& _deque) noexcept { 
+        return deque_ == _deque.deque_; 
     }
-    NODISCARD FORCEINLINE constexpr const ObjectType& operator[](IndexType index) const noexcept { 
-        return deque_[(front_index_ + index) % kCapacity];
+    NODISCARD FORCEINLINE constexpr Bool operator!=(const TFixedDeque& _deque) noexcept { 
+        return deque_ != _deque.deque_; 
+    }
+     
+    NODISCARD FORCEINLINE constexpr _ObjectType& operator[](IndexType _index) noexcept { 
+        return deque_[(front_index_ + _index) % kCapacity];
+    }
+    NODISCARD FORCEINLINE constexpr const _ObjectType& operator[](IndexType _index) const noexcept { 
+        return deque_[(front_index_ + _index) % kCapacity];
     }
 
-    NODISCARD FORCEINLINE constexpr ObjectType& At(IndexType index) noexcept { 
-        return deque_.at((SizeType)((front_index_ + index) % kCapacity));
+    NODISCARD FORCEINLINE constexpr _ObjectType& At(IndexType _index) noexcept { 
+        return deque_.at((SizeType)((front_index_ + _index) % kCapacity));
     }
-    NODISCARD FORCEINLINE constexpr const ObjectType& At(IndexType index) const noexcept { 
-        return deque_.at((SizeType)((front_index_ + index) % kCapacity));
+    NODISCARD FORCEINLINE constexpr const _ObjectType& At(IndexType _index) const noexcept { 
+        return deque_.at((SizeType)((front_index_ + _index) % kCapacity));
     }
-    NODISCARD FORCEINLINE constexpr ObjectType& Front() noexcept { return deque_[front_index_]; }
-    NODISCARD FORCEINLINE constexpr const ObjectType& Front() const noexcept { return deque_[front_index_]; }
-    NODISCARD FORCEINLINE constexpr ObjectType& Back() noexcept { return deque_[back_index_]; }
-    NODISCARD FORCEINLINE constexpr const ObjectType& Back() const noexcept { return deque_[back_index_]; }
-    NODISCARD FORCEINLINE constexpr ObjectType* DataPtr() noexcept { return deque_.data(); }
-    NODISCARD FORCEINLINE constexpr const ObjectType* DataPtr() const noexcept { return deque_.data(); }
+    NODISCARD FORCEINLINE constexpr _ObjectType& Front() noexcept { return deque_[front_index_]; }
+    NODISCARD FORCEINLINE constexpr const _ObjectType& Front() const noexcept { return deque_[front_index_]; }
+    NODISCARD FORCEINLINE constexpr _ObjectType& Back() noexcept { return deque_[back_index_]; }
+    NODISCARD FORCEINLINE constexpr const _ObjectType& Back() const noexcept { return deque_[back_index_]; }
+    NODISCARD FORCEINLINE constexpr _ObjectType* DataPtr() noexcept { return deque_.data(); }
+    NODISCARD FORCEINLINE constexpr const _ObjectType* DataPtr() const noexcept { return deque_.data(); }
 
     NODISCARD FORCEINLINE static constexpr IndexType Capacity() noexcept { return kCapacity; }
     NODISCARD FORCEINLINE constexpr IndexType Size() noexcept { return size_; }
@@ -129,43 +133,43 @@ public:
         --size_;
         back_index_ = (back_index_ + (kCapacity - 1)) % kCapacity;
     }
-    constexpr Void PushFront(const ObjectType& object) noexcept {
+    constexpr Void PushFront(const _ObjectType& _obj) noexcept {
         front_index_ = (front_index_ + (kCapacity - 1)) % kCapacity;
-        deque_[front_index_] = object;
+        deque_[front_index_] = _obj;
         ++size_;
     }
-    constexpr Void PushFront(ObjectType&& object) noexcept {
+    constexpr Void PushFront(_ObjectType&& _obj) noexcept {
         front_index_ = (front_index_ + (kCapacity - 1)) % kCapacity;
-        deque_[front_index_] = std::forward<ObjectType>(object);
+        deque_[front_index_] = std::forward<_ObjectType>(_obj);
         ++size_;
     }
-    template<typename... ArgsType>
-    constexpr ObjectType& EmplaceFront(ArgsType&&... args) noexcept {
+    template<typename... _ArgsType>
+    constexpr _ObjectType& EmplaceFront(_ArgsType&&... _args) noexcept {
         front_index_ = (front_index_ + 1) % kCapacity;
-        new(&deque_[front_index_]) ObjectType(std::forward<ArgsType>(args)...);
+        new(&deque_[front_index_]) _ObjectType(std::forward<_ArgsType>(_args)...);
         ++size_;
         return deque_[front_index_];
     }
-    constexpr Void PushBack(const ObjectType& object) noexcept {
+    constexpr Void PushBack(const _ObjectType& _obj) noexcept {
         back_index_ = (back_index_ + 1) % kCapacity;
-        deque_[back_index_] = object;
+        deque_[back_index_] = _obj;
         ++size_;
     }
-    constexpr Void PushBack(ObjectType&& object) noexcept {
+    constexpr Void PushBack(_ObjectType&& _obj) noexcept {
         back_index_ = (back_index_ + 1) % kCapacity;
-        deque_[back_index_] = std::forward<ObjectType>(object);
+        deque_[back_index_] = std::forward<_ObjectType>(_obj);
         ++size_;
     }
-    template<typename... ArgsType>
-    constexpr ObjectType& EmplaceBack(ArgsType&&... args) noexcept {
+    template<typename... _ArgsType>
+    constexpr _ObjectType& EmplaceBack(_ArgsType&&... _args) noexcept {
         back_index_ = (back_index_ + 1) % kCapacity;
-        new(&deque_[back_index_]) ObjectType(std::forward<ArgsType>(args)...);
+        new(&deque_[back_index_]) _ObjectType(std::forward<_ArgsType>(_args)...);
         ++size_;
         return deque_[back_index_];
     }
 
-    constexpr Void SetSize(IndexType size) noexcept {
-        size_ = size; 
+    constexpr Void SetSize(IndexType _size) noexcept {
+        size_ = _size; 
         back_index_ = (front_index_ + size_ - 1) % kCapacity;
     }
     constexpr Void Clear() noexcept { 
@@ -173,15 +177,15 @@ public:
         front_index_ = 0;
         back_index_ = kCapacity - 1;
     }
-    constexpr Void Fill(const ObjectType& value) noexcept {
-        deque_.fill(value); 
+    constexpr Void Fill(const _ObjectType& _value) noexcept {
+        deque_.fill(_value); 
         front_index_ = 0;
         back_index_ = kCapacity - 1;
     }
-    FORCEINLINE constexpr Void Swap(TFixedDeque& deque) noexcept { deque_.swap(deque); }
+    FORCEINLINE constexpr Void Swap(TFixedDeque& _deque) noexcept { deque_.swap(_deque); }
 
 protected:
-    using SuperType = ZObject;
+    using SuperType_ = ZObject;
 
 private:
     STDArray deque_;

@@ -24,26 +24,26 @@
 
 namespace zengine {
 
-template<typename ObjectType>
-FORCEINLINE constexpr Void Swap(ObjectType* object_1, ObjectType* object_2) {
-    ObjectType temp_object(std::move(*object_1));
-    *object_1 = std::move(*object_2);
-    *object_2 = std::move(temp_object);
+template<typename _ObjectType>
+FORCEINLINE constexpr Void Swap(_ObjectType* _obj_1, _ObjectType* _obj_2) {
+    _ObjectType temp_obj(std::move(*_obj_1));
+    *_obj_1 = std::move(*_obj_2);
+    *_obj_2 = std::move(temp_obj);
 }
 
-template<typename ObjectType>
-NODISCARD FORCEINLINE constexpr decltype(auto) Ref(ObjectType& object) {
-    return std::ref(object);
+template<typename _ObjectType>
+NODISCARD FORCEINLINE constexpr decltype(auto) Ref(_ObjectType& _obj) {
+    return std::ref(_obj);
 }
 
-template<typename ObjectType>
-NODISCARD FORCEINLINE constexpr decltype(auto) Ref(const ObjectType& object) {
-    return std::ref(object);
+template<typename _ObjectType>
+NODISCARD FORCEINLINE constexpr decltype(auto) Ref(const _ObjectType& _obj) {
+    return std::ref(_obj);
 }
 
-template<typename ObjectType>
-NODISCARD FORCEINLINE constexpr decltype(auto) Ref(std::reference_wrapper<ObjectType> object) {
-    return std::ref(object);
+template<typename _ObjectType>
+NODISCARD FORCEINLINE constexpr decltype(auto) Ref(std::reference_wrapper<_ObjectType> _obj) {
+    return std::ref(_obj);
 }
 
 }//zengine

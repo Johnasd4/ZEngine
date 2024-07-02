@@ -31,17 +31,12 @@
 #include <ctime>
 #include <stdarg.h>
 #include <process.h>
+#include <memory>
 
-#ifndef DLLEXPORT
-#define DLLEXPORT __declspec(dllexport)
-#endif
-#ifndef DLLIMPORT
-#define DLLIMPORT __declspec(dllimport)
-#endif
+#include "d_macro.h"
 
-#ifndef NODISCARD
-#define NODISCARD [[nodiscard]]
-#endif
+#pragma warning(disable: 4251)
+#pragma warning(disable: 26813)
 
 //Define if at the start of the z_core cpp file.
 #ifdef CORE_DLLFILE

@@ -16,15 +16,25 @@
     Author: YuLin Zhu (÷Ï”Í¡÷)
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_INTERNAL_Z_DRIVE_H_
-#define Z_CORE_INTERNAL_Z_DRIVE_H_
+#ifndef Z_CORE_INTERNAL_D_MACRO_H_
+#define Z_CORE_INTERNAL_D_MACRO_H_
 
-#include "d_concept.h"
-#include "d_constant.h"
-#include "d_error_code.h"
-#include "d_function.h"
-#include "d_lib.h"
-#include "d_macro.h"
-#include "d_type.h"
 
-#endif // !Z_CORE_INTERNAL_Z_DRIVE_H_
+#ifndef DLLEXPORT
+#define DLLEXPORT __declspec(dllexport)
+#endif
+#ifndef DLLIMPORT
+#define DLLIMPORT __declspec(dllimport)
+#endif
+
+#ifndef NODISCARD
+#define NODISCARD [[nodiscard]]
+#endif
+
+/*
+    Checks if the state is in thes given states.
+    use | to combine the check states.
+*/
+#define IN_STATE(_state, _check_states) ((_state) & (_check_states))
+
+#endif // !Z_CORE_INTERNAL_D_MACRO_H_

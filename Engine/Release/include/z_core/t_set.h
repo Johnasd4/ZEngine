@@ -32,46 +32,46 @@ namespace zengine {
 /*
     Set caintainer.
 */
-template<typename ObjectType>
+template<typename _ObjectType>
 class TSet : public ZObject {
 public:
-    using STDSet = std::set<ObjectType, std::less<ObjectType>, TAllocator<ObjectType>>;
-    using Iterator = STDSet::iterator;
-    using ConstIterator = STDSet::const_iterator;
-    using ReverseIterator = STDSet::reverse_iterator;
-    using ConstReverseIterator = STDSet::const_reverse_iterator;
-    using InitializerList = std::initializer_list<ObjectType>;
+    using STDSet_ = std::set<_ObjectType, std::less<_ObjectType>, TContainerAllocator<_ObjectType>>;
+    using Iterator_ = STDSet_::iterator;
+    using ConstIterator_ = STDSet_::const_iterator;
+    using ReverseIterator_ = STDSet_::reverse_iterator;
+    using ConstReverseIterator_ = STDSet_::const_reverse_iterator;
+    using InitializerList_ = std::initializer_list<_ObjectType>;
 
-    FORCEINLINE TSet() noexcept : SuperType(), set_() {}
-    FORCEINLINE TSet(const TSet& set) noexcept : SuperType(), set_(set.set_) {}
-    FORCEINLINE TSet(TSet&& set) noexcept : SuperType(), set_(std::move(set.set_)) {}
+    FORCEINLINE TSet() noexcept : SuperType_(), set_() {}
+    FORCEINLINE TSet(const TSet& _set) noexcept : SuperType_(), set_(_set.set_) {}
+    FORCEINLINE TSet(TSet&& _set) noexcept : SuperType_(), set_(std::move(_set.set_)) {}
 
-    template <typename InputIterator>
-    FORCEINLINE TSet(InputIterator first, InputIterator last) noexcept : SuperType(), set_(first, last) {}
-    FORCEINLINE TSet(InitializerList init_list) noexcept : SuperType(), set_(init_list) {}
+    template <typename _InputIterator>
+    FORCEINLINE TSet(_InputIterator _first, _InputIterator _last) noexcept : SuperType_(), set_(_first, _last) {}
+    FORCEINLINE TSet(InitializerList_ _init_list) noexcept : SuperType_(), set_(_init_list) {}
  
     FORCEINLINE ~TSet() noexcept {}
 
-    FORCEINLINE TSet& operator=(const TSet& set) noexcept { 
-        set_.operator=(set.set_);
+    FORCEINLINE TSet& operator=(const TSet& _set) noexcept { 
+        set_ = _set.set_;
         return *this;
     }
-    FORCEINLINE TSet& operator=(TSet&& set) noexcept { 
-        set_.operator=(std::move(set.set_));
+    FORCEINLINE TSet& operator=(TSet&& _set) noexcept { 
+        set_ = std::move(_set.set_);
         return *this;
     }
-    FORCEINLINE TSet& operator=(InitializerList init_list) noexcept {
-        set_.operator=(init_list);
+    FORCEINLINE TSet& operator=(InitializerList_ _init_list) noexcept {
+        set_ = _init_list;
         return *this;
     }
 
-    NODISCARD FORCEINLINE Bool operator==(const TSet& set) noexcept { return set_ == set; }
-    NODISCARD FORCEINLINE Bool operator!=(const TSet& set) noexcept { return set_ != set; }
+    NODISCARD FORCEINLINE Bool operator==(const TSet& _set) noexcept { return set_ == _set; }
+    NODISCARD FORCEINLINE Bool operator!=(const TSet& _set) noexcept { return set_ != _set; }
 
-    NODISCARD FORCEINLINE ObjectType& Front() noexcept { return set_.front(); }
-    NODISCARD FORCEINLINE const ObjectType& Front() const noexcept { return set_.front(); }
-    NODISCARD FORCEINLINE ObjectType& Back() noexcept { return set_.back(); }
-    NODISCARD FORCEINLINE const ObjectType& Back() const noexcept { return set_.back(); }
+    NODISCARD FORCEINLINE _ObjectType& Front() noexcept { return set_.front(); }
+    NODISCARD FORCEINLINE const _ObjectType& Front() const noexcept { return set_.front(); }
+    NODISCARD FORCEINLINE _ObjectType& Back() noexcept { return set_.back(); }
+    NODISCARD FORCEINLINE const _ObjectType& Back() const noexcept { return set_.back(); }
 
     NODISCARD FORCEINLINE IndexType Size() const noexcept { return static_cast<IndexType>(set_.size()); }
     NODISCARD FORCEINLINE IndexType Capacity() const noexcept { return kIndexTypeMax; }
@@ -79,72 +79,74 @@ public:
     NODISCARD FORCEINLINE IndexType Count() const noexcept { return set_.count(); }
 
 
-    NODISCARD FORCEINLINE Iterator Begin() noexcept { return set_.begin(); }
-    NODISCARD FORCEINLINE ConstIterator Begin() const noexcept { return set_.begin(); }
-    NODISCARD FORCEINLINE ConstIterator ConstBegin() const noexcept { return set_.cbegin(); }
-    NODISCARD FORCEINLINE ReverseIterator ReverseBegin() noexcept { return set_.rbegin(); }
-    NODISCARD FORCEINLINE ConstReverseIterator ReverseBegin() const noexcept { return set_.rbegin(); }
-    NODISCARD FORCEINLINE ConstReverseIterator ConstReverseBegin() const noexcept { return set_.crbegin(); }
-    NODISCARD FORCEINLINE Iterator End() noexcept { return set_.end(); }
-    NODISCARD FORCEINLINE ConstIterator End() const noexcept { return set_.end(); }
-    NODISCARD FORCEINLINE ConstIterator ConstEnd() const noexcept { return set_.cend(); }
-    NODISCARD FORCEINLINE ReverseIterator ReverseEnd() noexcept { return set_.rend(); }
-    NODISCARD FORCEINLINE ConstReverseIterator ReverseEnd() const noexcept { return set_.rend(); }
-    NODISCARD FORCEINLINE ConstReverseIterator ConstReverseEnd() const noexcept { return set_.crend(); }
+    NODISCARD FORCEINLINE Iterator_ Begin() noexcept { return set_.begin(); }
+    NODISCARD FORCEINLINE ConstIterator_ Begin() const noexcept { return set_.begin(); }
+    NODISCARD FORCEINLINE ConstIterator_ ConstBegin() const noexcept { return set_.cbegin(); }
+    NODISCARD FORCEINLINE ReverseIterator_ ReverseBegin() noexcept { return set_.rbegin(); }
+    NODISCARD FORCEINLINE ConstReverseIterator_ ReverseBegin() const noexcept { return set_.rbegin(); }
+    NODISCARD FORCEINLINE ConstReverseIterator_ ConstReverseBegin() const noexcept { return set_.crbegin(); }
+    NODISCARD FORCEINLINE Iterator_ End() noexcept { return set_.end(); }
+    NODISCARD FORCEINLINE ConstIterator_ End() const noexcept { return set_.end(); }
+    NODISCARD FORCEINLINE ConstIterator_ ConstEnd() const noexcept { return set_.cend(); }
+    NODISCARD FORCEINLINE ReverseIterator_ ReverseEnd() noexcept { return set_.rend(); }
+    NODISCARD FORCEINLINE ConstReverseIterator_ ReverseEnd() const noexcept { return set_.rend(); }
+    NODISCARD FORCEINLINE ConstReverseIterator_ ConstReverseEnd() const noexcept { return set_.crend(); }
 
-    NODISCARD FORCEINLINE Iterator Find(const ObjectType& value) noexcept { return set_.find(value); }
-    NODISCARD FORCEINLINE ConstIterator Find(const ObjectType& value) const noexcept { return set_.find(value); }
-    NODISCARD FORCEINLINE Iterator LowerBound(const ObjectType& value) noexcept { return set_.lower_bound(value); }
-    NODISCARD FORCEINLINE ConstIterator LowerBound(const ObjectType& value) const noexcept { 
-        return set_.lower_bound(value); 
+    NODISCARD FORCEINLINE Iterator_ Find(const _ObjectType& _val) noexcept { return set_.find(_val); }
+    NODISCARD FORCEINLINE ConstIterator_ Find(const _ObjectType& _val) const noexcept { return set_.find(_val); }
+    NODISCARD FORCEINLINE Iterator_ LowerBound(const _ObjectType& _val) noexcept { return set_.lower_bound(_val); }
+    NODISCARD FORCEINLINE ConstIterator_ LowerBound(const _ObjectType& _val) const noexcept {
+        return set_.lower_bound(_val);
     }
-    NODISCARD FORCEINLINE Iterator UpperBound(const ObjectType& value) noexcept { return set_.upper_bound(value); }
-    NODISCARD FORCEINLINE ConstIterator UpperBound(const ObjectType& value) const noexcept {
-        return set_.upper_bound(value);
+    NODISCARD FORCEINLINE Iterator_ UpperBound(const _ObjectType& _val) noexcept { return set_.upper_bound(_val); }
+    NODISCARD FORCEINLINE ConstIterator_ UpperBound(const _ObjectType& _val) const noexcept {
+        return set_.upper_bound(_val);
     }
-    NODISCARD TPair<Iterator, Iterator> EqualRange(const ObjectType& value) noexcept {
-        auto temp_pair = set_.equal_range(value);
-        return TPair<Iterator, Iterator>(temp_pair.first, temp_pair.second);
+    NODISCARD TPair<Iterator_, Iterator_> EqualRange(const _ObjectType& _val) noexcept {
+        auto temp_pair = set_.equal_range(_val);
+        return TPair<Iterator_, Iterator_>(temp_pair.first, temp_pair.second);
     }
-    NODISCARD TPair<ConstIterator, ConstIterator> EqualRange(const ObjectType& value) const noexcept {
-        auto temp_pair = set_.equal_range(value);
-        return TPair<ConstIterator, ConstIterator>(temp_pair.first, temp_pair.second);
-    }
-
-    FORCEINLINE TPair<Iterator, Bool> Insert(const ObjectType& value) noexcept {
-        auto temp_pair = set_.insert(value);
-        return TPair<Iterator, Bool>(temp_pair.first, temp_pair.second);
-    }
-    FORCEINLINE TPair<Iterator, Bool> Insert(ObjectType&& value) noexcept {
-        auto temp_pair = set_.insert(std::forward<ObjectType>(value));
-        return TPair<Iterator, Bool>(temp_pair.first, temp_pair.second);
-    }
-    FORCEINLINE Iterator Insert(ConstIterator hint_pos, const ObjectType& value) noexcept {
-        return set_.insert(hint_pos, value);
-    }
-    FORCEINLINE Iterator Insert(ConstIterator hint_pos, ObjectType&& value) noexcept {
-        return set_.insert(hint_pos, std::forward<ObjectType>(value));
-    }
-    template <typename InputIterator>
-    FORCEINLINE Iterator Insert(ConstIterator pos, InputIterator first, InputIterator last) noexcept {
-        return set_.insert(pos, first, last);
-    }
-    FORCEINLINE Iterator Insert(ConstIterator pos, InitializerList init_list) noexcept {
-        return set_.insert(pos, init_list);
+    NODISCARD TPair<ConstIterator_, ConstIterator_> EqualRange(const _ObjectType& _val) const noexcept {
+        auto temp_pair = set_.equal_range(_val);
+        return TPair<ConstIterator_, ConstIterator_>(temp_pair.first, temp_pair.second);
     }
 
-    FORCEINLINE Iterator Erase(const ObjectType& value) noexcept { return set_.erase(value); }
-    FORCEINLINE Iterator Erase(Iterator pos) noexcept { return set_.erase(pos); }
-    FORCEINLINE Iterator Erase(ConstIterator first, ConstIterator last) noexcept { return set_.erase(first, last); }
+    FORCEINLINE TPair<Iterator_, Bool> Insert(const _ObjectType& _val) noexcept {
+        auto temp_pair = set_.insert(_val);
+        return TPair<Iterator_, Bool>(temp_pair.first, temp_pair.second);
+    }
+    FORCEINLINE TPair<Iterator_, Bool> Insert(_ObjectType&& _val) noexcept {
+        auto temp_pair = set_.insert(std::forward<_ObjectType>(_val));
+        return TPair<Iterator_, Bool>(temp_pair.first, temp_pair.second);
+    }
+    FORCEINLINE Iterator_ Insert(ConstIterator_ _hint_pos, const _ObjectType& _val) noexcept {
+        return set_.insert(_hint_pos, _val);
+    }
+    FORCEINLINE Iterator_ Insert(ConstIterator_ _hint_pos, _ObjectType&& _val) noexcept {
+        return set_.insert(_hint_pos, std::forward<_ObjectType>(_val));
+    }
+    template <typename _InputIterator>
+    FORCEINLINE Iterator_ Insert(ConstIterator_ _pos, _InputIterator _first, _InputIterator _last) noexcept {
+        return set_.insert(_pos, _first, _last);
+    }
+    FORCEINLINE Iterator_ Insert(ConstIterator_ _pos, InitializerList_ _init_list) noexcept {
+        return set_.insert(_pos, _init_list);
+    }
+
+    FORCEINLINE Iterator_ Erase(const _ObjectType& _value) noexcept { return set_.erase(_value); }
+    FORCEINLINE Iterator_ Erase(Iterator_ _pos) noexcept { return set_.erase(_pos); }
+    FORCEINLINE Iterator_ Erase(ConstIterator_ _first, ConstIterator_ _last) noexcept { 
+        return set_.erase(_first, _last); 
+    }
     FORCEINLINE Void Clear() noexcept { set_.clear(); }
 
-    FORCEINLINE Void Swap(TSet& set) noexcept { set_.swap(set); }
+    FORCEINLINE Void Swap(TSet& _set) noexcept { set_.swap(_set); }
 
 protected:
-    using SuperType = ZObject;
+    using SuperType_ = ZObject;
 
 private:
-    STDSet set_;
+    STDSet_ set_;
 };
 
 }//zengine

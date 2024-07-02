@@ -31,52 +31,52 @@ namespace zengine {
 /*
     Stack caintainer.
 */
-template<typename ObjectType, typename ContainerType = TVector<ObjectType>>
+template<typename _ObjectType, typename _ContainerType = TVector<_ObjectType>>
 class TStack : public ZObject {
 public:
-    using InitializerList = std::initializer_list<ObjectType>;
+    using InitializerList_ = std::initializer_list<_ObjectType>;
 
-    FORCEINLINE TStack() noexcept : SuperType(), stack_() {}
-    FORCEINLINE TStack(const TStack& stack) noexcept : SuperType(), stack_(stack.stack_) {}
-    FORCEINLINE TStack(TStack&& stack) noexcept : SuperType(), stack_(std::move(stack.stack_)) {}
+    FORCEINLINE TStack() noexcept : SuperType_(), stack_() {}
+    FORCEINLINE TStack(const TStack& _stack) noexcept : SuperType_(), stack_(_stack.stack_) {}
+    FORCEINLINE TStack(TStack&& _stack) noexcept : SuperType_(), stack_(std::move(_stack.stack_)) {}
 
-    FORCEINLINE TStack(SizeType size) noexcept : SuperType(), stack_(size) {}
-    FORCEINLINE TStack(SizeType size, const ZObject& value) noexcept : SuperType(), stack_(size, value) {}
-    template <typename InputIterator>
-    FORCEINLINE TStack(InputIterator first, InputIterator last) noexcept : SuperType(), stack_(first, last) {}
-    FORCEINLINE TStack(InitializerList init_list) noexcept : SuperType(), stack_(init_list) {}
+    FORCEINLINE TStack(SizeType _size) noexcept : SuperType_(), stack_(_size) {}
+    FORCEINLINE TStack(SizeType _size, const _ObjectType& _val) noexcept : SuperType_(), stack_(_size, _val) {}
+    template <typename _InputIterator>
+    FORCEINLINE TStack(_InputIterator _first, _InputIterator _last) noexcept : SuperType_(), stack_(_first, _last) {}
+    FORCEINLINE TStack(InitializerList_ _init_list) noexcept : SuperType_(), stack_(_init_list) {}
  
     FORCEINLINE ~TStack() noexcept {}
 
-    FORCEINLINE TStack& operator=(const TStack& stack) noexcept { 
-        stack_.operator=(stack.stack_);
+    FORCEINLINE TStack& operator=(const TStack& _stack) noexcept { 
+        stack_ = _stack.stack_;
         return *this;
     }
-    FORCEINLINE TStack& operator=(TStack&& stack) noexcept { 
-        stack_.operator=(std::move(stack.stack_));
+    FORCEINLINE TStack& operator=(TStack&& _stack) noexcept { 
+        stack_ = std::move(_stack.stack_);
         return *this;
     }
-    FORCEINLINE TStack& operator=(InitializerList init_list) noexcept {
-        stack_.operator=(init_list);
+    FORCEINLINE TStack& operator=(InitializerList_ _init_list) noexcept {
+        stack_ = _init_list;
         return *this;
     }
 
-    FORCEINLINE Void Assign(SizeType size, const ObjectType& value) noexcept {
-        return stack_.Assign(size, value);
+    FORCEINLINE Void Assign(SizeType _size, const _ObjectType& _val) noexcept {
+        return stack_.Assign(_size, _val);
     }
-    template <class InputIterator>
-    FORCEINLINE Void Assign(InputIterator first, InputIterator last) noexcept {
-        return stack_.Assign(first, last);
+    template <class _InputIterator>
+    FORCEINLINE Void Assign(_InputIterator _first, _InputIterator _last) noexcept {
+        return stack_.Assign(_first, _last);
     }
-    FORCEINLINE Void Assign(InitializerList init_list) noexcept {
-        return stack_.Assign(init_list);
+    FORCEINLINE Void Assign(InitializerList_ _init_list) noexcept {
+        return stack_.Assign(_init_list);
     }
 
-    NODISCARD FORCEINLINE Bool operator==(const TStack& stack) noexcept { return stack_ == stack; }
-    NODISCARD FORCEINLINE Bool operator!=(const TStack& stack) noexcept { return stack_ != stack; }
+    NODISCARD FORCEINLINE Bool operator==(const TStack& _stack) noexcept { return stack_ == _stack; }
+    NODISCARD FORCEINLINE Bool operator!=(const TStack& _stack) noexcept { return stack_ != _stack; }
 
-    NODISCARD FORCEINLINE ObjectType& Top() noexcept { return stack_.Back(); }
-    NODISCARD FORCEINLINE const ObjectType& Top() const noexcept { return stack_.Back(); }
+    NODISCARD FORCEINLINE _ObjectType& Top() noexcept { return stack_.Back(); }
+    NODISCARD FORCEINLINE const _ObjectType& Top() const noexcept { return stack_.Back(); }
 
     NODISCARD FORCEINLINE IndexType Size() const noexcept { return stack_.Size(); }
     NODISCARD FORCEINLINE IndexType Capacity() const noexcept { return stack_.Capacity(); }
@@ -84,21 +84,21 @@ public:
 
     FORCEINLINE Void Pop() noexcept { stack_.PopBack(); }
 
-    FORCEINLINE Void Push(const ObjectType& value) noexcept { stack_.PushBack(value); }
-    FORCEINLINE Void Push(ObjectType&& value) noexcept { stack_.PushBack(std::forward<ObjectType>(value)); }
+    FORCEINLINE Void Push(const _ObjectType& _val) noexcept { stack_.PushBack(_val); }
+    FORCEINLINE Void Push(_ObjectType&& _val) noexcept { stack_.PushBack(std::forward<_ObjectType>(_val)); }
 
     FORCEINLINE Void Clear() noexcept { stack_.Clear(); }
 
-    FORCEINLINE Void Resize(SizeType size) noexcept { stack_.Resize(size); }
-    FORCEINLINE Void Resize(SizeType size, const ObjectType& value) noexcept { stack_.Resize(size, value); }
+    FORCEINLINE Void Resize(SizeType _size) noexcept { stack_.Resize(_size); }
+    FORCEINLINE Void Resize(SizeType _size, const _ObjectType& _val) noexcept { stack_.Resize(_size, _val); }
 
-    FORCEINLINE Void Swap(TStack& stack) noexcept { stack_.Swap(stack); }
+    FORCEINLINE Void Swap(TStack& _stack) noexcept { stack_.Swap(_stack); }
 
 protected:
-    using SuperType = ZObject;
+    using SuperType_ = ZObject;
 
 private:
-    ContainerType stack_;
+    _ContainerType stack_;
 };
 
 }//zengine

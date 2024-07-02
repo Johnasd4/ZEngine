@@ -107,7 +107,14 @@ public:
     static constexpr IndexType kFileNameLength = 512;
 
     FORCEINLINE ZFile() noexcept : SuperType_(), file_ptr_(nullptr) {}
+    FORCEINLINE ZFile(ZFile&& _file) noexcept : SuperType_(), file_ptr_(_file.file_ptr_) {}
+
     FORCEINLINE ~ZFile() noexcept { if (file_ptr_ != nullptr) { fclose(file_ptr_); } }
+
+    FORCEINLINE ZFile& operator=(ZFile&& _file) noexcept {
+        file_ptr_ = _file.file_ptr_;
+        return *this;
+    }
 
     /*
         Read binary out of the file.
@@ -214,10 +221,8 @@ protected:
 
 private:
     ZFile(const ZFile&) = delete;
-    ZFile(ZFile&&) = delete;
 
     ZFile& operator=(const ZFile&) = delete;
-    ZFile& operator=(ZFile&&) = delete;
 
     FILE* file_ptr_;
 };
