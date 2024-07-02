@@ -62,20 +62,21 @@ CORE_DLLAPI Void ZLog::GenerateLogString(const ZLog* _log_ptr, OutputString_* _o
 }
 
 static ZFile& GetLogFile() noexcept {
-
-    static ZFile file;
-    ReturnType link_code = kOK;
-    TWFixedString<ZFile::kFileNameLength> file_str;
-    ZSystemTime system_time;
-
-    file_str.SetString(
-        L"%ls%04d%02d%02d%02d%02d%02d_default.log", ZLog::kPathTString,
-        system_time.Year(), system_time.Month(), system_time.Day(), 
-        system_time.Hour(), system_time.Min(), system_time.Sec());
-    link_code = file.OpenSafe(ZLog::kPathTString, file_str.DataPtr(), ZFile::kOpenTypeAppendT);
-    if (link_code != kOK) {
-        Z_LOG_ERROR(error_code::kMLogErrorCodeLinkError, link_code, "ZFile::OpenSafe() link error!");
-    }
+    static ZFile& file = []() ->ZFile& { 
+        static ZFile file;
+        ReturnType link_code = kOK;
+        TWFixedString<ZFile::kFileNameLength> file_str;
+        const ZSystemTime& system_time = ZSystemTime::StartTimeInstance();
+        file_str.SetString(
+            L"%ls%04d%02d%02d%02d%02d%02d_default.log", ZLog::kPathTString,
+            system_time.Year(), system_time.Month(), system_time.Day(),
+            system_time.Hour(), system_time.Min(), system_time.Sec());
+        link_code = file.OpenSafe(ZLog::kPathTString, file_str.DataPtr(), ZFile::kOpenTypeAppendW);
+        if (link_code != kOK) {
+            Z_LOG_ERROR(error_code::kMLogErrorCodeLinkError, link_code, "ZFile::OpenSafe() link error!");
+        }
+        return file;
+    }();
     return file;
 }
 

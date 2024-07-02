@@ -126,12 +126,34 @@ public:
     FORCEINLINE TSmallMemoryListMemoryPool() : SuperType_() {}
     ~TSmallMemoryListMemoryPool() noexcept {
 #if USE_MEMORY_POOL_TEST
+        ReturnType link_code = kOK;
+        ZFile file;
+        TWFixedString<ZFile::kFileNameLength> file_str;
+        const ZSystemTime& system_time = ZSystemTime::StartTimeInstance();
+
+        file_str.SetString(
+            L"%ls%04d%02d%02d%02d%02d%02d_memory.log", log::ZLog::kPathTString,
+            system_time.Year(), system_time.Month(), system_time.Day(),
+            system_time.Hour(), system_time.Min(), system_time.Sec());
+        link_code = file.OpenSafe(log::ZLog::kPathTString, file_str.DataPtr(), ZFile::kOpenTypeAppendW);
+        if (link_code != kOK) {
+            Z_LOG_ERROR(error_code::kMLogErrorCodeLinkError, link_code, "ZFile::OpenSafe() link error!");
+        }
+
         //The first pool realsed.
         if (SuperType_::MemoryBlockSize() == kMemoryBlockMaxSize) {
-            zengine::console::PrintMessage("\n\n***** small memory pool *****\n\n");
-            zengine::console::PrintMessage("    size    | usable size |  total num  | applied times | used peak num | unused num\n");
+            link_code = file.Print("\n\n***** small memory pool *****\n\n");
+            if (link_code != kOK) {
+                Z_LOG_ERROR(error_code::kFMemoryPoolErrorCodeLinkError, link_code, "ZFile::OpenSafe() link error!");
+            }
+
+            link_code = file.Print("    size    | usable size |  total num  | applied times | used peak num | unused num\n");
+            if (link_code != kOK) {
+                Z_LOG_ERROR(error_code::kFMemoryPoolErrorCodeLinkError, link_code, "ZFile::OpenSafe() link error!");
+            }
         }
-        zengine::console::PrintMessage(
+
+        link_code = file.Print(
             "  %8u  |  %9u  |  %9d  |   %9d   |   %9d   |  %8d\n",
             SuperType_::MemoryBlockSize(),
             SuperType_::MemoryBlockMemorySize(),
@@ -139,6 +161,10 @@ public:
             momory_block_applyed_num_,
             momory_block_peak_num_,
             memory_block_used_current_num_);
+        if (link_code != kOK) {
+            Z_LOG_ERROR(error_code::kFMemoryPoolErrorCodeLinkError, link_code, "ZFile::OpenSafe() link error!");
+        }
+
 #endif //USE_MEMORY_POOL_TEST        
     }
 

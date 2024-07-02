@@ -34,7 +34,7 @@ namespace zengine {
 namespace error_code {
 
 enum ZTaskErrorCode : ReturnType {
-    kZTaskErrorCodeLinkError = kErrorCodeBasePCore,
+    kZTaskErrorCodeLinkError = kErrorCodeBaseZTask,
     kZTaskErrorCodeTaskStateError,
     kZTaskErrorCodeReturnValAlreadyGet,
     kZTaskErrorCodeTaskAlreadyExist,

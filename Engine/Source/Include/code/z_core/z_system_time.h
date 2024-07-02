@@ -33,8 +33,10 @@ class CORE_DLLAPI ZSystemTime : public ZObject {
 
 public:
     static ZSystemTime& Instance() noexcept;
+    static const ZSystemTime& StartTimeInstance() noexcept;
 
     ZSystemTime() noexcept;
+    ZSystemTime(TimeType _time_raw) noexcept;
     ~ZSystemTime() noexcept;
 
     NODISCARD FORCEINLINE Int32 Year() const noexcept { return year_; }
@@ -61,6 +63,8 @@ protected:
     using SuperType_ = ZObject;
 
 private:
+    static const ZSystemTime kStartSystemTime;
+    
     Int32 year_;
     Int32 month_;
     Int32 day_;

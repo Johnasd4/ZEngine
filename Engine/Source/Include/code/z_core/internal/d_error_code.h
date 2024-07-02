@@ -34,6 +34,7 @@ inline constexpr ReturnType kErrorCodeBaseTUniqueLock = kErrorCodeBasePCore + 0x
 inline constexpr ReturnType kErrorCodeBaseZThreadPool = kErrorCodeBasePCore + 0x500u;
 inline constexpr ReturnType kErrorCodeBaseFMemoryPool = kErrorCodeBasePCore + 0x600u;
 inline constexpr ReturnType kErrorCodeBaseZTask = kErrorCodeBasePCore + 0x700u;
+inline constexpr ReturnType kErrorCodeBaseZFileList = kErrorCodeBasePCore + 0x800u;
 
 }//zengine
 

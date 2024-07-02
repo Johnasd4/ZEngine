@@ -73,7 +73,12 @@ ZSystemTime& ZSystemTime::Instance() noexcept {
     return system_time;
 }
 
+const ZSystemTime& ZSystemTime::StartTimeInstance() noexcept {
+    return ZSystemTime::kStartSystemTime;
+}
+
 ZSystemTime::ZSystemTime() noexcept : SuperType_() { UpdateTime(); }
+ZSystemTime::ZSystemTime(TimeType _time_raw) noexcept : SuperType_() { UpdateTime(_time_raw); }
 ZSystemTime::~ZSystemTime() noexcept {}
 
 Void ZSystemTime::UpdateTime(TimeType _time_raw) noexcept {
@@ -156,5 +161,7 @@ Void ZSystemTime::UpdateTimeFast(TimeType _time_raw) noexcept {
         month_ = month + 1;
     }
 }
+
+const ZSystemTime ZSystemTime::kStartSystemTime = ZSystemTime();
 
 }//zengine

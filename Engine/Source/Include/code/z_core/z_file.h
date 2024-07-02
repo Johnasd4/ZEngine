@@ -29,7 +29,7 @@ namespace zengine {
 namespace error_code {
 
 enum ZFileErrorCode : ReturnType {
-    kZFileErrorCodeLinkError = kErrorCodeBasePCore,
+    kZFileErrorCodeLinkError = kErrorCodeBaseZFile,
     kZFileErrorCodeOpenFileFailed,
     kZFileErrorCodeCloseFileFailed,
     kZFileErrorCodeNoFileOpened,
@@ -80,29 +80,29 @@ public:
     static constexpr Char kOpenTypeAppendPlusBin[] = "ab+";
 
     /*Read only.*/
-    static constexpr WChar kOpenTypeReadT[] = L"r";
+    static constexpr WChar kOpenTypeReadW[] = L"r";
     /*Write only, will clear the file.*/
-    static constexpr WChar kOpenTypeWriteT[] = L"w";
+    static constexpr WChar kOpenTypeWriteW[] = L"w";
     /*Append at the end of the file.*/
-    static constexpr WChar kOpenTypeAppendT[] = L"a";
+    static constexpr WChar kOpenTypeAppendW[] = L"a";
     /*Read and write.*/
-    static constexpr WChar kOpenTypeReadPlusT[] = L"r+";
+    static constexpr WChar kOpenTypeReadPlusW[] = L"r+";
     /*Read and write, will clear the file.*/
-    static constexpr WChar kOpenTypeWritePlusT[] = L"w+";
+    static constexpr WChar kOpenTypeWritePlusW[] = L"w+";
     /*Read and write, starts at the end of the file.*/
-    static constexpr WChar kOpenTypeAppendPlusT[] = L"a+";
+    static constexpr WChar kOpenTypeAppendPlusW[] = L"a+";
     /*Read only.(binary file)*/
-    static constexpr WChar kOpenTypeReadBinT[] = L"rb";
+    static constexpr WChar kOpenTypeReadBinW[] = L"rb";
     /*Write only, will clear the file.(binary file)*/
-    static constexpr WChar kOpenTypeWriteBinT[] = L"wb";
+    static constexpr WChar kOpenTypeWriteBinW[] = L"wb";
     /*Append at the end of the file.(binary file)*/
-    static constexpr WChar kOpenTypeAppendBinT[] = L"ab";
+    static constexpr WChar kOpenTypeAppendBinW[] = L"ab";
     /*Read and write.(binary file)*/
-    static constexpr WChar kOpenTypeReadPlusBinT[] = L"rb+";
+    static constexpr WChar kOpenTypeReadPlusBinW[] = L"rb+";
     /*Read and write, will clear the file.(binary file)*/
-    static constexpr WChar kOpenTypeWritePlusBinT[] = L"wb+";
+    static constexpr WChar kOpenTypeWritePlusBinW[] = L"wb+";
     /*Read and write, starts at the end of the file.(binary file)*/
-    static constexpr WChar kOpenTypeAppendPlusBinT[] = L"ab+";
+    static constexpr WChar kOpenTypeAppendPlusBinW[] = L"ab+";
     /*The max length of the file name.*/
     static constexpr IndexType kFileNameLength = 512;
 
