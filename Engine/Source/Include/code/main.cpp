@@ -69,7 +69,7 @@ struct TMemoryBlockBase {
 };
 
 int main() {
-    Z_LOG_ERROR(1, 2, "TEST%d%d%d%d%d", 3, 4, 5, 6, 7);
+    Z_LOG_ERROR(1, 2, "TEST%d%d%d%d%x", 3, 4, 5, 6, ~7);
     Z_LOG_ERROR(1, 2, "TEST%d%d%d%d%d", 3, 4, 5, 6, 7);
     Z_LOG_TRACE(L"TEST%d%d%d%d%d", 3, 4, 5, 6, 7);
     Z_LOG_MESSAGE(L"Message...");
