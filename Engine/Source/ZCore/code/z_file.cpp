@@ -334,5 +334,4 @@ NODISCARD ReturnType ZFile::Tell(Int32* _pos_ptr) noexcept {
     return ret_val;
 }
 
-
 }//zengine

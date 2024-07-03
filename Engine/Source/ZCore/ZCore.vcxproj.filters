@@ -57,6 +57,12 @@
     <ClCompile Include="code\z_task.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="code\f_file_system.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\z_string.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\memory_pool\z_memory_pool_base.h">

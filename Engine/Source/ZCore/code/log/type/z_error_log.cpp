@@ -53,12 +53,12 @@ Void ZErrorLog::GenerateLogString(const ZLog* _log_ptr, OutputString_* _output_s
     static ZSystemTime system_time;
     ZErrorLog& err_log = *(ZErrorLog*)_log_ptr;
     system_time.UpdateTimeFast(err_log.raw_time_);
-    _output_str_ptr->c_str_.SetString(
+    _output_str_ptr->str_.SetString(
         "--------------------------------------------------------------------------------\nTime: %04d/%02d/%02d-%02d:%02d:%02d\nProject: %s\nFile: %s\nFunction: %s\nLine: %d\nError Code: 0x%x\nLink Code: 0x%x\nMessage: %s\n--------------------------------------------------------------------------------",
         system_time.Year(), system_time.Month(), system_time.Day(),
         system_time.Hour(), system_time.Min(), system_time.Sec(),
         err_log.err_project_, err_log.err_file_, err_log.err_func_, err_log.err_line_, 
-        err_log.err_code_, err_log.link_code_, err_log.LogMsgPtr().c_str_.DataPtr());
+        err_log.err_code_, err_log.link_code_, err_log.LogMsgPtr().str_.DataPtr());
 }
 
 static ZFile& GetLogFile() noexcept {
@@ -84,14 +84,14 @@ Void ZErrorLog::FileOutputLogString(const ZLog* _log_ptr, const ZLog::OutputStri
     static ZFile& file = GetLogFile();
     ReturnType link_code = kOK;
 
-    link_code = file.Print("%s\n", _output_str.c_str_.DataPtr());
+    link_code = file.Print("%s\n", _output_str.str_.DataPtr());
     if (link_code != kOK) {
         Z_LOG_ERROR(error_code::kMLogErrorCodeLinkError, link_code, "ZFile::Print() link error!");
     }
 }
 
 Void ZErrorLog::ConsoleOutputLogString(const ZLog* _log_ptr, const ZLog::OutputString_& _output_str) noexcept {
-    console::PrintError("%s\n", _output_str.c_str_.DataPtr());
+    console::PrintError("%s\n", _output_str.str_.DataPtr());
 }
 
 }//log

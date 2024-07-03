@@ -34,12 +34,12 @@ CORE_DLLAPI ZLog::ZLog() noexcept : SuperType_(), log_msg_str_() {}
 CORE_DLLAPI ZLog::ZLog(const Char* _format, ...) noexcept : SuperType_() {
     ArgListType args;
     va_start(args, _format);
-    vsprintf(log_msg_str_.c_str_.DataPtr(), _format, args);
+    vsprintf(log_msg_str_.str_.DataPtr(), _format, args);
     va_end(args);
 }
 
 CORE_DLLAPI ZLog::ZLog(const Char* _format, ArgListType _args) noexcept : SuperType_() {
-    vsprintf(log_msg_str_.c_str_.DataPtr(), _format, _args);
+    vsprintf(log_msg_str_.str_.DataPtr(), _format, _args);
 }
 
 CORE_DLLAPI ZLog::ZLog(const WChar* _format, ...) noexcept : SuperType_() {
@@ -56,9 +56,9 @@ CORE_DLLAPI ZLog::ZLog(const WChar* _format, ArgListType _args) noexcept : Super
 CORE_DLLAPI Void ZLog::GenerateLogString(const ZLog* _log_ptr, OutputString_* _output_str_ptr) noexcept {
     //copy the full msg.
     memcpy(
-        &(_output_str_ptr->c_str_), 
-        &(_log_ptr->log_msg_str_.c_str_), 
-        sizeof(_log_ptr->log_msg_str_.c_str_.Capacity()));
+        &(_output_str_ptr->str_), 
+        &(_log_ptr->log_msg_str_.str_), 
+        sizeof(_log_ptr->log_msg_str_.str_.Capacity()));
 }
 
 static ZFile& GetLogFile() noexcept {

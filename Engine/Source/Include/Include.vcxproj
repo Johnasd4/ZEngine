@@ -21,6 +21,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\z_core.h" />
+    <ClInclude Include="code\z_core\f_file_system.h" />
     <ClInclude Include="code\z_core\f_console.h" />
     <ClInclude Include="code\z_core\f_memory_pool.h" />
     <ClInclude Include="code\z_core\internal\d_concept.h" />
@@ -53,7 +54,6 @@
     <ClInclude Include="code\z_core\z_condition_variable.h" />
     <ClInclude Include="code\z_core\z_cs_mutex.h" />
     <ClInclude Include="code\z_core\z_file.h" />
-    <ClInclude Include="code\z_core\z_file_list.h" />
     <ClInclude Include="code\z_core\z_mutex.h" />
     <ClInclude Include="code\z_core\z_object.h" />
     <ClInclude Include="code\z_core\z_sem_mutex.h" />

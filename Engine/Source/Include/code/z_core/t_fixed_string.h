@@ -43,11 +43,11 @@ public:
     using ConstReverseIterator_ = STDArray_::const_reverse_iterator;
     using InitializerList_ = std::initializer_list<_CharType>;
 
-    FORCEINLINE constexpr TFixedString() noexcept : SuperType_(), string_() {}
-    FORCEINLINE constexpr TFixedString(const TFixedString& _array) noexcept : SuperType_(), string_(_array.string_) {}
+    FORCEINLINE constexpr TFixedString() noexcept : SuperType_(), str_() {}
+    FORCEINLINE constexpr TFixedString(const TFixedString& _array) noexcept : SuperType_(), str_(_array.str_) {}
     FORCEINLINE constexpr TFixedString(TFixedString&& _array) noexcept 
-        : SuperType_(), string_(std::move(_array.string_)) {}
-    FORCEINLINE TFixedString(InitializerList_ _init_list) noexcept : SuperType_(), string_(_init_list) {}
+        : SuperType_(), str_(std::move(_array.str_)) {}
+    FORCEINLINE TFixedString(InitializerList_ _init_list) noexcept : SuperType_(), str_(_init_list) {}
     template<typename... _ArgsType>
     FORCEINLINE constexpr TFixedString(_CharType* _format, _ArgsType&&... _args) noexcept : SuperType_() {
         if constexpr (kSameType<_CharType, Char>) {
@@ -71,30 +71,30 @@ public:
         return strcmp(DataPtr(), _str.DataPtr()) != 0;
     }
      
-    NODISCARD FORCEINLINE constexpr _CharType& operator[](IndexType _index) noexcept { return string_[_index]; }
+    NODISCARD FORCEINLINE constexpr _CharType& operator[](IndexType _index) noexcept { return str_[_index]; }
     NODISCARD FORCEINLINE constexpr const _CharType& operator[](IndexType _index) const noexcept { 
-        return string_[_index]; 
+        return str_[_index]; 
     }
 
-    NODISCARD FORCEINLINE constexpr _CharType& At(IndexType _index) noexcept { return string_.at(_index); }
-    NODISCARD FORCEINLINE constexpr const _CharType& At(IndexType _index) const noexcept { return string_.at(_index); } 
-    NODISCARD FORCEINLINE constexpr _CharType* DataPtr() noexcept { return string_.data(); }
-    NODISCARD FORCEINLINE constexpr const _CharType* DataPtr() const noexcept { return string_.data(); }
+    NODISCARD FORCEINLINE constexpr _CharType& At(IndexType _index) noexcept { return str_.at(_index); }
+    NODISCARD FORCEINLINE constexpr const _CharType& At(IndexType _index) const noexcept { return str_.at(_index); } 
+    NODISCARD FORCEINLINE constexpr _CharType* DataPtr() noexcept { return str_.data(); }
+    NODISCARD FORCEINLINE constexpr const _CharType* DataPtr() const noexcept { return str_.data(); }
 
     NODISCARD FORCEINLINE static constexpr IndexType Capacity() noexcept { return kCapacity; }
 
-    NODISCARD FORCEINLINE Iterator_ Begin() noexcept { return string_.begin(); }
-    NODISCARD FORCEINLINE ConstIterator_ Begin() const noexcept { return string_.begin(); }
-    NODISCARD FORCEINLINE ConstIterator_ ConstBegin() const noexcept { return string_.cbegin(); }
-    NODISCARD FORCEINLINE ReverseIterator_ ReverseBegin() noexcept { return string_.rbegin(); }
-    NODISCARD FORCEINLINE ConstReverseIterator_ ReverseBegin() const noexcept { return string_.rbegin(); }
-    NODISCARD FORCEINLINE ConstReverseIterator_ ConstReverseBegin() const noexcept { return string_.crbegin(); }
-    NODISCARD FORCEINLINE Iterator_ End() noexcept { return string_.end(); }
-    NODISCARD FORCEINLINE ConstIterator_ End() const noexcept { return string_.end(); }
-    NODISCARD FORCEINLINE ConstIterator_ ConstEnd() const noexcept { return string_.cend(); }
-    NODISCARD FORCEINLINE ReverseIterator_ ReverseEnd() noexcept { return string_.rend(); }
-    NODISCARD FORCEINLINE ConstReverseIterator_ ReverseEnd() const noexcept { return string_.rend(); }
-    NODISCARD FORCEINLINE ConstReverseIterator_ ConstReverseEnd() const noexcept { return string_.crend(); }
+    NODISCARD FORCEINLINE Iterator_ Begin() noexcept { return str_.begin(); }
+    NODISCARD FORCEINLINE ConstIterator_ Begin() const noexcept { return str_.begin(); }
+    NODISCARD FORCEINLINE ConstIterator_ ConstBegin() const noexcept { return str_.cbegin(); }
+    NODISCARD FORCEINLINE ReverseIterator_ ReverseBegin() noexcept { return str_.rbegin(); }
+    NODISCARD FORCEINLINE ConstReverseIterator_ ReverseBegin() const noexcept { return str_.rbegin(); }
+    NODISCARD FORCEINLINE ConstReverseIterator_ ConstReverseBegin() const noexcept { return str_.crbegin(); }
+    NODISCARD FORCEINLINE Iterator_ End() noexcept { return str_.end(); }
+    NODISCARD FORCEINLINE ConstIterator_ End() const noexcept { return str_.end(); }
+    NODISCARD FORCEINLINE ConstIterator_ ConstEnd() const noexcept { return str_.cend(); }
+    NODISCARD FORCEINLINE ReverseIterator_ ReverseEnd() noexcept { return str_.rend(); }
+    NODISCARD FORCEINLINE ConstReverseIterator_ ReverseEnd() const noexcept { return str_.rend(); }
+    NODISCARD FORCEINLINE ConstReverseIterator_ ConstReverseEnd() const noexcept { return str_.crend(); }
 
     template<typename... _ArgsType>
     FORCEINLINE constexpr Void SetString(const _CharType* _format, _ArgsType&&... _args) noexcept {
@@ -113,14 +113,14 @@ public:
             vswprintf(DataPtr(), _format, _args);
         }
     }
-    FORCEINLINE Void Fill(const _CharType& _val) noexcept { string_.fill(_val); }
-    FORCEINLINE Void Swap(TFixedString& _array) noexcept { string_.swap(_array); }
+    FORCEINLINE Void Fill(const _CharType& _val) noexcept { str_.fill(_val); }
+    FORCEINLINE Void Swap(TFixedString& _array) noexcept { str_.swap(_array); }
 
 protected:
     using SuperType_ = ZObject;
 
 private:
-    STDArray_ string_;
+    STDArray_ str_;
 };
 
 }//internal
@@ -133,17 +133,17 @@ using TWFixedString = internal::TFixedString<WChar, kCapacity>;
 template <IndexType kCapacity>
 union FixedStringUnion {
 public:
-    FORCEINLINE FixedStringUnion() noexcept : c_str_() {}
+    FORCEINLINE FixedStringUnion() noexcept : str_() {}
     FORCEINLINE FixedStringUnion(const FixedStringUnion& _string) noexcept {
-        c_str_ = _string.c_str_;
+        str_ = _string.str_;
     }
     FORCEINLINE ~FixedStringUnion() noexcept {}
 
     FORCEINLINE FixedStringUnion& operator=(const FixedStringUnion& _string) noexcept {
-        c_str_ = _string.c_str_;
+        str_ = _string.str_;
     }
 
-    TFixedString<kCapacity / sizeof(Char)> c_str_;
+    TFixedString<kCapacity / sizeof(Char)> str_;
     TWFixedString<kCapacity / sizeof(WChar)> w_str_;
 };
 

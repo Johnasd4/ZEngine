@@ -40,6 +40,79 @@
 #define PROJECT_NAME_C_STRING "Unknown"
 #endif
 
+/*
+    Checks the condition, returns if false.
+*/
+#define Z_CHECK(_condition, _err_code, ...)\
+    if(_condition) {\
+        zengine::log::LogError(\
+            ::time(nullptr),\
+            PROJECT_NAME_C_STRING,\
+            __FILE__,\
+            __func__,\
+            __LINE__,\
+            _err_code,\
+            0,\
+            __VA_ARGS__);\
+        return _err_code;\
+    }
+
+/*
+    Log error.
+*/
+#define Z_LOG_ERROR(_err_code, _link_code, ...)\
+    zengine::log::LogError(\
+        ::time(nullptr),\
+        PROJECT_NAME_C_STRING,\
+        __FILE__,\
+        __func__,\
+        __LINE__,\
+        _err_code,\
+        _link_code,\
+        __VA_ARGS__);
+
+/*
+    Log trace.
+*/
+#define Z_LOG_TRACE(...)\
+    zengine::log::LogTrace(::time(nullptr), PROJECT_NAME_T_STRING, __VA_ARGS__);
+
+/*
+    Log message.
+*/
+#define Z_LOG_MESSAGE(...)\
+    zengine::log::LogInfo(::time(nullptr), kLogInfoMessage, __VA_ARGS__);
+
+/*
+    Log start.
+*/
+#define Z_LOG_START(...)\
+    zengine::log::LogInfo(::time(nullptr), kLogInfoStart, __VA_ARGS__);
+
+/*
+    Log process.
+*/
+#define Z_LOG_PROCESS(...)\
+    zengine::log::LogInfo(::time(nullptr), kLogInfoProcess, __VA_ARGS__);
+
+/*
+    Log finish.
+*/
+#define Z_LOG_FINISH(...)\
+    zengine::log::LogInfo(::time(nullptr), kLogInfoFinish, __VA_ARGS__);
+
+/*
+    Log success.
+*/
+#define Z_LOG_SUCCESS(...)\
+    zengine::log::LogInfo(::time(nullptr), kLogInfoSuccess, __VA_ARGS__);
+
+/*
+    Log failure.
+*/
+#define Z_LOG_FAILURE(...)\
+    zengine::log::LogInfo(::time(nullptr), kLogInfoFailure, __VA_ARGS__);
+
 namespace zengine {
 
 namespace error_code {
@@ -200,79 +273,5 @@ CORE_DLLAPI Void UnregisterLogServerOutputFunction(
 
 }//log
 }//zengine
-
-/*
-    Checks the condition, returns if false.
-*/
-#define Z_CHECK(_condition, _err_code, ...)\
-    if(_condition) {\
-        zengine::log::LogError(\
-            ::time(nullptr),\
-            PROJECT_NAME_C_STRING,\
-            __FILE__,\
-            __func__,\
-            __LINE__,\
-            _err_code,\
-            0,\
-            __VA_ARGS__);\
-        return _err_code;\
-    }
-
-/*
-    Log error.
-*/
-#define Z_LOG_ERROR(_err_code, _link_code, ...)\
-    zengine::log::LogError(\
-        ::time(nullptr),\
-        PROJECT_NAME_C_STRING,\
-        __FILE__,\
-        __func__,\
-        __LINE__,\
-        _err_code,\
-        _link_code,\
-        __VA_ARGS__);
-
-/*
-    Log trace.
-*/
-#define Z_LOG_TRACE(...)\
-    zengine::log::LogTrace(::time(nullptr), PROJECT_NAME_T_STRING, __VA_ARGS__);
-
-/*
-    Log message.
-*/
-#define Z_LOG_MESSAGE(...)\
-    zengine::log::LogInfo(::time(nullptr), kLogInfoMessage, __VA_ARGS__);
-
-/*
-    Log start.
-*/
-#define Z_LOG_START(...)\
-    zengine::log::LogInfo(::time(nullptr), kLogInfoStart, __VA_ARGS__);
-
-/*
-    Log process.
-*/
-#define Z_LOG_PROCESS(...)\
-    zengine::log::LogInfo(::time(nullptr), kLogInfoProcess, __VA_ARGS__);
-
-/*
-    Log finish.
-*/
-#define Z_LOG_FINISH(...)\
-    zengine::log::LogInfo(::time(nullptr), kLogInfoFinish, __VA_ARGS__);
-
-/*
-    Log success.
-*/
-#define Z_LOG_SUCCESS(...)\
-    zengine::log::LogInfo(::time(nullptr), kLogInfoSuccess, __VA_ARGS__);
-
-/*
-    Log failure.
-*/
-#define Z_LOG_FAILURE(...)\
-    zengine::log::LogInfo(::time(nullptr), kLogInfoFailure, __VA_ARGS__);
-
 
 #endif // !Z_CORE_M_LOG_H_
