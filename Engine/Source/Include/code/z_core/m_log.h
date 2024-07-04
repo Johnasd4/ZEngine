@@ -36,8 +36,11 @@
 #define USE_FILE_LOG true
 #endif
 
-#ifndef PROJECT_NAME_C_STRING
-#define PROJECT_NAME_C_STRING "Unknown"
+#ifndef PROJECT_NAME_STRING
+#define PROJECT_NAME_STRING "Unknown"
+#endif
+#ifndef PROJECT_NAME_W_STRING
+#define PROJECT_NAME_W_STRING L"Unknown"
 #endif
 
 /*
@@ -47,7 +50,7 @@
     if(_condition) {\
         zengine::log::LogError(\
             ::time(nullptr),\
-            PROJECT_NAME_C_STRING,\
+            PROJECT_NAME_W_STRING,\
             __FILE__,\
             __func__,\
             __LINE__,\
@@ -63,7 +66,7 @@
 #define Z_LOG_ERROR(_err_code, _link_code, ...)\
     zengine::log::LogError(\
         ::time(nullptr),\
-        PROJECT_NAME_C_STRING,\
+        PROJECT_NAME_W_STRING,\
         __FILE__,\
         __func__,\
         __LINE__,\
@@ -75,7 +78,7 @@
     Log trace.
 */
 #define Z_LOG_TRACE(...)\
-    zengine::log::LogTrace(::time(nullptr), PROJECT_NAME_T_STRING, __VA_ARGS__);
+    zengine::log::LogTrace(::time(nullptr), PROJECT_NAME_W_STRING, __VA_ARGS__);
 
 /*
     Log message.
@@ -193,13 +196,13 @@ private:
 */
 CORE_DLLAPI Void LogError(
     TimeType _raw_time,
-    const Char* _err_project,
+    const WChar* _err_project,
     const Char* _err_file,
     const Char* _err_func,
     Int32 _err_line,
     ReturnType _err_code,
     ReturnType _link_code,
-    const Char* _format,
+    const WChar* _format,
     ...
 ) noexcept;
 

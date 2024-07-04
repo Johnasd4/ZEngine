@@ -48,13 +48,13 @@ public:
 
     static Void LogError(
         TimeType _raw_time,
-        const Char* _err_project,
+        const WChar* _err_project,
         const Char* _err_file,
         const Char* _err_func,
         Int32 _err_line,
         ReturnType _err_code,
         ReturnType _link_code,
-        const Char* _format,
+        const WChar* _format,
         ArgListType _args
     ) noexcept;
 

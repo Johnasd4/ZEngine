@@ -45,7 +45,7 @@ CORE_DLLAPI NODISCARD Void* ApplyMemory(MemoryType _size) noexcept {
     }
     else {
         Z_LOG_ERROR(error_code::kFMemoryPoolErrorCodeMemorySizeOutOfBound, 0, 
-                    "Memory size out of bound! size: %d", _size);
+                    L"Memory size out of bound! size: %d", _size);
         //TODO(Johnasd4):Apply memory from other memory pools.
 
         exit(EXIT_FAILURE);
@@ -60,7 +60,7 @@ CORE_DLLAPI NODISCARD Void* ApplyMemory(MemoryType _size, MemoryType* _memory_si
     }
     else{
         Z_LOG_ERROR(error_code::kFMemoryPoolErrorCodeMemorySizeOutOfBound, 0, 
-                    "Memory size out of bound! size: %d", _size);
+                    L"Memory size out of bound! size: %d", _size);
         //TODO(Johnasd4):Apply memory from other memory pools.
         exit(EXIT_FAILURE);
     }
@@ -83,7 +83,7 @@ CORE_DLLAPI NODISCARD Bool CheckMemory(Void* _memory_ptr, MemoryType _size) noex
     //TODO(Johnasd4):Check memory to other memory pools.
     default:
         Z_LOG_ERROR(error_code::kFMemoryPoolErrorCodeMemorySizeOutOfBound, 0, 
-                    "Memory size out of bound! size: %d", _size);
+                    L"Memory size out of bound! size: %d", _size);
         exit(EXIT_FAILURE);
         break;
     }
@@ -106,7 +106,7 @@ CORE_DLLAPI NODISCARD Bool CheckMemory(Void* _memory_ptr, MemoryType _size, Memo
         //TODO(Johnasd4):Check memory to other memory pools.
     default:
         Z_LOG_ERROR(
-            error_code::kFMemoryPoolErrorCodeMemorySizeOutOfBound, 0, "Memory size out of bound! size: %d", _size);
+            error_code::kFMemoryPoolErrorCodeMemorySizeOutOfBound, 0, L"Memory size out of bound! size: %d", _size);
         exit(EXIT_FAILURE);
         break;
     }
@@ -120,7 +120,7 @@ CORE_DLLAPI NODISCARD MemoryType CalculateMemory(MemoryType _size) noexcept {
     }
     else {
         Z_LOG_ERROR(
-            error_code::kFMemoryPoolErrorCodeMemorySizeOutOfBound, 0, "Memory size out of bound! size: %d", _size);
+            error_code::kFMemoryPoolErrorCodeMemorySizeOutOfBound, 0, L"Memory size out of bound! size: %d", _size);
         //TODO(Johnasd4):Apply memory from other memory pools.
         exit(EXIT_FAILURE);
     }
@@ -146,7 +146,7 @@ CORE_DLLAPI Void ReleaseMemory(Void* _memory_ptr) noexcept {
         Z_LOG_ERROR(
             error_code::kFMemoryPoolErrorCodePoolTypeUnknown, 
             0, 
-            "Memory pool type unknown! size: %d", 
+            L"Memory pool type unknown! size: %d", 
             owner_memory_pool_ptr->PoolType());
         exit(EXIT_FAILURE);
         break;

@@ -27,12 +27,12 @@ namespace zengine {
 NODISCARD ReturnType ZFile::Read(Void* _data_ptr, SizeType _data_size) noexcept {
     ReturnType ret_val = kOK;
 
-    Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, "No file opened!");
+    Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, L"No file opened!");
 
     SizeType read_size = fread(_data_ptr, _data_size, 1LL, file_ptr_);
     if (read_size != _data_size) {
         ret_val = error_code::kZFileErrorCodeReadFailed;
-        Z_LOG_ERROR(ret_val, 0, "Failed to read file! data_size: %lld, read_size: %lld", _data_size, read_size);
+        Z_LOG_ERROR(ret_val, 0, L"Failed to read file! data_size: %lld, read_size: %lld", _data_size, read_size);
         return ret_val;
     }
 
@@ -42,12 +42,12 @@ NODISCARD ReturnType ZFile::Read(Void* _data_ptr, SizeType _data_size) noexcept 
 NODISCARD ReturnType ZFile::Write(Void* _data_ptr, SizeType _data_size) noexcept {
     ReturnType ret_val = kOK;
 
-    Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, "No file opened!");
+    Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, L"No file opened!");
 
     SizeType write_size = fwrite(_data_ptr, _data_size, 1LL, file_ptr_);
     if (write_size != _data_size) {
         ret_val = error_code::kZFileErrorCodeWriteFailed;
-        Z_LOG_ERROR(ret_val, 0, "Failed to write file! data_size: %lld, write_size: %lld", _data_size, write_size);
+        Z_LOG_ERROR(ret_val, 0, L"Failed to write file! data_size: %lld, write_size: %lld", _data_size, write_size);
         return ret_val;
     }
 
@@ -57,11 +57,11 @@ NODISCARD ReturnType ZFile::Write(Void* _data_ptr, SizeType _data_size) noexcept
 NODISCARD ReturnType ZFile::Scan(const Char* _format, ArgListType _args) noexcept {
     ReturnType ret_val = kOK;
 
-    Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, "No file opened!");
+    Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, L"No file opened!");
 
     if (vfscanf(file_ptr_, _format, _args) == EOF) {
         ret_val = error_code::kZFileErrorCodeReadFailed;
-        Z_LOG_ERROR(ret_val, 0, "Failed to scan file!");
+        Z_LOG_ERROR(ret_val, 0, L"Failed to scan file!");
         return ret_val;
     }
 
@@ -71,7 +71,7 @@ NODISCARD ReturnType ZFile::Scan(const Char* _format, ArgListType _args) noexcep
 NODISCARD ReturnType ZFile::Scan(const Char* _format, ...) noexcept {
     ReturnType ret_val = kOK;
 
-    Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, "No file opened!");
+    Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, L"No file opened!");
 
     ArgListType args;
     va_start(args, _format);
@@ -79,7 +79,7 @@ NODISCARD ReturnType ZFile::Scan(const Char* _format, ...) noexcept {
     if (vfscanf(file_ptr_, _format, args) == EOF) {
         va_end(args);
         ret_val = error_code::kZFileErrorCodeReadFailed;
-        Z_LOG_ERROR(ret_val, 0, "Failed to scan file!");
+        Z_LOG_ERROR(ret_val, 0, L"Failed to scan file!");
         return ret_val;
     }
     va_end(args);
@@ -90,11 +90,11 @@ NODISCARD ReturnType ZFile::Scan(const Char* _format, ...) noexcept {
 NODISCARD ReturnType ZFile::Scan(const WChar* _format, ArgListType _args) noexcept {
     ReturnType ret_val = kOK;
 
-    Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, "No file opened!");
+    Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, L"No file opened!");
 
     if (vfwscanf(file_ptr_, _format, _args) == EOF) {
         ret_val = error_code::kZFileErrorCodeReadFailed;
-        Z_LOG_ERROR(ret_val, 0, "Failed to scan file!");
+        Z_LOG_ERROR(ret_val, 0, L"Failed to scan file!");
         return ret_val;
     }
 
@@ -104,7 +104,7 @@ NODISCARD ReturnType ZFile::Scan(const WChar* _format, ArgListType _args) noexce
 NODISCARD ReturnType ZFile::Scan(const WChar* _format, ...) noexcept {
     ReturnType ret_val = kOK;
 
-    Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, "No file opened!");
+    Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, L"No file opened!");
 
     ArgListType args;
     va_start(args, _format);
@@ -112,7 +112,7 @@ NODISCARD ReturnType ZFile::Scan(const WChar* _format, ...) noexcept {
     if (vfwscanf(file_ptr_, _format, args) == EOF) {
         va_end(args);
         ret_val = error_code::kZFileErrorCodeReadFailed;
-        Z_LOG_ERROR(ret_val, 0, "Failed to scan file!");
+        Z_LOG_ERROR(ret_val, 0, L"Failed to scan file!");
         return ret_val;
     }
     va_end(args);
@@ -123,11 +123,11 @@ NODISCARD ReturnType ZFile::Scan(const WChar* _format, ...) noexcept {
 NODISCARD ReturnType ZFile::Print(const Char* _format, ArgListType _args) noexcept {
     ReturnType ret_val = kOK;
 
-    Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, "No file opened!");
+    Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, L"No file opened!");
 
     if (vfprintf(file_ptr_, _format, _args) < 0) {
         ret_val = error_code::kZFileErrorCodeWriteFailed;
-        Z_LOG_ERROR(ret_val, 0, "Failed to print file!");
+        Z_LOG_ERROR(ret_val, 0, L"Failed to print file!");
         return ret_val;
     }
 
@@ -137,7 +137,7 @@ NODISCARD ReturnType ZFile::Print(const Char* _format, ArgListType _args) noexce
 NODISCARD ReturnType ZFile::Print(const Char* _format, ...) noexcept {
     ReturnType ret_val = kOK;
 
-    Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, "No file opened!");
+    Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, L"No file opened!");
 
     ArgListType args;
     va_start(args, _format);
@@ -145,7 +145,7 @@ NODISCARD ReturnType ZFile::Print(const Char* _format, ...) noexcept {
     if (vfprintf(file_ptr_, _format, args) < 0) {
         va_end(args);
         ret_val = error_code::kZFileErrorCodeWriteFailed;
-        Z_LOG_ERROR(ret_val, 0, "Failed to print file!");
+        Z_LOG_ERROR(ret_val, 0, L"Failed to print file!");
         return ret_val;
     }
     va_end(args);
@@ -156,11 +156,11 @@ NODISCARD ReturnType ZFile::Print(const Char* _format, ...) noexcept {
 NODISCARD ReturnType ZFile::Print(const WChar* _format, ArgListType _args) noexcept {
     ReturnType ret_val = kOK;
 
-    Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, "No file opened!");
+    Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, L"No file opened!");
 
     if (vfwprintf(file_ptr_, _format, _args) < 0) {
         ret_val = error_code::kZFileErrorCodeWriteFailed;
-        Z_LOG_ERROR(ret_val, 0, "Failed to print file!");
+        Z_LOG_ERROR(ret_val, 0, L"Failed to print file!");
         return ret_val;
     }
 
@@ -171,7 +171,7 @@ NODISCARD ReturnType ZFile::Print(const WChar* _format, ArgListType _args) noexc
 NODISCARD ReturnType ZFile::Print(const WChar* _format, ...) noexcept {
     ReturnType ret_val = kOK;
 
-    Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, "No file opened!");
+    Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, L"No file opened!");
 
     ArgListType args;
     va_start(args, _format);
@@ -179,7 +179,7 @@ NODISCARD ReturnType ZFile::Print(const WChar* _format, ...) noexcept {
     if (vfwprintf(file_ptr_, _format, args) < 0) {
         va_end(args);
         ret_val = error_code::kZFileErrorCodeWriteFailed;
-        Z_LOG_ERROR(ret_val, 0, "Failed to print file!");
+        Z_LOG_ERROR(ret_val, 0, L"Failed to print file!");
         return ret_val;
     }
     va_end(args);
@@ -200,7 +200,7 @@ NODISCARD ReturnType ZFile::CreatePath(const Char* _path_dir) noexcept {
 
     if (!CreateDirectoryA(_path_dir, NULL) && GetLastError() != ERROR_ALREADY_EXISTS) {
         ret_val = error_code::kZFileErrorCodeCreatePathFailed;
-        Z_LOG_ERROR(ret_val, 0, "Create path failed! path_dir: %s", _path_dir);
+        Z_LOG_ERROR(ret_val, 0, L"Create path failed! path_dir: %s", _path_dir);
         return ret_val;
     }
     return ret_val;
@@ -211,7 +211,7 @@ NODISCARD ReturnType ZFile::CreatePath(const WChar* _path_dir) noexcept {
 
     if (!CreateDirectoryW(_path_dir, NULL) && GetLastError() != ERROR_ALREADY_EXISTS) {
         ret_val = error_code::kZFileErrorCodeCreatePathFailed;
-        Z_LOG_ERROR(ret_val, 0, "Create path failed! path_dir: %s", _path_dir);
+        Z_LOG_ERROR(ret_val, 0, L"Create path failed! path_dir: %s", _path_dir);
         return ret_val;
     }
     return ret_val;
@@ -220,12 +220,12 @@ NODISCARD ReturnType ZFile::CreatePath(const WChar* _path_dir) noexcept {
 NODISCARD ReturnType ZFile::Open(const Char* _file_dir, const Char* _open_type) noexcept {
     ReturnType ret_val = kOK;
 
-    Z_CHECK(file_ptr_ != nullptr, error_code::kZFileErrorCodeOtherFileOpened, "Another file is opened!");
+    Z_CHECK(file_ptr_ != nullptr, error_code::kZFileErrorCodeOtherFileOpened, L"Another file is opened!");
 
     file_ptr_ = fopen(_file_dir, _open_type);
     if (file_ptr_ == nullptr) {
         ret_val = error_code::kZFileErrorCodeOpenFileFailed;
-        Z_LOG_ERROR(ret_val, 0, "Open file failed! file_dir: %s, open_type: %s", _file_dir, _open_type);
+        Z_LOG_ERROR(ret_val, 0, L"Open file failed! file_dir: %s, open_type: %s", _file_dir, _open_type);
         return ret_val;
     }
 
@@ -235,12 +235,12 @@ NODISCARD ReturnType ZFile::Open(const Char* _file_dir, const Char* _open_type) 
 NODISCARD ReturnType ZFile::Open(const WChar* _file_dir, const WChar* _open_type) noexcept {
     ReturnType ret_val = kOK;
 
-    Z_CHECK(file_ptr_ != nullptr, error_code::kZFileErrorCodeOtherFileOpened, "Another file is opened!");
+    Z_CHECK(file_ptr_ != nullptr, error_code::kZFileErrorCodeOtherFileOpened, L"Another file is opened!");
 
     file_ptr_ = _wfopen(_file_dir, _open_type);
     if (file_ptr_ == nullptr) {
         ret_val = error_code::kZFileErrorCodeOpenFileFailed;
-        Z_LOG_ERROR(ret_val, 0, "Open file failed! file_dir: %s, open_type: %s", _file_dir, _open_type);
+        Z_LOG_ERROR(ret_val, 0, L"Open file failed! file_dir: %s, open_type: %s", _file_dir, _open_type);
         return ret_val;
     }
     
@@ -255,7 +255,7 @@ NODISCARD ReturnType ZFile::OpenSafe(const Char* _path_dir, const Char* _file_di
         link_code = CreatePath(_path_dir);
         if (link_code != kOK) {
             ret_val = error_code::kZFileErrorCodeLinkError;
-            Z_LOG_ERROR(ret_val, link_code, "ZFile::CreatePath() link error!");
+            Z_LOG_ERROR(ret_val, link_code, L"ZFile::CreatePath() link error!");
             return ret_val;
         }
     }
@@ -263,7 +263,7 @@ NODISCARD ReturnType ZFile::OpenSafe(const Char* _path_dir, const Char* _file_di
     link_code = Open(_file_dir, _open_type);
     if (link_code != kOK) {
         ret_val = error_code::kZFileErrorCodeLinkError;
-        Z_LOG_ERROR(ret_val, link_code, "ZFile::Open() link error!");
+        Z_LOG_ERROR(ret_val, link_code, L"ZFile::Open() link error!");
         return ret_val;
     }
 
@@ -279,7 +279,7 @@ NODISCARD ReturnType ZFile::OpenSafe(const WChar* _path_dir, const WChar* _file_
         link_code = CreatePath(_path_dir);
         if (link_code != kOK) {
             ret_val = error_code::kZFileErrorCodeLinkError;
-            Z_LOG_ERROR(ret_val, link_code, "ZFile::CreatePath() link error!");
+            Z_LOG_ERROR(ret_val, link_code, L"ZFile::CreatePath() link error!");
             return ret_val;
         }
     }
@@ -287,7 +287,7 @@ NODISCARD ReturnType ZFile::OpenSafe(const WChar* _path_dir, const WChar* _file_
     link_code = Open(_file_dir, _open_type);
     if (link_code != kOK) {
         ret_val = error_code::kZFileErrorCodeLinkError;
-        Z_LOG_ERROR(ret_val, link_code, "ZFile::Open() link error!");
+        Z_LOG_ERROR(ret_val, link_code, L"ZFile::Open() link error!");
         return ret_val;
     }
 
@@ -297,11 +297,11 @@ NODISCARD ReturnType ZFile::OpenSafe(const WChar* _path_dir, const WChar* _file_
 NODISCARD ReturnType ZFile::Close() noexcept {
     ReturnType ret_val = kOK;
 
-    Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, "No file opened!");
+    Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, L"No file opened!");
     
     if (fclose(file_ptr_) != 0) {
         ret_val = error_code::kZFileErrorCodeCloseFileFailed;
-        Z_LOG_ERROR(ret_val, 0, "Close file failed!");
+        Z_LOG_ERROR(ret_val, 0, L"Close file failed!");
         return ret_val;
     }
     
@@ -313,11 +313,11 @@ NODISCARD ReturnType ZFile::Close() noexcept {
 NODISCARD ReturnType ZFile::Seek(Int32 _offset, SeekType_ _seek_type) noexcept {
     ReturnType ret_val = kOK;
 
-    Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, "No file opened!");
+    Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, L"No file opened!");
 
     if (fseek(file_ptr_, _offset, _seek_type) != 0) {
         ret_val = error_code::kZFileErrorCodeCreatePathFailed;
-        Z_LOG_ERROR(ret_val, 0, "Failed to seek! offset: %d, seek_type: %d", _offset, _seek_type);
+        Z_LOG_ERROR(ret_val, 0, L"Failed to seek! offset: %d, seek_type: %d", _offset, _seek_type);
         return ret_val;
     }
 
@@ -327,7 +327,7 @@ NODISCARD ReturnType ZFile::Seek(Int32 _offset, SeekType_ _seek_type) noexcept {
 NODISCARD ReturnType ZFile::Tell(Int32* _pos_ptr) noexcept {
     ReturnType ret_val = kOK;
 
-    Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, "No file opened!");
+    Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCodeNoFileOpened, L"No file opened!");
 
     *_pos_ptr = ftell(file_ptr_);
 

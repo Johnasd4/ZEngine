@@ -40,11 +40,11 @@ CORE_DLLAPI NODISCARD ReturnType DeleteFileByPath(const WChar* _path) noexcept {
             link_code = string::WString2String(_path, &str_path);
             if (link_code != kOK) {
                 ret_val = error_code::kFFileSystemErrorCodeLinkError;
-                Z_LOG_ERROR(ret_val, link_code, "string::WString2String() link error!");
+                Z_LOG_ERROR(ret_val, link_code, L"string::WString2String() link error!");
                 return ret_val;
             }
             ret_val = error_code::kFFileSystemErrorCodeFileNotFound;
-            Z_LOG_ERROR(ret_val, 0, "File not found! path: %s", str_path.DataPtr());
+            Z_LOG_ERROR(ret_val, 0, L"File not found! path: %s", str_path.DataPtr());
             return ret_val;
         }
     }
@@ -53,11 +53,11 @@ CORE_DLLAPI NODISCARD ReturnType DeleteFileByPath(const WChar* _path) noexcept {
         link_code = string::WString2String(_path, &str_path);
         if (link_code != kOK) {
             ret_val = error_code::kFFileSystemErrorCodeLinkError;
-            Z_LOG_ERROR(ret_val, link_code, "string::WString2String() link error!");
+            Z_LOG_ERROR(ret_val, link_code, L"string::WString2String() link error!");
             return ret_val;
         }
         ret_val = error_code::kFFileSystemErrorCodeSystemError;
-        Z_LOG_ERROR(ret_val, 0, "System error! path: %s error msg: %s", str_path.DataPtr(), exception.what());
+        Z_LOG_ERROR(ret_val, 0, L"System error! path: %s error msg: %s", str_path.DataPtr(), exception.what());
         return ret_val;
     }
     return ret_val;
@@ -68,12 +68,12 @@ CORE_DLLAPI NODISCARD ReturnType GetFilesByPath(const WChar* _path, TList<ZWStri
     ReturnType link_code = kOK;
     try {
         if (std::filesystem::exists(_path) && std::filesystem::is_directory(_path)) {
-            for (const auto& entry : fs::directory_iterator(directory)) {
-                if (fs::is_regular_file(entry.path())) {
-                    std::cout << "File: " << entry.path().filename().string() << std::endl;
+            for (const auto& file : std::filesystem::directory_iterator(_path)) {
+                if (std::filesystem::is_regular_file(file.path())) {
+                    std::cout << "File: " << file.path().filename().string() << std::endl;
                 }
-                else if (fs::is_directory(entry.path())) {
-                    std::cout << "Directory: " << entry.path().filename().string() << std::endl;
+                else if (std::filesystem::is_directory(file.path())) {
+                    std::cout << "Directory: " << file.path().filename().string() << std::endl;
                 }
             }
         }
@@ -81,11 +81,11 @@ CORE_DLLAPI NODISCARD ReturnType GetFilesByPath(const WChar* _path, TList<ZWStri
             std::cerr << "The path specified is not a directory or does not exist." << std::endl;
         }
     }
-    catch (const fs::filesystem_error& e) {
-        std::cerr << "Filesystem error: " << e.what() << std::endl;
+    catch (const std::filesystem::filesystem_error& exception) {
+        std::cerr << "Filesystem error: " << exception.what() << std::endl;
     }
-    catch (const std::exception& e) {
-        std::cerr << "Error: " << e.what() << std::endl;
+    catch (const std::exception& exception) {
+        std::cerr << "Error: " << exception.what() << std::endl;
     }
     return ret_val;
 }

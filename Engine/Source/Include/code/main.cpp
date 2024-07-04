@@ -16,8 +16,8 @@
     Author: YuLin Zhu (朱雨林)
     Contact: 1152325286@qq.com
 */
-#define PROJECT_NAME_C_STRING "Include"
-#define PROJECT_NAME_T_STRING L"Include"
+#define PROJECT_NAME_STRING "Include"
+#define PROJECT_NAME_W_STRING L"Include"
 
 #include "z_engine.h"
 
@@ -69,8 +69,8 @@ struct TMemoryBlockBase {
 };
 
 int main() {
-    Z_LOG_ERROR(1, 2, "TEST%d%d%d%d%x", 3, 4, 5, 6, ~7);
-    Z_LOG_ERROR(1, 2, "TEST%d%d%d%d%d", 3, 4, 5, 6, 7);
+    Z_LOG_ERROR(1, 2, L"TEST%d%d%d%d%x", 3, 4, 5, 6, ~7);
+    Z_LOG_ERROR(1, 2, L"TEST%d%d%d%d%d", 3, 4, 5, 6, 7);
     Z_LOG_TRACE(L"TEST%d%d%d%d%d", 3, 4, 5, 6, 7);
     Z_LOG_MESSAGE(L"Message...");
     Z_LOG_START(L"Start...");

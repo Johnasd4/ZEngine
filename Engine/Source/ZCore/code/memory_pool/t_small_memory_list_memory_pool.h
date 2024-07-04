@@ -137,19 +137,19 @@ public:
             system_time.Hour(), system_time.Min(), system_time.Sec());
         link_code = file.OpenSafe(log::ZLog::kPathTString, file_str.DataPtr(), ZFile::kOpenTypeAppendW);
         if (link_code != kOK) {
-            Z_LOG_ERROR(error_code::kMLogErrorCodeLinkError, link_code, "ZFile::OpenSafe() link error!");
+            Z_LOG_ERROR(error_code::kMLogErrorCodeLinkError, link_code, L"ZFile::OpenSafe() link error!");
         }
 
         //The first pool realsed.
         if (SuperType_::MemoryBlockSize() == kMemoryBlockMaxSize) {
             link_code = file.Print("\n\n***** small memory pool *****\n\n");
             if (link_code != kOK) {
-                Z_LOG_ERROR(error_code::kFMemoryPoolErrorCodeLinkError, link_code, "ZFile::OpenSafe() link error!");
+                Z_LOG_ERROR(error_code::kFMemoryPoolErrorCodeLinkError, link_code, L"ZFile::OpenSafe() link error!");
             }
 
             link_code = file.Print("    size    | usable size |  total num  | applied times | used peak num | unused num\n");
             if (link_code != kOK) {
-                Z_LOG_ERROR(error_code::kFMemoryPoolErrorCodeLinkError, link_code, "ZFile::OpenSafe() link error!");
+                Z_LOG_ERROR(error_code::kFMemoryPoolErrorCodeLinkError, link_code, L"ZFile::OpenSafe() link error!");
             }
         }
 
@@ -162,7 +162,7 @@ public:
             momory_block_peak_num_,
             memory_block_used_current_num_);
         if (link_code != kOK) {
-            Z_LOG_ERROR(error_code::kFMemoryPoolErrorCodeLinkError, link_code, "ZFile::OpenSafe() link error!");
+            Z_LOG_ERROR(error_code::kFMemoryPoolErrorCodeLinkError, link_code, L"ZFile::OpenSafe() link error!");
         }
 
 #endif //USE_MEMORY_POOL_TEST        

@@ -37,7 +37,7 @@ CORE_DLLAPI NODISCARD ReturnType String2WString(const Char* _str, TVector<WChar>
     if (str_len == -1) {
         *_out_str_ptr = { L'\0' };
         ret_val = error_code::kZStringErrorCodeInvalidString;
-        Z_LOG_ERROR(ret_val, 0, "std::mbstowcs() error!");
+        Z_LOG_ERROR(ret_val, 0, L"std::mbstowcs() error!");
         return ret_val;
     }
     _out_str_ptr->Reserve(str_len + 1);
@@ -54,9 +54,9 @@ CORE_DLLAPI NODISCARD ReturnType WString2String(const WChar* _str, TVector<Char>
     SizeType str_len = std::wcstombs(nullptr, _str, 0);
     //error
     if (str_len == -1) {
-        *_out_str_ptr = { L'\0' };
+        *_out_str_ptr = { '\0' };
         ret_val = error_code::kZStringErrorCodeInvalidString;
-        Z_LOG_ERROR(ret_val, 0, "std::wcstombs() error!");
+        Z_LOG_ERROR(ret_val, 0, L"std::wcstombs() error!");
         return ret_val;
     }
     _out_str_ptr->Reserve(str_len + 1);
