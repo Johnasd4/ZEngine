@@ -21,6 +21,9 @@
 
 #include "internal/z_drive.h"
 
+#include "t_list.h"
+#include "z_string.h"
+
 namespace zengine {
 
 namespace error_code {
@@ -41,12 +44,13 @@ namespace file_system {
 /*
     Delete files by the given path.
 */
-CORE_DLLAPI NODISCARD ReturnType DeleteFileByPath(const Char* _path) noexcept;
+CORE_DLLAPI NODISCARD ReturnType DeleteFileByPath(const WChar* _path) noexcept;
 
 /*
-    Delete files by the given path.
+    Get all the files under the given path. Pushs the file names into the given list.
 */
-CORE_DLLAPI NODISCARD ReturnType DeleteFileByPath(const WChar* _path) noexcept;
+CORE_DLLAPI NODISCARD ReturnType GetFilesByPath(const WChar* _path, TList<ZWString>* file_list_ptr) noexcept;
+
 
 }//file_system
 }//zengine

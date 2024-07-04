@@ -28,7 +28,7 @@ namespace zengine {
 /*
     Pair struct.
 */
-template<typename _ObjectType1, typename _ObjectType2>
+template<typename _LeftObjectType, typename _RightObjectType>
 struct TPair : public ZObject {
 public:
     constexpr TPair() noexcept : SuperType_(), first_(), second_() {}
@@ -87,8 +87,8 @@ public:
         return first_ == _pair.first_ ? true : second_ <= _pair.second_;
     }
 
-    _ObjectType1 first_;
-    _ObjectType2 second_;
+    _LeftObjectType first_;
+    _RightObjectType second_;
 protected:
     using SuperType_ = ZObject;
 };

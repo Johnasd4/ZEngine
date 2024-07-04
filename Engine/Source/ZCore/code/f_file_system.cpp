@@ -22,40 +22,73 @@
 
 #include <filesystem>
 
+
 #include "m_log.h"
 
 namespace zengine {
 namespace file_system {
 
-/*
-    Delete files by the given path.
-*/
-CORE_DLLAPI NODISCARD ReturnType DeleteFileByPath(const Char* _path) noexcept {
+CORE_DLLAPI NODISCARD ReturnType DeleteFileByPath(const WChar* _path) noexcept {
     ReturnType ret_val = kOK;
+    ReturnType link_code = kOK;
     try {
         if (std::filesystem::remove(_path)) {
-            Z_LOG_MESSAGE(L"File deleted successfully! path: %ls", _path);
+            Z_LOG_SUCCESS(L"File deleted successfully! path: %ls", _path);
         }
         else {
+            TVector<Char> str_path;
+            link_code = string::WString2String(_path, &str_path);
+            if (link_code != kOK) {
+                ret_val = error_code::kFFileSystemErrorCodeLinkError;
+                Z_LOG_ERROR(ret_val, link_code, "string::WString2String() link error!");
+                return ret_val;
+            }
             ret_val = error_code::kFFileSystemErrorCodeFileNotFound;
-            Z_LOG_ERROR(ret_val, 0, "File not found! offset: %d, seek_type: %s", _path);
-            std::wcout << L"File not found." << std::endl;
+            Z_LOG_ERROR(ret_val, 0, "File not found! path: %s", str_path.DataPtr());
             return ret_val;
         }
     }
     catch (const std::filesystem::filesystem_error& exception) {
-        std::wcerr << L"Error deleting file: " << exception.what() << std::endl;
+        TVector<Char> str_path;
+        link_code = string::WString2String(_path, &str_path);
+        if (link_code != kOK) {
+            ret_val = error_code::kFFileSystemErrorCodeLinkError;
+            Z_LOG_ERROR(ret_val, link_code, "string::WString2String() link error!");
+            return ret_val;
+        }
+        ret_val = error_code::kFFileSystemErrorCodeSystemError;
+        Z_LOG_ERROR(ret_val, 0, "System error! path: %s error msg: %s", str_path.DataPtr(), exception.what());
+        return ret_val;
     }
-
     return ret_val;
 }
 
-///*
-//    Delete files by the given path.
-//*/
-//CORE_DLLAPI NODISCARD ReturnType DeleteFileByPath(const WChar* _path) noexcept {
-//
-//}
+CORE_DLLAPI NODISCARD ReturnType GetFilesByPath(const WChar* _path, TList<ZWString>* file_list_ptr) noexcept {
+    ReturnType ret_val = kOK;
+    ReturnType link_code = kOK;
+    try {
+        if (std::filesystem::exists(_path) && std::filesystem::is_directory(_path)) {
+            for (const auto& entry : fs::directory_iterator(directory)) {
+                if (fs::is_regular_file(entry.path())) {
+                    std::cout << "File: " << entry.path().filename().string() << std::endl;
+                }
+                else if (fs::is_directory(entry.path())) {
+                    std::cout << "Directory: " << entry.path().filename().string() << std::endl;
+                }
+            }
+        }
+        else {
+            std::cerr << "The path specified is not a directory or does not exist." << std::endl;
+        }
+    }
+    catch (const fs::filesystem_error& e) {
+        std::cerr << "Filesystem error: " << e.what() << std::endl;
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+    }
+    return ret_val;
+}
 
 }//file_system
 }//zengine

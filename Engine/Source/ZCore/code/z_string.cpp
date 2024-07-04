@@ -45,5 +45,24 @@ CORE_DLLAPI NODISCARD ReturnType String2WString(const Char* _str, TVector<WChar>
     return ret_val;
 }
 
+/*
+    Translate wide string to narrow string.
+*/
+CORE_DLLAPI NODISCARD ReturnType WString2String(const WChar* _str, TVector<Char>* _out_str_ptr) noexcept {
+    ReturnType ret_val = kOK;
+    //calculate length
+    SizeType str_len = std::wcstombs(nullptr, _str, 0);
+    //error
+    if (str_len == -1) {
+        *_out_str_ptr = { L'\0' };
+        ret_val = error_code::kZStringErrorCodeInvalidString;
+        Z_LOG_ERROR(ret_val, 0, "std::wcstombs() error!");
+        return ret_val;
+    }
+    _out_str_ptr->Reserve(str_len + 1);
+    std::wcstombs(_out_str_ptr->DataPtr(), _str, str_len + 1);
+    return ret_val;
+}
+
 }//string
 }//zengine

@@ -24,8 +24,8 @@
 
 namespace zengine {
 
-template<typename _ObjectType1,typename _ObjectType2>
-concept kSameType = std::is_same_v<_ObjectType1, _ObjectType2>;
+template<typename _LeftObjectType,typename _RightObjectType>
+concept kSameType = std::is_same_v<_LeftObjectType, _RightObjectType>;
 
 template<typename _ObjectType>
 concept kIsClass = std::is_class_v<_ObjectType>;
@@ -34,12 +34,18 @@ template<typename _CharType>
 concept kIsChar = kSameType<_CharType, Char> || kSameType<_CharType, WChar>;
 
 template<typename _NumberType>
-concept kIsSignedInt = kSameType<_NumberType, Int8> || kSameType<_NumberType, Int16> || kSameType<_NumberType, Int32> || 
-                       kSameType<_NumberType, Int64>;
+concept kIsSignedInt = 
+    kSameType<_NumberType, Int8> 
+    || kSameType<_NumberType, Int16> 
+    || kSameType<_NumberType, Int32> 
+    || kSameType<_NumberType, Int64>;
 
 template<typename _NumberType>
-concept kIsUnsignedInt = kSameType<_NumberType, UInt8> || kSameType<_NumberType, UInt16> || 
-                         kSameType<_NumberType, UInt32> || kSameType<_NumberType, UInt64>;
+concept kIsUnsignedInt = 
+    kSameType<_NumberType, UInt8> 
+    || kSameType<_NumberType, UInt16> 
+    || kSameType<_NumberType, UInt32> 
+    || kSameType<_NumberType, UInt64>;
 
 template<typename _NumberType>
 concept kIsInt = kIsSignedInt<_NumberType> || kIsUnsignedInt<_NumberType>;
