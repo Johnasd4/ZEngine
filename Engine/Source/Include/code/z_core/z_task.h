@@ -139,8 +139,9 @@ private:
                 _task_ptr->state_ = kZTaskStateNoTask;
                 break;
             default:
-                Z_LOG_ERROR(error_code::kZTaskErrorCodeTaskStateError, 0, 
-                            "Task state not expected! state_: %d", _task_ptr->state_);
+                Z_LOG_ERROR(
+                    error_code::kZTaskErrorCodeTaskStateError, 0, 
+                    L"Task state not expected! state_: %d", _task_ptr->state_);
             }
         };
         task_func_ptr_ = reinterpret_cast<Void*>(&_func);
@@ -174,7 +175,7 @@ private:
             default:
                 Z_LOG_ERROR(
                     error_code::kZTaskErrorCodeTaskStateError, 0, 
-                    "Task state not expected! state_: %d", _task_ptr->state_);
+                    L"Task state not expected! state_: %d", _task_ptr->state_);
             }
         };
         task_func_ptr_ = reinterpret_cast<Void*>(&_func);
@@ -283,8 +284,9 @@ private:
                 _task_ptr->state_ = kZTaskStateNoTask;
                 break;
             default:
-                Z_LOG_ERROR(error_code::kZTaskErrorCodeTaskStateError, 0, 
-                            "Task state not expected! state_: %d", _task_ptr->state_);
+                Z_LOG_ERROR(
+                    error_code::kZTaskErrorCodeTaskStateError, 0, 
+                    L"Task state not expected! state_: %d", _task_ptr->state_);
             }
         };
         task_func_ptr_ = reinterpret_cast<Void*>(&_func);
@@ -316,8 +318,9 @@ private:
                 _task_ptr->state_ = kZTaskStateNoTask;
                 break;
             default:
-                Z_LOG_ERROR(error_code::kZTaskErrorCodeTaskStateError, 0, 
-                            "Task state not expected! state_: %d", _task_ptr->state_);
+                Z_LOG_ERROR(
+                    error_code::kZTaskErrorCodeTaskStateError, 0, 
+                    L"Task state not expected! state_: %d", _task_ptr->state_);
             }
         };
         task_func_ptr_ = reinterpret_cast<Void*>(&_func);
