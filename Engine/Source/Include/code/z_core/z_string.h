@@ -514,59 +514,107 @@ public:
     FORCEINLINE constexpr SizeType ReserveFind(const _CharType _char, const SizeType _start_pos = -1) noexcept {
         return str_.rfind(_char, _start_pos);
     }
+    /*
+        Finds the first char pos which the char is in the given string.
+    */
     FORCEINLINE constexpr SizeType FindFirstOf(const TString& _str, const SizeType _start_pos = 0) noexcept {
         return str_.find_first_of(_str.str_, _start_pos);
     }
+    /*
+        Finds the first char pos which the char is in the given string.
+    */
     FORCEINLINE constexpr SizeType FindFirstOf(const _CharType* _str, const SizeType _start_pos = 0) noexcept {
         return str_.find_first_of(_str, _start_pos);
     }
+    /*
+        Finds the first char pos which the char is in the given string.
+    */
     FORCEINLINE constexpr SizeType FindFirstOf(
         const _CharType* _str_start, const SizeType _str_len, const SizeType _start_pos = 0
     ) noexcept {
         return str_.find_first_of(_str_start, _start_pos, _str_len);
     }
+    /*
+        Finds the first char pos which the char is in the given string.
+    */
     FORCEINLINE constexpr SizeType FindFirstOf(const _CharType _char, const SizeType _start_pos = 0) noexcept {
         return str_.find_first_of(_char, _start_pos);
     }
+    /*
+        Finds the last char pos which the char is in the given string.
+    */
     FORCEINLINE constexpr SizeType FindLastOf(const TString& _str, const SizeType _start_pos = -1) noexcept {
         return str_.find_last_of(_str.str_, _start_pos);
     }
+    /*
+        Finds the last char pos which the char is in the given string.
+    */
     FORCEINLINE constexpr SizeType FindLastOf(const _CharType* _str, const SizeType _start_pos = -1) noexcept {
         return str_.find_last_of(_str, _start_pos);
     }
+    /*
+        Finds the last char pos which the char is in the given string.
+    */
     FORCEINLINE constexpr SizeType FindLastOf(
         const _CharType* _str_start, const SizeType _str_len, const SizeType _start_pos = -1
     ) noexcept {
         return str_.find_last_of(_str_start, _start_pos, _str_len);
     }
+    /*
+        Finds the last char pos which the char is in the given string.
+    */
     FORCEINLINE constexpr SizeType FindLastOf(const _CharType _char, const SizeType _start_pos = -1) noexcept {
         return str_.find_last_of(_char, _start_pos);
     }
+    /*
+        Finds the first char pos which the char is not in the given string.
+    */
     FORCEINLINE constexpr SizeType FindFirstNotOf(const TString& _str, const SizeType _start_pos = 0) noexcept {
         return str_.find_first_not_of(_str.str_, _start_pos);
     }
+    /*
+        Finds the first char pos which the char is not in the given string.
+    */
     FORCEINLINE constexpr SizeType FindFirstNotOf(const _CharType* _str, const SizeType _start_pos = 0) noexcept {
         return str_.find_first_not_of(_str, _start_pos);
     }
+    /*
+        Finds the first char pos which the char is not in the given string.
+    */
     FORCEINLINE constexpr SizeType FindFirstNotOf(
         const _CharType* _str_start, const SizeType _str_len, const SizeType _start_pos = 0
     ) noexcept {
         return str_.find_first_not_of(_str_start, _start_pos, _str_len);
     }
+    /*
+        Finds the first char pos which the char is not in the given string.
+    */
     FORCEINLINE constexpr SizeType FindFirstNotOf(const _CharType _char, const SizeType _start_pos = 0) noexcept {
         return str_.find_first_not_of(_char, _start_pos);
     }
+    /*
+        Finds the last char pos which the char is not in the given string.
+    */
     FORCEINLINE constexpr SizeType FindLastNotOf(const TString& _str, const SizeType _start_pos = -1) noexcept {
         return str_.find_last_not_of(_str.str_, _start_pos);
     }
+    /*
+        Finds the last char pos which the char is not in the given string.
+    */
     FORCEINLINE constexpr SizeType FindLastNotOf(const _CharType* _str, const SizeType _start_pos = -1) noexcept {
         return str_.find_last_not_of(_str, _start_pos);
     }
+    /*
+        Finds the last char pos which the char is not in the given string.
+    */
     FORCEINLINE constexpr SizeType FindLastNotOf(
         const _CharType* _str_start, const SizeType _str_len, const SizeType _start_pos = -1
     ) noexcept {
         return str_.find_last_not_of(_str_start, _start_pos, _str_len);
     }
+    /*
+        Finds the last char pos which the char is not in the given string.
+    */
     FORCEINLINE constexpr SizeType FindLastNotOf(const _CharType _char, const SizeType _start_pos = -1) noexcept {
         return str_.find_last_not_of(_char, _start_pos);
     }
@@ -574,7 +622,7 @@ public:
     FORCEINLINE constexpr TString SubString(const SizeType _pos, const SizeType _len = -1) noexcept {
         TString str;
         str.str_ = std::move(str_.substr(_pos, _len));
-        return *this;
+        return str;
     }
 
     FORCEINLINE constexpr Int32 Compare(const TString& _str) noexcept { return str_.compare(_str.str_); }

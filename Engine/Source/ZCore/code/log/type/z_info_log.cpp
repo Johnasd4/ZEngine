@@ -46,13 +46,13 @@ static ZFile& GetLogFile() noexcept {
     static ZFile& file = []() ->ZFile& { 
         static ZFile file;
         ReturnType link_code = kOK;
-        TWFixedString<ZFile::kFileNameLength> file_str;
+        TWFixedString<ZFile::kFileNameLength> file_dir;
         const ZSystemTime& system_time = ZSystemTime::StartTimeInstance();
-        file_str.SetString(
-            L"%ls%04d%02d%02d%02d%02d%02d_info.log", ZLog::kPathTString,
+        file_dir.SetString(
+            L"%ls%04d%02d%02d%02d%02d%02d_info.log", ZLog::kPathWString,
             system_time.Year(), system_time.Month(), system_time.Day(),
             system_time.Hour(), system_time.Min(), system_time.Sec());
-        link_code = file.OpenSafe(ZLog::kPathTString, file_str.DataPtr(), ZFile::kOpenTypeAppendW);
+        link_code = file.OpenSafe(ZLog::kPathWString, file_dir.DataPtr(), ZFile::kOpenTypeAppendW);
         if (link_code != kOK) {
             Z_LOG_ERROR(error_code::kMLogErrorCodeLinkError, link_code, L"ZFile::OpenSafe() link error!");
         }

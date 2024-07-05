@@ -40,6 +40,9 @@ inline constexpr MemoryType kGB = 1073741824;
 //The unit size when applying memory.
 inline constexpr MemoryType kHeapMemoryUnitSize = 4 * kKB;
 
+//the root folder of the code file.
+inline constexpr WChar kCodeFileRootDirWString[] = L"\\code\\";
+
 }//zengine
 
 #endif // !Z_CORE_INTERNAL_D_CONSTANT_H_

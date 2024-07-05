@@ -18,9 +18,10 @@
 */
 #define CORE_DLLFILE
 
-#include "m_log.h"
-
 #include "z_file.h"
+
+#include "m_log.h"
+#include "z_string.h"
 
 namespace zengine {
 
@@ -200,7 +201,7 @@ NODISCARD ReturnType ZFile::CreatePath(const Char* _path_dir) noexcept {
 
     if (!CreateDirectoryA(_path_dir, NULL) && GetLastError() != ERROR_ALREADY_EXISTS) {
         ret_val = error_code::kZFileErrorCodeCreatePathFailed;
-        Z_LOG_ERROR(ret_val, 0, L"Create path failed! path_dir: %s", _path_dir);
+        Z_LOG_ERROR(ret_val, 0, L"Create path failed! path_dir: %ls", string::String2WString(_path_dir).String());
         return ret_val;
     }
     return ret_val;
@@ -211,7 +212,7 @@ NODISCARD ReturnType ZFile::CreatePath(const WChar* _path_dir) noexcept {
 
     if (!CreateDirectoryW(_path_dir, NULL) && GetLastError() != ERROR_ALREADY_EXISTS) {
         ret_val = error_code::kZFileErrorCodeCreatePathFailed;
-        Z_LOG_ERROR(ret_val, 0, L"Create path failed! path_dir: %s", _path_dir);
+        Z_LOG_ERROR(ret_val, 0, L"Create path failed! path_dir: %ls", _path_dir);
         return ret_val;
     }
     return ret_val;
@@ -225,7 +226,9 @@ NODISCARD ReturnType ZFile::Open(const Char* _file_dir, const Char* _open_type) 
     file_ptr_ = fopen(_file_dir, _open_type);
     if (file_ptr_ == nullptr) {
         ret_val = error_code::kZFileErrorCodeOpenFileFailed;
-        Z_LOG_ERROR(ret_val, 0, L"Open file failed! file_dir: %s, open_type: %s", _file_dir, _open_type);
+        Z_LOG_ERROR(
+            ret_val, 0, L"Open file failed! file_dir: %ls, open_type: %ls", 
+            string::String2WString(_file_dir).String(), string::String2WString(_open_type).String());
         return ret_val;
     }
 

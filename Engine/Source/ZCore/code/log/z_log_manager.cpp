@@ -25,9 +25,9 @@ namespace log {
 
 Void ZLogManager::LogError(
     TimeType _raw_time,
-    const WChar* _proj_str,
-    const Char* _file_str,
-    const Char* _func_str,
+    const WChar* _proj_name,
+    const Char* _file_dir,
+    const Char* _func_name,
     Int32 _err_line,
     ReturnType _err_code,
     ReturnType _link_code,
@@ -36,19 +36,19 @@ Void ZLogManager::LogError(
 ) noexcept {
     static ZLogManager& log_manager = ZLogManager::InstanceP();
     log_manager.error_log_queue_.Push(
-        _raw_time, _proj_str, _file_str, _func_str, _err_line, _err_code, _link_code, _format, _args);
+        _raw_time, _proj_name, _file_dir, _func_name, _err_line, _err_code, _link_code, _format, _args);
 }
 
 Void ZLogManager::LogTrace(
     TimeType _raw_time,
-    const WChar* _proj_str,
-    const Char* _file_str,
-    const Char* _func_str,
+    const WChar* _proj_name,
+    const Char* _file_dir,
+    const Char* _func_name,
     const WChar* _format,
     ArgListType _args
 ) noexcept {
     static ZLogManager& log_manager = ZLogManager::InstanceP();
-    log_manager.trace_log_queue_.Push(_raw_time, _proj_str, _file_str, _func_str, _format, _args);
+    log_manager.trace_log_queue_.Push(_raw_time, _proj_name, _file_dir, _func_name, _format, _args);
 }
 
 Void ZLogManager::LogInfo(

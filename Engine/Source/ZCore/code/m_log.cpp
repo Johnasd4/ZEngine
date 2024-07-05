@@ -65,13 +65,13 @@ static ZFile& GetLogFile() noexcept {
     static ZFile& file = []() ->ZFile& { 
         static ZFile file;
         ReturnType link_code = kOK;
-        TWFixedString<ZFile::kFileNameLength> file_str;
+        TWFixedString<ZFile::kFileNameLength> file_dir;
         const ZSystemTime& system_time = ZSystemTime::StartTimeInstance();
-        file_str.SetString(
-            L"%ls%04d%02d%02d%02d%02d%02d_default.log", ZLog::kPathTString,
+        file_dir.SetString(
+            L"%ls%04d%02d%02d%02d%02d%02d_default.log", ZLog::kPathWString,
             system_time.Year(), system_time.Month(), system_time.Day(),
             system_time.Hour(), system_time.Min(), system_time.Sec());
-        link_code = file.OpenSafe(ZLog::kPathTString, file_str.DataPtr(), ZFile::kOpenTypeAppendW);
+        link_code = file.OpenSafe(ZLog::kPathWString, file_dir.DataPtr(), ZFile::kOpenTypeAppendW);
         if (link_code != kOK) {
             Z_LOG_ERROR(error_code::kMLogErrorCodeLinkError, link_code, L"ZFile::OpenSafe() link error!");
         }
@@ -84,7 +84,7 @@ CORE_DLLAPI Void ZLog::FileOutputLogString(const ZLog* _log_ptr, const ZLog::Out
     static ZFile& file = GetLogFile();
     ReturnType link_code = kOK;
 
-    link_code = file.Print(L"%s\n", _output_str.w_str_.DataPtr());
+    link_code = file.Print(L"%ls\n", _output_str.w_str_.DataPtr());
     if (link_code != kOK) {
         Z_LOG_ERROR(error_code::kMLogErrorCodeLinkError, link_code, L"ZFile::Print() link error!");
     }
@@ -96,9 +96,9 @@ CORE_DLLAPI Void ZLog::ConsoleOutputLogString(const ZLog* _log_ptr, const ZLog::
 
 CORE_DLLAPI Void LogError(
     TimeType _raw_time,
-    const WChar* _proj_str,
-    const Char* _file_str, 
-    const Char* _func_str,
+    const WChar* _proj_name,
+    const Char* _file_dir, 
+    const Char* _func_name,
     Int32 _err_line, 
     ReturnType _err_code,
     ReturnType _link_code,
@@ -107,21 +107,21 @@ CORE_DLLAPI Void LogError(
 ) noexcept {
     ArgListType args;
     va_start(args, _format);
-    ZLogManager::LogError(_raw_time, _proj_str, _file_str, _func_str, _err_line, _err_code, _link_code, _format, args);
+    ZLogManager::LogError(_raw_time, _proj_name, _file_dir, _func_name, _err_line, _err_code, _link_code, _format, args);
     va_end(args);
 }
 
 CORE_DLLAPI Void LogTrace(
     TimeType _raw_time,
-    const WChar* _proj_str,
-    const Char* _file_str,
-    const Char* _func_str,
+    const WChar* _proj_name,
+    const Char* _file_dir,
+    const Char* _func_name,
     const WChar* _format,
     ...
 ) noexcept {
     ArgListType args;
     va_start(args, _format);
-    ZLogManager::LogTrace(_raw_time, _proj_str, _file_str, _func_str, _format, args);
+    ZLogManager::LogTrace(_raw_time, _proj_name, _file_dir, _func_name, _format, args);
     va_end(args);
 }
 

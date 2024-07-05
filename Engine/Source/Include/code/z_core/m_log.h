@@ -36,11 +36,8 @@
 #define USE_FILE_LOG true
 #endif
 
-#ifndef PROJECT_NAME_STRING
-#define PROJECT_NAME_STRING "Unknown"
-#endif
-#ifndef PROJECT_NAME_W_STRING
-#define PROJECT_NAME_W_STRING L"Unknown"
+#ifndef PROJECT_NAME
+#define PROJECT_NAME L"Unknown"
 #endif
 
 /*
@@ -50,7 +47,7 @@
     if(_condition) {\
         zengine::log::LogError(\
             ::time(nullptr),\
-            PROJECT_NAME_W_STRING,\
+            PROJECT_NAME,\
             __FILE__,\
             __func__,\
             __LINE__,\
@@ -66,7 +63,7 @@
 #define Z_LOG_ERROR(_err_code, _link_code, ...)\
     zengine::log::LogError(\
         ::time(nullptr),\
-        PROJECT_NAME_W_STRING,\
+        PROJECT_NAME,\
         __FILE__,\
         __func__,\
         __LINE__,\
@@ -78,7 +75,7 @@
     Log trace.
 */
 #define Z_LOG_TRACE(...)\
-    zengine::log::LogTrace(::time(nullptr), PROJECT_NAME_W_STRING, __FILE__, __func__, __VA_ARGS__);
+    zengine::log::LogTrace(::time(nullptr), PROJECT_NAME, __FILE__, __func__, __VA_ARGS__);
 
 /*
     Log message.
@@ -156,23 +153,23 @@ public:
     //max size of the output log string.
     static constexpr Int32 kLogMaxSize = 2048;
     //log file path.
-    static constexpr WChar kPathTString[] = L"./log/";
+    static constexpr WChar kPathWString[] = L"./log/";
 
     using MsgString_ = FixedStringUnion<kMsgMaxSize>;
     using OutputString_ = FixedStringUnion<kLogMaxSize>;
 
     /*
-        Override it to output different formats, uses TString(wchar_t).
+        Override it to output different formats, uses WString(wchar_t).
     */
     CORE_DLLAPI static Void GenerateLogString(const ZLog* _log_ptr, OutputString_* _output_str_ptr) noexcept;
 
     /*
-        Default console output log string, uses TString(wchar_t).
+        Default console output log string, uses WString(wchar_t).
     */
     CORE_DLLAPI static Void FileOutputLogString(const ZLog* _log_ptr, const ZLog::OutputString_& _output_str) noexcept;
 
     /*
-        Default file output log string, uses TString(wchar_t).
+        Default file output log string, uses WString(wchar_t).
     */
     CORE_DLLAPI static Void ConsoleOutputLogString(
             const ZLog* _log_ptr, const ZLog::OutputString_& _output_str) noexcept;
@@ -196,9 +193,9 @@ private:
 */
 CORE_DLLAPI Void LogError(
     TimeType _raw_time,
-    const WChar* _proj_str,
-    const Char* _file_str,
-    const Char* _func_str,
+    const WChar* _proj_name,
+    const Char* _file_dir,
+    const Char* _func_name,
     Int32 _err_line,
     ReturnType _err_code,
     ReturnType _link_code,
@@ -211,9 +208,9 @@ CORE_DLLAPI Void LogError(
 */
 CORE_DLLAPI Void LogTrace(
     TimeType _raw_time,
-    const WChar* _proj_str,
-    const Char* _file_str,
-    const Char* _func_str,
+    const WChar* _proj_name,
+    const Char* _file_dir,
+    const Char* _func_name,
     const WChar* _format,
     ...
 ) noexcept;

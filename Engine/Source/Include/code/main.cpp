@@ -16,8 +16,7 @@
     Author: YuLin Zhu (朱雨林)
     Contact: 1152325286@qq.com
 */
-#define PROJECT_NAME_STRING "Include"
-#define PROJECT_NAME_W_STRING L"Include"
+#define PROJECT_NAME L"Include"
 
 #include "z_engine.h"
 

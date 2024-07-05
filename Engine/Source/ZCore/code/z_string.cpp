@@ -33,7 +33,7 @@ CORE_DLLAPI NODISCARD ZWString String2WString(const Char* _str) noexcept {
     SizeType str_len = std::mbstowcs(nullptr, _str, 0);
     //invalid input string returns empty string
     if (str_len == -1) {
-        return ZWString(L'\0');
+        return ZWString(L"");
     }
     temp_str.Reserve(str_len + 1);
     std::mbstowcs(temp_str.DataPtr(), _str, str_len + 1);
@@ -47,7 +47,7 @@ CORE_DLLAPI NODISCARD ZString WString2String(const WChar* _str) noexcept {
     SizeType str_len = std::wcstombs(nullptr, _str, 0);
     //invalid input string returns empty string
     if (str_len == -1) {
-        return ZString('\0');
+        return ZString("");
     }
     temp_str.Reserve(str_len + 1);
     std::wcstombs(temp_str.DataPtr(), _str, str_len + 1);

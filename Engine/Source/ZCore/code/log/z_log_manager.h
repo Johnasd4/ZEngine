@@ -48,9 +48,9 @@ public:
 
     static Void LogError(
         TimeType _raw_time,
-        const WChar* _proj_str,
-        const Char* _file_str,
-        const Char* _func_str,
+        const WChar* _proj_name,
+        const Char* _file_dir,
+        const Char* _func_name,
         Int32 _err_line,
         ReturnType _err_code,
         ReturnType _link_code,
@@ -60,9 +60,9 @@ public:
 
     static Void LogTrace(
         TimeType _raw_time,
-        const WChar* _proj_str,
-        const Char* _file_str,
-        const Char* _func_str,
+        const WChar* _proj_name,
+        const Char* _file_dir,
+        const Char* _func_name,
         const WChar* _format,
         ArgListType _args
     ) noexcept;
