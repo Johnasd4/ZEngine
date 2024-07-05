@@ -52,7 +52,7 @@ public:
     FORCEINLINE constexpr TArray() noexcept : SuperType_(), array_() {}
     FORCEINLINE constexpr TArray(const TArray& _array) noexcept : SuperType_(), array_(_array.array_) {}
     FORCEINLINE constexpr TArray(TArray&& _array) noexcept : SuperType_(), array_(std::move(_array.array_)) {}
-    FORCEINLINE TArray(InitializerList_ _init_list) noexcept : SuperType_(), array_(_init_list) {}
+    FORCEINLINE constexpr TArray(InitializerList_ _init_list) noexcept : SuperType_(), array_(_init_list) {}
 
     /*
         Constexpr array, the work is done at compile time.

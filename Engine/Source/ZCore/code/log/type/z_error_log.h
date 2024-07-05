@@ -34,9 +34,9 @@ public:
     ZErrorLog() noexcept;
     ZErrorLog(
         TimeType _raw_time,
-        const WChar* _err_project,
-        const Char* _err_file,
-        const Char* _err_func,
+        const WChar* _proj_str,
+        const Char* _file_str,
+        const Char* _func_str,
         Int32 _err_line,
         ReturnType _err_code,
         ReturnType _link_code,
@@ -64,9 +64,9 @@ protected:
 
 private:
     TimeType raw_time_;
-    const WChar* err_project_;
-    const Char* err_file_;
-    const Char* err_func_;
+    const WChar* proj_str_;
+    const Char* file_str_;
+    const Char* func_str_;
     Int32 err_line_;
     ReturnType err_code_;
     ReturnType link_code_;

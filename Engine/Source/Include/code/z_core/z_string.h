@@ -25,7 +25,6 @@
 
 #include "t_allocator.h"
 #include "z_object.h"
-#include "t_vector.h"
 
 namespace zengine {
 
@@ -649,14 +648,14 @@ using ZWString = internal::TString<WChar>;
 namespace string {
 
 /*
-    Translate narrow string to wide string.
+    Translate narrow string to wide string, if the string is invalid, will return "".
 */
-CORE_DLLAPI NODISCARD ReturnType String2WString(const Char* _str, TVector<WChar>* _out_str_ptr) noexcept;
+CORE_DLLAPI NODISCARD ZWString String2WString(const Char* _str) noexcept;
 
 /*
-    Translate wide string to narrow string.
+    Translate wide string to narrow string, if the string is invalid, will return "".
 */
-CORE_DLLAPI NODISCARD ReturnType WString2String(const WChar* _str, TVector<Char>* _out_str_ptr) noexcept;
+CORE_DLLAPI NODISCARD ZString WString2String(const WChar* _str) noexcept;
 
 }//string
 

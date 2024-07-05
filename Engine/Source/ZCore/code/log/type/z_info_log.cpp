@@ -33,7 +33,7 @@ ZInfoLog::ZInfoLog(TimeType _raw_time, LogInfoEnum _info_type, const WChar* _for
 
 Void ZInfoLog::GenerateLogString(const ZLog* _log_ptr, OutputString_* _output_str_ptr) noexcept {
     static ZSystemTime system_time;
-    ZInfoLog& info_log = *(ZInfoLog*)_log_ptr;
+    const ZInfoLog& info_log = *reinterpret_cast<const ZInfoLog*>(_log_ptr);
     system_time.UpdateTimeFast(info_log.raw_time_);
     _output_str_ptr->w_str_.SetString(
         L"%04d/%02d/%02d-%02d:%02d:%02d | %ls: %ls",

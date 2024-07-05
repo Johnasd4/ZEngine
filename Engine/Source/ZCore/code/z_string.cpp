@@ -26,42 +26,32 @@
 namespace zengine {
 namespace string {
 
-/*
-    Delete files by the given path.
-*/
-CORE_DLLAPI NODISCARD ReturnType String2WString(const Char* _str, TVector<WChar>* _out_str_ptr) noexcept {
+CORE_DLLAPI NODISCARD ZWString String2WString(const Char* _str) noexcept {
     ReturnType ret_val = kOK;
+    TVector<WChar> temp_str;
     //calculate length
     SizeType str_len = std::mbstowcs(nullptr, _str, 0);
-    //error
+    //invalid input string returns empty string
     if (str_len == -1) {
-        *_out_str_ptr = { L'\0' };
-        ret_val = error_code::kZStringErrorCodeInvalidString;
-        Z_LOG_ERROR(ret_val, 0, L"std::mbstowcs() error!");
-        return ret_val;
+        return ZWString(L'\0');
     }
-    _out_str_ptr->Reserve(str_len + 1);
-    std::mbstowcs(_out_str_ptr->DataPtr(), _str, str_len + 1);
-    return ret_val;
+    temp_str.Reserve(str_len + 1);
+    std::mbstowcs(temp_str.DataPtr(), _str, str_len + 1);
+    return ZWString(temp_str.DataPtr());
 }
 
-/*
-    Translate wide string to narrow string.
-*/
-CORE_DLLAPI NODISCARD ReturnType WString2String(const WChar* _str, TVector<Char>* _out_str_ptr) noexcept {
+CORE_DLLAPI NODISCARD ZString WString2String(const WChar* _str) noexcept {
     ReturnType ret_val = kOK;
+    TVector<Char> temp_str;
     //calculate length
     SizeType str_len = std::wcstombs(nullptr, _str, 0);
-    //error
+    //invalid input string returns empty string
     if (str_len == -1) {
-        *_out_str_ptr = { '\0' };
-        ret_val = error_code::kZStringErrorCodeInvalidString;
-        Z_LOG_ERROR(ret_val, 0, L"std::wcstombs() error!");
-        return ret_val;
+        return ZString('\0');
     }
-    _out_str_ptr->Reserve(str_len + 1);
-    std::wcstombs(_out_str_ptr->DataPtr(), _str, str_len + 1);
-    return ret_val;
+    temp_str.Reserve(str_len + 1);
+    std::wcstombs(temp_str.DataPtr(), _str, str_len + 1);
+    return ZString(temp_str.DataPtr());
 }
 
 }//string

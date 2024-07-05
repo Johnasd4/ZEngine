@@ -96,9 +96,9 @@ CORE_DLLAPI Void ZLog::ConsoleOutputLogString(const ZLog* _log_ptr, const ZLog::
 
 CORE_DLLAPI Void LogError(
     TimeType _raw_time,
-    const WChar* _err_project,
-    const Char* _err_file, 
-    const Char* _err_func,
+    const WChar* _proj_str,
+    const Char* _file_str, 
+    const Char* _func_str,
     Int32 _err_line, 
     ReturnType _err_code,
     ReturnType _link_code,
@@ -107,19 +107,21 @@ CORE_DLLAPI Void LogError(
 ) noexcept {
     ArgListType args;
     va_start(args, _format);
-    ZLogManager::LogError(_raw_time, _err_project, _err_file, _err_func, _err_line, _err_code, _link_code, _format, args);
+    ZLogManager::LogError(_raw_time, _proj_str, _file_str, _func_str, _err_line, _err_code, _link_code, _format, args);
     va_end(args);
 }
 
 CORE_DLLAPI Void LogTrace(
     TimeType _raw_time,
-    const WChar* _project,
+    const WChar* _proj_str,
+    const Char* _file_str,
+    const Char* _func_str,
     const WChar* _format,
     ...
 ) noexcept {
     ArgListType args;
     va_start(args, _format);
-    ZLogManager::LogTrace(_raw_time, _project, _format, args);
+    ZLogManager::LogTrace(_raw_time, _proj_str, _file_str, _func_str, _format, args);
     va_end(args);
 }
 

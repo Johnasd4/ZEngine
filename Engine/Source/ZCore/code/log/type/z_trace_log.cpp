@@ -21,25 +21,42 @@
 #include "z_trace_log.h"
 
 #include "f_console.h"
+#include "t_vector.h"
 #include "z_file.h"
+#include "z_string.h"
 #include "z_system_time.h"
 
 namespace zengine {
 namespace log {
 
-ZTraceLog::ZTraceLog() noexcept : raw_time_(), project_(), SuperType_() {}
-ZTraceLog::ZTraceLog(TimeType _raw_time, const WChar* _project, const WChar* _format, ArgListType _args) noexcept 
-    : raw_time_(_raw_time), project_(_project), SuperType_(_format, _args) {}
+ZTraceLog::ZTraceLog() noexcept : raw_time_(), proj_str_(), file_str_(), func_str_(), SuperType_() {}
+ZTraceLog::ZTraceLog(
+    TimeType _raw_time, 
+    const WChar* _proj_str,
+    const Char* _file_str,
+    const Char* _func_str,
+    const WChar* _format, 
+    ArgListType _args
+) noexcept 
+    : raw_time_(_raw_time)
+    , proj_str_(_proj_str)
+    , file_str_(_file_str)
+    , func_str_(_func_str)
+    , SuperType_(_format, _args) {}
 
 Void ZTraceLog::GenerateLogString(const ZLog* _log_ptr, OutputString_* _outpuw_str_ptr) noexcept {
     static ZSystemTime system_time;
-    ZTraceLog& trace_log = *(ZTraceLog*)_log_ptr;
+    static TVector<WChar> file_str;
+    static TVector<WChar> func_str;
+    const ZTraceLog& trace_log = *reinterpret_cast<const ZTraceLog*>(_log_ptr);
+    string::String2WString(trace_log.file_str_, &file_str);
+    string::String2WString(trace_log.func_str_, &func_str);
     system_time.UpdateTimeFast(trace_log.raw_time_);
     _outpuw_str_ptr->w_str_.SetString(
-        L"%04d/%02d/%02d-%02d:%02d:%02d | <%ls> %ls",
+        L"%04d/%02d/%02d-%02d:%02d:%02d | <%ls> %ls %ls %ls",
         system_time.Year(), system_time.Month(), system_time.Day(),
         system_time.Hour(), system_time.Min(), system_time.Sec(),
-        trace_log.project_, trace_log.LogMsgPtr().w_str_.DataPtr());
+        trace_log.proj_str_, file_str.DataPtr(), func_str.DataPtr(), trace_log.LogMsgPtr().w_str_.DataPtr());
 }
 
 static ZFile& GetLogFile() noexcept {
