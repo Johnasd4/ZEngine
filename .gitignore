@@ -1,3 +1,4 @@
 # Visual Studio directory
-Engine/.vs/
-Engine/Binaries/
+ZEngine/.vs/
+ZEngine/Binaries/
+ZEngine/Release/
