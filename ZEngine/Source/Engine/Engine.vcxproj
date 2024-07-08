@@ -65,6 +65,14 @@
     <ClInclude Include="code\z_core\z_thread_pool.h" />
     <ClInclude Include="code\z_engine.h" />
     <ClInclude Include="code\z_gui\f_test.h" />
+    <ClInclude Include="code\z_gui\internal\d_concept.h" />
+    <ClInclude Include="code\z_gui\internal\d_constant.h" />
+    <ClInclude Include="code\z_gui\internal\d_error_code.h" />
+    <ClInclude Include="code\z_gui\internal\d_function.h" />
+    <ClInclude Include="code\z_gui\internal\d_lib.h" />
+    <ClInclude Include="code\z_gui\internal\d_macro.h" />
+    <ClInclude Include="code\z_gui\internal\d_type.h" />
+    <ClInclude Include="code\z_gui\internal\z_drive.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\main.cpp" />
