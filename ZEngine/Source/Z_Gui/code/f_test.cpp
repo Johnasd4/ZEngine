@@ -89,6 +89,14 @@ GUI_DLLAPI NODISCARD Int32 Test() noexcept {
     // 设置 ImGui
     setupImGui(window);
 
+    // 创建一个窗口
+    GLFWwindow* window2 = glfwCreateWindow(1280, 720, "ImGui Example2", NULL, window);
+    if (!window2) {
+        glfwTerminate();
+        return -1;
+    }
+
+
     // 主循环
     while (!glfwWindowShouldClose(window)) {
         // 清除屏幕
