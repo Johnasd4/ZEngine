@@ -19,14 +19,12 @@
 #ifndef Z_GUI_INTERNAL_D_LIB_H_
 #define Z_GUI_INTERNAL_D_LIB_H_
 
-#include "z_core/internal/z_drive.h"
+#include "../../z_core/internal/z_drive.h"
 
 //Define if at the start of the z_core cpp file.
 #ifdef GUI_DLLFILE
-
 #define GUI_DLLAPI DLLEXPORT
 #define PROJECT_NAME L"ZGui"
-
 #pragma comment(lib,"opengl32.lib")
 #pragma comment(lib,"glfw3dll.lib")
 
@@ -41,12 +39,9 @@
 #pragma comment(lib,"L_ImGui_1_90_9_Opengl3_Win32_Debug.lib")
 #else
 #pragma comment(lib,"L_ImGui_1_90_9_Opengl3_Win32_Release.lib")
-
 #endif//_DEBUG
 #endif//_WIN64
-
 #else
-
 #define GUI_DLLAPI DLLIMPORT
 #ifdef _WIN64
 #ifdef _DEBUG
@@ -60,9 +55,7 @@
 #else
 #pragma comment(lib,"Z_Gui_Win32_Release.lib")
 #endif//_DEBUG
-
 #endif//_WIN64
-
 #endif//GUI_DLLFILE
 
 #endif // !Z_GUI_INTERNAL_D_LIB_H_
