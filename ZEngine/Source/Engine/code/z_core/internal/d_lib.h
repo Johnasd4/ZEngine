@@ -36,6 +36,7 @@
 #include "d_macro.h"
 
 #pragma warning(disable: 4251)
+#pragma warning(disable: 4275)
 #pragma warning(disable: 26813)
 
 //Define if at the start of the z_core cpp file.

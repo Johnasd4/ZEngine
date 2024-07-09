@@ -73,6 +73,7 @@
     <ClInclude Include="code\z_gui\internal\d_macro.h" />
     <ClInclude Include="code\z_gui\internal\d_type.h" />
     <ClInclude Include="code\z_gui\internal\z_drive.h" />
+    <ClInclude Include="code\z_gui\z_gui_object.h" />
     <ClInclude Include="code\z_gui\z_window.h" />
   </ItemGroup>
   <ItemGroup>

@@ -23,7 +23,14 @@
 namespace zengine {
 namespace gui {
 
-ZWindow::ZWindow() noexcept {
+ZWindow::ZWindow() noexcept : handle_(nullptr) {}
+ZWindow::ZWindow(ZWindow&& _window) noexcept : handle_(_window.handle_) {
+    _window.handle_ == nullptr;
+}
+ZWindow::ZWindow(
+    Int32 _width, Int32 _height, const Char* _title_str, Bool _full_screen, ZWindow* _share_window
+) noexcept : handle_(nullptr) {
+
 }
 
 }//gui

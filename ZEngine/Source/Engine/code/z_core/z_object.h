@@ -27,11 +27,11 @@
 namespace zengine {
 
 /*
-    The base class of almost everything(except the constant class).
+    The base class of almost everything.
     Inheriting from this class allows the instance to apply memory from the memorypool,
     instead of applying memory directly from the system.
 */
-class CORE_DLLAPI ZObject {
+class ZObject {
 public:
     /*
         Overwrite the new and delete operator to use the memory from the memorypool.
@@ -49,19 +49,18 @@ public:
 
 protected:
     FORCEINLINE constexpr ZObject() {}
-    FORCEINLINE constexpr ZObject(const ZObject& _object) {}
-    FORCEINLINE constexpr ZObject(ZObject&& _object) { MoveP(std::forward<ZObject>(_object)); }
+    FORCEINLINE constexpr ZObject(const ZObject& _obj) {}
+    FORCEINLINE constexpr ZObject(ZObject&& _obj) { MoveP(std::forward<ZObject>(_obj)); }
 
-    FORCEINLINE constexpr const ZObject& operator=(const ZObject& _object) { return *this; }
-    FORCEINLINE constexpr const ZObject& operator=(ZObject&& _object) {
-        MoveP(std::forward<ZObject>(_object));
+    FORCEINLINE constexpr const ZObject& operator=(const ZObject& _obj) { return *this; }
+    FORCEINLINE constexpr const ZObject& operator=(ZObject&& _obj) {
+        MoveP(std::forward<ZObject>(_obj));
         return *this;
     }
 
     FORCEINLINE constexpr ~ZObject() {}
 
 private:
-
     static Void* operator new[](SizeType) = delete;
     static Void* operator new[](SizeType, Void*) = delete;
     static Void operator delete[](Void*) = delete;
@@ -69,7 +68,7 @@ private:
     /*
         Reset the object to null when moved.
     */
-    FORCEINLINE constexpr Void MoveP(ZObject&& _object) {}
+    FORCEINLINE constexpr Void MoveP(ZObject&& _obj) {}
 };
 
 }//zengine
