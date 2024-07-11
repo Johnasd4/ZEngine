@@ -31,8 +31,6 @@ namespace gui {
 */
 class GUI_DLLAPI ZWindow : public ZGuiObject {
 public:
-    NODISCARD FORCEINLINE static Int32 WindowNum() noexcept { return window_num_; }
-
     ZWindow() noexcept;
     ZWindow(ZWindow&& _window) noexcept;
     ZWindow(Int32 _width, Int32 _height, const Char* _title_str, Bool _full_screen, ZWindow* _share_window) noexcept;
@@ -51,9 +49,6 @@ private:
     ZWindow(const ZWindow&) = delete;
 
     ZWindow& operator=(const ZWindow&) = delete;
-
-    //The num of the windows, will call glfwTerminate when window_num_ = 0.
-    inline static Int32 window_num_ = 0;
 
     Handle handle_;
 };
