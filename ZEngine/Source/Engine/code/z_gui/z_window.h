@@ -31,13 +31,6 @@ namespace gui {
 */
 class GUI_DLLAPI ZWindow : public ZGuiObject {
 public:
-    ZWindow() noexcept;
-    ZWindow(ZWindow&& _window) noexcept;
-    ZWindow(Int32 _width, Int32 _height, const Char* _title_str, Bool _full_screen, ZWindow* _share_window) noexcept;
-    ~ZWindow() noexcept;
-
-    ZWindow& operator=(ZWindow&& _window) noexcept;
-
     NODISCARD ReturnType Create(
         Int32 _width, Int32 _height, const Char* _title_str, Bool _full_screen, ZWindow* _share_window
     ) noexcept;
@@ -45,10 +38,31 @@ public:
 protected:
     using SuperType_ = ZObject;
 
+    ZWindow() noexcept;
+    ZWindow(ZWindow&& _window) noexcept;
+    ZWindow(Int32 _width, Int32 _height, const Char* _title_str, Bool _full_screen, ZWindow* _share_window) noexcept;
+    ~ZWindow() noexcept;
+
+    ZWindow& operator=(ZWindow&& _window) noexcept;
+
 private:
+
     ZWindow(const ZWindow&) = delete;
 
     ZWindow& operator=(const ZWindow&) = delete;
+    
+    /*
+        Creates the window, will initialize opengl if not initialized.
+    */
+    NODISCARD ReturnType CreateP(
+        Int32 _width, Int32 _height, const Char* _title_str, Bool _full_screen, ZWindow* _share_window
+    ) noexcept;
+    /*
+        Destroy the window, will terminate opengl if the last window destroyed.
+    */
+    NODISCARD ReturnType DestroyP() noexcept;
+
+    static Int32 window_num_;
 
     Handle handle_;
 };

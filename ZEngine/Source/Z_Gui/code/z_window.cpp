@@ -23,33 +23,9 @@
 namespace zengine {
 namespace gui {
 
-namespace internal {
-
-/*
-    Controls the global resourse initialze an terminate. Use the instance to create and destroy windows.
-*/
-class ZWindowManager {
-    ZWindowManager() noexcept;
-
-    ~ZWindowManager() noexcept;
-
-
-};
-
-}//internal
-
-/*
-    Creates an empty window.
-*/
-NODISCARD static ReturnType CreateWindowP(
-    Int32 _width, Int32 _height, const Char* _title_str, Bool _full_screen, ZWindow* _share_window
-) noexcept {
-
-}
-
 ZWindow::ZWindow() noexcept : handle_(nullptr) {}
 ZWindow::ZWindow(ZWindow&& _window) noexcept : handle_(_window.handle_) {
-    _window.handle_ == nullptr;
+    _window.handle_ = nullptr;
 }
 ZWindow::ZWindow(
     Int32 _width, Int32 _height, const Char* _title_str, Bool _full_screen, ZWindow* _share_window
@@ -58,12 +34,7 @@ ZWindow::ZWindow(
 
 }
 
-NODISCARD static ReturnType CreateWindowP(
-    Int32 _width, Int32 _height, const Char* _title_str, Bool _full_screen, ZWindow* _share_window
-) noexcept {
-
-}
-
+Int32 ZWindow::window_num_ = 0;
 
 }//gui
 }//zengine

@@ -100,10 +100,10 @@ GUI_DLLAPI NODISCARD Int32 Test() noexcept {
     // 主循环
     while (!glfwWindowShouldClose(window)) {
         // 清除屏幕
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_ACCUM_BUFFER_BIT);
 
         // 渲染 ImGui 界面
-        renderImGui();
+         renderImGui();
 
         // 交换前后缓冲区
         glfwSwapBuffers(window);
