@@ -1,0 +1,108 @@
+/*
+    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+
+    This code file is licensed under the Creative Commons
+    Attribution-NonCommercial 4.0 International License.
+
+    You may obtain a copy of the License at
+    https://creativecommons.org/licenses/by-nc/4.0/
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Contact: 1152325286@qq.com
+*/
+#ifndef Z_CORE_T_ATOM_H_
+#define Z_CORE_T_ATOM_H_
+
+#include "internal/z_drive.h"
+
+#include "t_lock_guard.h"
+#include "z_mutex.h"
+#include "z_object.h"
+
+namespace zengine {
+
+/*
+    Atom template class, the variable will be thread safe.
+*/
+template<typename _ObjectType>
+class TAtom : public ZObject {
+public:
+    FORCEINLINE TAtom() noexcept : SuperType_(), mutex_(), obj_() {}
+    FORCEINLINE TAtom(const TAtom& _atom) noexcept : SuperType_(), mutex_() {
+        _atom.mutex_.Lock();
+        obj_ = _atom.obj_;
+    }
+    FORCEINLINE TAtom(TAtom&& _atom) noexcept : SuperType_(), SuperType_(), mutex_() {
+        TLockGuard<ZMutex> lock_guard_right(_atom.mutex_);
+        obj_ = std::move(_atom.obj_);
+    }
+    FORCEINLINE TAtom(const _ObjectType& _obj) noexcept : SuperType_(), mutex_(), obj_(_obj) {}
+    FORCEINLINE TAtom(_ObjectType&& _obj) noexcept : SuperType_(), mutex_(), obj_(std::move(_obj)) {}
+
+    FORCEINLINE ~TAtom() noexcept {}
+
+    FORCEINLINE TAtom& operator=(const TAtom& _atom) noexcept {
+        TLockGuard<ZMutex> lock_guard_left(mutex_);
+        TLockGuard<ZMutex> lock_guard_right(_atom.mutex_);
+        obj_ = _atom.obj_;
+        return *this;
+    }
+    FORCEINLINE TAtom& operator=(TAtom&& _atom) noexcept {
+        TLockGuard<ZMutex> lock_guard_left(mutex_);
+        TLockGuard<ZMutex> lock_guard_right(_atom.mutex_);
+        obj_ = std::move(_atom.obj_);
+        return *this;
+    }
+    FORCEINLINE TAtom& operator=(const _ObjectType& _obj) noexcept {
+        TLockGuard<ZMutex> lock_guard_left(mutex_);
+        obj_ = _obj;
+        return *this;
+    }
+    FORCEINLINE TAtom& operator=(_ObjectType&& _obj) noexcept {
+        TLockGuard<ZMutex> lock_guard_left(mutex_);
+        obj_ = std::move(_obj);
+        return *this;
+    }
+    template<typename _ArgType>
+    FORCEINLINE TAtom& operator=(_ArgType&& _arg) noexcept {
+        obj_ = _arg;
+        return *this;
+    }
+
+    NODISCARD FORCEINLINE Bool operator==(const TAtom& _atom) noexcept { 
+        TLockGuard<ZMutex> lock_guard_left(mutex_);
+        TLockGuard<ZMutex> lock_guard_right(_atom.mutex_);
+        return obj_ == _atom.obj_;
+    }
+    NODISCARD FORCEINLINE Bool operator!=(const TAtom& _atom) noexcept {
+        TLockGuard<ZMutex> lock_guard_left(mutex_);
+        TLockGuard<ZMutex> lock_guard_right(_atom.mutex_);
+        return obj_ == _atom.obj_;
+    }
+
+    NODISCARD FORCEINLINE _ObjectType Value(IndexType _index) noexcept { 
+        TLockGuard<ZMutex> lock_guard(mutex_);
+        return obj_;
+    }
+    NODISCARD FORCEINLINE const _ObjectType Value(IndexType _index) const noexcept {
+        TLockGuard<ZMutex> lock_guard(mutex_);
+        return obj_; 
+    }
+
+protected:
+    using SuperType_ = ZObject;
+
+private:
+    mutable ZMutex mutex_;
+    _ObjectType obj_;
+};
+
+}//zengine
+
+#endif // !Z_CORE_T_ATOM_H_

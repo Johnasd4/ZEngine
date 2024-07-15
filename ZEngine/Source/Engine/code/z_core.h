@@ -25,6 +25,7 @@
 #include "z_core/m_log.h"
 #include "z_core/t_allocator.h"
 #include "z_core/t_array.h"
+#include "z_core/t_atom.h"
 #include "z_core/t_deque.h"
 #include "z_core/t_fixed_deque.h"
 #include "z_core/t_fixed_queue.h"

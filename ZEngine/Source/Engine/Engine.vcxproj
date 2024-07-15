@@ -36,6 +36,7 @@
     <ClInclude Include="code\z_core\m_log.h" />
     <ClInclude Include="code\z_core\t_allocator.h" />
     <ClInclude Include="code\z_core\t_array.h" />
+    <ClInclude Include="code\z_core\t_atom.h" />
     <ClInclude Include="code\z_core\t_deque.h" />
     <ClInclude Include="code\z_core\t_fixed_deque.h" />
     <ClInclude Include="code\z_core\t_fixed_queue.h" />
