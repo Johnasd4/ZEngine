@@ -80,7 +80,7 @@ Void ZErrorLog::FileOutputLogString(const ZLog* _log_ptr, const ZLog::OutputStri
             system_time.Hour(), system_time.Min(), system_time.Sec());
         link_code = file.Open(file_dir.DataPtr(), ZFile::kOpenTypeAppend);
         if (link_code != kOK) {
-            Z_LOG_ERROR(error_code::kMLogErrorCodeLinkError, link_code, L"ZFile::OpenSafe() link error!");
+            Z_LOG_ERROR(error_code::kMLogErrorCodeLinkError, link_code, L"ZFile::Open() link error!");
         }
         return file;
     }();

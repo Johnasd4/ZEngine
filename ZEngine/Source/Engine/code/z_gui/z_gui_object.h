@@ -22,6 +22,7 @@
 #include "internal/z_drive.h"
 
 #include "../z_core/z_object.h"
+#include "../z_core/z_mutex.h"
 
 namespace zengine {
 namespace gui {
@@ -31,8 +32,12 @@ namespace gui {
     Inheriting from this class allows the instance to apply memory from the memorypool,
     instead of applying memory directly from the system.
 */
-class ZGuiObject : public ZObject {
+class GUI_DLLAPI ZGuiObject : public ZObject {
 public:
+    /* The mutex for the global opengl. */
+    static ZMutex& OpenGLMutex() noexcept;
+    /* The mutex for the global imgui. */
+    static ZMutex& ImguiMutex() noexcept;
 
 protected:
     using SuperType_ = ZObject;

@@ -16,21 +16,10 @@
     Author: YuLin Zhu (÷Ï”Í¡÷)
     Contact: 1152325286@qq.com
 */
-#ifndef Z_GUI_INTERNAL_D_ERROR_CODE_H_
-#define Z_GUI_INTERNAL_D_ERROR_CODE_H_
+#ifndef Z_GUI_H_
+#define Z_GUI_H_
 
-#include "d_lib.h"
-#include "d_type.h"
+#include "z_gui/z_gui_object.h"
+#include "z_gui/z_window.h"
 
-namespace zengine {
-namespace gui {
-namespace error_code {
-
-inline constexpr ReturnType kErrorCodeBasePGui = 0x00200000u;
-inline constexpr ReturnType kErrorCodeBaseZWindow = kErrorCodeBasePGui + 0x100u;
-
-}//error_code
-}//gui
-}//zengine
-
-#endif // !Z_GUI_INTERNAL_D_ERROR_CODE_H_
+#endif // !Z_GUI_H_  

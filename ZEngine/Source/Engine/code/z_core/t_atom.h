@@ -69,21 +69,256 @@ public:
         obj_ = std::move(_obj);
         return *this;
     }
-    template<typename _ArgType>
-    FORCEINLINE TAtom& operator=(_ArgType&& _arg) noexcept {
-        obj_ = _arg;
+
+    FORCEINLINE TAtom& operator++() noexcept {
+        TLockGuard<ZMutex> lock_guard(mutex_);
+        ++obj_;
+        return *this;
+    }
+    FORCEINLINE TAtom& operator--() noexcept {
+        TLockGuard<ZMutex> lock_guard(mutex_);
+        --obj_;
+        return *this;
+    }
+    template<typename _OtherObjectType>
+    FORCEINLINE TAtom& operator+=(const _OtherObjectType& _obj) noexcept {
+        TLockGuard<ZMutex> lock_guard(mutex_);
+        obj_+= _obj;
+        return *this;
+    }
+    template<typename _OtherObjectType>
+    FORCEINLINE TAtom& operator-=(const _OtherObjectType& _obj) noexcept {
+        TLockGuard<ZMutex> lock_guard(mutex_);
+        obj_ -= _obj;
+        return *this;
+    }
+    template<typename _OtherObjectType>
+    FORCEINLINE TAtom& operator*=(const _OtherObjectType& _obj) noexcept {
+        TLockGuard<ZMutex> lock_guard(mutex_);
+        obj_ *= _obj;
+        return *this;
+    }
+    template<typename _OtherObjectType>
+    FORCEINLINE TAtom& operator/=(const _OtherObjectType& _obj) noexcept {
+        TLockGuard<ZMutex> lock_guard(mutex_);
+        obj_ /= _obj;
+        return *this;
+    }
+    template<typename _OtherObjectType>
+    FORCEINLINE TAtom& operator|=(const _OtherObjectType& _obj) noexcept {
+        TLockGuard<ZMutex> lock_guard(mutex_);
+        obj_ /= _obj;
+        return *this;
+    }
+    template<typename _OtherObjectType>
+    FORCEINLINE TAtom& operator&=(const _OtherObjectType& _obj) noexcept {
+        TLockGuard<ZMutex> lock_guard(mutex_);
+        obj_ /= _obj;
         return *this;
     }
 
-    NODISCARD FORCEINLINE Bool operator==(const TAtom& _atom) noexcept { 
-        TLockGuard<ZMutex> lock_guard_left(mutex_);
-        TLockGuard<ZMutex> lock_guard_right(_atom.mutex_);
-        return obj_ == _atom.obj_;
+    template<typename _OtherObjectType>
+    FORCEINLINE auto operator>>(const _OtherObjectType& _obj) noexcept {
+        TLockGuard<ZMutex> lock_guard(mutex_);
+        return obj_ >> _obj;
     }
-    NODISCARD FORCEINLINE Bool operator!=(const TAtom& _atom) noexcept {
-        TLockGuard<ZMutex> lock_guard_left(mutex_);
-        TLockGuard<ZMutex> lock_guard_right(_atom.mutex_);
-        return obj_ == _atom.obj_;
+    template<typename _OtherObjectType>
+    FORCEINLINE auto operator<<(const _OtherObjectType& _obj) noexcept {
+        TLockGuard<ZMutex> lock_guard(mutex_);
+        return obj_ << _obj;
+    }
+
+    NODISCARD FORCEINLINE auto operator~() noexcept {
+        TLockGuard<ZMutex> lock_guard(mutex_);
+        return ~obj_;
+    }
+    NODISCARD FORCEINLINE auto operator!() noexcept {
+        TLockGuard<ZMutex> lock_guard(mutex_);
+        return !obj_;
+    }
+
+    friend NODISCARD FORCEINLINE auto operator+(const TAtom& _left, const TAtom& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_left(_left.mutex_);
+        TLockGuard<ZMutex> lock_guard_right(_right.mutex_);
+        return _left.obj_ + _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE auto operator+(const _ObjectType& _left, const TAtom& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_right(_right.mutex_);
+        return _left + _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE auto operator+(const TAtom& _left, const _ObjectType& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_left(_left.mutex_);
+        return _left.obj_ + _right;
+    }
+    friend NODISCARD FORCEINLINE auto operator-(const TAtom& _left, const TAtom& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_left(_left.mutex_);
+        TLockGuard<ZMutex> lock_guard_right(_right.mutex_);
+        return _left.obj_ - _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE auto operator-(const _ObjectType& _left, const TAtom& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_right(_right.mutex_);
+        return _left - _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE auto operator-(const TAtom& _left, const _ObjectType& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_left(_left.mutex_);
+        return _left.obj_ - _right;
+    }
+    friend NODISCARD FORCEINLINE auto operator*(const TAtom& _left, const TAtom& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_left(_left.mutex_);
+        TLockGuard<ZMutex> lock_guard_right(_right.mutex_);
+        return _left.obj_ * _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE auto operator*(const _ObjectType& _left, const TAtom& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_right(_right.mutex_);
+        return _left * _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE auto operator*(const TAtom& _left, const _ObjectType& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_left(_left.mutex_);
+        return _left.obj_ * _right;
+    }
+    friend NODISCARD FORCEINLINE auto operator/(const TAtom& _left, const TAtom& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_left(_left.mutex_);
+        TLockGuard<ZMutex> lock_guard_right(_right.mutex_);
+        return _left.obj_ / _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE auto operator/(const _ObjectType& _left, const TAtom& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_right(_right.mutex_);
+        return _left / _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE auto operator/(const TAtom& _left, const _ObjectType& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_left(_left.mutex_);
+        return _left.obj_ / _right;
+    }
+    friend NODISCARD FORCEINLINE auto operator%(const TAtom& _left, const TAtom& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_left(_left.mutex_);
+        TLockGuard<ZMutex> lock_guard_right(_right.mutex_);
+        return _left.obj_ % _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE auto operator%(const _ObjectType& _left, const TAtom& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_right(_right.mutex_);
+        return _left % _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE auto operator%(const TAtom& _left, const _ObjectType& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_left(_left.mutex_);
+        return _left.obj_ % _right;
+    }
+    friend NODISCARD FORCEINLINE auto operator^(const TAtom& _left, const TAtom& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_left(_left.mutex_);
+        TLockGuard<ZMutex> lock_guard_right(_right.mutex_);
+        return _left.obj_ ^ _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE auto operator^(const _ObjectType& _left, const TAtom& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_right(_right.mutex_);
+        return _left ^ _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE auto operator^(const TAtom& _left, const _ObjectType& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_left(_left.mutex_);
+        return _left.obj_ ^ _right;
+    }
+    friend NODISCARD FORCEINLINE auto operator|(const TAtom& _left, const TAtom& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_left(_left.mutex_);
+        TLockGuard<ZMutex> lock_guard_right(_right.mutex_);
+        return _left.obj_ | _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE auto operator|(const _ObjectType& _left, const TAtom& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_right(_right.mutex_);
+        return _left | _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE auto operator|(const TAtom& _left, const _ObjectType& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_left(_left.mutex_);
+        return _left.obj_ | _right;
+    }
+    friend NODISCARD FORCEINLINE auto operator&(const TAtom& _left, const TAtom& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_left(_left.mutex_);
+        TLockGuard<ZMutex> lock_guard_right(_right.mutex_);
+        return _left.obj_ & _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE auto operator&(const _ObjectType& _left, const TAtom& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_right(_right.mutex_);
+        return _left & _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE auto operator&(const TAtom& _left, const _ObjectType& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_left(_left.mutex_);
+        return _left.obj_ & _right;
+    }
+
+    friend NODISCARD FORCEINLINE Bool operator==(const TAtom& _left, const TAtom& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_left(_left.mutex_);
+        TLockGuard<ZMutex> lock_guard_right(_right.mutex_);
+        return _left.obj_ == _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE Bool operator==(const _ObjectType& _left, const TAtom& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_right(_right.mutex_);
+        return _left == _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE Bool operator==(const TAtom& _left, const _ObjectType& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_left(_left.mutex_);
+        return _left.obj_ == _right;
+    }
+    friend NODISCARD FORCEINLINE Bool operator!=(const TAtom& _left, const TAtom& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_left(_left.mutex_);
+        TLockGuard<ZMutex> lock_guard_right(_right.mutex_);
+        return _left.obj_ != _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE Bool operator!=(const _ObjectType& _left, const TAtom& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_right(_right.mutex_);
+        return _left != _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE Bool operator!=(const TAtom& _left, const _ObjectType& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_left(_left.mutex_);
+        return _left.obj_ != _right;
+    }
+    friend NODISCARD FORCEINLINE Bool operator>(const TAtom& _left, const TAtom& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_left(_left.mutex_);
+        TLockGuard<ZMutex> lock_guard_right(_right.mutex_);
+        return _left.obj_ > _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE Bool operator>(const _ObjectType& _left, const TAtom& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_right(_right.mutex_);
+        return _left > _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE Bool operator>(const TAtom& _left, const _ObjectType& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_left(_left.mutex_);
+        return _left.obj_ > _right;
+    }
+    friend NODISCARD FORCEINLINE Bool operator>=(const TAtom& _left, const TAtom& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_left(_left.mutex_);
+        TLockGuard<ZMutex> lock_guard_right(_right.mutex_);
+        return _left.obj_ >= _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE Bool operator>=(const _ObjectType& _left, const TAtom& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_right(_right.mutex_);
+        return _left >= _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE Bool operator>=(const TAtom& _left, const _ObjectType& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_left(_left.mutex_);
+        return _left.obj_ >= _right;
+    }
+    friend NODISCARD FORCEINLINE Bool operator<(const TAtom& _left, const TAtom& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_left(_left.mutex_);
+        TLockGuard<ZMutex> lock_guard_right(_right.mutex_);
+        return _left.obj_ < _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE Bool operator<(const _ObjectType& _left, const TAtom& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_right(_right.mutex_);
+        return _left < _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE Bool operator<(const TAtom& _left, const _ObjectType& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_left(_left.mutex_);
+        return _left.obj_ < _right;
+    }
+    friend NODISCARD FORCEINLINE Bool operator<=(const TAtom& _left, const TAtom& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_left(_left.mutex_);
+        TLockGuard<ZMutex> lock_guard_right(_right.mutex_);
+        return _left.obj_ <= _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE Bool operator<=(const _ObjectType& _left, const TAtom& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_right(_right.mutex_);
+        return _left <= _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE Bool operator<=(const TAtom& _left, const _ObjectType& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_left(_left.mutex_);
+        return _left.obj_ <= _right;
     }
 
     NODISCARD FORCEINLINE _ObjectType Value(IndexType _index) noexcept { 

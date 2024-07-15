@@ -21,29 +21,107 @@
 
 #include "internal/z_drive.h"
 
+#include "../z_core/m_log.h"
+#include "../z_core/t_atom.h"
+
 #include "z_gui_object.h"
 
 namespace zengine {
 namespace gui {
+
+namespace error_code {
+
+enum ZWindowErrorCode : ReturnType {
+    kZWindowErrorCodeLinkError = kErrorCodeBaseZWindow,
+    kZWindowErrorCode ScreenMode
+};
+
+}//error_code
 
 /*
     Window class.
 */
 class GUI_DLLAPI ZWindow : public ZGuiObject {
 public:
-    NODISCARD ReturnType Create(
-        Int32 _width, Int32 _height, const Char* _title_str, Bool _full_screen, ZWindow* _share_window
-    ) noexcept;
+    /*
+        Starts the main loop of the window.
+    */
+    NODISCARD ReturnType Execute() noexcept;
+    /*
+        Starts the main loop of the window.
+    */
+    NODISCARD Void ExecuteInNewThread() noexcept;
+
+    /*
+        Window states.
+    */
+    enum WindowStateEnum {
+        kWindowStateTerminated,
+        kWindowStateExecuted
+    };
+
+    /*
+        The window screen mode.
+    */
+    enum WindowScreenModeEnum {
+        kWindowScreenModeWindow,
+        kWindowScreenModeFullScreenCustomSize,
+        kWindowScreenModeFullScreenDefaultSize,
+    };
 
 protected:
     using SuperType_ = ZObject;
 
     ZWindow() noexcept;
     ZWindow(ZWindow&& _window) noexcept;
-    ZWindow(Int32 _width, Int32 _height, const Char* _title_str, Bool _full_screen, ZWindow* _share_window) noexcept;
+    ZWindow(
+        Int32 _width, Int32 _height, const Char* _title_str, WindowScreenModeEnum _screen_type, ZWindow* _share_window
+    ) noexcept;
     ~ZWindow() noexcept;
-
     ZWindow& operator=(ZWindow&& _window) noexcept;
+
+    /*
+        Calls every tick.
+    */
+    virtual Void Tick(Float32 _tick) noexcept = 0;
+
+    /*
+        Sets the title at runtime.
+    */
+    Void SetTitle(const Char* _title_str) noexcept;
+    /*
+        Sets the size of the window.
+    */
+    Void SetWidth(Int32 _width) noexcept;
+    /*
+        Sets the size of the window.
+    */
+    Void SetHeight(Int32 _height) noexcept;
+    /*
+        Sets the size of the window.
+    */
+    Void SetWindowSize(Int32 _width, Int32 _height) noexcept;
+    /*
+        Sets if full screen.
+    */
+    Void SetFullScreen(Bool _if_full_screen) noexcept;
+
+    /*
+        Gets the title at runtime.
+    */
+    NODISCARD const Char* Title() noexcept;
+    /*
+        Gets the size of the window.
+    */
+    NODISCARD Int32 Width() noexcept;
+    /*
+        Gets the size of the window.
+    */
+    NODISCARD Int32 Height() noexcept;
+    /*
+        Gets if full screen.
+    */
+    NODISCARD Bool FullScreen() noexcept;
 
 private:
 
@@ -55,16 +133,17 @@ private:
         Creates the window, will initialize opengl if not initialized.
     */
     NODISCARD ReturnType CreateP(
-        Int32 _width, Int32 _height, const Char* _title_str, Bool _full_screen, ZWindow* _share_window
+        Int32 _width, Int32 _height, const Char* _title_str, WindowScreenModeEnum _screen_type, ZWindow* _share_window
     ) noexcept;
     /*
         Destroy the window, will terminate opengl if the last window destroyed.
     */
     NODISCARD ReturnType DestroyP() noexcept;
 
-    static Int32 window_num_;
+    static TAtom<Int32> window_num_;
 
     Handle handle_;
+    WindowStateEnum window_state_;
 };
 
 }//gui

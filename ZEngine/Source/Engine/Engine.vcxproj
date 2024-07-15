@@ -65,6 +65,7 @@
     <ClInclude Include="code\z_core\z_thread.h" />
     <ClInclude Include="code\z_core\z_thread_pool.h" />
     <ClInclude Include="code\z_engine.h" />
+    <ClInclude Include="code\z_gui.h" />
     <ClInclude Include="code\z_gui\f_test.h" />
     <ClInclude Include="code\z_gui\internal\d_concept.h" />
     <ClInclude Include="code\z_gui\internal\d_constant.h" />

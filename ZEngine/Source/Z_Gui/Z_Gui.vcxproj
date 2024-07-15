@@ -22,6 +22,7 @@
   <ItemGroup>
     <ClCompile Include="code\f_test.cpp" />
     <ClCompile Include="code\z_window.cpp" />
+    <ClCompile Include="z_gui_object.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

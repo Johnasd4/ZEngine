@@ -16,21 +16,22 @@
     Author: YuLin Zhu (÷Ï”Í¡÷)
     Contact: 1152325286@qq.com
 */
-#ifndef Z_GUI_INTERNAL_D_ERROR_CODE_H_
-#define Z_GUI_INTERNAL_D_ERROR_CODE_H_
+#define GUI_DLLFILE
 
-#include "d_lib.h"
-#include "d_type.h"
+#include "z_gui_object.h"
 
 namespace zengine {
 namespace gui {
-namespace error_code {
 
-inline constexpr ReturnType kErrorCodeBasePGui = 0x00200000u;
-inline constexpr ReturnType kErrorCodeBaseZWindow = kErrorCodeBasePGui + 0x100u;
+ZMutex& ZGuiObject::OpenGLMutex() noexcept {
+    static ZMutex mutex;
+    return mutex;
+}
 
-}//error_code
+ZMutex& ZGuiObject::ImguiMutex() noexcept {
+    static ZMutex mutex;
+    return mutex;
+}
+
 }//gui
 }//zengine
-
-#endif // !Z_GUI_INTERNAL_D_ERROR_CODE_H_
