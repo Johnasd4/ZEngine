@@ -44,8 +44,6 @@ public:
 
     NODISCARD FORCEINLINE Int32 Width() const noexcept { return width_; }
     NODISCARD FORCEINLINE Int32 Height() const noexcept { return height_; }
-    NODISCARD FORCEINLINE Void SetWidth(Int32 _width) noexcept { width_ = _width; }
-    NODISCARD FORCEINLINE Void SetHeight(Int32 _height) noexcept { height_ = _height; }
 
 protected:
     using SuperType_ = ZObject;
@@ -77,13 +75,12 @@ protected:
 
     FORCEINLINE ~ZGuiObject() {}
 
+    Int32 width_;
+    Int32 height_;
 private:
     static Void* operator new[](SizeType) = delete;
     static Void* operator new[](SizeType, Void*) = delete;
     static Void operator delete[](Void*) = delete;
-
-    Int32 width_;
-    Int32 height_;
 };
 
 }//gui
