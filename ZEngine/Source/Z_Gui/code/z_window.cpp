@@ -31,7 +31,7 @@ ZWindow::ZWindow(ZWindow&& _window) noexcept : handle_(_window.handle_), window_
     _window.window_state_ = kWindowStateTerminated;
 }
 ZWindow::ZWindow(
-    Int32 _width, Int32 _height, const Char* _title_str, WindowScreenModeEnum _screen_mode, ZWindow* _share_window
+    Int32 _width, Int32 _height, const Char* _title_str, WindowScreenModeEnum_ _screen_mode, ZWindow* _share_window
 ) noexcept : handle_(nullptr), window_state_(kWindowStateTerminated) {
     ReturnType link_code = kOK;
     link_code = CreateP(_width, _height, _title_str, _screen_mode, _share_window);
@@ -41,7 +41,7 @@ ZWindow::ZWindow(
 }
 
 NODISCARD ReturnType ZWindow::CreateP(
-    Int32 _width, Int32 _height, const Char* _title_str, WindowScreenModeEnum _screen_mode, ZWindow* _share_window
+    Int32 _width, Int32 _height, const Char* _title_str, WindowScreenModeEnum_ _screen_mode, ZWindow* _share_window
 ) noexcept {
     ReturnType ret_val = kOK;
 

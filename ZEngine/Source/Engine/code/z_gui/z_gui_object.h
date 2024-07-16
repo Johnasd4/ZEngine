@@ -31,6 +31,9 @@ namespace gui {
     The base class of the gui classes.
     Inheriting from this class allows the instance to apply memory from the memorypool,
     instead of applying memory directly from the system.
+    Object members:
+    Int32 width_: The width of the gui object.
+    Int32 height_: The height of the gui object.
 */
 class GUI_DLLAPI ZGuiObject : public ZObject {
 public:
@@ -39,25 +42,48 @@ public:
     /* The mutex for the global imgui. */
     static ZMutex& ImguiMutex() noexcept;
 
+    NODISCARD FORCEINLINE Int32 Width() const noexcept { return width_; }
+    NODISCARD FORCEINLINE Int32 Height() const noexcept { return height_; }
+    NODISCARD FORCEINLINE Void SetWidth(Int32 _width) noexcept { width_ = _width; }
+    NODISCARD FORCEINLINE Void SetHeight(Int32 _height) noexcept { height_ = _height; }
+
 protected:
     using SuperType_ = ZObject;
 
-    FORCEINLINE constexpr ZGuiObject() : SuperType_() {}
-    FORCEINLINE constexpr ZGuiObject(const ZGuiObject& _obj) : SuperType_(_obj) {}
-    FORCEINLINE constexpr ZGuiObject(ZGuiObject&& _obj) : SuperType_(std::move(_obj)) {}
+    FORCEINLINE ZGuiObject() noexcept : SuperType_(), width_(0), height_(0) {}
+    FORCEINLINE ZGuiObject(const ZGuiObject& _obj) noexcept 
+        : SuperType_(_obj), width_(_obj.width_), height_(_obj.height_) {}
+    FORCEINLINE ZGuiObject(ZGuiObject&& _obj) noexcept 
+        : SuperType_(std::move(_obj)), width_(_obj.width_), height_(_obj.height_) 
+    {
+        _obj.width_ = 0;
+        _obj.height_ = 0;
+    }
 
-    FORCEINLINE constexpr const ZGuiObject& operator=(const ZGuiObject& _obj) { return *this; }
-    FORCEINLINE constexpr const ZGuiObject& operator=(ZGuiObject&& _obj) {
+    const ZGuiObject& operator=(const ZGuiObject& _obj) noexcept {
+        SuperType_::operator=(_obj);
+        width_ = _obj.width_;
+        height_ = _obj.height_;
+        return *this;
+    }
+    const ZGuiObject& operator=(ZGuiObject&& _obj) noexcept {
         SuperType_::operator=(std::move(_obj));
+        width_ = _obj.width_;
+        height_ = _obj.height_;
+        _obj.width_ = 0;
+        _obj.height_ = 0;
         return *this;
     }
 
-    FORCEINLINE constexpr ~ZGuiObject() {}
+    FORCEINLINE ~ZGuiObject() {}
 
 private:
     static Void* operator new[](SizeType) = delete;
     static Void* operator new[](SizeType, Void*) = delete;
     static Void operator delete[](Void*) = delete;
+
+    Int32 width_;
+    Int32 height_;
 };
 
 }//gui

@@ -33,7 +33,7 @@ namespace error_code {
 
 enum ZWindowErrorCode : ReturnType {
     kZWindowErrorCodeLinkError = kErrorCodeBaseZWindow,
-    kZWindowErrorCode ScreenMode
+    kZWindowErrorCodeScreenMode
 };
 
 }//error_code
@@ -55,7 +55,7 @@ public:
     /*
         Window states.
     */
-    enum WindowStateEnum {
+    enum WindowStateEnum_ {
         kWindowStateTerminated,
         kWindowStateExecuted
     };
@@ -63,7 +63,7 @@ public:
     /*
         The window screen mode.
     */
-    enum WindowScreenModeEnum {
+    enum WindowScreenModeEnum_ {
         kWindowScreenModeWindow,
         kWindowScreenModeFullScreenCustomSize,
         kWindowScreenModeFullScreenDefaultSize,
@@ -75,7 +75,7 @@ protected:
     ZWindow() noexcept;
     ZWindow(ZWindow&& _window) noexcept;
     ZWindow(
-        Int32 _width, Int32 _height, const Char* _title_str, WindowScreenModeEnum _screen_type, ZWindow* _share_window
+        Int32 _width, Int32 _height, const Char* _title_str, WindowScreenModeEnum_ _screen_type, ZWindow* _share_window
     ) noexcept;
     ~ZWindow() noexcept;
     ZWindow& operator=(ZWindow&& _window) noexcept;
@@ -110,14 +110,7 @@ protected:
         Gets the title at runtime.
     */
     NODISCARD const Char* Title() noexcept;
-    /*
-        Gets the size of the window.
-    */
-    NODISCARD Int32 Width() noexcept;
-    /*
-        Gets the size of the window.
-    */
-    NODISCARD Int32 Height() noexcept;
+
     /*
         Gets if full screen.
     */
@@ -133,7 +126,7 @@ private:
         Creates the window, will initialize opengl if not initialized.
     */
     NODISCARD ReturnType CreateP(
-        Int32 _width, Int32 _height, const Char* _title_str, WindowScreenModeEnum _screen_type, ZWindow* _share_window
+        Int32 _width, Int32 _height, const Char* _title_str, WindowScreenModeEnum_ _screen_type, ZWindow* _share_window
     ) noexcept;
     /*
         Destroy the window, will terminate opengl if the last window destroyed.
@@ -143,7 +136,7 @@ private:
     static TAtom<Int32> window_num_;
 
     Handle handle_;
-    WindowStateEnum window_state_;
+    WindowStateEnum_ window_state_;
 };
 
 }//gui
