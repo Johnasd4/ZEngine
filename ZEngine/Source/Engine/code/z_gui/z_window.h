@@ -74,9 +74,6 @@ protected:
 
     ZWindow() noexcept;
     ZWindow(ZWindow&& _window) noexcept;
-    ZWindow(
-        Int32 _width, Int32 _height, const Char* _title_str, WindowScreenModeEnum_ _screen_type, ZWindow* _share_window
-    ) noexcept;
     ~ZWindow() noexcept;
     ZWindow& operator=(ZWindow&& _window) noexcept;
 
@@ -105,16 +102,6 @@ protected:
         Sets if full screen.
     */
     Void SetFullScreen(Bool _if_full_screen) noexcept;
-
-    /*
-        Gets the title at runtime.
-    */
-    NODISCARD const Char* Title() noexcept;
-
-    /*
-        Gets if full screen.
-    */
-    NODISCARD Bool FullScreen() noexcept;
 
 private:
 
