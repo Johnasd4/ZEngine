@@ -52,28 +52,31 @@ public:
     using ConstReverseIterator_ = STDString_::const_reverse_iterator;
     using InitializerList_ = std::initializer_list<_CharType>;
 
-    FORCEINLINE constexpr TString() noexcept : SuperType(), str_() {}
-    FORCEINLINE constexpr TString(const TString& _str) noexcept : SuperType(), str_(_str.str_) {}
+    FORCEINLINE constexpr TString() noexcept : SuperType_(), str_() {}
+    FORCEINLINE constexpr TString(const TString& _str) noexcept : SuperType_(_str), str_(_str.str_) {}
     FORCEINLINE constexpr TString(const TString& _str, SizeType _pos, SizeType _len = -1) noexcept
-        : SuperType(), str_(_str.str_, _pos, _len) {}
-    FORCEINLINE constexpr TString(TString&& _str) noexcept : SuperType(), str_(std::move(_str.str_)) {}
+        : SuperType_(), str_(_str.str_, _pos, _len) {}
+    FORCEINLINE constexpr TString(TString&& _str) noexcept 
+        : SuperType_(std::forward<TString>(_str)), str_(std::move(_str.str_)) {}
 
-    FORCEINLINE constexpr TString(const _CharType* _str) noexcept : SuperType(), str_(_str) {}
+    FORCEINLINE constexpr TString(const _CharType* _str) noexcept : SuperType_(), str_(_str) {}
     FORCEINLINE constexpr TString(const _CharType* _str, SizeType _size) noexcept 
-        : SuperType(), str_(_str, _size) {}
-    FORCEINLINE constexpr TString(SizeType _size, _CharType& _val) noexcept : SuperType(), str_(_size, _val) {}
+        : SuperType_(), str_(_str, _size) {}
+    FORCEINLINE constexpr TString(SizeType _size, _CharType& _val) noexcept : SuperType_(), str_(_size, _val) {}
     template <typename _InputIterator>
     FORCEINLINE constexpr TString(_InputIterator _first, _InputIterator _last) noexcept 
-        : SuperType(), str_(_first, _last) {}
-    FORCEINLINE constexpr TString(InitializerList_ _init_list) noexcept : SuperType(), str_(_init_list) {}
+        : SuperType_(), str_(_first, _last) {}
+    FORCEINLINE constexpr TString(InitializerList_ _init_list) noexcept : SuperType_(), str_(_init_list) {}
  
     FORCEINLINE constexpr ~TString() noexcept {}
 
     FORCEINLINE constexpr TString& operator=(const TString& _str) noexcept {
+        SuperType_::operator=(_str);
         str_ = _str.str_;
         return *this;
     }
     FORCEINLINE constexpr TString& operator=(TString&& _str) noexcept {
+        SuperType_::operator=(std::forward<TString>(_str));
         str_ = std::move(_str.str_);
         return *this;
     }
@@ -682,7 +685,7 @@ public:
     FORCEINLINE constexpr Void Swap(TString& _str) noexcept { str_.swap(_str); }
 
 protected:
-    using SuperType = ZObject;
+    using SuperType_ = ZObject;
 
 private:
     STDString_ str_;

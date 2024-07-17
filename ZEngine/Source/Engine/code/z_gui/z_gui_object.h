@@ -53,41 +53,38 @@ protected:
     using SuperType_ = ZObject;
 
     ZGuiObject() noexcept : SuperType_(), width_(0), height_(0), owner_ptr_(nullptr) {}
-    ZGuiObject(const ZGuiObject& _obj) noexcept 
-        : SuperType_(_obj), width_(_obj.width_), height_(_obj.height_), owner_ptr_(_obj.owner_ptr_) {}
-    ZGuiObject(ZGuiObject&& _obj) noexcept 
-        : SuperType_(std::move(_obj)), width_(_obj.width_), height_(_obj.height_), owner_ptr_(_obj.owner_ptr_)
-    {
-        _obj.width_ = 0;
-        _obj.height_ = 0;
-        _obj.owner_ptr_ = nullptr;
-    }
+    ZGuiObject(const ZGuiObject& _obj) noexcept : SuperType_(_obj) { CopyP(_obj); }
+    ZGuiObject(ZGuiObject&& _obj) noexcept : SuperType_(std::move(_obj)) { MoveP(std::forward<ZGuiObject>(_obj)); }
 
     const ZGuiObject& operator=(const ZGuiObject& _obj) noexcept {
         SuperType_::operator=(_obj);
-        width_ = _obj.width_;
-        height_ = _obj.height_;
-        owner_ptr_ = _obj.owner_ptr_;
+        CopyP(_obj);
         return *this;
     }
     const ZGuiObject& operator=(ZGuiObject&& _obj) noexcept {
         SuperType_::operator=(std::move(_obj));
-        width_ = _obj.width_;
-        height_ = _obj.height_;
-        owner_ptr_ = _obj.owner_ptr_;
-        _obj.width_ = 0;
-        _obj.height_ = 0;
-        _obj.owner_ptr_ = nullptr;
+        MoveP(std::forward<ZGuiObject>(_obj));
         return *this;
     }
 
     FORCEINLINE ~ZGuiObject() {}
 
-private:
-    static Void* operator new[](SizeType) = delete;
-    static Void* operator new[](SizeType, Void*) = delete;
-    static Void operator delete[](Void*) = delete;
+    FORCEINLINE Void CopyP(const ZGuiObject& _obj) noexcept {
+        width_ = _obj.width_;
+        height_ = _obj.height_;
+        owner_ptr_ = _obj.owner_ptr_;
+    }
 
+    FORCEINLINE Void MoveP(ZGuiObject&& _obj) noexcept {
+        width_ = _obj.width_;
+        height_ = _obj.height_;
+        owner_ptr_ = _obj.owner_ptr_;
+        _obj.width_ = 0;
+        _obj.height_ = 0;
+        _obj.owner_ptr_ = nullptr;
+    }
+
+private:
     Int32 width_;
     Int32 height_;
     Void* owner_ptr_;

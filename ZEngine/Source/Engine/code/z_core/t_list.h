@@ -42,8 +42,8 @@ public:
     using InitializerList_ = std::initializer_list<_ObjectType>;
 
     FORCEINLINE TList() noexcept : SuperType_(), list_() {}
-    FORCEINLINE TList(const TList& _list) noexcept : SuperType_(), list_(_list.list_) {}
-    FORCEINLINE TList(TList&& _list) noexcept : SuperType_(), list_(std::move(_list.list_)) {}
+    FORCEINLINE TList(const TList& _list) noexcept : SuperType_(_list), list_(_list.list_) {}
+    FORCEINLINE TList(TList&& _list) noexcept : SuperType_(std::forward<TList>(_list)), list_(std::move(_list.list_)) {}
 
     FORCEINLINE TList(SizeType _size) noexcept : SuperType_(), list_(_size) {}
     FORCEINLINE TList(SizeType _size, const _ObjectType& _val) noexcept : SuperType_(), list_(_size, _val) {}
@@ -54,10 +54,12 @@ public:
     FORCEINLINE ~TList() noexcept {}
 
     FORCEINLINE TList& operator=(const TList& _list) noexcept { 
+        SuperType_::operator=(_list);
         list_ = _list.list_;
         return *this;
     }
     FORCEINLINE TList& operator=(TList&& _list) noexcept { 
+        SuperType_::operator=(std::forward<TList>(_list));
         list_ = std::move(_list.list_);
         return *this;
     }

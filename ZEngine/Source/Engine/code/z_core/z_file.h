@@ -82,11 +82,12 @@ public:
     static constexpr IndexType kFileNameLength = 512;
 
     FORCEINLINE ZFile() noexcept : SuperType_(), file_ptr_(nullptr) {}
-    FORCEINLINE ZFile(ZFile&& _file) noexcept : SuperType_(), file_ptr_(_file.file_ptr_) {}
+    FORCEINLINE ZFile(ZFile&& _file) noexcept : SuperType_(std::forward<ZFile>(_file)), file_ptr_(_file.file_ptr_) {}
 
     FORCEINLINE ~ZFile() noexcept { if (file_ptr_ != nullptr) { fclose(file_ptr_); } }
 
     FORCEINLINE ZFile& operator=(ZFile&& _file) noexcept {
+        SuperType_::operator=(std::forward<ZFile>(_file));
         file_ptr_ = _file.file_ptr_;
         return *this;
     }

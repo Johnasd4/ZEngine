@@ -28,7 +28,7 @@
 namespace zengine {
 namespace log {
 
-ZLogServer::ZLogServer() noexcept {
+ZLogServer::ZLogServer() noexcept : SuperType_() {
     //init ports
     port_array_.FillZero();
 }

@@ -36,8 +36,9 @@ public:
     using InitializerList_ = std::initializer_list<_ObjectType>;
 
     FORCEINLINE TQueue() noexcept : SuperType_(), queue_() {}
-    FORCEINLINE TQueue(const TQueue& _queue) noexcept : SuperType_(), queue_(_queue.queue_) {}
-    FORCEINLINE TQueue(TQueue&& _queue) noexcept : SuperType_(), queue_(std::move(_queue.queue_)) {}
+    FORCEINLINE TQueue(const TQueue& _queue) noexcept : SuperType_(_queue), queue_(_queue.queue_) {}
+    FORCEINLINE TQueue(TQueue&& _queue) noexcept 
+        : SuperType_(std::forward<TQueue>(_queue)), queue_(std::move(_queue.queue_)) {}
 
     FORCEINLINE TQueue(SizeType _size) noexcept : SuperType_(), queue_(_size) {}
     FORCEINLINE TQueue(SizeType _size, const _ObjectType& _val) noexcept : SuperType_(), queue_(_size, _val) {}
@@ -48,10 +49,12 @@ public:
     FORCEINLINE ~TQueue() noexcept {}
 
     FORCEINLINE TQueue& operator=(const TQueue& _queue) noexcept { 
+        SuperType_::operator=(_queue);
         queue_ = _queue.queue_;
         return *this;
     }
     FORCEINLINE TQueue& operator=(TQueue&& _queue) noexcept { 
+        SuperType_::operator=(std::forward<TQueue>(_queue));
         queue_ = std::move(_queue.queue_);
         return *this;
     }

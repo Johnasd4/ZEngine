@@ -50,13 +50,13 @@ public:
         , back_index_(kCapacity - 1)
         , size_(0) {}
     FORCEINLINE constexpr TFixedDeque(const TFixedDeque& _deque) noexcept 
-        : SuperType_()
+        : SuperType_(_deque)
         , deque_(_deque.deque_)
         , front_index_(_deque.front_index_)
         , back_index_(_deque.back_index_)
         , size_(_deque.size_) {}
     FORCEINLINE constexpr TFixedDeque(TFixedDeque&& _deque) noexcept 
-        : SuperType_()
+        : SuperType_(std::forward<TFixedDeque>(_deque))
         , deque_(std::move(_deque.deque_))
         , front_index_(_deque.front_index_)
         , back_index_(_deque.back_index_)
@@ -93,6 +93,23 @@ public:
     }
 
     FORCEINLINE constexpr ~TFixedDeque() noexcept {}
+
+    FORCEINLINE TFixedDeque& operator=(const TFixedDeque& _deque) noexcept {
+        SuperType_::operator=(_deque);
+        deque_ = _deque.deque_;
+        front_index_ = _deque.front_index_;
+        back_index_ = _deque.back_index_;
+        size_ = _deque.size_;
+        return *this;
+    }
+    FORCEINLINE TFixedDeque& operator=(TFixedDeque&& _deque) noexcept {
+        SuperType_::operator=(std::forward<TFixedDeque>(_deque));
+        deque_ = std::move(_deque.deque_);
+        front_index_ = _deque.front_index_;
+        back_index_ = _deque.back_index_;
+        size_ = _deque.size_;
+        return *this;
+    }
 
     NODISCARD FORCEINLINE constexpr Bool operator==(const TFixedDeque& _deque) noexcept { 
         return deque_ == _deque.deque_; 

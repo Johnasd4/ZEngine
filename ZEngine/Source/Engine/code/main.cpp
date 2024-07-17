@@ -31,8 +31,8 @@ using namespace zengine;
 using namespace std;
 
 int main() {
-    TAtom<Int32> a, b;
-    a == b;
+    TAtom<Int32> a;
+    TAtom<Int32> b(std::move(a));
     ZString TEST_STRING("123");
     Z_LOG_ERROR(1, 2, L"TEST%d%d%d%d%x", 3, 4, 5, 6, ~7);
     Z_LOG_ERROR(1, 2, L"TEST%d%d%d%d%d", 3, 4, 5, 6, 7);

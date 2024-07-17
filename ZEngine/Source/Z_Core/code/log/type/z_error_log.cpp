@@ -30,7 +30,7 @@ namespace zengine {
 namespace log {
 
 ZErrorLog::ZErrorLog() noexcept 
-    : raw_time_(), proj_name_(), file_dir_(), func_name_(), err_line_(), err_code_(), link_code_(), SuperType_() {}
+    : SuperType_(), raw_time_(), proj_name_(), file_dir_(), func_name_(), err_line_(), err_code_(), link_code_() {}
 ZErrorLog::ZErrorLog(
     TimeType _raw_time,
     const WChar* _proj_name,
@@ -42,14 +42,15 @@ ZErrorLog::ZErrorLog(
     const WChar* _format,
     ArgListType _args
 ) noexcept 
-    : raw_time_(_raw_time)
+    : SuperType_(_format, _args)
+    , raw_time_(_raw_time)
     , proj_name_(_proj_name)
     , file_dir_(_file_dir)
     , func_name_(_func_name)
     , err_line_(_err_line)
     , err_code_(_err_code)
     , link_code_(_link_code)
-    , SuperType_(_format, _args) {}
+ {}
 
 Void ZErrorLog::GenerateLogString(const ZLog* _log_ptr, OutputString_* _output_str_ptr) noexcept {
     static ZSystemTime system_time;

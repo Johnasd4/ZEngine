@@ -84,6 +84,11 @@ protected:
     using SuperType_ = ZObject;
 
 private:
+    ZLogServer(const ZLogServer&) = delete;
+    ZLogServer(ZLogServer&&) = delete;
+    ZLogServer& operator=(const ZLogServer&) = delete;
+    ZLogServer& operator=(ZLogServer&&) = delete;
+
     TArray<ZLogPort, kMaxPortNum> port_array_;
 };
 

@@ -24,18 +24,6 @@
 #include "t_fixed_string.h"
 #include "z_system_time.h"
 
-#ifdef _DEBUG
-//If console log.
-#define USE_CONSOLE_LOG true
-//If file log.
-#define USE_FILE_LOG true
-#else
-//If console log.
-#define USE_CONSOLE_LOG false
-//If file log.
-#define USE_FILE_LOG true
-#endif
-
 #ifndef PROJECT_NAME
 #define PROJECT_NAME L"Unknown"
 #endif
@@ -192,6 +180,11 @@ protected:
 
     NODISCARD FORCEINLINE const MsgString_& LogMsgPtr() const noexcept { return log_msg_str_; }
 private:
+    ZLog(const ZLog&) = delete;
+    ZLog(ZLog&&) = delete;
+    ZLog& operator=(const ZLog&) = delete;
+    ZLog& operator=(ZLog&&) = delete;
+
     MsgString_ log_msg_str_;
 };
 

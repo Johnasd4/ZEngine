@@ -27,9 +27,9 @@
 namespace zengine {
 namespace log {
 
-ZInfoLog::ZInfoLog() noexcept : raw_time_(), info_type_(), SuperType_() {}
+ZInfoLog::ZInfoLog() noexcept : SuperType_(), raw_time_(), info_type_() {}
 ZInfoLog::ZInfoLog(TimeType _raw_time, LogInfoEnum _info_type, const WChar* _format, ArgListType _args) noexcept 
-    : raw_time_(_raw_time), info_type_(_info_type), SuperType_(_format, _args) {}
+    : SuperType_(_format, _args), raw_time_(_raw_time), info_type_(_info_type) {}
 
 Void ZInfoLog::GenerateLogString(const ZLog* _log_ptr, OutputString_* _output_str_ptr) noexcept {
     static ZSystemTime system_time;

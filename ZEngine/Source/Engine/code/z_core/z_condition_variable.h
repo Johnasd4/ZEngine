@@ -89,6 +89,12 @@ protected:
     using SuperType_ = ZObject;
 
 private:
+    ZConditionVariable(const ZConditionVariable&) = delete;
+    ZConditionVariable(ZConditionVariable&&) = delete;
+
+    ZConditionVariable& operator=(const ZConditionVariable&) = delete;
+    ZConditionVariable& operator=(ZConditionVariable&&) = delete;
+
     Void LockP(TUniqueLock<ZMutex>& _mutex) noexcept;
     Void UnlockP(TUniqueLock<ZMutex>& _mutex) noexcept;
 

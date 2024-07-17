@@ -37,8 +37,9 @@ public:
     using InitializerList_ = std::initializer_list<_ObjectType>;
 
     FORCEINLINE TStack() noexcept : SuperType_(), stack_() {}
-    FORCEINLINE TStack(const TStack& _stack) noexcept : SuperType_(), stack_(_stack.stack_) {}
-    FORCEINLINE TStack(TStack&& _stack) noexcept : SuperType_(), stack_(std::move(_stack.stack_)) {}
+    FORCEINLINE TStack(const TStack& _stack) noexcept : SuperType_(_stack), stack_(_stack.stack_) {}
+    FORCEINLINE TStack(TStack&& _stack) noexcept 
+        : SuperType_(std::forward<TStack>(_stack)), stack_(std::move(_stack.stack_)) {}
 
     FORCEINLINE TStack(SizeType _size) noexcept : SuperType_(), stack_(_size) {}
     FORCEINLINE TStack(SizeType _size, const _ObjectType& _val) noexcept : SuperType_(), stack_(_size, _val) {}
@@ -49,10 +50,12 @@ public:
     FORCEINLINE ~TStack() noexcept {}
 
     FORCEINLINE TStack& operator=(const TStack& _stack) noexcept { 
+        SuperType_::operator=(_stack);
         stack_ = _stack.stack_;
         return *this;
     }
     FORCEINLINE TStack& operator=(TStack&& _stack) noexcept { 
+        SuperType_::operator=(std::forward<TStack>(_stack));
         stack_ = std::move(_stack.stack_);
         return *this;
     }

@@ -39,22 +39,39 @@ public:
     FORCEINLINE constexpr TFixedQueue() noexcept 
         : SuperType_() , queue_(), front_index_(0), back_index_(kCapacity - 1), size_(0) {}
     FORCEINLINE constexpr TFixedQueue(const TFixedQueue& _queue) noexcept 
-        : SuperType_()
+        : SuperType_(_queue)
         , queue_(_queue.queue_)
         , front_index_(_queue.front_index_)
         , back_index_(_queue.back_index_)
         , size_(_queue.size_) {}
     FORCEINLINE constexpr TFixedQueue(TFixedQueue&& _queue) noexcept 
-        : SuperType_()
+        : SuperType_(std::forward<TFixedQueue>(_queue))
         , queue_(std::move(_queue.queue_))
         , front_index_(_queue.front_index_)
         , back_index_(_queue.back_index_)
-        ,size_(_queue.size_) {}
+        , size_(_queue.size_) {}
     FORCEINLINE TFixedQueue(InitializerList_ _init_list) noexcept 
         : SuperType_(), queue_(_init_list), front_index_(0), back_index_(kCapacity - 1), size_(kCapacity) {}
 
 
     FORCEINLINE constexpr ~TFixedQueue() noexcept {}
+
+    FORCEINLINE TFixedQueue& operator=(const TFixedQueue& _queue) noexcept {
+        SuperType_::operator=(_queue);
+        queue_ = _queue.queue_;
+        front_index_ = _queue.front_index_;
+        back_index_ = _queue.back_index_;
+        size_ = _queue.size_;
+        return *this;
+    }
+    FORCEINLINE TFixedQueue& operator=(TFixedQueue&& _queue) noexcept {
+        SuperType_::operator=(std::forward<TFixedQueue>(_queue));
+        queue_ = std::move(_queue.queue_);
+        front_index_ = _queue.front_index_;
+        back_index_ = _queue.back_index_;
+        size_ = _queue.size_;
+        return *this;
+    }
 
     NODISCARD FORCEINLINE constexpr Bool operator==(const TFixedQueue& _queue) noexcept { 
         return queue_ == _queue.queue_; 

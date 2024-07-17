@@ -56,7 +56,8 @@ public:
 
     TUniqueLock() noexcept : SuperType_(), mutex_ptr_(nullptr), owns_lock_(false) {}
     TUniqueLock(TUniqueLock&& _unique_lock) noexcept 
-        : SuperType_(), mutex_ptr_(_unique_lock.mutex_ptr_), owns_lock_(_unique_lock.owns_lock_)  
+        : SuperType_(std::forward<TUniqueLock>(_unique_lock))
+        , mutex_ptr_(_unique_lock.mutex_ptr_), owns_lock_(_unique_lock.owns_lock_)
     {
         _unique_lock.mutex_ptr_ = nullptr;
         _unique_lock.owns_lock_ = true;
@@ -107,6 +108,7 @@ public:
     }
 
     TUniqueLock& operator=(TUniqueLock&& _unique_lock) noexcept {
+        SuperType_::operator=(std::forward<TUniqueLock>(_unique_lock));
         mutex_ptr_ = _unique_lock.mutex_ptr_;
         owns_lock_ = _unique_lock.owns_lock_;
         return *this;

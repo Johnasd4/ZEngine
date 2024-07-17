@@ -203,7 +203,6 @@ class CORE_DLLAPI ZTask : public ZObject {
 public:
     ZTask() noexcept;
     ZTask(ZTask&& _task) noexcept;
-    ZTask(ZTaskSafe&& _task) noexcept;
     template<typename TaskFunction, typename... ArgsType>
     ZTask(TaskFunction&& _func, ArgsType&&... _args) noexcept : SuperType_() {
         SetTaskP(std::forward<TaskFunction>(_func), std::forward<ArgsType>(_args)...);
@@ -211,7 +210,6 @@ public:
     ~ZTask() noexcept;
 
     ZTask& operator=(ZTask&& _task) noexcept;
-    ZTask& operator=(ZTaskSafe&& _task) noexcept;
 
     NODISCARD ReturnType operator()() noexcept;
 

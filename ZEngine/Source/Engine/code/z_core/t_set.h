@@ -43,8 +43,8 @@ public:
     using InitializerList_ = std::initializer_list<_ObjectType>;
 
     FORCEINLINE TSet() noexcept : SuperType_(), set_() {}
-    FORCEINLINE TSet(const TSet& _set) noexcept : SuperType_(), set_(_set.set_) {}
-    FORCEINLINE TSet(TSet&& _set) noexcept : SuperType_(), set_(std::move(_set.set_)) {}
+    FORCEINLINE TSet(const TSet& _set) noexcept : SuperType_(_set), set_(_set.set_) {}
+    FORCEINLINE TSet(TSet&& _set) noexcept : SuperType_(std::forward<TSet>(_set)), set_(std::move(_set.set_)) {}
 
     template <typename _InputIterator>
     FORCEINLINE TSet(_InputIterator _first, _InputIterator _last) noexcept : SuperType_(), set_(_first, _last) {}
@@ -53,10 +53,12 @@ public:
     FORCEINLINE ~TSet() noexcept {}
 
     FORCEINLINE TSet& operator=(const TSet& _set) noexcept { 
+        SuperType_::operator=(_set);
         set_ = _set.set_;
         return *this;
     }
     FORCEINLINE TSet& operator=(TSet&& _set) noexcept { 
+        SuperType_::operator=(std::forward<TSet>(_set));
         set_ = std::move(_set.set_);
         return *this;
     }

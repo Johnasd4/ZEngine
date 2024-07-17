@@ -38,7 +38,7 @@ namespace memory_pool {
     - kIsThreadSafe: Thread safe or not.
 */
 template<Bool kIsThreadSafe>
-class THeapMemoryPool :protected TMemoryPoolThreadSafeBase<kIsThreadSafe> {
+class THeapMemoryPool : protected TMemoryPoolThreadSafeBase<kIsThreadSafe> {
 public:
     NODISCARD static Void* ApplyMemory(MemoryType _size) noexcept;
 

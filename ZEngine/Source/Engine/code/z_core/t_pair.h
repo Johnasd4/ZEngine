@@ -34,29 +34,32 @@ public:
     constexpr TPair() noexcept : SuperType_(), first_(), second_() {}
     template<typename _OtherObjectType1, typename _OtherObjectType2>
     constexpr TPair(const TPair<_OtherObjectType1, _OtherObjectType2>& _pair) noexcept
-            : SuperType_(), first_(_pair.first_), second_(_pair.second_) {}
+        : SuperType_(_pair), first_(_pair.first_), second_(_pair.second_) {}
     template<typename _OtherObjectType1, typename _OtherObjectType2>
     constexpr TPair(TPair<_OtherObjectType1, _OtherObjectType2>&& _pair) noexcept
-            : SuperType_(), first_(std::move(_pair.first_)), second_(std::move(_pair.second_)) {}
+        : SuperType_(std::forward<TPair<_OtherObjectType1, _OtherObjectType2>>(_pair))
+        , first_(std::move(_pair.first_)), second_(std::move(_pair.second_)) {}
     template<typename _OtherObjectType1, typename _OtherObjectType2>
     constexpr TPair(const _OtherObjectType1& _obj_1, const _OtherObjectType2& _obj_2) noexcept
-            : SuperType_(), first_(_obj_1), second_(_obj_2) {}
+        : SuperType_(), first_(_obj_1), second_(_obj_2) {}
     template<typename _OtherObjectType1, typename _OtherObjectType2>
     constexpr TPair(const _OtherObjectType1&& _obj_1, const _OtherObjectType2&& _obj_2) noexcept
-            : SuperType_()
-            , first_(std::forward<_OtherObjectType1>(_obj_1))
-            , second_(std::forward<_OtherObjectType2>(_obj_2)) {}
+        : SuperType_()
+        , first_(std::forward<_OtherObjectType1>(_obj_1))
+        , second_(std::forward<_OtherObjectType2>(_obj_2)) {}
 
     constexpr ~TPair() noexcept {}
 
     template<typename _OtherObjectType1, typename _OtherObjectType2>
     constexpr TPair& operator=(const TPair<_OtherObjectType1, _OtherObjectType2>& _pair) noexcept {
+        SuperType_::operator=(_pair);
         first_ = _pair.first_;
         second_ = _pair.second_;
         return *this;
     }
     template<typename _OtherObjectType1, typename _OtherObjectType2>
     constexpr TPair& operator=(TPair<_OtherObjectType1, _OtherObjectType2>&& _pair) noexcept {
+        SuperType_::operator=(std::forward<TPair<_OtherObjectType1, _OtherObjectType2>>(_pair));
         first_ = std::move(_pair.first_);
         second_ = std::move(_pair.second_);
         return *this;

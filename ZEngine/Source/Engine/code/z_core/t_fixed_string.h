@@ -44,9 +44,9 @@ public:
     using InitializerList_ = std::initializer_list<_CharType>;
 
     FORCEINLINE constexpr TFixedString() noexcept : SuperType_(), str_() {}
-    FORCEINLINE constexpr TFixedString(const TFixedString& _array) noexcept : SuperType_(), str_(_array.str_) {}
-    FORCEINLINE constexpr TFixedString(TFixedString&& _array) noexcept 
-        : SuperType_(), str_(std::move(_array.str_)) {}
+    FORCEINLINE constexpr TFixedString(const TFixedString& _str) noexcept : SuperType_(_str), str_(_str.str_) {}
+    FORCEINLINE constexpr TFixedString(TFixedString&& _str) noexcept 
+        : SuperType_(std::forward<TFixedString>(_str)), str_(std::move(_str.str_)) {}
     FORCEINLINE TFixedString(InitializerList_ _init_list) noexcept : SuperType_(), str_(_init_list) {}
     template<typename... _ArgsType>
     FORCEINLINE constexpr TFixedString(_CharType* _format, _ArgsType&&... _args) noexcept : SuperType_() {
@@ -60,8 +60,15 @@ public:
 
     FORCEINLINE constexpr ~TFixedString() noexcept {}
 
-    NODISCARD FORCEINLINE Bool operator=(const TFixedString& _str) noexcept {
-        return memcpy(DataPtr(), _str.DataPtr(), sizeof(_CharType) * kCapacity);
+    NODISCARD FORCEINLINE TFixedString& operator=(const TFixedString& _str) noexcept {
+        SuperType_::operator=(_str);
+        str_ = _str.str_;
+        return *this;
+    }
+    NODISCARD FORCEINLINE TFixedString& operator=(TFixedString&& _str) noexcept {
+        SuperType_::operator=(std::forward<TFixedString>(_str));
+        str_ = std::move(_str.str_);
+        return *this;
     }
 
     NODISCARD FORCEINLINE Bool operator==(const TFixedString& _str) noexcept { 

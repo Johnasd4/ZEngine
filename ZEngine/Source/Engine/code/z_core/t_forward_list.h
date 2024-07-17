@@ -41,9 +41,9 @@ public:
 
     FORCEINLINE TForwardList() noexcept : SuperType_(), forward_list_() {}
     FORCEINLINE TForwardList(const TForwardList& _forward_list) noexcept 
-        : SuperType_(), forward_list_(_forward_list.forward_list_) {}
+        : SuperType_(_forward_list), forward_list_(_forward_list.forward_list_) {}
     FORCEINLINE TForwardList(TForwardList&& _forward_list) noexcept 
-        : SuperType_(), forward_list_(std::move(_forward_list.forward_list_)) {}
+        : SuperType_(std::forward<TForwardList>(_forward_list)), forward_list_(std::move(_forward_list.forward_list_)) {}
 
     FORCEINLINE TForwardList(SizeType _size) noexcept : SuperType_(), forward_list_(_size) {}
     FORCEINLINE TForwardList(SizeType _size, const _ObjectType& _val) noexcept 

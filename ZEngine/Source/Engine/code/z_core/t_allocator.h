@@ -34,9 +34,10 @@ class TContainerAllocator : public ZObject {
 public:
     using value_type = _ObjectType;
 
-    FORCEINLINE TContainerAllocator() : SuperType_() {}
+    FORCEINLINE TContainerAllocator() noexcept : SuperType_() {}
     template<typename _OtherObjectType>
-    FORCEINLINE TContainerAllocator(const TContainerAllocator<_OtherObjectType>& _alocator) : SuperType_() {}
+    FORCEINLINE TContainerAllocator(const TContainerAllocator<_OtherObjectType>& _alocator) noexcept 
+        : SuperType_(_alocator) {}
     FORCEINLINE ~TContainerAllocator() {}
 
     NODISCARD FORCEINLINE _ObjectType* allocate(SizeType _capacity) noexcept {
@@ -59,9 +60,10 @@ class TSmartPointerAllocator : public ZObject {
 public:
     using value_type = _ObjectType;
 
-    FORCEINLINE TSmartPointerAllocator() : SuperType_() {}
+    FORCEINLINE TSmartPointerAllocator() noexcept : SuperType_() {}
     template<typename _OtherObjectType>
-    FORCEINLINE TSmartPointerAllocator(const TSmartPointerAllocator<_OtherObjectType>& _alocator) : SuperType_() {}
+    FORCEINLINE TSmartPointerAllocator(const TSmartPointerAllocator<_OtherObjectType>& _alocator) noexcept
+        : SuperType_(_alocator) {}
     FORCEINLINE ~TSmartPointerAllocator() {}
 
     NODISCARD FORCEINLINE _ObjectType* allocate(SizeType _capacity) noexcept {

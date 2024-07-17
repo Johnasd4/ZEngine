@@ -29,7 +29,7 @@
 namespace zengine {
 namespace log {
 
-ZTraceLog::ZTraceLog() noexcept : raw_time_(), proj_name_(), file_dir_(), func_name_(), SuperType_() {}
+ZTraceLog::ZTraceLog() noexcept : SuperType_(), raw_time_(), proj_name_(), file_dir_(), func_name_() {}
 ZTraceLog::ZTraceLog(
     TimeType _raw_time, 
     const WChar* _proj_name,
@@ -38,11 +38,11 @@ ZTraceLog::ZTraceLog(
     const WChar* _format, 
     ArgListType _args
 ) noexcept 
-    : raw_time_(_raw_time)
+    : SuperType_(_format, _args)
+    , raw_time_(_raw_time)
     , proj_name_(_proj_name)
     , file_dir_(_file_dir)
-    , func_name_(_func_name)
-    , SuperType_(_format, _args) {}
+    , func_name_(_func_name) {}
 
 Void ZTraceLog::GenerateLogString(const ZLog* _log_ptr, OutputString_* _output_str_ptr) noexcept {
     static ZSystemTime system_time;

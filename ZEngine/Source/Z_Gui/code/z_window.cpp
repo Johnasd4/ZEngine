@@ -25,8 +25,10 @@
 namespace zengine {
 namespace gui {
 
-ZWindow::ZWindow() noexcept : handle_(nullptr), window_state_(kWindowStateTerminated) {}
-ZWindow::ZWindow(ZWindow&& _window) noexcept : handle_(_window.handle_), window_state_(_window.window_state_) {
+ZWindow::ZWindow() noexcept : SuperType_(), handle_(nullptr), window_state_(kWindowStateTerminated) {}
+ZWindow::ZWindow(ZWindow&& _window) noexcept 
+    : SuperType_(std::forward<ZWindow>(_window)), handle_(_window.handle_), window_state_(_window.window_state_) 
+{
     _window.handle_ = nullptr;
     _window.window_state_ = kWindowStateTerminated;
 }
@@ -68,6 +70,7 @@ NODISCARD ReturnType ZWindow::CreateP() noexcept {
             }
             break;
         case kWindowScreenModeFullScreenDefaultSize:
+        {
             //get the main monitor
             GLFWmonitor* main_monitor = glfwGetPrimaryMonitor();
             if (main_monitor == nullptr) {
@@ -90,6 +93,7 @@ NODISCARD ReturnType ZWindow::CreateP() noexcept {
                 return ret_val;
             }
             break;
+        }
         default:
             ret_val = error_code::kZWindowErrorCodeLinkError;
             Z_LOG_ERROR(ret_val, 0, L"glfwGetVideoMode() link error!");

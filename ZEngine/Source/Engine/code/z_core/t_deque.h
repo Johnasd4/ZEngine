@@ -42,8 +42,8 @@ public:
     using InitializerList_ = std::initializer_list<_ObjectType>;
 
     FORCEINLINE TDeque() noexcept : SuperType_(), deque_() {}
-    FORCEINLINE TDeque(const TDeque& _deque) noexcept : SuperType_(), deque_(_deque.deque_) {}
-    FORCEINLINE TDeque(TDeque&& _deque) noexcept : SuperType_(), deque_(std::move(_deque.deque_)) {}
+    FORCEINLINE TDeque(const TDeque& _deque) noexcept : SuperType_(_deque), deque_(_deque.deque_) {}
+    FORCEINLINE TDeque(TDeque&& _deque) noexcept : SuperType_(std::forward<TDeque>(_deque)), deque_(std::move(_deque.deque_)) {}
 
     FORCEINLINE TDeque(SizeType _size) noexcept : SuperType_(), deque_(_size) {}
     FORCEINLINE TDeque(SizeType _size, const _ObjectType& _value) noexcept : SuperType_(), deque_(_size, _value) {}
@@ -54,10 +54,12 @@ public:
     FORCEINLINE ~TDeque() noexcept {}
 
     FORCEINLINE TDeque& operator=(const TDeque& _deque) noexcept { 
+        SuperType_::operator=(_deque);
         deque_ = _deque.deque_;
         return *this;
     }
     FORCEINLINE TDeque& operator=(TDeque&& _deque) noexcept { 
+        SuperType_::operator=(std::forward<TDeque>(_deque));
         deque_= std::move(_deque.deque_);
         return *this;
     }

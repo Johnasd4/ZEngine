@@ -37,7 +37,7 @@ namespace memory_pool {
     - kIsThreadSafe: Thread safe or not.
 */
 template<typename _MemoryBlockType, PointerType kMemoryBlockHeadOffset, Bool kIsThreadSafe>
-class TListMemoryPoolBase :public TMemoryPoolBase<kIsThreadSafe> {
+class TListMemoryPoolBase : public TMemoryPoolBase<kIsThreadSafe> {
 private:
     //The multipul factor that container auto extends based on the origin size.
     static constexpr Float32 kAutoExtendMulFactor = 0.2F;

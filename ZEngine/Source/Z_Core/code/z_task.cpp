@@ -31,13 +31,14 @@ ZTaskSafe::ZTaskSafe() noexcept
     , state_(kZTaskStateNoTask)
     , mutex_() {}
 
-ZTaskSafe::ZTaskSafe(ZTaskSafe&& _task) noexcept : SuperType_() , mutex_() {
+ZTaskSafe::ZTaskSafe(ZTaskSafe&& _task) noexcept : SuperType_(std::forward<ZTaskSafe>(_task)) , mutex_() {
     MoveP(std::forward<ZTaskSafe>(_task));
 }
 
 ZTaskSafe::~ZTaskSafe() noexcept { Clear(); }
 
 ZTaskSafe& ZTaskSafe::operator=(ZTaskSafe&& _task) noexcept {
+    SuperType_::operator=(std::forward<ZTaskSafe>(_task));
     mutex_.Lock();
     MoveP(std::forward<ZTaskSafe>(_task));
     mutex_.Unlock();
@@ -118,22 +119,15 @@ ZTask::ZTask() noexcept
         , ret_val_ptr_(nullptr)
         , state_(kZTaskStateNoTask) {}
 
-ZTask::ZTask(ZTask&& _task) noexcept : SuperType_() {
+ZTask::ZTask(ZTask&& _task) noexcept : SuperType_(std::forward<ZTask>(_task)) {
     MoveP(std::forward<ZTask>(_task));
-}
-
-ZTask::ZTask(ZTaskSafe&& _task) noexcept : SuperType_() {
-    MoveP(std::move(*reinterpret_cast<ZTask*>(&(_task))));
 }
 
 ZTask::~ZTask() noexcept { Clear(); }
 
 ZTask& ZTask::operator=(ZTask&& _task) noexcept {
+    SuperType_::operator=(std::forward<ZTask>(_task));
     MoveP(std::forward<ZTask>(_task));
-    return *this;
-}
-ZTask& ZTask::operator=(ZTaskSafe&& _task) noexcept {
-    MoveP(std::move(*reinterpret_cast<ZTask*>(&(_task))));
     return *this;
 }
 

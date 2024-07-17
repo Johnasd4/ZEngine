@@ -34,11 +34,11 @@ template<typename _ObjectType>
 class TAtom : public ZObject {
 public:
     FORCEINLINE TAtom() noexcept : SuperType_(), mutex_(), obj_() {}
-    FORCEINLINE TAtom(const TAtom& _atom) noexcept : SuperType_(), mutex_() {
+    FORCEINLINE TAtom(const TAtom& _atom) noexcept : SuperType_(_atom), mutex_() {
         _atom.mutex_.Lock();
         obj_ = _atom.obj_;
     }
-    FORCEINLINE TAtom(TAtom&& _atom) noexcept : SuperType_(), SuperType_(), mutex_() {
+    FORCEINLINE TAtom(TAtom&& _atom) noexcept : SuperType_(std::forward<TAtom>(_atom)), mutex_() {
         TLockGuard<ZMutex> lock_guard_right(_atom.mutex_);
         obj_ = std::move(_atom.obj_);
     }
@@ -50,12 +50,14 @@ public:
     FORCEINLINE TAtom& operator=(const TAtom& _atom) noexcept {
         TLockGuard<ZMutex> lock_guard_left(mutex_);
         TLockGuard<ZMutex> lock_guard_right(_atom.mutex_);
+        SuperType_::operator=(_atom);
         obj_ = _atom.obj_;
         return *this;
     }
     FORCEINLINE TAtom& operator=(TAtom&& _atom) noexcept {
         TLockGuard<ZMutex> lock_guard_left(mutex_);
         TLockGuard<ZMutex> lock_guard_right(_atom.mutex_);
+        SuperType_::operator=(std::forward<TAtom>(_atom));
         obj_ = std::move(_atom.obj_);
         return *this;
     }

@@ -16,16 +16,20 @@
     Author: YuLin Zhu (÷Ï”Í¡÷)
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_INTERNAL_Z_DRIVE_H_
-#define Z_CORE_INTERNAL_Z_DRIVE_H_
+#ifndef Z_CORE_INTERNAL_D_CONFIG_H_
+#define Z_CORE_INTERNAL_D_CONFIG_H_
 
-#include "d_concept.h"
-#include "d_config.h"
-#include "d_constant.h"
-#include "d_error_code.h"
-#include "d_function.h"
-#include "d_lib.h"
-#include "d_macro.h"
-#include "d_type.h"
+// Shows the use of the memory pool, includes the memory block left when the 
+// program emds, the total memory blocks appplyed and the peak situation of
+// the memory pool. Using this test will slightly reduce the performance of 
+// the program.
+#define USE_MEMORY_POOL_TEST true
+//Wheather the memory pool is thread safe.
+#define MEMORY_POOL_THREAD_SAFE true
 
-#endif // !Z_CORE_INTERNAL_Z_DRIVE_H_
+//If console log.
+#define USE_CONSOLE_LOG true
+//If file log.
+#define USE_FILE_LOG true
+
+#endif // !Z_CORE_INTERNAL_D_CONFIG_H_

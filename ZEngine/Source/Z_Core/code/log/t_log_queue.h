@@ -72,6 +72,11 @@ protected:
     using SuperType_ = ZObject;
 
 private:
+    TLogQueue(const TLogQueue&) = delete;
+    TLogQueue(TLogQueue&&) = delete;
+    TLogQueue& operator=(const TLogQueue&) = delete;
+    TLogQueue& operator=(TLogQueue&&) = delete;
+
     TFixedQueue<LogType, kCapacity> log_queue_;
     ZCSMutex log_cs_;
 };

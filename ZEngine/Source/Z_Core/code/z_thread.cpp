@@ -24,7 +24,9 @@ namespace zengine {
 
 ZThread::ZThread() noexcept : SuperType_(), id_(NULL), handle_(nullptr) {}
 
-ZThread::ZThread(ZThread&& _thread) noexcept : SuperType_(), id_(_thread.id_), handle_(_thread.handle_) { 
+ZThread::ZThread(ZThread&& _thread) noexcept 
+    : SuperType_(std::forward<ZThread>(_thread)), id_(_thread.id_), handle_(_thread.handle_) 
+{
     _thread.id_ = NULL; 
     _thread.handle_ = nullptr;
 }
@@ -32,6 +34,7 @@ ZThread::ZThread(ZThread&& _thread) noexcept : SuperType_(), id_(_thread.id_), h
 ZThread::~ZThread() noexcept {}
 
 ZThread& ZThread::operator=(ZThread&& _thread) noexcept {
+    SuperType_::operator=(std::forward<ZThread>(_thread));
     id_ = _thread.id_;
     handle_ = _thread.handle_;
     _thread.id_ = NULL;

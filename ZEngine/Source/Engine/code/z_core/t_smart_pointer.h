@@ -43,20 +43,23 @@ public:
 
     FORCEINLINE TUniquePointer() noexcept : SuperType_(), ptr_() {}
     FORCEINLINE TUniquePointer(NullptrType _ptr) noexcept : SuperType_(), ptr_(_ptr) {}
-    FORCEINLINE TUniquePointer(TUniquePointer&& _ptr) noexcept : SuperType_(), ptr_(std::move(_ptr.ptr_)) {}
+    FORCEINLINE TUniquePointer(TUniquePointer&& _ptr) noexcept 
+        : SuperType_(std::forward<TUniquePointer>(_ptr)), ptr_(std::move(_ptr.ptr_)) {}
     template<typename _OtherObjectType>
     FORCEINLINE TUniquePointer(TUniquePointer<_OtherObjectType>&& _ptr) noexcept 
-        : SuperType_(), ptr_(std::move(_ptr.ptr_)) {}
+        : SuperType_(std::forward<TUniquePointer<_OtherObjectType>>(_ptr)), ptr_(std::move(_ptr.ptr_)) {}
     FORCEINLINE TUniquePointer(_ObjectType* _ptr) noexcept : SuperType_(), ptr_(_ptr) {}
 
     FORCEINLINE ~TUniquePointer() noexcept {}
 
     FORCEINLINE TUniquePointer& operator=(TUniquePointer&& _ptr) noexcept { 
+        SuperType_::operator=(std::forward<TUniquePointer>(_ptr));
         ptr_ = std::move(_ptr.ptr_);
         return *this;
     }
     template<typename _OtherObjectType>
     FORCEINLINE TUniquePointer& operator=(TUniquePointer<_OtherObjectType>&& _ptr) noexcept {
+        SuperType_::operator=(std::forward<TUniquePointer<_OtherObjectType>>(_ptr));
         ptr_ = std::move(_ptr.ptr_);
         return *this;
     }
@@ -92,39 +95,44 @@ public:
 
     FORCEINLINE TSharedPointer() noexcept : SuperType_(), ptr_() {}
     FORCEINLINE TSharedPointer(NullptrType _ptr) noexcept : SuperType_(), ptr_(_ptr) {}
-    FORCEINLINE TSharedPointer(const TSharedPointer& _ptr) noexcept : SuperType_(), ptr_(_ptr.ptr_) {}
-    FORCEINLINE TSharedPointer(TSharedPointer&& _ptr) noexcept : SuperType_(), ptr_(std::move(_ptr.ptr_)) {}
+    FORCEINLINE TSharedPointer(const TSharedPointer& _ptr) noexcept : SuperType_(_ptr), ptr_(_ptr.ptr_) {}
+    FORCEINLINE TSharedPointer(TSharedPointer&& _ptr) noexcept 
+        : SuperType_(std::forward<TSharedPointer>(_ptr)), ptr_(std::move(_ptr.ptr_)) {}
     template<typename _OtherObjectType>
     FORCEINLINE TSharedPointer(const TSharedPointer<_OtherObjectType>& _ptr) noexcept
-        : SuperType_(), ptr_(_ptr.ptr_) {}
+        : SuperType_(_ptr), ptr_(_ptr.ptr_) {}
     template<typename _OtherObjectType>
     FORCEINLINE TSharedPointer(const TWeakPointer<_OtherObjectType>& _ptr) noexcept
-        : SuperType_(), ptr_(_ptr.ptr_) {}
+        : SuperType_(_ptr), ptr_(_ptr.ptr_) {}
     template<typename _OtherObjectType>
     FORCEINLINE TSharedPointer(TSharedPointer<_OtherObjectType>&& _ptr) noexcept 
-        : SuperType_(), ptr_(std::move(_ptr.ptr_)) {}
+        : SuperType_(std::forward<TSharedPointer<_OtherObjectType>>(_ptr)), ptr_(std::move(_ptr.ptr_)) {}
     template<typename _OtherObjectType>
     FORCEINLINE TSharedPointer(TUniquePointer<_OtherObjectType>&& _ptr) noexcept
-        : SuperType_()
+        : SuperType_(std::forward<TSharedPointer<_OtherObjectType>>(_ptr))
         , ptr_(std::allocate_shared<_ObjectType>(TSmartPointerAllocator<_ObjectType>(), std::move(*_ptr.Release()))) {}
 
     FORCEINLINE ~TSharedPointer() noexcept {}
 
     FORCEINLINE TSharedPointer& operator=(const TSharedPointer& _ptr) noexcept {
+        SuperType_::operator=(_ptr);
         ptr_ = _ptr.ptr_;
         return *this;
     }
     FORCEINLINE TSharedPointer& operator=(TSharedPointer&& _ptr) noexcept { 
+        SuperType_::operator=(std::forward<TSharedPointer>(_ptr));
         ptr_ = std::move(_ptr.ptr_);
         return *this;
     }
     template<typename _OtherObjectType>
     FORCEINLINE TSharedPointer& operator=(const TSharedPointer<_OtherObjectType>& _ptr) noexcept {
+        SuperType_::operator=(_ptr);
         ptr_ = _ptr.ptr_;
         return *this;
     }
     template<typename _OtherObjectType>
     FORCEINLINE TSharedPointer& operator=(TSharedPointer<_OtherObjectType>&& _ptr) noexcept {
+        SuperType_::operator=(std::forward<TSharedPointer<_OtherObjectType>>(_ptr));
         ptr_ = std::move(_ptr.ptr_);
         return *this;
     }
@@ -184,41 +192,47 @@ public:
 
     FORCEINLINE TWeakPointer() noexcept : SuperType_(), ptr_() {}
     FORCEINLINE TWeakPointer(NullptrType _ptr) noexcept : SuperType_(), ptr_(_ptr) {}
-    FORCEINLINE TWeakPointer(const TWeakPointer& _ptr) noexcept : SuperType_(), ptr_(_ptr.ptr_) {}
-    FORCEINLINE TWeakPointer(TWeakPointer&& _ptr) noexcept : SuperType_(), ptr_(std::move(_ptr.ptr_)) {}
+    FORCEINLINE TWeakPointer(const TWeakPointer& _ptr) noexcept : SuperType_(_ptr), ptr_(_ptr.ptr_) {}
+    FORCEINLINE TWeakPointer(TWeakPointer&& _ptr) noexcept 
+        : SuperType_(std::forward<TWeakPointer>(_ptr)), ptr_(std::move(_ptr.ptr_)) {}
     template<typename _OtherObjectType>
     FORCEINLINE TWeakPointer(const TWeakPointer<_OtherObjectType>& _ptr) noexcept
-        : SuperType_(), ptr_(_ptr.ptr_) {}
+        : SuperType_(_ptr), ptr_(_ptr.ptr_) {}
     template<typename _OtherObjectType>
     FORCEINLINE TWeakPointer(const TSharedPointer<_OtherObjectType>& _ptr) noexcept
-        : SuperType_(), ptr_(_ptr.ptr_) {}
+        : SuperType_(_ptr), ptr_(_ptr.ptr_) {}
     template<typename _OtherObjectType>
     FORCEINLINE TWeakPointer(TWeakPointer<_OtherObjectType>&& _ptr) noexcept 
-        : SuperType_(), ptr_(std::move(_ptr.ptr_)) {}
+        : SuperType_(std::forward<TWeakPointer<_OtherObjectType>>(_ptr)), ptr_(std::move(_ptr.ptr_)) {}
     FORCEINLINE TWeakPointer(_ObjectType* _ptr) noexcept : SuperType_(), ptr_(_ptr) {}
 
     FORCEINLINE ~TWeakPointer() noexcept {}
 
     FORCEINLINE TWeakPointer& operator=(const TWeakPointer& _ptr) noexcept {
+        SuperType_::operator=(_ptr);
         ptr_ = _ptr.ptr_;
         return *this;
     }
     FORCEINLINE TWeakPointer& operator=(TWeakPointer&& _ptr) noexcept { 
+        SuperType_::operator=(std::forward<TWeakPointer>(_ptr));
         ptr_ = std::move(_ptr.ptr_);
         return *this;
     }
     template<typename _OtherObjectType>
     FORCEINLINE TWeakPointer& operator=(const TWeakPointer<_OtherObjectType>& _ptr) noexcept {
+        SuperType_::operator=(_ptr);
         ptr_ = _ptr.ptr_;
         return *this;
     }
     template<typename _OtherObjectType>
     FORCEINLINE TWeakPointer& operator=(const TSharedPointer<_OtherObjectType>& _ptr) noexcept {
+        SuperType_::operator=(_ptr);
         ptr_ = _ptr.ptr_;
         return *this;
     }
     template<typename _OtherObjectType>
     FORCEINLINE TWeakPointer& operator=(TWeakPointer<_OtherObjectType>&& _ptr) noexcept {
+        SuperType_::operator=(std::forward<TWeakPointer<_OtherObjectType>>(_ptr));
         ptr_ = std::move(_ptr.ptr_);
         return *this;
     }

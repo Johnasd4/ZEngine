@@ -101,7 +101,6 @@ private:
 
     ZThreadPool(const ZThreadPool&) = delete;
     ZThreadPool(ZThreadPool&&) = delete;
-
     ZThreadPool& operator=(const ZThreadPool&) = delete;
     ZThreadPool& operator=(ZThreadPool&&) = delete;
 

@@ -71,7 +71,7 @@ public:
     };
 
 protected:
-    using SuperType_ = ZObject;
+    using SuperType_ = ZGuiObject;
 
     ZWindow() noexcept;
     ZWindow(ZWindow&& _window) noexcept;
@@ -111,7 +111,7 @@ protected:
         Sets Vertical synchronization.
         _tick_pur_window_tick: Set 0 to not use vertiacl synchronization.
     */
-    Void SetVerticalSynchronization(Bool _tick_pur_window_tick) noexcept;
+    Void SetVerticalSynchronization(Int32 _tick_pur_window_tick) noexcept;
 
 
 private:

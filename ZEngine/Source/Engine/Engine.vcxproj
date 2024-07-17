@@ -26,6 +26,7 @@
     <ClInclude Include="code\z_core\f_memory_pool.h" />
     <ClInclude Include="code\z_core\f_test.h" />
     <ClInclude Include="code\z_core\internal\d_concept.h" />
+    <ClInclude Include="code\z_core\internal\d_config.h" />
     <ClInclude Include="code\z_core\internal\d_constant.h" />
     <ClInclude Include="code\z_core\internal\d_error_code.h" />
     <ClInclude Include="code\z_core\internal\d_function.h" />

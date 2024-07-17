@@ -34,17 +34,20 @@ public:
     template <IndexType kIndex>
     using TupleObjectType_ = std::tuple_element<kIndex, STDTuple_>::type;
 
-    FORCEINLINE constexpr TTuple(const TTuple& _tuple) noexcept : SuperType_(), tuple_(_tuple.tuple_) {}
-    FORCEINLINE constexpr TTuple(TTuple&& _tuple) noexcept : SuperType_(), tuple_(std::move(_tuple.tuple_)) {}
+    FORCEINLINE constexpr TTuple(const TTuple& _tuple) noexcept : SuperType_(_tuple), tuple_(_tuple.tuple_) {}
+    FORCEINLINE constexpr TTuple(TTuple&& _tuple) noexcept 
+        : SuperType_(std::forward<TTuple>(_tuple)), tuple_(std::move(_tuple.tuple_)) {}
     FORCEINLINE constexpr TTuple(_ArgsType&&... _args) noexcept 
         : SuperType_(), tuple_(std::forward<_ArgsType>(_args)...) {}
     FORCEINLINE constexpr ~TTuple() noexcept {}
 
     FORCEINLINE constexpr TTuple& operator=(const TTuple& _tuple) noexcept {
+        SuperType_::operator=(_tuple);
         tuple_ = _tuple.tuple_;
         return *this;
     }
     FORCEINLINE constexpr TTuple& operator=(TTuple&& _tuple) noexcept {
+        SuperType_::operator=(std::forward<TTuple>(_tuple));
         tuple_ = std::move(_tuple.tuple_);
         return *this;
     }

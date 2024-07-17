@@ -113,6 +113,11 @@ private:
 
     static Void LogThread() noexcept;
 
+    ZLogManager(const ZLogManager&) = delete;
+    ZLogManager(ZLogManager&&) = delete;
+    ZLogManager& operator=(const ZLogManager&) = delete;
+    ZLogManager& operator=(ZLogManager&&) = delete;
+
     /*
         the last port is error log and the second last port is trace log.
     */

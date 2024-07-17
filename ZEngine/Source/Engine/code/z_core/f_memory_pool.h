@@ -21,24 +21,6 @@
 
 #include "internal/z_drive.h"
 
-#ifdef _DEBUG
-// Shows the use of the memory pool, includes the memory block left when the 
-// program emds, the total memory blocks appplyed and the peak situation of
-// the memory pool. Using this test will slightly reduce the performance of 
-// the program.
-#define USE_MEMORY_POOL_TEST true
-//Wheather the memory pool is thread safe.
-#define MEMORY_POOL_THREAD_SAFE true
-#else
-// Shows the use of the memory pool, includes the memory block left when the 
-// program emds, the total memory blocks appplyed and the peak situation of
-// the memory pool. Using this test will slightly reduce the performance of 
-// the program.
-#define USE_MEMORY_POOL_TEST false
-//Wheather the memory pool is thread safe.
-#define MEMORY_POOL_THREAD_SAFE true
-#endif
-
 namespace zengine {
 
 namespace error_code {

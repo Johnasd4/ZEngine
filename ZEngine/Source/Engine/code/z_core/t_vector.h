@@ -42,8 +42,9 @@ public:
     using InitializerList_ = std::initializer_list<_ObjectType>;
 
     FORCEINLINE TVector() noexcept : SuperType_(), vec_() {}
-    FORCEINLINE TVector(const TVector& _vec) noexcept : SuperType_(), vec_(_vec.vec_) {}
-    FORCEINLINE TVector(TVector&& _vec) noexcept : SuperType_(), vec_(std::move(_vec.vec_)) {}
+    FORCEINLINE TVector(const TVector& _vec) noexcept : SuperType_(_vec), vec_(_vec.vec_) {}
+    FORCEINLINE TVector(TVector&& _vec) noexcept 
+        : SuperType_(std::forward<TVector>(_vec)), vec_(std::move(_vec.vec_)) {}
 
     FORCEINLINE TVector(SizeType _size) noexcept : SuperType_(), vec_(_size) {}
     FORCEINLINE TVector(SizeType _size, const _ObjectType& _val) noexcept : SuperType_(), vec_(_size, _val) {}
@@ -54,10 +55,12 @@ public:
     FORCEINLINE ~TVector() noexcept {}
 
     FORCEINLINE TVector& operator=(const TVector& _vec) noexcept { 
+        SuperType_::operator=(_vec);
         vec_ = _vec.vec_;
         return *this;
     }
     FORCEINLINE TVector& operator=(TVector&& _vec) noexcept { 
+        SuperType_::operator=(std::forward<TVector>(_vec));
         vec_ = std::move(_vec.vec_);
         return *this;
     }

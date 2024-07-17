@@ -43,7 +43,7 @@ enum MemoryPoolEnum : IndexType {
     - kIsThreadSafe: thread safe or not.
 */
 template<Bool kIsThreadSafe>
-class TMemoryPoolBase :public TMemoryPoolThreadSafeBase<kIsThreadSafe> {
+class TMemoryPoolBase : public TMemoryPoolThreadSafeBase<kIsThreadSafe> {
 public:
     static constexpr IndexType kMaxLogLength = 4096;
 
