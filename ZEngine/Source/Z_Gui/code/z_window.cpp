@@ -30,20 +30,15 @@ ZWindow::ZWindow(ZWindow&& _window) noexcept : handle_(_window.handle_), window_
     _window.handle_ = nullptr;
     _window.window_state_ = kWindowStateTerminated;
 }
-ZWindow::ZWindow(
-    Int32 _width, Int32 _height, const Char* _title_str, WindowScreenModeEnum_ _screen_mode, ZWindow* _share_window
-) noexcept : handle_(nullptr), window_state_(kWindowStateTerminated) {
-    ReturnType link_code = kOK;
-    link_code = CreateP(_width, _height, _title_str, _screen_mode, _share_window);
-    if (link_code != kOK) {
-        Z_LOG_ERROR(error_code::kZWindowErrorCodeLinkError, link_code, L"ZWindow::CreateP() link error!");
-    }
-}
 
-NODISCARD ReturnType ZWindow::CreateP(
-    Int32 _width, Int32 _height, const Char* _title_str, WindowScreenModeEnum_ _screen_mode, ZWindow* _share_window
-) noexcept {
+NODISCARD ReturnType ZWindow::CreateP() noexcept {
     ReturnType ret_val = kOK;
+
+    if (handle_ != nullptr) {
+        ret_val = error_code::kZWindowErrorCodeWindowAreadyCreated;
+        Z_LOG_ERROR(ret_val, 0, L"Window aready created, can not create new window!");
+        return ret_val;
+    }
 
     //init opengl
     if (glfwInit() != GLFW_TRUE) {
@@ -53,11 +48,10 @@ NODISCARD ReturnType ZWindow::CreateP(
     }
 
     //create a window
-    switch (_screen_mode) {
+    switch (screen_mode_) {
         case kWindowScreenModeWindow:
             //create window
-            handle_ = (Void*)glfwCreateWindow(
-                _width, _height, _title_str, nullptr, reinterpret_cast<GLFWwindow*>(_share_window->handle_));
+            handle_ = (Void*)glfwCreateWindow(Width(), Height(), title_.String(), nullptr, nullptr);
             if (handle_ == nullptr) {
                 ret_val = error_code::kZWindowErrorCodeLinkError;
                 Z_LOG_ERROR(ret_val, 0, L"glfwCreateWindow() link error!");
@@ -66,9 +60,7 @@ NODISCARD ReturnType ZWindow::CreateP(
             break;
         case kWindowScreenModeFullScreenCustomSize:
             //create window
-            handle_ = (Void*)glfwCreateWindow(
-                _width, _height, _title_str, 
-                glfwGetPrimaryMonitor(), reinterpret_cast<GLFWwindow*>(_share_window->handle_));
+            handle_ = (Void*)glfwCreateWindow(Width(), Height(), title_.String(), glfwGetPrimaryMonitor(), nullptr);
             if (handle_ == nullptr) {
                 ret_val = error_code::kZWindowErrorCodeLinkError;
                 Z_LOG_ERROR(ret_val, 0, L"glfwCreateWindow() link error!");
@@ -91,9 +83,7 @@ NODISCARD ReturnType ZWindow::CreateP(
                 return ret_val;
             }
             //create window
-            handle_ = (Void*)glfwCreateWindow(
-                video_mode->width, video_mode->height, _title_str, nullptr,
-                reinterpret_cast<GLFWwindow*>(_share_window->handle_));
+            handle_ = (Void*)glfwCreateWindow(Width(), Height(), title_.String(), main_monitor, nullptr);
             if (handle_ == nullptr) {
                 ret_val = error_code::kZWindowErrorCodeLinkError;
                 Z_LOG_ERROR(ret_val, 0, L"glfwCreateWindow() link error!");

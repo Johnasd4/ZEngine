@@ -23,6 +23,7 @@
 
 #include "../z_core/m_log.h"
 #include "../z_core/t_atom.h"
+#include "../z_core/z_string.h"
 
 #include "z_gui_object.h"
 
@@ -33,7 +34,7 @@ namespace error_code {
 
 enum ZWindowErrorCode : ReturnType {
     kZWindowErrorCodeLinkError = kErrorCodeBaseZWindow,
-    kZWindowErrorCodeScreenMode
+    kZWindowErrorCodeWindowAreadyCreated
 };
 
 }//error_code
@@ -78,12 +79,16 @@ protected:
     ZWindow& operator=(ZWindow&& _window) noexcept;
 
     /*
-        Calls every tick.
+        Called before executing.
     */
-    virtual Void Tick(Float32 _tick) noexcept = 0;
+    virtual ReturnType Initialize() = 0;
+    /*
+        Called every tick
+    */
+    virtual ReturnType Tick(Float32 _delta_time) = 0;
 
     /*
-        Sets the title at runtime.
+        Sets the title of the window.
     */
     Void SetTitle(const Char* _title_str) noexcept;
     /*
@@ -101,7 +106,13 @@ protected:
     /*
         Sets if full screen.
     */
-    Void SetFullScreen(Bool _if_full_screen) noexcept;
+    Void SetScreenMode(WindowScreenModeEnum_ screen_mode) noexcept;
+    /*
+        Sets Vertical synchronization.
+        _tick_pur_window_tick: Set 0 to not use vertiacl synchronization.
+    */
+    Void SetVerticalSynchronization(Bool _tick_pur_window_tick) noexcept;
+
 
 private:
 
@@ -112,9 +123,7 @@ private:
     /*
         Creates the window, will initialize opengl if not initialized.
     */
-    NODISCARD ReturnType CreateP(
-        Int32 _width, Int32 _height, const Char* _title_str, WindowScreenModeEnum_ _screen_type, ZWindow* _share_window
-    ) noexcept;
+    NODISCARD ReturnType CreateP() noexcept;
     /*
         Destroy the window, will terminate opengl if the last window destroyed.
     */
@@ -124,6 +133,8 @@ private:
 
     Handle handle_;
     WindowStateEnum_ window_state_;
+    WindowScreenModeEnum_ screen_mode_;
+    ZString title_;
 };
 
 }//gui

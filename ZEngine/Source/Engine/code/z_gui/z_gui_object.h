@@ -44,43 +44,53 @@ public:
 
     NODISCARD FORCEINLINE Int32 Width() const noexcept { return width_; }
     NODISCARD FORCEINLINE Int32 Height() const noexcept { return height_; }
+    NODISCARD FORCEINLINE Void* OwnerPointer() const noexcept { return owner_ptr_; }
+    FORCEINLINE Void SetWidth(Int32 _width) noexcept { width_ = _width; }
+    FORCEINLINE Void SetHeight(Int32 _height) noexcept { height_ = _height; }
+    FORCEINLINE Void SetOwnerPointer(Void* _owner_ptr) noexcept { owner_ptr_ = _owner_ptr; }
 
 protected:
     using SuperType_ = ZObject;
 
-    FORCEINLINE ZGuiObject() noexcept : SuperType_(), width_(0), height_(0) {}
-    FORCEINLINE ZGuiObject(const ZGuiObject& _obj) noexcept 
-        : SuperType_(_obj), width_(_obj.width_), height_(_obj.height_) {}
-    FORCEINLINE ZGuiObject(ZGuiObject&& _obj) noexcept 
-        : SuperType_(std::move(_obj)), width_(_obj.width_), height_(_obj.height_) 
+    ZGuiObject() noexcept : SuperType_(), width_(0), height_(0), owner_ptr_(nullptr) {}
+    ZGuiObject(const ZGuiObject& _obj) noexcept 
+        : SuperType_(_obj), width_(_obj.width_), height_(_obj.height_), owner_ptr_(_obj.owner_ptr_) {}
+    ZGuiObject(ZGuiObject&& _obj) noexcept 
+        : SuperType_(std::move(_obj)), width_(_obj.width_), height_(_obj.height_), owner_ptr_(_obj.owner_ptr_)
     {
         _obj.width_ = 0;
         _obj.height_ = 0;
+        _obj.owner_ptr_ = nullptr;
     }
 
     const ZGuiObject& operator=(const ZGuiObject& _obj) noexcept {
         SuperType_::operator=(_obj);
         width_ = _obj.width_;
         height_ = _obj.height_;
+        owner_ptr_ = _obj.owner_ptr_;
         return *this;
     }
     const ZGuiObject& operator=(ZGuiObject&& _obj) noexcept {
         SuperType_::operator=(std::move(_obj));
         width_ = _obj.width_;
         height_ = _obj.height_;
+        owner_ptr_ = _obj.owner_ptr_;
         _obj.width_ = 0;
         _obj.height_ = 0;
+        _obj.owner_ptr_ = nullptr;
         return *this;
     }
 
     FORCEINLINE ~ZGuiObject() {}
 
-    Int32 width_;
-    Int32 height_;
 private:
     static Void* operator new[](SizeType) = delete;
     static Void* operator new[](SizeType, Void*) = delete;
     static Void operator delete[](Void*) = delete;
+
+    Int32 width_;
+    Int32 height_;
+    Void* owner_ptr_;
 };
 
 }//gui
