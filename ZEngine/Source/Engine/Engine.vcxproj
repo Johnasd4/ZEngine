@@ -69,6 +69,7 @@
     <ClInclude Include="code\z_gui.h" />
     <ClInclude Include="code\z_gui\f_test.h" />
     <ClInclude Include="code\z_gui\internal\d_concept.h" />
+    <ClInclude Include="code\z_gui\internal\d_config.h" />
     <ClInclude Include="code\z_gui\internal\d_constant.h" />
     <ClInclude Include="code\z_gui\internal\d_error_code.h" />
     <ClInclude Include="code\z_gui\internal\d_function.h" />

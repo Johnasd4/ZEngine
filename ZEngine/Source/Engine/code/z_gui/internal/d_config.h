@@ -16,16 +16,8 @@
     Author: YuLin Zhu (÷Ï”Í¡÷)
     Contact: 1152325286@qq.com
 */
-#ifndef Z_GUI_INTERNAL_Z_DRIVE_H_
-#define Z_GUI_INTERNAL_Z_DRIVE_H_
+#ifndef Z_GUI_INTERNAL_D_CONFIG_H_
+#define Z_GUI_INTERNAL_D_CONFIG_H_
 
-#include "d_concept.h"
-#include "d_config.h"
-#include "d_constant.h"
-#include "d_error_code.h"
-#include "d_function.h"
-#include "d_lib.h"
-#include "d_macro.h"
-#include "d_type.h"
 
-#endif // !Z_CORE_INTERNAL_Z_DRIVE_H_
+#endif // !Z_GUI_INTERNAL_D_CONFIG_H_
