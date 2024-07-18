@@ -24,21 +24,15 @@ namespace zengine {
 
 ZThread::ZThread() noexcept : SuperType_(), id_(NULL), handle_(nullptr) {}
 
-ZThread::ZThread(ZThread&& _thread) noexcept 
-    : SuperType_(std::forward<ZThread>(_thread)), id_(_thread.id_), handle_(_thread.handle_) 
-{
-    _thread.id_ = NULL; 
-    _thread.handle_ = nullptr;
+ZThread::ZThread(ZThread&& _thread) noexcept : SuperType_(std::forward<ZThread>(_thread)) {
+    MoveP(std::forward<ZThread>(_thread));
 }
 
 ZThread::~ZThread() noexcept {}
 
 ZThread& ZThread::operator=(ZThread&& _thread) noexcept {
     SuperType_::operator=(std::forward<ZThread>(_thread));
-    id_ = _thread.id_;
-    handle_ = _thread.handle_;
-    _thread.id_ = NULL;
-    _thread.handle_ = nullptr;
+    MoveP(std::forward<ZThread>(_thread));
     return *this;
 }
 
@@ -57,5 +51,11 @@ Void ZThread::Swap(ZThread& _thread) noexcept {
     _thread.handle_ = handle_;
 }
 
+Void ZThread::MoveP(ZThread&& _thread) noexcept {
+    id_ = _thread.id_;
+    handle_ = _thread.handle_;
+    _thread.id_ = NULL;
+    _thread.handle_ = nullptr;
+}
 
 }//zengine

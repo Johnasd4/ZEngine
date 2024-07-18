@@ -32,12 +32,13 @@ namespace zengine {
 class CORE_DLLAPI ZMutex : public ZObject {
 public:
     FORCEINLINE ZMutex() noexcept : SuperType_(), handle_(CreateMutex(nullptr, FALSE, nullptr)) {}
-    FORCEINLINE ZMutex(ZMutex&& _mutex) noexcept : SuperType_(), handle_(_mutex.handle_) { handle_ = nullptr; }
+    FORCEINLINE ZMutex(ZMutex&& _mutex) noexcept : SuperType_(std::forward<ZMutex>(_mutex)) { 
+        MoveP(std::forward<ZMutex>(_mutex)); 
+    }
     FORCEINLINE ~ZMutex() noexcept { CloseHandle(handle_); }
 
     FORCEINLINE ZMutex& operator=(ZMutex&& _mutex) noexcept {
-        handle_ = _mutex.handle_;
-        _mutex.handle_ = nullptr;
+        MoveP(std::forward<ZMutex>(_mutex));
         return *this;
     }
 
@@ -63,8 +64,12 @@ protected:
 
 private:
     ZMutex(const ZMutex&) = delete;
-
     ZMutex& operator=(const ZMutex&) = delete;
+
+    FORCEINLINE Void MoveP(ZMutex&& _mutex) noexcept {
+        handle_ = _mutex.handle_;
+        _mutex.handle_ = nullptr;
+    }
 
     Handle handle_;
 };

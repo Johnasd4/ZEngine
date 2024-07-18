@@ -45,7 +45,6 @@ private:
 
     ZCSMutex(const ZCSMutex&) = delete;
     ZCSMutex(ZCSMutex&&) = delete;
-
     ZCSMutex& operator=(const ZCSMutex&) = delete;
     ZCSMutex& operator=(ZCSMutex&&) = delete;
 

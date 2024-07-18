@@ -32,14 +32,14 @@ namespace zengine {
 class ZSemMutex : public ZObject {
 public:
     FORCEINLINE ZSemMutex() noexcept : SuperType_(), handle_(CreateSemaphore(nullptr, 1, 1, nullptr)) {}
-    FORCEINLINE ZSemMutex(ZSemMutex&& _mutex) noexcept 
-        : SuperType_(std::forward<ZSemMutex>(_mutex)), handle_(_mutex.handle_) { handle_ = nullptr; }
+    FORCEINLINE ZSemMutex(ZSemMutex&& _mutex) noexcept : SuperType_(std::forward<ZSemMutex>(_mutex)) {
+        MoveP(std::forward<ZSemMutex>(_mutex));
+    }
     FORCEINLINE ~ZSemMutex() noexcept { CloseHandle(handle_); }
 
     FORCEINLINE ZSemMutex& operator=(ZSemMutex&& _mutex) noexcept {
         SuperType_::operator=(std::forward<ZSemMutex>(_mutex));
-        handle_ = _mutex.handle_;
-        _mutex.handle_ = nullptr;
+        MoveP(std::forward<ZSemMutex>(_mutex));
         return *this;
     }
 
@@ -65,8 +65,12 @@ protected:
 
 private:
     ZSemMutex(const ZSemMutex&) = delete;
-
     ZSemMutex& operator=(const ZSemMutex&) = delete;
+
+    FORCEINLINE Void MoveP(ZSemMutex&& _mutex) noexcept {
+        handle_ = _mutex.handle_;
+        _mutex.handle_ = nullptr;
+    }
 
     Handle handle_;
 };

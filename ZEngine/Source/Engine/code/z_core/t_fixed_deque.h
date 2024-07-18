@@ -49,18 +49,10 @@ public:
         , front_index_(0)
         , back_index_(kCapacity - 1)
         , size_(0) {}
-    FORCEINLINE constexpr TFixedDeque(const TFixedDeque& _deque) noexcept 
-        : SuperType_(_deque)
-        , deque_(_deque.deque_)
-        , front_index_(_deque.front_index_)
-        , back_index_(_deque.back_index_)
-        , size_(_deque.size_) {}
-    FORCEINLINE constexpr TFixedDeque(TFixedDeque&& _deque) noexcept 
-        : SuperType_(std::forward<TFixedDeque>(_deque))
-        , deque_(std::move(_deque.deque_))
-        , front_index_(_deque.front_index_)
-        , back_index_(_deque.back_index_)
-        , size_(_deque.size_) {}
+    FORCEINLINE constexpr TFixedDeque(const TFixedDeque& _deque) noexcept : SuperType_(_deque){ CopyP(_deque); }
+    FORCEINLINE constexpr TFixedDeque(TFixedDeque&& _deque) noexcept : SuperType_(std::forward<TFixedDeque>(_deque)) {
+        MoveP(std::forward<TFixedDeque>(_deque)); 
+    }
     FORCEINLINE TFixedDeque(InitializerList _init_list) noexcept 
         : SuperType_()
         , deque_(_init_list)
@@ -96,18 +88,12 @@ public:
 
     FORCEINLINE TFixedDeque& operator=(const TFixedDeque& _deque) noexcept {
         SuperType_::operator=(_deque);
-        deque_ = _deque.deque_;
-        front_index_ = _deque.front_index_;
-        back_index_ = _deque.back_index_;
-        size_ = _deque.size_;
+        CopyP(_deque);
         return *this;
     }
     FORCEINLINE TFixedDeque& operator=(TFixedDeque&& _deque) noexcept {
         SuperType_::operator=(std::forward<TFixedDeque>(_deque));
-        deque_ = std::move(_deque.deque_);
-        front_index_ = _deque.front_index_;
-        back_index_ = _deque.back_index_;
-        size_ = _deque.size_;
+        MoveP(std::forward<TFixedDeque>(_deque));
         return *this;
     }
 
@@ -205,6 +191,23 @@ protected:
     using SuperType_ = ZObject;
 
 private:
+    FORCEINLINE Void CopyP(const TFixedDeque& _deque) noexcept {
+        deque_ = _deque.deque_;
+        front_index_ = _deque.front_index_;
+        back_index_ = _deque.back_index_;
+        size_ = _deque.size_;
+    }
+
+    FORCEINLINE Void MoveP(TFixedDeque&& _deque) noexcept {
+        deque_ = std::move(_deque.deque_);
+        front_index_ = _deque.front_index_;
+        back_index_ = _deque.back_index_;
+        size_ = _deque.size_;
+        _deque.front_index_ = 0;
+        _deque.back_index_ = kCapacity - 1;
+        _deque.size_ = 0;
+    }
+
     STDArray deque_;
     IndexType front_index_;
     IndexType back_index_;

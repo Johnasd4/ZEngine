@@ -82,13 +82,15 @@ public:
     static constexpr IndexType kFileNameLength = 512;
 
     FORCEINLINE ZFile() noexcept : SuperType_(), file_ptr_(nullptr) {}
-    FORCEINLINE ZFile(ZFile&& _file) noexcept : SuperType_(std::forward<ZFile>(_file)), file_ptr_(_file.file_ptr_) {}
+    FORCEINLINE ZFile(ZFile&& _file) noexcept : SuperType_(std::forward<ZFile>(_file)) { 
+        MoveP(std::forward<ZFile>(_file)); 
+    }
 
     FORCEINLINE ~ZFile() noexcept { if (file_ptr_ != nullptr) { fclose(file_ptr_); } }
 
     FORCEINLINE ZFile& operator=(ZFile&& _file) noexcept {
         SuperType_::operator=(std::forward<ZFile>(_file));
-        file_ptr_ = _file.file_ptr_;
+        MoveP(std::forward<ZFile>(_file));
         return *this;
     }
 
@@ -163,16 +165,17 @@ public:
         pos_ptr: returns the pos of the current ptr.
     */
     NODISCARD ReturnType Tell(Int32* _pos_ptr) noexcept;
-
-
-
 protected:
     using SuperType_ = ZObject;
 
 private:
     ZFile(const ZFile&) = delete;
-
     ZFile& operator=(const ZFile&) = delete;
+
+    FORCEINLINE Void MoveP(ZFile&& _file) noexcept {
+        file_ptr_ = _file.file_ptr_;
+        _file.file_ptr_ = nullptr;
+    }
 
     FILE* file_ptr_;
 };

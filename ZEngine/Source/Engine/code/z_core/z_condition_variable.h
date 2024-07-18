@@ -91,7 +91,6 @@ protected:
 private:
     ZConditionVariable(const ZConditionVariable&) = delete;
     ZConditionVariable(ZConditionVariable&&) = delete;
-
     ZConditionVariable& operator=(const ZConditionVariable&) = delete;
     ZConditionVariable& operator=(ZConditionVariable&&) = delete;
 

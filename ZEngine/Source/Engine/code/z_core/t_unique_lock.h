@@ -55,12 +55,8 @@ public:
     static constexpr TryLockUntilType_ kTryLockUntil = { 0 };
 
     TUniqueLock() noexcept : SuperType_(), mutex_ptr_(nullptr), owns_lock_(false) {}
-    TUniqueLock(TUniqueLock&& _unique_lock) noexcept 
-        : SuperType_(std::forward<TUniqueLock>(_unique_lock))
-        , mutex_ptr_(_unique_lock.mutex_ptr_), owns_lock_(_unique_lock.owns_lock_)
-    {
-        _unique_lock.mutex_ptr_ = nullptr;
-        _unique_lock.owns_lock_ = true;
+    TUniqueLock(TUniqueLock&& _unique_lock) noexcept : SuperType_(std::forward<TUniqueLock>(_unique_lock)) {
+        MoveP(std::forward<TUniqueLock>(_unique_lock));
     }
     /*
         Locks the mutex.
@@ -109,8 +105,7 @@ public:
 
     TUniqueLock& operator=(TUniqueLock&& _unique_lock) noexcept {
         SuperType_::operator=(std::forward<TUniqueLock>(_unique_lock));
-        mutex_ptr_ = _unique_lock.mutex_ptr_;
-        owns_lock_ = _unique_lock.owns_lock_;
+        MoveP(std::forward<TUniqueLock>(_unique_lock));
         return *this;
     }
 
@@ -199,6 +194,13 @@ protected:
 private:
     TUniqueLock(const TUniqueLock&) = delete;
     const TUniqueLock& operator=(const TUniqueLock&) = delete;
+
+    FORCEINLINE Void MoveP(TUniqueLock&& _unique_lock) noexcept {
+        mutex_ptr_ = _unique_lock.mutex_ptr_;
+        owns_lock_ = _unique_lock.owns_lock_;
+        _unique_lock.mutex_ptr_ = nullptr;
+        _unique_lock.owns_lock_ = true;
+    }
 
     /*
         Checks if the mutex is able to lock.

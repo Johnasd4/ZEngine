@@ -100,8 +100,9 @@ protected:
 
 private:
     ZTaskSafe(const ZTaskSafe&) = delete;
-
     ZTaskSafe& operator=(const ZTaskSafe&) = delete;
+
+    Void MoveP(ZTaskSafe&& _task) noexcept;
 
 #pragma warning(push)
 #pragma warning(disable: 6031)
@@ -184,8 +185,6 @@ private:
     }
 
 #pragma warning(pop)
-
-    Void MoveP(ZTaskSafe&& _task) noexcept;
 
     Void(*operate_func_ptr_)(ZTaskSafe*);
     Void* task_func_ptr_;
@@ -243,8 +242,9 @@ protected:
 
 private:
     ZTask(const ZTask&) = delete;
-
     ZTask& operator=(const ZTask&) = delete;
+
+    Void MoveP(ZTask&& _task) noexcept;
 
 #pragma warning(push)
 #pragma warning(disable: 6031)
@@ -327,8 +327,6 @@ private:
     }
 
 #pragma warning(pop)
-
-    Void MoveP(ZTask&& _task) noexcept;
 
     Void(*operate_func_ptr_)(ZTask*);
     Void* task_func_ptr_;

@@ -94,8 +94,9 @@ protected:
 
 private:
     ZThread(const ZThread&) = delete;
-
     ZThread& operator=(const ZThread&) = delete;
+
+    Void MoveP(ZThread&& _thread) noexcept;
 
     ThreadIDType_ id_;
     Handle handle_;

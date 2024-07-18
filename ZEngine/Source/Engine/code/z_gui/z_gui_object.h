@@ -69,6 +69,7 @@ protected:
 
     FORCEINLINE ~ZGuiObject() {}
 
+private:
     FORCEINLINE Void CopyP(const ZGuiObject& _obj) noexcept {
         width_ = _obj.width_;
         height_ = _obj.height_;
@@ -84,7 +85,6 @@ protected:
         _obj.owner_ptr_ = nullptr;
     }
 
-private:
     Int32 width_;
     Int32 height_;
     Void* owner_ptr_;
