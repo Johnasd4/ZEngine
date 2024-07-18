@@ -45,15 +45,6 @@ enum ZWindowErrorCode : ReturnType {
 class GUI_DLLAPI ZWindow : public ZGuiObject {
 public:
     /*
-        Starts the main loop of the window.
-    */
-    NODISCARD ReturnType Execute() noexcept;
-    /*
-        Starts the main loop of the window.
-    */
-    NODISCARD Void ExecuteInNewThread() noexcept;
-
-    /*
         Window states.
     */
     enum WindowStateEnum_ {
@@ -70,27 +61,24 @@ public:
         kWindowScreenModeFullScreenDefaultSize,
     };
 
-protected:
-    using SuperType_ = ZGuiObject;
-
     ZWindow() noexcept;
     ZWindow(ZWindow&& _window) noexcept;
     ~ZWindow() noexcept;
     ZWindow& operator=(ZWindow&& _window) noexcept;
 
     /*
-        Called before executing.
+        Starts the main loop of the window.
     */
-    virtual ReturnType Initialize() = 0;
+    NODISCARD ReturnType Execute() noexcept;
     /*
-        Called every tick
+        Starts the main loop of the window.
     */
-    virtual ReturnType Tick(Float32 _delta_time) = 0;
+    NODISCARD Void ExecuteInNewThread() noexcept;
 
     /*
         Sets the title of the window.
     */
-    Void SetTitle(const Char* _title_str) noexcept;
+    Void SetTitle(const Char* _title) noexcept;
     /*
         Sets the size of the window.
     */
@@ -102,18 +90,28 @@ protected:
     /*
         Sets the size of the window.
     */
-    Void SetWindowSize(Int32 _width, Int32 _height) noexcept;
+    Void SetSize(Int32 _width, Int32 _height) noexcept;
     /*
-        Sets if full screen.
+        Sets screen mode, decides if using full screen and resolution.
     */
-    Void SetScreenMode(WindowScreenModeEnum_ screen_mode) noexcept;
+    Void SetScreenMode(WindowScreenModeEnum_ _screen_mode) noexcept;
     /*
         Sets Vertical synchronization.
         _tick_pur_window_tick: Set 0 to not use vertiacl synchronization.
     */
     Void SetVerticalSynchronization(Int32 _tick_pur_window_tick) noexcept;
 
+protected:
+    using SuperType_ = ZGuiObject;
 
+    /*
+        Called before executing.
+    */
+    virtual ReturnType Initialize();
+    /*
+        Called every tick
+    */
+    virtual ReturnType Tick(Float32 _delta_time);
 private:
 
     ZWindow(const ZWindow&) = delete;
@@ -135,6 +133,7 @@ private:
     WindowStateEnum_ window_state_;
     WindowScreenModeEnum_ screen_mode_;
     ZString title_;
+    Int32 tick_pur_window_tick_;
 };
 
 }//gui

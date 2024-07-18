@@ -47,6 +47,10 @@ public:
     NODISCARD FORCEINLINE Void* OwnerPointer() const noexcept { return owner_ptr_; }
     FORCEINLINE Void SetWidth(Int32 _width) noexcept { width_ = _width; }
     FORCEINLINE Void SetHeight(Int32 _height) noexcept { height_ = _height; }
+    FORCEINLINE Void SetSize(Int32 _width, Int32 _height) noexcept { 
+        width_ = _width;
+        height_ = _height; 
+    }
     FORCEINLINE Void SetOwnerPointer(Void* _owner_ptr) noexcept { owner_ptr_ = _owner_ptr; }
 
 protected:
