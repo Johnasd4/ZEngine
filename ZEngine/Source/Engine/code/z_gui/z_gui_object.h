@@ -38,7 +38,7 @@ namespace gui {
 class GUI_DLLAPI ZGuiObject : public ZObject {
 public:
     /* The mutex for the global opengl. */
-    static ZMutex& OpenGLMutex() noexcept;
+    static ZMutex& OpenGL3Mutex() noexcept;
     /* The mutex for the global imgui. */
     static ZMutex& ImguiMutex() noexcept;
 

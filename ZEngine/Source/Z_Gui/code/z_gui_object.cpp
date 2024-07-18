@@ -23,7 +23,7 @@
 namespace zengine {
 namespace gui {
 
-ZMutex& ZGuiObject::OpenGLMutex() noexcept {
+ZMutex& ZGuiObject::OpenGL3Mutex() noexcept {
     static ZMutex mutex;
     return mutex;
 }

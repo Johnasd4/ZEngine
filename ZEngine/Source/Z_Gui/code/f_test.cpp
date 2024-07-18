@@ -30,8 +30,6 @@ namespace zengine {
 namespace gui {
 
 void setupImGui(GLFWwindow* window) {
-    // 初始化 ImGui 上下文
-    IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
 

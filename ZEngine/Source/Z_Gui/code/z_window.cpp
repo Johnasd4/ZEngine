@@ -28,12 +28,68 @@
 namespace zengine {
 namespace gui {
 
-ZWindow::ZWindow() noexcept : SuperType_(), handle_(nullptr), window_state_(kWindowStateTerminated) {}
+ZWindow::ZWindow() noexcept 
+    : SuperType_()
+    , title_()
+    , handle_(nullptr)
+    , window_state_(kWindowStateTerminated)
+    , screen_mode_(kWindowScreenModeWindow)
+    , tick_pur_window_tick_(0) {}
+
 ZWindow::ZWindow(ZWindow&& _window) noexcept 
-    : SuperType_(std::forward<ZWindow>(_window)), handle_(_window.handle_), window_state_(_window.window_state_) 
+    : SuperType_(std::forward<ZWindow>(_window))
 {
-    _window.handle_ = nullptr;
-    _window.window_state_ = kWindowStateTerminated;
+    MoveP(std::forward<ZWindow>(_window));
+}
+
+ZWindow::~ZWindow() noexcept {}
+
+ZWindow& ZWindow::operator=(ZWindow&& _window) noexcept {
+    SuperType_::operator=(std::forward<ZWindow>(_window));
+    MoveP(std::forward<ZWindow>(_window));
+    return *this;
+}
+
+NODISCARD ReturnType ZWindow::Execute() noexcept {
+    ReturnType ret_val = kOK;
+    ReturnType link_code = kOK;
+    
+    link_code = CreateWindowP();
+    if (link_code != kOK) {
+        ret_val = error_code::kZWindowErrorCodeLinkError;
+        Z_LOG_ERROR(ret_val, 0, L"ZWindow::CreateP() link error!");
+        return ret_val;
+    }
+
+    Initialize();
+
+    while (!glfwWindowShouldClose(static_cast<GLFWwindow*>(handle_))) {
+        //clear the buffer
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        
+
+        //exchange the buffer
+        glfwSwapBuffers(static_cast<GLFWwindow*>(handle_));
+        glfwPollEvents();
+    }
+
+    //all window released
+    //clean up imgui
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
+    //clean up opengl3
+    glfwDestroyWindow(static_cast<GLFWwindow*>(handle_));
+    glfwTerminate();
+
+    return ret_val;
+}
+
+NODISCARD ReturnType ZWindow::ExecuteInNewThread() noexcept {
+    ReturnType ret_val = kOK;
+
+    return ret_val;
 }
 
 Void ZWindow::SetTitle(const Char* _title) noexcept {
@@ -60,7 +116,23 @@ Void ZWindow::SetVerticalSynchronization(Int32 _tick_pur_window_tick) noexcept {
     tick_pur_window_tick_ = _tick_pur_window_tick;
 }
 
-NODISCARD ReturnType ZWindow::CreateP() noexcept {
+Void ZWindow::Initialize() noexcept {}
+
+Void ZWindow::Tick(Float32 _delta_time) noexcept {}
+
+Void ZWindow::MoveP(ZWindow&& _window) noexcept {
+    title_ = std::move(_window.title_);
+    handle_ = _window.handle_;
+    window_state_ = _window.window_state_;
+    screen_mode_ = _window.screen_mode_;
+    tick_pur_window_tick_ = _window.tick_pur_window_tick_;
+    _window.handle_ = nullptr;
+    _window.window_state_ = kWindowStateTerminated;
+    _window.screen_mode_ = kWindowScreenModeWindow;
+    _window.tick_pur_window_tick_ = 0;
+}
+
+NODISCARD ReturnType ZWindow::CreateWindowP() noexcept {
     ReturnType ret_val = kOK;
 
     if (handle_ != nullptr) {
@@ -128,38 +200,21 @@ NODISCARD ReturnType ZWindow::CreateP() noexcept {
             return ret_val;
     }
     
-    ZGuiObject::OpenGLMutex().Lock();
+    ZGuiObject::OpenGL3Mutex().Lock();
     glfwMakeContextCurrent(static_cast<GLFWwindow*>(handle_));
     glfwSwapInterval(tick_pur_window_tick_);
-    ZGuiObject::OpenGLMutex().Unlock();
+    ZGuiObject::OpenGL3Mutex().Unlock();
 
-    ++window_num_;
-
-    return ret_val;
-}
-
-NODISCARD ReturnType ZWindow::DestroyP() noexcept {
-    ReturnType ret_val = kOK;
-
-    --window_num_;
-
-    //other window exists
-    if (window_num_ > 0) {
-        return ret_val;
-    }
-
-    //all window released
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
-
-    glfwDestroyWindow(static_cast<GLFWwindow*>(handle_));
-    glfwTerminate();
+    ZGuiObject::ImguiMutex().Lock();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(handle_), true);
+    ImGui_ImplOpenGL3_Init("#version 130");
+    ZGuiObject::ImguiMutex().Unlock();
 
     return ret_val;
 }
-
-TAtom<Int32> ZWindow::window_num_(0);
 
 }//gui
 }//zengine

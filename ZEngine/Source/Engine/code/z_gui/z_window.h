@@ -63,7 +63,9 @@ public:
 
     ZWindow() noexcept;
     ZWindow(ZWindow&& _window) noexcept;
+    
     ~ZWindow() noexcept;
+
     ZWindow& operator=(ZWindow&& _window) noexcept;
 
     /*
@@ -73,7 +75,7 @@ public:
     /*
         Starts the main loop of the window.
     */
-    NODISCARD Void ExecuteInNewThread() noexcept;
+    NODISCARD ReturnType ExecuteInNewThread() noexcept;
 
     /*
         Sets the title of the window.
@@ -105,34 +107,29 @@ protected:
     using SuperType_ = ZGuiObject;
 
     /*
-        Called before executing.
+        Called after the window created, before the window executed.
     */
-    virtual ReturnType Initialize();
+    virtual Void Initialize() noexcept;
+
     /*
         Called every tick
     */
-    virtual ReturnType Tick(Float32 _delta_time);
+    virtual Void Tick(Float32 _delta_time) noexcept;
+
 private:
-
     ZWindow(const ZWindow&) = delete;
-
     ZWindow& operator=(const ZWindow&) = delete;
     
+    Void MoveP(ZWindow&& _window) noexcept;
     /*
         Creates the window, will initialize opengl if not initialized.
     */
-    NODISCARD ReturnType CreateP() noexcept;
-    /*
-        Destroy the window, will terminate opengl if the last window destroyed.
-    */
-    NODISCARD ReturnType DestroyP() noexcept;
+    NODISCARD ReturnType CreateWindowP() noexcept;
 
-    static TAtom<Int32> window_num_;
-
+    ZString title_;
     Handle handle_;
     WindowStateEnum_ window_state_;
     WindowScreenModeEnum_ screen_mode_;
-    ZString title_;
     Int32 tick_pur_window_tick_;
 };
 
