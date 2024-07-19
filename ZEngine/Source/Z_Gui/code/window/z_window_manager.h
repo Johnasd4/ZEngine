@@ -83,7 +83,6 @@ private:
     ~ZWindowManager() noexcept; 
 
     TList<ZWindow*> window_ptr_list_;
-
     Bool tick_thread_finished_;
     ZThread tick_thread_;
 };
