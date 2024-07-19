@@ -16,17 +16,16 @@
     Author: YuLin Zhu (÷Ï”Í¡÷)
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_LOG_Z_LOG_MANAGER_H_
-#define Z_CORE_LOG_Z_LOG_MANAGER_H_
+#ifndef Z_GUI_WINDOW_Z_WINDOW_MANAGER_H_
+#define Z_GUI_WINDOW_Z_WINDOW_MANAGER_H_
 
 #include "internal/z_drive.h"
 
-#include "type/z_error_log.h"
-#include "type/z_info_log.h"
-#include "type/z_trace_log.h"
-#include "t_log_queue.h"
-#include "z_log_server.h"
-#include "z_thread.h"
+#include "../z_core/t_list.h"
+#include "../z_core/z_object.h"
+#include "../z_core/z_thread.h"
+
+#include "z_window.h"
 
 namespace zengine {
 namespace gui {
@@ -34,18 +33,10 @@ namespace gui {
 
 
 /*
-    The log manager, log's the error and info to the console, file and any place that needs to log.
+    The window manager, controls the window's execution.
 */
-class ZLogManager : public ZObject {
+class ZWindowManager : public ZObject {
 public:
-    static constexpr IndexType kLogQueueSize = 1024;
-
-    static constexpr IndexType kErrorLogPortID = ZLogServer::kMaxPortNum - 1;
-    static constexpr IndexType kTraceLogPortID = ZLogServer::kMaxPortNum - 2;
-    static constexpr IndexType kInfoLogPortID = ZLogServer::kMaxPortNum - 3;
-    static constexpr IndexType kLogPortIDMin = - 3;
-    static constexpr IndexType kLogPortIDMax = ZLogServer::kMaxPortNum - kLogPortIDMin;
-
     static Void LogError(
         TimeType _raw_time,
         const WChar* _proj_name,
@@ -74,67 +65,30 @@ public:
         ArgListType _args
     ) noexcept;
 
-    /*
-        Register the log server port input function, the function will be called when log happens.
-    */
-    NODISCARD static ReturnType RegisterLogServerInputFunction(
-        IndexType _port_id, 
-        Void(*_input_func)(const ZLog*, ZLog::OutputString_*)
-    ) noexcept;
-
-    /*
-        Removes the log server port output function.
-    */
-    NODISCARD static ReturnType UnregisterLogServerInputFunction(
-        IndexType _port_id, 
-        Void(*_input_func)(const ZLog*, ZLog::OutputString_*)
-    ) noexcept;
-
-    /*
-        Register the log server port output function, the function will be called when log happens.
-    */
-    NODISCARD static ReturnType RegisterLogServerOutputFunction(
-        IndexType _port_id, 
-        Void(*_output_func)(const ZLog*, const ZLog::OutputString_&)
-    ) noexcept;
-
-    /*
-        Removes the log server port output function.
-    */
-    static Void UnregisterLogServerOutputFunction(
-        Void(*_output_func)(const ZLog*, const ZLog::OutputString_&)
-    ) noexcept;
-
 protected:
     using SuperType_ = ZObject;
 
 private:
-    static ZLogManager& InstanceP() noexcept;
+    static ZWindowManager& InstanceP() noexcept;
 
-    static Void LogThread() noexcept;
+    static Void TickThread() noexcept;
 
-    ZLogManager(const ZLogManager&) = delete;
-    ZLogManager(ZLogManager&&) = delete;
-    ZLogManager& operator=(const ZLogManager&) = delete;
-    ZLogManager& operator=(ZLogManager&&) = delete;
+    ZWindowManager(const ZWindowManager&) = delete;
+    ZWindowManager(ZWindowManager&&) = delete;
+    ZWindowManager& operator=(const ZWindowManager&) = delete;
+    ZWindowManager& operator=(ZWindowManager&&) = delete;
 
-    /*
-        the last port is error log and the second last port is trace log.
-    */
-    ZLogManager() noexcept;
+    ZWindowManager() noexcept;
 
-    ~ZLogManager() noexcept;
+    ~ZWindowManager() noexcept; 
 
-    TLogQueue<ZErrorLog, kLogQueueSize> error_log_queue_;
-    TLogQueue<ZTraceLog, kLogQueueSize> trace_log_queue_;
-    TLogQueue<ZInfoLog, kLogQueueSize> info_log_queue_;
-    TArray<TLogQueue<ZErrorLog, kLogQueueSize>, ZLogServer::kMaxPortNum - kLogPortIDMin> log_queue_array_;
-    ZLogServer log_server_;
-    Bool log_thread_finished_;
-    ZThread log_thread_;
+    TList<ZWindow*> window_ptr_list_;
+
+    Bool tick_thread_finished_;
+    ZThread tick_thread_;
 };
 
 }//gui
 }//zengine
 
-#endif // !Z_CORE_LOG_Z_LOG_MANAGER_H_
+#endif // !Z_GUI_WINDOW_Z_WINDOW_MANAGER_H_
