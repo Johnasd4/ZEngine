@@ -24,6 +24,22 @@
 namespace zengine {
 namespace gui {
 
+/*
+    The size of the gui objects.
+*/
+struct ZSize {
+    Int32 width_;
+    Int32 height_;
+};
+
+/*
+    The pos of the gui objects.
+*/
+struct ZPos {
+    Int32 x_;
+    Int32 y_;
+};
+
 }//gui
 }//zengine
 

@@ -21,9 +21,7 @@
 
 #include "internal/z_drive.h"
 
-#include "../z_core/m_log.h"
-#include "../z_core/t_atom.h"
-#include "../z_core/z_string.h"
+#include "../z_core/t_vector.h"
 
 #include "z_gui_object.h"
 
@@ -34,7 +32,8 @@ namespace error_code {
 
 enum ZWindowErrorCode : ReturnType {
     kZWindowErrorCodeLinkError = kErrorCodeBaseZWindow,
-    kZWindowErrorCodeWindowAreadyCreated
+    kZWindowErrorCodeWindowAreadyCreated,
+    kZWindowErrorCodeWindowNotExist
 };
 
 }//error_code
@@ -45,14 +44,6 @@ enum ZWindowErrorCode : ReturnType {
 class GUI_DLLAPI ZWindow : public ZGuiObject {
 public:
     /*
-        Window states.
-    */
-    enum WindowStateEnum_ {
-        kWindowStateTerminated,
-        kWindowStateExecuted
-    };
-
-    /*
         The window screen mode.
     */
     enum WindowScreenModeEnum_ {
@@ -61,7 +52,31 @@ public:
         kWindowScreenModeFullScreenDefaultSize,
     };
 
+    /*
+        The window screen mode.
+    */
+    enum WindowStateEnum_ {
+        kWindowStateTerminated,
+        kWindowStateOpened,
+        kWindowStateClosed,
+        kWindowStateHidden
+    };
+
+    /*
+        Sets Vertical synchronization.
+        _tick_pur_window_tick: Set 0 to not use vertiacl synchronization, default 0.
+    */
+    FORCEINLINE static Void SetVerticalSynchronization(Int32 _tick_pur_window_tick) noexcept {
+        tick_pur_window_tick_ = _tick_pur_window_tick; 
+    }
+    /*
+        Sets Vertical synchronization.
+        _tick_pur_window_tick: Set 0 to not use vertiacl synchronization, default 0.
+    */
+    NODISCARD FORCEINLINE static Int32 ActiveWindowNum() noexcept { return active_window_num_; }
+
     ZWindow() noexcept;
+    ZWindow(Int32 _width, Int32 _height, const Char* _title, WindowScreenModeEnum_ _screen_mode) noexcept;
     ZWindow(ZWindow&& _window) noexcept;
     
     ~ZWindow() noexcept;
@@ -69,13 +84,31 @@ public:
     ZWindow& operator=(ZWindow&& _window) noexcept;
 
     /*
-        Starts the main loop of the window.
+        Creates the window, will initialize opengl if not initialized.
     */
-    NODISCARD ReturnType Execute() noexcept;
+    NODISCARD virtual ReturnType Create(
+        Int32 _width, Int32 _height, const Char* _title, WindowScreenModeEnum_ _screen_mode
+    ) noexcept;
+
     /*
-        Starts the main loop of the window.
+        Destroy the window, release the resourses.
     */
-    NODISCARD ReturnType ExecuteInNewThread() noexcept;
+    NODISCARD virtual ReturnType Destroy() noexcept;
+
+    /*
+        Close the window, calls reset when the window is opened again.
+    */
+    NODISCARD virtual ReturnType Close() noexcept;
+
+    /*
+        Hides the window.
+    */
+    virtual Void Hide() noexcept;
+
+    /*
+        Shows the window, if the window was closed, will reset the window.
+    */
+    virtual Void Show() noexcept;
 
     /*
         Sets the title of the window.
@@ -92,45 +125,47 @@ public:
     /*
         Sets the size of the window.
     */
+    Void SetXPos(Int32 _x_pos) noexcept;
+    /*
+        Sets the size of the window.
+    */
+    Void SetYPos(Int32 _y_pos) noexcept;
+    /*
+        Sets the size of the window.
+    */
     Void SetSize(Int32 _width, Int32 _height) noexcept;
+    /*
+        Sets the pos of the window.
+    */
+    Void SetPos(Int32 _x_pos, Int32 _y_pos) noexcept;
     /*
         Sets screen mode, decides if using full screen and resolution.
     */
     Void SetScreenMode(WindowScreenModeEnum_ _screen_mode) noexcept;
-    /*
-        Sets Vertical synchronization.
-        _tick_pur_window_tick: Set 0 to not use vertiacl synchronization.
-    */
-    Void SetVerticalSynchronization(Int32 _tick_pur_window_tick) noexcept;
+
+    NODISCARD FORCEINLINE Handle WinowHandle() const noexcept { return window_handle_; }
+    NODISCARD FORCEINLINE Handle WinowContext() const noexcept { return window_context_; }
+    NODISCARD FORCEINLINE WindowStateEnum_ WinowState() const noexcept { return window_state_; }
 
 protected:
     using SuperType_ = ZGuiObject;
 
-    /*
-        Called after the window created, before the window executed.
-    */
-    virtual Void Initialize() noexcept;
-
-    /*
-        Called every tick
-    */
-    virtual Void Tick(Float32 _delta_time) noexcept;
-
 private:
+    friend class ZWindowManager;
+
     ZWindow(const ZWindow&) = delete;
     ZWindow& operator=(const ZWindow&) = delete;
     
     Void MoveP(ZWindow&& _window) noexcept;
-    /*
-        Creates the window, will initialize opengl if not initialized.
-    */
-    NODISCARD ReturnType CreateWindowP() noexcept;
 
-    ZString title_;
-    Handle handle_;
+    static Int32 tick_pur_window_tick_;
+
+    static Int32 active_window_num_;
+
+    Handle window_handle_;
+    Handle window_context_;
     WindowStateEnum_ window_state_;
-    WindowScreenModeEnum_ screen_mode_;
-    Int32 tick_pur_window_tick_;
+    TVector<ZGuiObject*> sub_obj_vec_;
 };
 
 }//gui

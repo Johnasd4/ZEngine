@@ -23,15 +23,11 @@
 namespace zengine {
 namespace gui {
 
-ZMutex& ZGuiObject::OpenGL3Mutex() noexcept {
-    static ZMutex mutex;
-    return mutex;
-}
+Void ZGuiObject::Initialize() noexcept {}
 
-ZMutex& ZGuiObject::ImguiMutex() noexcept {
-    static ZMutex mutex;
-    return mutex;
-}
+Void ZGuiObject::Tick(Float32 _delta_time) noexcept {}
+
+Void ZGuiObject::Reset() noexcept {}
 
 }//gui
 }//zengine

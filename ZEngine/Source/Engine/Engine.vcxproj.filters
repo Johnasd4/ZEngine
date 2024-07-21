@@ -192,6 +192,9 @@
     <ClInclude Include="code\z_gui\internal\d_config.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="code\z_gui\z_application.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\main.cpp">

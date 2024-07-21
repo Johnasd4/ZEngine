@@ -21,16 +21,11 @@
     <ClCompile Include="code\z_window.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="code\z_application.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
     <ClCompile Include="code\z_gui_object.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="code\window\z_window_manager.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="code\window\z_window_manager.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

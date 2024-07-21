@@ -97,7 +97,7 @@ protected:
     using SuperType_ = ZObject;
 
 private:
-    static Void ThreadFunc(ZThreadPool& _thread_pool) noexcept;
+    static Void SubThread(ZThreadPool& _thread_pool) noexcept;
 
     ZThreadPool(const ZThreadPool&) = delete;
     ZThreadPool(ZThreadPool&&) = delete;

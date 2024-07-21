@@ -51,7 +51,7 @@ ZThreadPool::ZThreadPool(Int32 _thread_num) noexcept
 {
     pool_idle_mutex_.Lock();
     for (IndexType thread_index = 0; thread_index < _thread_num; ++thread_index) {
-        thread_list_.EmplaceBack(ThreadFunc, Ref(*this));
+        thread_list_.EmplaceBack(SubThread, Ref(*this));
     }
 }
 
@@ -87,7 +87,7 @@ NODISCARD ReturnType ZThreadPool::AddThreadNum(Int32 _thread_num) noexcept {
     }
     max_thread_num_ += _thread_num;
     for (IndexType thread_index = 0; thread_index < _thread_num; ++thread_index) {
-        thread_list_.EmplaceBack(std::move(ZThread(ThreadFunc, Ref(*this))));
+        thread_list_.EmplaceBack(std::move(ZThread(SubThread, Ref(*this))));
     }
     return ret_val;
 }
@@ -139,7 +139,7 @@ Void ZThreadPool::ClearTask() noexcept {
     task_queue_.Clear();
 }
 
-Void ZThreadPool::ThreadFunc(ZThreadPool& _thread_pool) noexcept {
+Void ZThreadPool::SubThread(ZThreadPool& _thread_pool) noexcept {
     ZTask task;
     ReturnType link_code = kOK;
     while(true) {
@@ -166,7 +166,7 @@ Void ZThreadPool::ThreadFunc(ZThreadPool& _thread_pool) noexcept {
         }
         link_code = task.Run();
         if (link_code != kOK) {
-            Z_LOG_ERROR(error_code::kZTaskErrorCodeLinkError, link_code, L"ZFastTask::Run() link error!");
+            Z_LOG_ERROR(error_code::kZThreadPoolErrorCodeLinkError, link_code, L"ZTask::Run() link error!");
         }
         task.Clear();
     }

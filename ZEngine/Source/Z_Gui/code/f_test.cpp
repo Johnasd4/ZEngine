@@ -72,7 +72,7 @@ GUI_DLLAPI NODISCARD Int32 Test() noexcept {
         return -1;
 
     // 创建一个窗口
-    GLFWwindow* window = glfwCreateWindow(3840, 1460, "ImGui Example", glfwGetPrimaryMonitor(), NULL);
+    GLFWwindow* window = glfwCreateWindow(700, 700, "ImGui Example", NULL, NULL);
     if (!window) {
         glfwTerminate();
         return -1;
@@ -87,16 +87,10 @@ GUI_DLLAPI NODISCARD Int32 Test() noexcept {
     // 设置 ImGui
     setupImGui(window);
 
-    // 创建一个窗口
-    GLFWwindow* window2 = glfwCreateWindow(1280, 720, "ImGui Example2", NULL, window);
-    if (!window2) {
-        glfwTerminate();
-        return -1;
-    }
-
 
     // 主循环
     while (!glfwWindowShouldClose(window)) {
+        glfwMakeContextCurrent(window);
         // 清除屏幕
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

@@ -34,7 +34,7 @@ namespace log {
 template<typename LogType, IndexType kCapacity>
 class TLogQueue : public ZObject {
 public:
-    TLogQueue() noexcept : log_queue_(), log_cs_() {}
+    TLogQueue() noexcept : log_queue_(), log_mutex_() {}
 
     NODISCARD FORCEINLINE LogType& Front() noexcept { return log_queue_.Front(); }
     NODISCARD FORCEINLINE const LogType& Front() const noexcept { return log_queue_.Front(); }
@@ -43,29 +43,29 @@ public:
     NODISCARD FORCEINLINE Bool Empty() noexcept { return log_queue_.Empty(); }
 
     Void Pop() noexcept {
-        log_cs_.Lock();
+        log_mutex_.Lock();
         log_queue_.PopFront();
-        log_cs_.Unlock();
+        log_mutex_.Unlock();
     }
 
     Void Push(const LogType& _log) noexcept {
-        log_cs_.Lock();
+        log_mutex_.Lock();
         log_queue_.Push(_log);
         if (log_queue_.Size() > log_queue_.Capacity()) {
             log_queue_.Clear();
             Z_LOG_ERROR(error_code::kMLogErrorCodeLogQueueOverflow, 0, L"Log queue overflow! Clear all logs!");
         }
-        log_cs_.Unlock();
+        log_mutex_.Unlock();
     }
     template<typename... ArgsType>
     Void Push(ArgsType&&... _args) noexcept {
-        log_cs_.Lock();
+        log_mutex_.Lock();
         log_queue_.EmplaceBack(std::forward<ArgsType>(_args)...);
         if (log_queue_.Size() > log_queue_.Capacity()) {
             log_queue_.Clear();
             Z_LOG_ERROR(error_code::kMLogErrorCodeLogQueueOverflow, 0, L"Log queue overflow! Clear all logs!");
         }
-        log_cs_.Unlock();
+        log_mutex_.Unlock();
     }
 
 protected:
@@ -78,7 +78,7 @@ private:
     TLogQueue& operator=(TLogQueue&&) = delete;
 
     TFixedQueue<LogType, kCapacity> log_queue_;
-    ZCSMutex log_cs_;
+    ZCSMutex log_mutex_;
 };
 
 }//log

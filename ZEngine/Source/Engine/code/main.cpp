@@ -28,11 +28,11 @@
 #define BUFFER_SIZE 1024
 
 using namespace zengine;
+using namespace zengine::gui;
 using namespace std;
 
 int main() {
-    TAtom<Int32> a;
-    TAtom<Int32> b(std::move(a));
+    ReturnType link_code = kOK;
     ZString TEST_STRING("123");
     Z_LOG_ERROR(1, 2, L"TEST%d%d%d%d%x", 3, 4, 5, 6, ~7);
     Z_LOG_ERROR(1, 2, L"TEST%d%d%d%d%d", 3, 4, 5, 6, 7);
@@ -45,6 +45,17 @@ int main() {
     Z_LOG_FINISH(L"Finish...");
     Z_LOG_SUCCESS(L"Success...");
     Z_LOG_FAILURE(L"Failure...");
+    ZApplication app;
+    ZWindow::SetVerticalSynchronization(1);
+    ZWindow test_window(100,100,"", ZWindow::kWindowScreenModeWindow);
+    test_window.SetSize(1000, 1000);
+    test_window.SetTitle("100, 100");
+    app.AddWindow(&test_window);
+    ZWindow test_window2(100, 100, "", ZWindow::kWindowScreenModeWindow);
+    test_window2.SetSize(1000, 1000);
+    test_window2.SetTitle("100, 100");
+    app.AddWindow(&test_window2);
+    link_code = app.Execute();
     //WSADATA wsaData;
     //SOCKET serverSocket;
     //sockaddr_in serverAddr, clientAddr;
@@ -95,7 +106,7 @@ int main() {
     //closesocket(serverSocket);
     //WSACleanup();
     
-    gui::Test();
+    //gui::Test();
 
     Sleep(50);
 

@@ -22,7 +22,6 @@
 #include "internal/z_drive.h"
 
 #include "../z_core/z_object.h"
-#include "../z_core/z_mutex.h"
 
 namespace zengine {
 namespace gui {
@@ -37,26 +36,38 @@ namespace gui {
 */
 class GUI_DLLAPI ZGuiObject : public ZObject {
 public:
-    /* The mutex for the global opengl. */
-    static ZMutex& OpenGL3Mutex() noexcept;
-    /* The mutex for the global imgui. */
-    static ZMutex& ImguiMutex() noexcept;
+    FORCEINLINE Void Add(ZGuiObject* _obj_ptr) noexcept { _obj_ptr->owner_ptr_ = this; }
 
-    NODISCARD FORCEINLINE Int32 Width() const noexcept { return width_; }
-    NODISCARD FORCEINLINE Int32 Height() const noexcept { return height_; }
-    NODISCARD FORCEINLINE Void* OwnerPointer() const noexcept { return owner_ptr_; }
-    FORCEINLINE Void SetWidth(Int32 _width) noexcept { width_ = _width; }
-    FORCEINLINE Void SetHeight(Int32 _height) noexcept { height_ = _height; }
-    FORCEINLINE Void SetSize(Int32 _width, Int32 _height) noexcept { 
-        width_ = _width;
-        height_ = _height; 
-    }
-    FORCEINLINE Void SetOwnerPointer(Void* _owner_ptr) noexcept { owner_ptr_ = _owner_ptr; }
+    FORCEINLINE Void SetIfTick(Bool _if_tick) noexcept { if_tick_ = _if_tick; }
+    FORCEINLINE Void SetEnabled(Bool _enabled) noexcept { enabled_ = _enabled; }
+
+    NODISCARD FORCEINLINE Bool IfTick() const noexcept { return if_tick_; }
+    NODISCARD FORCEINLINE Bool Enabled() const noexcept { return enabled_; }
+
+    virtual Void Initialize() noexcept;
+    virtual Void Tick(Float32 _delta_time) noexcept;
+    virtual Void Reset() noexcept;
+    virtual Void Hide() noexcept;
+    virtual Void Show() noexcept;
+    virtual Void SetWidth(Int32 _width) noexcept;
+    virtual Void SetHeight(Int32 _height) noexcept;
+    virtual Void SetXPos(Int32 _x_pos) noexcept;
+    virtual Void SetYPos(Int32 _y_pos) noexcept;
+    virtual Void SetSize(Int32 _width, Int32 _height) noexcept;
+    virtual Void SetPos(Int32 _x_pos, Int32 _y_pos) noexcept;
+    //virtual Void SetBackgruondColour() noexcept;
+
+    virtual ZSize Size() noexcept;
+    virtual ZPos Pos() noexcept;
+    virtual Int32 Width() noexcept;
+    virtual Int32 Height() noexcept;
+    virtual Int32 XPos() noexcept;
+    virtual Int32 YPos() noexcept;
 
 protected:
     using SuperType_ = ZObject;
 
-    ZGuiObject() noexcept : SuperType_(), width_(0), height_(0), owner_ptr_(nullptr) {}
+    ZGuiObject() noexcept : SuperType_(), owner_ptr_(nullptr), if_tick_(true), enabled_(true) {}
     ZGuiObject(const ZGuiObject& _obj) noexcept : SuperType_(_obj) { CopyP(_obj); }
     ZGuiObject(ZGuiObject&& _obj) noexcept : SuperType_(std::move(_obj)) { MoveP(std::forward<ZGuiObject>(_obj)); }
 
@@ -75,23 +86,17 @@ protected:
 
 private:
     FORCEINLINE Void CopyP(const ZGuiObject& _obj) noexcept {
-        width_ = _obj.width_;
-        height_ = _obj.height_;
         owner_ptr_ = _obj.owner_ptr_;
     }
 
     FORCEINLINE Void MoveP(ZGuiObject&& _obj) noexcept {
-        width_ = _obj.width_;
-        height_ = _obj.height_;
         owner_ptr_ = _obj.owner_ptr_;
-        _obj.width_ = 0;
-        _obj.height_ = 0;
         _obj.owner_ptr_ = nullptr;
     }
 
-    Int32 width_;
-    Int32 height_;
-    Void* owner_ptr_;
+    ZGuiObject* owner_ptr_;
+    Bool if_tick_;
+    Bool enabled_;
 };
 
 }//gui
