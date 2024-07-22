@@ -110,37 +110,30 @@ public:
     */
     virtual Void Show() noexcept;
 
-    /*
-        Sets the title of the window.
-    */
+    virtual Void Initialize() noexcept;
+    virtual Void Tick(Float32 _delta_time) noexcept;
+    virtual Void Reset() noexcept;
+    virtual Void Hide() noexcept;
+    virtual Void Show() noexcept;
+
+    virtual Void SetWidth(Int32 _width) noexcept;
+    virtual Void SetHeight(Int32 _height) noexcept;
+    virtual Void SetXPos(Int32 _x_pos) noexcept;
+    virtual Void SetYPos(Int32 _y_pos) noexcept;
+    virtual Void SetSize(Int32 _width, Int32 _height) noexcept;
+    virtual Void SetPos(Int32 _x_pos, Int32 _y_pos) noexcept;
+    virtual Void SetBackgruondColour(ColourRGBA _colour) noexcept;
+    virtual Void SetBackgruondColour(Int32 _red, Int32 _green, Int32 _blue, Int32 _alpha) noexcept;
+
+    virtual GuiSize Size() noexcept;
+    virtual GuiPos Pos() noexcept;
+    virtual Int32 Width() noexcept;
+    virtual Int32 Height() noexcept;
+    virtual Int32 XPos() noexcept;
+    virtual Int32 YPos() noexcept;
+    virtual ColourRGBA BackgruondColour() noexcept;
+
     Void SetTitle(const Char* _title) noexcept;
-    /*
-        Sets the size of the window.
-    */
-    Void SetWidth(Int32 _width) noexcept;
-    /*
-        Sets the size of the window.
-    */
-    Void SetHeight(Int32 _height) noexcept;
-    /*
-        Sets the size of the window.
-    */
-    Void SetXPos(Int32 _x_pos) noexcept;
-    /*
-        Sets the size of the window.
-    */
-    Void SetYPos(Int32 _y_pos) noexcept;
-    /*
-        Sets the size of the window.
-    */
-    Void SetSize(Int32 _width, Int32 _height) noexcept;
-    /*
-        Sets the pos of the window.
-    */
-    Void SetPos(Int32 _x_pos, Int32 _y_pos) noexcept;
-    /*
-        Sets screen mode, decides if using full screen and resolution.
-    */
     Void SetScreenMode(WindowScreenModeEnum_ _screen_mode) noexcept;
 
     NODISCARD FORCEINLINE Handle WinowHandle() const noexcept { return window_handle_; }
@@ -165,7 +158,6 @@ private:
     Handle window_handle_;
     Handle window_context_;
     WindowStateEnum_ window_state_;
-    TVector<ZGuiObject*> sub_obj_vec_;
 };
 
 }//gui

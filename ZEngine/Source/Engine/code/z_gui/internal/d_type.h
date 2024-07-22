@@ -27,7 +27,7 @@ namespace gui {
 /*
     The size of the gui objects.
 */
-struct ZSize {
+struct GuiSize {
     Int32 width_;
     Int32 height_;
 };
@@ -35,7 +35,7 @@ struct ZSize {
 /*
     The pos of the gui objects.
 */
-struct ZPos {
+struct GuiPos {
     Int32 x_;
     Int32 y_;
 };

@@ -29,5 +29,26 @@ Void ZGuiObject::Tick(Float32 _delta_time) noexcept {}
 
 Void ZGuiObject::Reset() noexcept {}
 
+Void ZGuiObject::Hide() noexcept {}
+Void ZGuiObject::Show() noexcept {}
+Void ZGuiObject::SetWidth(Int32 _width) noexcept {}
+Void ZGuiObject::SetHeight(Int32 _height) noexcept {}
+Void ZGuiObject::SetXPos(Int32 _x_pos) noexcept {}
+Void ZGuiObject::SetYPos(Int32 _y_pos) noexcept {}
+Void ZGuiObject::SetSize(Int32 _width, Int32 _height) noexcept {}
+Void ZGuiObject::SetPos(Int32 _x_pos, Int32 _y_pos) noexcept {}
+Void ZGuiObject::SetBackgruondColour(ColourRGBA _colour) noexcept {}
+Void SetBackgruondColour(Int32 _red, Int32 _green, Int32 _blue, Int32 _alpha) noexcept {}
+
+GuiSize ZGuiObject::Size() noexcept { return GuiSize(0, 0); }
+GuiPos ZGuiObject::Pos() noexcept { return GuiPos(0, 0); }
+Int32 ZGuiObject::Width() noexcept { return 0; }
+Int32 ZGuiObject::Height() noexcept { return 0; }
+Int32 ZGuiObject::XPos() noexcept { return 0; }
+Int32 ZGuiObject::YPos() noexcept { return 0; }
+ColourRGBA ZGuiObject::BackgruondColour() noexcept { return ColourRGBA(0, 0, 0, 0); }
+
+Void OnClick(Int32 _shift, Int32 _pos_x, Int32 _pos_y) noexcept {}
+
 }//gui
 }//zengine
