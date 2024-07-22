@@ -40,6 +40,14 @@ struct GuiPos {
     Int32 y_;
 };
 
+enum KeyEnum {
+    
+};
+
+enum MouseKeyEnum {
+
+};
+
 }//gui
 }//zengine
 

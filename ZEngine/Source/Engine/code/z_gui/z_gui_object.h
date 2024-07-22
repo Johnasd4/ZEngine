@@ -21,6 +21,7 @@
 
 #include "internal/z_drive.h"
 
+#include "../z_core/t_vector.h"
 #include "../z_core/z_object.h"
 
 namespace zengine {
@@ -36,8 +37,6 @@ namespace gui {
 */
 class GUI_DLLAPI ZGuiObject : public ZObject {
 public:
-    FORCEINLINE Void Add(ZGuiObject* _obj_ptr) noexcept { _obj_ptr->owner_ptr_ = this; }
-
     FORCEINLINE Void SetIfTick(Bool _if_tick) noexcept { if_tick_ = _if_tick; }
     FORCEINLINE Void SetEnabled(Bool _enabled) noexcept { enabled_ = _enabled; }
 
@@ -45,44 +44,66 @@ public:
     NODISCARD FORCEINLINE Bool Enabled() const noexcept { return enabled_; }
 
     /*
-        Will be called when the 
+        Will be called when the object is added to another object.
     */
     virtual Void Begin() noexcept;
-    virtual Void Tick(Float32 _delta_time) noexcept;
+    /*
+        Ticks every frame.
+    */
+    virtual Void Tick(Float32 _delta_sec) noexcept;
+    /*
+        Hides the object.
+    */
     virtual Void Hide() noexcept;
+    /*
+        Shows the object.
+    */
     virtual Void Show() noexcept;
+    /*
+        Adds another object to this object.
+    */
+    virtual Void Add(ZGuiObject* _obj_ptr) noexcept;
+
 
     virtual Void SetWidth(Int32 _width) noexcept;
     virtual Void SetHeight(Int32 _height) noexcept;
+    virtual Void SetSize(Int32 _width, Int32 _height) noexcept;
     virtual Void SetXPos(Int32 _x_pos) noexcept;
     virtual Void SetYPos(Int32 _y_pos) noexcept;
-    virtual Void SetSize(Int32 _width, Int32 _height) noexcept;
     virtual Void SetPos(Int32 _x_pos, Int32 _y_pos) noexcept;
-    virtual Void SetBackgruondColour(ColourRGBA _colour) noexcept;
     virtual Void SetBackgruondColour(Int32 _red, Int32 _green, Int32 _blue, Int32 _alpha) noexcept;
 
-    virtual GuiSize Size() noexcept;
-    virtual GuiPos Pos() noexcept;
-    virtual Int32 Width() noexcept;
-    virtual Int32 Height() noexcept;
-    virtual Int32 XPos() noexcept;
-    virtual Int32 YPos() noexcept;
-    virtual ColourRGBA BackgruondColour() noexcept;
+    FORCEINLINE Void SetSize(GuiSize _size) noexcept { SetSize(_size.width_, _size.height_); }
+    FORCEINLINE Void SetPos(GuiPos _pos) noexcept { SetPos(_pos.x_, _pos.y_); }
+    FORCEINLINE Void SetBackgruondColour(ColourRGBA _colour) noexcept {
+        SetBackgruondColour(_colour.red_, _colour.green_, _colour.blue_, _colour.alpha_);
+    }
 
-    virtual Void OnMouseClick(Int32 _shift, Int32 _pos_x, Int32 _pos_y) noexcept;
-    virtual Void OnMouseUp(Int32 _shift, Int32 _pos_x, Int32 _pos_y) noexcept;
-    virtual Void OnMouseDown(Int32 _shift, Int32 _pos_x, Int32 _pos_y) noexcept;
-    virtual Void OnKeyPress(Int32 _shift, Int32 _pos_x, Int32 _pos_y) noexcept;
-    virtual Void OnKeyUp(Int32 _shift, Int32 _pos_x, Int32 _pos_y) noexcept;
-    virtual Void OnKeyDown(Int32 _shift, Int32 _pos_x, Int32 _pos_y) noexcept;
+    NODISCARD virtual GuiSize Size() noexcept;
+    NODISCARD virtual GuiPos Pos() noexcept;
+    NODISCARD virtual Int32 Width() noexcept;
+    NODISCARD virtual Int32 Height() noexcept;
+    NODISCARD virtual Int32 XPos() noexcept;
+    NODISCARD virtual Int32 YPos() noexcept;
+    NODISCARD virtual ColourRGBA BackgruondColour() noexcept;
+
+    virtual Void OnMouseClick(MouseKeyEnum _key, Int32 _pos_x, Int32 _pos_y) noexcept;
+    virtual Void OnMouseUp(MouseKeyEnum _key, Int32 _pos_x, Int32 _pos_y) noexcept;
+    virtual Void OnMouseDown(MouseKeyEnum _key, Int32 _pos_x, Int32 _pos_y) noexcept;
+    virtual Void OnKeyPress(KeyEnum _key) noexcept;
+    virtual Void OnKeyUp(KeyEnum _key) noexcept;
+    virtual Void OnKeyDown(KeyEnum _key) noexcept;
     virtual Void OnMove(Int32 _pre_x, Int32 _pre_y, Int32 _cur_x, Int32 _cur_y) noexcept;
     virtual Void OnResize(Int32 _pre_width, Int32 _pre_height, Int32 _cur_width, Int32 _cur_height) noexcept;
+    virtual Void OnHide() noexcept;
+    virtual Void OnShow() noexcept;
+    virtual Void OnAdd() noexcept;
 
 protected:
     using SuperType_ = ZObject;
 
-    ZGuiObject() noexcept : SuperType_(), owner_ptr_(nullptr), if_tick_(true), enabled_(true) {}
-    ZGuiObject(const ZGuiObject& _obj) noexcept : SuperType_(_obj) { CopyP(_obj); }
+    ZGuiObject() noexcept : SuperType_(), owner_ptr_(nullptr), sub_obj_ptr_vec_(), if_tick_(true), enabled_(true) {}
+    ZGuiObject(const ZGuiObject& _obj) noexcept : SuperType_(_obj), sub_obj_ptr_vec_() { CopyP(_obj); }
     ZGuiObject(ZGuiObject&& _obj) noexcept : SuperType_(std::move(_obj)) { MoveP(std::forward<ZGuiObject>(_obj)); }
 
     const ZGuiObject& operator=(const ZGuiObject& _obj) noexcept {
@@ -105,11 +126,12 @@ private:
 
     FORCEINLINE Void MoveP(ZGuiObject&& _obj) noexcept {
         owner_ptr_ = _obj.owner_ptr_;
+        sub_obj_ptr_vec_ = std::move(_obj.sub_obj_ptr_vec_);
         _obj.owner_ptr_ = nullptr;
     }
 
     ZGuiObject* owner_ptr_;
-    TVector<ZGuiObject*> sub_obj_vec_;
+    TVector<ZGuiObject*> sub_obj_ptr_vec_;
     Bool if_tick_;
     Bool enabled_;
 };

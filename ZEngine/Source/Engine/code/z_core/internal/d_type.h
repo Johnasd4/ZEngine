@@ -72,15 +72,15 @@ using Void = void;
 using Handle = void*;
 
 struct ColourRGB {
-    Int8 red_;
-    Int8 blue_;
-    Int8 green_;
+    UInt8 red_;
+    UInt8 blue_;
+    UInt8 green_;
 };
 struct ColourRGBA {
-    Int8 red_;
-    Int8 blue_;
-    Int8 green_;
-    Int8 alpha_;
+    UInt8 red_;
+    UInt8 blue_;
+    UInt8 green_;
+    UInt8 alpha_;
 };
 
 union Size32Union {

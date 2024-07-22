@@ -23,32 +23,55 @@
 namespace zengine {
 namespace gui {
 
-Void ZGuiObject::Initialize() noexcept {}
+Void ZGuiObject::Begin() noexcept {
+    for (auto obj_ptr_iter = sub_obj_ptr_vec_.Begin(); obj_ptr_iter != sub_obj_ptr_vec_.End(); ++obj_ptr_iter) {
+        ZGuiObject* obj = *obj_ptr_iter;
+        obj->Begin();
+    }
+}
+Void ZGuiObject::Tick(Float32 _delta_sec) noexcept {
+    for (auto obj_ptr_iter = sub_obj_ptr_vec_.Begin(); obj_ptr_iter != sub_obj_ptr_vec_.End(); ++obj_ptr_iter) {
+        ZGuiObject* obj = *obj_ptr_iter;
+        if (obj->Enabled() && obj->IfTick()) {
+            obj->Tick(_delta_sec);
+        }
+    }
+}
+Void ZGuiObject::Hide() noexcept { OnHide(); }
+Void ZGuiObject::Show() noexcept { OnShow(); }
+Void ZGuiObject::Add(ZGuiObject* _obj_ptr) noexcept {
+    _obj_ptr->owner_ptr_ = this;
+    sub_obj_ptr_vec_.PushBack(_obj_ptr);
+    OnAdd();
+}
 
-Void ZGuiObject::Tick(Float32 _delta_time) noexcept {}
-
-Void ZGuiObject::Reset() noexcept {}
-
-Void ZGuiObject::Hide() noexcept {}
-Void ZGuiObject::Show() noexcept {}
 Void ZGuiObject::SetWidth(Int32 _width) noexcept {}
 Void ZGuiObject::SetHeight(Int32 _height) noexcept {}
 Void ZGuiObject::SetXPos(Int32 _x_pos) noexcept {}
 Void ZGuiObject::SetYPos(Int32 _y_pos) noexcept {}
 Void ZGuiObject::SetSize(Int32 _width, Int32 _height) noexcept {}
 Void ZGuiObject::SetPos(Int32 _x_pos, Int32 _y_pos) noexcept {}
-Void ZGuiObject::SetBackgruondColour(ColourRGBA _colour) noexcept {}
-Void SetBackgruondColour(Int32 _red, Int32 _green, Int32 _blue, Int32 _alpha) noexcept {}
+Void ZGuiObject::SetBackgruondColour(Int32 _red, Int32 _green, Int32 _blue, Int32 _alpha) noexcept {}
 
-GuiSize ZGuiObject::Size() noexcept { return GuiSize(0, 0); }
-GuiPos ZGuiObject::Pos() noexcept { return GuiPos(0, 0); }
-Int32 ZGuiObject::Width() noexcept { return 0; }
-Int32 ZGuiObject::Height() noexcept { return 0; }
-Int32 ZGuiObject::XPos() noexcept { return 0; }
-Int32 ZGuiObject::YPos() noexcept { return 0; }
-ColourRGBA ZGuiObject::BackgruondColour() noexcept { return ColourRGBA(0, 0, 0, 0); }
+NODISCARD GuiSize ZGuiObject::Size() noexcept { return GuiSize(0, 0); }
+NODISCARD GuiPos ZGuiObject::Pos() noexcept { return GuiPos(0, 0); }
+NODISCARD Int32 ZGuiObject::Width() noexcept { return 0; }
+NODISCARD Int32 ZGuiObject::Height() noexcept { return 0; }
+NODISCARD Int32 ZGuiObject::XPos() noexcept { return 0; }
+NODISCARD Int32 ZGuiObject::YPos() noexcept { return 0; }
+NODISCARD ColourRGBA ZGuiObject::BackgruondColour() noexcept { return ColourRGBA(0, 0, 0, 0); }
 
-Void OnClick(Int32 _shift, Int32 _pos_x, Int32 _pos_y) noexcept {}
+Void ZGuiObject::OnMouseClick(MouseKeyEnum _key, Int32 _pos_x, Int32 _pos_y) noexcept {}
+Void ZGuiObject::OnMouseUp(MouseKeyEnum _key, Int32 _pos_x, Int32 _pos_y) noexcept {}
+Void ZGuiObject::OnMouseDown(MouseKeyEnum _key, Int32 _pos_x, Int32 _pos_y) noexcept {}
+Void ZGuiObject::OnKeyPress(KeyEnum _key) noexcept {}
+Void ZGuiObject::OnKeyUp(KeyEnum _key) noexcept {}
+Void ZGuiObject::OnKeyDown(KeyEnum _key) noexcept {}
+Void ZGuiObject::OnMove(Int32 _pre_x, Int32 _pre_y, Int32 _cur_x, Int32 _cur_y) noexcept {}
+Void ZGuiObject::OnResize(Int32 _pre_width, Int32 _pre_height, Int32 _cur_width, Int32 _cur_height) noexcept {}
+Void ZGuiObject::OnHide() noexcept {}
+Void ZGuiObject::OnShow() noexcept {}
+Void ZGuiObject::OnAdd() noexcept {}
 
 }//gui
 }//zengine

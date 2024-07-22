@@ -34,8 +34,7 @@ ZWindow::ZWindow() noexcept
     : SuperType_()
     , window_handle_(nullptr) 
     , window_context_(nullptr)
-    , window_state_(kWindowStateTerminated)
-    , sub_obj_vec_() {}
+    , window_state_(kWindowStateTerminated) {}
 
 ZWindow::ZWindow(ZWindow&& _window) noexcept 
     : SuperType_(std::forward<ZWindow>(_window))
@@ -48,7 +47,6 @@ ZWindow::ZWindow(Int32 _width, Int32 _height, const Char* _title, WindowScreenMo
     , window_handle_(nullptr) 
     , window_context_(nullptr)
     , window_state_(kWindowStateTerminated)
-    , sub_obj_vec_()
 {
     ReturnType link_code = kOK;
     link_code = Create(_width, _height, _title, _screen_mode);
@@ -64,6 +62,36 @@ ZWindow& ZWindow::operator=(ZWindow&& _window) noexcept {
     SuperType_::operator=(std::forward<ZWindow>(_window));
     MoveP(std::forward<ZWindow>(_window));
     return *this;
+}
+
+Void ZWindow::Hide() noexcept {
+    SuperType_::Hide();
+    glfwHideWindow(static_cast<GLFWwindow*>(window_handle_));
+    window_state_ = kWindowStateHidden;
+}
+
+Void ZWindow::Show() noexcept {
+    SuperType_::Show();
+    ReturnType ret_val = kOK;
+    ReturnType link_code = kOK;
+    switch (window_state_) {
+    case kWindowStateTerminated:
+        Z_LOG_ERROR(error_code::kZWindowErrorCodeWindowNotExist, 0, L"Window does not exist!");
+        break;
+    case kWindowStateOpened:
+        break;
+    case kWindowStateClosed:
+        Begin();
+        glfwSetWindowShouldClose(static_cast<GLFWwindow*>(window_handle_), false);
+        glfwShowWindow(static_cast<GLFWwindow*>(window_handle_));
+        window_state_ = kWindowStateOpened;
+        ++active_window_num_;
+        break;
+    case kWindowStateHidden:
+        glfwShowWindow(static_cast<GLFWwindow*>(window_handle_));
+        window_state_ = kWindowStateOpened;
+        break;
+    }
 }
 
 NODISCARD ReturnType ZWindow::Create(
@@ -162,59 +190,43 @@ NODISCARD ReturnType ZWindow::Close() noexcept {
     return ret_val;
 }
 
-Void ZWindow::Hide() noexcept {
-    glfwHideWindow(static_cast<GLFWwindow*>(window_handle_));
-    window_state_ = kWindowStateHidden;
-}
-
-Void ZWindow::Show() noexcept {
-    ReturnType ret_val = kOK;
-    ReturnType link_code = kOK;
-    switch (window_state_) {
-    case kWindowStateTerminated:
-        Z_LOG_ERROR(error_code::kZWindowErrorCodeWindowNotExist, 0, L"Window does not exist!");
-        break;
-    case kWindowStateOpened:
-        break;
-    case kWindowStateClosed:
-        Reset();
-        glfwSetWindowShouldClose(static_cast<GLFWwindow*>(window_handle_), false);
-        glfwShowWindow(static_cast<GLFWwindow*>(window_handle_));
-        window_state_ = kWindowStateOpened;
-        ++active_window_num_;
-        break;
-    case kWindowStateHidden:
-        glfwShowWindow(static_cast<GLFWwindow*>(window_handle_));
-        window_state_ = kWindowStateOpened;
-        break;
-    }
-}
-
-Void ZWindow::SetTitle(const Char* _title) noexcept {
-    glfwSetWindowTitle(static_cast<GLFWwindow*>(window_handle_), _title);
-}
-
 Void ZWindow::SetWidth(Int32 _width) noexcept {
+    SuperType_::SetWidth(_width);
     Int32 width, height;
     glfwGetWindowSize(static_cast<GLFWwindow*>(window_handle_), &width, &height);
     glfwSetWindowSize(static_cast<GLFWwindow*>(window_handle_), _width, height);
 }
 
 Void ZWindow::SetHeight(Int32 _height) noexcept {
+    SuperType_::SetWidth(_height);
     Int32 width, height;
-    glfwGetWindowSize(static_cast<GLFWwindow*>(window_handle_),&width, &height);
+    glfwGetWindowSize(static_cast<GLFWwindow*>(window_handle_), &width, &height);
     glfwSetWindowSize(static_cast<GLFWwindow*>(window_handle_), width, _height);
 }
 
 Void ZWindow::SetSize(Int32 _width, Int32 _height) noexcept {
+    SuperType_::SetSize(_width, _height);
     glfwSetWindowSize(static_cast<GLFWwindow*>(window_handle_), _width, _height);
 }
-/*
-    Sets the pos of the window.
-*/
+
+Void ZWindow::SetXPos(Int32 _x_pos) noexcept {
+    //TODO
+}
+Void ZWindow::SetYPos(Int32 _y_pos) noexcept {
+    //TODO
+}
+
 Void ZWindow::SetPos(Int32 _x_pos, Int32 _y_pos) noexcept {
+    SuperType_::SetSize(_x_pos, _y_pos);
     glfwSetWindowPos(static_cast<GLFWwindow*>(window_handle_), _x_pos, _y_pos);
 }
+
+Void ZWindow::SetTitle(const Char* _title) noexcept {
+    glfwSetWindowTitle(static_cast<GLFWwindow*>(window_handle_), _title);
+}
+
+
+
 Void ZWindow::SetScreenMode(WindowScreenModeEnum_ _screen_mode) noexcept {
     Int32 window_width, window_height, x_pos, y_pos;
     glfwGetWindowSize(static_cast<GLFWwindow*>(window_handle_), &window_width, &window_height);
@@ -255,7 +267,6 @@ Void ZWindow::MoveP(ZWindow&& _window) noexcept {
     window_handle_ = _window.window_handle_;
     window_context_ = _window.window_context_;
     window_state_ = _window.window_state_;
-    sub_obj_vec_ = std::move(_window.sub_obj_vec_);
     _window.window_handle_ = nullptr;
     _window.window_context_ = nullptr;
     _window.window_state_ = kWindowStateTerminated;

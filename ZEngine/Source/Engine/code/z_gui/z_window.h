@@ -84,12 +84,20 @@ public:
     ZWindow& operator=(ZWindow&& _window) noexcept;
 
     /*
+        Hides the window.
+    */
+    virtual Void Hide() noexcept;
+    /*
+        Shows the window, if the window was closed, will call begin().
+    */
+    virtual Void Show() noexcept;
+
+    /*
         Creates the window, will initialize opengl if not initialized.
     */
     NODISCARD virtual ReturnType Create(
         Int32 _width, Int32 _height, const Char* _title, WindowScreenModeEnum_ _screen_mode
     ) noexcept;
-
     /*
         Destroy the window, release the resourses.
     */
@@ -100,41 +108,26 @@ public:
     */
     NODISCARD virtual ReturnType Close() noexcept;
 
-    /*
-        Hides the window.
-    */
-    virtual Void Hide() noexcept;
-
-    /*
-        Shows the window, if the window was closed, will reset the window.
-    */
-    virtual Void Show() noexcept;
-
-    virtual Void Initialize() noexcept;
-    virtual Void Tick(Float32 _delta_time) noexcept;
-    virtual Void Reset() noexcept;
-    virtual Void Hide() noexcept;
-    virtual Void Show() noexcept;
 
     virtual Void SetWidth(Int32 _width) noexcept;
     virtual Void SetHeight(Int32 _height) noexcept;
+    virtual Void SetSize(Int32 _width, Int32 _height) noexcept;
     virtual Void SetXPos(Int32 _x_pos) noexcept;
     virtual Void SetYPos(Int32 _y_pos) noexcept;
-    virtual Void SetSize(Int32 _width, Int32 _height) noexcept;
     virtual Void SetPos(Int32 _x_pos, Int32 _y_pos) noexcept;
-    virtual Void SetBackgruondColour(ColourRGBA _colour) noexcept;
     virtual Void SetBackgruondColour(Int32 _red, Int32 _green, Int32 _blue, Int32 _alpha) noexcept;
 
-    virtual GuiSize Size() noexcept;
-    virtual GuiPos Pos() noexcept;
-    virtual Int32 Width() noexcept;
-    virtual Int32 Height() noexcept;
-    virtual Int32 XPos() noexcept;
-    virtual Int32 YPos() noexcept;
-    virtual ColourRGBA BackgruondColour() noexcept;
+    virtual Void SetTitle(const Char* _title) noexcept;
+    virtual Void SetScreenMode(WindowScreenModeEnum_ _screen_mode) noexcept;
 
-    Void SetTitle(const Char* _title) noexcept;
-    Void SetScreenMode(WindowScreenModeEnum_ _screen_mode) noexcept;
+    NODISCARD virtual GuiSize Size() noexcept;
+    NODISCARD virtual GuiPos Pos() noexcept;
+    NODISCARD virtual Int32 Width() noexcept;
+    NODISCARD virtual Int32 Height() noexcept;
+    NODISCARD virtual Int32 XPos() noexcept;
+    NODISCARD virtual Int32 YPos() noexcept;
+    NODISCARD virtual ColourRGBA BackgruondColour() noexcept;
+
 
     NODISCARD FORCEINLINE Handle WinowHandle() const noexcept { return window_handle_; }
     NODISCARD FORCEINLINE Handle WinowContext() const noexcept { return window_context_; }
