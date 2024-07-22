@@ -45,11 +45,10 @@ public:
     NODISCARD FORCEINLINE Bool Enabled() const noexcept { return enabled_; }
 
     /*
-        
+        Will be called when the 
     */
-    virtual Void Initialize() noexcept;
+    virtual Void Begin() noexcept;
     virtual Void Tick(Float32 _delta_time) noexcept;
-    virtual Void Reset() noexcept;
     virtual Void Hide() noexcept;
     virtual Void Show() noexcept;
 
