@@ -25,6 +25,9 @@
 namespace zengine {
 namespace gui {
 
+inline constexpr Float32 kRGBAMin = 0.0f;
+inline constexpr Float32 kRGBAMax = 1.0f;
+
 }//gui
 }//zengine
 

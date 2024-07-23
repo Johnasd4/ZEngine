@@ -51,7 +51,7 @@ Void ZGuiObject::SetXPos(Int32 _x_pos) noexcept {}
 Void ZGuiObject::SetYPos(Int32 _y_pos) noexcept {}
 Void ZGuiObject::SetSize(Int32 _width, Int32 _height) noexcept {}
 Void ZGuiObject::SetPos(Int32 _x_pos, Int32 _y_pos) noexcept {}
-Void ZGuiObject::SetBackgruondColour(Int32 _red, Int32 _green, Int32 _blue, Int32 _alpha) noexcept {}
+Void ZGuiObject::SetBackgruondColour(Float32 _red, Float32 _green, Float32 _blue, Float32 _alpha) noexcept {}
 
 NODISCARD GuiSize ZGuiObject::Size() noexcept { return GuiSize(0, 0); }
 NODISCARD GuiPos ZGuiObject::Pos() noexcept { return GuiPos(0, 0); }
@@ -59,7 +59,7 @@ NODISCARD Int32 ZGuiObject::Width() noexcept { return 0; }
 NODISCARD Int32 ZGuiObject::Height() noexcept { return 0; }
 NODISCARD Int32 ZGuiObject::XPos() noexcept { return 0; }
 NODISCARD Int32 ZGuiObject::YPos() noexcept { return 0; }
-NODISCARD ColourRGBA ZGuiObject::BackgruondColour() noexcept { return ColourRGBA(0, 0, 0, 0); }
+NODISCARD GuiColour ZGuiObject::BackgruondColour() noexcept { return GuiColour(0.0f, 0.0f, 0.0f, 0.0f); }
 
 Void ZGuiObject::OnMouseClick(MouseKeyEnum _key, Int32 _pos_x, Int32 _pos_y) noexcept {}
 Void ZGuiObject::OnMouseUp(MouseKeyEnum _key, Int32 _pos_x, Int32 _pos_y) noexcept {}

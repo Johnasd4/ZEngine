@@ -40,6 +40,16 @@ struct GuiPos {
     Int32 y_;
 };
 
+/*
+    The colour of the gui objects, values between 0 to 1.
+*/
+struct GuiColour {
+    Float32 red_;
+    Float32 green_;
+    Float32 blue_;
+    Float32 alpha_;
+};
+
 enum KeyEnum {
     
 };

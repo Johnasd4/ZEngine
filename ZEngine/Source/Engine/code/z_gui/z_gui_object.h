@@ -71,21 +71,21 @@ public:
     virtual Void SetXPos(Int32 _x_pos) noexcept;
     virtual Void SetYPos(Int32 _y_pos) noexcept;
     virtual Void SetPos(Int32 _x_pos, Int32 _y_pos) noexcept;
-    virtual Void SetBackgruondColour(Int32 _red, Int32 _green, Int32 _blue, Int32 _alpha) noexcept;
+    virtual Void SetBackgruondColour(Float32 _red, Float32 _green, Float32 _blue, Float32 _alpha) noexcept;
 
     FORCEINLINE Void SetSize(GuiSize _size) noexcept { SetSize(_size.width_, _size.height_); }
     FORCEINLINE Void SetPos(GuiPos _pos) noexcept { SetPos(_pos.x_, _pos.y_); }
-    FORCEINLINE Void SetBackgruondColour(ColourRGBA _colour) noexcept {
+    FORCEINLINE Void SetBackgruondColour(GuiColour _colour) noexcept {
         SetBackgruondColour(_colour.red_, _colour.green_, _colour.blue_, _colour.alpha_);
     }
 
-    NODISCARD virtual GuiSize Size() noexcept;
-    NODISCARD virtual GuiPos Pos() noexcept;
     NODISCARD virtual Int32 Width() noexcept;
     NODISCARD virtual Int32 Height() noexcept;
+    NODISCARD virtual GuiSize Size() noexcept;
     NODISCARD virtual Int32 XPos() noexcept;
     NODISCARD virtual Int32 YPos() noexcept;
-    NODISCARD virtual ColourRGBA BackgruondColour() noexcept;
+    NODISCARD virtual GuiPos Pos() noexcept;
+    NODISCARD virtual GuiColour BackgruondColour() noexcept;
 
     virtual Void OnMouseClick(MouseKeyEnum _key, Int32 _pos_x, Int32 _pos_y) noexcept;
     virtual Void OnMouseUp(MouseKeyEnum _key, Int32 _pos_x, Int32 _pos_y) noexcept;

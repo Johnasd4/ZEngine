@@ -71,18 +71,6 @@ using Byte = unsigned char;
 using Void = void;
 using Handle = void*;
 
-struct ColourRGB {
-    UInt8 red_;
-    UInt8 blue_;
-    UInt8 green_;
-};
-struct ColourRGBA {
-    UInt8 red_;
-    UInt8 blue_;
-    UInt8 green_;
-    UInt8 alpha_;
-};
-
 union Size32Union {
     FORCEINLINE constexpr Size32Union(const Int32 _int_32) : int_32_(_int_32) {}
     FORCEINLINE constexpr Size32Union(const UInt32 _u_int_32) : u_int_32_(_u_int_32) {}

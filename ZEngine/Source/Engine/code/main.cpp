@@ -48,12 +48,15 @@ int main() {
     ZApplication app;
     ZWindow::SetVerticalSynchronization(1);
     ZWindow test_window(100,100,"", ZWindow::kWindowScreenModeWindow);
-    test_window.SetSize(1000, 1000);
-    test_window.SetTitle("100, 100");
+    test_window.SetSize(500, 1000);
+    test_window.SetPos(0, 0);
+    test_window.SetTitle("Window1");
     app.AddWindow(&test_window);
     ZWindow test_window2(100, 100, "", ZWindow::kWindowScreenModeWindow);
-    test_window2.SetSize(1000, 1000);
-    test_window2.SetTitle("100, 100");
+    test_window2.SetSize(1000, 500);
+    test_window2.SetPos(1000, 1000);
+    test_window2.SetTitle("Window2");
+    test_window2.SetBackgruondColour(1, 1, 1, 1);
     app.AddWindow(&test_window2);
     link_code = app.Execute();
     //WSADATA wsaData;
@@ -106,7 +109,7 @@ int main() {
     //closesocket(serverSocket);
     //WSACleanup();
     
-    //gui::Test();
+    gui::Test();
 
     Sleep(50);
 

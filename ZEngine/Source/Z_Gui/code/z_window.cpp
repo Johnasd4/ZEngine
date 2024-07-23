@@ -210,10 +210,16 @@ Void ZWindow::SetSize(Int32 _width, Int32 _height) noexcept {
 }
 
 Void ZWindow::SetXPos(Int32 _x_pos) noexcept {
-    //TODO
+    SuperType_::SetXPos(_x_pos);
+    Int32 x_pos, y_pos;
+    glfwGetWindowPos(static_cast<GLFWwindow*>(window_handle_), &x_pos, &y_pos);
+    glfwSetWindowPos(static_cast<GLFWwindow*>(window_handle_), _x_pos, y_pos);
 }
 Void ZWindow::SetYPos(Int32 _y_pos) noexcept {
-    //TODO
+    SuperType_::SetYPos(_y_pos);
+    Int32 x_pos, y_pos;
+    glfwGetWindowPos(static_cast<GLFWwindow*>(window_handle_), &x_pos, &y_pos);
+    glfwSetWindowPos(static_cast<GLFWwindow*>(window_handle_), x_pos, _y_pos);
 }
 
 Void ZWindow::SetPos(Int32 _x_pos, Int32 _y_pos) noexcept {
@@ -221,11 +227,14 @@ Void ZWindow::SetPos(Int32 _x_pos, Int32 _y_pos) noexcept {
     glfwSetWindowPos(static_cast<GLFWwindow*>(window_handle_), _x_pos, _y_pos);
 }
 
+Void ZWindow::SetBackgruondColour(Float32 _red, Float32 _green, Float32 _blue, Float32 _alpha) noexcept {
+    SuperType_::SetBackgruondColour(_red, _green, _blue, _alpha);
+    glClearColor(_red, _green, _blue, _alpha);
+}
+
 Void ZWindow::SetTitle(const Char* _title) noexcept {
     glfwSetWindowTitle(static_cast<GLFWwindow*>(window_handle_), _title);
 }
-
-
 
 Void ZWindow::SetScreenMode(WindowScreenModeEnum_ _screen_mode) noexcept {
     Int32 window_width, window_height, x_pos, y_pos;
@@ -261,6 +270,48 @@ Void ZWindow::SetScreenMode(WindowScreenModeEnum_ _screen_mode) noexcept {
     default:
         break;
     }
+}
+
+NODISCARD Int32 ZWindow::Width() noexcept {
+    GuiSize size;
+    glfwGetWindowSize(static_cast<GLFWwindow*>(window_handle_), &size.width_, &size.height_);
+    return size.width_;
+}
+
+NODISCARD Int32 ZWindow::Height() noexcept {
+    GuiSize size;
+    glfwGetWindowSize(static_cast<GLFWwindow*>(window_handle_), &size.width_, &size.height_);
+    return size.height_;
+}
+
+NODISCARD GuiSize ZWindow::Size() noexcept {
+    GuiSize size;
+    glfwGetWindowSize(static_cast<GLFWwindow*>(window_handle_), &size.width_, &size.height_);
+    return size;
+}
+
+NODISCARD Int32 ZWindow::XPos() noexcept {
+    GuiPos pos;
+    glfwGetWindowPos(static_cast<GLFWwindow*>(window_handle_), &pos.x_, &pos.y_);
+    return pos.x_;
+}
+
+NODISCARD Int32 ZWindow::YPos() noexcept {
+    GuiPos pos;
+    glfwGetWindowPos(static_cast<GLFWwindow*>(window_handle_), &pos.x_, &pos.y_);
+    return pos.y_;
+}
+
+NODISCARD GuiPos ZWindow::Pos() noexcept {
+    GuiPos pos;
+    glfwGetWindowPos(static_cast<GLFWwindow*>(window_handle_), &pos.x_, &pos.y_);
+    return pos;
+}
+
+NODISCARD GuiColour ZWindow::BackgruondColour() noexcept {
+    GuiColour colour;
+    glGetFloatv(GL_COLOR_CLEAR_VALUE, reinterpret_cast<Float32*>(&colour));
+    return colour;
 }
 
 Void ZWindow::MoveP(ZWindow&& _window) noexcept {
