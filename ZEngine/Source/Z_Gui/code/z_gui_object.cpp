@@ -42,7 +42,7 @@ Void ZGuiObject::Show() noexcept { OnShow(); }
 Void ZGuiObject::Add(ZGuiObject* _obj_ptr) noexcept {
     _obj_ptr->owner_ptr_ = this;
     sub_obj_ptr_vec_.PushBack(_obj_ptr);
-    OnAdd();
+    _obj_ptr->Begin();
 }
 
 Void ZGuiObject::SetWidth(Int32 _width) noexcept {}
@@ -61,17 +61,45 @@ NODISCARD Int32 ZGuiObject::XPos() noexcept { return 0; }
 NODISCARD Int32 ZGuiObject::YPos() noexcept { return 0; }
 NODISCARD GuiColour ZGuiObject::BackgruondColour() noexcept { return GuiColour(0.0f, 0.0f, 0.0f, 0.0f); }
 
-Void ZGuiObject::OnMouseClick(MouseKeyEnum _key, Int32 _pos_x, Int32 _pos_y) noexcept {}
 Void ZGuiObject::OnMouseUp(MouseKeyEnum _key, Int32 _pos_x, Int32 _pos_y) noexcept {}
 Void ZGuiObject::OnMouseDown(MouseKeyEnum _key, Int32 _pos_x, Int32 _pos_y) noexcept {}
-Void ZGuiObject::OnKeyPress(KeyEnum _key) noexcept {}
 Void ZGuiObject::OnKeyUp(KeyEnum _key) noexcept {}
 Void ZGuiObject::OnKeyDown(KeyEnum _key) noexcept {}
 Void ZGuiObject::OnMove(Int32 _pre_x, Int32 _pre_y, Int32 _cur_x, Int32 _cur_y) noexcept {}
 Void ZGuiObject::OnResize(Int32 _pre_width, Int32 _pre_height, Int32 _cur_width, Int32 _cur_height) noexcept {}
 Void ZGuiObject::OnHide() noexcept {}
 Void ZGuiObject::OnShow() noexcept {}
-Void ZGuiObject::OnAdd() noexcept {}
+
+ZGuiObject::ZGuiObject() noexcept
+    : SuperType_(), owner_ptr_(nullptr), sub_obj_ptr_vec_()
+    , name_(""), enabled_(false), if_tick_(false) {}
+
+ZGuiObject::ZGuiObject(const Char* _name, Bool _enabled, Bool _if_tick) noexcept
+    : SuperType_(), owner_ptr_(nullptr), sub_obj_ptr_vec_()
+    , name_(_name), enabled_(_enabled), if_tick_(_if_tick) {}
+
+ZGuiObject::ZGuiObject(ZGuiObject&& _obj) noexcept 
+    : SuperType_(std::move(_obj)) 
+{ 
+    MoveP(std::forward<ZGuiObject>(_obj)); 
+}
+
+ZGuiObject& ZGuiObject::operator=(ZGuiObject&& _obj) noexcept {
+    SuperType_::operator=(std::move(_obj));
+    MoveP(std::forward<ZGuiObject>(_obj));
+    return *this;
+}
+
+Void ZGuiObject::MoveP(ZGuiObject&& _obj) noexcept {
+    owner_ptr_ = _obj.owner_ptr_;
+    sub_obj_ptr_vec_ = std::move(_obj.sub_obj_ptr_vec_);
+    name_ = std::move(_obj.name_);
+    enabled_ = _obj.enabled_;
+    if_tick_ = _obj.if_tick_;
+    _obj.owner_ptr_ = nullptr;
+    _obj.enabled_ = false;
+    _obj.if_tick_ = false;
+}
 
 }//gui
 }//zengine

@@ -99,13 +99,21 @@ NODISCARD ReturnType ZApplication::Execute() noexcept {
                 continue;
             }
 
-            //ImGui::Begin("Window 1", &show_window1);
-            //if (ImGui::Button("Close Window 1")) {
-            //    glfwSetWindowShouldClose(window1, true);
-            //    show_window1 = false;
-            //}
-            //ImGui::Text("This is the first window.");
-            //ImGui::End();
+            //Imgui frame start
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
+            ImGui::Begin(window_ptr->Title());
+
+            if (window_ptr->Enabled() && window_ptr->IfTick()) {
+                window_ptr->Tick(delta_time);
+            }
+
+            ImGui::End();
+            ImGui::Render();
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+            //Imgui frame end
+
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -143,6 +151,7 @@ NODISCARD ReturnType ZApplication::Execute() noexcept {
         GLFWwindow* window_handle = static_cast<GLFWwindow*>(window_ptr->WinowHandle());
         glfwMakeContextCurrent(window_handle);
         glfwDestroyWindow(window_handle);
+        window_ptr->Destroy();
     }
 
     return ret_val;
@@ -150,6 +159,7 @@ NODISCARD ReturnType ZApplication::Execute() noexcept {
 
 Void ZApplication::AddWindow(ZWindow* window_ptr) noexcept {
     window_ptr_vec_.PushBack(window_ptr);
+    window_ptr->Begin();
 }
 
 ZApplication* ZApplication::instance_ptr_ = nullptr;

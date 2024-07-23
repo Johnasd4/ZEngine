@@ -23,6 +23,7 @@
 
 #include "../z_core/t_vector.h"
 #include "../z_core/z_object.h"
+#include "../z_core/z_string.h"
 
 namespace zengine {
 namespace gui {
@@ -37,11 +38,13 @@ namespace gui {
 */
 class GUI_DLLAPI ZGuiObject : public ZObject {
 public:
-    FORCEINLINE Void SetIfTick(Bool _if_tick) noexcept { if_tick_ = _if_tick; }
+    FORCEINLINE Void SetName(const Char* _name) noexcept { name_ = _name; }
     FORCEINLINE Void SetEnabled(Bool _enabled) noexcept { enabled_ = _enabled; }
+    FORCEINLINE Void SetIfTick(Bool _if_tick) noexcept { if_tick_ = _if_tick; }
 
-    NODISCARD FORCEINLINE Bool IfTick() const noexcept { return if_tick_; }
+    NODISCARD FORCEINLINE const Char* Name() const noexcept { return name_.String(); }
     NODISCARD FORCEINLINE Bool Enabled() const noexcept { return enabled_; }
+    NODISCARD FORCEINLINE Bool IfTick() const noexcept { return if_tick_; }
 
     /*
         Will be called when the object is added to another object.
@@ -63,7 +66,6 @@ public:
         Adds another object to this object.
     */
     virtual Void Add(ZGuiObject* _obj_ptr) noexcept;
-
 
     virtual Void SetWidth(Int32 _width) noexcept;
     virtual Void SetHeight(Int32 _height) noexcept;
@@ -87,53 +89,44 @@ public:
     NODISCARD virtual GuiPos Pos() noexcept;
     NODISCARD virtual GuiColour BackgruondColour() noexcept;
 
-    virtual Void OnMouseClick(MouseKeyEnum _key, Int32 _pos_x, Int32 _pos_y) noexcept;
-    virtual Void OnMouseUp(MouseKeyEnum _key, Int32 _pos_x, Int32 _pos_y) noexcept;
-    virtual Void OnMouseDown(MouseKeyEnum _key, Int32 _pos_x, Int32 _pos_y) noexcept;
-    virtual Void OnKeyPress(KeyEnum _key) noexcept;
-    virtual Void OnKeyUp(KeyEnum _key) noexcept;
-    virtual Void OnKeyDown(KeyEnum _key) noexcept;
+    //Base trigger functions.
     virtual Void OnMove(Int32 _pre_x, Int32 _pre_y, Int32 _cur_x, Int32 _cur_y) noexcept;
     virtual Void OnResize(Int32 _pre_width, Int32 _pre_height, Int32 _cur_width, Int32 _cur_height) noexcept;
     virtual Void OnHide() noexcept;
     virtual Void OnShow() noexcept;
-    virtual Void OnAdd() noexcept;
+
+    //Mouse trigger functions
+
+    virtual Void OnMouseUp(MouseKeyEnum _key, Int32 _pos_x, Int32 _pos_y) noexcept;
+    virtual Void OnMouseDown(MouseKeyEnum _key, Int32 _pos_x, Int32 _pos_y) noexcept;
+    
+    //Keyboard trigger functions.
+    
+    virtual Void OnKeyUp(KeyEnum _key) noexcept;
+    virtual Void OnKeyDown(KeyEnum _key) noexcept;
 
 protected:
     using SuperType_ = ZObject;
 
-    ZGuiObject() noexcept : SuperType_(), owner_ptr_(nullptr), sub_obj_ptr_vec_(), if_tick_(true), enabled_(true) {}
-    ZGuiObject(const ZGuiObject& _obj) noexcept : SuperType_(_obj), sub_obj_ptr_vec_() { CopyP(_obj); }
-    ZGuiObject(ZGuiObject&& _obj) noexcept : SuperType_(std::move(_obj)) { MoveP(std::forward<ZGuiObject>(_obj)); }
+    ZGuiObject() noexcept;
+    ZGuiObject(const Char* _name, Bool _enabled = true, Bool _if_tick = true) noexcept;
+    ZGuiObject(ZGuiObject&& _obj) noexcept;
 
-    const ZGuiObject& operator=(const ZGuiObject& _obj) noexcept {
-        SuperType_::operator=(_obj);
-        CopyP(_obj);
-        return *this;
-    }
-    const ZGuiObject& operator=(ZGuiObject&& _obj) noexcept {
-        SuperType_::operator=(std::move(_obj));
-        MoveP(std::forward<ZGuiObject>(_obj));
-        return *this;
-    }
+    ZGuiObject& operator=(ZGuiObject&& _obj) noexcept;
 
     FORCEINLINE ~ZGuiObject() {}
 
 private:
-    FORCEINLINE Void CopyP(const ZGuiObject& _obj) noexcept {
-        owner_ptr_ = _obj.owner_ptr_;
-    }
+    ZGuiObject(const ZGuiObject&) = delete;
+    ZGuiObject& operator=(const ZGuiObject&) = delete;
 
-    FORCEINLINE Void MoveP(ZGuiObject&& _obj) noexcept {
-        owner_ptr_ = _obj.owner_ptr_;
-        sub_obj_ptr_vec_ = std::move(_obj.sub_obj_ptr_vec_);
-        _obj.owner_ptr_ = nullptr;
-    }
+    Void MoveP(ZGuiObject&& _obj) noexcept;
 
     ZGuiObject* owner_ptr_;
     TVector<ZGuiObject*> sub_obj_ptr_vec_;
-    Bool if_tick_;
+    ZString name_;
     Bool enabled_;
+    Bool if_tick_;
 };
 
 }//gui

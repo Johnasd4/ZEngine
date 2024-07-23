@@ -28,14 +28,28 @@ namespace gui {
     The size of the gui objects.
 */
 struct GuiSize {
+    NODISCARD FORCEINLINE Bool operator==(const GuiSize& _size) const noexcept { 
+        return width_ == _size.width_ && height_ == _size.height_;
+    }
+    NODISCARD FORCEINLINE Bool operator!=(const GuiSize& _size) const noexcept {
+        return width_ != _size.width_ || height_ != _size.height_;
+    }
+
     Int32 width_;
-    Int32 height_;
+    Int32 height_;    
 };
 
 /*
     The pos of the gui objects.
 */
 struct GuiPos {
+    NODISCARD FORCEINLINE Bool operator==(const GuiPos& _pos) const noexcept {
+        return x_ == _pos.x_ && y_ == _pos.y_;
+    }
+    NODISCARD FORCEINLINE Bool operator!=(const GuiPos& _pos) const noexcept {
+        return x_ != _pos.x_ || y_ != _pos.y_;
+    }
+
     Int32 x_;
     Int32 y_;
 };

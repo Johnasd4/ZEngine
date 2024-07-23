@@ -22,6 +22,7 @@
 #include "internal/z_drive.h"
 
 #include "../z_core/t_vector.h"
+#include "../z_core/z_string.h"
 
 #include "z_gui_object.h"
 
@@ -76,13 +77,25 @@ public:
     NODISCARD FORCEINLINE static Int32 ActiveWindowNum() noexcept { return active_window_num_; }
 
     ZWindow() noexcept;
-    ZWindow(Int32 _width, Int32 _height, const Char* _title, WindowScreenModeEnum_ _screen_mode) noexcept;
+    ZWindow(Int32 _width, Int32 _height, const Char* _name, WindowScreenModeEnum_ _screen_mode) noexcept;
     ZWindow(ZWindow&& _window) noexcept;
     
     ~ZWindow() noexcept;
 
     ZWindow& operator=(ZWindow&& _window) noexcept;
 
+    NODISCARD FORCEINLINE Handle WinowHandle() const noexcept { return window_handle_; }
+    NODISCARD FORCEINLINE Handle WinowContext() const noexcept { return window_context_; }
+    NODISCARD FORCEINLINE WindowStateEnum_ WinowState() const noexcept { return window_state_; }
+
+    /*
+        Will be called when the object is added to another object.
+    */
+    virtual Void Begin() noexcept;
+    /*
+        Ticks every frame.
+    */
+    virtual Void Tick(Float32 _delta_sec) noexcept;
     /*
         Hides the window.
     */
@@ -91,22 +104,16 @@ public:
         Shows the window, if the window was closed, will call begin().
     */
     virtual Void Show() noexcept;
-
     /*
-        Creates the window, will initialize opengl if not initialized.
+        Close the window, calls reset when the window is opened again.
     */
-    NODISCARD virtual ReturnType Create(
-        Int32 _width, Int32 _height, const Char* _title, WindowScreenModeEnum_ _screen_mode
-    ) noexcept;
+    NODISCARD virtual ReturnType Close() noexcept;
     /*
         Destroy the window, release the resourses.
     */
     NODISCARD virtual ReturnType Destroy() noexcept;
 
-    /*
-        Close the window, calls reset when the window is opened again.
-    */
-    NODISCARD virtual ReturnType Close() noexcept;
+
 
 
     virtual Void SetWidth(Int32 _width) noexcept;
@@ -120,18 +127,19 @@ public:
     virtual Void SetTitle(const Char* _title) noexcept;
     virtual Void SetScreenMode(WindowScreenModeEnum_ _screen_mode) noexcept;
 
-    NODISCARD virtual Int32 Width() noexcept;
-    NODISCARD virtual Int32 Height() noexcept;
-    NODISCARD virtual GuiSize Size() noexcept;
-    NODISCARD virtual Int32 XPos() noexcept;
-    NODISCARD virtual Int32 YPos() noexcept;
-    NODISCARD virtual GuiPos Pos() noexcept;
-    NODISCARD virtual GuiColour BackgruondColour() noexcept;
+    NODISCARD virtual Int32 Width() const noexcept;
+    NODISCARD virtual Int32 Height() const noexcept;
+    NODISCARD virtual GuiSize Size() const noexcept;
+    NODISCARD virtual Int32 XPos() const noexcept;
+    NODISCARD virtual Int32 YPos() const noexcept;
+    NODISCARD virtual GuiPos Pos() const noexcept;
+    NODISCARD virtual GuiColour BackgruondColour() const noexcept;
 
-    NODISCARD FORCEINLINE Handle WinowHandle() const noexcept { return window_handle_; }
-    NODISCARD FORCEINLINE Handle WinowContext() const noexcept { return window_context_; }
-    NODISCARD FORCEINLINE WindowStateEnum_ WinowState() const noexcept { return window_state_; }
+    NODISCARD virtual const Char* Title() const noexcept;
 
+    virtual Void OnClose() noexcept;
+    virtual Void OnDestroy() noexcept;
+    //TODO::ImGuiWindowFlags_NoTitleBar;
 protected:
     using SuperType_ = ZGuiObject;
 
@@ -143,10 +151,19 @@ private:
     
     Void MoveP(ZWindow&& _window) noexcept;
 
+    /*
+        Creates the window, will initialize opengl if not initialized.
+    */
+    NODISCARD virtual ReturnType CreateP(
+        Int32 _width, Int32 _height, const Char* _title, WindowScreenModeEnum_ _screen_mode
+    ) noexcept;
+
     static Int32 tick_pur_window_tick_;
 
     static Int32 active_window_num_;
 
+    GuiSize size_;
+    GuiPos pos_;
     Handle window_handle_;
     Handle window_context_;
     WindowStateEnum_ window_state_;
