@@ -24,7 +24,6 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_opengl3.h"
 #include "imgui/imgui_impl_glfw.h"
-
 #include "../z_core/m_log.h"
 
 namespace zengine {
@@ -44,8 +43,8 @@ ZWindow::ZWindow(ZWindow&& _window) noexcept
     MoveP(std::forward<ZWindow>(_window));
 }
 
-ZWindow::ZWindow(Int32 _width, Int32 _height, const Char* _name, WindowScreenModeEnum_ _screen_mode) noexcept
-    : SuperType_(_name)
+ZWindow::ZWindow(Int32 _width, Int32 _height, const Char* _title, WindowScreenModeEnum_ _screen_mode) noexcept
+    : SuperType_()
     , size_()
     , pos_()
     , window_handle_(nullptr) 
@@ -53,7 +52,7 @@ ZWindow::ZWindow(Int32 _width, Int32 _height, const Char* _name, WindowScreenMod
     , window_state_(kWindowStateTerminated)
 {
     ReturnType link_code = kOK;
-    link_code = CreateP(_width, _height, _name, _screen_mode);
+    link_code = CreateP(_width, _height, _title, _screen_mode);
     if (link_code != kOK) {
         Z_LOG_ERROR(error_code::kZWindowErrorCodeLinkError, 0, L"ZWindow::Create() link error!");
     }
@@ -125,23 +124,19 @@ Void ZWindow::Show() noexcept {
     }
 }
 
-NODISCARD ReturnType ZWindow::Destroy() noexcept {
+Void ZWindow::Destroy() noexcept {
     OnDestroy();
-    ReturnType ret_val = kOK;
     window_handle_ = nullptr;
     window_context_ = nullptr;
     window_state_ = kWindowStateTerminated;
-    return ret_val;
 }
 
-NODISCARD ReturnType ZWindow::Close() noexcept {
+Void ZWindow::Close() noexcept {
     OnClose();
-    ReturnType ret_val = kOK;
     glfwSetWindowShouldClose(static_cast<GLFWwindow*>(window_handle_), true);
     glfwHideWindow(static_cast<GLFWwindow*>(window_handle_));
     window_state_ = kWindowStateClosed;    
     --active_window_num_;
-    return ret_val;
 }
 
 Void ZWindow::SetWidth(Int32 _width) noexcept {

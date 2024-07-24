@@ -77,7 +77,7 @@ public:
     NODISCARD FORCEINLINE static Int32 ActiveWindowNum() noexcept { return active_window_num_; }
 
     ZWindow() noexcept;
-    ZWindow(Int32 _width, Int32 _height, const Char* _name, WindowScreenModeEnum_ _screen_mode) noexcept;
+    ZWindow(Int32 _width, Int32 _height, const Char* _title, WindowScreenModeEnum_ _screen_mode) noexcept;
     ZWindow(ZWindow&& _window) noexcept;
     
     ~ZWindow() noexcept;
@@ -107,14 +107,11 @@ public:
     /*
         Close the window, calls reset when the window is opened again.
     */
-    NODISCARD virtual ReturnType Close() noexcept;
+    virtual Void Close() noexcept;
     /*
         Destroy the window, release the resourses.
     */
-    NODISCARD virtual ReturnType Destroy() noexcept;
-
-
-
+    virtual Void Destroy() noexcept;
 
     virtual Void SetWidth(Int32 _width) noexcept;
     virtual Void SetHeight(Int32 _height) noexcept;
@@ -139,7 +136,7 @@ public:
 
     virtual Void OnClose() noexcept;
     virtual Void OnDestroy() noexcept;
-    //TODO::ImGuiWindowFlags_NoTitleBar;
+
 protected:
     using SuperType_ = ZGuiObject;
 

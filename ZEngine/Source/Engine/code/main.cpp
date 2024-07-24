@@ -22,8 +22,6 @@
 
 #include "z_gui/f_test.h"
 
-#pragma comment(lib, "ws2_32.lib")
-
 #define SERVER_PORT 8888
 #define BUFFER_SIZE 1024
 
@@ -107,7 +105,7 @@ int main() {
     //closesocket(serverSocket);
     //WSACleanup();
     
-    gui::Test();
+    //gui::Test();
 
     Sleep(50);
 

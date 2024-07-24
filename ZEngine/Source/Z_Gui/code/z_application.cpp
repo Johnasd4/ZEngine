@@ -53,6 +53,10 @@ ZApplication::ZApplication() noexcept
         Z_LOG_ERROR(error_code::kZApplicationErrorCodeLinkError, 0, L"glfwInit() link error!");
         return; 
     }
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
     instance_ptr_ = this;
 }
 
@@ -60,7 +64,6 @@ ZApplication::~ZApplication() noexcept {
     glfwTerminate();
     instance_ptr_ = nullptr;
 }
-
 
 NODISCARD ReturnType ZApplication::Execute() noexcept {
     ReturnType ret_val = kOK;
@@ -90,12 +93,7 @@ NODISCARD ReturnType ZApplication::Execute() noexcept {
 
             //remove the closed window
             if (glfwWindowShouldClose(window_handle)) {
-                link_code = window_ptr->Close();
-                if (link_code != kOK) {
-                    ret_val = error_code::kZApplicationErrorCodeLinkError;
-                    Z_LOG_ERROR(ret_val, link_code, L"ZWindow::Close() link error!");
-                    return ret_val;
-                }
+                window_ptr->Close();
                 continue;
             }
 
@@ -103,27 +101,21 @@ NODISCARD ReturnType ZApplication::Execute() noexcept {
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
-            ImGui::Begin(window_ptr->Title());
 
             if (window_ptr->Enabled() && window_ptr->IfTick()) {
                 window_ptr->Tick(delta_time);
             }
 
-            ImGui::End();
             ImGui::Render();
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
             //Imgui frame end
 
-
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-            window_ptr->Tick(delta_time);
-
             glfwSwapBuffers(window_handle);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            if (glfwGetWindowAttrib(window_handle, GLFW_FOCUSED)) {
+                glfwPollEvents();
+            }
         }
-
-        //process window events
-        glfwPollEvents();
     }
 
     //release imgui resourses
