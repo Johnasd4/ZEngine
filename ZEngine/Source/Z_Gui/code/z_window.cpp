@@ -35,24 +35,26 @@ ZWindow::ZWindow() noexcept
     , pos_()
     , window_handle_(nullptr) 
     , window_context_(nullptr)
-    , window_state_(kWindowStateTerminated) {}
+    , window_state_(kWindowStateTerminated)
+    , frame_ptr_set_(){}
 
 ZWindow::ZWindow(ZWindow&& _window) noexcept 
-    : SuperType_(std::forward<ZWindow>(_window))
+    : SuperType_(std::forward<ZWindow>(_window)), frame_ptr_set_()
 {
     MoveP(std::forward<ZWindow>(_window));
 }
 
-ZWindow::ZWindow(Int32 _width, Int32 _height, const Char* _title, WindowScreenModeEnum_ _screen_mode) noexcept
+ZWindow::ZWindow(Int32 _width, Int32 _height, const Char* _name, WindowScreenModeEnum_ _screen_mode) noexcept
     : SuperType_()
     , size_()
     , pos_()
     , window_handle_(nullptr) 
     , window_context_(nullptr)
     , window_state_(kWindowStateTerminated)
+    , frame_ptr_set_()
 {
     ReturnType link_code = kOK;
-    link_code = CreateP(_width, _height, _title, _screen_mode);
+    link_code = CreateP(_width, _height, _name, _screen_mode);
     if (link_code != kOK) {
         Z_LOG_ERROR(error_code::kZWindowErrorCodeLinkError, 0, L"ZWindow::Create() link error!");
     }
@@ -68,10 +70,15 @@ ZWindow& ZWindow::operator=(ZWindow&& _window) noexcept {
 
 Void ZWindow::Begin() noexcept {
     SuperType_::Begin();
-
     //update size and pos
     glfwGetWindowSize(static_cast<GLFWwindow*>(window_handle_), &size_.width_, &size_.height_);
     glfwGetWindowPos(static_cast<GLFWwindow*>(window_handle_), &pos_.x_, &pos_.y_);
+
+    //begin frame
+    for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
+        ZFrame* frame = *frame_ptr_iter;
+        frame->Begin();
+    }
 }
 
 Void ZWindow::Tick(Float32 _delta_sec) noexcept {
@@ -91,6 +98,14 @@ Void ZWindow::Tick(Float32 _delta_sec) noexcept {
     if (cur_pos != pos_) {
         OnMove(pos_.x_, pos_.y_, cur_pos.x_, cur_pos.y_);
         pos_ = cur_pos;
+    }
+
+    //tick frame
+    for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
+        ZFrame* frame = *frame_ptr_iter;
+        if (frame->Enabled() && frame->IfTick()) {
+            frame->Tick(_delta_sec);
+        }
     }
 }
 
@@ -124,6 +139,14 @@ Void ZWindow::Show() noexcept {
     }
 }
 
+Void ZWindow::Close() noexcept {
+    OnClose();
+    glfwSetWindowShouldClose(static_cast<GLFWwindow*>(window_handle_), true);
+    glfwHideWindow(static_cast<GLFWwindow*>(window_handle_));
+    window_state_ = kWindowStateClosed;
+    --active_window_num_;
+}
+
 Void ZWindow::Destroy() noexcept {
     OnDestroy();
     window_handle_ = nullptr;
@@ -131,12 +154,10 @@ Void ZWindow::Destroy() noexcept {
     window_state_ = kWindowStateTerminated;
 }
 
-Void ZWindow::Close() noexcept {
-    OnClose();
-    glfwSetWindowShouldClose(static_cast<GLFWwindow*>(window_handle_), true);
-    glfwHideWindow(static_cast<GLFWwindow*>(window_handle_));
-    window_state_ = kWindowStateClosed;    
-    --active_window_num_;
+Void ZWindow::AddFrame(ZFrame* _frame) noexcept {
+    frame_ptr_set_.Insert(_frame);
+    _frame->SetOwnerPtr(this);
+    _frame->Begin();
 }
 
 Void ZWindow::SetWidth(Int32 _width) noexcept {
@@ -173,8 +194,8 @@ Void ZWindow::SetBackgruondColour(Float32 _red, Float32 _green, Float32 _blue, F
     glClearColor(_red, _green, _blue, _alpha);
 }
 
-Void ZWindow::SetTitle(const Char* _title) noexcept {
-    glfwSetWindowTitle(static_cast<GLFWwindow*>(window_handle_), _title);
+Void ZWindow::SetName(const Char* _name) noexcept {
+    glfwSetWindowTitle(static_cast<GLFWwindow*>(window_handle_), _name);
 }
 
 Void ZWindow::SetScreenMode(WindowScreenModeEnum_ _screen_mode) noexcept {
@@ -244,7 +265,7 @@ NODISCARD GuiColour ZWindow::BackgruondColour() const noexcept {
     return colour;
 }
 
-NODISCARD const Char* ZWindow::Title() const noexcept {
+NODISCARD const Char* ZWindow::Name() const noexcept {
     return glfwGetWindowTitle(static_cast<GLFWwindow*>(window_handle_));
 }
 
@@ -261,7 +282,7 @@ Void ZWindow::MoveP(ZWindow&& _window) noexcept {
 }
 
 NODISCARD ReturnType ZWindow::CreateP(
-    Int32 _width, Int32 _height, const Char* _title, WindowScreenModeEnum_ _screen_mode
+    Int32 _width, Int32 _height, const Char* _name, WindowScreenModeEnum_ _screen_mode
 ) noexcept {
     ReturnType ret_val = kOK;
 
@@ -275,7 +296,7 @@ NODISCARD ReturnType ZWindow::CreateP(
     switch (_screen_mode) {
     case kWindowScreenModeWindow:
         //create window
-        window_handle_ = static_cast<Void*>(glfwCreateWindow(_width, _height, _title, nullptr, nullptr));
+        window_handle_ = static_cast<Void*>(glfwCreateWindow(_width, _height, _name, nullptr, nullptr));
         if (window_handle_ == nullptr) {
             ret_val = error_code::kZWindowErrorCodeLinkError;
             Z_LOG_ERROR(ret_val, 0, L"glfwCreateWindow() link error!");
@@ -285,7 +306,7 @@ NODISCARD ReturnType ZWindow::CreateP(
     case kWindowScreenModeFullScreenCustomSize:
         //create window
         window_handle_ = static_cast<Void*>(
-            glfwCreateWindow(_width, _height, _title, glfwGetPrimaryMonitor(), nullptr));
+            glfwCreateWindow(_width, _height, _name, glfwGetPrimaryMonitor(), nullptr));
         if (window_handle_ == nullptr) {
             ret_val = error_code::kZWindowErrorCodeLinkError;
             Z_LOG_ERROR(ret_val, 0, L"glfwCreateWindow() link error!");
@@ -310,7 +331,7 @@ NODISCARD ReturnType ZWindow::CreateP(
         }
         //create window
         window_handle_ = static_cast<Void*>(
-            glfwCreateWindow(video_mode->width, video_mode->height, _title, main_monitor, nullptr));
+            glfwCreateWindow(video_mode->width, video_mode->height, _name, main_monitor, nullptr));
         if (window_handle_ == nullptr) {
             ret_val = error_code::kZWindowErrorCodeLinkError;
             Z_LOG_ERROR(ret_val, 0, L"glfwCreateWindow() link error!");

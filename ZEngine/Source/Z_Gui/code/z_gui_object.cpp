@@ -23,27 +23,10 @@
 namespace zengine {
 namespace gui {
 
-Void ZGuiObject::Begin() noexcept {
-    for (auto obj_ptr_iter = sub_obj_ptr_vec_.Begin(); obj_ptr_iter != sub_obj_ptr_vec_.End(); ++obj_ptr_iter) {
-        ZGuiObject* obj = *obj_ptr_iter;
-        obj->Begin();
-    }
-}
-Void ZGuiObject::Tick(Float32 _delta_sec) noexcept {
-    for (auto obj_ptr_iter = sub_obj_ptr_vec_.Begin(); obj_ptr_iter != sub_obj_ptr_vec_.End(); ++obj_ptr_iter) {
-        ZGuiObject* obj = *obj_ptr_iter;
-        if (obj->Enabled() && obj->IfTick()) {
-            obj->Tick(_delta_sec);
-        }
-    }
-}
+Void ZGuiObject::Begin() noexcept {}
+Void ZGuiObject::Tick(Float32 _delta_sec) noexcept {}
 Void ZGuiObject::Hide() noexcept { OnHide(); }
 Void ZGuiObject::Show() noexcept { OnShow(); }
-Void ZGuiObject::Add(ZGuiObject* _obj_ptr) noexcept {
-    _obj_ptr->owner_ptr_ = this;
-    sub_obj_ptr_vec_.PushBack(_obj_ptr);
-    _obj_ptr->Begin();
-}
 
 Void ZGuiObject::SetWidth(Int32 _width) noexcept {}
 Void ZGuiObject::SetHeight(Int32 _height) noexcept {}
@@ -52,31 +35,26 @@ Void ZGuiObject::SetYPos(Int32 _y_pos) noexcept {}
 Void ZGuiObject::SetSize(Int32 _width, Int32 _height) noexcept {}
 Void ZGuiObject::SetPos(Int32 _x_pos, Int32 _y_pos) noexcept {}
 Void ZGuiObject::SetBackgruondColour(Float32 _red, Float32 _green, Float32 _blue, Float32 _alpha) noexcept {}
+Void ZGuiObject::SetName(const Char* _name) noexcept {}
 
-NODISCARD GuiSize ZGuiObject::Size() noexcept { return GuiSize(0, 0); }
-NODISCARD GuiPos ZGuiObject::Pos() noexcept { return GuiPos(0, 0); }
-NODISCARD Int32 ZGuiObject::Width() noexcept { return 0; }
-NODISCARD Int32 ZGuiObject::Height() noexcept { return 0; }
-NODISCARD Int32 ZGuiObject::XPos() noexcept { return 0; }
-NODISCARD Int32 ZGuiObject::YPos() noexcept { return 0; }
-NODISCARD GuiColour ZGuiObject::BackgruondColour() noexcept { return GuiColour(0.0f, 0.0f, 0.0f, 0.0f); }
+NODISCARD GuiSize ZGuiObject::Size() const noexcept { return GuiSize(0, 0); }
+NODISCARD GuiPos ZGuiObject::Pos() const noexcept { return GuiPos(0, 0); }
+NODISCARD Int32 ZGuiObject::Width() const noexcept { return 0; }
+NODISCARD Int32 ZGuiObject::Height() const noexcept { return 0; }
+NODISCARD Int32 ZGuiObject::XPos() const noexcept { return 0; }
+NODISCARD Int32 ZGuiObject::YPos() const noexcept { return 0; }
+NODISCARD GuiColour ZGuiObject::BackgruondColour() const noexcept { return GuiColour(0.0f, 0.0f, 0.0f, 0.0f); }
+NODISCARD const Char* ZGuiObject::Name() const noexcept { return ""; }
 
-Void ZGuiObject::OnMouseUp(MouseKeyEnum _key, Int32 _pos_x, Int32 _pos_y) noexcept {}
-Void ZGuiObject::OnMouseDown(MouseKeyEnum _key, Int32 _pos_x, Int32 _pos_y) noexcept {}
-Void ZGuiObject::OnKeyUp(KeyEnum _key) noexcept {}
-Void ZGuiObject::OnKeyDown(KeyEnum _key) noexcept {}
 Void ZGuiObject::OnMove(Int32 _pre_x, Int32 _pre_y, Int32 _cur_x, Int32 _cur_y) noexcept {}
 Void ZGuiObject::OnResize(Int32 _pre_width, Int32 _pre_height, Int32 _cur_width, Int32 _cur_height) noexcept {}
 Void ZGuiObject::OnHide() noexcept {}
 Void ZGuiObject::OnShow() noexcept {}
 
-ZGuiObject::ZGuiObject() noexcept
-    : SuperType_(), owner_ptr_(nullptr), sub_obj_ptr_vec_()
-    , name_(""), enabled_(false), if_tick_(false) {}
+ZGuiObject::ZGuiObject() noexcept : SuperType_(), owner_ptr_(nullptr), if_tick_(false), enabled_(false) {}
 
-ZGuiObject::ZGuiObject(const Char* _name, Bool _enabled, Bool _if_tick) noexcept
-    : SuperType_(), owner_ptr_(nullptr), sub_obj_ptr_vec_()
-    , name_(_name), enabled_(_enabled), if_tick_(_if_tick) {}
+ZGuiObject::ZGuiObject(Bool _if_tick, Bool _enabled) noexcept
+    : SuperType_(), owner_ptr_(nullptr), if_tick_(_if_tick), enabled_(_enabled) {}
 
 ZGuiObject::ZGuiObject(ZGuiObject&& _obj) noexcept 
     : SuperType_(std::move(_obj)) 
@@ -92,13 +70,11 @@ ZGuiObject& ZGuiObject::operator=(ZGuiObject&& _obj) noexcept {
 
 Void ZGuiObject::MoveP(ZGuiObject&& _obj) noexcept {
     owner_ptr_ = _obj.owner_ptr_;
-    sub_obj_ptr_vec_ = std::move(_obj.sub_obj_ptr_vec_);
-    name_ = std::move(_obj.name_);
-    enabled_ = _obj.enabled_;
     if_tick_ = _obj.if_tick_;
+    enabled_ = _obj.enabled_;
     _obj.owner_ptr_ = nullptr;
-    _obj.enabled_ = false;
     _obj.if_tick_ = false;
+    _obj.enabled_ = false;
 }
 
 }//gui

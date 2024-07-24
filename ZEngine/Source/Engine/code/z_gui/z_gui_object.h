@@ -21,9 +21,7 @@
 
 #include "internal/z_drive.h"
 
-#include "../z_core/t_vector.h"
 #include "../z_core/z_object.h"
-#include "../z_core/z_string.h"
 
 namespace zengine {
 namespace gui {
@@ -38,13 +36,13 @@ namespace gui {
 */
 class GUI_DLLAPI ZGuiObject : public ZObject {
 public:
-    FORCEINLINE Void SetName(const Char* _name) noexcept { name_ = _name; }
-    FORCEINLINE Void SetEnabled(Bool _enabled) noexcept { enabled_ = _enabled; }
     FORCEINLINE Void SetIfTick(Bool _if_tick) noexcept { if_tick_ = _if_tick; }
+    FORCEINLINE Void SetEnabled(Bool _enabled) noexcept { enabled_ = _enabled; }
+    FORCEINLINE Void SetOwnerPtr(ZGuiObject* _owner_ptr) noexcept { owner_ptr_ = _owner_ptr; }
 
-    NODISCARD FORCEINLINE const Char* Name() const noexcept { return name_.String(); }
-    NODISCARD FORCEINLINE Bool Enabled() const noexcept { return enabled_; }
     NODISCARD FORCEINLINE Bool IfTick() const noexcept { return if_tick_; }
+    NODISCARD FORCEINLINE Bool Enabled() const noexcept { return enabled_; }
+    NODISCARD FORCEINLINE ZGuiObject* OwnerPtr() const noexcept { return owner_ptr_; }
 
     /*
         Will be called when the object is added to another object.
@@ -62,10 +60,6 @@ public:
         Shows the object.
     */
     virtual Void Show() noexcept;
-    /*
-        Adds another object to this object.
-    */
-    virtual Void Add(ZGuiObject* _obj_ptr) noexcept;
 
     virtual Void SetWidth(Int32 _width) noexcept;
     virtual Void SetHeight(Int32 _height) noexcept;
@@ -74,6 +68,7 @@ public:
     virtual Void SetYPos(Int32 _y_pos) noexcept;
     virtual Void SetPos(Int32 _x_pos, Int32 _y_pos) noexcept;
     virtual Void SetBackgruondColour(Float32 _red, Float32 _green, Float32 _blue, Float32 _alpha) noexcept;
+    virtual Void SetName(const Char* _name) noexcept;
 
     FORCEINLINE Void SetSize(GuiSize _size) noexcept { SetSize(_size.width_, _size.height_); }
     FORCEINLINE Void SetPos(GuiPos _pos) noexcept { SetPos(_pos.x_, _pos.y_); }
@@ -81,35 +76,27 @@ public:
         SetBackgruondColour(_colour.red_, _colour.green_, _colour.blue_, _colour.alpha_);
     }
 
-    NODISCARD virtual Int32 Width() noexcept;
-    NODISCARD virtual Int32 Height() noexcept;
-    NODISCARD virtual GuiSize Size() noexcept;
-    NODISCARD virtual Int32 XPos() noexcept;
-    NODISCARD virtual Int32 YPos() noexcept;
-    NODISCARD virtual GuiPos Pos() noexcept;
-    NODISCARD virtual GuiColour BackgruondColour() noexcept;
+    NODISCARD virtual Int32 Width() const noexcept;
+    NODISCARD virtual Int32 Height() const noexcept;
+    NODISCARD virtual GuiSize Size() const noexcept;
+    NODISCARD virtual Int32 XPos() const noexcept;
+    NODISCARD virtual Int32 YPos() const noexcept;
+    NODISCARD virtual GuiPos Pos() const noexcept;
+    NODISCARD virtual GuiColour BackgruondColour() const noexcept;
+    NODISCARD virtual const Char* Name() const noexcept;
 
     //Base trigger functions.
+
     virtual Void OnMove(Int32 _pre_x, Int32 _pre_y, Int32 _cur_x, Int32 _cur_y) noexcept;
     virtual Void OnResize(Int32 _pre_width, Int32 _pre_height, Int32 _cur_width, Int32 _cur_height) noexcept;
     virtual Void OnHide() noexcept;
     virtual Void OnShow() noexcept;
 
-    //Mouse trigger functions
-
-    virtual Void OnMouseUp(MouseKeyEnum _key, Int32 _pos_x, Int32 _pos_y) noexcept;
-    virtual Void OnMouseDown(MouseKeyEnum _key, Int32 _pos_x, Int32 _pos_y) noexcept;
-    
-    //Keyboard trigger functions.
-    
-    virtual Void OnKeyUp(KeyEnum _key) noexcept;
-    virtual Void OnKeyDown(KeyEnum _key) noexcept;
-
 protected:
     using SuperType_ = ZObject;
 
     ZGuiObject() noexcept;
-    ZGuiObject(const Char* _name, Bool _enabled = true, Bool _if_tick = true) noexcept;
+    ZGuiObject(Bool _if_tick, Bool _enabled = true) noexcept;
     ZGuiObject(ZGuiObject&& _obj) noexcept;
 
     ZGuiObject& operator=(ZGuiObject&& _obj) noexcept;
@@ -123,10 +110,8 @@ private:
     Void MoveP(ZGuiObject&& _obj) noexcept;
 
     ZGuiObject* owner_ptr_;
-    TVector<ZGuiObject*> sub_obj_ptr_vec_;
-    ZString name_;
-    Bool enabled_;
     Bool if_tick_;
+    Bool enabled_;
 };
 
 }//gui

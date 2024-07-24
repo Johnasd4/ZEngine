@@ -29,6 +29,7 @@ namespace error_code {
 inline constexpr ReturnType kErrorCodeBasePGui = 0x00200000u;
 inline constexpr ReturnType kErrorCodeBaseZApplication = kErrorCodeBasePGui + 0x100u;
 inline constexpr ReturnType kErrorCodeBaseZWindow = kErrorCodeBasePGui + 0x200u;
+inline constexpr ReturnType kErrorCodeBaseZFrame = kErrorCodeBasePGui + 0x300u;
 
 }//error_code
 }//gui

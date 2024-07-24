@@ -21,9 +21,10 @@
 
 #include "internal/z_drive.h"
 
-#include "../z_core/t_vector.h"
+#include "../z_core/t_set.h"
 #include "../z_core/z_string.h"
 
+#include "z_frame.h"
 #include "z_gui_object.h"
 
 namespace zengine {
@@ -40,12 +41,13 @@ enum ZWindowErrorCode : ReturnType {
 }//error_code
 
 /*
-    Window class.
+    Window class. Only creates the window, before adding widgets, a ZFrame must be added first. 
+    The window contain's the frames and the frame's contains the widgets.
 */
 class GUI_DLLAPI ZWindow : public ZGuiObject {
 public:
     /*
-        The window screen mode.
+        The window screen mode enum.
     */
     enum WindowScreenModeEnum_ {
         kWindowScreenModeWindow,
@@ -54,7 +56,7 @@ public:
     };
 
     /*
-        The window screen mode.
+        The window state enum.
     */
     enum WindowStateEnum_ {
         kWindowStateTerminated,
@@ -77,7 +79,7 @@ public:
     NODISCARD FORCEINLINE static Int32 ActiveWindowNum() noexcept { return active_window_num_; }
 
     ZWindow() noexcept;
-    ZWindow(Int32 _width, Int32 _height, const Char* _title, WindowScreenModeEnum_ _screen_mode) noexcept;
+    ZWindow(Int32 _width, Int32 _height, const Char* _name, WindowScreenModeEnum_ _screen_mode) noexcept;
     ZWindow(ZWindow&& _window) noexcept;
     
     ~ZWindow() noexcept;
@@ -112,6 +114,10 @@ public:
         Destroy the window, release the resourses.
     */
     virtual Void Destroy() noexcept;
+    /*
+        Adds a frame to the window.
+    */
+    virtual Void AddFrame(ZFrame* _frame) noexcept;
 
     virtual Void SetWidth(Int32 _width) noexcept;
     virtual Void SetHeight(Int32 _height) noexcept;
@@ -120,8 +126,8 @@ public:
     virtual Void SetYPos(Int32 _y_pos) noexcept;
     virtual Void SetPos(Int32 _x_pos, Int32 _y_pos) noexcept;
     virtual Void SetBackgruondColour(Float32 _red, Float32 _green, Float32 _blue, Float32 _alpha) noexcept;
+    virtual Void SetName(const Char* _name) noexcept;
 
-    virtual Void SetTitle(const Char* _title) noexcept;
     virtual Void SetScreenMode(WindowScreenModeEnum_ _screen_mode) noexcept;
 
     NODISCARD virtual Int32 Width() const noexcept;
@@ -131,8 +137,7 @@ public:
     NODISCARD virtual Int32 YPos() const noexcept;
     NODISCARD virtual GuiPos Pos() const noexcept;
     NODISCARD virtual GuiColour BackgruondColour() const noexcept;
-
-    NODISCARD virtual const Char* Title() const noexcept;
+    NODISCARD virtual const Char* Name() const noexcept;
 
     virtual Void OnClose() noexcept;
     virtual Void OnDestroy() noexcept;
@@ -152,7 +157,7 @@ private:
         Creates the window, will initialize opengl if not initialized.
     */
     NODISCARD virtual ReturnType CreateP(
-        Int32 _width, Int32 _height, const Char* _title, WindowScreenModeEnum_ _screen_mode
+        Int32 _width, Int32 _height, const Char* _name, WindowScreenModeEnum_ _screen_mode
     ) noexcept;
 
     static Int32 tick_pur_window_tick_;
@@ -164,6 +169,7 @@ private:
     Handle window_handle_;
     Handle window_context_;
     WindowStateEnum_ window_state_;
+    TSet<ZFrame*> frame_ptr_set_;
 };
 
 }//gui
