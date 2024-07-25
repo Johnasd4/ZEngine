@@ -68,6 +68,8 @@ public:
 
     ZFrame& operator=(ZFrame&& _frame) noexcept;
 
+    NODISCARD FORCEINLINE Int32 FrameLevel() const noexcept { return frame_level_; }
+
     /*
     Will be called when the object is added to another object.
 */
@@ -134,11 +136,9 @@ protected:
     using SuperType_ = ZGuiObject;
 
 private:
-    GuiSize size_;
-    GuiPos pos_;
-    Int32 priority_;
+    Int32 frame_level_;
     Int32 frame_flag_;
-    ZString name_;
+
     TVector<ZFrame*> frame_ptr_vec_;
 };
 

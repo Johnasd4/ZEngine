@@ -45,7 +45,7 @@ ZWindow::ZWindow(ZWindow&& _window) noexcept
 }
 
 ZWindow::ZWindow(Int32 _width, Int32 _height, const Char* _name, WindowScreenModeEnum_ _screen_mode) noexcept
-    : SuperType_()
+    : SuperType_(true)
     , size_()
     , pos_()
     , window_handle_(nullptr) 
@@ -76,8 +76,8 @@ Void ZWindow::Begin() noexcept {
 
     //begin frame
     for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
-        ZFrame* frame = *frame_ptr_iter;
-        frame->Begin();
+        ZFrame* frame_ptr = *frame_ptr_iter;
+        frame_ptr->Begin();
     }
 }
 
@@ -102,9 +102,17 @@ Void ZWindow::Tick(Float32 _delta_sec) noexcept {
 
     //tick frame
     for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
-        ZFrame* frame = *frame_ptr_iter;
-        if (frame->Enabled() && frame->IfTick()) {
-            frame->Tick(_delta_sec);
+        ZFrame* frame_ptr = *frame_ptr_iter;
+        Bool if_open = false;
+        if (frame_ptr->Enabled() && frame_ptr->IfTick()) {
+            ImGui::Begin(frame_ptr->Name(), &if_open, frame_ptr->FrameFlag());
+            if (if_open) {
+                frame_ptr->Tick(_delta_sec);
+            }
+            else {
+                //TODO: close
+            }
+            ImGui::End();
         }
     }
 }
@@ -157,6 +165,7 @@ Void ZWindow::Destroy() noexcept {
 Void ZWindow::AddFrame(ZFrame* _frame) noexcept {
     frame_ptr_set_.Insert(_frame);
     _frame->SetOwnerPtr(this);
+    _frame->OnAdd();
     _frame->Begin();
 }
 

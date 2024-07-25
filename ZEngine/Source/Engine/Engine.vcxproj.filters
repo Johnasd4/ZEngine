@@ -198,6 +198,9 @@
     <ClInclude Include="code\z_gui\z_frame.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="code\z_gui\z_widget_object.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\main.cpp">

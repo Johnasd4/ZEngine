@@ -89,6 +89,7 @@ public:
     NODISCARD FORCEINLINE Handle WinowHandle() const noexcept { return window_handle_; }
     NODISCARD FORCEINLINE Handle WinowContext() const noexcept { return window_context_; }
     NODISCARD FORCEINLINE WindowStateEnum_ WinowState() const noexcept { return window_state_; }
+    NODISCARD FORCEINLINE Int32 FrameLevel() const noexcept { return 0; }
 
     /*
         Will be called when the object is added to another object.
@@ -106,6 +107,7 @@ public:
         Shows the window, if the window was closed, will call begin().
     */
     virtual Void Show() noexcept;
+
     /*
         Close the window, calls reset when the window is opened again.
     */

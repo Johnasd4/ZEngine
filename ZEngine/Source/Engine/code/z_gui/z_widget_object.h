@@ -16,12 +16,13 @@
     Author: YuLin Zhu (÷Ï”Í¡÷)
     Contact: 1152325286@qq.com
 */
-#ifndef Z_GUI_Z_GUI_OBJECT_H_
-#define Z_GUI_Z_GUI_OBJECT_H_
+#ifndef Z_GUI_Z_WIDGET_OBJECT_H_
+#define Z_GUI_Z_WIDGET_OBJECT_H_
 
 #include "internal/z_drive.h"
 
-#include "../z_core/z_object.h"
+#include "z_gui_object.h"
+#include "../z_core/z_string.h"
 
 namespace zengine {
 namespace gui {
@@ -31,18 +32,18 @@ namespace gui {
     Inheriting from this class allows the instance to apply memory from the memorypool,
     instead of applying memory directly from the system.
     Object members:
-    ZGuiObject* owner_ptr_ : 
-    Bool if_tick_;
-    Bool enabled_;
+    Int32 width_: The width of the gui object.
+    Int32 height_: The height of the gui object.
 */
-class GUI_DLLAPI ZGuiObject : public ZObject {
+class GUI_DLLAPI ZWidgetObject : public ZGuiObject {
 public:
-    FORCEINLINE Void SetIfTick(Bool _if_tick) noexcept { if_tick_ = _if_tick; }
-    FORCEINLINE Void SetEnabled(Bool _enabled) noexcept { enabled_ = _enabled; }
+    enum WidgetTypeEnum {
+        kWidgetTypeFrame
+    };
 
-    NODISCARD FORCEINLINE Bool IfTick() const noexcept { return if_tick_; }
-    NODISCARD FORCEINLINE Bool Enabled() const noexcept { return enabled_; }
-    NODISCARD FORCEINLINE ZGuiObject* OwnerPtr() const noexcept { return owner_ptr_; }
+    FORCEINLINE Void SetPriority(Int32 _priority) noexcept { priority_ = _priority; }
+
+    NODISCARD FORCEINLINE Int32 Priority() const noexcept { return priority_; }
 
     /*
         Will be called when the object is added to another object.
@@ -70,12 +71,6 @@ public:
     virtual Void SetBackgruondColour(Float32 _red, Float32 _green, Float32 _blue, Float32 _alpha) noexcept;
     virtual Void SetName(const Char* _name) noexcept;
 
-    FORCEINLINE Void SetSize(GuiSize _size) noexcept { SetSize(_size.width_, _size.height_); }
-    FORCEINLINE Void SetPos(GuiPos _pos) noexcept { SetPos(_pos.x_, _pos.y_); }
-    FORCEINLINE Void SetBackgruondColour(GuiColour _colour) noexcept {
-        SetBackgruondColour(_colour.red_, _colour.green_, _colour.blue_, _colour.alpha_);
-    }
-
     NODISCARD virtual Int32 Width() const noexcept;
     NODISCARD virtual Int32 Height() const noexcept;
     NODISCARD virtual GuiSize Size() const noexcept;
@@ -84,6 +79,7 @@ public:
     NODISCARD virtual GuiPos Pos() const noexcept;
     NODISCARD virtual GuiColour BackgruondColour() const noexcept;
     NODISCARD virtual const Char* Name() const noexcept;
+    NODISCARD virtual WidgetTypeEnum WidgetType() const noexcept = 0;
 
     //Base trigger functions.
 
@@ -91,31 +87,32 @@ public:
     virtual Void OnResize(Int32 _pre_width, Int32 _pre_height, Int32 _cur_width, Int32 _cur_height) noexcept;
     virtual Void OnHide() noexcept;
     virtual Void OnShow() noexcept;
-    virtual Void OnAdd(ZGuiObject* _owner_ptr) noexcept;
+    virtual Void OnAdd() noexcept;
 
 protected:
-    using SuperType_ = ZObject;
+    using SuperType_ = ZGuiObject;
 
-    ZGuiObject() noexcept;
-    ZGuiObject(Bool _if_tick, Bool _enabled = true) noexcept;
-    ZGuiObject(ZGuiObject&& _obj) noexcept;
+    ZWidgetObject() noexcept;
+    ZWidgetObject(Bool _if_tick, Bool _enabled = true) noexcept;
+    ZWidgetObject(ZWidgetObject&& _obj) noexcept;
 
-    ZGuiObject& operator=(ZGuiObject&& _obj) noexcept;
+    ZWidgetObject& operator=(ZWidgetObject&& _obj) noexcept;
 
-    FORCEINLINE ~ZGuiObject() {}
+    FORCEINLINE ~ZWidgetObject() {}
 
 private:
-    ZGuiObject(const ZGuiObject&) = delete;
-    ZGuiObject& operator=(const ZGuiObject&) = delete;
+    ZWidgetObject(const ZWidgetObject&) = delete;
+    ZWidgetObject& operator=(const ZWidgetObject&) = delete;
 
-    Void MoveP(ZGuiObject&& _obj) noexcept;
+    Void MoveP(ZWidgetObject&& _obj) noexcept;
 
-    ZGuiObject* owner_ptr_;
-    Bool if_tick_;
-    Bool enabled_;
+    GuiSize size_;
+    GuiPos pos_;
+    Int32 priority_;
+    ZString name_;
 };
 
 }//gui
 }//zengine
 
-#endif // !Z_GUI_Z_GUI_OBJECT_H_
+#endif // !Z_GUI_Z_WIDGET_OBJECT_H_

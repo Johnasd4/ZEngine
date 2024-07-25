@@ -50,6 +50,9 @@ Void ZGuiObject::OnMove(Int32 _pre_x, Int32 _pre_y, Int32 _cur_x, Int32 _cur_y) 
 Void ZGuiObject::OnResize(Int32 _pre_width, Int32 _pre_height, Int32 _cur_width, Int32 _cur_height) noexcept {}
 Void ZGuiObject::OnHide() noexcept {}
 Void ZGuiObject::OnShow() noexcept {}
+Void ZGuiObject::OnAdd(ZGuiObject* _owner_ptr) noexcept {
+    owner_ptr_ = _owner_ptr;
+}
 
 ZGuiObject::ZGuiObject() noexcept : SuperType_(), owner_ptr_(nullptr), if_tick_(false), enabled_(false) {}
 

@@ -151,6 +151,7 @@ NODISCARD ReturnType ZApplication::Execute() noexcept {
 
 Void ZApplication::AddWindow(ZWindow* window_ptr) noexcept {
     window_ptr_vec_.PushBack(window_ptr);
+    window_ptr->OnAdd();
     window_ptr->Begin();
 }
 
