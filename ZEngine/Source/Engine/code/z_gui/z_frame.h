@@ -24,7 +24,7 @@
 #include "../z_core/t_vector.h"
 #include "../z_core/z_string.h"
 
-#include "z_gui_object.h"
+#include "z_widget_object.h"
 
 namespace zengine {
 namespace gui {
@@ -42,7 +42,7 @@ enum ZFrameErrorCode : ReturnType {
 /*
     Frame class.
 */
-class GUI_DLLAPI ZFrame : public ZGuiObject {
+class GUI_DLLAPI ZFrame : public ZWidgetObject {
 public:
     /*
         The frame screen mode enum.
@@ -138,8 +138,8 @@ protected:
 private:
     Int32 frame_level_;
     Int32 frame_flag_;
-
-    TVector<ZFrame*> frame_ptr_vec_;
+    TSet<ZWidgetObject*> widget_ptr_set_;
+    TSet<ZFrame*> frame_ptr_set_;
 };
 
 }//gui

@@ -104,13 +104,15 @@ Void ZWindow::Tick(Float32 _delta_sec) noexcept {
     for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
         ZFrame* frame_ptr = *frame_ptr_iter;
         Bool if_open = false;
-        if (frame_ptr->Enabled() && frame_ptr->IfTick()) {
+        if (frame_ptr->Enabled()) {
             ImGui::Begin(frame_ptr->Name(), &if_open, frame_ptr->FrameFlag());
             if (if_open) {
-                frame_ptr->Tick(_delta_sec);
+                if (frame_ptr->IfTick()) {
+                    frame_ptr->Tick(_delta_sec);
+                }
             }
             else {
-                //TODO: close
+                frame_ptr->Close();
             }
             ImGui::End();
         }
@@ -164,8 +166,7 @@ Void ZWindow::Destroy() noexcept {
 
 Void ZWindow::AddFrame(ZFrame* _frame) noexcept {
     frame_ptr_set_.Insert(_frame);
-    _frame->SetOwnerPtr(this);
-    _frame->OnAdd();
+    _frame->OnAdd(this);
     _frame->Begin();
 }
 

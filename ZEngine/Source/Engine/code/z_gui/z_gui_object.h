@@ -87,11 +87,19 @@ public:
 
     //Base trigger functions.
 
-    virtual Void OnMove(Int32 _pre_x, Int32 _pre_y, Int32 _cur_x, Int32 _cur_y) noexcept;
     virtual Void OnResize(Int32 _pre_width, Int32 _pre_height, Int32 _cur_width, Int32 _cur_height) noexcept;
+    virtual Void OnMove(Int32 _pre_x, Int32 _pre_y, Int32 _cur_x, Int32 _cur_y) noexcept;
     virtual Void OnHide() noexcept;
     virtual Void OnShow() noexcept;
     virtual Void OnAdd(ZGuiObject* _owner_ptr) noexcept;
+
+    FORCEINLINE Void OnResize(GuiSize _pre_size, GuiSize _cur_size) noexcept {
+        OnResize(_pre_size.width_, _pre_size.height_, _cur_size.width_, _cur_size.height_);
+    }
+    FORCEINLINE Void OnMove(GuiPos _pre_pos, GuiPos _cur_pos) noexcept {
+        OnMove(_pre_pos.x_, _pre_pos.y_, _cur_pos.x_, _cur_pos.y_);
+    }
+
 
 protected:
     using SuperType_ = ZObject;

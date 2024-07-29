@@ -44,7 +44,8 @@ public:
     FORCEINLINE Void SetPriority(Int32 _priority) noexcept { priority_ = _priority; }
 
     NODISCARD FORCEINLINE Int32 Priority() const noexcept { return priority_; }
-
+    NODISCARD FORCEINLINE Bool Visiable() const noexcept { return visiable_; }
+    
     /*
         Will be called when the object is added to another object.
     */
@@ -61,6 +62,11 @@ public:
         Shows the object.
     */
     virtual Void Show() noexcept;
+    /*
+        Resets the object.
+    */
+    virtual Void Reset() noexcept;
+
 
     virtual Void SetWidth(Int32 _width) noexcept;
     virtual Void SetHeight(Int32 _height) noexcept;
@@ -69,6 +75,7 @@ public:
     virtual Void SetYPos(Int32 _y_pos) noexcept;
     virtual Void SetPos(Int32 _x_pos, Int32 _y_pos) noexcept;
     virtual Void SetBackgruondColour(Float32 _red, Float32 _green, Float32 _blue, Float32 _alpha) noexcept;
+
     virtual Void SetName(const Char* _name) noexcept;
 
     NODISCARD virtual Int32 Width() const noexcept;
@@ -78,22 +85,31 @@ public:
     NODISCARD virtual Int32 YPos() const noexcept;
     NODISCARD virtual GuiPos Pos() const noexcept;
     NODISCARD virtual GuiColour BackgruondColour() const noexcept;
+
     NODISCARD virtual const Char* Name() const noexcept;
     NODISCARD virtual WidgetTypeEnum WidgetType() const noexcept = 0;
 
     //Base trigger functions.
 
-    virtual Void OnMove(Int32 _pre_x, Int32 _pre_y, Int32 _cur_x, Int32 _cur_y) noexcept;
     virtual Void OnResize(Int32 _pre_width, Int32 _pre_height, Int32 _cur_width, Int32 _cur_height) noexcept;
+    virtual Void OnMove(Int32 _pre_x, Int32 _pre_y, Int32 _cur_x, Int32 _cur_y) noexcept;
     virtual Void OnHide() noexcept;
     virtual Void OnShow() noexcept;
-    virtual Void OnAdd() noexcept;
+    virtual Void OnAdd(ZGuiObject* _owner_ptr) noexcept;
 
 protected:
     using SuperType_ = ZGuiObject;
 
     ZWidgetObject() noexcept;
-    ZWidgetObject(Bool _if_tick, Bool _enabled = true) noexcept;
+    ZWidgetObject(
+        const Char* _name, 
+        GuiSize _size, 
+        GuiPos _pos, 
+        Bool _visiable = true, 
+        Int32 _priority = 0, 
+        Bool _if_tick = true, 
+        Bool _enabled = true
+    ) noexcept;
     ZWidgetObject(ZWidgetObject&& _obj) noexcept;
 
     ZWidgetObject& operator=(ZWidgetObject&& _obj) noexcept;
@@ -108,6 +124,11 @@ private:
 
     GuiSize size_;
     GuiPos pos_;
+    GuiSize pre_size_;
+    GuiPos pre_pos_;
+    Bool size_changed_;
+    Bool pos_changed_;
+    Bool visiable_;
     Int32 priority_;
     ZString name_;
 };

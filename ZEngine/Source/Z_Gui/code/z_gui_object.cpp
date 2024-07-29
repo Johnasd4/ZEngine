@@ -30,24 +30,24 @@ Void ZGuiObject::Show() noexcept { OnShow(); }
 
 Void ZGuiObject::SetWidth(Int32 _width) noexcept {}
 Void ZGuiObject::SetHeight(Int32 _height) noexcept {}
+Void ZGuiObject::SetSize(Int32 _width, Int32 _height) noexcept {}
 Void ZGuiObject::SetXPos(Int32 _x_pos) noexcept {}
 Void ZGuiObject::SetYPos(Int32 _y_pos) noexcept {}
-Void ZGuiObject::SetSize(Int32 _width, Int32 _height) noexcept {}
 Void ZGuiObject::SetPos(Int32 _x_pos, Int32 _y_pos) noexcept {}
 Void ZGuiObject::SetBackgruondColour(Float32 _red, Float32 _green, Float32 _blue, Float32 _alpha) noexcept {}
 Void ZGuiObject::SetName(const Char* _name) noexcept {}
 
-NODISCARD GuiSize ZGuiObject::Size() const noexcept { return GuiSize(0, 0); }
-NODISCARD GuiPos ZGuiObject::Pos() const noexcept { return GuiPos(0, 0); }
 NODISCARD Int32 ZGuiObject::Width() const noexcept { return 0; }
 NODISCARD Int32 ZGuiObject::Height() const noexcept { return 0; }
+NODISCARD GuiSize ZGuiObject::Size() const noexcept { return GuiSize(0, 0); }
 NODISCARD Int32 ZGuiObject::XPos() const noexcept { return 0; }
 NODISCARD Int32 ZGuiObject::YPos() const noexcept { return 0; }
+NODISCARD GuiPos ZGuiObject::Pos() const noexcept { return GuiPos(0, 0); }
 NODISCARD GuiColour ZGuiObject::BackgruondColour() const noexcept { return GuiColour(0.0f, 0.0f, 0.0f, 0.0f); }
 NODISCARD const Char* ZGuiObject::Name() const noexcept { return ""; }
 
-Void ZGuiObject::OnMove(Int32 _pre_x, Int32 _pre_y, Int32 _cur_x, Int32 _cur_y) noexcept {}
 Void ZGuiObject::OnResize(Int32 _pre_width, Int32 _pre_height, Int32 _cur_width, Int32 _cur_height) noexcept {}
+Void ZGuiObject::OnMove(Int32 _pre_x, Int32 _pre_y, Int32 _cur_x, Int32 _cur_y) noexcept {}
 Void ZGuiObject::OnHide() noexcept {}
 Void ZGuiObject::OnShow() noexcept {}
 Void ZGuiObject::OnAdd(ZGuiObject* _owner_ptr) noexcept {

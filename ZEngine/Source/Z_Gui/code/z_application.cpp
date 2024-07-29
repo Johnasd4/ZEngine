@@ -96,13 +96,15 @@ NODISCARD ReturnType ZApplication::Execute() noexcept {
                 window_ptr->Close();
                 continue;
             }
-
+            if (window_ptr->Enabled()) {
+                continue;
+            }
             //Imgui frame start
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
 
-            if (window_ptr->Enabled() && window_ptr->IfTick()) {
+            if (window_ptr->IfTick()) {
                 window_ptr->Tick(delta_time);
             }
 
