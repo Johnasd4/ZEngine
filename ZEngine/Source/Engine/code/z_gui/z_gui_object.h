@@ -60,6 +60,10 @@ public:
         Shows the object.
     */
     virtual Void Show() noexcept;
+    /*
+        Resets the object.
+    */
+    virtual Void Reset() noexcept;
 
     virtual Void SetWidth(Int32 _width) noexcept;
     virtual Void SetHeight(Int32 _height) noexcept;
@@ -67,14 +71,10 @@ public:
     virtual Void SetXPos(Int32 _x_pos) noexcept;
     virtual Void SetYPos(Int32 _y_pos) noexcept;
     virtual Void SetPos(Int32 _x_pos, Int32 _y_pos) noexcept;
-    virtual Void SetBackgruondColour(Float32 _red, Float32 _green, Float32 _blue, Float32 _alpha) noexcept;
     virtual Void SetName(const Char* _name) noexcept;
 
     FORCEINLINE Void SetSize(GuiSize _size) noexcept { SetSize(_size.width_, _size.height_); }
     FORCEINLINE Void SetPos(GuiPos _pos) noexcept { SetPos(_pos.x_, _pos.y_); }
-    FORCEINLINE Void SetBackgruondColour(GuiColour _colour) noexcept {
-        SetBackgruondColour(_colour.red_, _colour.green_, _colour.blue_, _colour.alpha_);
-    }
 
     NODISCARD virtual Int32 Width() const noexcept;
     NODISCARD virtual Int32 Height() const noexcept;
@@ -82,7 +82,6 @@ public:
     NODISCARD virtual Int32 XPos() const noexcept;
     NODISCARD virtual Int32 YPos() const noexcept;
     NODISCARD virtual GuiPos Pos() const noexcept;
-    NODISCARD virtual GuiColour BackgruondColour() const noexcept;
     NODISCARD virtual const Char* Name() const noexcept;
 
     //Base trigger functions.
@@ -105,8 +104,8 @@ protected:
     using SuperType_ = ZObject;
 
     ZGuiObject() noexcept;
-    ZGuiObject(Bool _if_tick, Bool _enabled = true) noexcept;
     ZGuiObject(ZGuiObject&& _obj) noexcept;
+    ZGuiObject(Bool _if_tick, Bool _enabled = true) noexcept;
 
     ZGuiObject& operator=(ZGuiObject&& _obj) noexcept;
 

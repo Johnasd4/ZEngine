@@ -67,14 +67,12 @@ public:
     */
     virtual Void Reset() noexcept;
 
-
     virtual Void SetWidth(Int32 _width) noexcept;
     virtual Void SetHeight(Int32 _height) noexcept;
     virtual Void SetSize(Int32 _width, Int32 _height) noexcept;
     virtual Void SetXPos(Int32 _x_pos) noexcept;
     virtual Void SetYPos(Int32 _y_pos) noexcept;
     virtual Void SetPos(Int32 _x_pos, Int32 _y_pos) noexcept;
-    virtual Void SetBackgruondColour(Float32 _red, Float32 _green, Float32 _blue, Float32 _alpha) noexcept;
 
     virtual Void SetName(const Char* _name) noexcept;
 
@@ -84,7 +82,6 @@ public:
     NODISCARD virtual Int32 XPos() const noexcept;
     NODISCARD virtual Int32 YPos() const noexcept;
     NODISCARD virtual GuiPos Pos() const noexcept;
-    NODISCARD virtual GuiColour BackgruondColour() const noexcept;
 
     NODISCARD virtual const Char* Name() const noexcept;
     NODISCARD virtual WidgetTypeEnum WidgetType() const noexcept = 0;
@@ -101,6 +98,7 @@ protected:
     using SuperType_ = ZGuiObject;
 
     ZWidgetObject() noexcept;
+    ZWidgetObject(ZWidgetObject&& _obj) noexcept;
     ZWidgetObject(
         const Char* _name, 
         GuiSize _size, 
@@ -110,7 +108,6 @@ protected:
         Bool _if_tick = true, 
         Bool _enabled = true
     ) noexcept;
-    ZWidgetObject(ZWidgetObject&& _obj) noexcept;
 
     ZWidgetObject& operator=(ZWidgetObject&& _obj) noexcept;
 

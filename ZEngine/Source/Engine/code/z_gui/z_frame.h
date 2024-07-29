@@ -21,7 +21,7 @@
 
 #include "internal/z_drive.h"
 
-#include "../z_core/t_vector.h"
+#include "../z_core/t_set.h"
 #include "../z_core/z_string.h"
 
 #include "z_widget_object.h"
@@ -44,6 +44,10 @@ enum ZFrameErrorCode : ReturnType {
 */
 class GUI_DLLAPI ZFrame : public ZWidgetObject {
 public:
+    static constexpr Int32 kDefaultFrameLevel = 1;
+    static constexpr Int32 kDefaultFrameFlag = 1;   //TODO
+    static constexpr GuiColour kDefaultFrameBackGroundColour = { 0.0f,0.0f,0.0f,0.0f };   //TODO
+
     /*
         The frame screen mode enum.
     */
@@ -63,7 +67,8 @@ public:
 
     ZFrame() noexcept;
     ZFrame(ZFrame&& _frame) noexcept;
-    
+    ZFrame(const Char* _name, GuiSize _size, GuiPos _pos) noexcept;
+
     ~ZFrame() noexcept;
 
     ZFrame& operator=(ZFrame&& _frame) noexcept;
@@ -71,33 +76,38 @@ public:
     NODISCARD FORCEINLINE Int32 FrameLevel() const noexcept { return frame_level_; }
 
     /*
-    Will be called when the object is added to another object.
-*/
+        Will be called when the object is added to another object.
+    */
     virtual Void Begin() noexcept;
     /*
         Ticks every frame.
     */
     virtual Void Tick(Float32 _delta_sec) noexcept;
     /*
-        Hides the window.
+        Hides the frame.
     */
     virtual Void Hide() noexcept;
     /*
-        Shows the window, if the window was closed, will call begin().
+        Shows the frame, if the frame was closed, will call begin().
     */
     virtual Void Show() noexcept;
     /*
-        Close the window, calls reset when the window is opened again.
+        Resets the object.
+    */
+    virtual Void Reset() noexcept;
+    
+    /*
+        Close the frame, calls reset when the frame is opened again.
     */
     virtual Void Close() noexcept;
     /*
-        Destroy the window, release the resourses.
+        Destroy the frame, release the resourses.
     */
     virtual Void Destroy() noexcept;
     /*
-        Adds a frame to the window.
+        Adds a widget to the frame.
     */
-    virtual Void AddFrame(ZFrame* _frame) noexcept;
+    virtual Void Add(ZWidgetObject* _widget_obj) noexcept;
 
     virtual Void SetWidth(Int32 _width) noexcept;
     virtual Void SetHeight(Int32 _height) noexcept;
@@ -105,15 +115,11 @@ public:
     virtual Void SetXPos(Int32 _x_pos) noexcept;
     virtual Void SetYPos(Int32 _y_pos) noexcept;
     virtual Void SetPos(Int32 _x_pos, Int32 _y_pos) noexcept;
+
     virtual Void SetBackgruondColour(Float32 _red, Float32 _green, Float32 _blue, Float32 _alpha) noexcept;
-    virtual Void SetName(const Char* _name) noexcept;
 
     /*
         Use | to combine all the flags that needs.
-    */
-    virtual Void SetFrameFlag(Int32 _frame_flag) noexcept;
-    /*
-        Set priority 
     */
     virtual Void SetFrameFlag(Int32 _frame_flag) noexcept;
 
@@ -123,21 +129,32 @@ public:
     NODISCARD virtual Int32 XPos() const noexcept;
     NODISCARD virtual Int32 YPos() const noexcept;
     NODISCARD virtual GuiPos Pos() const noexcept;
-    NODISCARD virtual GuiColour BackgruondColour() const noexcept;
-    NODISCARD virtual const Char* Name() const noexcept;
 
+    NODISCARD virtual GuiColour BackgruondColour() const noexcept;
     NODISCARD virtual Int32 FrameFlag() const noexcept;
 
+    virtual Void OnAdd(ZGuiObject* _owner_ptr) noexcept;
 
     virtual Void OnClose() noexcept;
     virtual Void OnDestroy() noexcept;
 
 protected:
-    using SuperType_ = ZGuiObject;
+    using SuperType_ = ZWidgetObject;
 
 private:
+    ZFrame(const ZFrame&) = delete;
+    ZFrame& operator=(const ZFrame&) = delete;
+
+    Void MoveP(ZFrame&& _frame) noexcept;
+
+    /*
+        Updates the current frame level and all the sub frame level.
+    */
+    Void UpdateFrameLevel() noexcept;
+
     Int32 frame_level_;
     Int32 frame_flag_;
+    GuiColour frame_background_colour_;
     TSet<ZWidgetObject*> widget_ptr_set_;
     TSet<ZFrame*> frame_ptr_set_;
 };

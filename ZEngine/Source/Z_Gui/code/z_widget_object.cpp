@@ -43,6 +43,7 @@ Void ZWidgetObject::Show() noexcept {
     SuperType_::Show();
     visiable_ = true;
 }
+Void ZWidgetObject::Reset() noexcept { SuperType_::Reset(); }
 
 Void ZWidgetObject::SetWidth(Int32 _width) noexcept {
     pre_size_ = size_;
@@ -76,9 +77,6 @@ Void ZWidgetObject::SetPos(Int32 _x_pos, Int32 _y_pos) noexcept {
     pos_.y_ = _y_pos;
     pos_changed_ = true;
 }
-Void ZWidgetObject::SetBackgruondColour(Float32 _red, Float32 _green, Float32 _blue, Float32 _alpha) noexcept {
-    SuperType_::SetBackgruondColour(_red, _green, _blue, _alpha);
-}
 Void ZWidgetObject::SetName(const Char* _name) noexcept { name_ = _name; }
 
 NODISCARD Int32 ZWidgetObject::Width() const noexcept { return size_.width_; }
@@ -87,7 +85,6 @@ NODISCARD GuiSize ZWidgetObject::Size() const noexcept { return size_; }
 NODISCARD Int32 ZWidgetObject::XPos() const noexcept { return pos_.x_; }
 NODISCARD Int32 ZWidgetObject::YPos() const noexcept { return pos_.y_; }
 NODISCARD GuiPos ZWidgetObject::Pos() const noexcept { return pos_; }
-NODISCARD GuiColour ZWidgetObject::BackgruondColour() const noexcept { return SuperType_::BackgruondColour(); }
 NODISCARD const Char* ZWidgetObject::Name() const noexcept { return name_.String(); }
 
 Void ZWidgetObject::OnMove(Int32 _pre_x, Int32 _pre_y, Int32 _cur_x, Int32 _cur_y) noexcept {

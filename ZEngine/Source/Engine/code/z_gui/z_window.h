@@ -79,8 +79,8 @@ public:
     NODISCARD FORCEINLINE static Int32 ActiveWindowNum() noexcept { return active_window_num_; }
 
     ZWindow() noexcept;
-    ZWindow(Int32 _width, Int32 _height, const Char* _name, WindowScreenModeEnum_ _screen_mode) noexcept;
     ZWindow(ZWindow&& _window) noexcept;
+    ZWindow(const Char* _name, GuiSize _size, WindowScreenModeEnum_ _screen_mode) noexcept;
     
     ~ZWindow() noexcept;
 
@@ -107,6 +107,10 @@ public:
         Shows the window, if the window was closed, will call begin().
     */
     virtual Void Show() noexcept;
+    /*
+        Resets the object.
+    */
+    virtual Void Reset() noexcept;
 
     /*
         Close the window, calls reset when the window is opened again.
@@ -127,9 +131,9 @@ public:
     virtual Void SetXPos(Int32 _x_pos) noexcept;
     virtual Void SetYPos(Int32 _y_pos) noexcept;
     virtual Void SetPos(Int32 _x_pos, Int32 _y_pos) noexcept;
-    virtual Void SetBackgruondColour(Float32 _red, Float32 _green, Float32 _blue, Float32 _alpha) noexcept;
     virtual Void SetName(const Char* _name) noexcept;
 
+    virtual Void SetBackgruondColour(Float32 _red, Float32 _green, Float32 _blue, Float32 _alpha) noexcept;
     virtual Void SetScreenMode(WindowScreenModeEnum_ _screen_mode) noexcept;
 
     NODISCARD virtual Int32 Width() const noexcept;
@@ -138,8 +142,9 @@ public:
     NODISCARD virtual Int32 XPos() const noexcept;
     NODISCARD virtual Int32 YPos() const noexcept;
     NODISCARD virtual GuiPos Pos() const noexcept;
-    NODISCARD virtual GuiColour BackgruondColour() const noexcept;
     NODISCARD virtual const Char* Name() const noexcept;
+
+    NODISCARD virtual GuiColour BackgruondColour() const noexcept;
 
     virtual Void OnClose() noexcept;
     virtual Void OnDestroy() noexcept;
@@ -159,7 +164,7 @@ private:
         Creates the window, will initialize opengl if not initialized.
     */
     NODISCARD virtual ReturnType CreateP(
-        Int32 _width, Int32 _height, const Char* _name, WindowScreenModeEnum_ _screen_mode
+        const Char* _name, GuiSize _size, WindowScreenModeEnum_ _screen_mode
     ) noexcept;
 
     static Int32 tick_pur_window_tick_;
