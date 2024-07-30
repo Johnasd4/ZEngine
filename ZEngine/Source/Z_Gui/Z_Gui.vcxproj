@@ -20,7 +20,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="code\f_test.cpp" />
     <ClCompile Include="code\z_frame.cpp" />
     <ClCompile Include="code\z_widget_object.cpp" />
     <ClCompile Include="code\z_application.cpp" />

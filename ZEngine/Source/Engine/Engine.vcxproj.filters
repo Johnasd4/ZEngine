@@ -147,9 +147,6 @@
     <ClInclude Include="code\z_core\f_test.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\z_gui\f_test.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="code\z_gui\internal\d_concept.h">
       <Filter>头文件</Filter>
     </ClInclude>

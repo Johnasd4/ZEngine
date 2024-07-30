@@ -20,8 +20,6 @@
 
 #include "z_engine.h"
 
-#include "z_gui/f_test.h"
-
 #define SERVER_PORT 8888
 #define BUFFER_SIZE 1024
 
