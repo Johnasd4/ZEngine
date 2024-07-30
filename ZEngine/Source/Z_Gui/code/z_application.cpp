@@ -70,6 +70,16 @@ NODISCARD ReturnType ZApplication::Execute() noexcept {
     ReturnType link_code = kOK;
     UInt32 pre_time = clock();
 
+    //begin window
+    for (
+        auto window_ptr_iter = window_ptr_vec_.Begin();
+        window_ptr_iter != window_ptr_vec_.End();
+        ++window_ptr_iter
+    ) {
+        ZWindow* window_ptr = *window_ptr_iter;
+        window_ptr->Begin();
+    }
+
     while (ZWindow::ActiveWindowNum() > 0) {
         //update delta time
         UInt32 current_time = clock();
@@ -83,11 +93,11 @@ NODISCARD ReturnType ZApplication::Execute() noexcept {
             ++window_ptr_iter
         ) {
             ZWindow* window_ptr = *window_ptr_iter;
-            GLFWwindow* window_handle = static_cast<GLFWwindow*>(window_ptr->WinowHandle());
+            GLFWwindow* window_handle = static_cast<GLFWwindow*>(window_ptr->WindowHandle());
             glfwMakeContextCurrent(window_handle);
-            ImGui::SetCurrentContext(static_cast<ImGuiContext*>(window_ptr->WinowContext()));
+            ImGui::SetCurrentContext(static_cast<ImGuiContext*>(window_ptr->WindowContext()));
 
-            if (window_ptr->WinowState() != ZWindow::kWindowStateOpened) {
+            if (window_ptr->WindowState() != ZWindow::kWindowStateOpened) {
                 continue;
             }
 
@@ -96,7 +106,7 @@ NODISCARD ReturnType ZApplication::Execute() noexcept {
                 window_ptr->Close();
                 continue;
             }
-            if (window_ptr->Enabled()) {
+            if (!window_ptr->Enabled()) {
                 continue;
             }
             //Imgui frame start
@@ -104,18 +114,18 @@ NODISCARD ReturnType ZApplication::Execute() noexcept {
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
 
-            if (window_ptr->IfTick()) {
-                window_ptr->Tick(delta_time);
-            }
+            window_ptr->Tick(delta_time);
 
             ImGui::Render();
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
             //Imgui frame end
-
             glfwSwapBuffers(window_handle);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             if (glfwGetWindowAttrib(window_handle, GLFW_FOCUSED)) {
                 glfwPollEvents();
+            }
+            else {
+                glfwWaitEvents();
             }
         }
     }
@@ -127,7 +137,7 @@ NODISCARD ReturnType ZApplication::Execute() noexcept {
         ++window_ptr_iter
     ) {
         ZWindow* window_ptr = *window_ptr_iter;
-        ImGui::SetCurrentContext(static_cast<ImGuiContext*>(window_ptr->WinowContext()));
+        ImGui::SetCurrentContext(static_cast<ImGuiContext*>(window_ptr->WindowContext()));
         //clean up imgui
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplGlfw_Shutdown();
@@ -140,9 +150,9 @@ NODISCARD ReturnType ZApplication::Execute() noexcept {
         auto window_ptr_iter = window_ptr_vec_.Begin();
         window_ptr_iter != window_ptr_vec_.End();
         ++window_ptr_iter
-        ) {
+    ) {
         ZWindow* window_ptr = *window_ptr_iter;
-        GLFWwindow* window_handle = static_cast<GLFWwindow*>(window_ptr->WinowHandle());
+        GLFWwindow* window_handle = static_cast<GLFWwindow*>(window_ptr->WindowHandle());
         glfwMakeContextCurrent(window_handle);
         glfwDestroyWindow(window_handle);
         window_ptr->Destroy();
@@ -153,8 +163,7 @@ NODISCARD ReturnType ZApplication::Execute() noexcept {
 
 Void ZApplication::AddWindow(ZWindow* window_ptr) noexcept {
     window_ptr_vec_.PushBack(window_ptr);
-    window_ptr->OnAdd();
-    window_ptr->Begin();
+    window_ptr->OnAdd(window_ptr);
 }
 
 ZApplication* ZApplication::instance_ptr_ = nullptr;

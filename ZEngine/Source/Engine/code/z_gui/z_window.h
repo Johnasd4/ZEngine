@@ -80,19 +80,24 @@ public:
 
     ZWindow() noexcept;
     ZWindow(ZWindow&& _window) noexcept;
-    ZWindow(const Char* _name, GuiSize _size, WindowScreenModeEnum_ _screen_mode) noexcept;
+    ZWindow(
+        const Char* _name,
+        GuiSize _size,
+        GuiPos _pos = { 0, 0 }, 
+        WindowScreenModeEnum_ _screen_mode = kWindowScreenModeWindow
+    ) noexcept;
     
     ~ZWindow() noexcept;
 
     ZWindow& operator=(ZWindow&& _window) noexcept;
 
-    NODISCARD FORCEINLINE Handle WinowHandle() const noexcept { return window_handle_; }
-    NODISCARD FORCEINLINE Handle WinowContext() const noexcept { return window_context_; }
-    NODISCARD FORCEINLINE WindowStateEnum_ WinowState() const noexcept { return window_state_; }
+    NODISCARD FORCEINLINE Handle WindowHandle() const noexcept { return window_handle_; }
+    NODISCARD FORCEINLINE Handle WindowContext() const noexcept { return window_context_; }
+    NODISCARD FORCEINLINE WindowStateEnum_ WindowState() const noexcept { return window_state_; }
     NODISCARD FORCEINLINE Int32 FrameLevel() const noexcept { return 0; }
 
     /*
-        Will be called when the object is added to another object.
+        Will be called when the application executes.
     */
     virtual Void Begin() noexcept;
     /*
@@ -125,23 +130,11 @@ public:
     */
     virtual Void AddFrame(ZFrame* _frame) noexcept;
 
-    virtual Void SetWidth(Int32 _width) noexcept;
-    virtual Void SetHeight(Int32 _height) noexcept;
-    virtual Void SetSize(Int32 _width, Int32 _height) noexcept;
-    virtual Void SetXPos(Int32 _x_pos) noexcept;
-    virtual Void SetYPos(Int32 _y_pos) noexcept;
-    virtual Void SetPos(Int32 _x_pos, Int32 _y_pos) noexcept;
     virtual Void SetName(const Char* _name) noexcept;
 
-    virtual Void SetBackgruondColour(Float32 _red, Float32 _green, Float32 _blue, Float32 _alpha) noexcept;
+    virtual Void SetBackgruondColour(GuiColour _colour) noexcept;
     virtual Void SetScreenMode(WindowScreenModeEnum_ _screen_mode) noexcept;
 
-    NODISCARD virtual Int32 Width() const noexcept;
-    NODISCARD virtual Int32 Height() const noexcept;
-    NODISCARD virtual GuiSize Size() const noexcept;
-    NODISCARD virtual Int32 XPos() const noexcept;
-    NODISCARD virtual Int32 YPos() const noexcept;
-    NODISCARD virtual GuiPos Pos() const noexcept;
     NODISCARD virtual const Char* Name() const noexcept;
 
     NODISCARD virtual GuiColour BackgruondColour() const noexcept;
@@ -164,19 +157,17 @@ private:
         Creates the window, will initialize opengl if not initialized.
     */
     NODISCARD virtual ReturnType CreateP(
-        const Char* _name, GuiSize _size, WindowScreenModeEnum_ _screen_mode
+        const Char* _name, GuiSize _size, GuiPos _pos, WindowScreenModeEnum_ _screen_mode
     ) noexcept;
 
     static Int32 tick_pur_window_tick_;
 
     static Int32 active_window_num_;
 
-    GuiSize size_;
-    GuiPos pos_;
     Handle window_handle_;
     Handle window_context_;
-    WindowStateEnum_ window_state_;
     TSet<ZFrame*> frame_ptr_set_;
+    WindowStateEnum_ window_state_;
 };
 
 }//gui

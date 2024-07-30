@@ -44,7 +44,6 @@ enum ZFrameErrorCode : ReturnType {
 */
 class GUI_DLLAPI ZFrame : public ZWidgetObject {
 public:
-    static constexpr Int32 kDefaultFrameLevel = 1;
     static constexpr Int32 kDefaultFrameFlag = 1;   //TODO
     static constexpr GuiColour kDefaultFrameBackGroundColour = { 0.0f,0.0f,0.0f,0.0f };   //TODO
 
@@ -73,10 +72,16 @@ public:
 
     ZFrame& operator=(ZFrame&& _frame) noexcept;
 
-    NODISCARD FORCEINLINE Int32 FrameLevel() const noexcept { return frame_level_; }
-
     /*
-        Will be called when the object is added to another object.
+        Use | to combine all the flags that needs.
+    */
+    FORCEINLINE Void SetFrameFlag(Int32 _frame_flag) noexcept { frame_flag_ = _frame_flag; }
+
+    NODISCARD FORCEINLINE Int32 FrameFlag() const noexcept { return frame_flag_; }
+    NODISCARD FORCEINLINE FrameStateEnum_ FrameState() const noexcept { return frame_state_; }
+    
+    /*
+        Will be called when the application executes.
     */
     virtual Void Begin() noexcept;
     /*
@@ -109,31 +114,11 @@ public:
     */
     virtual Void Add(ZWidgetObject* _widget_obj) noexcept;
 
-    virtual Void SetWidth(Int32 _width) noexcept;
-    virtual Void SetHeight(Int32 _height) noexcept;
-    virtual Void SetSize(Int32 _width, Int32 _height) noexcept;
-    virtual Void SetXPos(Int32 _x_pos) noexcept;
-    virtual Void SetYPos(Int32 _y_pos) noexcept;
-    virtual Void SetPos(Int32 _x_pos, Int32 _y_pos) noexcept;
+    virtual Void SetBackgruondColour(GuiColour _colour) noexcept;
 
-    virtual Void SetBackgruondColour(Float32 _red, Float32 _green, Float32 _blue, Float32 _alpha) noexcept;
-
-    /*
-        Use | to combine all the flags that needs.
-    */
-    virtual Void SetFrameFlag(Int32 _frame_flag) noexcept;
-
-    NODISCARD virtual Int32 Width() const noexcept;
-    NODISCARD virtual Int32 Height() const noexcept;
-    NODISCARD virtual GuiSize Size() const noexcept;
-    NODISCARD virtual Int32 XPos() const noexcept;
-    NODISCARD virtual Int32 YPos() const noexcept;
-    NODISCARD virtual GuiPos Pos() const noexcept;
+    NODISCARD virtual WidgetTypeEnum WidgetType() const noexcept;
 
     NODISCARD virtual GuiColour BackgruondColour() const noexcept;
-    NODISCARD virtual Int32 FrameFlag() const noexcept;
-
-    virtual Void OnAdd(ZGuiObject* _owner_ptr) noexcept;
 
     virtual Void OnClose() noexcept;
     virtual Void OnDestroy() noexcept;
@@ -147,16 +132,11 @@ private:
 
     Void MoveP(ZFrame&& _frame) noexcept;
 
-    /*
-        Updates the current frame level and all the sub frame level.
-    */
-    Void UpdateFrameLevel() noexcept;
-
-    Int32 frame_level_;
     Int32 frame_flag_;
     GuiColour frame_background_colour_;
     TSet<ZWidgetObject*> widget_ptr_set_;
     TSet<ZFrame*> frame_ptr_set_;
+    FrameStateEnum_ frame_state_;
 };
 
 }//gui

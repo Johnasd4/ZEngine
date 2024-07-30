@@ -24,45 +24,99 @@ namespace zengine {
 namespace gui {
 
 Void ZGuiObject::Begin() noexcept {}
-Void ZGuiObject::Tick(Float32 _delta_sec) noexcept {}
-Void ZGuiObject::Hide() noexcept { OnHide(); }
-Void ZGuiObject::Show() noexcept { OnShow(); }
+Void ZGuiObject::Tick(Float32 _delta_sec) noexcept {
+    pre_size_ = size_;
+    pre_pos_ = pos_;
+    if (size_changed_) {
+        OnResize(pre_size_, size_);
+        size_changed_ = false;
+    }
+    if (pos_changed_) {
+        OnMove(pre_pos_, pos_);
+        pos_changed_ = false;
+    }
+}
+Void ZGuiObject::Hide() noexcept { 
+    OnHide(); 
+}
+Void ZGuiObject::Show() noexcept { 
+    OnShow(); 
+}
 Void ZGuiObject::Reset() noexcept {}
 
-Void ZGuiObject::SetWidth(Int32 _width) noexcept {}
-Void ZGuiObject::SetHeight(Int32 _height) noexcept {}
-Void ZGuiObject::SetSize(Int32 _width, Int32 _height) noexcept {}
-Void ZGuiObject::SetXPos(Int32 _x_pos) noexcept {}
-Void ZGuiObject::SetYPos(Int32 _y_pos) noexcept {}
-Void ZGuiObject::SetPos(Int32 _x_pos, Int32 _y_pos) noexcept {}
+Void ZGuiObject::SetWidth(Int32 _width) noexcept {
+    size_.width_ = _width;
+    size_changed_ = true;
+}
+Void ZGuiObject::SetHeight(Int32 _height) noexcept {
+    size_.height_ = _height;
+    size_changed_ = true;
+}
+Void ZGuiObject::SetSize(GuiSize _size) noexcept {
+    size_ = _size;
+    size_changed_ = true;
+}
+Void ZGuiObject::SetXPos(Int32 _x_pos) noexcept {
+    pos_.x_ = _x_pos;
+    pos_changed_ = true;
+}
+Void ZGuiObject::SetYPos(Int32 _y_pos) noexcept {
+    pos_.y_ = _y_pos;
+    pos_changed_ = true;
+}
+Void ZGuiObject::SetPos(GuiPos _pos) noexcept {
+    pos_ = _pos;
+    pos_changed_ = true;
+}
 Void ZGuiObject::SetName(const Char* _name) noexcept {}
 
-NODISCARD Int32 ZGuiObject::Width() const noexcept { return 0; }
-NODISCARD Int32 ZGuiObject::Height() const noexcept { return 0; }
-NODISCARD GuiSize ZGuiObject::Size() const noexcept { return GuiSize(0, 0); }
-NODISCARD Int32 ZGuiObject::XPos() const noexcept { return 0; }
-NODISCARD Int32 ZGuiObject::YPos() const noexcept { return 0; }
-NODISCARD GuiPos ZGuiObject::Pos() const noexcept { return GuiPos(0, 0); }
+NODISCARD Int32 ZGuiObject::Width() const noexcept { return size_.width_; }
+NODISCARD Int32 ZGuiObject::Height() const noexcept { return size_.height_; }
+NODISCARD GuiSize ZGuiObject::Size() const noexcept { return size_; }
+NODISCARD Int32 ZGuiObject::XPos() const noexcept { return pos_.x_; }
+NODISCARD Int32 ZGuiObject::YPos() const noexcept { return pos_.y_; }
+NODISCARD GuiPos ZGuiObject::Pos() const noexcept { return pos_; }
 NODISCARD const Char* ZGuiObject::Name() const noexcept { return ""; }
 
-Void ZGuiObject::OnResize(Int32 _pre_width, Int32 _pre_height, Int32 _cur_width, Int32 _cur_height) noexcept {}
-Void ZGuiObject::OnMove(Int32 _pre_x, Int32 _pre_y, Int32 _cur_x, Int32 _cur_y) noexcept {}
+Void ZGuiObject::OnResize(GuiSize _pre_size, GuiSize _cur_size) noexcept {}
+Void ZGuiObject::OnMove(GuiPos _pre_pos, GuiPos _cur_pos) noexcept {}
 Void ZGuiObject::OnHide() noexcept {}
 Void ZGuiObject::OnShow() noexcept {}
 Void ZGuiObject::OnAdd(ZGuiObject* _owner_ptr) noexcept {
     owner_ptr_ = _owner_ptr;
 }
 
-ZGuiObject::ZGuiObject() noexcept : SuperType_(), owner_ptr_(nullptr), if_tick_(false), enabled_(false) {}
-
-ZGuiObject::ZGuiObject(Bool _if_tick, Bool _enabled) noexcept
-    : SuperType_(), owner_ptr_(nullptr), if_tick_(_if_tick), enabled_(_enabled) {}
+ZGuiObject::ZGuiObject() noexcept 
+    : SuperType_()
+    , size_()
+    , pos_()
+    , pre_size_()
+    , pre_pos_()
+    , size_changed_(false)
+    , pos_changed_(false)
+    , owner_ptr_(nullptr)
+    , enabled_(false) {}
 
 ZGuiObject::ZGuiObject(ZGuiObject&& _obj) noexcept 
     : SuperType_(std::move(_obj)) 
 { 
     MoveP(std::forward<ZGuiObject>(_obj)); 
 }
+
+ZGuiObject::ZGuiObject(
+    GuiSize _size,
+    GuiPos _pos,
+    Bool _enabled
+) noexcept
+    : SuperType_()
+    , size_(_size)
+    , pos_(_pos)
+    , pre_size_()
+    , pre_pos_()
+    , size_changed_(false)
+    , pos_changed_(false)
+    , owner_ptr_(nullptr)
+    , enabled_(_enabled) {}
 
 ZGuiObject& ZGuiObject::operator=(ZGuiObject&& _obj) noexcept {
     SuperType_::operator=(std::move(_obj));
@@ -71,11 +125,21 @@ ZGuiObject& ZGuiObject::operator=(ZGuiObject&& _obj) noexcept {
 }
 
 Void ZGuiObject::MoveP(ZGuiObject&& _obj) noexcept {
+    size_ = _obj.size_;
+    pos_ = _obj.pos_;
+    pre_size_ = _obj.pre_size_;
+    pre_pos_ = _obj.pre_pos_;
+    size_changed_ = _obj.size_changed_;
+    pos_changed_ = _obj.pos_changed_;
     owner_ptr_ = _obj.owner_ptr_;
-    if_tick_ = _obj.if_tick_;
     enabled_ = _obj.enabled_;
+    _obj.size_ = { 0,0 };
+    _obj.pos_ = { 0,0 };
+    _obj.pre_size_ = { 0,0 };
+    _obj.pre_pos_ = { 0,0 };
+    _obj.size_changed_ = false;
+    _obj.pos_changed_ = false;
     _obj.owner_ptr_ = nullptr;
-    _obj.if_tick_ = false;
     _obj.enabled_ = false;
 }
 

@@ -30,22 +30,24 @@ namespace gui {
     The base class of the gui classes.
     Inheriting from this class allows the instance to apply memory from the memorypool,
     instead of applying memory directly from the system.
-    Object members:
-    ZGuiObject* owner_ptr_ : 
-    Bool if_tick_;
-    Bool enabled_;
 */
 class GUI_DLLAPI ZGuiObject : public ZObject {
 public:
-    FORCEINLINE Void SetIfTick(Bool _if_tick) noexcept { if_tick_ = _if_tick; }
     FORCEINLINE Void SetEnabled(Bool _enabled) noexcept { enabled_ = _enabled; }
 
-    NODISCARD FORCEINLINE Bool IfTick() const noexcept { return if_tick_; }
     NODISCARD FORCEINLINE Bool Enabled() const noexcept { return enabled_; }
+    /*
+        Returns if the size changed last tick.
+    */
+    NODISCARD FORCEINLINE Bool SizeChanged() const noexcept { return size_changed_; }
+    /*
+        Returns if the position changed last tick.
+    */
+    NODISCARD FORCEINLINE Bool PosChanged() const noexcept { return pos_changed_; }
     NODISCARD FORCEINLINE ZGuiObject* OwnerPtr() const noexcept { return owner_ptr_; }
 
     /*
-        Will be called when the object is added to another object.
+        Will be called when the application executes.
     */
     virtual Void Begin() noexcept;
     /*
@@ -67,14 +69,11 @@ public:
 
     virtual Void SetWidth(Int32 _width) noexcept;
     virtual Void SetHeight(Int32 _height) noexcept;
-    virtual Void SetSize(Int32 _width, Int32 _height) noexcept;
+    virtual Void SetSize(GuiSize _size) noexcept;
     virtual Void SetXPos(Int32 _x_pos) noexcept;
     virtual Void SetYPos(Int32 _y_pos) noexcept;
-    virtual Void SetPos(Int32 _x_pos, Int32 _y_pos) noexcept;
+    virtual Void SetPos(GuiPos _pos) noexcept;
     virtual Void SetName(const Char* _name) noexcept;
-
-    FORCEINLINE Void SetSize(GuiSize _size) noexcept { SetSize(_size.width_, _size.height_); }
-    FORCEINLINE Void SetPos(GuiPos _pos) noexcept { SetPos(_pos.x_, _pos.y_); }
 
     NODISCARD virtual Int32 Width() const noexcept;
     NODISCARD virtual Int32 Height() const noexcept;
@@ -86,26 +85,22 @@ public:
 
     //Base trigger functions.
 
-    virtual Void OnResize(Int32 _pre_width, Int32 _pre_height, Int32 _cur_width, Int32 _cur_height) noexcept;
-    virtual Void OnMove(Int32 _pre_x, Int32 _pre_y, Int32 _cur_x, Int32 _cur_y) noexcept;
+    virtual Void OnResize(GuiSize _pre_size, GuiSize _cur_size) noexcept;
+    virtual Void OnMove(GuiPos _pre_pos, GuiPos _cur_pos) noexcept;
     virtual Void OnHide() noexcept;
     virtual Void OnShow() noexcept;
     virtual Void OnAdd(ZGuiObject* _owner_ptr) noexcept;
-
-    FORCEINLINE Void OnResize(GuiSize _pre_size, GuiSize _cur_size) noexcept {
-        OnResize(_pre_size.width_, _pre_size.height_, _cur_size.width_, _cur_size.height_);
-    }
-    FORCEINLINE Void OnMove(GuiPos _pre_pos, GuiPos _cur_pos) noexcept {
-        OnMove(_pre_pos.x_, _pre_pos.y_, _cur_pos.x_, _cur_pos.y_);
-    }
-
 
 protected:
     using SuperType_ = ZObject;
 
     ZGuiObject() noexcept;
     ZGuiObject(ZGuiObject&& _obj) noexcept;
-    ZGuiObject(Bool _if_tick, Bool _enabled = true) noexcept;
+    ZGuiObject(
+        GuiSize _size,
+        GuiPos _pos,
+        Bool _enabled = true
+    ) noexcept;
 
     ZGuiObject& operator=(ZGuiObject&& _obj) noexcept;
 
@@ -117,8 +112,13 @@ private:
 
     Void MoveP(ZGuiObject&& _obj) noexcept;
 
+    GuiSize size_;
+    GuiPos pos_;
+    GuiSize pre_size_;
+    GuiPos pre_pos_;
+    Bool size_changed_;
+    Bool pos_changed_;
     ZGuiObject* owner_ptr_;
-    Bool if_tick_;
     Bool enabled_;
 };
 
