@@ -94,7 +94,6 @@ public:
     NODISCARD FORCEINLINE Handle WindowHandle() const noexcept { return window_handle_; }
     NODISCARD FORCEINLINE Handle WindowContext() const noexcept { return window_context_; }
     NODISCARD FORCEINLINE WindowStateEnum_ WindowState() const noexcept { return window_state_; }
-    NODISCARD FORCEINLINE Int32 FrameLevel() const noexcept { return 0; }
 
     /*
         Will be called when the application executes.
@@ -128,7 +127,7 @@ public:
     /*
         Adds a frame to the window.
     */
-    virtual Void AddFrame(ZFrame* _frame) noexcept;
+    virtual Void Add(ZFrame* _frame) noexcept;
 
     virtual Void SetName(const Char* _name) noexcept;
 

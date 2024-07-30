@@ -44,6 +44,8 @@ enum ZFrameErrorCode : ReturnType {
 */
 class GUI_DLLAPI ZFrame : public ZWidgetObject {
 public:
+    static constexpr Int32 kBaseFrameLevel = 0;
+
     static constexpr Int32 kDefaultFrameFlag = 1;   //TODO
     static constexpr GuiColour kDefaultFrameBackGroundColour = { 0.0f,0.0f,0.0f,0.0f };   //TODO
 
@@ -52,16 +54,6 @@ public:
     */
     enum FrameFlagEnum_ {
 
-    };
-
-    /*
-        The frame state enum.
-    */
-    enum FrameStateEnum_ {
-        kFrameStateTerminated,
-        kFrameStateOpened,
-        kFrameStateClosed,
-        kFrameStateHidden
     };
 
     ZFrame() noexcept;
@@ -78,8 +70,8 @@ public:
     FORCEINLINE Void SetFrameFlag(Int32 _frame_flag) noexcept { frame_flag_ = _frame_flag; }
 
     NODISCARD FORCEINLINE Int32 FrameFlag() const noexcept { return frame_flag_; }
-    NODISCARD FORCEINLINE FrameStateEnum_ FrameState() const noexcept { return frame_state_; }
-    
+    NODISCARD FORCEINLINE Int32 FrameLevel() const noexcept { return frame_flag_; }
+
     /*
         Will be called when the application executes.
     */
@@ -89,26 +81,10 @@ public:
     */
     virtual Void Tick(Float32 _delta_sec) noexcept;
     /*
-        Hides the frame.
-    */
-    virtual Void Hide() noexcept;
-    /*
-        Shows the frame, if the frame was closed, will call begin().
-    */
-    virtual Void Show() noexcept;
-    /*
         Resets the object.
     */
     virtual Void Reset() noexcept;
-    
-    /*
-        Close the frame, calls reset when the frame is opened again.
-    */
-    virtual Void Close() noexcept;
-    /*
-        Destroy the frame, release the resourses.
-    */
-    virtual Void Destroy() noexcept;
+
     /*
         Adds a widget to the frame.
     */
@@ -120,9 +96,6 @@ public:
 
     NODISCARD virtual GuiColour BackgruondColour() const noexcept;
 
-    virtual Void OnClose() noexcept;
-    virtual Void OnDestroy() noexcept;
-
 protected:
     using SuperType_ = ZWidgetObject;
 
@@ -132,11 +105,13 @@ private:
 
     Void MoveP(ZFrame&& _frame) noexcept;
 
+    Void UpdateFrameLevelP(Int32 _super_frame_level) noexcept;
+
     Int32 frame_flag_;
+    Int32 frame_level_;
     GuiColour frame_background_colour_;
     TSet<ZWidgetObject*> widget_ptr_set_;
     TSet<ZFrame*> frame_ptr_set_;
-    FrameStateEnum_ frame_state_;
 };
 
 }//gui

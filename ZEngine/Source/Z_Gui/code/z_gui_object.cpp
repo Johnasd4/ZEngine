@@ -44,11 +44,11 @@ Void ZGuiObject::Show() noexcept {
 }
 Void ZGuiObject::Reset() noexcept {}
 
-Void ZGuiObject::SetWidth(Int32 _width) noexcept {
+Void ZGuiObject::SetWidth(Float32 _width) noexcept {
     size_.width_ = _width;
     size_changed_ = true;
 }
-Void ZGuiObject::SetHeight(Int32 _height) noexcept {
+Void ZGuiObject::SetHeight(Float32 _height) noexcept {
     size_.height_ = _height;
     size_changed_ = true;
 }
@@ -56,11 +56,11 @@ Void ZGuiObject::SetSize(GuiSize _size) noexcept {
     size_ = _size;
     size_changed_ = true;
 }
-Void ZGuiObject::SetXPos(Int32 _x_pos) noexcept {
+Void ZGuiObject::SetXPos(Float32 _x_pos) noexcept {
     pos_.x_ = _x_pos;
     pos_changed_ = true;
 }
-Void ZGuiObject::SetYPos(Int32 _y_pos) noexcept {
+Void ZGuiObject::SetYPos(Float32 _y_pos) noexcept {
     pos_.y_ = _y_pos;
     pos_changed_ = true;
 }
@@ -70,11 +70,11 @@ Void ZGuiObject::SetPos(GuiPos _pos) noexcept {
 }
 Void ZGuiObject::SetName(const Char* _name) noexcept {}
 
-NODISCARD Int32 ZGuiObject::Width() const noexcept { return size_.width_; }
-NODISCARD Int32 ZGuiObject::Height() const noexcept { return size_.height_; }
+NODISCARD Float32 ZGuiObject::Width() const noexcept { return size_.width_; }
+NODISCARD Float32 ZGuiObject::Height() const noexcept { return size_.height_; }
 NODISCARD GuiSize ZGuiObject::Size() const noexcept { return size_; }
-NODISCARD Int32 ZGuiObject::XPos() const noexcept { return pos_.x_; }
-NODISCARD Int32 ZGuiObject::YPos() const noexcept { return pos_.y_; }
+NODISCARD Float32 ZGuiObject::XPos() const noexcept { return pos_.x_; }
+NODISCARD Float32 ZGuiObject::YPos() const noexcept { return pos_.y_; }
 NODISCARD GuiPos ZGuiObject::Pos() const noexcept { return pos_; }
 NODISCARD const Char* ZGuiObject::Name() const noexcept { return ""; }
 
@@ -113,8 +113,8 @@ ZGuiObject::ZGuiObject(
     , pos_(_pos)
     , pre_size_()
     , pre_pos_()
-    , size_changed_(false)
-    , pos_changed_(false)
+    , size_changed_(true)
+    , pos_changed_(true)
     , owner_ptr_(nullptr)
     , enabled_(_enabled) {}
 

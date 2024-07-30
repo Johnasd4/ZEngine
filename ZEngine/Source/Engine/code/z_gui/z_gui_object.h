@@ -67,19 +67,19 @@ public:
     */
     virtual Void Reset() noexcept;
 
-    virtual Void SetWidth(Int32 _width) noexcept;
-    virtual Void SetHeight(Int32 _height) noexcept;
+    virtual Void SetWidth(Float32 _width) noexcept;
+    virtual Void SetHeight(Float32 _height) noexcept;
     virtual Void SetSize(GuiSize _size) noexcept;
-    virtual Void SetXPos(Int32 _x_pos) noexcept;
-    virtual Void SetYPos(Int32 _y_pos) noexcept;
+    virtual Void SetXPos(Float32 _x_pos) noexcept;
+    virtual Void SetYPos(Float32 _y_pos) noexcept;
     virtual Void SetPos(GuiPos _pos) noexcept;
     virtual Void SetName(const Char* _name) noexcept;
 
-    NODISCARD virtual Int32 Width() const noexcept;
-    NODISCARD virtual Int32 Height() const noexcept;
+    NODISCARD virtual Float32 Width() const noexcept;
+    NODISCARD virtual Float32 Height() const noexcept;
     NODISCARD virtual GuiSize Size() const noexcept;
-    NODISCARD virtual Int32 XPos() const noexcept;
-    NODISCARD virtual Int32 YPos() const noexcept;
+    NODISCARD virtual Float32 XPos() const noexcept;
+    NODISCARD virtual Float32 YPos() const noexcept;
     NODISCARD virtual GuiPos Pos() const noexcept;
     NODISCARD virtual const Char* Name() const noexcept;
 

@@ -28,7 +28,7 @@ namespace gui {
 ZFrame::ZFrame() noexcept 
     : SuperType_()
     , frame_flag_(kDefaultFrameFlag)
-    , frame_state_(kFrameStateTerminated)
+    , frame_level_(kBaseFrameLevel)
     , frame_background_colour_(kDefaultFrameBackGroundColour)
     , widget_ptr_set_()
     , frame_ptr_set_() {}
@@ -42,7 +42,7 @@ ZFrame::ZFrame(ZFrame&& _frame) noexcept
 ZFrame::ZFrame(const Char* _name, GuiSize _size, GuiPos _pos) noexcept
     : SuperType_(_name, _size, _pos)
     , frame_flag_(kDefaultFrameFlag)
-    , frame_state_(kFrameStateOpened)
+    , frame_level_(kBaseFrameLevel)
     , frame_background_colour_(kDefaultFrameBackGroundColour)
     , widget_ptr_set_()
     , frame_ptr_set_() {}
@@ -74,108 +74,102 @@ Void ZFrame::Begin() noexcept {
 Void ZFrame::Tick(Float32 _delta_sec) noexcept {
     GuiSize cur_size = Size();
     GuiPos cur_pos = Pos();
-    ImVec2 frame_size = ImGui::GetWindowSize();
-    ImVec2 frame_pos = ImGui::GetWindowPos();
-    GuiSize temp_size = { static_cast<Int32>(frame_size.x), static_cast<Int32>(frame_size.y) };
-    GuiPos temp_pos = { static_cast<Int32>(frame_size.x), static_cast<Int32>(frame_size.y) };
+    Bool if_sub_frame_show = (frame_level_ != kBaseFrameLevel && Visiable());
+    //base frame update size and pos
+    if (frame_level_ == kBaseFrameLevel) {
+        ImVec2 frame_size = ImGui::GetWindowSize();
+        ImVec2 frame_pos = ImGui::GetWindowPos();
+        GuiSize temp_size = { frame_size.x, frame_size.y };
+        GuiPos temp_pos = { frame_pos.x, frame_pos.y };
 
-    //update size, system events first
-    if (temp_size != cur_size) {
-        SetSize(temp_size);
-    }
-    else {
+        //update size
         if (SizeChanged()) {
-            ImGui::SetWindowSize(ImVec2(static_cast<Float32>(cur_size.width_), static_cast<Float32>(cur_size.height_)));
+            ImGui::SetWindowSize(ImVec2(cur_size.width_, cur_size.height_));
         }
-    }
+        else {
+            if (temp_size != cur_size) {
+                SetSize(temp_size);
+            }
+        }
 
-    //update pos, system events first
-    if (temp_pos != cur_pos) {
-        SetPos(temp_pos);
-    }
-    else {
+        //update pos
         if (PosChanged()) {
-            ImGui::SetWindowPos(ImVec2(static_cast<Float32>(cur_pos.x_), static_cast<Float32>(cur_pos.y_)));
+            ImGui::SetWindowPos(ImVec2(cur_pos.x_, cur_pos.y_));
         }
-    }
-
-    SuperType_::Tick(_delta_sec);
-
-    //tick widgets
-    for (auto widget_ptr_iter = widget_ptr_set_.Begin(); widget_ptr_iter != widget_ptr_set_.End(); ++widget_ptr_iter) {
-        ZWidgetObject* widget_ptr = *widget_ptr_iter;
-        widget_ptr->Tick(_delta_sec);
-    }
-
-    //tick frame
-    for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
-        ZFrame* frame_ptr = *frame_ptr_iter;
-        Bool if_open = false;
-        if (frame_ptr->Enabled()) {
-            ImGui::Begin(frame_ptr->Name(), &if_open, frame_ptr->FrameFlag());
-            if (if_open) {
-                if (frame_ptr->frame_state_ = kFrameStateOpened) {
-                    frame_ptr->Tick(_delta_sec);
-                }
+        else {
+            if (temp_pos != cur_pos) {
+                SetPos(temp_pos);
             }
-            else {
-                frame_ptr->Close();
-            }
-            ImGui::End();
         }
+
+        SuperType_::Tick(_delta_sec);
+
+        //tick widgets
+        for (auto widget_ptr_iter = widget_ptr_set_.Begin(); widget_ptr_iter != widget_ptr_set_.End(); ++widget_ptr_iter) {
+            ZWidgetObject* widget_ptr = *widget_ptr_iter;
+            widget_ptr->Tick(_delta_sec);
+        }
+
+        //tick frame
+        for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
+            ZFrame* frame_ptr = *frame_ptr_iter;
+            frame_ptr->Tick(_delta_sec);
+        }
+
     }
-}
+    //sub frame update size and pos
+    else if(if_sub_frame_show){
+        GuiPos abs_pos = OwnerPtr()->Pos() + cur_pos;
+        //update size
+        ImGui::SetNextWindowSize(ImVec2(cur_size.width_, cur_size.height_), ImGuiCond_Always);
 
-Void ZFrame::Hide() noexcept {
-    SuperType_::Hide();
-    frame_state_ = kFrameStateHidden;
-}
+        //update pos
+        ImGui::SetNextWindowPos(ImVec2(abs_pos.x_, abs_pos.y_), ImGuiCond_Always);
 
-Void ZFrame::Show() noexcept {
-    SuperType_::Show();
-    ReturnType ret_val = kOK;
-    ReturnType link_code = kOK;
-    switch (frame_state_) {
-    case kFrameStateTerminated:
-        Z_LOG_ERROR(error_code::kZFrameErrorCodeFrameNotExist, 0, L"Frame does not exist!");
-        break;
-    case kFrameStateOpened:
-        break;
-    case kFrameStateClosed:
-        Begin();
-        frame_state_ = kFrameStateOpened;
-        break;
-    case kFrameStateHidden:
-        frame_state_ = kFrameStateOpened;
-        break;
+        SuperType_::Tick(_delta_sec);
+
+        //sub frame begin
+        ImGui::BeginChild(Name(), ImVec2(Width(), Height()), true, FrameFlag());
+
+        if (Enabled()) {
+            //tick widgets
+            for (auto widget_ptr_iter = widget_ptr_set_.Begin(); widget_ptr_iter != widget_ptr_set_.End(); ++widget_ptr_iter) {
+                ZWidgetObject* widget_ptr = *widget_ptr_iter;
+                widget_ptr->Tick(_delta_sec);
+            }
+
+            //tick frame
+            for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
+                ZFrame* frame_ptr = *frame_ptr_iter;
+                frame_ptr->Tick(_delta_sec);
+            }
+        }
+
+        //sub frame end
+        ImGui::EndChild();
     }
 }
 
 Void ZFrame::Reset() noexcept {
     SuperType_::Reset();
+
+    //reset widgets
+    for (auto widget_ptr_iter = widget_ptr_set_.Begin(); widget_ptr_iter != widget_ptr_set_.End(); ++widget_ptr_iter) {
+        ZWidgetObject* widget_ptr = *widget_ptr_iter;
+        widget_ptr->Reset();
+    }
+
+    //reset frame
     for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
         ZFrame* frame_ptr = *frame_ptr_iter;
         frame_ptr->Reset();
     }
 }
 
-Void ZFrame::Close() noexcept {
-    OnClose();
-    frame_state_ = kFrameStateClosed;
-}
-
-Void ZFrame::Destroy() noexcept {
-    OnDestroy();
-    frame_flag_ = kDefaultFrameFlag;
-    frame_background_colour_ = kDefaultFrameBackGroundColour;
-    widget_ptr_set_.Clear();
-    frame_ptr_set_.Clear();
-    frame_state_ = kFrameStateTerminated;
-}
-
 Void ZFrame::Add(ZWidgetObject* _widget_obj) noexcept {
     if (WidgetType() == kWidgetTypeFrame) {
         frame_ptr_set_.Insert(static_cast<ZFrame*>(_widget_obj));
+        dynamic_cast<ZFrame*>(_widget_obj)->UpdateFrameLevelP(frame_level_);
     }
     else {
         widget_ptr_set_.Insert(_widget_obj);
@@ -195,18 +189,23 @@ NODISCARD GuiColour ZFrame::BackgruondColour() const noexcept {
     return frame_background_colour_;
 }
 
-Void ZFrame::OnClose() noexcept {}
-Void ZFrame::OnDestroy() noexcept {}
-
 Void ZFrame::MoveP(ZFrame&& _obj) noexcept {
     frame_flag_ = _obj.frame_flag_;
+    frame_level_ = _obj.frame_level_;
     frame_background_colour_ = _obj.frame_background_colour_;
-    frame_state_ = _obj.frame_state_;
     widget_ptr_set_ = std::move(_obj.widget_ptr_set_);
     frame_ptr_set_ = std::move(_obj.frame_ptr_set_);
     _obj.frame_flag_ = kDefaultFrameFlag;
+    _obj.frame_level_ = kBaseFrameLevel;
     _obj.frame_background_colour_ = kDefaultFrameBackGroundColour;
-    _obj.frame_state_ = kFrameStateTerminated;
+}
+
+Void ZFrame::UpdateFrameLevelP(Int32 _super_frame_level) noexcept {
+    frame_level_ = _super_frame_level + 1;
+    for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
+        ZFrame* frame_ptr = *frame_ptr_iter;
+        frame_ptr->UpdateFrameLevelP(frame_level_);
+    }
 }
 
 }//gui

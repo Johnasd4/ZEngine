@@ -34,9 +34,8 @@ struct GuiSize {
     NODISCARD FORCEINLINE Bool operator!=(const GuiSize& _size) const noexcept {
         return width_ != _size.width_ || height_ != _size.height_;
     }
-
-    Int32 width_;
-    Int32 height_;    
+    Float32 width_;
+    Float32 height_;
 };
 
 /*
@@ -49,9 +48,14 @@ struct GuiPos {
     NODISCARD FORCEINLINE Bool operator!=(const GuiPos& _pos) const noexcept {
         return x_ != _pos.x_ || y_ != _pos.y_;
     }
-
-    Int32 x_;
-    Int32 y_;
+    NODISCARD FORCEINLINE GuiPos operator+(const GuiPos& _pos) const noexcept {
+        return GuiPos(x_ + _pos.x_, y_ + _pos.y_);
+    }
+    NODISCARD FORCEINLINE GuiPos operator-(const GuiPos& _pos) const noexcept {
+        return GuiPos(x_ - _pos.x_, y_ - _pos.y_);
+    }
+    Float32 x_;
+    Float32 y_;
 };
 
 /*
