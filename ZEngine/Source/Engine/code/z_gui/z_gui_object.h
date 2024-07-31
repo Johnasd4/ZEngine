@@ -81,6 +81,10 @@ public:
     NODISCARD virtual Float32 XPos() const noexcept;
     NODISCARD virtual Float32 YPos() const noexcept;
     NODISCARD virtual GuiPos Pos() const noexcept;
+    /*
+        Returns the position that actually uses by the library.
+    */
+    NODISCARD virtual GuiPos AbsPos() const noexcept;
     NODISCARD virtual const Char* Name() const noexcept;
 
     //Base trigger functions.

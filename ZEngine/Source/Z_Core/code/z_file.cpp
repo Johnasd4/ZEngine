@@ -26,6 +26,20 @@
 
 namespace zengine {
 
+ZFile::ZFile() noexcept : SuperType_(), file_ptr_(nullptr) {}
+
+ZFile::ZFile(ZFile&& _file) noexcept : SuperType_(std::forward<ZFile>(_file)) { 
+    MoveP(std::forward<ZFile>(_file)); 
+}
+
+ZFile::~ZFile() noexcept { if (file_ptr_ != nullptr) { fclose(file_ptr_); } }
+
+ZFile& ZFile::operator=(ZFile&& _file) noexcept {
+    SuperType_::operator=(std::forward<ZFile>(_file));
+    MoveP(std::forward<ZFile>(_file));
+    return *this;
+}
+
 NODISCARD ReturnType ZFile::Read(Void* _data_ptr, SizeType _data_size) noexcept {
     ReturnType ret_val = kOK;
 
@@ -263,6 +277,11 @@ NODISCARD ReturnType ZFile::Tell(Int32* _pos_ptr) noexcept {
     *_pos_ptr = ftell(file_ptr_);
 
     return ret_val;
+}
+
+Void ZFile::MoveP(ZFile&& _file) noexcept {
+    file_ptr_ = _file.file_ptr_;
+    _file.file_ptr_ = nullptr;
 }
 
 }//zengine

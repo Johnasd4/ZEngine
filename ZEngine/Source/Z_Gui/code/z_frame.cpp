@@ -119,7 +119,7 @@ Void ZFrame::Tick(Float32 _delta_sec) noexcept {
     }
     //sub frame update size and pos
     else if(if_sub_frame_show){
-        GuiPos abs_pos = OwnerPtr()->Pos() + cur_pos;
+        GuiPos abs_pos = AbsPos();
         //update size
         ImGui::SetNextWindowSize(ImVec2(cur_size.width_, cur_size.height_), ImGuiCond_Always);
 
@@ -128,6 +128,9 @@ Void ZFrame::Tick(Float32 _delta_sec) noexcept {
 
         SuperType_::Tick(_delta_sec);
 
+        //push background colour
+        GuiColour bg_colour = BackgruondColour();
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, *reinterpret_cast<ImVec4*>(&bg_colour));
         //sub frame begin
         ImGui::BeginChild(Name(), ImVec2(Width(), Height()), true, FrameFlag());
 
@@ -147,6 +150,8 @@ Void ZFrame::Tick(Float32 _delta_sec) noexcept {
 
         //sub frame end
         ImGui::EndChild();
+        //pop background colour
+        ImGui::PopStyleColor();
     }
 }
 

@@ -134,6 +134,11 @@ public:
     virtual Void SetBackgruondColour(GuiColour _colour) noexcept;
     virtual Void SetScreenMode(WindowScreenModeEnum_ _screen_mode) noexcept;
 
+    /*
+        Returns the position that actually uses by the library.
+        This class is the base position.
+    */
+    NODISCARD virtual GuiPos AbsPos() const noexcept;
     NODISCARD virtual const Char* Name() const noexcept;
 
     NODISCARD virtual GuiColour BackgruondColour() const noexcept;
@@ -165,7 +170,7 @@ private:
 
     Handle window_handle_;
     Handle window_context_;
-    TSet<ZFrame*> frame_ptr_set_;
+    TMultiset<ZFrame*, ZWidgetObjectCompare> frame_ptr_set_;
     WindowStateEnum_ window_state_;
 };
 

@@ -68,14 +68,6 @@ struct GuiColour {
     Float32 alpha_;
 };
 
-enum KeyEnum {
-    
-};
-
-enum MouseKeyEnum {
-
-};
-
 }//gui
 }//zengine
 

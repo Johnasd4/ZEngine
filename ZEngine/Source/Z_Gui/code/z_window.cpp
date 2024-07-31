@@ -111,13 +111,19 @@ Void ZWindow::Tick(Float32 _delta_sec) noexcept {
     for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
         ZFrame* frame_ptr = *frame_ptr_iter;
         if (frame_ptr->Visiable()) {
+            //push background colour
+            GuiColour bg_colour = frame_ptr->BackgruondColour();
+            ImGui::PushStyleColor(ImGuiCol_WindowBg, *reinterpret_cast<ImVec4*>(&bg_colour));
+            //begin base frame
             ImGui::Begin(frame_ptr->Name(), nullptr, frame_ptr->FrameFlag());
             
             if (frame_ptr->Enabled()) {
                 frame_ptr->Tick(_delta_sec);
             }
-            
+            //end base frame
             ImGui::End();
+            //pop background colour
+            ImGui::PopStyleColor();
         }
     }
 }
@@ -228,6 +234,8 @@ NODISCARD GuiColour ZWindow::BackgruondColour() const noexcept {
     glGetFloatv(GL_COLOR_CLEAR_VALUE, reinterpret_cast<Float32*>(&colour));
     return colour;
 }
+
+NODISCARD GuiPos ZWindow::AbsPos() const noexcept { return GuiPos(0.0f, 0.0f); }
 
 NODISCARD const Char* ZWindow::Name() const noexcept {
     return glfwGetWindowTitle(static_cast<GLFWwindow*>(window_handle_));

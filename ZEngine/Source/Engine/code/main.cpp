@@ -45,9 +45,11 @@ int main() {
     ZWindow::SetVerticalSynchronization(1);
     ZWindow test_window("Window1", GuiSize(1000, 1000), GuiPos(100, 100), ZWindow::kWindowScreenModeWindow);
     ZFrame test_frame("frame1", GuiSize(500, 500), GuiPos(100, 200));
+    test_frame.SetBackgruondColour({ 1.0f, 0.0f, 0.0f, 1.0f});
     test_window.Add(&test_frame);
     ZFrame test_frame_2("frame2", GuiSize(200, 200), GuiPos(100, 200));
-    test_frame.Add(&test_frame_2);
+    test_frame_2.SetBackgruondColour({ 0.0f, 1.0f, 0.0f, 1.0f});
+    test_window.Add(&test_frame_2);
     //test_window.SetSize(GuiSize(1000,1000));
     //test_window.SetPos(GuiPos(100, 100));
     app.AddWindow(&test_window);

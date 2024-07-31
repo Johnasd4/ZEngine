@@ -38,7 +38,7 @@ inline constexpr ReturnType kErrorCodeBaseFMemoryPool = kErrorCodeBasePCore + 0x
 inline constexpr ReturnType kErrorCodeBaseZTask = kErrorCodeBasePCore + 0x700u;
 inline constexpr ReturnType kErrorCodeBaseFFileSystem = kErrorCodeBasePCore + 0x800u;
 inline constexpr ReturnType kErrorCodeBaseZString = kErrorCodeBasePCore + 0x900u;
-inline constexpr ReturnType kErrorCodeBaseFTest = kErrorCodeBasePCore + 0xA00u;
+inline constexpr ReturnType kErrorCodeBaseFDiagnose = kErrorCodeBasePCore + 0xA00u;
 
 }//error_code
 

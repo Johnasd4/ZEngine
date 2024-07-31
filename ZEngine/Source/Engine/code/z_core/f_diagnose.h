@@ -16,8 +16,8 @@
     Author: YuLin Zhu (÷Ï”Í¡÷)
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_F_TEST_H_
-#define Z_CORE_F_TEST_H_
+#ifndef Z_CORE_F_DIAGNOSE_H_
+#define Z_CORE_F_DIAGNOSE_H_
 
 #include "internal/z_drive.h"
 
@@ -25,16 +25,16 @@ namespace zengine {
 
 namespace error_code {
 
-enum FTestErrorCode : ReturnType {
-    kFTestErrorCodeLinkError = kErrorCodeBaseFTest
+enum FDiagnoseErrorCode : ReturnType {
+    kFDiagnoseErrorCodeLinkError = kErrorCodeBaseFDiagnose
 };
 
 }//error_code
 
 /*
-    The namespace contains the test functions.
+    The namespace contains the diagnose functions.
 */
-namespace test {
+namespace diagnose {
 
 /*
     Applys memory by the size given and returns the pointer of the memory.
@@ -44,4 +44,4 @@ namespace test {
 }//test
 }//zengine
 
-#endif // !Z_CORE_F_TEST_H_
+#endif // !Z_CORE_F_DIAGNOSE_H_

@@ -87,6 +87,14 @@ private:
     ZString name_;
 };
 
+struct ZWidgetObjectCompare {
+    NODISCARD FORCEINLINE Bool operator()(
+        const ZWidgetObject* _left_obj_ptr, const ZWidgetObject* _right_obj_ptr
+    ) const noexcept {
+        return _left_obj_ptr->Priority() < _right_obj_ptr->Priority();
+    }
+};
+
 }//gui
 }//zengine
 

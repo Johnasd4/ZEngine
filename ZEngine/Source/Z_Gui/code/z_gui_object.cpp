@@ -76,6 +76,7 @@ NODISCARD GuiSize ZGuiObject::Size() const noexcept { return size_; }
 NODISCARD Float32 ZGuiObject::XPos() const noexcept { return pos_.x_; }
 NODISCARD Float32 ZGuiObject::YPos() const noexcept { return pos_.y_; }
 NODISCARD GuiPos ZGuiObject::Pos() const noexcept { return pos_; }
+NODISCARD GuiPos ZGuiObject::AbsPos() const noexcept { return pos_ + owner_ptr_->AbsPos(); }
 NODISCARD const Char* ZGuiObject::Name() const noexcept { return ""; }
 
 Void ZGuiObject::OnResize(GuiSize _pre_size, GuiSize _cur_size) noexcept {}

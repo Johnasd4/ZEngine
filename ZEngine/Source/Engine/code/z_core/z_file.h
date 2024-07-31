@@ -81,18 +81,12 @@ public:
     /*The max length of the file name.*/
     static constexpr IndexType kFileNameLength = 512;
 
-    FORCEINLINE ZFile() noexcept : SuperType_(), file_ptr_(nullptr) {}
-    FORCEINLINE ZFile(ZFile&& _file) noexcept : SuperType_(std::forward<ZFile>(_file)) { 
-        MoveP(std::forward<ZFile>(_file)); 
-    }
+    ZFile() noexcept;
+    ZFile(ZFile&& _file) noexcept;
 
-    FORCEINLINE ~ZFile() noexcept { if (file_ptr_ != nullptr) { fclose(file_ptr_); } }
+    ~ZFile() noexcept;
 
-    FORCEINLINE ZFile& operator=(ZFile&& _file) noexcept {
-        SuperType_::operator=(std::forward<ZFile>(_file));
-        MoveP(std::forward<ZFile>(_file));
-        return *this;
-    }
+    ZFile& operator=(ZFile&& _file) noexcept;
 
     /*
         Read binary out of the file.
@@ -172,10 +166,7 @@ private:
     ZFile(const ZFile&) = delete;
     ZFile& operator=(const ZFile&) = delete;
 
-    FORCEINLINE Void MoveP(ZFile&& _file) noexcept {
-        file_ptr_ = _file.file_ptr_;
-        _file.file_ptr_ = nullptr;
-    }
+    Void MoveP(ZFile&& _file) noexcept;
 
     FILE* file_ptr_;
 };

@@ -110,8 +110,8 @@ private:
     Int32 frame_flag_;
     Int32 frame_level_;
     GuiColour frame_background_colour_;
-    TSet<ZWidgetObject*> widget_ptr_set_;
-    TSet<ZFrame*> frame_ptr_set_;
+    TMultiset<ZWidgetObject*, ZWidgetObjectCompare> widget_ptr_set_;
+    TMultiset<ZFrame*, ZWidgetObjectCompare> frame_ptr_set_;
 };
 
 }//gui
