@@ -28,9 +28,36 @@ using namespace zengine;
 using namespace zengine::gui;
 using namespace std;
 
+Void TestThreadFunc() {
+    ReturnType link_code = kOK;
+    ZApplication app;
+    ZWindow::SetVerticalSynchronization(1);
+    ZWindow test_window("Window1", GuiSize(1000, 1000), GuiPos(100, 100), ZWindow::kWindowScreenModeWindow);
+    ZFrame test_frame("frame1", GuiSize(500, 500), GuiPos(100, 200));
+    test_frame.SetBackgruondColour({ 1.0f, 0.0f, 0.0f, 1.0f });
+    test_window.Add(&test_frame);
+    ZFrame test_frame_2("frame2", GuiSize(200, 200), GuiPos(100, 200));
+    test_frame_2.SetBackgruondColour({ 0.0f, 1.0f, 0.0f, 1.0f });
+    test_window.Add(&test_frame_2);
+    //test_window.SetSize(GuiSize(1000,1000));
+    //test_window.SetPos(GuiPos(100, 100));
+    app.AddWindow(&test_window);
+    ZWindow test_window2("Window2", GuiSize(100, 100), GuiPos(100, 100), ZWindow::kWindowScreenModeWindow);
+    test_window2.SetSize(GuiSize(1000, 1000));
+    test_window2.SetPos(GuiPos(1000, 1000));
+    test_window2.SetBackgruondColour(GuiColour(1, 1, 1, 1));
+    app.AddWindow(&test_window2);
+    link_code = app.Execute();
+}
+
 //Int32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 Int32 main() {
-    Test_000();
+//    Test_000();
+    //ZThread thread_1(TestThreadFunc);
+    //Sleep(100);
+    //ZThread thread_2(TestThreadFunc);
+    //thread_1.Join();
+    //thread_2.Join();
     ReturnType link_code = kOK;
     ZString TEST_STRING("123");
     Z_LOG_ERROR(1, 2, L"TEST%d%d%d%d%x", 3, 4, 5, 6, ~7);

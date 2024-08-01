@@ -95,7 +95,6 @@ NODISCARD ReturnType ZApplication::Execute() noexcept {
             }
 
             if (active_window_ptr_ != window_ptr) {
-                glfwWaitEvents();
                 continue;
             }
 
