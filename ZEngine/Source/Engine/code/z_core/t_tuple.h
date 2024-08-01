@@ -118,7 +118,7 @@ namespace tuple {
 
 template<typename... _ArgsType>
 NODISCARD FORCEINLINE constexpr TTuple<_ArgsType...> MakeTuple(_ArgsType&&... _args) noexcept {
-    return TTuple(std::forward<_ArgsType>(_args)...);
+    return TTuple<_ArgsType...>(std::forward<_ArgsType>(_args)...);
 }
 
 template<typename... _ArgsType>

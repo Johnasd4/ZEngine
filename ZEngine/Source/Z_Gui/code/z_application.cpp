@@ -20,11 +20,6 @@
 
 #include "z_application.h"
 
-#include "glfw/glfw3.h" 
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_opengl3.h"
-#include "imgui/imgui_impl_glfw.h"
-
 #include "../z_core/m_log.h"
 
 namespace zengine {
@@ -46,6 +41,7 @@ ReturnType ZApplication::AddWindowToCurrentApplication(ZWindow* window_ptr) noex
 
 ZApplication::ZApplication() noexcept 
     : SuperType_()
+    , active_window_ptr_(nullptr)
     , window_ptr_vec_()
 {
     //init opengl
@@ -94,6 +90,15 @@ NODISCARD ReturnType ZApplication::Execute() noexcept {
         ) {
             ZWindow* window_ptr = *window_ptr_iter;
             GLFWwindow* window_handle = static_cast<GLFWwindow*>(window_ptr->WindowHandle());
+            if (glfwGetWindowAttrib(window_handle, GLFW_FOCUSED)) {
+                active_window_ptr_ = window_ptr;
+            }
+
+            if (active_window_ptr_ != window_ptr) {
+                glfwWaitEvents();
+                continue;
+            }
+
             glfwMakeContextCurrent(window_handle);
             ImGui::SetCurrentContext(static_cast<ImGuiContext*>(window_ptr->WindowContext()));
 
@@ -121,12 +126,7 @@ NODISCARD ReturnType ZApplication::Execute() noexcept {
             //Imgui frame end
             glfwSwapBuffers(window_handle);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            if (glfwGetWindowAttrib(window_handle, GLFW_FOCUSED)) {
-                glfwPollEvents();
-            }
-            else {
-                glfwWaitEvents();
-            }
+            glfwPollEvents();
         }
     }
 
@@ -164,6 +164,9 @@ NODISCARD ReturnType ZApplication::Execute() noexcept {
 Void ZApplication::AddWindow(ZWindow* window_ptr) noexcept {
     window_ptr_vec_.PushBack(window_ptr);
     window_ptr->OnAdd(window_ptr);
+    if (active_window_ptr_ == nullptr) {
+        active_window_ptr_ = window_ptr;
+    }
 }
 
 ZApplication* ZApplication::instance_ptr_ = nullptr;

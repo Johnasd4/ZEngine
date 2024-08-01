@@ -41,10 +41,10 @@ public:
     ZThread(ZThread&& _thread) noexcept;
 
     template <typename _Function, typename... _ArgsType>
-    ZThread(_Function&& _func, _ArgsType&&... _args) noexcept {
+    ZThread(_Function&& _func, _ArgsType&&... _args) noexcept : SuperType_() {
         using ParamsType = TTuple<_Function, TTuple<_ArgsType...>>;
-        ParamsType* params_ptr = new ParamsType(std::forward<_Function>(_func), 
-                                                tuple::MakeTuple(std::forward<_ArgsType>(_args)...));
+        ParamsType* params_ptr = new ParamsType(
+            std::forward<_Function>(_func), tuple::MakeTuple(std::forward<_ArgsType>(_args)...));
         auto thread_func = [](Void* _params_ptr) -> UInt32 {
             tuple::Apply(((ParamsType*)_params_ptr)->Get<0>(), std::move(((ParamsType*)_params_ptr)->Get<1>()));
             delete (ParamsType*)_params_ptr;

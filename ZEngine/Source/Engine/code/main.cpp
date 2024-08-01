@@ -19,6 +19,7 @@
 #define PROJECT_NAME L"Include"
 
 #include "z_engine.h"
+#include "z_gui/test.h"
 
 #define SERVER_PORT 8888
 #define BUFFER_SIZE 1024
@@ -27,7 +28,9 @@ using namespace zengine;
 using namespace zengine::gui;
 using namespace std;
 
-int main() {
+//Int32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+Int32 main() {
+    Test_000();
     ReturnType link_code = kOK;
     ZString TEST_STRING("123");
     Z_LOG_ERROR(1, 2, L"TEST%d%d%d%d%x", 3, 4, 5, 6, ~7);
@@ -53,11 +56,11 @@ int main() {
     //test_window.SetSize(GuiSize(1000,1000));
     //test_window.SetPos(GuiPos(100, 100));
     app.AddWindow(&test_window);
-    //ZWindow test_window2("Window2", GuiSize(100, 100), GuiPos(100, 100), ZWindow::kWindowScreenModeWindow);
-    //test_window2.SetSize(GuiSize(1000, 1000));
-    //test_window2.SetPos(GuiPos(1000, 1000));
-    //test_window2.SetBackgruondColour(GuiColour(1, 1, 1, 1));
-    //app.AddWindow(&test_window2);
+    ZWindow test_window2("Window2", GuiSize(100, 100), GuiPos(100, 100), ZWindow::kWindowScreenModeWindow);
+    test_window2.SetSize(GuiSize(1000, 1000));
+    test_window2.SetPos(GuiPos(1000, 1000));
+    test_window2.SetBackgruondColour(GuiColour(1, 1, 1, 1));
+    app.AddWindow(&test_window2);
     link_code = app.Execute();
     //WSADATA wsaData;
     //SOCKET serverSocket;
@@ -117,3 +120,4 @@ int main() {
 
     return 0;
 }
+  

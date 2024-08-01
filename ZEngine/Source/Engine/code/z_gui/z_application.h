@@ -75,6 +75,7 @@ private:
 
     static ZApplication* instance_ptr_;
 
+    ZWindow* active_window_ptr_;
     TVector<ZWindow*> window_ptr_vec_;
 };
 
