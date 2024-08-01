@@ -21,10 +21,7 @@
 
 #include "internal/z_drive.h"
 
-#include "../z_core/t_vector.h"
-#include "../z_core/z_object.h"
-
-#include "z_window.h"
+#include "../z_core/z_mutex.h"
 
 namespace zengine {
 namespace gui {
@@ -43,11 +40,11 @@ enum ZApplicationErrorCode : ReturnType {
     One main function can only run one application at a time.
     Before creating any gui objects, make an instance of this class to initialize opengl.
 */
-class GUI_DLLAPI ZApplication : public ZObject {
+class GUI_DLLAPI ZWindowManager : public ZObject {
 public:
-    ZApplication() noexcept;
+    ZWindowManager() noexcept;
 
-    ~ZApplication() noexcept;
+    ~ZWindowManager() noexcept;
 
     /*
         Adds the window to the application.
@@ -68,15 +65,15 @@ protected:
     using SuperType_ = ZObject;
 
 private:
-    ZApplication(const ZApplication&) = delete;
-    ZApplication(ZApplication&&) = delete;
-    ZApplication& operator=(const ZApplication&) = delete;
-    ZApplication& operator=(ZApplication&&) = delete;
+    ZWindowManager(const ZWindowManager&) = delete;
+    ZWindowManager(ZWindowManager&&) = delete;
+    ZWindowManager& operator=(const ZWindowManager&) = delete;
+    ZWindowManager& operator=(ZWindowManager&&) = delete;
 
-    static ZApplication* instance_ptr_;
+    static ZWindowManager* instance_ptr_;
 
     ZWindow* active_window_ptr_;
-    TVector<ZWindow*> window_ptr_vec_;
+    ZMutex;
 };
 
 }//gui

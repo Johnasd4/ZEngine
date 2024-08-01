@@ -61,7 +61,6 @@ public:
     enum WindowStateEnum_ {
         kWindowStateTerminated,
         kWindowStateOpened,
-        kWindowStateClosed,
         kWindowStateHidden
     };
 
@@ -91,6 +90,11 @@ public:
 
     ZWindow& operator=(ZWindow&& _window) noexcept;
 
+    /*
+        Starts ticking the window.
+    */
+    NODISCARD ReturnType Execute() noexcept;
+
     NODISCARD FORCEINLINE Handle WindowHandle() const noexcept { return window_handle_; }
     NODISCARD FORCEINLINE Handle WindowContext() const noexcept { return window_context_; }
     NODISCARD FORCEINLINE WindowStateEnum_ WindowState() const noexcept { return window_state_; }
@@ -117,10 +121,6 @@ public:
     virtual Void Reset() noexcept;
 
     /*
-        Close the window, calls reset when the window is opened again.
-    */
-    virtual Void Close() noexcept;
-    /*
         Destroy the window, release the resourses.
     */
     virtual Void Destroy() noexcept;
@@ -143,7 +143,6 @@ public:
 
     NODISCARD virtual GuiColour BackgruondColour() const noexcept;
 
-    virtual Void OnClose() noexcept;
     virtual Void OnDestroy() noexcept;
 
 protected:

@@ -60,6 +60,63 @@ ZWindow& ZWindow::operator=(ZWindow&& _window) noexcept {
     return *this;
 }
 
+NODISCARD ReturnType ZWindow::Execute() noexcept {
+    ReturnType ret_val = kOK;
+    ReturnType link_code = kOK;
+
+    GLFWwindow* window_handle = static_cast<GLFWwindow*>(window_handle_);
+    UInt32 pre_time = clock();
+
+    //begin window
+    Begin();
+
+    while (glfwWindowShouldClose(window_handle)) {
+        UInt32 current_time = clock();
+        Float32 delta_time = static_cast<Float32>(current_time - pre_time) * 0.001f;
+        pre_time = current_time;
+
+        //update window
+        if (window_state_ != ZWindow::kWindowStateOpened) {
+            continue;
+        }
+
+        if (!Enabled()) {
+            glfwWaitEvents();
+            continue;
+        }
+
+        //Imgui frame start
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        Tick(delta_time);
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        //Imgui frame end
+        glfwSwapBuffers(window_handle);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glfwPollEvents();
+    }
+
+    //prepare to detroy the window
+    OnDestroy();
+
+    //release imgui resourses
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
+    //release opengl resourses
+    glfwDestroyWindow(window_handle);
+
+    //destroys the window
+    Destroy();
+
+    return ret_val;
+}
+
 Void ZWindow::Begin() noexcept {
     SuperType_::Begin();
     //begin frame
@@ -142,13 +199,6 @@ Void ZWindow::Show() noexcept {
         break;
     case kWindowStateOpened:
         break;
-    case kWindowStateClosed:
-        Begin();
-        glfwSetWindowShouldClose(static_cast<GLFWwindow*>(window_handle_), false);
-        glfwShowWindow(static_cast<GLFWwindow*>(window_handle_));
-        window_state_ = kWindowStateOpened;
-        ++active_window_num_;
-        break;
     case kWindowStateHidden:
         glfwShowWindow(static_cast<GLFWwindow*>(window_handle_));
         window_state_ = kWindowStateOpened;
@@ -162,14 +212,6 @@ Void ZWindow::Reset() noexcept {
         ZFrame* frame_ptr = *frame_ptr_iter;
         frame_ptr->Reset();
     }
-}
-
-Void ZWindow::Close() noexcept {
-    OnClose();
-    glfwSetWindowShouldClose(static_cast<GLFWwindow*>(window_handle_), true);
-    glfwHideWindow(static_cast<GLFWwindow*>(window_handle_));
-    window_state_ = kWindowStateClosed;
-    --active_window_num_;
 }
 
 Void ZWindow::Destroy() noexcept {
@@ -241,7 +283,6 @@ NODISCARD const Char* ZWindow::Name() const noexcept {
     return glfwGetWindowTitle(static_cast<GLFWwindow*>(window_handle_));
 }
 
-Void ZWindow::OnClose() noexcept {}
 Void ZWindow::OnDestroy() noexcept {}
 
 Void ZWindow::MoveP(ZWindow&& _window) noexcept {
