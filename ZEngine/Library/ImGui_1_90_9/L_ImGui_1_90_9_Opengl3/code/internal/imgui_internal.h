@@ -191,7 +191,7 @@ typedef void (*ImGuiErrorLogCallback)(void* user_data, const char* fmt, ...);
 //-----------------------------------------------------------------------------
 
 #ifndef GImGui
-extern IMGUI_API ImGuiContext* GImGui;  // Current implicit context pointer
+extern IMGUI_API thread_local ImGuiContext* GImGui;  // Current implicit context pointer
 #endif
 
 //-------------------------------------------------------------------------

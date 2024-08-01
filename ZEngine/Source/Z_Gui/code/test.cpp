@@ -58,8 +58,9 @@ namespace gui {
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
 
-            //window_ptr->Tick(delta_time);
-
+            ImGui::Begin("Hello, world!");
+            ImGui::Text("This is some text.");
+            ImGui::End();
             ImGui::Render();
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
