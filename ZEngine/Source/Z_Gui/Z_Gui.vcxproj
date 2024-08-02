@@ -20,10 +20,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="code\opengl\z_opengl_manager.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="code\opengl\z_opengl_manager.cpp" />
     <ClCompile Include="code\test.cpp" />
     <ClCompile Include="code\z_frame.cpp" />
     <ClCompile Include="code\z_gui_object.cpp" />

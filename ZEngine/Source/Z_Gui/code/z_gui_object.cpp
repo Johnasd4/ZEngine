@@ -23,6 +23,11 @@
 namespace zengine {
 namespace gui {
 
+NODISCARD ZMutex& ZGuiObject::OpenGLMutex() noexcept {
+    static ZMutex opengl_mutex;
+    return opengl_mutex;
+}
+
 Void ZGuiObject::Begin() noexcept {}
 Void ZGuiObject::Tick(Float32 _delta_sec) noexcept {
     pre_size_ = size_;

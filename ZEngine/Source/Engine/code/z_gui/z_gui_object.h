@@ -21,6 +21,7 @@
 
 #include "internal/z_drive.h"
 
+#include "../z_core/z_mutex.h"
 #include "../z_core/z_object.h"
 
 namespace zengine {
@@ -33,6 +34,8 @@ namespace gui {
 */
 class GUI_DLLAPI ZGuiObject : public ZObject {
 public:
+    NODISCARD static ZMutex& OpenGLMutex() noexcept;
+
     FORCEINLINE Void SetEnabled(Bool _enabled) noexcept { enabled_ = _enabled; }
 
     NODISCARD FORCEINLINE Bool Enabled() const noexcept { return enabled_; }
@@ -51,7 +54,7 @@ public:
     */
     virtual Void Begin() noexcept;
     /*
-        Ticks every frame.
+        Ticks every frame, used for rendering.
     */
     virtual Void Tick(Float32 _delta_sec) noexcept;
     /*

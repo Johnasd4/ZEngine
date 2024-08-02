@@ -24,8 +24,6 @@
 #include "../z_core/t_lock_guard.h"
 #include "../z_core/z_cs_mutex.h"
 
-#include "opengl/z_opengl_manager.h"
-
 namespace zengine {
 namespace gui {
 
@@ -75,33 +73,13 @@ NODISCARD ReturnType ZWindow::Execute() noexcept {
     Begin();
 
     while (!glfwWindowShouldClose(window_handle)) {
+        //calculate delta time
         UInt32 current_time = clock();
         Float32 delta_time = static_cast<Float32>(current_time - pre_time) * 0.001f;
         pre_time = current_time;
 
-        //update window
-        if (window_state_ != ZWindow::kWindowStateOpened) {
-            continue;
-        }
-
-        if (!Enabled()) {
-            glfwWaitEvents();
-            continue;
-        }
-
-        //Imgui frame start
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-
+        //ticks window
         Tick(delta_time);
-
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-        //Imgui frame end
-        glfwSwapBuffers(window_handle);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glfwPollEvents();
     }
 
     //prepare to detroy the window
@@ -131,8 +109,18 @@ Void ZWindow::Begin() noexcept {
 }
 
 Void ZWindow::Tick(Float32 _delta_sec) noexcept {
+    if (!Enabled() || window_state_ != ZWindow::kWindowStateOpened) {
+        Sleep(1);
+        return;
+    }
+
     GuiSize cur_size = Size();
     GuiPos cur_pos = Pos();
+
+    //Imgui frame start
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
 
     //update size
     if (SizeChanged()) {
@@ -171,22 +159,15 @@ Void ZWindow::Tick(Float32 _delta_sec) noexcept {
     //tick frame
     for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
         ZFrame* frame_ptr = *frame_ptr_iter;
-        if (frame_ptr->Visiable()) {
-            //push background colour
-            GuiColour bg_colour = frame_ptr->BackgruondColour();
-            ImGui::PushStyleColor(ImGuiCol_WindowBg, *reinterpret_cast<ImVec4*>(&bg_colour));
-            //begin base frame
-            ImGui::Begin(frame_ptr->Name(), nullptr, frame_ptr->FrameFlag());
-            
-            if (frame_ptr->Enabled()) {
-                frame_ptr->Tick(_delta_sec);
-            }
-            //end base frame
-            ImGui::End();
-            //pop background colour
-            ImGui::PopStyleColor();
-        }
+        frame_ptr->Tick(_delta_sec);
     }
+
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    //Imgui frame end
+    glfwSwapBuffers(static_cast<GLFWwindow*>(window_handle_));
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glfwPollEvents();
 }
 
 Void ZWindow::Hide() noexcept {
@@ -225,8 +206,9 @@ Void ZWindow::Destroy() noexcept {
     frame_ptr_set_.Clear();
     window_state_ = kWindowStateTerminated;
     --active_window_num_;
-    if (active_window_num_ == 0) {
-        ZOpenGLManager::TerminateOpenGL();
+    if (active_window_num_ == 0) {             
+        TLockGuard<ZMutex> lock_guard(OpenGLMutex());
+        glfwTerminate();
     }
 }
 
@@ -314,8 +296,16 @@ NODISCARD ReturnType ZWindow::CreateP(
         return ret_val;
     }
 
-    //init opengl
-    link_code = ZOpenGLManager::InitializeOpenGL();
+    {
+        TLockGuard<ZMutex> lock_guard(OpenGLMutex());
+        //init opengl
+        if (glfwInit() != GLFW_TRUE) {
+            ret_val = error_code::kZWindowErrorCodeLinkError;
+            Z_LOG_ERROR(ret_val, 0, L"glfwInit() link error!");
+            return ret_val;
+        }
+    }
+
     if (link_code != kOK) {
         ret_val = error_code::kZWindowErrorCodeLinkError;
         Z_LOG_ERROR(ret_val, 0, L"ZOpenGLManager::InitializeOpenGL() link error!");
@@ -331,7 +321,7 @@ NODISCARD ReturnType ZWindow::CreateP(
     switch (_screen_mode) {
     case kWindowScreenModeWindow:
     {
-        TLockGuard<ZMutex> lock_guard(create_window_mutex);
+        TLockGuard<ZMutex> lock_guard(OpenGLMutex());
         //create window
         window_handle_ = static_cast<Void*>(glfwCreateWindow(
             static_cast<Int32>(_size.width_),
@@ -348,7 +338,7 @@ NODISCARD ReturnType ZWindow::CreateP(
     }
     case kWindowScreenModeFullScreenCustomSize:
     {
-        TLockGuard<ZMutex> lock_guard(create_window_mutex);
+        TLockGuard<ZMutex> lock_guard(OpenGLMutex());
         //create window
         window_handle_ = static_cast<Void*>(glfwCreateWindow(
             static_cast<Int32>(_size.width_),
@@ -365,7 +355,7 @@ NODISCARD ReturnType ZWindow::CreateP(
     }
     case kWindowScreenModeFullScreenDefaultSize:
     {
-        TLockGuard<ZMutex> lock_guard(create_window_mutex);
+        TLockGuard<ZMutex> lock_guard(OpenGLMutex());
         //get the main monitor
         GLFWmonitor* main_monitor = glfwGetPrimaryMonitor();
         if (main_monitor == nullptr) {

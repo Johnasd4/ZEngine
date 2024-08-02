@@ -95,8 +95,6 @@ public:
     */
     NODISCARD ReturnType Execute() noexcept;
 
-    NODISCARD FORCEINLINE Handle WindowHandle() const noexcept { return window_handle_; }
-    NODISCARD FORCEINLINE Handle WindowContext() const noexcept { return window_context_; }
     NODISCARD FORCEINLINE WindowStateEnum_ WindowState() const noexcept { return window_state_; }
 
     /*
@@ -104,7 +102,7 @@ public:
     */
     virtual Void Begin() noexcept;
     /*
-        Ticks every frame.
+        Ticks every frame, used for rendering.
     */
     virtual Void Tick(Float32 _delta_sec) noexcept;
     /*
