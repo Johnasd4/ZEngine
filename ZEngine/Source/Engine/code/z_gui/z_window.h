@@ -21,6 +21,7 @@
 
 #include "internal/z_drive.h"
 
+#include "../z_core/t_atom.h"
 #include "../z_core/t_set.h"
 #include "../z_core/z_string.h"
 
@@ -72,10 +73,9 @@ public:
         tick_pur_window_tick_ = _tick_pur_window_tick; 
     }
     /*
-        Sets Vertical synchronization.
-        _tick_pur_window_tick: Set 0 to not use vertiacl synchronization, default 0.
+        Gets the active window num.
     */
-    NODISCARD FORCEINLINE static Int32 ActiveWindowNum() noexcept { return active_window_num_; }
+    NODISCARD FORCEINLINE static Int32 ActiveWindowNum() noexcept { return active_window_num_.Value(); }
 
     ZWindow() noexcept;
     ZWindow(ZWindow&& _window) noexcept;
@@ -165,7 +165,7 @@ private:
 
     static Int32 tick_pur_window_tick_;
 
-    static Int32 active_window_num_;
+    static TAtom<Int32> active_window_num_;
 
     Handle window_handle_;
     Handle window_context_;

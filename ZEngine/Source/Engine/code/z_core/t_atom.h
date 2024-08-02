@@ -323,11 +323,11 @@ public:
         return _left.obj_ <= _right;
     }
 
-    NODISCARD FORCEINLINE _ObjectType Value(IndexType _index) noexcept { 
+    NODISCARD FORCEINLINE _ObjectType Value() noexcept { 
         TLockGuard<ZMutex> lock_guard(mutex_);
         return obj_;
     }
-    NODISCARD FORCEINLINE const _ObjectType Value(IndexType _index) const noexcept {
+    NODISCARD FORCEINLINE const _ObjectType Value() const noexcept {
         TLockGuard<ZMutex> lock_guard(mutex_);
         return obj_; 
     }

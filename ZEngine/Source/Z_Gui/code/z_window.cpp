@@ -21,6 +21,10 @@
 #include "z_window.h"
 
 #include "../z_core/m_log.h"
+#include "../z_core/t_lock_guard.h"
+#include "../z_core/z_cs_mutex.h"
+
+#include "opengl/z_opengl_manager.h"
 
 namespace zengine {
 namespace gui {
@@ -70,7 +74,7 @@ NODISCARD ReturnType ZWindow::Execute() noexcept {
     //begin window
     Begin();
 
-    while (glfwWindowShouldClose(window_handle)) {
+    while (!glfwWindowShouldClose(window_handle)) {
         UInt32 current_time = clock();
         Float32 delta_time = static_cast<Float32>(current_time - pre_time) * 0.001f;
         pre_time = current_time;
@@ -220,6 +224,10 @@ Void ZWindow::Destroy() noexcept {
     window_context_ = nullptr;
     frame_ptr_set_.Clear();
     window_state_ = kWindowStateTerminated;
+    --active_window_num_;
+    if (active_window_num_ == 0) {
+        ZOpenGLManager::TerminateOpenGL();
+    }
 }
 
 Void ZWindow::Add(ZFrame* _frame) noexcept {
@@ -298,16 +306,32 @@ NODISCARD ReturnType ZWindow::CreateP(
     const Char* _name, GuiSize _size, GuiPos _pos, WindowScreenModeEnum_ _screen_mode
 ) noexcept {
     ReturnType ret_val = kOK;
-
+    ReturnType link_code = kOK;
+    static ZMutex create_window_mutex;
     if (window_state_ != kWindowStateTerminated) {
         ret_val = error_code::kZWindowErrorCodeWindowAreadyCreated;
         Z_LOG_ERROR(ret_val, 0, L"Window already created!");
         return ret_val;
     }
 
+    //init opengl
+    link_code = ZOpenGLManager::InitializeOpenGL();
+    if (link_code != kOK) {
+        ret_val = error_code::kZWindowErrorCodeLinkError;
+        Z_LOG_ERROR(ret_val, 0, L"ZOpenGLManager::InitializeOpenGL() link error!");
+        return ret_val;
+    }
+
+    //choose opengl version
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
     //create a window
     switch (_screen_mode) {
     case kWindowScreenModeWindow:
+    {
+        TLockGuard<ZMutex> lock_guard(create_window_mutex);
         //create window
         window_handle_ = static_cast<Void*>(glfwCreateWindow(
             static_cast<Int32>(_size.width_),
@@ -321,7 +345,10 @@ NODISCARD ReturnType ZWindow::CreateP(
             return ret_val;
         }
         break;
+    }
     case kWindowScreenModeFullScreenCustomSize:
+    {
+        TLockGuard<ZMutex> lock_guard(create_window_mutex);
         //create window
         window_handle_ = static_cast<Void*>(glfwCreateWindow(
             static_cast<Int32>(_size.width_),
@@ -335,8 +362,10 @@ NODISCARD ReturnType ZWindow::CreateP(
             return ret_val;
         }
         break;
+    }
     case kWindowScreenModeFullScreenDefaultSize:
     {
+        TLockGuard<ZMutex> lock_guard(create_window_mutex);
         //get the main monitor
         GLFWmonitor* main_monitor = glfwGetPrimaryMonitor();
         if (main_monitor == nullptr) {
@@ -392,7 +421,7 @@ NODISCARD ReturnType ZWindow::CreateP(
 
 Int32 ZWindow::tick_pur_window_tick_ = 0;
 
-Int32 ZWindow::active_window_num_ = 0;
+TAtom<Int32> ZWindow::active_window_num_(0);
 
 }//gui
 }//zengine
