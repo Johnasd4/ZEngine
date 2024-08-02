@@ -98,7 +98,7 @@ public:
     NODISCARD FORCEINLINE WindowStateEnum_ WindowState() const noexcept { return window_state_; }
 
     /*
-        Will be called when the application executes.
+        Will be called when the application executes, returns when the window is closed.
     */
     virtual Void Begin() noexcept;
     /*
