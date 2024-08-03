@@ -98,6 +98,17 @@ public:
     virtual Void OnShow() noexcept;
     virtual Void OnAdd(ZGuiObject* _owner_ptr) noexcept;
 
+    virtual Void OnKeyDown(KeyEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept;
+    virtual Void OnKeyUp(KeyEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept;
+    virtual Void OnKeyPress(KeyEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept;
+    virtual Void OnMouseDown(MouseButtonEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept;
+    virtual Void OnMouseUp(MouseButtonEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept;
+    /*
+        Front and back is y, left and right is x. Front and Left is positive.
+    */
+    virtual Void OnScrollMove(Float32 _x_offset, Float32 _y_offset) noexcept;
+    virtual Void OnMouseMove(GuiPos _pre_pos, GuiPos _cur_pos) noexcept;
+
 protected:
     using SuperType_ = ZObject;
 

@@ -28,6 +28,9 @@
 #include "z_frame.h"
 #include "z_gui_object.h"
 
+struct GLFWwindow;
+struct ImGuiContext;
+
 namespace zengine {
 namespace gui {
 
@@ -141,6 +144,18 @@ public:
 
     NODISCARD virtual GuiColour BackgruondColour() const noexcept;
 
+
+    virtual Void OnKeyDown(KeyEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept;
+    virtual Void OnKeyUp(KeyEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept;
+    virtual Void OnKeyPress(KeyEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept;
+    virtual Void OnMouseDown(MouseButtonEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept;
+    virtual Void OnMouseUp(MouseButtonEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept;
+    /*
+        Front and back is y, left and right is x. Front and Left is positive.
+    */
+    virtual Void OnScrollMove(Float32 _x_offset, Float32 _y_offset) noexcept;
+    virtual Void OnMouseMove(GuiPos _pre_pos, GuiPos _cur_pos) noexcept;
+
     virtual Void OnDestroy() noexcept;
 
 protected:
@@ -151,7 +166,7 @@ private:
 
     ZWindow(const ZWindow&) = delete;
     ZWindow& operator=(const ZWindow&) = delete;
-    
+
     Void MoveP(ZWindow&& _window) noexcept;
 
     /*
@@ -162,11 +177,10 @@ private:
     ) noexcept;
 
     static Int32 tick_pur_window_tick_;
-
     static TAtom<Int32> active_window_num_;
 
-    Handle window_handle_;
-    Handle window_context_;
+    GLFWwindow* window_handle_;
+    ImGuiContext* window_context_;
     TMultiset<ZFrame*, ZWidgetObjectCompare> frame_ptr_set_;
     WindowStateEnum_ window_state_;
 };

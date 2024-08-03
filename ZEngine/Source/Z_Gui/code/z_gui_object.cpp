@@ -92,6 +92,14 @@ Void ZGuiObject::OnAdd(ZGuiObject* _owner_ptr) noexcept {
     owner_ptr_ = _owner_ptr;
 }
 
+Void ZGuiObject::OnKeyDown(KeyEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept {}
+Void ZGuiObject::OnKeyUp(KeyEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept {}
+Void ZGuiObject::OnKeyPress(KeyEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept {}
+Void ZGuiObject::OnMouseDown(MouseButtonEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept {}
+Void ZGuiObject::OnMouseUp(MouseButtonEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept {}
+Void ZGuiObject::OnScrollMove(Float32 _x_offset, Float32 _y_offset) noexcept {}
+Void ZGuiObject::OnMouseMove(GuiPos _pre_pos, GuiPos _cur_pos) noexcept {}
+
 ZGuiObject::ZGuiObject() noexcept 
     : SuperType_()
     , size_()

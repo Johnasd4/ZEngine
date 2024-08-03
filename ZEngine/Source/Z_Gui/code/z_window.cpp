@@ -22,10 +22,115 @@
 
 #include "../z_core/m_log.h"
 #include "../z_core/t_lock_guard.h"
-#include "../z_core/z_cs_mutex.h"
+#include "../z_core/z_object.h"
 
 namespace zengine {
 namespace gui {
+
+namespace internal {
+
+class ZWindowCallback : public ZObject {
+public:
+    /*
+        Set the current active window.
+    */
+    static Void SetActiveWindowPtr(ZWindow* window_ptr) noexcept {
+        InstanceP().active_window_ptr_ = window_ptr;
+    }
+
+    /*
+        Key callback function.
+    */
+    static Void KeyCallBack(GLFWwindow* window, Int32 _key, Int32 scancode, Int32 _action, Int32 _mods) noexcept {
+        ZWindow* window_ptr = InstanceP().active_window_ptr_;
+        if (_action == GLFW_PRESS) {
+            window_ptr->OnKeyPress(
+                static_cast<KeyEnum>(_key),
+                (_mods & GLFW_MOD_SHIFT) != 0,
+                (_mods & GLFW_MOD_CONTROL) != 0,
+                (_mods & GLFW_MOD_ALT) != 0);
+            window_ptr->OnKeyDown(
+                static_cast<KeyEnum>(_key),
+                (_mods & GLFW_MOD_SHIFT) != 0,
+                (_mods & GLFW_MOD_CONTROL) != 0,
+                (_mods & GLFW_MOD_ALT) != 0);
+        }
+        else if (_action == GLFW_RELEASE) {
+            window_ptr->OnKeyUp(
+                static_cast<KeyEnum>(_key),
+                (_mods & GLFW_MOD_SHIFT) != 0,
+                (_mods & GLFW_MOD_CONTROL) != 0,
+                (_mods & GLFW_MOD_ALT) != 0);
+        }
+        else if (_action == GLFW_REPEAT) {
+            window_ptr->OnKeyPress(
+                static_cast<KeyEnum>(_key),
+                (_mods & GLFW_MOD_SHIFT) != 0,
+                (_mods & GLFW_MOD_CONTROL) != 0,
+                (_mods & GLFW_MOD_ALT) != 0);
+        }
+    }
+
+    /*
+        Mouse button callback function.
+    */
+    static Void MouseButtonCallback(GLFWwindow* _window, Int32 _button, Int32 _action, Int32 _mods) noexcept {
+        ZWindow* window_ptr = InstanceP().active_window_ptr_;
+        if (_action == GLFW_PRESS) {
+            window_ptr->OnMouseDown(
+                static_cast<MouseButtonEnum>(_button), 
+                (_mods & GLFW_MOD_SHIFT) != 0, 
+                (_mods & GLFW_MOD_CONTROL) != 0, 
+                (_mods & GLFW_MOD_ALT) != 0);
+        }
+        else if (_action == GLFW_RELEASE) {
+            window_ptr->OnMouseUp(
+                static_cast<MouseButtonEnum>(_button),
+                (_mods & GLFW_MOD_SHIFT) != 0,
+                (_mods & GLFW_MOD_CONTROL) != 0,
+                (_mods & GLFW_MOD_ALT) != 0);
+        }
+    }
+
+    /*
+        Mouse scroll callback function.
+    */
+    static Void MouseScrollCallback(GLFWwindow* _window, Float64 _x_offset, Float64 _y_offset) {
+        ZWindow* window_ptr = InstanceP().active_window_ptr_;
+        window_ptr->OnScrollMove(static_cast<Float32>(_x_offset), static_cast<Float32>(_y_offset));
+    }
+
+    /*
+        Mouse position callback function.
+    */
+    static Void MousePositionCallback(GLFWwindow* _window_handle, Float64 _x_pos, Float64 _y_pos) noexcept {
+        thread_local GuiPos pre_pos = { static_cast<Float32>(_x_pos), static_cast<Float32>(_y_pos) };
+        GuiPos cur_pos = { static_cast<Float32>(_x_pos), static_cast<Float32>(_y_pos) };
+        ZWindow* window_ptr = InstanceP().active_window_ptr_;
+        window_ptr->OnMouseMove(pre_pos, cur_pos);
+        pre_pos = cur_pos;
+    }
+
+protected:
+    using SuperType_ = ZObject;
+
+private:
+    ZWindowCallback(const ZWindowCallback&) = delete;
+    ZWindowCallback(ZWindowCallback&&) = delete;
+    ZWindowCallback& operator=(const ZWindowCallback&) = delete;
+    ZWindowCallback& operator=(ZWindowCallback&&) = delete;
+
+    FORCEINLINE NODISCARD static ZWindowCallback& InstanceP() noexcept {
+        thread_local ZWindowCallback instance;
+        return instance;
+    } 
+
+    ZWindowCallback() noexcept : SuperType_(), active_window_ptr_() {}
+
+    ZWindow* active_window_ptr_;
+};
+
+}//internal
 
 ZWindow::ZWindow() noexcept 
     : SuperType_()
@@ -52,6 +157,7 @@ ZWindow::ZWindow(const Char* _name, GuiSize _size, GuiPos _pos, WindowScreenMode
     if (link_code != kOK) {
         Z_LOG_ERROR(error_code::kZWindowErrorCodeLinkError, 0, L"ZWindow::Create() link error!");
     }
+    internal::ZWindowCallback::SetActiveWindowPtr(this);
 }
 
 ZWindow::~ZWindow() noexcept {}
@@ -66,13 +172,12 @@ NODISCARD ReturnType ZWindow::Execute() noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
 
-    GLFWwindow* window_handle = static_cast<GLFWwindow*>(window_handle_);
     UInt32 pre_time = clock();
 
     //begin window
     Begin();
 
-    while (!glfwWindowShouldClose(window_handle)) {
+    while (!glfwWindowShouldClose(window_handle_)) {
         //calculate delta time
         UInt32 current_time = clock();
         Float32 delta_time = static_cast<Float32>(current_time - pre_time) * 0.001f;
@@ -91,7 +196,7 @@ NODISCARD ReturnType ZWindow::Execute() noexcept {
     ImGui::DestroyContext();
 
     //release opengl resourses
-    glfwDestroyWindow(window_handle);
+    glfwDestroyWindow(window_handle_);
 
     //destroys the window
     Destroy();
@@ -125,13 +230,13 @@ Void ZWindow::Tick(Float32 _delta_sec) noexcept {
     //update size
     if (SizeChanged()) {
         glfwSetWindowSize(
-            static_cast<GLFWwindow*>(window_handle_), 
+            window_handle_,
             static_cast<Int32>(cur_size.width_), 
             static_cast<Int32>(cur_size.height_));
     }
     else {
         Int32 temp_width = 0, temp_height = 0;
-        glfwGetWindowSize(static_cast<GLFWwindow*>(window_handle_), &temp_width, &temp_height);
+        glfwGetWindowSize(window_handle_, &temp_width, &temp_height);
         GuiSize temp_size = { static_cast<Float32>(temp_width), static_cast<Float32>(temp_height) };
         if (temp_size != cur_size) {
             SetSize(temp_size);
@@ -141,13 +246,13 @@ Void ZWindow::Tick(Float32 _delta_sec) noexcept {
     //update pos
     if (PosChanged()) {
         glfwSetWindowPos(
-            static_cast<GLFWwindow*>(window_handle_), 
+            window_handle_,
             static_cast<Int32>(cur_pos.x_), 
             static_cast<Int32>(cur_pos.y_));
     }
     else {
         Int32 temp_pos_x = 0, temp_pos_y = 0;
-        glfwGetWindowPos(static_cast<GLFWwindow*>(window_handle_), &temp_pos_x, &temp_pos_y);
+        glfwGetWindowPos(window_handle_, &temp_pos_x, &temp_pos_y);
         GuiPos temp_pos = { static_cast<Float32>(temp_pos_x), static_cast<Float32>(temp_pos_y) };
         if (temp_pos != cur_pos) {
             SetPos(temp_pos);
@@ -165,14 +270,14 @@ Void ZWindow::Tick(Float32 _delta_sec) noexcept {
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     //Imgui frame end
-    glfwSwapBuffers(static_cast<GLFWwindow*>(window_handle_));
+    glfwSwapBuffers(window_handle_);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glfwPollEvents();
 }
 
 Void ZWindow::Hide() noexcept {
     SuperType_::Hide();
-    glfwHideWindow(static_cast<GLFWwindow*>(window_handle_));
+    glfwHideWindow(window_handle_);
     window_state_ = kWindowStateHidden;
 }
 
@@ -185,7 +290,7 @@ Void ZWindow::Show() noexcept {
     case kWindowStateOpened:
         break;
     case kWindowStateHidden:
-        glfwShowWindow(static_cast<GLFWwindow*>(window_handle_));
+        glfwShowWindow(window_handle_);
         window_state_ = kWindowStateOpened;
         break;
     }
@@ -222,13 +327,13 @@ Void ZWindow::SetBackgruondColour(GuiColour _colour) noexcept {
 }
 
 Void ZWindow::SetName(const Char* _name) noexcept {
-    glfwSetWindowTitle(static_cast<GLFWwindow*>(window_handle_), _name);
+    glfwSetWindowTitle(window_handle_, _name);
 }
 
 Void ZWindow::SetScreenMode(WindowScreenModeEnum_ _screen_mode) noexcept {
     Int32 width = 0, height = 0, pos_x = 0, pos_y = 0;
-    glfwGetWindowSize(static_cast<GLFWwindow*>(window_handle_), &width, &height);
-    glfwGetWindowPos(static_cast<GLFWwindow*>(window_handle_), &pos_x, &pos_y);
+    glfwGetWindowSize(window_handle_, &width, &height);
+    glfwGetWindowPos(window_handle_, &pos_x, &pos_y);
 
     //get the main monitor
     GLFWmonitor* main_monitor = glfwGetPrimaryMonitor();
@@ -246,15 +351,15 @@ Void ZWindow::SetScreenMode(WindowScreenModeEnum_ _screen_mode) noexcept {
     switch (_screen_mode) {
     case kWindowScreenModeWindow:
         glfwSetWindowMonitor(
-            static_cast<GLFWwindow*>(window_handle_), nullptr, pos_x, pos_y, width, height, 0);
+            window_handle_, nullptr, pos_x, pos_y, width, height, 0);
         break;
     case kWindowScreenModeFullScreenCustomSize:
         glfwSetWindowMonitor(
-            static_cast<GLFWwindow*>(window_handle_), main_monitor, 0, 0, width, height, 0);
+            window_handle_, main_monitor, 0, 0, width, height, 0);
         break;
     case kWindowScreenModeFullScreenDefaultSize:
         glfwSetWindowMonitor(
-            static_cast<GLFWwindow*>(window_handle_), main_monitor, 0, 0, video_mode->width, video_mode->height, 0);
+            window_handle_, main_monitor, 0, 0, video_mode->width, video_mode->height, 0);
         break;
     default:
         break;
@@ -270,7 +375,63 @@ NODISCARD GuiColour ZWindow::BackgruondColour() const noexcept {
 NODISCARD GuiPos ZWindow::AbsPos() const noexcept { return GuiPos(0.0f, 0.0f); }
 
 NODISCARD const Char* ZWindow::Name() const noexcept {
-    return glfwGetWindowTitle(static_cast<GLFWwindow*>(window_handle_));
+    return glfwGetWindowTitle(window_handle_);
+}
+
+Void ZWindow::OnKeyDown(KeyEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept {
+    SuperType_::OnKeyDown(_clicked_button, _shift, _ctrl, _alt);
+    for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
+        ZFrame* frame_ptr = *frame_ptr_iter;
+        frame_ptr->OnKeyDown(_clicked_button, _shift, _ctrl, _alt);
+    }
+}
+
+Void ZWindow::OnKeyUp(KeyEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept {
+    SuperType_::OnKeyUp(_clicked_button, _shift, _ctrl, _alt);
+    for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
+        ZFrame* frame_ptr = *frame_ptr_iter;
+        frame_ptr->OnKeyUp(_clicked_button, _shift, _ctrl, _alt);
+    }
+}
+
+Void ZWindow::OnKeyPress(KeyEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept {
+    SuperType_::OnKeyPress(_clicked_button, _shift, _ctrl, _alt);
+    for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
+        ZFrame* frame_ptr = *frame_ptr_iter;
+        frame_ptr->OnKeyPress(_clicked_button, _shift, _ctrl, _alt);
+    }
+}
+
+Void ZWindow::OnMouseDown(MouseButtonEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept {
+    SuperType_::OnMouseDown(_clicked_button, _shift, _ctrl, _alt);
+    for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
+        ZFrame* frame_ptr = *frame_ptr_iter;
+        frame_ptr->OnMouseDown(_clicked_button, _shift, _ctrl, _alt);
+    }
+}
+
+Void ZWindow::OnMouseUp(MouseButtonEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept {
+    SuperType_::OnMouseUp(_clicked_button, _shift, _ctrl, _alt);
+    for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
+        ZFrame* frame_ptr = *frame_ptr_iter;
+        frame_ptr->OnMouseUp(_clicked_button, _shift, _ctrl, _alt);
+    }
+}
+
+Void ZWindow::OnScrollMove(Float32 _x_offset, Float32 _y_offset) noexcept {
+    SuperType_::OnScrollMove(_x_offset, _y_offset);
+    for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
+        ZFrame* frame_ptr = *frame_ptr_iter;
+        frame_ptr->OnScrollMove(_x_offset, _y_offset);
+    }
+}
+
+Void ZWindow::OnMouseMove(GuiPos _pre_pos, GuiPos _cur_pos) noexcept {
+    SuperType_::OnMouseMove(_pre_pos, _cur_pos);
+    for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
+        ZFrame* frame_ptr = *frame_ptr_iter;
+        frame_ptr->OnMouseMove(_pre_pos, _cur_pos);
+    }
 }
 
 Void ZWindow::OnDestroy() noexcept {}
@@ -282,6 +443,7 @@ Void ZWindow::MoveP(ZWindow&& _window) noexcept {
     _window.window_handle_ = nullptr;
     _window.window_context_ = nullptr;
     _window.window_state_ = kWindowStateTerminated;
+    internal::ZWindowCallback::SetActiveWindowPtr(this);
 }
 
 NODISCARD ReturnType ZWindow::CreateP(
@@ -323,12 +485,12 @@ NODISCARD ReturnType ZWindow::CreateP(
     {
         TLockGuard<ZMutex> lock_guard(OpenGLMutex());
         //create window
-        window_handle_ = static_cast<Void*>(glfwCreateWindow(
+        window_handle_ = glfwCreateWindow(
             static_cast<Int32>(_size.width_),
             static_cast<Int32>(_size.height_),
             _name,
             nullptr,
-            nullptr));
+            nullptr);
         if (window_handle_ == nullptr) {
             ret_val = error_code::kZWindowErrorCodeLinkError;
             Z_LOG_ERROR(ret_val, 0, L"glfwCreateWindow() link error!");
@@ -340,12 +502,12 @@ NODISCARD ReturnType ZWindow::CreateP(
     {
         TLockGuard<ZMutex> lock_guard(OpenGLMutex());
         //create window
-        window_handle_ = static_cast<Void*>(glfwCreateWindow(
+        window_handle_ = glfwCreateWindow(
             static_cast<Int32>(_size.width_),
             static_cast<Int32>(_size.height_), 
             _name, 
             glfwGetPrimaryMonitor(), 
-            nullptr));
+            nullptr);
         if (window_handle_ == nullptr) {
             ret_val = error_code::kZWindowErrorCodeLinkError;
             Z_LOG_ERROR(ret_val, 0, L"glfwCreateWindow() link error!");
@@ -371,8 +533,7 @@ NODISCARD ReturnType ZWindow::CreateP(
             return ret_val;
         }
         //create window
-        window_handle_ = static_cast<Void*>(
-            glfwCreateWindow(video_mode->width, video_mode->height, _name, main_monitor, nullptr));
+        window_handle_ = glfwCreateWindow(video_mode->width, video_mode->height, _name, main_monitor, nullptr);
         if (window_handle_ == nullptr) {
             ret_val = error_code::kZWindowErrorCodeLinkError;
             Z_LOG_ERROR(ret_val, 0, L"glfwCreateWindow() link error!");
@@ -385,25 +546,27 @@ NODISCARD ReturnType ZWindow::CreateP(
     }
 
     //opengl
-    glfwMakeContextCurrent(static_cast<GLFWwindow*>(window_handle_));
+    glfwMakeContextCurrent(window_handle_) ;
+    //set interval
     glfwSwapInterval(tick_pur_window_tick_);
-    glfwSetWindowSize(
-        static_cast<GLFWwindow*>(window_handle_), 
-        static_cast<Int32>(_size.width_),
-        static_cast<Int32>(_size.height_));
-    glfwSetWindowPos(
-        static_cast<GLFWwindow*>(window_handle_), 
-        static_cast<Int32>(_pos.x_), 
-        static_cast<Int32>(_pos.y_));
+    //set size and pos
+    glfwSetWindowSize(window_handle_, static_cast<Int32>(_size.width_), static_cast<Int32>(_size.height_));
+    glfwSetWindowPos(window_handle_, static_cast<Int32>(_pos.x_), static_cast<Int32>(_pos.y_));
+    //bind callback functions
+    glfwSetKeyCallback(window_handle_, internal::ZWindowCallback::KeyCallBack);
+    glfwSetMouseButtonCallback(window_handle_, internal::ZWindowCallback::MouseButtonCallback);
+    glfwSetCursorPosCallback(window_handle_, internal::ZWindowCallback::MousePositionCallback);
+    glfwSetScrollCallback(window_handle_, internal::ZWindowCallback::MouseScrollCallback);
 
     //imgui
     IMGUI_CHECKVERSION();
     window_context_ = ImGui::CreateContext();
-    ImGui::SetCurrentContext(static_cast<ImGuiContext*>(window_context_));
-    ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(window_handle_), true);
+    ImGui::SetCurrentContext(window_context_);
+    ImGui_ImplGlfw_InitForOpenGL(window_handle_, true);
     ImGui_ImplOpenGL3_Init("#version 130");
 
     window_state_ = kWindowStateOpened;
+    internal::ZWindowCallback::SetActiveWindowPtr(this);
     ++active_window_num_;
 
     return ret_val;

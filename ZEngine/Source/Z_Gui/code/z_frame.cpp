@@ -212,6 +212,62 @@ NODISCARD GuiColour ZFrame::BackgruondColour() const noexcept {
     return frame_background_colour_;
 }
 
+Void ZFrame::OnKeyDown(KeyEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept {
+    SuperType_::OnKeyDown(_clicked_button, _shift, _ctrl, _alt);
+    for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
+        ZFrame* frame_ptr = *frame_ptr_iter;
+        frame_ptr->OnKeyDown(_clicked_button, _shift, _ctrl, _alt);
+    }
+}
+
+Void ZFrame::OnKeyUp(KeyEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept {
+    SuperType_::OnKeyUp(_clicked_button, _shift, _ctrl, _alt);
+    for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
+        ZFrame* frame_ptr = *frame_ptr_iter;
+        frame_ptr->OnKeyUp(_clicked_button, _shift, _ctrl, _alt);
+    }
+}
+
+Void ZFrame::OnKeyPress(KeyEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept {
+    SuperType_::OnKeyPress(_clicked_button, _shift, _ctrl, _alt);
+    for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
+        ZFrame* frame_ptr = *frame_ptr_iter;
+        frame_ptr->OnKeyPress(_clicked_button, _shift, _ctrl, _alt);
+    }
+}
+
+Void ZFrame::OnMouseDown(MouseButtonEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept {
+    SuperType_::OnMouseDown(_clicked_button, _shift, _ctrl, _alt);
+    for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
+        ZFrame* frame_ptr = *frame_ptr_iter;
+        frame_ptr->OnMouseDown(_clicked_button, _shift, _ctrl, _alt);
+    }
+}
+
+Void ZFrame::OnMouseUp(MouseButtonEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept {
+    SuperType_::OnMouseUp(_clicked_button, _shift, _ctrl, _alt);
+    for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
+        ZFrame* frame_ptr = *frame_ptr_iter;
+        frame_ptr->OnMouseUp(_clicked_button, _shift, _ctrl, _alt);
+    }
+}
+
+Void ZFrame::OnScrollMove(Float32 _x_offset, Float32 _y_offset) noexcept {
+    SuperType_::OnScrollMove(_x_offset, _y_offset);
+    for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
+        ZFrame* frame_ptr = *frame_ptr_iter;
+        frame_ptr->OnScrollMove(_x_offset, _y_offset);
+    }
+}
+
+Void ZFrame::OnMouseMove(GuiPos _pre_pos, GuiPos _cur_pos) noexcept {
+    SuperType_::OnMouseMove(_pre_pos, _cur_pos);
+    for (auto widget_ptr_iter = widget_ptr_set_.Begin(); widget_ptr_iter != widget_ptr_set_.End(); ++widget_ptr_iter) {
+        ZWidgetObject* widget_ptr = *widget_ptr_iter;
+        widget_ptr->OnMouseMove(_pre_pos, _cur_pos);
+    }
+}
+
 Void ZFrame::MoveP(ZFrame&& _obj) noexcept {
     frame_flag_ = _obj.frame_flag_;
     frame_level_ = _obj.frame_level_;
