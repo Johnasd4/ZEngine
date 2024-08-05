@@ -41,7 +41,7 @@ public:
     ZThread(ZThread&& _thread) noexcept;
 
     template <typename _Function, typename... _ArgsType>
-    ZThread(_Function&& _func, _ArgsType&&... _args) noexcept : SuperType_() {
+    ZThread(_Function&& _func, _ArgsType&&... _args) noexcept : SuperType_(), id_(NULL) {
         using ParamsType = TTuple<_Function, TTuple<_ArgsType...>>;
         ParamsType* params_ptr = new ParamsType(
             std::forward<_Function>(_func), tuple::MakeTuple(std::forward<_ArgsType>(_args)...));

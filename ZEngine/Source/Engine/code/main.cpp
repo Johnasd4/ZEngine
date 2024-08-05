@@ -38,8 +38,10 @@ Void TestThreadFunc() {
     test_window.Add(&test_frame);
     ZFrame test_frame_2("frame2", GuiSize(200, 200), GuiPos(100, 200));
     test_frame_2.SetBackgruondColour({ 0.0f, 1.0f, 0.0f, 1.0f });
+    ZButton test_button("button1", GuiSize(200, 50), GuiPos(0, 50));
     //test_window.Add(&test_frame_2);  
     test_frame.Add(&test_frame_2);
+    test_frame_2.Add(&test_button);
     //test_window.Hide();
     link_code = test_window.Execute();
     //app.AddWindow(&test_window2);

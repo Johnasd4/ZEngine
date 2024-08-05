@@ -29,12 +29,12 @@ ZFrame::ZFrame() noexcept
     : SuperType_()
     , frame_flag_(kDefaultFrameFlag)
     , frame_level_(kBaseFrameLevel)
-    , frame_background_colour_(kDefaultFrameBackGroundColour)
+    , background_colour_(kDefaultBackGroundColour)
     , widget_ptr_set_()
     , frame_ptr_set_() {}
 
 ZFrame::ZFrame(ZFrame&& _frame) noexcept 
-    : SuperType_(std::forward<ZFrame>(_frame)), frame_ptr_set_()
+    : SuperType_(std::forward<ZFrame>(_frame))
 {
     MoveP(std::forward<ZFrame>(_frame));
 }
@@ -43,7 +43,7 @@ ZFrame::ZFrame(const Char* _name, GuiSize _size, GuiPos _pos) noexcept
     : SuperType_(_name, _size, _pos)
     , frame_flag_(kDefaultFrameFlag)
     , frame_level_(kBaseFrameLevel)
-    , frame_background_colour_(kDefaultFrameBackGroundColour)
+    , background_colour_(kDefaultBackGroundColour)
     , widget_ptr_set_()
     , frame_ptr_set_() {}
 
@@ -80,7 +80,7 @@ Void ZFrame::Tick(Float32 _delta_sec) noexcept {
     //base frame update size and pos
     if (frame_level_ == kBaseFrameLevel) {
         //push background colour
-        ImGui::PushStyleColor(ImGuiCol_WindowBg, *reinterpret_cast<ImVec4*>(&frame_background_colour_));
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, *reinterpret_cast<ImVec4*>(&background_colour_));
         //begin base frame
         ImGui::Begin(Name(), nullptr, frame_flag_);
 
@@ -190,7 +190,7 @@ Void ZFrame::Reset() noexcept {
 }
 
 Void ZFrame::Add(ZWidgetObject* _widget_obj) noexcept {
-    if (WidgetType() == kWidgetTypeFrame) {
+    if (_widget_obj->WidgetType() == kWidgetTypeFrame) {
         frame_ptr_set_.Insert(static_cast<ZFrame*>(_widget_obj));
         dynamic_cast<ZFrame*>(_widget_obj)->UpdateFrameLevelP(frame_level_);
     }
@@ -201,7 +201,7 @@ Void ZFrame::Add(ZWidgetObject* _widget_obj) noexcept {
 }
 
 Void ZFrame::SetBackgruondColour(GuiColour _colour) noexcept {
-    frame_background_colour_ = _colour;
+    background_colour_ = _colour;
 }
 
 NODISCARD ZFrame::WidgetTypeEnum ZFrame::WidgetType() const noexcept {
@@ -209,7 +209,7 @@ NODISCARD ZFrame::WidgetTypeEnum ZFrame::WidgetType() const noexcept {
 }
 
 NODISCARD GuiColour ZFrame::BackgruondColour() const noexcept {
-    return frame_background_colour_;
+    return background_colour_;
 }
 
 Void ZFrame::OnKeyDown(KeyEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept {
@@ -268,15 +268,15 @@ Void ZFrame::OnMouseMove(GuiPos _pre_pos, GuiPos _cur_pos) noexcept {
     }
 }
 
-Void ZFrame::MoveP(ZFrame&& _obj) noexcept {
-    frame_flag_ = _obj.frame_flag_;
-    frame_level_ = _obj.frame_level_;
-    frame_background_colour_ = _obj.frame_background_colour_;
-    widget_ptr_set_ = std::move(_obj.widget_ptr_set_);
-    frame_ptr_set_ = std::move(_obj.frame_ptr_set_);
-    _obj.frame_flag_ = kDefaultFrameFlag;
-    _obj.frame_level_ = kBaseFrameLevel;
-    _obj.frame_background_colour_ = kDefaultFrameBackGroundColour;
+Void ZFrame::MoveP(ZFrame&& _frame) noexcept {
+    frame_flag_ = _frame.frame_flag_;
+    frame_level_ = _frame.frame_level_;
+    background_colour_ = _frame.background_colour_;
+    widget_ptr_set_ = std::move(_frame.widget_ptr_set_);
+    frame_ptr_set_ = std::move(_frame.frame_ptr_set_);
+    _frame.frame_flag_ = kDefaultFrameFlag;
+    _frame.frame_level_ = kBaseFrameLevel;
+    _frame.background_colour_ = kDefaultBackGroundColour;
 }
 
 Void ZFrame::UpdateFrameLevelP(Int32 _super_frame_level) noexcept {

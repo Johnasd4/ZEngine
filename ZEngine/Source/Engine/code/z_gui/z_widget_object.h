@@ -40,7 +40,8 @@ public:
     static constexpr Int32 kDefaultPriority = 0;
 
     enum WidgetTypeEnum {
-        kWidgetTypeFrame
+        kWidgetTypeFrame,
+        kWidgetTypeButton
     };
 
     FORCEINLINE Void SetPriority(Int32 _priority) noexcept { priority_ = _priority; }
