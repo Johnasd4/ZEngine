@@ -34,6 +34,15 @@ namespace gui {
 */
 class GUI_DLLAPI ZGuiObject : public ZObject {
 public:
+    enum ModEnum_ {
+        kModShift = 1 << 0,
+        kModCtrl = 1 << 1,
+        kModAlt = 1 << 2,
+        kModWin = 1 << 3,
+        kModCapsLock = 1 << 4,
+        kModNumLock = 1 << 5
+    };
+
     NODISCARD static ZMutex& OpenGLMutex() noexcept;
 
     FORCEINLINE Void SetEnabled(Bool _enabled) noexcept { enabled_ = _enabled; }
@@ -98,16 +107,29 @@ public:
     virtual Void OnShow() noexcept;
     virtual Void OnAdd(ZGuiObject* _owner_ptr) noexcept;
 
-    virtual Void OnKeyDown(KeyEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept;
-    virtual Void OnKeyUp(KeyEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept;
-    virtual Void OnKeyPress(KeyEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept;
-    virtual Void OnMouseDown(MouseButtonEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept;
-    virtual Void OnMouseUp(MouseButtonEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept;
+    virtual Void OnKeyDown(KeyEnum _clicked_button, Int32 _mods) noexcept;
+    virtual Void OnKeyUp(KeyEnum _clicked_button, Int32 _mods) noexcept;
+    virtual Void OnKeyPress(KeyEnum _clicked_button, Int32 _mods) noexcept;
+    virtual Void OnMouseDown(MouseButtonEnum _clicked_button, Int32 _mods) noexcept;
+    virtual Void OnMouseUp(MouseButtonEnum _clicked_button, Int32 _mods) noexcept;
     /*
         Front and back is y, left and right is x. Front and Left is positive.
     */
     virtual Void OnScrollMove(Float32 _x_offset, Float32 _y_offset) noexcept;
-    virtual Void OnMouseMove(GuiPos _pre_pos, GuiPos _cur_pos) noexcept;
+    virtual Void OnMouseMove(GuiPos _pre_pos, GuiPos _cur_pos) noexcept;  
+
+    Void BindResizeEvent(Void(*_resize_event_ptr)(GuiSize _pre_size, GuiSize _cur_size)) noexcept;
+    Void BindMoveEvent(Void(*_move_event_ptr)(GuiPos _pre_pos, GuiPos _cur_pos)) noexcept;
+    Void BindHideEvent(Void(*_hide_event_ptr)()) noexcept;
+    Void BindShowEvent(Void(*_show_event_ptr)()) noexcept;
+    Void BindAddEvent(Void(*_add_event_ptr)(ZGuiObject* _owner_ptr)) noexcept;
+    Void BindKeyDownEvent(Void(*_key_down_event_ptr)(KeyEnum _clicked_button, Int32 _mods)) noexcept;
+    Void BindKeyUpEvent(Void(*_key_up_event_ptr)(KeyEnum _clicked_button, Int32 _mods)) noexcept;
+    Void BindKeyPressEvent(Void(*_key_press_event_ptr)(KeyEnum _clicked_button, Int32 _mods)) noexcept;
+    Void BindMouseDownEvent(Void(*_mouse_down_event_ptr)(MouseButtonEnum _clicked_button, Int32 _mods)) noexcept;
+    Void BindMouseUpEvent(Void(*_mouse_up_event_ptr)(MouseButtonEnum _clicked_button, Int32 _mods)) noexcept;
+    Void BindScrollMoveEvent(Void(*_scroll_move_event_ptr)(Float32 _x_offset, Float32 _y_offset)) noexcept;
+    Void BindMouseMoveEvent(Void(*_mouse_move_event_ptr)(GuiPos _pre_pos, GuiPos _cur_pos)) noexcept;
 
 protected:
     using SuperType_ = ZObject;
@@ -129,6 +151,21 @@ private:
     ZGuiObject& operator=(const ZGuiObject&) = delete;
 
     Void MoveP(ZGuiObject&& _obj) noexcept;
+
+    Void(*resize_event_ptr_)(GuiSize _pre_size, GuiSize _cur_size);
+    Void(*move_event_ptr_)(GuiPos _pre_pos, GuiPos _cur_pos);
+    Void(*hide_event_ptr_)();
+    Void(*show_event_ptr_)();
+    Void(*add_event_ptr_)(ZGuiObject* _owner_ptr);
+
+    Void(*key_down_event_ptr_)(KeyEnum _clicked_button, Int32 _mods);
+    Void(*key_up_event_ptr_)(KeyEnum _clicked_button, Int32 _mods);
+    Void(*key_press_event_ptr_)(KeyEnum _clicked_button, Int32 _mods);
+    Void(*mouse_down_event_ptr_)(MouseButtonEnum _clicked_button, Int32 _mods);
+    Void(*mouse_up_event_ptr_)(MouseButtonEnum _clicked_button, Int32 _mods);
+    Void(*scroll_move_event_ptr_)(Float32 _x_offset, Float32 _y_offset);
+    Void(*mouse_move_event_ptr_)(GuiPos _pre_pos, GuiPos _cur_pos);
+
 
     GuiSize size_;
     GuiPos pos_;

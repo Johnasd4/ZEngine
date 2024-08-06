@@ -150,11 +150,11 @@ public:
 
     NODISCARD virtual GuiColour BackgruondColour() const noexcept;
 
-    virtual Void OnKeyDown(KeyEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept;
-    virtual Void OnKeyUp(KeyEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept;
-    virtual Void OnKeyPress(KeyEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept;
-    virtual Void OnMouseDown(MouseButtonEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept;
-    virtual Void OnMouseUp(MouseButtonEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept;
+    virtual Void OnKeyDown(KeyEnum _clicked_button, Int32 _mods) noexcept;
+    virtual Void OnKeyUp(KeyEnum _clicked_button, Int32 _mods) noexcept;
+    virtual Void OnKeyPress(KeyEnum _clicked_button, Int32 _mods) noexcept;
+    virtual Void OnMouseDown(MouseButtonEnum _clicked_button, Int32 _mods) noexcept;
+    virtual Void OnMouseUp(MouseButtonEnum _clicked_button, Int32 _mods) noexcept;
     /*
         Front and back is y, left and right is x. Front and Left is positive.
     */

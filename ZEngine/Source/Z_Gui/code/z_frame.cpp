@@ -212,43 +212,43 @@ NODISCARD GuiColour ZFrame::BackgruondColour() const noexcept {
     return background_colour_;
 }
 
-Void ZFrame::OnKeyDown(KeyEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept {
-    SuperType_::OnKeyDown(_clicked_button, _shift, _ctrl, _alt);
+Void ZFrame::OnKeyDown(KeyEnum _clicked_button, Int32 _mods) noexcept {
+    SuperType_::OnKeyDown(_clicked_button, _mods);
     for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
         ZFrame* frame_ptr = *frame_ptr_iter;
-        frame_ptr->OnKeyDown(_clicked_button, _shift, _ctrl, _alt);
+        frame_ptr->OnKeyDown(_clicked_button, _mods);
     }
 }
 
-Void ZFrame::OnKeyUp(KeyEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept {
-    SuperType_::OnKeyUp(_clicked_button, _shift, _ctrl, _alt);
+Void ZFrame::OnKeyUp(KeyEnum _clicked_button, Int32 _mods) noexcept {
+    SuperType_::OnKeyUp(_clicked_button, _mods);
     for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
         ZFrame* frame_ptr = *frame_ptr_iter;
-        frame_ptr->OnKeyUp(_clicked_button, _shift, _ctrl, _alt);
+        frame_ptr->OnKeyUp(_clicked_button, _mods);
     }
 }
 
-Void ZFrame::OnKeyPress(KeyEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept {
-    SuperType_::OnKeyPress(_clicked_button, _shift, _ctrl, _alt);
+Void ZFrame::OnKeyPress(KeyEnum _clicked_button, Int32 _mods) noexcept {
+    SuperType_::OnKeyPress(_clicked_button, _mods);
     for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
         ZFrame* frame_ptr = *frame_ptr_iter;
-        frame_ptr->OnKeyPress(_clicked_button, _shift, _ctrl, _alt);
+        frame_ptr->OnKeyPress(_clicked_button, _mods);
     }
 }
 
-Void ZFrame::OnMouseDown(MouseButtonEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept {
-    SuperType_::OnMouseDown(_clicked_button, _shift, _ctrl, _alt);
+Void ZFrame::OnMouseDown(MouseButtonEnum _clicked_button, Int32 _mods) noexcept {
+    SuperType_::OnMouseDown(_clicked_button, _mods);
     for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
         ZFrame* frame_ptr = *frame_ptr_iter;
-        frame_ptr->OnMouseDown(_clicked_button, _shift, _ctrl, _alt);
+        frame_ptr->OnMouseDown(_clicked_button, _mods);
     }
 }
 
-Void ZFrame::OnMouseUp(MouseButtonEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept {
-    SuperType_::OnMouseUp(_clicked_button, _shift, _ctrl, _alt);
+Void ZFrame::OnMouseUp(MouseButtonEnum _clicked_button, Int32 _mods) noexcept {
+    SuperType_::OnMouseUp(_clicked_button, _mods);
     for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
         ZFrame* frame_ptr = *frame_ptr_iter;
-        frame_ptr->OnMouseUp(_clicked_button, _shift, _ctrl, _alt);
+        frame_ptr->OnMouseUp(_clicked_button, _mods);
     }
 }
 

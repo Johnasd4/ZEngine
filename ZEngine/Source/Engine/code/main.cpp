@@ -42,6 +42,7 @@ Void TestThreadFunc() {
     //test_window.Add(&test_frame_2);  
     test_frame.Add(&test_frame_2);
     test_frame_2.Add(&test_button);
+
     //test_window.Hide();
     link_code = test_window.Execute();
     //app.AddWindow(&test_window2);
@@ -51,10 +52,10 @@ Void TestThreadFunc() {
 //Int32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 Int32 main() {
 //    Test_000();
-    ZThread thread_1(TestThreadFunc);
+    //ZThread thread_1(TestThreadFunc);
     //Sleep(100);
     //ZThread thread_2(TestThreadFunc);
-    thread_1.Join();
+    //thread_1.Join();
     //thread_2.Join();
     ReturnType link_code = kOK;
     ZString TEST_STRING("123");
@@ -74,6 +75,9 @@ Int32 main() {
     ZFrame test_frame("frame1", GuiSize(500, 500), GuiPos(100, 200));
     test_frame.SetBackgruondColour({ 1.0f, 0.0f, 0.0f, 1.0f });
     test_window.Add(&test_frame);
+    test_window.BindMoveEvent([](GuiPos _pre_pos, GuiPos cur_pos) {
+        std::cout << cur_pos.x_ << " " << cur_pos.y_ << endl;
+    });
     ZFrame test_frame_2("frame2", GuiSize(200, 200), GuiPos(100, 200));
     test_frame_2.SetBackgruondColour({ 0.0f, 1.0f, 0.0f, 1.0f });
     test_window.Add(&test_frame_2);
