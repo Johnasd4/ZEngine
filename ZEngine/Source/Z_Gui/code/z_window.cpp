@@ -160,7 +160,6 @@ NODISCARD ReturnType ZWindow::Execute() noexcept {
         UInt32 current_time = clock();
         Float32 delta_time = static_cast<Float32>(current_time - pre_time) * 0.001f;
         pre_time = current_time;
-
         //ticks window
         Tick(delta_time);
     }
@@ -203,6 +202,7 @@ Void ZWindow::Tick(Float32 _delta_sec) noexcept {
     //Imgui frame start
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
+
     ImGui::NewFrame();
 
     //update size

@@ -72,6 +72,8 @@ public:
 
     virtual Void OnClick() noexcept;
 
+    Void BindCkickEvent(Void(*_click_event_ptr)()) noexcept;
+
 protected:
     using SuperType_ = ZWidgetObject;
 
@@ -80,6 +82,8 @@ private:
     ZButton& operator=(const ZButton&) = delete;
 
     Void MoveP(ZButton&& _button) noexcept;
+
+    Void(*click_event_ptr_)();
 
     GuiColour button_colour_;
     GuiColour button_hovered_colour_;

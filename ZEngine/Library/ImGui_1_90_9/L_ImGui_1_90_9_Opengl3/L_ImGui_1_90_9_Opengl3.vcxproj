@@ -28,6 +28,9 @@
     <ClCompile Include="code\internal\imgui_impl_win32.cpp" />
     <ClCompile Include="code\internal\imgui_tables.cpp" />
     <ClCompile Include="code\internal\imgui_widgets.cpp" />
+    <ClCompile Include="code\internal\implot.cpp" />
+    <ClCompile Include="code\internal\implot_demo.cpp" />
+    <ClCompile Include="code\internal\implot_items.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\include\imconfig.h" />
@@ -36,7 +39,9 @@
     <ClInclude Include="code\include\imgui_impl_opengl3.h" />
     <ClInclude Include="code\include\imgui_impl_opengl3_loader.h" />
     <ClInclude Include="code\include\imgui_impl_win32.h" />
+    <ClInclude Include="code\include\implot.h" />
     <ClInclude Include="code\internal\imgui_internal.h" />
+    <ClInclude Include="code\internal\implot_internal.h" />
     <ClInclude Include="code\internal\imstb_rectpack.h" />
     <ClInclude Include="code\internal\imstb_textedit.h" />
     <ClInclude Include="code\internal\imstb_truetype.h" />

@@ -157,7 +157,6 @@ private:
     Void(*hide_event_ptr_)();
     Void(*show_event_ptr_)();
     Void(*add_event_ptr_)(ZGuiObject* _owner_ptr);
-
     Void(*key_down_event_ptr_)(KeyEnum _clicked_button, Int32 _mods);
     Void(*key_up_event_ptr_)(KeyEnum _clicked_button, Int32 _mods);
     Void(*key_press_event_ptr_)(KeyEnum _clicked_button, Int32 _mods);
@@ -165,7 +164,6 @@ private:
     Void(*mouse_up_event_ptr_)(MouseButtonEnum _clicked_button, Int32 _mods);
     Void(*scroll_move_event_ptr_)(Float32 _x_offset, Float32 _y_offset);
     Void(*mouse_move_event_ptr_)(GuiPos _pre_pos, GuiPos _cur_pos);
-
 
     GuiSize size_;
     GuiPos pos_;

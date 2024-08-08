@@ -29,7 +29,8 @@ ZButton::ZButton() noexcept
     : SuperType_()
     , button_colour_(kDefaultButtonColour) 
     , button_hovered_colour_(kDefaultButtonHoveredColour)
-    , button_active_colour_(kDefaultButtonActiveColour) {}
+    , button_active_colour_(kDefaultButtonActiveColour) 
+    , click_event_ptr_(nullptr) {}
 
 ZButton::ZButton(ZButton&& _button) noexcept 
     : SuperType_(std::forward<ZButton>(_button)) 
@@ -41,7 +42,8 @@ ZButton::ZButton(const Char* _name, GuiSize _size, GuiPos _pos) noexcept
     : SuperType_(_name, _size, _pos)
     , button_colour_(kDefaultButtonColour)
     , button_hovered_colour_(kDefaultButtonHoveredColour)
-    , button_active_colour_(kDefaultButtonActiveColour) {}
+    , button_active_colour_(kDefaultButtonActiveColour)
+    , click_event_ptr_(nullptr) {}
 
 ZButton::~ZButton() noexcept {}
 
@@ -110,13 +112,19 @@ NODISCARD GuiColour ZButton::ButtonActiveColour() const noexcept {
 
 Void ZButton::OnClick() noexcept {}
 
+Void ZButton::BindCkickEvent(Void(*_click_event_ptr)()) noexcept {
+    click_event_ptr_ = _click_event_ptr;
+}
+
 Void ZButton::MoveP(ZButton&& _button) noexcept {
     button_colour_ = _button.button_colour_;
     button_hovered_colour_ = _button.button_hovered_colour_;
     button_active_colour_ = _button.button_active_colour_;
+    click_event_ptr_ = _button.click_event_ptr_;
     _button.button_colour_ = kDefaultButtonColour;
     _button.button_hovered_colour_ = kDefaultButtonHoveredColour;
     _button.button_active_colour_ = kDefaultButtonActiveColour;
+    _button.click_event_ptr_ = nullptr;
 }
 
 }//gui
