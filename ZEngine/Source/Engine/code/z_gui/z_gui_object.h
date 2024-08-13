@@ -23,6 +23,7 @@
 
 #include "../z_core/z_mutex.h"
 #include "../z_core/z_object.h"
+#include "../z_core/z_string.h"
 
 namespace zengine {
 namespace gui {
@@ -58,8 +59,11 @@ public:
     NODISCARD static ZMutex& OpenGLMutex() noexcept;
 
     FORCEINLINE Void SetEnabled(Bool _enabled) noexcept { enabled_ = _enabled; }
+    FORCEINLINE Void SetPriority(Int32 _priority) noexcept { priority_ = _priority; }
 
     NODISCARD FORCEINLINE Bool Enabled() const noexcept { return enabled_; }
+    NODISCARD FORCEINLINE Bool Visiable() const noexcept { return visiable_; }
+    NODISCARD FORCEINLINE Int32 Priority() const noexcept { return priority_; }
     NODISCARD FORCEINLINE ZGuiObject* OwnerPtr() const noexcept { return owner_ptr_; }
 
     /*
@@ -75,16 +79,25 @@ public:
         Resets the object.
     */
     virtual Void Reset() noexcept;
-
+    /*
+        Hides the object.
+    */
+    virtual Void Hide() noexcept;
+    /*
+        Shows the object.
+    */
+    virtual Void Show() noexcept;
 
     virtual Void SetName(const Char* _name) noexcept;
 
-
     NODISCARD virtual const Char* Name() const noexcept;
+
+    NODISCARD virtual TypeEnum_ WidgetType() const noexcept = 0;
 
     //Base trigger functions.
     virtual Void OnAdd(ZGuiObject* _owner_ptr) noexcept;
-
+    virtual Void OnHide() noexcept;
+    virtual Void OnShow() noexcept;
     virtual Void OnKeyDown(KeyEnum _clicked_button, Int32 _mods) noexcept;
     virtual Void OnKeyUp(KeyEnum _clicked_button, Int32 _mods) noexcept;
     virtual Void OnKeyPress(KeyEnum _clicked_button, Int32 _mods) noexcept;
@@ -96,14 +109,36 @@ public:
     virtual Void OnScrollMove(Float32 _x_offset, Float32 _y_offset) noexcept;
     virtual Void OnMouseMove(GuiPos _pre_pos, GuiPos _cur_pos) noexcept;  
 
-    Void BindAddEvent(Void(*_add_event_ptr)(ZGuiObject* _owner_ptr)) noexcept;
-    Void BindKeyDownEvent(Void(*_key_down_event_ptr)(KeyEnum _clicked_button, Int32 _mods)) noexcept;
-    Void BindKeyUpEvent(Void(*_key_up_event_ptr)(KeyEnum _clicked_button, Int32 _mods)) noexcept;
-    Void BindKeyPressEvent(Void(*_key_press_event_ptr)(KeyEnum _clicked_button, Int32 _mods)) noexcept;
-    Void BindMouseDownEvent(Void(*_mouse_down_event_ptr)(MouseButtonEnum _clicked_button, Int32 _mods)) noexcept;
-    Void BindMouseUpEvent(Void(*_mouse_up_event_ptr)(MouseButtonEnum _clicked_button, Int32 _mods)) noexcept;
-    Void BindScrollMoveEvent(Void(*_scroll_move_event_ptr)(Float32 _x_offset, Float32 _y_offset)) noexcept;
-    Void BindMouseMoveEvent(Void(*_mouse_move_event_ptr)(GuiPos _pre_pos, GuiPos _cur_pos)) noexcept;
+    Void BindAddEvent(
+        Void(*_add_event_ptr)(ZGuiObject* _this_ptr ,ZGuiObject* _owner_ptr)
+    ) noexcept;
+    Void BindHideEvent(
+        Void(*_hide_event_ptr)(ZGuiObject* _this_ptr)
+    ) noexcept;
+    Void BindShowEvent(
+        Void(*_show_event_ptr)(ZGuiObject* _this_ptr)
+    ) noexcept;
+    Void BindKeyDownEvent(
+        Void(*_key_down_event_ptr)(ZGuiObject* _this_ptr, KeyEnum _clicked_button, Int32 _mods)
+    ) noexcept;
+    Void BindKeyUpEvent(
+        Void(*_key_up_event_ptr)(ZGuiObject* _this_ptr, KeyEnum _clicked_button, Int32 _mods)
+    ) noexcept;
+    Void BindKeyPressEvent(
+        Void(*_key_press_event_ptr)(ZGuiObject* _this_ptr, KeyEnum _clicked_button, Int32 _mods)
+    ) noexcept;
+    Void BindMouseDownEvent(
+        Void(*_mouse_down_event_ptr)(ZGuiObject* _this_ptr, MouseButtonEnum _clicked_button, Int32 _mods)
+    ) noexcept;
+    Void BindMouseUpEvent(
+        Void(*_mouse_up_event_ptr)(ZGuiObject* _this_ptr, MouseButtonEnum _clicked_button, Int32 _mods)
+    ) noexcept;
+    Void BindScrollMoveEvent(
+        Void(*_scroll_move_event_ptr)(ZGuiObject* _this_ptr, Float32 _x_offset, Float32 _y_offset)
+    ) noexcept;
+    Void BindMouseMoveEvent(
+        Void(*_mouse_move_event_ptr)(ZGuiObject* _this_ptr, GuiPos _pre_pos, GuiPos _cur_pos)
+    ) noexcept;
 
 protected:
     using SuperType_ = ZObject;
@@ -126,87 +161,22 @@ private:
 
     Void MoveP(ZGuiObject&& _obj) noexcept;
 
-    Void(*add_event_ptr_)(ZGuiObject* _owner_ptr);
-    Void(*key_down_event_ptr_)(KeyEnum _clicked_button, Int32 _mods);
-    Void(*key_up_event_ptr_)(KeyEnum _clicked_button, Int32 _mods);
-    Void(*key_press_event_ptr_)(KeyEnum _clicked_button, Int32 _mods);
-    Void(*mouse_down_event_ptr_)(MouseButtonEnum _clicked_button, Int32 _mods);
-    Void(*mouse_up_event_ptr_)(MouseButtonEnum _clicked_button, Int32 _mods);
-    Void(*scroll_move_event_ptr_)(Float32 _x_offset, Float32 _y_offset);
-    Void(*mouse_move_event_ptr_)(GuiPos _pre_pos, GuiPos _cur_pos);
+    Void(*add_event_ptr_)(ZGuiObject* _this_ptr, ZGuiObject* _owner_ptr);
+    Void(*hide_event_ptr_)(ZGuiObject* _this_ptr);
+    Void(*show_event_ptr_)(ZGuiObject* _this_ptr);
+    Void(*key_down_event_ptr_)(ZGuiObject* _this_ptr, KeyEnum _clicked_button, Int32 _mods);
+    Void(*key_up_event_ptr_)(ZGuiObject* _this_ptr, KeyEnum _clicked_button, Int32 _mods);
+    Void(*key_press_event_ptr_)(ZGuiObject* _this_ptr, KeyEnum _clicked_button, Int32 _mods);
+    Void(*mouse_down_event_ptr_)(ZGuiObject* _this_ptr, MouseButtonEnum _clicked_button, Int32 _mods);
+    Void(*mouse_up_event_ptr_)(ZGuiObject* _this_ptr, MouseButtonEnum _clicked_button, Int32 _mods);
+    Void(*scroll_move_event_ptr_)(ZGuiObject* _this_ptr, Float32 _x_offset, Float32 _y_offset);
+    Void(*mouse_move_event_ptr_)(ZGuiObject* _this_ptr, GuiPos _pre_pos, GuiPos _cur_pos);
 
     ZGuiObject* owner_ptr_;
-    Bool enabled_;
     ZString name_;
-};
-
-/*
-    The base class of the gui widget classes.
-    Inheriting from this class allows the instance to apply memory from the memorypool,
-    instead of applying memory directly from the system.
-    Object members:
-    Int32 width_: The width of the gui object.
-    Int32 height_: The height of the gui object.
-*/
-class GUI_DLLAPI ZGuiWidgetObject : public ZGuiObject {
-public:
-    static constexpr Int32 kDefaultPriority = 0;
-
-    FORCEINLINE Void SetPriority(Int32 _priority) noexcept { priority_ = _priority; }
-
-    NODISCARD FORCEINLINE Int32 Priority() const noexcept { return priority_; }
-    NODISCARD FORCEINLINE Bool Visiable() const noexcept { return visiable_; }
-
-    /*
-        Hides the object.
-    */
-    virtual Void Hide() noexcept;
-    /*
-        Shows the object.
-    */
-    virtual Void Show() noexcept;
-
-    virtual Void SetName(const Char* _name) noexcept;
-
-    NODISCARD virtual const Char* Name() const noexcept;
-    NODISCARD virtual TypeEnum_ WidgetType() const noexcept = 0;
-
-    //Base trigger functions.
-    virtual Void OnHide() noexcept;
-    virtual Void OnShow() noexcept;
-
-    Void BindHideEvent(Void(*_hide_event_ptr)()) noexcept;
-    Void BindShowEvent(Void(*_show_event_ptr)()) noexcept;
-
-protected:
-    using SuperType_ = ZGuiObject;
-
-    ZGuiWidgetObject() noexcept;
-    ZGuiWidgetObject(ZGuiWidgetObject&& _obj) noexcept;
-    ZGuiWidgetObject(
-        const Char* _name,
-        GuiSize _size,
-        GuiPos _pos,
-        Int32 _priority = kDefaultPriority,
-        Bool _visiable = true,
-        Bool _enabled = true
-    ) noexcept;
-
-    ZGuiWidgetObject& operator=(ZGuiWidgetObject&& _obj) noexcept;
-
-    FORCEINLINE ~ZGuiWidgetObject() {}
-
-private:
-    ZGuiWidgetObject(const ZGuiWidgetObject&) = delete;
-    ZGuiWidgetObject& operator=(const ZGuiWidgetObject&) = delete;
-
-    Void MoveP(ZGuiWidgetObject&& _obj) noexcept;
-
-    Void(*hide_event_ptr_)();
-    Void(*show_event_ptr_)();
-
-    Int32 priority_;
+    Bool enabled_;
     Bool visiable_;
+    Int32 priority_;
 };
 
 struct ZGuiWidgetObjectCompare {

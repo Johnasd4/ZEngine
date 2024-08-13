@@ -27,14 +27,6 @@ Void ZGuiWidgetObject::SetName(const Char* _name) noexcept { name_ = _name; }
 
 NODISCARD const Char* ZGuiWidgetObject::Name() const noexcept { return name_.String(); }
 
-Void ZGuiWidgetObject::OnHide() noexcept {
-    SuperType_::OnHide();
-    visiable_ = false;
-}
-Void ZGuiWidgetObject::OnShow() noexcept {
-    SuperType_::OnShow();
-    visiable_ = true;
-}
 
 ZGuiWidgetObject::ZGuiWidgetObject() noexcept 
     : SuperType_()
