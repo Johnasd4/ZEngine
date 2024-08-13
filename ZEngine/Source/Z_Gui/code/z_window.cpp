@@ -170,6 +170,7 @@ NODISCARD ReturnType ZWindow::Execute() noexcept {
     //release imgui resourses
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
+    ImPlot::DestroyContext();
     ImGui::DestroyContext();
 
     //release opengl resourses
@@ -553,6 +554,7 @@ NODISCARD ReturnType ZWindow::CreateP(
     ImGui::SetCurrentContext(window_context_);
     ImGui_ImplGlfw_InitForOpenGL(window_handle_, true);
     ImGui_ImplOpenGL3_Init("#version 130");
+    ImPlot::CreateContext();
 
     window_state_ = kWindowStateOpened;
     internal::ZWindowCallback::SetActiveWindowPtr(this);
