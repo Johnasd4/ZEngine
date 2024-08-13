@@ -60,7 +60,7 @@ Void ZFrame::Begin() noexcept {
 
     //begin widgets
     for (auto widget_ptr_iter = widget_ptr_set_.Begin(); widget_ptr_iter != widget_ptr_set_.End(); ++widget_ptr_iter) {
-        ZWidgetObject* widget_ptr = *widget_ptr_iter;
+        ZGuiWidgetObject* widget_ptr = *widget_ptr_iter;
         widget_ptr->Begin();
     }
 
@@ -116,7 +116,7 @@ Void ZFrame::Tick(Float32 _delta_sec) noexcept {
 
             //tick widgets
             for (auto widget_ptr_iter = widget_ptr_set_.Begin(); widget_ptr_iter != widget_ptr_set_.End(); ++widget_ptr_iter) {
-                ZWidgetObject* widget_ptr = *widget_ptr_iter;
+                ZGuiWidgetObject* widget_ptr = *widget_ptr_iter;
                 widget_ptr->Tick(_delta_sec);
             }
 
@@ -155,7 +155,7 @@ Void ZFrame::Tick(Float32 _delta_sec) noexcept {
         if (Enabled()) {
             //tick widgets
             for (auto widget_ptr_iter = widget_ptr_set_.Begin(); widget_ptr_iter != widget_ptr_set_.End(); ++widget_ptr_iter) {
-                ZWidgetObject* widget_ptr = *widget_ptr_iter;
+                ZGuiWidgetObject* widget_ptr = *widget_ptr_iter;
                 widget_ptr->Tick(_delta_sec);
             }
 
@@ -178,7 +178,7 @@ Void ZFrame::Reset() noexcept {
 
     //reset widgets
     for (auto widget_ptr_iter = widget_ptr_set_.Begin(); widget_ptr_iter != widget_ptr_set_.End(); ++widget_ptr_iter) {
-        ZWidgetObject* widget_ptr = *widget_ptr_iter;
+        ZGuiWidgetObject* widget_ptr = *widget_ptr_iter;
         widget_ptr->Reset();
     }
 
@@ -189,7 +189,7 @@ Void ZFrame::Reset() noexcept {
     }
 }
 
-Void ZFrame::Add(ZWidgetObject* _widget_obj) noexcept {
+Void ZFrame::Add(ZGuiWidgetObject* _widget_obj) noexcept {
     if (_widget_obj->WidgetType() == kWidgetTypeFrame) {
         frame_ptr_set_.Insert(static_cast<ZFrame*>(_widget_obj));
         dynamic_cast<ZFrame*>(_widget_obj)->UpdateFrameLevelP(frame_level_);
@@ -204,8 +204,8 @@ Void ZFrame::SetBackgruondColour(GuiColour _colour) noexcept {
     background_colour_ = _colour;
 }
 
-NODISCARD ZFrame::WidgetTypeEnum ZFrame::WidgetType() const noexcept {
-    return WidgetTypeEnum::kWidgetTypeFrame;
+NODISCARD ZFrame::TypeEnum_ ZFrame::WidgetType() const noexcept {
+    return TypeEnum_::kWidgetTypeFrame;
 }
 
 NODISCARD GuiColour ZFrame::BackgruondColour() const noexcept {
@@ -263,7 +263,7 @@ Void ZFrame::OnScrollMove(Float32 _x_offset, Float32 _y_offset) noexcept {
 Void ZFrame::OnMouseMove(GuiPos _pre_pos, GuiPos _cur_pos) noexcept {
     SuperType_::OnMouseMove(_pre_pos, _cur_pos);
     for (auto widget_ptr_iter = widget_ptr_set_.Begin(); widget_ptr_iter != widget_ptr_set_.End(); ++widget_ptr_iter) {
-        ZWidgetObject* widget_ptr = *widget_ptr_iter;
+        ZGuiWidgetObject* widget_ptr = *widget_ptr_iter;
         widget_ptr->OnMouseMove(_pre_pos, _cur_pos);
     }
 }

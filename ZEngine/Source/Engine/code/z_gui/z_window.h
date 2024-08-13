@@ -185,7 +185,7 @@ private:
 
     GLFWwindow* window_handle_;
     ImGuiContext* window_context_;
-    TMultiset<ZFrame*, ZWidgetObjectCompare> frame_ptr_set_;
+    TMultiset<ZFrame*, ZGuiWidgetObjectCompare> frame_ptr_set_;
     WindowStateEnum_ window_state_;
 };
 

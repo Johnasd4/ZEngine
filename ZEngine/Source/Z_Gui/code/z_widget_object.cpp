@@ -23,27 +23,27 @@
 namespace zengine {
 namespace gui {
 
-Void ZWidgetObject::SetName(const Char* _name) noexcept { name_ = _name; }
+Void ZGuiWidgetObject::SetName(const Char* _name) noexcept { name_ = _name; }
 
-NODISCARD const Char* ZWidgetObject::Name() const noexcept { return name_.String(); }
+NODISCARD const Char* ZGuiWidgetObject::Name() const noexcept { return name_.String(); }
 
-Void ZWidgetObject::OnHide() noexcept {
+Void ZGuiWidgetObject::OnHide() noexcept {
     SuperType_::OnHide();
     visiable_ = false;
 }
-Void ZWidgetObject::OnShow() noexcept {
+Void ZGuiWidgetObject::OnShow() noexcept {
     SuperType_::OnShow();
     visiable_ = true;
 }
 
-ZWidgetObject::ZWidgetObject() noexcept 
+ZGuiWidgetObject::ZGuiWidgetObject() noexcept 
     : SuperType_()
     , priority_(kDefaultPriority)
     , visiable_(false)
     , name_("")
 {}
 
-ZWidgetObject::ZWidgetObject(
+ZGuiWidgetObject::ZGuiWidgetObject(
     const Char* _name,
     GuiSize _size,
     GuiPos _pos,
@@ -57,19 +57,19 @@ ZWidgetObject::ZWidgetObject(
     , name_(_name)
 {}
 
-ZWidgetObject::ZWidgetObject(ZWidgetObject&& _obj) noexcept 
+ZGuiWidgetObject::ZGuiWidgetObject(ZGuiWidgetObject&& _obj) noexcept 
     : SuperType_(std::move(_obj)) 
 { 
-    MoveP(std::forward<ZWidgetObject>(_obj)); 
+    MoveP(std::forward<ZGuiWidgetObject>(_obj)); 
 }
 
-ZWidgetObject& ZWidgetObject::operator=(ZWidgetObject&& _obj) noexcept {
+ZGuiWidgetObject& ZGuiWidgetObject::operator=(ZGuiWidgetObject&& _obj) noexcept {
     SuperType_::operator=(std::move(_obj));
-    MoveP(std::forward<ZWidgetObject>(_obj));
+    MoveP(std::forward<ZGuiWidgetObject>(_obj));
     return *this;
 }
 
-Void ZWidgetObject::MoveP(ZWidgetObject&& _obj) noexcept {
+Void ZGuiWidgetObject::MoveP(ZGuiWidgetObject&& _obj) noexcept {
     priority_ = _obj.priority_;
     visiable_ = _obj.visiable_;
     name_ = std::move(_obj.name_);

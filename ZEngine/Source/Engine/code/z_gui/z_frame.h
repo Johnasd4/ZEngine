@@ -42,7 +42,7 @@ enum ZFrameErrorCode : ReturnType {
 /*
     Frame class.
 */
-class GUI_DLLAPI ZFrame : public ZWidgetObject {
+class GUI_DLLAPI ZFrame : public ZGuiWidgetObject {
 public:
     /*
         The frame screen mode enum.
@@ -142,11 +142,11 @@ public:
     /*
         Adds a widget to the frame.
     */
-    virtual Void Add(ZWidgetObject* _widget_obj) noexcept;
+    virtual Void Add(ZGuiWidgetObject* _widget_obj) noexcept;
 
     virtual Void SetBackgruondColour(GuiColour _colour) noexcept;
 
-    NODISCARD virtual WidgetTypeEnum WidgetType() const noexcept;
+    NODISCARD virtual TypeEnum_ WidgetType() const noexcept;
 
     NODISCARD virtual GuiColour BackgruondColour() const noexcept;
 
@@ -162,7 +162,7 @@ public:
     virtual Void OnMouseMove(GuiPos _pre_pos, GuiPos _cur_pos) noexcept;
 
 protected:
-    using SuperType_ = ZWidgetObject;
+    using SuperType_ = ZGuiWidgetObject;
 
 private:
     ZFrame(const ZFrame&) = delete;
@@ -175,8 +175,8 @@ private:
     Int32 frame_flag_;
     Int32 frame_level_;
     GuiColour background_colour_;
-    TMultiset<ZWidgetObject*, ZWidgetObjectCompare> widget_ptr_set_;
-    TMultiset<ZFrame*, ZWidgetObjectCompare> frame_ptr_set_;
+    TMultiset<ZGuiWidgetObject*, ZGuiWidgetObjectCompare> widget_ptr_set_;
+    TMultiset<ZFrame*, ZGuiWidgetObjectCompare> frame_ptr_set_;
 };
 
 }//gui

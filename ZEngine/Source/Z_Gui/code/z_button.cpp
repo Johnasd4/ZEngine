@@ -96,8 +96,8 @@ Void ZButton::SetButtonActiveColour(GuiColour _colour) noexcept {
     button_active_colour_ = _colour;
 }
 
-NODISCARD ZButton::WidgetTypeEnum ZButton::WidgetType() const noexcept {
-    return WidgetTypeEnum::kWidgetTypeButton;
+NODISCARD ZButton::TypeEnum_ ZButton::WidgetType() const noexcept {
+    return TypeEnum_::kWidgetTypeButton;
 }
 
 NODISCARD GuiColour ZButton::ButtonColour() const noexcept {
