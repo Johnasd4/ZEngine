@@ -28,7 +28,7 @@
 namespace zengine {
 namespace gui {
 
-
+class ZGuiAdjustableObject;
 
 /*
     The base class of the gui classes.
@@ -36,11 +36,16 @@ namespace gui {
     instead of applying memory directly from the system.
     Object members:
     ZGuiObject* owner_ptr_
-    Bool enabled_
     ZString name_
+    Bool visiable_
+    Bool enabled_
+    Int32 priority_
 */
 class GUI_DLLAPI ZGuiObject : public ZObject {
 public:
+    static constexpr Int32 kDefaultPriority = 0;
+    static constexpr Float32 kDIsabledAlphaFactor = 0.5f;
+
     enum TypeEnum_ {
         kTypeWindow,
         kTypeFrame,
@@ -61,10 +66,9 @@ public:
     FORCEINLINE Void SetEnabled(Bool _enabled) noexcept { enabled_ = _enabled; }
     FORCEINLINE Void SetPriority(Int32 _priority) noexcept { priority_ = _priority; }
 
-    NODISCARD FORCEINLINE Bool Enabled() const noexcept { return enabled_; }
     NODISCARD FORCEINLINE Bool Visiable() const noexcept { return visiable_; }
     NODISCARD FORCEINLINE Int32 Priority() const noexcept { return priority_; }
-    NODISCARD FORCEINLINE ZGuiObject* OwnerPtr() const noexcept { return owner_ptr_; }
+    NODISCARD FORCEINLINE ZGuiAdjustableObject* OwnerPtr() const noexcept { return owner_ptr_; }
 
     /*
         Will be called when the application executes.
@@ -74,7 +78,6 @@ public:
         Ticks every frame, used for rendering.
     */
     virtual Void Tick(Float32 _delta_sec) noexcept;
-
     /*
         Resets the object.
     */
@@ -91,11 +94,13 @@ public:
     virtual Void SetName(const Char* _name) noexcept;
 
     NODISCARD virtual const Char* Name() const noexcept;
+    NODISCARD virtual Bool Enabled() const noexcept;
 
     NODISCARD virtual TypeEnum_ WidgetType() const noexcept = 0;
 
     //Base trigger functions.
-    virtual Void OnAdd(ZGuiObject* _owner_ptr) noexcept;
+    virtual Void OnAdd(ZGuiAdjustableObject* _owner_ptr) noexcept;
+    virtual Void OnRemove() noexcept;
     virtual Void OnHide() noexcept;
     virtual Void OnShow() noexcept;
     virtual Void OnKeyDown(KeyEnum _clicked_button, Int32 _mods) noexcept;
@@ -110,7 +115,10 @@ public:
     virtual Void OnMouseMove(GuiPos _pre_pos, GuiPos _cur_pos) noexcept;  
 
     Void BindAddEvent(
-        Void(*_add_event_ptr)(ZGuiObject* _this_ptr ,ZGuiObject* _owner_ptr)
+        Void(*_add_event_ptr)(ZGuiObject* _this_ptr , ZGuiAdjustableObject* _owner_ptr)
+    ) noexcept;
+    Void BindRemoveEvent(
+        Void(*_remove_event_ptr)(ZGuiObject* _this_ptr)
     ) noexcept;
     Void BindHideEvent(
         Void(*_hide_event_ptr)(ZGuiObject* _this_ptr)
@@ -146,14 +154,15 @@ protected:
     ZGuiObject() noexcept;
     ZGuiObject(ZGuiObject&& _obj) noexcept;
     ZGuiObject(
-        GuiSize _size,
-        GuiPos _pos,
-        Bool _enabled = true
+        ZString _name, 
+        Bool _visiable = true, 
+        Bool _enabled = true, 
+        Int32 _priority = kDefaultPriority
     ) noexcept;
 
-    ZGuiObject& operator=(ZGuiObject&& _obj) noexcept;
+    ~ZGuiObject() noexcept;
 
-    FORCEINLINE ~ZGuiObject() {}
+    ZGuiObject& operator=(ZGuiObject&& _obj) noexcept;
 
 private:
     ZGuiObject(const ZGuiObject&) = delete;
@@ -161,7 +170,8 @@ private:
 
     Void MoveP(ZGuiObject&& _obj) noexcept;
 
-    Void(*add_event_ptr_)(ZGuiObject* _this_ptr, ZGuiObject* _owner_ptr);
+    Void(*add_event_ptr_)(ZGuiObject* _this_ptr, ZGuiAdjustableObject* _owner_ptr);
+    Void(*remove_event_ptr_)(ZGuiObject* _this_ptr);
     Void(*hide_event_ptr_)(ZGuiObject* _this_ptr);
     Void(*show_event_ptr_)(ZGuiObject* _this_ptr);
     Void(*key_down_event_ptr_)(ZGuiObject* _this_ptr, KeyEnum _clicked_button, Int32 _mods);
@@ -172,39 +182,36 @@ private:
     Void(*scroll_move_event_ptr_)(ZGuiObject* _this_ptr, Float32 _x_offset, Float32 _y_offset);
     Void(*mouse_move_event_ptr_)(ZGuiObject* _this_ptr, GuiPos _pre_pos, GuiPos _cur_pos);
 
-    ZGuiObject* owner_ptr_;
+    ZGuiAdjustableObject* owner_ptr_;
     ZString name_;
-    Bool enabled_;
     Bool visiable_;
+    Bool enabled_;
     Int32 priority_;
 };
 
-struct ZGuiWidgetObjectCompare {
+struct ZGuiObjectCompare {
     NODISCARD FORCEINLINE Bool operator()(
-        const ZGuiWidgetObject* _left_obj_ptr, const ZGuiWidgetObject* _right_obj_ptr
+        const ZGuiObject* _left_obj_ptr, const ZGuiObject* _right_obj_ptr
         ) const noexcept {
         return _left_obj_ptr->Priority() < _right_obj_ptr->Priority();
     }
 };
 
 /*
-    The base class of the gui widget adjustable classes.
-    Inheriting from this class allows the instance to apply memory from the memorypool,
-    instead of applying memory directly from the system.
+    The base class of the gui widget adjustable classes. Different from ZGuiObject, this class can move and resize the
+    object.
     Object members:
-    Int32 width_: The width of the gui object.
-    Int32 height_: The height of the gui object.
+    GuiSize size_
+    GuiPos pos_
 */
-class GUI_DLLAPI ZGuiWidgetAdjustableObject : public ZGuiObject {
+class GUI_DLLAPI ZGuiAdjustableObject : public ZGuiObject {
 public:
+    static constexpr Int32 kDefaultPriority = 0x1000;
+
     /*
-        Returns if the size changed last tick.
+        Ticks every frame, used for rendering.
     */
-    NODISCARD FORCEINLINE Bool SizeChanged() const noexcept { return size_changed_; }
-    /*
-        Returns if the position changed last tick.
-    */
-    NODISCARD FORCEINLINE Bool PosChanged() const noexcept { return pos_changed_; }
+    virtual Void Tick(Float32 _delta_sec) noexcept;
 
     virtual Void SetWidth(Float32 _width) noexcept;
     virtual Void SetHeight(Float32 _height) noexcept;
@@ -228,14 +235,18 @@ public:
     virtual Void OnResize(GuiSize _pre_size, GuiSize _cur_size) noexcept;
     virtual Void OnMove(GuiPos _pre_pos, GuiPos _cur_pos) noexcept;
 
-    Void BindResizeEvent(Void(*_resize_event_ptr)(GuiSize _pre_size, GuiSize _cur_size)) noexcept;
-    Void BindMoveEvent(Void(*_move_event_ptr)(GuiPos _pre_pos, GuiPos _cur_pos)) noexcept;
+    Void BindResizeEvent(
+        Void(*_resize_event_ptr)(ZGuiAdjustableObject* _this_ptr, GuiSize _pre_size, GuiSize _cur_size)
+    ) noexcept;
+    Void BindMoveEvent(
+        Void(*_move_event_ptr)(ZGuiAdjustableObject* _this_ptr, GuiPos _pre_pos, GuiPos _cur_pos)
+    ) noexcept;
 protected:
     using SuperType_ = ZGuiObject;
 
-    ZGuiWidgetAdjustableObject() noexcept;
-    ZGuiWidgetAdjustableObject(ZGuiWidgetAdjustableObject&& _obj) noexcept;
-    ZGuiWidgetAdjustableObject(
+    ZGuiAdjustableObject() noexcept;
+    ZGuiAdjustableObject(ZGuiAdjustableObject&& _obj) noexcept;
+    ZGuiAdjustableObject(
         const Char* _name,
         GuiSize _size,
         GuiPos _pos,
@@ -244,25 +255,29 @@ protected:
         Bool _enabled = true
     ) noexcept;
 
-    ZGuiWidgetAdjustableObject& operator=(ZGuiWidgetAdjustableObject&& _obj) noexcept;
+    ZGuiAdjustableObject& operator=(ZGuiAdjustableObject&& _obj) noexcept;
 
-    FORCEINLINE ~ZGuiWidgetAdjustableObject() {}
+    ~ZGuiAdjustableObject() noexcept;
+
+    NODISCARD FORCEINLINE Bool SizeChanged() noexcept { return size_changed_; }
+    NODISCARD FORCEINLINE Bool PosChanged() noexcept { return pos_changed_; }
 
 private:
-    ZGuiWidgetAdjustableObject(const ZGuiWidgetAdjustableObject&) = delete;
-    ZGuiWidgetAdjustableObject& operator=(const ZGuiWidgetAdjustableObject&) = delete;
+    ZGuiAdjustableObject(const ZGuiAdjustableObject&) = delete;
+    ZGuiAdjustableObject& operator=(const ZGuiAdjustableObject&) = delete;
 
-    Void MoveP(ZGuiWidgetAdjustableObject&& _obj) noexcept;
+    Void MoveP(ZGuiAdjustableObject&& _obj) noexcept;
 
-    Void(*resize_event_ptr_)(GuiSize _pre_size, GuiSize _cur_size);
-    Void(*move_event_ptr_)(GuiPos _pre_pos, GuiPos _cur_pos);
+    Void(*resize_event_ptr_)(ZGuiAdjustableObject* _this_ptr, GuiSize _pre_size, GuiSize _cur_size);
+    Void(*move_event_ptr_)(ZGuiAdjustableObject* _this_ptr, GuiPos _pre_pos, GuiPos _cur_pos);
 
-    GuiSize size_;
-    GuiPos pos_;
     GuiSize pre_size_;
     GuiPos pre_pos_;
     Bool size_changed_;
     Bool pos_changed_;
+
+    GuiSize size_;
+    GuiPos pos_;
 };
 
 }//gui

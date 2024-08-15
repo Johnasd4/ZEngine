@@ -147,7 +147,7 @@ public:
         return TPair<Iterator_, Bool>(temp_pair.first, temp_pair.second);
     }
 
-    FORCEINLINE Iterator_ Erase(const _ObjectType& _value) noexcept { return set_.erase(_value); }
+    FORCEINLINE Bool Erase(const _ObjectType& _value) noexcept { return set_.erase(_value); }
     FORCEINLINE Iterator_ Erase(Iterator_ _pos) noexcept { return set_.erase(_pos); }
     FORCEINLINE Iterator_ Erase(ConstIterator_ _first, ConstIterator_ _last) noexcept { 
         return set_.erase(_first, _last); 
@@ -278,7 +278,7 @@ public:
         return set_.emplace_hint(_pos, std::forward<_ArgsType>(_args)...);
     }
 
-    FORCEINLINE Iterator_ Erase(const _ObjectType& _value) noexcept { return set_.erase(_value); }
+    FORCEINLINE Bool Erase(const _ObjectType& _value) noexcept { return set_.erase(_value); }
     FORCEINLINE Iterator_ Erase(Iterator_ _pos) noexcept { return set_.erase(_pos); }
     FORCEINLINE Iterator_ Erase(ConstIterator_ _first, ConstIterator_ _last) noexcept { 
         return set_.erase(_first, _last); 

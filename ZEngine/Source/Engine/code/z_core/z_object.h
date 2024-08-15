@@ -52,10 +52,11 @@ protected:
     FORCEINLINE constexpr ZObject(const ZObject& _obj) noexcept {}
     FORCEINLINE constexpr ZObject(ZObject&& _obj) noexcept {}
 
+    FORCEINLINE constexpr ~ZObject() noexcept {}
+
     FORCEINLINE constexpr const ZObject& operator=(const ZObject& _obj) noexcept { return *this; }
     FORCEINLINE constexpr const ZObject& operator=(ZObject&& _obj) noexcept { return *this; }
 
-    FORCEINLINE constexpr ~ZObject() noexcept {}
 
 private:
     static Void* operator new[](SizeType) = delete;

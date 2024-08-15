@@ -44,17 +44,30 @@ Void ZGuiObject::SetName(const Char* _name) noexcept { name_ = _name; }
 
 NODISCARD const Char* ZGuiObject::Name() const noexcept { return name_.String(); }
 
+NODISCARD Bool ZGuiObject::Enabled() const noexcept {
+    return enabled_ && (owner_ptr_ == nullptr ? true : owner_ptr_->Enabled());
+}
 
-Void ZGuiObject::OnAdd(ZGuiObject* _owner_ptr) noexcept { owner_ptr_ = _owner_ptr; }
+Void ZGuiObject::OnAdd(ZGuiAdjustableObject* _owner_ptr) noexcept { 
+    owner_ptr_ = _owner_ptr; 
+    if (add_event_ptr_ != nullptr) {
+        add_event_ptr_(this, _owner_ptr);
+    }
+}
+Void ZGuiObject::OnRemove() noexcept {
+    if (remove_event_ptr_ != nullptr) {
+        remove_event_ptr_(this);
+    }
+    owner_ptr_ = nullptr;
+}
 Void ZGuiObject::OnHide() noexcept {
     if (hide_event_ptr_ != nullptr) {
-        hide_event_ptr_();
-    }
-    
+        hide_event_ptr_(this);
+    } 
 }
 Void ZGuiObject::OnShow() noexcept {
     if (show_event_ptr_ != nullptr) {
-        show_event_ptr_();
+        show_event_ptr_(this);
     }
 }
 Void ZGuiObject::OnKeyDown(KeyEnum _clicked_button, Int32 _mods) noexcept {
@@ -94,9 +107,14 @@ Void ZGuiObject::OnMouseMove(GuiPos _pre_pos, GuiPos _cur_pos) noexcept {
 }
 
 Void ZGuiObject::BindAddEvent(
-    Void(*_add_event_ptr)(ZGuiObject* _this_ptr, ZGuiObject* _owner_ptr)
+    Void(*_add_event_ptr)(ZGuiObject* _this_ptr, ZGuiAdjustableObject* _owner_ptr)
 ) noexcept {
     add_event_ptr_ = _add_event_ptr;
+}
+Void ZGuiObject::BindRemoveEvent(
+    Void(*_remove_event_ptr)(ZGuiObject* _this_ptr)
+) noexcept {
+    remove_event_ptr_ = _remove_event_ptr;
 }
 Void ZGuiObject::BindHideEvent(
     Void(*_hide_event_ptr)(ZGuiObject* _this_ptr)
@@ -148,10 +166,11 @@ ZGuiObject::ZGuiObject() noexcept
     : SuperType_()
     , owner_ptr_(nullptr)
     , name_()
+    , visiable_(false)
     , enabled_(false)
-    , visiable_(true)
-    , priority_(0)
+    , priority_(kDefaultPriority)
     , add_event_ptr_(nullptr)
+    , remove_event_ptr_(nullptr)
     , hide_event_ptr_(nullptr)
     , show_event_ptr_(nullptr)
     , key_down_event_ptr_(nullptr)
@@ -169,24 +188,21 @@ ZGuiObject::ZGuiObject(ZGuiObject&& _obj) noexcept
 }
 
 ZGuiObject::ZGuiObject(
-    GuiSize _size,
-    GuiPos _pos,
-    Bool _enabled
+    ZString _name, 
+    Bool _visiable, 
+    Bool _enabled, 
+    Int32 _priority
 ) noexcept
     : SuperType_()
-    , size_(_size)
-    , pos_(_pos)
-    , pre_size_()
-    , pre_pos_()
-    , size_changed_(true)
-    , pos_changed_(true)
     , owner_ptr_(nullptr)
+    , name_(_name)
+    , visiable_(_visiable)
     , enabled_(_enabled)
-    , resize_event_ptr_(nullptr)
-    , move_event_ptr_(nullptr)
+    , priority_(_priority)
+    , add_event_ptr_(nullptr)
+    , remove_event_ptr_(nullptr)
     , hide_event_ptr_(nullptr)
     , show_event_ptr_(nullptr)
-    , add_event_ptr_(nullptr)
     , key_down_event_ptr_(nullptr)
     , key_up_event_ptr_(nullptr)
     , key_press_event_ptr_(nullptr)
@@ -195,6 +211,8 @@ ZGuiObject::ZGuiObject(
     , scroll_move_event_ptr_(nullptr)
     , mouse_move_event_ptr_(nullptr) {}
 
+ZGuiObject::~ZGuiObject() noexcept {}
+
 ZGuiObject& ZGuiObject::operator=(ZGuiObject&& _obj) noexcept {
     SuperType_::operator=(std::move(_obj));
     MoveP(std::forward<ZGuiObject>(_obj));
@@ -202,19 +220,15 @@ ZGuiObject& ZGuiObject::operator=(ZGuiObject&& _obj) noexcept {
 }
 
 Void ZGuiObject::MoveP(ZGuiObject&& _obj) noexcept {
-    size_ = _obj.size_;
-    pos_ = _obj.pos_;
-    pre_size_ = _obj.pre_size_;
-    pre_pos_ = _obj.pre_pos_;
-    size_changed_ = _obj.size_changed_;
-    pos_changed_ = _obj.pos_changed_;
     owner_ptr_ = _obj.owner_ptr_;
+    name_ = std::move(_obj.name_);
+    visiable_ = _obj.visiable_;
     enabled_ = _obj.enabled_;
-    resize_event_ptr_ = _obj.resize_event_ptr_;
-    move_event_ptr_ = _obj.move_event_ptr_;
+    priority_ = _obj.priority_;
+    add_event_ptr_ = _obj.add_event_ptr_;
+    remove_event_ptr_ = _obj.remove_event_ptr_;
     hide_event_ptr_ = _obj.hide_event_ptr_;
     show_event_ptr_ = _obj.show_event_ptr_;
-    add_event_ptr_ = _obj.add_event_ptr_;
     key_down_event_ptr_ = _obj.key_down_event_ptr_;
     key_up_event_ptr_ = _obj.key_up_event_ptr_;
     key_press_event_ptr_ = _obj.key_press_event_ptr_;
@@ -222,19 +236,14 @@ Void ZGuiObject::MoveP(ZGuiObject&& _obj) noexcept {
     mouse_up_event_ptr_ = _obj.mouse_up_event_ptr_;
     scroll_move_event_ptr_ = _obj.scroll_move_event_ptr_;
     mouse_move_event_ptr_ = _obj.mouse_move_event_ptr_;
-    _obj.size_ = { 0,0 };
-    _obj.pos_ = { 0,0 };
-    _obj.pre_size_ = { 0,0 };
-    _obj.pre_pos_ = { 0,0 };
-    _obj.size_changed_ = false;
-    _obj.pos_changed_ = false;
     _obj.owner_ptr_ = nullptr;
+    _obj.visiable_ = false;
     _obj.enabled_ = false;
-    _obj.resize_event_ptr_ = nullptr;
-    _obj.move_event_ptr_ = nullptr;
+    _obj.priority_ = kDefaultPriority;
+    _obj.add_event_ptr_ = nullptr;
+    _obj.remove_event_ptr_ = nullptr;
     _obj.hide_event_ptr_ = nullptr;
     _obj.show_event_ptr_ = nullptr;
-    _obj.add_event_ptr_ = nullptr;
     _obj.key_down_event_ptr_ = nullptr;
     _obj.key_up_event_ptr_ = nullptr;
     _obj.key_press_event_ptr_ = nullptr;
@@ -243,7 +252,9 @@ Void ZGuiObject::MoveP(ZGuiObject&& _obj) noexcept {
     _obj.scroll_move_event_ptr_ = nullptr;
     _obj.mouse_move_event_ptr_ = nullptr;
 }
-Void ZGuiObject::Tick(Float32 _delta_sec) noexcept {
+
+Void ZGuiAdjustableObject::Tick(Float32 _delta_sec) noexcept {
+    SuperType_::Tick(_delta_sec);
     pre_size_ = size_;
     pre_pos_ = pos_;
     if (size_changed_) {
@@ -256,48 +267,123 @@ Void ZGuiObject::Tick(Float32 _delta_sec) noexcept {
     }
 }
 
-
-Void ZGuiObject::SetWidth(Float32 _width) noexcept {
+Void ZGuiAdjustableObject::SetWidth(Float32 _width) noexcept {
     size_.width_ = _width;
     size_changed_ = true;
 }
-Void ZGuiObject::SetHeight(Float32 _height) noexcept {
+Void ZGuiAdjustableObject::SetHeight(Float32 _height) noexcept {
     size_.height_ = _height;
     size_changed_ = true;
 }
-Void ZGuiObject::SetSize(GuiSize _size) noexcept {
+Void ZGuiAdjustableObject::SetSize(GuiSize _size) noexcept {
     size_ = _size;
     size_changed_ = true;
 }
-Void ZGuiObject::SetXPos(Float32 _x_pos) noexcept {
+Void ZGuiAdjustableObject::SetXPos(Float32 _x_pos) noexcept {
     pos_.x_ = _x_pos;
     pos_changed_ = true;
 }
-Void ZGuiObject::SetYPos(Float32 _y_pos) noexcept {
+Void ZGuiAdjustableObject::SetYPos(Float32 _y_pos) noexcept {
     pos_.y_ = _y_pos;
     pos_changed_ = true;
 }
-Void ZGuiObject::SetPos(GuiPos _pos) noexcept {
+Void ZGuiAdjustableObject::SetPos(GuiPos _pos) noexcept {
     pos_ = _pos;
     pos_changed_ = true;
 }
 
-NODISCARD Float32 ZGuiObject::Width() const noexcept { return size_.width_; }
-NODISCARD Float32 ZGuiObject::Height() const noexcept { return size_.height_; }
-NODISCARD GuiSize ZGuiObject::Size() const noexcept { return size_; }
-NODISCARD Float32 ZGuiObject::XPos() const noexcept { return pos_.x_; }
-NODISCARD Float32 ZGuiObject::YPos() const noexcept { return pos_.y_; }
-NODISCARD GuiPos ZGuiObject::Pos() const noexcept { return pos_; }
-NODISCARD GuiPos ZGuiObject::AbsPos() const noexcept { return pos_ + owner_ptr_->AbsPos(); }
-Void ZGuiObject::OnResize(GuiSize _pre_size, GuiSize _cur_size) noexcept {
+NODISCARD Float32 ZGuiAdjustableObject::Width() const noexcept { return size_.width_; }
+NODISCARD Float32 ZGuiAdjustableObject::Height() const noexcept { return size_.height_; }
+NODISCARD GuiSize ZGuiAdjustableObject::Size() const noexcept { return size_; }
+NODISCARD Float32 ZGuiAdjustableObject::XPos() const noexcept { return pos_.x_; }
+NODISCARD Float32 ZGuiAdjustableObject::YPos() const noexcept { return pos_.y_; }
+NODISCARD GuiPos ZGuiAdjustableObject::Pos() const noexcept { return pos_; }
+NODISCARD GuiPos ZGuiAdjustableObject::AbsPos() const noexcept { return pos_ + OwnerPtr()->AbsPos(); }
+
+Void ZGuiAdjustableObject::OnResize(GuiSize _pre_size, GuiSize _cur_size) noexcept {
     if (resize_event_ptr_ != nullptr) {
-        resize_event_ptr_(_pre_size, _cur_size);
+        resize_event_ptr_(this, _pre_size, _cur_size);
     }
 }
-Void ZGuiObject::OnMove(GuiPos _pre_pos, GuiPos _cur_pos) noexcept {
+Void ZGuiAdjustableObject::OnMove(GuiPos _pre_pos, GuiPos _cur_pos) noexcept {
     if (move_event_ptr_ != nullptr) {
-        move_event_ptr_(_pre_pos, _cur_pos);
+        move_event_ptr_(this, _pre_pos, _cur_pos);
     }
 }
+
+Void ZGuiAdjustableObject::BindResizeEvent(
+    Void(*_resize_event_ptr)(ZGuiAdjustableObject* _this_ptr, GuiSize _pre_size, GuiSize _cur_size)
+) noexcept {
+    resize_event_ptr_ = _resize_event_ptr;
+}
+Void ZGuiAdjustableObject::BindMoveEvent(
+    Void(*_move_event_ptr)(ZGuiAdjustableObject* _this_ptr, GuiPos _pre_pos, GuiPos _cur_pos)
+) noexcept {
+    move_event_ptr_ = _move_event_ptr;
+}
+
+ZGuiAdjustableObject::ZGuiAdjustableObject() noexcept
+    : SuperType_()
+    , size_()
+    , pos_()
+    , pre_size_()
+    , pre_pos_()
+    , size_changed_(false)
+    , pos_changed_(false)
+    , resize_event_ptr_(nullptr)
+    , move_event_ptr_(nullptr) {}
+
+ZGuiAdjustableObject::ZGuiAdjustableObject(ZGuiAdjustableObject&& _obj) noexcept
+    : SuperType_(std::move(_obj))
+{
+    MoveP(std::forward<ZGuiAdjustableObject>(_obj));
+}
+
+ZGuiAdjustableObject::ZGuiAdjustableObject(
+    const Char* _name,
+    GuiSize _size,
+    GuiPos _pos,
+    Int32 _priority,
+    Bool _visiable,
+    Bool _enabled
+) noexcept
+    : SuperType_(_name, _priority, _visiable, _enabled)
+    , size_(_size)
+    , pos_(_pos)
+    , pre_size_()
+    , pre_pos_()
+    , size_changed_(true)
+    , pos_changed_(true)
+    , resize_event_ptr_(nullptr)
+    , move_event_ptr_(nullptr) {}
+
+ZGuiAdjustableObject::~ZGuiAdjustableObject() noexcept {}
+
+ZGuiAdjustableObject& ZGuiAdjustableObject::operator=(ZGuiAdjustableObject&& _obj) noexcept {
+    SuperType_::operator=(std::move(_obj));
+    MoveP(std::forward<ZGuiAdjustableObject>(_obj));
+    return *this;
+}
+
+Void ZGuiAdjustableObject::MoveP(ZGuiAdjustableObject&& _obj) noexcept {
+    size_ = _obj.size_;
+    pos_ = _obj.pos_;
+    pre_size_ = _obj.pre_size_;
+    pre_pos_ = _obj.pre_pos_;
+    size_changed_ = _obj.size_changed_;
+    pos_changed_ = _obj.pos_changed_;
+    resize_event_ptr_ = _obj.resize_event_ptr_;
+    move_event_ptr_ = _obj.move_event_ptr_;
+    _obj.size_ = { 0 ,0 };
+    _obj.pos_ = { 0 ,0 };
+    _obj.pre_size_ = { 0 ,0 };
+    _obj.pre_pos_ = { 0 ,0 };
+    _obj.size_changed_ = false;
+    _obj.pos_changed_ = false;
+    _obj.resize_event_ptr_ = nullptr;
+    _obj.move_event_ptr_ = nullptr;
+}
+
+
 }//gui
 }//zengine

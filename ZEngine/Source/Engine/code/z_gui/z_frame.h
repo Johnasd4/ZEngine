@@ -24,7 +24,7 @@
 #include "../z_core/t_set.h"
 #include "../z_core/z_string.h"
 
-#include "z_widget_object.h"
+#include "z_gui_object.h"
 
 namespace zengine {
 namespace gui {
@@ -34,7 +34,8 @@ namespace error_code {
 enum ZFrameErrorCode : ReturnType {
     kZFrameErrorCodeLinkError = kErrorCodeBaseZFrame,
     kZFrameErrorCodeFrameAreadyCreated,
-    kZFrameErrorCodeFrameNotExist
+    kZFrameErrorCodeFrameNotExist,
+    kZFrameErrorCodeFrameWidgetTypeError
 };
 
 }//error_code
@@ -42,7 +43,7 @@ enum ZFrameErrorCode : ReturnType {
 /*
     Frame class.
 */
-class GUI_DLLAPI ZFrame : public ZGuiWidgetObject {
+class GUI_DLLAPI ZFrame : public ZGuiAdjustableObject {
 public:
     /*
         The frame screen mode enum.
@@ -142,13 +143,17 @@ public:
     /*
         Adds a widget to the frame.
     */
-    virtual Void Add(ZGuiWidgetObject* _widget_obj) noexcept;
+    virtual Void Add(ZGuiObject* _obj) noexcept;
+    /*
+        Removes a widget from the frame.
+    */
+    virtual Void Remove(ZGuiObject* _obj) noexcept;
 
     virtual Void SetBackgruondColour(GuiColour _colour) noexcept;
 
-    NODISCARD virtual TypeEnum_ WidgetType() const noexcept;
-
     NODISCARD virtual GuiColour BackgruondColour() const noexcept;
+
+    NODISCARD virtual TypeEnum_ WidgetType() const noexcept;
 
     virtual Void OnKeyDown(KeyEnum _clicked_button, Int32 _mods) noexcept;
     virtual Void OnKeyUp(KeyEnum _clicked_button, Int32 _mods) noexcept;
@@ -162,7 +167,7 @@ public:
     virtual Void OnMouseMove(GuiPos _pre_pos, GuiPos _cur_pos) noexcept;
 
 protected:
-    using SuperType_ = ZGuiWidgetObject;
+    using SuperType_ = ZGuiAdjustableObject;
 
 private:
     ZFrame(const ZFrame&) = delete;
@@ -175,8 +180,8 @@ private:
     Int32 frame_flag_;
     Int32 frame_level_;
     GuiColour background_colour_;
-    TMultiset<ZGuiWidgetObject*, ZGuiWidgetObjectCompare> widget_ptr_set_;
-    TMultiset<ZFrame*, ZGuiWidgetObjectCompare> frame_ptr_set_;
+    TMultiset<ZGuiObject*, ZGuiObjectCompare> widget_ptr_set_;
+    TMultiset<ZFrame*, ZGuiObjectCompare> frame_ptr_set_;
 };
 
 }//gui

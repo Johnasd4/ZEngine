@@ -48,7 +48,7 @@ enum ZWindowErrorCode : ReturnType {
     Window class. Only creates the window, before adding widgets, a ZFrame must be added first. 
     The window contain's the frames and the frame's contains the widgets.
 */
-class GUI_DLLAPI ZWindow : public ZGuiObject {
+class GUI_DLLAPI ZWindow : public ZGuiAdjustableObject {
 public:
     /*
         The window screen mode enum.
@@ -67,6 +67,8 @@ public:
         kWindowStateOpened,
         kWindowStateHidden
     };
+
+    static constexpr GuiColour kDefaultBackGroundColour = { 0.3f, 0.3f, 0.3f, 1.0f };
 
     /*
         Sets Vertical synchronization.
@@ -129,21 +131,26 @@ public:
         Adds a frame to the window.
     */
     virtual Void Add(ZFrame* _frame) noexcept;
+    /*
+        Remove a frame from the window.
+    */
+    virtual Void Remove(ZFrame* _frame) noexcept;
 
     virtual Void SetName(const Char* _name) noexcept;
 
     virtual Void SetBackgruondColour(GuiColour _colour) noexcept;
     virtual Void SetScreenMode(WindowScreenModeEnum_ _screen_mode) noexcept;
 
+    NODISCARD virtual const Char* Name() const noexcept;
     /*
         Returns the position that actually uses by the library.
         This class is the base position.
     */
     NODISCARD virtual GuiPos AbsPos() const noexcept;
-    NODISCARD virtual const Char* Name() const noexcept;
 
     NODISCARD virtual GuiColour BackgruondColour() const noexcept;
 
+    NODISCARD virtual TypeEnum_ WidgetType() const noexcept;
 
     virtual Void OnKeyDown(KeyEnum _clicked_button, Int32 _mods) noexcept;
     virtual Void OnKeyUp(KeyEnum _clicked_button, Int32 _mods) noexcept;
@@ -161,7 +168,7 @@ public:
     Void BindDestroyEvent(Void(*_destroy_event_ptr)()) noexcept;
 
 protected:
-    using SuperType_ = ZGuiObject;
+    using SuperType_ = ZGuiAdjustableObject;
 
 private:
     friend class ZWindowManager;
@@ -185,7 +192,8 @@ private:
 
     GLFWwindow* window_handle_;
     ImGuiContext* window_context_;
-    TMultiset<ZFrame*, ZGuiWidgetObjectCompare> frame_ptr_set_;
+    GuiColour background_colour_;
+    TMultiset<ZFrame*, ZGuiObjectCompare> frame_ptr_set_;
     WindowStateEnum_ window_state_;
 };
 

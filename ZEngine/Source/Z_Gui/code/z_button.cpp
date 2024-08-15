@@ -97,7 +97,7 @@ Void ZButton::SetButtonActiveColour(GuiColour _colour) noexcept {
 }
 
 NODISCARD ZButton::TypeEnum_ ZButton::WidgetType() const noexcept {
-    return TypeEnum_::kWidgetTypeButton;
+    return TypeEnum_::kTypeButton;
 }
 
 NODISCARD GuiColour ZButton::ButtonColour() const noexcept {
@@ -110,9 +110,13 @@ NODISCARD GuiColour ZButton::ButtonActiveColour() const noexcept {
     return button_active_colour_;
 }
 
-Void ZButton::OnClick() noexcept {}
+Void ZButton::OnClick() noexcept {
+    if (click_event_ptr_ != nullptr) {
+        click_event_ptr_(this);
+    }
+}
 
-Void ZButton::BindCkickEvent(Void(*_click_event_ptr)()) noexcept {
+Void ZButton::BindCkickEvent(Void(*_click_event_ptr)(ZButton* _this_ptr)) noexcept {
     click_event_ptr_ = _click_event_ptr;
 }
 

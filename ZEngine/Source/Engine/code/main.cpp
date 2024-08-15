@@ -42,7 +42,6 @@ Void TestThreadFunc() {
     //test_window.Add(&test_frame_2);  
     test_frame.Add(&test_frame_2);
     test_frame_2.Add(&test_button);
-
     //test_window.Hide();
     link_code = test_window.Execute();
     //app.AddWindow(&test_window2);
@@ -75,7 +74,7 @@ Int32 main() {
     ZFrame test_frame("frame1", GuiSize(500, 500), GuiPos(100, 200));
     test_frame.SetBackgruondColour({ 1.0f, 0.0f, 0.0f, 1.0f });
     test_window.Add(&test_frame);
-    test_window.BindMoveEvent([](GuiPos _pre_pos, GuiPos cur_pos) {
+    test_window.BindMoveEvent([](ZGuiAdjustableObject* _this_ptr, GuiPos _pre_pos, GuiPos cur_pos) {
         std::cout << cur_pos.x_ << " " << cur_pos.y_ << endl;
     });
     ZFrame test_frame_2("frame2", GuiSize(200, 200), GuiPos(100, 200));

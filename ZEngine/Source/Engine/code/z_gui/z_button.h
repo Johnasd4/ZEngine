@@ -41,7 +41,7 @@ enum ZButtonErrorCode : ReturnType {
 /*
     Frame class.
 */
-class GUI_DLLAPI ZButton : public ZGuiWidgetObject {
+class GUI_DLLAPI ZButton : public ZGuiAdjustableObject {
 public:
     static constexpr GuiColour kDefaultButtonColour = { 0.4f, 0.4f, 0.4f, 1.0f };
     static constexpr GuiColour kDefaultButtonHoveredColour = { 0.2f, 0.2f, 0.2f, 1.0f };
@@ -72,10 +72,10 @@ public:
 
     virtual Void OnClick() noexcept;
 
-    Void BindCkickEvent(Void(*_click_event_ptr)()) noexcept;
+    Void BindCkickEvent(Void(*_click_event_ptr)(ZButton* _this_ptr)) noexcept;
 
 protected:
-    using SuperType_ = ZGuiWidgetObject;
+    using SuperType_ = ZGuiAdjustableObject;
 
 private:
     ZButton(const ZButton&) = delete;
@@ -83,7 +83,7 @@ private:
 
     Void MoveP(ZButton&& _button) noexcept;
 
-    Void(*click_event_ptr_)();
+    Void(*click_event_ptr_)(ZButton* _this_ptr);
 
     GuiColour button_colour_;
     GuiColour button_hovered_colour_;

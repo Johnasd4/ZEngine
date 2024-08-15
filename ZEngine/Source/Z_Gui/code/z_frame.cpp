@@ -60,7 +60,7 @@ Void ZFrame::Begin() noexcept {
 
     //begin widgets
     for (auto widget_ptr_iter = widget_ptr_set_.Begin(); widget_ptr_iter != widget_ptr_set_.End(); ++widget_ptr_iter) {
-        ZGuiWidgetObject* widget_ptr = *widget_ptr_iter;
+        ZGuiObject* widget_ptr = *widget_ptr_iter;
         widget_ptr->Begin();
     }
 
@@ -79,12 +79,14 @@ Void ZFrame::Tick(Float32 _delta_sec) noexcept {
 
     //base frame update size and pos
     if (frame_level_ == kBaseFrameLevel) {
-        //push background colour
-        ImGui::PushStyleColor(ImGuiCol_WindowBg, *reinterpret_cast<ImVec4*>(&background_colour_));
-        //begin base frame
-        ImGui::Begin(Name(), nullptr, frame_flag_);
+        Bool enabled = Enabled();
 
-        if (Enabled()) {
+        //push background colour
+        GuiColour background_colour = background_colour_;
+        background_colour.alpha_ *= enabled ? 1.0f : kDIsabledAlphaFactor;
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, *reinterpret_cast<ImVec4*>(&background_colour));
+        //begin base frame
+        if (ImGui::Begin(Name(), nullptr, frame_flag_)) {
             GuiSize cur_size = Size();
             GuiPos cur_pos = Pos();
             ImVec2 frame_size = ImGui::GetWindowSize();
@@ -116,7 +118,7 @@ Void ZFrame::Tick(Float32 _delta_sec) noexcept {
 
             //tick widgets
             for (auto widget_ptr_iter = widget_ptr_set_.Begin(); widget_ptr_iter != widget_ptr_set_.End(); ++widget_ptr_iter) {
-                ZGuiWidgetObject* widget_ptr = *widget_ptr_iter;
+                ZGuiObject* widget_ptr = *widget_ptr_iter;
                 widget_ptr->Tick(_delta_sec);
             }
 
@@ -126,7 +128,6 @@ Void ZFrame::Tick(Float32 _delta_sec) noexcept {
                 frame_ptr->Tick(_delta_sec);
             }
         }
-
         //end base frame
         ImGui::End();
         //pop background colour
@@ -151,23 +152,24 @@ Void ZFrame::Tick(Float32 _delta_sec) noexcept {
         GuiColour bg_colour = BackgruondColour();
         ImGui::PushStyleColor(ImGuiCol_ChildBg, *reinterpret_cast<ImVec4*>(&bg_colour));
         //sub frame begin
-        ImGui::BeginChild(Name(), ImVec2(Width(), Height()), true, FrameFlag());
-        if (Enabled()) {
-            //tick widgets
-            for (auto widget_ptr_iter = widget_ptr_set_.Begin(); widget_ptr_iter != widget_ptr_set_.End(); ++widget_ptr_iter) {
-                ZGuiWidgetObject* widget_ptr = *widget_ptr_iter;
-                widget_ptr->Tick(_delta_sec);
+        if (ImGui::BeginChild(Name(), ImVec2(Width(), Height()), true, FrameFlag())) {
+            if (Enabled()) {
+                //tick widgets
+                for (auto widget_ptr_iter = widget_ptr_set_.Begin(); widget_ptr_iter != widget_ptr_set_.End(); ++widget_ptr_iter) {
+                    ZGuiObject* widget_ptr = *widget_ptr_iter;
+                    widget_ptr->Tick(_delta_sec);
+                }
+
+                //tick frame
+                for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
+                    ZFrame* frame_ptr = *frame_ptr_iter;
+                    frame_ptr->Tick(_delta_sec);
+                }
             }
 
-            //tick frame
-            for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
-                ZFrame* frame_ptr = *frame_ptr_iter;
-                frame_ptr->Tick(_delta_sec);
-            }
+            //sub frame end
+            ImGui::EndChild();
         }
-
-        //sub frame end
-        ImGui::EndChild();
         //pop background colour
         ImGui::PopStyleColor();
     }
@@ -178,7 +180,7 @@ Void ZFrame::Reset() noexcept {
 
     //reset widgets
     for (auto widget_ptr_iter = widget_ptr_set_.Begin(); widget_ptr_iter != widget_ptr_set_.End(); ++widget_ptr_iter) {
-        ZGuiWidgetObject* widget_ptr = *widget_ptr_iter;
+        ZGuiObject* widget_ptr = *widget_ptr_iter;
         widget_ptr->Reset();
     }
 
@@ -189,28 +191,40 @@ Void ZFrame::Reset() noexcept {
     }
 }
 
-Void ZFrame::Add(ZGuiWidgetObject* _widget_obj) noexcept {
-    if (_widget_obj->WidgetType() == kWidgetTypeFrame) {
-        frame_ptr_set_.Insert(static_cast<ZFrame*>(_widget_obj));
-        dynamic_cast<ZFrame*>(_widget_obj)->UpdateFrameLevelP(frame_level_);
+Void ZFrame::Add(ZGuiObject* _obj) noexcept {
+    if (_obj->WidgetType() == kTypeWindow) {
+        Z_LOG_ERROR(error_code::kZFrameErrorCodeFrameWidgetTypeError, 0, L"Window can not be added to other objects!");
+        return;
+    }
+
+    if (_obj->WidgetType() == kTypeFrame) {
+        frame_ptr_set_.Insert(static_cast<ZFrame*>(_obj));
+        dynamic_cast<ZFrame*>(_obj)->UpdateFrameLevelP(frame_level_);
     }
     else {
-        widget_ptr_set_.Insert(_widget_obj);
+        widget_ptr_set_.Insert(_obj);
     }
-    _widget_obj->OnAdd(this);
+
+    _obj->OnAdd(this);
+}
+
+Void ZFrame::Remove(ZGuiObject* _obj) noexcept {
+    _obj->OnRemove();
+    if (_obj->WidgetType() == kTypeFrame) {
+        frame_ptr_set_.Erase(static_cast<ZFrame*>(_obj));
+    }
+    else {
+        widget_ptr_set_.Erase(_obj);
+    }
 }
 
 Void ZFrame::SetBackgruondColour(GuiColour _colour) noexcept {
     background_colour_ = _colour;
 }
 
-NODISCARD ZFrame::TypeEnum_ ZFrame::WidgetType() const noexcept {
-    return TypeEnum_::kWidgetTypeFrame;
-}
+NODISCARD GuiColour ZFrame::BackgruondColour() const noexcept { return background_colour_; }
 
-NODISCARD GuiColour ZFrame::BackgruondColour() const noexcept {
-    return background_colour_;
-}
+NODISCARD ZGuiObject::TypeEnum_ ZFrame::WidgetType() const noexcept { return kTypeFrame; }
 
 Void ZFrame::OnKeyDown(KeyEnum _clicked_button, Int32 _mods) noexcept {
     SuperType_::OnKeyDown(_clicked_button, _mods);
@@ -263,7 +277,7 @@ Void ZFrame::OnScrollMove(Float32 _x_offset, Float32 _y_offset) noexcept {
 Void ZFrame::OnMouseMove(GuiPos _pre_pos, GuiPos _cur_pos) noexcept {
     SuperType_::OnMouseMove(_pre_pos, _cur_pos);
     for (auto widget_ptr_iter = widget_ptr_set_.Begin(); widget_ptr_iter != widget_ptr_set_.End(); ++widget_ptr_iter) {
-        ZGuiWidgetObject* widget_ptr = *widget_ptr_iter;
+        ZGuiObject* widget_ptr = *widget_ptr_iter;
         widget_ptr->OnMouseMove(_pre_pos, _cur_pos);
     }
 }

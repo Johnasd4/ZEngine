@@ -112,6 +112,7 @@ ZWindow::ZWindow() noexcept
     : SuperType_()
     , window_handle_(nullptr) 
     , window_context_(nullptr)
+    , background_colour_(kDefaultBackGroundColour)
     , window_state_(kWindowStateTerminated)
     , frame_ptr_set_()
     , destroy_event_ptr_(){}
@@ -123,9 +124,10 @@ ZWindow::ZWindow(ZWindow&& _window) noexcept
 }
 
 ZWindow::ZWindow(const Char* _name, GuiSize _size, GuiPos _pos, WindowScreenModeEnum_ _screen_mods) noexcept
-    : SuperType_(_size, _pos, true)
+    : SuperType_(_name, _size, _pos)
     , window_handle_(nullptr) 
     , window_context_(nullptr)
+    , background_colour_(kDefaultBackGroundColour)
     , window_state_(kWindowStateTerminated)
     , frame_ptr_set_()
     , destroy_event_ptr_()
@@ -192,7 +194,7 @@ Void ZWindow::Begin() noexcept {
 }
 
 Void ZWindow::Tick(Float32 _delta_sec) noexcept {
-    if (!Enabled() || window_state_ != ZWindow::kWindowStateOpened) {
+    if (window_state_ != ZWindow::kWindowStateOpened) {
         Sleep(1);
         return;
     }
@@ -301,8 +303,14 @@ Void ZWindow::Add(ZFrame* _frame) noexcept {
     _frame->OnAdd(this);
 }
 
+Void ZWindow::Remove(ZFrame* _frame) noexcept {
+    _frame->OnRemove();
+    frame_ptr_set_.Erase(_frame);
+}
+
 Void ZWindow::SetBackgruondColour(GuiColour _colour) noexcept {
     glClearColor(_colour.red_, _colour.green_, _colour.blue_, _colour.alpha_);
+    background_colour_ = _colour;
 }
 
 Void ZWindow::SetName(const Char* _name) noexcept {
@@ -345,17 +353,18 @@ Void ZWindow::SetScreenMode(WindowScreenModeEnum_ _screen_mods) noexcept {
     }
 }
 
+NODISCARD const Char* ZWindow::Name() const noexcept {
+    return glfwGetWindowTitle(window_handle_);
+}
+NODISCARD GuiPos ZWindow::AbsPos() const noexcept { return GuiPos(0.0f, 0.0f); }
+
 NODISCARD GuiColour ZWindow::BackgruondColour() const noexcept {
     GuiColour colour = { 0, 0, 0, 0 };
     glGetFloatv(GL_COLOR_CLEAR_VALUE, reinterpret_cast<Float32*>(&colour));
     return colour;
 }
 
-NODISCARD GuiPos ZWindow::AbsPos() const noexcept { return GuiPos(0.0f, 0.0f); }
-
-NODISCARD const Char* ZWindow::Name() const noexcept {
-    return glfwGetWindowTitle(window_handle_);
-}
+NODISCARD ZGuiObject::TypeEnum_ ZWindow::WidgetType() const noexcept { return kTypeWindow; }
 
 Void ZWindow::OnKeyDown(KeyEnum _clicked_button, Int32 _mods) noexcept {
     SuperType_::OnKeyDown(_clicked_button, _mods);
@@ -426,11 +435,13 @@ Void ZWindow::BindDestroyEvent(Void(*_destroy_event_ptr)()) noexcept {
 Void ZWindow::MoveP(ZWindow&& _window) noexcept {
     window_handle_ = _window.window_handle_;
     window_context_ = _window.window_context_;
+    background_colour_ = _window.background_colour_;
     window_state_ = _window.window_state_;
     destroy_event_ptr_ = _window.destroy_event_ptr_;
     frame_ptr_set_ = std::move(_window.frame_ptr_set_);
     _window.window_handle_ = nullptr;
     _window.window_context_ = nullptr;
+    _window.background_colour_ = kDefaultBackGroundColour;
     _window.window_state_ = kWindowStateTerminated;
     _window.destroy_event_ptr_ = nullptr;
     internal::ZWindowCallback::SetActiveWindowPtr(this);
@@ -542,6 +553,13 @@ NODISCARD ReturnType ZWindow::CreateP(
     //set size and pos
     glfwSetWindowSize(window_handle_, static_cast<Int32>(_size.width_), static_cast<Int32>(_size.height_));
     glfwSetWindowPos(window_handle_, static_cast<Int32>(_pos.x_), static_cast<Int32>(_pos.y_));
+    //set background colour
+    if (Enabled()) {
+        glClearColor(background_colour_.red_, background_colour_.green_, background_colour_.blue_, background_colour_.alpha_);
+    }
+    else {
+        glClearColor(background_colour_.red_, background_colour_.green_, background_colour_.blue_, background_colour_.alpha_);
+    }
     //bind callback functions
     glfwSetKeyCallback(window_handle_, internal::ZWindowCallback::KeyCallBack);
     glfwSetMouseButtonCallback(window_handle_, internal::ZWindowCallback::MouseButtonCallback);
