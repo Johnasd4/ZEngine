@@ -50,45 +50,67 @@ Void TestThreadFunc() {
 
 //Int32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 Int32 main() {
-//    Test_000();
-    //ZThread thread_1(TestThreadFunc);
-    //Sleep(100);
-    //ZThread thread_2(TestThreadFunc);
-    //thread_1.Join();
-    //thread_2.Join();
-    ReturnType link_code = kOK;
-    ZString TEST_STRING("123");
-    Z_LOG_ERROR(1, 2, L"TEST%d%d%d%d%x", 3, 4, 5, 6, ~7);
-    Z_LOG_ERROR(1, 2, L"TEST%d%d%d%d%d", 3, 4, 5, 6, 7);
-    Z_LOG_TRACE(L"TEST%d%d%d%d%d", 3, 4, 5, 6, 7);
-    Z_LOG_MESSAGE(L"Message...");
-    Z_LOG_START(L"Start...");
-    Z_LOG_PROCESS(L"Process 1...");
-    Z_LOG_PROCESS(L"Process 2...");
-    Z_LOG_PROCESS(L"Process 3...");
-    Z_LOG_FINISH(L"Finish...");
-    Z_LOG_SUCCESS(L"Success...");
-    Z_LOG_FAILURE(L"Failure...");
-    ZWindow::SetVerticalSynchronization(1);
-    ZWindow test_window("Window1", GuiSize(1000, 1000), GuiPos(100, 100), ZWindow::kWindowScreenModeWindow);
-    ZFrame test_frame("frame1", GuiSize(500, 500), GuiPos(100, 200));
-    test_frame.SetBackgruondColour({ 1.0f, 0.0f, 0.0f, 1.0f });
-    test_window.Add(&test_frame);
-    test_window.BindMoveEvent([](ZGuiAdjustableObject* _this_ptr, GuiPos _pre_pos, GuiPos cur_pos) {
-        std::cout << cur_pos.x_ << " " << cur_pos.y_ << endl;
-    });
-    ZFrame test_frame_2("frame2", GuiSize(200, 200), GuiPos(100, 200));
-    test_frame_2.SetBackgruondColour({ 0.0f, 1.0f, 0.0f, 1.0f });
-    test_window.Add(&test_frame_2);
-    //test_window.SetSize(GuiSize(1000,1000));
-    //test_window.SetPos(GuiPos(100, 100));
-    link_code = test_window.Execute();
-    //app.AddWindow(&test_window);
-    ZWindow test_window2("Window2", GuiSize(100, 100), GuiPos(100, 100), ZWindow::kWindowScreenModeWindow);
-    test_window2.SetSize(GuiSize(1000, 1000));
-    test_window2.SetPos(GuiPos(1000, 1000));
-    test_window2.SetBackgruondColour(GuiColour(1, 1, 1, 1));
-    link_code = test_window2.Execute();
+
+    TVector<Float64> factors = { -0.0000485636136383, 0.0004692812857553, 0.0005043464816358, -0.0008932405433630, -0.0007136956208987, 0.0008609541181935 };
+    Float64 ans =
+        factors[0]
+        - factors[1]
+        + factors[2]
+        - factors[3]
+        + factors[4]
+        - factors[5];
+    Float64 start_pos = 0.0;
+    Float64 end_pos = ans;
+    Float64 time = 1.5028;
+    Float64 vel = (end_pos - start_pos) / time;
+    Float64 act_start_pos = -0.001095629646;
+    Float64 act_end_pos = -0.001184739755;
+    Float64 act_time = 376 * 0.0004 * 10;
+    Float64 act_vel = (act_end_pos - act_start_pos) / act_time;
+
+    Z_LOG_MESSAGE(L"start_pos %lf", start_pos);
+    Z_LOG_MESSAGE(L"end_pos %lf", end_pos);
+    Z_LOG_MESSAGE(L"time %lf", time);
+    Z_LOG_MESSAGE(L"vel %lf", vel);
+    Z_LOG_MESSAGE(L"act_start_pos %lf", act_start_pos);
+    Z_LOG_MESSAGE(L"act_end_pos %lf", act_end_pos);
+    Z_LOG_MESSAGE(L"act_time %lf", act_time);
+    Z_LOG_MESSAGE(L"act_vel %lf", act_vel);
+
+
+    //ReturnType link_code = kOK;
+    //ZString TEST_STRING("123");
+    //Z_LOG_ERROR(1, 2, L"TEST%d%d%d%d%x", 3, 4, 5, 6, ~7);
+    //Z_LOG_ERROR(1, 2, L"TEST%d%d%d%d%d", 3, 4, 5, 6, 7);
+    //Z_LOG_TRACE(L"TEST%d%d%d%d%d", 3, 4, 5, 6, 7);
+    //Z_LOG_MESSAGE(L"Message...");
+    //Z_LOG_START(L"Start...");
+    //Z_LOG_PROCESS(L"Process 1...");
+    //Z_LOG_PROCESS(L"Process 2...");
+    //Z_LOG_PROCESS(L"Process 3...");
+    //Z_LOG_FINISH(L"Finish...");
+    //Z_LOG_SUCCESS(L"Success...");
+    //Z_LOG_FAILURE(L"Failure...");
+    //ZWindow::SetVerticalSynchronization(1);
+    //ZWindow test_window("Window1", GuiSize(1000, 1000), GuiPos(100, 100), ZWindow::kWindowScreenModeWindow);
+    //ZFrame test_frame("frame1", GuiSize(500, 500), GuiPos(100, 200));
+    //test_frame.SetBackgruondColour({ 1.0f, 0.0f, 0.0f, 1.0f });
+    //test_window.Add(&test_frame);
+    //test_window.BindMoveEvent([](ZGuiAdjustableObject* _this_ptr, GuiPos _pre_pos, GuiPos cur_pos) {
+    //    std::cout << cur_pos.x_ << " " << cur_pos.y_ << endl;
+    //});
+    //ZFrame test_frame_2("frame2", GuiSize(200, 200), GuiPos(100, 200));
+    //test_frame_2.SetBackgruondColour({ 0.0f, 1.0f, 0.0f, 1.0f });
+    //test_window.Add(&test_frame_2);
+    ////test_window.SetSize(GuiSize(1000,1000));
+    ////test_window.SetPos(GuiPos(100, 100));
+    //link_code = test_window.Execute();
+    ////app.AddWindow(&test_window);
+    //ZWindow test_window2("Window2", GuiSize(100, 100), GuiPos(100, 100), ZWindow::kWindowScreenModeWindow);
+    //test_window2.SetSize(GuiSize(1000, 1000));
+    //test_window2.SetPos(GuiPos(1000, 1000));
+    //test_window2.SetBackgruondColour(GuiColour(1, 1, 1, 1));
+    //link_code = test_window2.Execute();
     //app.AddWindow(&test_window2);
     //link_code = app.Execute();
     //WSADATA wsaData;

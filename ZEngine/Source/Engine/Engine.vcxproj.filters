@@ -195,13 +195,13 @@
     <ClInclude Include="code\z_gui\z_frame.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\z_gui\z_widget_object.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="code\z_gui\test.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\z_gui\z_button.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_gui\z_menu.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
