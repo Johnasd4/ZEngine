@@ -37,6 +37,10 @@ enum ZPrintManagerErrorCodeEnum : ReturnType {
 namespace console{
 
 using PrintColourType = UInt16;
+using LanguageType = const Char*;
+
+//language chinese
+inline constexpr Char kLanguageChinese[] = "zh_CN.UTF-8";
 
 enum PrintTextColourEnum : PrintColourType {
     kPrintTextColourMin = 0x00u,
@@ -79,6 +83,11 @@ enum PrintBackgroundColourEnum : PrintColourType {
     kPrintBackgroundColourLightWhite = 0xF0u,
     kPrintBackgroundColourMax = 0x10u
 };
+
+/*
+    Sets language.
+*/
+CORE_DLLAPI Void SetLanguage(LanguageType _language) noexcept;
 
 /*
     Sets the current print colour.

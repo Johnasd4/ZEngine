@@ -57,8 +57,13 @@ namespace gui {
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
+            static char numberBuffer[128] = "";  // 存储输入的数字
+
+            // 限制输入框只能输入数字
 
             ImGui::Begin("Hello, world!");
+            ImGui::InputText("Enter a number", numberBuffer, sizeof(numberBuffer), ImGuiInputTextFlags_CharsDecimal);
+            ImGui::Text("You entered: %s", numberBuffer);
             ImGui::Text("This is some text.");
             ImGui::End();
             ImGui::Render();

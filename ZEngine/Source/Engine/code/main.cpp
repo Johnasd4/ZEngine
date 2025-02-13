@@ -26,6 +26,8 @@
 
 using namespace zengine;
 using namespace zengine::gui;
+using namespace zengine::file_system;
+using namespace zengine::console;
 using namespace std;
 
 Void TestThreadFunc() {
@@ -38,11 +40,8 @@ Void TestThreadFunc() {
     test_window.Add(&test_frame);
     ZFrame test_frame_2("frame2", GuiSize(200, 200), GuiPos(100, 200));
     test_frame_2.SetBackgruondColour({ 0.0f, 1.0f, 0.0f, 1.0f });
-    ZButton test_button("button1", GuiSize(200, 50), GuiPos(0, 50));
     //test_window.Add(&test_frame_2);  
     test_frame.Add(&test_frame_2);
-    test_frame_2.Add(&test_button);
-
     //test_window.Hide();
     link_code = test_window.Execute();
     //app.AddWindow(&test_window2);
@@ -50,15 +49,9 @@ Void TestThreadFunc() {
 }
 
 //Int32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
-Int32 main() {
-//    Test_000();
-    //ZThread thread_1(TestThreadFunc);
-    //Sleep(100);
-    //ZThread thread_2(TestThreadFunc);
-    //thread_1.Join();
-    //thread_2.Join();
-    ReturnType link_code = kOK;
-    ZString TEST_STRING("123");
+Int32 main() { 
+    SetLanguage(kLanguageChinese);
+    ZString a("1230000000000000000000000000000000000000000000000000000000000000000000000000");
     Z_LOG_ERROR(1, 2, L"TEST%d%d%d%d%x", 3, 4, 5, 6, ~7);
     Z_LOG_ERROR(1, 2, L"TEST%d%d%d%d%d", 3, 4, 5, 6, 7);
     Z_LOG_TRACE(L"TEST%d%d%d%d%d", 3, 4, 5, 6, 7);
@@ -68,30 +61,65 @@ Int32 main() {
     Z_LOG_PROCESS(L"Process 2...");
     Z_LOG_PROCESS(L"Process 3...");
     Z_LOG_FINISH(L"Finish...");
-    Z_LOG_SUCCESS(L"Success...");
     Z_LOG_FAILURE(L"Failure...");
+    Z_LOG_SUCCESS(L"Success...");
+    //TList<ZWString> file_list;
+    //TList<ZFileInfo> file_info_list;
+    //GetFilesByPath(L"J:/夸克网盘/J 4k JOJO的奇妙冒险/JOJO的奇妙冒险 S3 不灭钻石 [JOJO&UHA-WING&Kamigami&MAI.] [Ma10p_2160p]" ,  &file_list);
+    //file_list.Sort([](ZWString& _str_1, ZWString& _str_2) {
+    //    return _str_1 < _str_2;
+    //});
+    //GetFileInfoListByPathList(&file_list, &file_info_list);
+    //Int32 season_num = 3;
+    //Int32 episode_num = 1;
+    //TWFixedString<1024> new_path;
+
+    //for (auto path_info = file_info_list.Begin(); path_info != file_info_list.End(); ++path_info) {
+    //    new_path.SetString(L"%ls/%d-%02d%ls", path_info->directory_.String(), season_num, episode_num, path_info->extension_.String());
+    //    //Z_LOG_MESSAGE(L"path: %ls", new_path.String());
+    //    //Z_LOG_MESSAGE(L"path: %ls", path_info->path_.String());
+    //    //Z_LOG_MESSAGE(L"name: %ls", path_info->name_.String());
+    //    //Z_LOG_MESSAGE(L"extension: %ls", path_info->extension_.String());
+    //    //Z_LOG_MESSAGE(L"directory: %ls", path_info->directory_.String());
+    //    RenameFileByPath(path_info->path_.String(), new_path.String());
+    //    ++episode_num;
+    //}
+
+    
+
+
+    //Test_000();
+    //ZThread thread_1(TestThreadFunc);
+    //Sleep(100);
+    //ZThread thread_2(TestThreadFunc);
+    //thread_1.Join();
+    //thread_2.Join();
+    ReturnType link_code = kOK;
+    ZString TEST_STRING("123");
+    //ZApplication app;
     ZWindow::SetVerticalSynchronization(1);
     ZWindow test_window("Window1", GuiSize(1000, 1000), GuiPos(100, 100), ZWindow::kWindowScreenModeWindow);
     ZFrame test_frame("frame1", GuiSize(500, 500), GuiPos(100, 200));
     test_frame.SetBackgruondColour({ 1.0f, 0.0f, 0.0f, 1.0f });
     test_window.Add(&test_frame);
-    test_window.BindMoveEvent([](GuiPos _pre_pos, GuiPos cur_pos) {
-        std::cout << cur_pos.x_ << " " << cur_pos.y_ << endl;
-    });
     ZFrame test_frame_2("frame2", GuiSize(200, 200), GuiPos(100, 200));
+    ZText test_text("123");
+    test_text.SetPos(GuiPos(50,50));
+    test_frame_2.Add(&test_text);
     test_frame_2.SetBackgruondColour({ 0.0f, 1.0f, 0.0f, 1.0f });
     test_window.Add(&test_frame_2);
     //test_window.SetSize(GuiSize(1000,1000));
     //test_window.SetPos(GuiPos(100, 100));
     link_code = test_window.Execute();
     //app.AddWindow(&test_window);
-    ZWindow test_window2("Window2", GuiSize(100, 100), GuiPos(100, 100), ZWindow::kWindowScreenModeWindow);
-    test_window2.SetSize(GuiSize(1000, 1000));
-    test_window2.SetPos(GuiPos(1000, 1000));
-    test_window2.SetBackgruondColour(GuiColour(1, 1, 1, 1));
-    link_code = test_window2.Execute();
+    //ZWindow test_window2("Window2", GuiSize(100, 100), GuiPos(100, 100), ZWindow::kWindowScreenModeWindow);
+    //test_window2.SetSize(GuiSize(1000, 1000));
+    //test_window2.SetPos(GuiPos(1000, 1000));
+    //test_window2.SetBackgruondColour(GuiColour(1, 1, 1, 1));
+    //link_code = test_window2.Execute();
     //app.AddWindow(&test_window2);
     //link_code = app.Execute();
+
     //WSADATA wsaData;
     //SOCKET serverSocket;
     //sockaddr_in serverAddr, clientAddr;
@@ -144,10 +172,10 @@ Int32 main() {
     
     //gui::Test();
 
-    Sleep(50);
 
 
-
+    /**/
+    Sleep(1000);
     return 0;
 }
   

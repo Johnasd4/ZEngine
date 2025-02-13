@@ -70,22 +70,22 @@ Void ZInfoLog::ConsoleOutputLogString(const ZLog* _log_ptr, const ZLog::OutputSt
     ZInfoLog& info_log = *(ZInfoLog*)_log_ptr;
     switch (info_log.info_type_) {
     case kLogInfoMessage:
-        console::PrintMessage("%ls\n", _output_str.w_str_.DataPtr());
+        console::PrintMessage(L"%ls\n", _output_str.w_str_.DataPtr());
         break;
     case kLogInfoStart:
-        console::PrintStart("%ls\n", _output_str.w_str_.DataPtr());
+        console::PrintStart(L"%ls\n", _output_str.w_str_.DataPtr());
         break;
     case kLogInfoProcess:
-        console::PrintProcess("%ls\n", _output_str.w_str_.DataPtr());
+        console::PrintProcess(L"%ls\n", _output_str.w_str_.DataPtr());
         break;
     case kLogInfoFinish:
-        console::PrintFinish("%ls\n", _output_str.w_str_.DataPtr());
+        console::PrintFinish(L"%ls\n", _output_str.w_str_.DataPtr());
         break;
     case kLogInfoSuccess:
-        console::PrintSuccess("%ls\n", _output_str.w_str_.DataPtr());
+        console::PrintSuccess(L"%ls\n", _output_str.w_str_.DataPtr());
         break;
     case kLogInfoFailure:
-        console::PrintFailure("%ls\n", _output_str.w_str_.DataPtr());
+        console::PrintFailure(L"%ls\n", _output_str.w_str_.DataPtr());
         break;
     }
 }

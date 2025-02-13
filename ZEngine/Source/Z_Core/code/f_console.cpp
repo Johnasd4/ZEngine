@@ -115,6 +115,13 @@ private:
 
 }//internal
 
+/*
+    Sets language.
+*/
+CORE_DLLAPI Void SetLanguage(LanguageType _language) noexcept {
+    std::setlocale(LC_ALL, _language);
+}
+
 CORE_DLLAPI Void SetPrintColour(
     PrintTextColourEnum _text_colour, 
     PrintBackgroundColourEnum _background_colour

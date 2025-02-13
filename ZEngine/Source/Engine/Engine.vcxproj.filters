@@ -201,7 +201,7 @@
     <ClInclude Include="code\z_gui\test.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\z_gui\z_button.h">
+    <ClInclude Include="code\z_gui\z_text.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

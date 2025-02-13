@@ -43,10 +43,10 @@ enum TUniqueLockErrorCode : ReturnType {
 template<typename _MutexType>
 class TUniqueLock : public ZObject {
 private:
-    struct NoLockType_ { Int32 value; };
-    struct TryLockType_ { Int32 value; };
-    struct TryLockForType_ { Int32 value; };
-    struct TryLockUntilType_ { Int32 value; };
+    struct NoLockType_ { Int32 value_; };
+    struct TryLockType_ { Int32 value_; };
+    struct TryLockForType_ { Int32 value_; };
+    struct TryLockUntilType_ { Int32 value_; };
 
 public:
     static constexpr NoLockType_ kNoLock = { 0 };

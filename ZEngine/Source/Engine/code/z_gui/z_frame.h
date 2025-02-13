@@ -101,8 +101,8 @@ public:
 
     static constexpr Int32 kBaseFrameLevel = 0;
 
-    static constexpr Int32 kDefaultFrameFlag = kFrameFlagNoDecoration;
-    static constexpr GuiColour kDefaultBackGroundColour = { 0.5f, 0.5f, 0.5f, 1.0f };
+    static constexpr Int32 kDefaultFrameFlag = kFrameFlagNoNav | kFrameFlagNoDecoration | kFrameFlagNoInputs;
+    static constexpr GuiColour kDefaultFrameBackgroundColour = { 0.5f, 0.5f, 0.5f, 1.0f };
 
     ZFrame() noexcept;
     ZFrame(ZFrame&& _frame) noexcept;
@@ -150,11 +150,11 @@ public:
 
     NODISCARD virtual GuiColour BackgruondColour() const noexcept;
 
-    virtual Void OnKeyDown(KeyEnum _clicked_button, Int32 _mods) noexcept;
-    virtual Void OnKeyUp(KeyEnum _clicked_button, Int32 _mods) noexcept;
-    virtual Void OnKeyPress(KeyEnum _clicked_button, Int32 _mods) noexcept;
-    virtual Void OnMouseDown(MouseButtonEnum _clicked_button, Int32 _mods) noexcept;
-    virtual Void OnMouseUp(MouseButtonEnum _clicked_button, Int32 _mods) noexcept;
+    virtual Void OnKeyDown(KeyEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept;
+    virtual Void OnKeyUp(KeyEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept;
+    virtual Void OnKeyPress(KeyEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept;
+    virtual Void OnMouseDown(MouseButtonEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept;
+    virtual Void OnMouseUp(MouseButtonEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept;
     /*
         Front and back is y, left and right is x. Front and Left is positive.
     */
@@ -174,7 +174,7 @@ private:
 
     Int32 frame_flag_;
     Int32 frame_level_;
-    GuiColour background_colour_;
+    GuiColour frame_background_colour_;
     TMultiset<ZWidgetObject*, ZWidgetObjectCompare> widget_ptr_set_;
     TMultiset<ZFrame*, ZWidgetObjectCompare> frame_ptr_set_;
 };

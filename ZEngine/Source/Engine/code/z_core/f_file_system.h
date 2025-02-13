@@ -48,9 +48,24 @@ enum FFileSystemErrorCode : ReturnType {
 namespace file_system {
 
 /*
-    Delete files by the given path.
+    The info of the files, contains: path, name, extension, directory.
+*/
+struct ZFileInfo {
+    ZWString path_;
+    ZWString name_;
+    ZWString extension_;
+    ZWString directory_;
+};
+
+/*
+    Delete file by the given path.
 */
 CORE_DLLAPI NODISCARD ReturnType DeleteFileByPath(const WChar* _path_dir) noexcept;
+
+/*
+    Rename file by the given path.
+*/
+CORE_DLLAPI NODISCARD ReturnType RenameFileByPath(const WChar* _old_path_dir, const WChar* _new_path_dir) noexcept;
 
 /*
     Create directory by the given path.
@@ -92,6 +107,13 @@ CORE_DLLAPI NODISCARD ReturnType GetFilesAndDirectoriesByPath(
     Pushs the file names into the given list.
 */
 CORE_DLLAPI NODISCARD ReturnType GetFileTreeByPath(const WChar* _path_dir, TList<ZWString>* file_list_ptr) noexcept;
+
+/*
+    Get the files info by the given path list.
+*/
+CORE_DLLAPI NODISCARD ReturnType GetFileInfoListByPathList(
+    const TList<ZWString>* file_list_ptr, TList<ZFileInfo>* file_info_list_ptr
+) noexcept;
 
 }//file_system
 }//zengine

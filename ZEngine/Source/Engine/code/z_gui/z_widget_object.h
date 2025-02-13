@@ -41,7 +41,7 @@ public:
 
     enum WidgetTypeEnum {
         kWidgetTypeFrame,
-        kWidgetTypeButton
+        kWidgetTypeText
     };
 
     FORCEINLINE Void SetPriority(Int32 _priority) noexcept { priority_ = _priority; }

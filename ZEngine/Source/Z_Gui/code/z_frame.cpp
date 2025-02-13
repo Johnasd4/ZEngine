@@ -29,12 +29,12 @@ ZFrame::ZFrame() noexcept
     : SuperType_()
     , frame_flag_(kDefaultFrameFlag)
     , frame_level_(kBaseFrameLevel)
-    , background_colour_(kDefaultBackGroundColour)
+    , frame_background_colour_(kDefaultFrameBackgroundColour)
     , widget_ptr_set_()
     , frame_ptr_set_() {}
 
 ZFrame::ZFrame(ZFrame&& _frame) noexcept 
-    : SuperType_(std::forward<ZFrame>(_frame))
+    : SuperType_(std::forward<ZFrame>(_frame)), frame_ptr_set_()
 {
     MoveP(std::forward<ZFrame>(_frame));
 }
@@ -43,7 +43,7 @@ ZFrame::ZFrame(const Char* _name, GuiSize _size, GuiPos _pos) noexcept
     : SuperType_(_name, _size, _pos)
     , frame_flag_(kDefaultFrameFlag)
     , frame_level_(kBaseFrameLevel)
-    , background_colour_(kDefaultBackGroundColour)
+    , frame_background_colour_(kDefaultFrameBackgroundColour)
     , widget_ptr_set_()
     , frame_ptr_set_() {}
 
@@ -80,7 +80,7 @@ Void ZFrame::Tick(Float32 _delta_sec) noexcept {
     //base frame update size and pos
     if (frame_level_ == kBaseFrameLevel) {
         //push background colour
-        ImGui::PushStyleColor(ImGuiCol_WindowBg, *reinterpret_cast<ImVec4*>(&background_colour_));
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, *reinterpret_cast<ImVec4*>(&frame_background_colour_));
         //begin base frame
         ImGui::Begin(Name(), nullptr, frame_flag_);
 
@@ -201,7 +201,7 @@ Void ZFrame::Add(ZWidgetObject* _widget_obj) noexcept {
 }
 
 Void ZFrame::SetBackgruondColour(GuiColour _colour) noexcept {
-    background_colour_ = _colour;
+    frame_background_colour_ = _colour;
 }
 
 NODISCARD ZFrame::WidgetTypeEnum ZFrame::WidgetType() const noexcept {
@@ -209,46 +209,46 @@ NODISCARD ZFrame::WidgetTypeEnum ZFrame::WidgetType() const noexcept {
 }
 
 NODISCARD GuiColour ZFrame::BackgruondColour() const noexcept {
-    return background_colour_;
+    return frame_background_colour_;
 }
 
-Void ZFrame::OnKeyDown(KeyEnum _clicked_button, Int32 _mods) noexcept {
-    SuperType_::OnKeyDown(_clicked_button, _mods);
+Void ZFrame::OnKeyDown(KeyEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept {
+    SuperType_::OnKeyDown(_clicked_button, _shift, _ctrl, _alt);
     for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
         ZFrame* frame_ptr = *frame_ptr_iter;
-        frame_ptr->OnKeyDown(_clicked_button, _mods);
+        frame_ptr->OnKeyDown(_clicked_button, _shift, _ctrl, _alt);
     }
 }
 
-Void ZFrame::OnKeyUp(KeyEnum _clicked_button, Int32 _mods) noexcept {
-    SuperType_::OnKeyUp(_clicked_button, _mods);
+Void ZFrame::OnKeyUp(KeyEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept {
+    SuperType_::OnKeyUp(_clicked_button, _shift, _ctrl, _alt);
     for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
         ZFrame* frame_ptr = *frame_ptr_iter;
-        frame_ptr->OnKeyUp(_clicked_button, _mods);
+        frame_ptr->OnKeyUp(_clicked_button, _shift, _ctrl, _alt);
     }
 }
 
-Void ZFrame::OnKeyPress(KeyEnum _clicked_button, Int32 _mods) noexcept {
-    SuperType_::OnKeyPress(_clicked_button, _mods);
+Void ZFrame::OnKeyPress(KeyEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept {
+    SuperType_::OnKeyPress(_clicked_button, _shift, _ctrl, _alt);
     for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
         ZFrame* frame_ptr = *frame_ptr_iter;
-        frame_ptr->OnKeyPress(_clicked_button, _mods);
+        frame_ptr->OnKeyPress(_clicked_button, _shift, _ctrl, _alt);
     }
 }
 
-Void ZFrame::OnMouseDown(MouseButtonEnum _clicked_button, Int32 _mods) noexcept {
-    SuperType_::OnMouseDown(_clicked_button, _mods);
+Void ZFrame::OnMouseDown(MouseButtonEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept {
+    SuperType_::OnMouseDown(_clicked_button, _shift, _ctrl, _alt);
     for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
         ZFrame* frame_ptr = *frame_ptr_iter;
-        frame_ptr->OnMouseDown(_clicked_button, _mods);
+        frame_ptr->OnMouseDown(_clicked_button, _shift, _ctrl, _alt);
     }
 }
 
-Void ZFrame::OnMouseUp(MouseButtonEnum _clicked_button, Int32 _mods) noexcept {
-    SuperType_::OnMouseUp(_clicked_button, _mods);
+Void ZFrame::OnMouseUp(MouseButtonEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept {
+    SuperType_::OnMouseUp(_clicked_button, _shift, _ctrl, _alt);
     for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
         ZFrame* frame_ptr = *frame_ptr_iter;
-        frame_ptr->OnMouseUp(_clicked_button, _mods);
+        frame_ptr->OnMouseUp(_clicked_button, _shift, _ctrl, _alt);
     }
 }
 
@@ -262,21 +262,21 @@ Void ZFrame::OnScrollMove(Float32 _x_offset, Float32 _y_offset) noexcept {
 
 Void ZFrame::OnMouseMove(GuiPos _pre_pos, GuiPos _cur_pos) noexcept {
     SuperType_::OnMouseMove(_pre_pos, _cur_pos);
-    for (auto widget_ptr_iter = widget_ptr_set_.Begin(); widget_ptr_iter != widget_ptr_set_.End(); ++widget_ptr_iter) {
-        ZWidgetObject* widget_ptr = *widget_ptr_iter;
-        widget_ptr->OnMouseMove(_pre_pos, _cur_pos);
+    for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
+        ZFrame* frame_ptr = *frame_ptr_iter;
+        frame_ptr->OnMouseMove(_pre_pos, _cur_pos);
     }
 }
 
-Void ZFrame::MoveP(ZFrame&& _frame) noexcept {
-    frame_flag_ = _frame.frame_flag_;
-    frame_level_ = _frame.frame_level_;
-    background_colour_ = _frame.background_colour_;
-    widget_ptr_set_ = std::move(_frame.widget_ptr_set_);
-    frame_ptr_set_ = std::move(_frame.frame_ptr_set_);
-    _frame.frame_flag_ = kDefaultFrameFlag;
-    _frame.frame_level_ = kBaseFrameLevel;
-    _frame.background_colour_ = kDefaultBackGroundColour;
+Void ZFrame::MoveP(ZFrame&& _obj) noexcept {
+    frame_flag_ = _obj.frame_flag_;
+    frame_level_ = _obj.frame_level_;
+    frame_background_colour_ = _obj.frame_background_colour_;
+    widget_ptr_set_ = std::move(_obj.widget_ptr_set_);
+    frame_ptr_set_ = std::move(_obj.frame_ptr_set_);
+    _obj.frame_flag_ = kDefaultFrameFlag;
+    _obj.frame_level_ = kBaseFrameLevel;
+    _obj.frame_background_colour_ = kDefaultFrameBackgroundColour;
 }
 
 Void ZFrame::UpdateFrameLevelP(Int32 _super_frame_level) noexcept {

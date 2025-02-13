@@ -30,7 +30,7 @@
     <ClCompile Include="code\z_window.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="code\z_button.cpp">
+    <ClCompile Include="code\z_text.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

@@ -137,7 +137,7 @@ namespace log {
 class ZLog : public ZObject {
 public:
     //max size of the log message string.
-    static constexpr Int32 kMsgMaxSize = 512;
+    static constexpr Int32 kMsgMaxSize = 1024;
     //max size of the output log string.
     static constexpr Int32 kLogMaxSize = 2048;
     //max size of the log message string.
@@ -179,6 +179,7 @@ protected:
     using SuperType_ = ZObject;
 
     NODISCARD FORCEINLINE const MsgString_& LogMsgPtr() const noexcept { return log_msg_str_; }
+
 private:
     ZLog(const ZLog&) = delete;
     ZLog(ZLog&&) = delete;
@@ -224,7 +225,6 @@ CORE_DLLAPI Void LogInfo(
     const WChar* _format,
     ...
 ) noexcept;
-
 
 /*
     Register the log server port input function, the function will be called when log happens.

@@ -84,105 +84,21 @@ NODISCARD GuiPos ZGuiObject::Pos() const noexcept { return pos_; }
 NODISCARD GuiPos ZGuiObject::AbsPos() const noexcept { return pos_ + owner_ptr_->AbsPos(); }
 NODISCARD const Char* ZGuiObject::Name() const noexcept { return ""; }
 
-Void ZGuiObject::OnResize(GuiSize _pre_size, GuiSize _cur_size) noexcept {
-    if (resize_event_ptr_ != nullptr) {
-        resize_event_ptr_(_pre_size, _cur_size);
-    }
-}
-Void ZGuiObject::OnMove(GuiPos _pre_pos, GuiPos _cur_pos) noexcept { 
-    if (move_event_ptr_ != nullptr) {
-        move_event_ptr_(_pre_pos, _cur_pos);
-    }
-}
-Void ZGuiObject::OnHide() noexcept {
-    if (hide_event_ptr_ != nullptr) {
-        hide_event_ptr_();
-    }
-}
-Void ZGuiObject::OnShow() noexcept {
-    if (show_event_ptr_ != nullptr) {
-        show_event_ptr_();
-    }
-}
+Void ZGuiObject::OnResize(GuiSize _pre_size, GuiSize _cur_size) noexcept {}
+Void ZGuiObject::OnMove(GuiPos _pre_pos, GuiPos _cur_pos) noexcept {}
+Void ZGuiObject::OnHide() noexcept {}
+Void ZGuiObject::OnShow() noexcept {}
 Void ZGuiObject::OnAdd(ZGuiObject* _owner_ptr) noexcept {
     owner_ptr_ = _owner_ptr;
 }
 
-Void ZGuiObject::OnKeyDown(KeyEnum _clicked_button, Int32 _mods) noexcept {
-    if (key_down_event_ptr_ != nullptr) {
-        key_down_event_ptr_(_clicked_button, _mods);
-    }
-}
-Void ZGuiObject::OnKeyUp(KeyEnum _clicked_button, Int32 _mods) noexcept {
-    if (key_up_event_ptr_ != nullptr) {
-        key_up_event_ptr_(_clicked_button, _mods);
-    }
-}
-Void ZGuiObject::OnKeyPress(KeyEnum _clicked_button, Int32 _mods) noexcept {
-    if (key_press_event_ptr_ != nullptr) {
-        key_press_event_ptr_(_clicked_button, _mods);
-    }
-}
-Void ZGuiObject::OnMouseDown(MouseButtonEnum _clicked_button, Int32 _mods) noexcept {
-    if (mouse_down_event_ptr_ != nullptr) {
-        mouse_down_event_ptr_(_clicked_button, _mods);
-    }
-}
-Void ZGuiObject::OnMouseUp(MouseButtonEnum _clicked_button, Int32 _mods) noexcept {
-    if (mouse_up_event_ptr_ != nullptr) {
-        mouse_up_event_ptr_(_clicked_button, _mods);
-    }
-}
-Void ZGuiObject::OnScrollMove(Float32 _x_offset, Float32 _y_offset) noexcept {
-    if (scroll_move_event_ptr_ != nullptr) {
-        scroll_move_event_ptr_(_x_offset, _y_offset);
-    }
-}
-Void ZGuiObject::OnMouseMove(GuiPos _pre_pos, GuiPos _cur_pos) noexcept {
-    if (mouse_move_event_ptr_ != nullptr) {
-        mouse_move_event_ptr_(_pre_pos, _cur_pos);
-    }
-}
-
-Void ZGuiObject::BindResizeEvent(Void(*_resize_event_ptr)(GuiSize _pre_size, GuiSize _cur_size)) noexcept {
-    resize_event_ptr_ = _resize_event_ptr;
-}
-Void ZGuiObject::BindMoveEvent(Void(*_move_event_ptr)(GuiPos _pre_pos, GuiPos _cur_pos)) noexcept {
-    move_event_ptr_ = _move_event_ptr;
-}
-Void ZGuiObject::BindHideEvent(Void(*_hide_event_ptr)()) noexcept {
-    hide_event_ptr_ = _hide_event_ptr;
-}
-Void ZGuiObject::BindShowEvent(Void(*_show_event_ptr)()) noexcept {
-    show_event_ptr_ = _show_event_ptr;
-}
-Void ZGuiObject::BindAddEvent(Void(*_add_event_ptr)(ZGuiObject* _owner_ptr)) noexcept {
-    add_event_ptr_ = _add_event_ptr;
-}
-Void ZGuiObject::BindKeyDownEvent(Void(*_key_down_event_ptr)(KeyEnum _clicked_button, Int32 _mods)) noexcept {
-    key_down_event_ptr_ = _key_down_event_ptr;
-}
-Void ZGuiObject::BindKeyUpEvent(Void(*_key_up_event_ptr)(KeyEnum _clicked_button, Int32 _mods)) noexcept {
-    key_up_event_ptr_ = _key_up_event_ptr;
-}
-Void ZGuiObject::BindKeyPressEvent(Void(*_key_press_event_ptr)(KeyEnum _clicked_button, Int32 _mods)) noexcept {
-    key_press_event_ptr_ = _key_press_event_ptr;
-}
-Void ZGuiObject::BindMouseDownEvent(
-    Void(*_mouse_down_event_ptr)(MouseButtonEnum _clicked_button, Int32 _mods)
-) noexcept {
-    mouse_down_event_ptr_ = _mouse_down_event_ptr;
-}
-Void ZGuiObject::BindMouseUpEvent(Void(*_mouse_up_event_ptr)(MouseButtonEnum _clicked_button, Int32 _mods)) noexcept {
-    mouse_up_event_ptr_ = _mouse_up_event_ptr;
-}
-Void ZGuiObject::BindScrollMoveEvent(Void(*_scroll_move_event_ptr)(Float32 _x_offset, Float32 _y_offset)) noexcept {
-    scroll_move_event_ptr_ = _scroll_move_event_ptr;
-}
-Void ZGuiObject::BindMouseMoveEvent(Void(*_mouse_move_event_ptr)(GuiPos _pre_pos, GuiPos _cur_pos)) noexcept {
-    mouse_move_event_ptr_ = _mouse_move_event_ptr;
-}
-
+Void ZGuiObject::OnKeyDown(KeyEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept {}
+Void ZGuiObject::OnKeyUp(KeyEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept {}
+Void ZGuiObject::OnKeyPress(KeyEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept {}
+Void ZGuiObject::OnMouseDown(MouseButtonEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept {}
+Void ZGuiObject::OnMouseUp(MouseButtonEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept {}
+Void ZGuiObject::OnScrollMove(Float32 _x_offset, Float32 _y_offset) noexcept {}
+Void ZGuiObject::OnMouseMove(GuiPos _pre_pos, GuiPos _cur_pos) noexcept {}
 
 ZGuiObject::ZGuiObject() noexcept 
     : SuperType_()
@@ -193,19 +109,7 @@ ZGuiObject::ZGuiObject() noexcept
     , size_changed_(false)
     , pos_changed_(false)
     , owner_ptr_(nullptr)
-    , enabled_(false)
-    , resize_event_ptr_(nullptr)
-    , move_event_ptr_(nullptr)
-    , hide_event_ptr_(nullptr)
-    , show_event_ptr_(nullptr)
-    , add_event_ptr_(nullptr)
-    , key_down_event_ptr_(nullptr)
-    , key_up_event_ptr_(nullptr)
-    , key_press_event_ptr_(nullptr)
-    , mouse_down_event_ptr_(nullptr)
-    , mouse_up_event_ptr_(nullptr)
-    , scroll_move_event_ptr_(nullptr)
-    , mouse_move_event_ptr_(nullptr) {}
+    , enabled_(false) {}
 
 ZGuiObject::ZGuiObject(ZGuiObject&& _obj) noexcept 
     : SuperType_(std::move(_obj)) 
@@ -226,19 +130,7 @@ ZGuiObject::ZGuiObject(
     , size_changed_(true)
     , pos_changed_(true)
     , owner_ptr_(nullptr)
-    , enabled_(_enabled)
-    , resize_event_ptr_(nullptr)
-    , move_event_ptr_(nullptr)
-    , hide_event_ptr_(nullptr)
-    , show_event_ptr_(nullptr)
-    , add_event_ptr_(nullptr)
-    , key_down_event_ptr_(nullptr)
-    , key_up_event_ptr_(nullptr)
-    , key_press_event_ptr_(nullptr)
-    , mouse_down_event_ptr_(nullptr)
-    , mouse_up_event_ptr_(nullptr)
-    , scroll_move_event_ptr_(nullptr)
-    , mouse_move_event_ptr_(nullptr) {}
+    , enabled_(_enabled) {}
 
 ZGuiObject& ZGuiObject::operator=(ZGuiObject&& _obj) noexcept {
     SuperType_::operator=(std::move(_obj));
@@ -255,18 +147,6 @@ Void ZGuiObject::MoveP(ZGuiObject&& _obj) noexcept {
     pos_changed_ = _obj.pos_changed_;
     owner_ptr_ = _obj.owner_ptr_;
     enabled_ = _obj.enabled_;
-    resize_event_ptr_ = _obj.resize_event_ptr_;
-    move_event_ptr_ = _obj.move_event_ptr_;
-    hide_event_ptr_ = _obj.hide_event_ptr_;
-    show_event_ptr_ = _obj.show_event_ptr_;
-    add_event_ptr_ = _obj.add_event_ptr_;
-    key_down_event_ptr_ = _obj.key_down_event_ptr_;
-    key_up_event_ptr_ = _obj.key_up_event_ptr_;
-    key_press_event_ptr_ = _obj.key_press_event_ptr_;
-    mouse_down_event_ptr_ = _obj.mouse_down_event_ptr_;
-    mouse_up_event_ptr_ = _obj.mouse_up_event_ptr_;
-    scroll_move_event_ptr_ = _obj.scroll_move_event_ptr_;
-    mouse_move_event_ptr_ = _obj.mouse_move_event_ptr_;
     _obj.size_ = { 0,0 };
     _obj.pos_ = { 0,0 };
     _obj.pre_size_ = { 0,0 };
@@ -275,18 +155,6 @@ Void ZGuiObject::MoveP(ZGuiObject&& _obj) noexcept {
     _obj.pos_changed_ = false;
     _obj.owner_ptr_ = nullptr;
     _obj.enabled_ = false;
-    _obj.resize_event_ptr_ = nullptr;
-    _obj.move_event_ptr_ = nullptr;
-    _obj.hide_event_ptr_ = nullptr;
-    _obj.show_event_ptr_ = nullptr;
-    _obj.add_event_ptr_ = nullptr;
-    _obj.key_down_event_ptr_ = nullptr;
-    _obj.key_up_event_ptr_ = nullptr;
-    _obj.key_press_event_ptr_ = nullptr;
-    _obj.mouse_down_event_ptr_ = nullptr;
-    _obj.mouse_up_event_ptr_ = nullptr;
-    _obj.scroll_move_event_ptr_ = nullptr;
-    _obj.mouse_move_event_ptr_ = nullptr;
 }
 
 }//gui

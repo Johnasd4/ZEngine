@@ -54,6 +54,27 @@ CORE_DLLAPI NODISCARD ReturnType DeleteFileByPath(const WChar* _path_dir) noexce
     return ret_val;
 }
 
+CORE_DLLAPI NODISCARD ReturnType RenameFileByPath(const WChar* _old_path_dir, const WChar* _new_path_dir) noexcept {
+    ReturnType ret_val = kOK;
+    try {
+        if (!std::filesystem::exists(_old_path_dir)) {
+            Z_LOG_MESSAGE(L"File does not exist! path: %ls", _old_path_dir);
+            return ret_val;
+        }
+        std::filesystem::rename(_old_path_dir, _new_path_dir);
+        Z_LOG_SUCCESS(L"Rename file succeed! path: %ls -> %ls", _old_path_dir, _new_path_dir);
+        return ret_val;
+    }
+    catch (const std::filesystem::filesystem_error& exception) {
+        ret_val = error_code::kFFileSystemErrorCodeSystemError;
+        Z_LOG_ERROR(
+            ret_val, 0, L"System error! old path: %ls new path: %ls error msg: %ls",
+            _old_path_dir, _new_path_dir, string::String2WString(exception.what()).String());
+        return ret_val;
+    }
+    return ret_val;
+}
+
 CORE_DLLAPI NODISCARD ReturnType CreateDirectoryByPath(const WChar* _path_dir) noexcept {
     ReturnType ret_val = kOK;
     try {
@@ -247,6 +268,19 @@ CORE_DLLAPI NODISCARD ReturnType GetFileTreeByPath(const WChar* _path_dir, TList
             ret_val, 0, L"System error! path: %ls error msg: %ls",
             _path_dir, string::String2WString(exception.what()).String());
         return ret_val;
+    }
+    return ret_val;
+}
+
+CORE_DLLAPI NODISCARD ReturnType GetFileInfoListByPathList(
+    const TList<ZWString>* file_list_ptr, TList<ZFileInfo>* file_info_list_ptr
+) noexcept {
+    ReturnType ret_val = kOK;
+    for (auto file_path = file_list_ptr->Begin(); file_path != file_list_ptr->End(); ++file_path) {
+        std::filesystem::path path(file_path->String());
+        file_info_list_ptr->PushBack(
+            ZFileInfo(file_path->String(), path.filename().c_str(), path.extension().c_str(), path.parent_path().c_str())
+        );
     }
     return ret_val;
 }
