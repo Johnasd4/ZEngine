@@ -32,8 +32,8 @@ namespace zengine {
 namespace memory_pool {
 
 enum MemoryPoolEnum : IndexType {
-    kTSmallMemoryListMemoryPool,
-    kTSmartPointerListMemoryPool
+    kMemoryPool_TSmallMemoryList,
+    kWindowState_TSmartPointerList
 };
 
 /*
@@ -67,7 +67,7 @@ protected:
             system_time.Hour(), system_time.Min(), system_time.Sec());
         ReturnType link_code = file.Open(file_dir.String(), ZFile::kOpenTypeAppend);
         if (link_code != kOK) {
-            Z_LOG_ERROR(error_code::kFMemoryPoolErrorCodeLinkError, link_code, L"ZFile::OpenSafe() link error!");
+            Z_LOG_ERROR(error_code::kFMemoryPoolErrorCode_LinkError, link_code, L"ZFile::OpenSafe() link error!");
         }
         return file;
     }();

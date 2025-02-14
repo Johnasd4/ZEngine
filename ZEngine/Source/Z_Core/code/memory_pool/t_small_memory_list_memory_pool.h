@@ -142,19 +142,19 @@ public:
         ReturnType link_code = kOK;
 
         if (link_code != kOK) {
-            Z_LOG_ERROR(error_code::kMLogErrorCodeLinkError, link_code, L"ZFile::OpenSafe() link error!");
+            Z_LOG_ERROR(error_code::kMLogErrorCode_LinkError, link_code, L"ZFile::OpenSafe() link error!");
         }
 
         //The first pool realsed.
         if (SuperType_::MemoryBlockSize() == kMemoryBlockMaxSize) {
             link_code = TMemoryPoolBase<kIsThreadSafe>::log_file_.Print("\n***** small memory pool *****\n\n");
             if (link_code != kOK) {
-                Z_LOG_ERROR(error_code::kFMemoryPoolErrorCodeLinkError, link_code, L"ZFile::OpenSafe() link error!");
+                Z_LOG_ERROR(error_code::kFMemoryPoolErrorCode_LinkError, link_code, L"ZFile::OpenSafe() link error!");
             }
 
             link_code = TMemoryPoolBase<kIsThreadSafe>::log_file_.Print("    size    | usable size |  total num  | applied times | used peak num | unused num\n");
             if (link_code != kOK) {
-                Z_LOG_ERROR(error_code::kFMemoryPoolErrorCodeLinkError, link_code, L"ZFile::OpenSafe() link error!");
+                Z_LOG_ERROR(error_code::kFMemoryPoolErrorCode_LinkError, link_code, L"ZFile::OpenSafe() link error!");
             }
         }
 
@@ -167,7 +167,7 @@ public:
             momory_block_peak_num_,
             memory_block_used_current_num_);
         if (link_code != kOK) {
-            Z_LOG_ERROR(error_code::kFMemoryPoolErrorCodeLinkError, link_code, L"ZFile::OpenSafe() link error!");
+            Z_LOG_ERROR(error_code::kFMemoryPoolErrorCode_LinkError, link_code, L"ZFile::OpenSafe() link error!");
         }
 #endif //USE_MEMORY_POOL_TEST        
     }
@@ -248,7 +248,7 @@ private:
         Int32 _capacity
     ) noexcept {
         SuperType_::InitializeP(
-            MemoryPoolEnum::kTSmallMemoryListMemoryPool, 
+            MemoryPoolEnum::kMemoryPool_TSmallMemoryList, 
             _memory_block_size,
             _memory_block_memory_size, 
             _capacity);

@@ -98,8 +98,8 @@ protected:
     using SuperType_ = ZObject;
 
 private:
-    static constexpr PrintTextColourEnum kDefaultTextColour = kPrintTextColourLightWhite;
-    static constexpr PrintBackgroundColourEnum kDefaultBackgroundColour = kPrintBackgroundColourDarkBlack;
+    static constexpr PrintTextColourEnum kDefaultTextColour = kPrintTextColour_LightWhite;
+    static constexpr PrintBackgroundColourEnum kDefaultBackgroundColour = kPrintBackgroundColour_DarkBlack;
 
     NODISCARD static ZPrintManager& InstanceP() {
         static ZPrintManager instance;

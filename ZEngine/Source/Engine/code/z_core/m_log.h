@@ -69,64 +69,64 @@
     Log message.
 */
 #define Z_LOG_MESSAGE(...)\
-    zengine::log::LogInfo(::time(nullptr), kLogInfoMessage, __VA_ARGS__);
+    zengine::log::LogInfo(::time(nullptr), kLogInfo_Message, __VA_ARGS__);
 
 /*
     Log start.
 */
 #define Z_LOG_START(...)\
-    zengine::log::LogInfo(::time(nullptr), kLogInfoStart, __VA_ARGS__);
+    zengine::log::LogInfo(::time(nullptr), kLogInfo_Start, __VA_ARGS__);
 
 /*
     Log process.
 */
 #define Z_LOG_PROCESS(...)\
-    zengine::log::LogInfo(::time(nullptr), kLogInfoProcess, __VA_ARGS__);
+    zengine::log::LogInfo(::time(nullptr), kLogInfo_Process, __VA_ARGS__);
 
 /*
     Log finish.
 */
 #define Z_LOG_FINISH(...)\
-    zengine::log::LogInfo(::time(nullptr), kLogInfoFinish, __VA_ARGS__);
+    zengine::log::LogInfo(::time(nullptr), kLogInfo_Finish, __VA_ARGS__);
 
 /*
     Log success.
 */
 #define Z_LOG_SUCCESS(...)\
-    zengine::log::LogInfo(::time(nullptr), kLogInfoSuccess, __VA_ARGS__);
+    zengine::log::LogInfo(::time(nullptr), kLogInfo_Success, __VA_ARGS__);
 
 /*
     Log failure.
 */
 #define Z_LOG_FAILURE(...)\
-    zengine::log::LogInfo(::time(nullptr), kLogInfoFailure, __VA_ARGS__);
+    zengine::log::LogInfo(::time(nullptr), kLogInfo_Failure, __VA_ARGS__);
 
 namespace zengine {
 
 namespace error_code {
 
 enum MLogErrorCode : ReturnType {
-    kMLogErrorCodeLinkError = kErrorCodeBaseMLog,
-    kMLogErrorCodeLogQueueOverflow,
-    kMLogErrorCodePortIDOutOfRange,
-    kMLogErrorCodeLogPortOutputFunctionFull,
-    kMLogErrorCodeLogPortOutputFunctionAlreadyRegistered,
-    kMLogErrorCodeLogPortInputFunctionAlreadyRegistered,
-    kMLogErrorCodeLogPortInputFunctionUnregisteredFailed,
-    kMLogErrorCodeLogPortFull
+    kMLogErrorCode_LinkError = kErrorCodeBase_MLog,
+    kMLogErrorCode_LogQueueOverflow,
+    kMLogErrorCode_PortIDOutOfRange,
+    kMLogErrorCode_LogPortOutputFunctionFull,
+    kMLogErrorCode_LogPortOutputFunctionAlreadyRegistered,
+    kMLogErrorCode_LogPortInputFunctionAlreadyRegistered,
+    kMLogErrorCode_LogPortInputFunctionUnregisteredFailed,
+    kMLogErrorCode_LogPortFull
 };
 
 }//error_code
 
 enum LogInfoEnum : IndexType {
-    kLogInfoMin = 0,
-    kLogInfoMessage = kLogInfoMin,
-    kLogInfoStart,
-    kLogInfoProcess,
-    kLogInfoFinish,
-    kLogInfoSuccess,
-    kLogInfoFailure,
-    kLogInfoMax
+    kLogInfo_Min = 0,
+    kLogInfo_Message = kLogInfo_Min,
+    kLogInfo_Start,
+    kLogInfo_Process,
+    kLogInfo_Finish,
+    kLogInfo_Success,
+    kLogInfo_Failure,
+    kLogInfo_Max
 };
 
 namespace log {

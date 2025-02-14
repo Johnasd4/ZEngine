@@ -73,7 +73,7 @@ Void ZTraceLog::FileOutputLogString(const ZLog* _log_ptr, const ZLog::OutputStri
             system_time.Hour(), system_time.Min(), system_time.Sec());
         link_code = file.Open(file_dir.DataPtr(), ZFile::kOpenTypeAppend);
         if (link_code != kOK) {
-            Z_LOG_ERROR(error_code::kMLogErrorCodeLinkError, link_code, L"ZFile::OpenSafe() link error!");
+            Z_LOG_ERROR(error_code::kMLogErrorCode_LinkError, link_code, L"ZFile::OpenSafe() link error!");
         }
         return file;
     }();
@@ -81,7 +81,7 @@ Void ZTraceLog::FileOutputLogString(const ZLog* _log_ptr, const ZLog::OutputStri
 
     link_code = file.Print(L"%ls\n", _output_str.w_str_.DataPtr());
     if (link_code != kOK) {
-        Z_LOG_ERROR(error_code::kMLogErrorCodeLinkError, link_code, L"ZFile::Print() link error!");
+        Z_LOG_ERROR(error_code::kMLogErrorCode_LinkError, link_code, L"ZFile::Print() link error!");
         return;
     }
 }

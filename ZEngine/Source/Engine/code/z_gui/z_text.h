@@ -32,9 +32,9 @@ namespace gui {
 namespace error_code {
 
 enum ZTextErrorCode : ReturnType {
-    kZTextErrorCodeLinkError = kErrorCodeBaseZText,
-    kZTextErrorCodeTextAreadyCreated,
-    kZTextErrorCodeTextNotExist
+    kZTextErrorCode_LinkError = kErrorCodeBase_ZText,
+    kZTextErrorCode_TextAreadyCreated,
+    kZTextErrorCode_TextNotExist
 };
 
 }//error_code
@@ -44,13 +44,14 @@ enum ZTextErrorCode : ReturnType {
 */
 class GUI_DLLAPI ZText : public ZWidgetObject {
 public:
-    static constexpr GuiColour kDefaultTextColour = { 0.5f, 0.5f, 0.5f, 1.0f };
+    static constexpr GuiColour kDefaultTextColour = { 1.0f, 1.0f, 1.0f, 1.0f };
     static constexpr Float32 kDefaultFontScale = 1.0f;
-    static constexpr Float32 kFontScaleMultFactor = 2.0f;
+    static constexpr Float32 kFontScaleMultFactor = 1.5f;
 
     ZText() noexcept;
     ZText(ZText&& _text) noexcept;
-    ZText(const Char* _name, GuiPos _pos = { 0.0f, 0.0f }) noexcept;
+    ZText(const Char* _text) noexcept;
+    ZText(const Char* _text, GuiPos _pos) noexcept;
 
     ~ZText() noexcept;
 
@@ -69,11 +70,13 @@ public:
     */
     virtual Void Reset() noexcept;
 
+    virtual Void SetText(const Char* _text) noexcept;
     virtual Void SetTextColour(GuiColour _colour) noexcept;
     virtual Void SetFontScale(Float32 _scale) noexcept;
 
     NODISCARD virtual WidgetTypeEnum WidgetType() const noexcept;
 
+    NODISCARD virtual const Char* Text() const noexcept;
     NODISCARD virtual GuiColour TextColour() const noexcept;
     NODISCARD virtual Float32 FontScale() const noexcept;
 
@@ -88,6 +91,7 @@ private:
 
     GuiColour text_colour_;
     Float32 font_scale_;
+    Bool if_pos_set_;
 };
 
 }//gui

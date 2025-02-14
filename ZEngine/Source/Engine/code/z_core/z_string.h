@@ -31,7 +31,7 @@ namespace zengine {
 namespace error_code {
 
 enum ZStringErrorCode : ReturnType {
-    kZStringErrorCodeLinkError = kErrorCodeBaseZString,
+    kZStringErrorCodeLinkError = kErrorCodeBase_ZString,
     kZStringErrorCodeInvalidString
 };
 

@@ -62,7 +62,12 @@ namespace gui {
             // 限制输入框只能输入数字
 
             ImGui::Begin("Hello, world!");
-            ImGui::InputText("Enter a number", numberBuffer, sizeof(numberBuffer), ImGuiInputTextFlags_CharsDecimal);
+            ImGui::PushStyleColor(
+                ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.5f, 1.0f)
+            );
+            ImGui::InputText("##", numberBuffer, sizeof(numberBuffer), ImGuiInputTextFlags_CharsDecimal);
+            //ImGui::InputText("##", numberBuffer, sizeof(numberBuffer), ImGuiInputTextFlags_CharsDecimal);
+            ImGui::PopStyleColor();
             ImGui::Text("You entered: %s", numberBuffer);
             ImGui::Text("This is some text.");
             ImGui::End();
@@ -88,9 +93,9 @@ namespace gui {
         }
         ZThread thread_1(renderLoop, Ref(window1));
         Sleep(100);
-        ZThread thread_2(renderLoop, Ref(window2));
+        //ZThread thread_2(renderLoop, Ref(window2));
         thread_1.Join();
-        thread_2.Join();
+        //thread_2.Join();
         // 创建两个窗口
         createWindowAndThread(window1, "Window 1", 800, 600);
         createWindowAndThread(window2, "Window 2", 800, 600);

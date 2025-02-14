@@ -28,17 +28,17 @@ inline constexpr ReturnType kOK = 0;
 
 namespace error_code {
 
-inline constexpr ReturnType kErrorCodeBasePCore = 0x00100000u;
-inline constexpr ReturnType kErrorCodeBaseZFile = kErrorCodeBasePCore + 0x100u;
-inline constexpr ReturnType kErrorCodeBaseZPrintManager = kErrorCodeBasePCore + 0x200u;
-inline constexpr ReturnType kErrorCodeBaseMLog = kErrorCodeBasePCore + 0x300u;
-inline constexpr ReturnType kErrorCodeBaseTUniqueLock = kErrorCodeBasePCore + 0x400u;
-inline constexpr ReturnType kErrorCodeBaseZThreadPool = kErrorCodeBasePCore + 0x500u;
-inline constexpr ReturnType kErrorCodeBaseFMemoryPool = kErrorCodeBasePCore + 0x600u;
-inline constexpr ReturnType kErrorCodeBaseZTask = kErrorCodeBasePCore + 0x700u;
-inline constexpr ReturnType kErrorCodeBaseFFileSystem = kErrorCodeBasePCore + 0x800u;
-inline constexpr ReturnType kErrorCodeBaseZString = kErrorCodeBasePCore + 0x900u;
-inline constexpr ReturnType kErrorCodeBaseFDiagnose = kErrorCodeBasePCore + 0xA00u;
+inline constexpr ReturnType kErrorCodeBase_PCore = 0x00100000u;
+inline constexpr ReturnType kErrorCodeBase_ZFile = kErrorCodeBase_PCore + 0x100u;
+inline constexpr ReturnType kErrorCodeBase_ZPrintManager = kErrorCodeBase_PCore + 0x200u;
+inline constexpr ReturnType kErrorCodeBase_MLog = kErrorCodeBase_PCore + 0x300u;
+inline constexpr ReturnType kErrorCodeBase_TUniqueLock = kErrorCodeBase_PCore + 0x400u;
+inline constexpr ReturnType kErrorCodeBase_ZThreadPool = kErrorCodeBase_PCore + 0x500u;
+inline constexpr ReturnType kErrorCodeBase_FMemoryPool = kErrorCodeBase_PCore + 0x600u;
+inline constexpr ReturnType kErrorCodeBase_ZTask = kErrorCodeBase_PCore + 0x700u;
+inline constexpr ReturnType kErrorCodeBase_FFileSystem = kErrorCodeBase_PCore + 0x800u;
+inline constexpr ReturnType kErrorCodeBase_ZString = kErrorCodeBase_PCore + 0x900u;
+inline constexpr ReturnType kErrorCodeBase_FDiagnose = kErrorCodeBase_PCore + 0xA00u;
 
 }//error_code
 

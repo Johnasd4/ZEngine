@@ -32,9 +32,9 @@ namespace gui {
 namespace error_code {
 
 enum ZFrameErrorCode : ReturnType {
-    kZFrameErrorCodeLinkError = kErrorCodeBaseZFrame,
-    kZFrameErrorCodeFrameAreadyCreated,
-    kZFrameErrorCodeFrameNotExist
+    kZFrameErrorCode_LinkError = kErrorCodeBase_ZFrame,
+    kZFrameErrorCode_FrameAreadyCreated,
+    kZFrameErrorCode_FrameNotExist
 };
 
 }//error_code
@@ -48,64 +48,67 @@ public:
         The frame screen mode enum.
     */
     enum FrameFlagEnum_ {
-        kFrameFlagNone = 0,
+        kFrameFlag_None = 0,
         // Disable title-bar
-        kFrameFlagNoTitleBar = 1 << 0,   
+        kFrameFlag_NoTitleBar = 1 << 0,   
         // Disable user resizing with the lower-right grip
-        kFrameFlagNoResize = 1 << 1,   
+        kFrameFlag_NoResize = 1 << 1,   
         // Disable user moving the window
-        kFrameFlagNoMove = 1 << 2,   
+        kFrameFlag_NoMove = 1 << 2,   
         // Disable scrollbars (window can still scroll with mouse or programmatically)
-        kFrameFlagNoScrollbar = 1 << 3,   
+        kFrameFlag_NoScrollbar = 1 << 3,   
         // Disable user vertically scrolling with mouse wheel. On child window, mouse wheel will be forwarded to the
         // parent unless NoScrollbar is also set.
-        kFrameFlagNoScrollWithMouse = 1 << 4,   
+        kFrameFlag_NoScrollWithMouse = 1 << 4,   
         // Disable user collapsing window by double-clicking on it. Also referred to as Window Menu Button 
         // (e.g. within a docking node).
-        kFrameFlagNoCollapse = 1 << 5,   
+        kFrameFlag_NoCollapse = 1 << 5,   
         // Resize every window to its content every frame
-        kFrameFlagAlwaysAutoResize = 1 << 6,  
+        kFrameFlag_AlwaysAutoResize = 1 << 6,  
         // Disable drawing background color (WindowBg, etc.) and outside border. 
         // Similar as using SetNextWindowBgAlpha(0.0f).
-        kFrameFlagNoBackground = 1 << 7,   
+        kFrameFlag_NoBackground = 1 << 7,   
         // Never load/save settings in .ini file
-        kFrameFlagNoSavedSettings = 1 << 8,   
+        kFrameFlag_NoSavedSettings = 1 << 8,   
         // Disable catching mouse, hovering test with pass through.
-        kFrameFlagNoMouseInputs = 1 << 9,   
+        kFrameFlag_NoMouseInputs = 1 << 9,   
         // Has a menu-bar
-        kFrameFlagMenuBar = 1 << 10,  
+        kFrameFlag_MenuBar = 1 << 10,  
         // Allow horizontal scrollbar to appear (off by default). 
         // You may use SetNextWindowContentSize(ImVec2(width,0.0f)); 
         // prior to calling Begin() to specify width. Read code in imgui_demo in the "Horizontal Scrolling" section.
-        kFrameFlagHorizontalScrollbar = 1 << 11,  
+        kFrameFlag_HorizontalScrollbar = 1 << 11,  
         // Disable taking focus when transitioning from hidden to visible state
-        kFrameFlagNoFocusOnAppearing = 1 << 12,  
+        kFrameFlag_NoFocusOnAppearing = 1 << 12,  
         // Disable bringing window to front when taking focus (e.g. clicking on it or programmatically giving it focus)
-        kFrameFlagNoBringToFrontOnFocus = 1 << 13,  
+        kFrameFlag_NoBringToFrontOnFocus = 1 << 13,  
         // Always show vertical scrollbar (even if ContentSize.y < Size.y)
-        kFrameFlagAlwaysVerticalScrollbar = 1 << 14,  
+        kFrameFlag_AlwaysVerticalScrollbar = 1 << 14,  
         // Always show horizontal scrollbar (even if ContentSize.x < Size.x)
-        kFrameFlagAlwaysHorizontalScrollbar = 1 << 15, 
+        kFrameFlag_AlwaysHorizontalScrollbar = 1 << 15, 
         // No gamepad/keyboard navigation within the window
-        kFrameFlagNoNavInputs = 1 << 16,  
+        kFrameFlag_NoNavInputs = 1 << 16,  
         // No focusing toward this window with gamepad/keyboard navigation (e.g. skipped by CTRL+TAB)
-        kFrameFlagNoNavFocus = 1 << 17,  
+        kFrameFlag_NoNavFocus = 1 << 17,  
         // Display a dot next to the title. When used in a tab/docking context, tab is selected when clicking the 
         // X + closure is not assumed (will wait for user to stop submitting the tab). Otherwise closure is assumed 
         // when pressing the X, so if you keep submitting the tab may reappear at end of tab bar.
-        kFrameFlagUnsavedDocument = 1 << 18,  
-        kFrameFlagNoNav = kFrameFlagNoNavInputs | kFrameFlagNoNavFocus,
-        kFrameFlagNoDecoration = kFrameFlagNoTitleBar | kFrameFlagNoResize | kFrameFlagNoScrollbar | kFrameFlagNoCollapse,
-        kFrameFlagNoInputs = kFrameFlagNoMouseInputs | kFrameFlagNoNavInputs | kFrameFlagNoNavFocus,
+        kFrameFlag_UnsavedDocument = 1 << 18,  
+        kFrameFlag_NoNav = kFrameFlag_NoNavInputs | kFrameFlag_NoNavFocus,
+        kFrameFlag_NoDecoration = kFrameFlag_NoTitleBar | kFrameFlag_NoResize | kFrameFlag_NoScrollbar | kFrameFlag_NoCollapse,
+        kFrameFlag_NoInputs = kFrameFlag_NoMouseInputs | kFrameFlag_NoNavInputs | kFrameFlag_NoNavFocus,
     };
 
     static constexpr Int32 kBaseFrameLevel = 0;
 
-    static constexpr Int32 kDefaultFrameFlag = kFrameFlagNoNav | kFrameFlagNoDecoration | kFrameFlagNoInputs;
-    static constexpr GuiColour kDefaultFrameBackgroundColour = { 0.5f, 0.5f, 0.5f, 1.0f };
+    static constexpr Int32 kDefaultFrameFlag = kFrameFlag_NoNav | kFrameFlag_NoDecoration;
+    static constexpr GuiColour kDefaultFrameBackgroundColour = { 0.2f, 0.2f, 0.2f, 1.0f };
 
     ZFrame() noexcept;
     ZFrame(ZFrame&& _frame) noexcept;
+    /*
+        Add ## at the start of the name if you want an empty title.
+    */
     ZFrame(const Char* _name, GuiSize _size, GuiPos _pos) noexcept;
 
     ~ZFrame() noexcept;

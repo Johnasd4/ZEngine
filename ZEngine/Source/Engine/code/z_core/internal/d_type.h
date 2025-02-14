@@ -92,10 +92,10 @@ union Size64Union {
 };
 
 enum StringEnum : IndexType {
-    kStringMin = 0,
-    kStringCStr = kStringMin,
-    kStringTStr,
-    kStringMax
+    kString_Min = 0,
+    kString_Str = kString_Min,
+    kString_WStr,
+    kString_Max
 
 };
 

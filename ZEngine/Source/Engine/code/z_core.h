@@ -46,6 +46,7 @@
 #include "z_core/z_condition_variable.h" 
 #include "z_core/z_cs_mutex.h" 
 #include "z_core/z_file.h" 
+#include "z_core/z_memory.h" 
 #include "z_core/z_mutex.h" 
 #include "z_core/z_object.h"
 #include "z_core/z_sem_mutex.h"

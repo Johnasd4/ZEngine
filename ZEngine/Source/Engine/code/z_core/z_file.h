@@ -29,14 +29,14 @@ namespace zengine {
 namespace error_code {
 
 enum ZFileErrorCode : ReturnType {
-    kZFileErrorCodeLinkError = kErrorCodeBaseZFile,
-    kZFileErrorCodeOpenFileFailed,
-    kZFileErrorCodeCloseFileFailed,
-    kZFileErrorCodeNoFileOpened,
-    kZFileErrorCodeOtherFileOpened,
-    kZFileErrorCodeCreatePathFailed,
-    kZFileErrorCodeReadFailed,
-    kZFileErrorCodeWriteFailed
+    kZFileErrorCode_LinkError = kErrorCodeBase_ZFile,
+    kZFileErrorCode_OpenFileFailed,
+    kZFileErrorCode_CloseFileFailed,
+    kZFileErrorCode_NoFileOpened,
+    kZFileErrorCode_OtherFileOpened,
+    kZFileErrorCode_CreatePathFailed,
+    kZFileErrorCode_ReadFailed,
+    kZFileErrorCode_WriteFailed
 };
 
 }//error_code
@@ -48,9 +48,9 @@ class CORE_DLLAPI ZFile : public ZObject {
 public:
 
     enum SeekType_ : Int32 {
-        kZFileSeekTypeFileHead = SEEK_SET,
-        kZFileSeekTypeCurrntPtr = SEEK_CUR,
-        kZFileSeekTypeFileEnd = SEEK_END,
+        kZFileSeekType_FileHead = SEEK_SET,
+        kZFileSeekType_CurrntPtr = SEEK_CUR,
+        kZFileSeekType_FileEnd = SEEK_END,
 
     };
 

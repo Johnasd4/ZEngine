@@ -26,7 +26,7 @@ namespace zengine {
 namespace error_code {
 
 enum FDiagnoseErrorCode : ReturnType {
-    kFDiagnoseErrorCodeLinkError = kErrorCodeBaseFDiagnose
+    kFDiagnoseErrorCode_LinkError = kErrorCodeBase_FDiagnose
 };
 
 }//error_code

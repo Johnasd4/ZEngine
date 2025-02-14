@@ -53,7 +53,7 @@ public:
         log_queue_.Push(_log);
         if (log_queue_.Size() > log_queue_.Capacity()) {
             log_queue_.Clear();
-            Z_LOG_ERROR(error_code::kMLogErrorCodeLogQueueOverflow, 0, L"Log queue overflow! Clear all logs!");
+            Z_LOG_ERROR(error_code::kMLogErrorCode_LogQueueOverflow, 0, L"Log queue overflow! Clear all logs!");
         }
         log_mutex_.Unlock();
     }
@@ -63,7 +63,7 @@ public:
         log_queue_.EmplaceBack(std::forward<ArgsType>(_args)...);
         if (log_queue_.Size() > log_queue_.Capacity()) {
             log_queue_.Clear();
-            Z_LOG_ERROR(error_code::kMLogErrorCodeLogQueueOverflow, 0, L"Log queue overflow! Clear all logs!");
+            Z_LOG_ERROR(error_code::kMLogErrorCode_LogQueueOverflow, 0, L"Log queue overflow! Clear all logs!");
         }
         log_mutex_.Unlock();
     }

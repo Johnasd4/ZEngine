@@ -38,9 +38,9 @@ namespace zengine {
 namespace error_code {
 
 enum ZThreadPoolErrorCode : ReturnType {
-    kZThreadPoolErrorCodeLinkError = kErrorCodeBaseZThreadPool,
-    kZThreadPoolErrorCodeAddNegitiveNumThread,
-    kZThreadPoolErrorCodePoolFinished
+    kZThreadPoolErrorCode_LinkError = kErrorCodeBase_ZThreadPool,
+    kZThreadPoolErrorCode_AddNegitiveNumThread,
+    kZThreadPoolErrorCode_PoolFinished
 };
 
 }//error_code
@@ -75,7 +75,7 @@ public:
         ReturnType ret_val = kOK;
         TUniqueLock<ZMutex> lock(pool_mutex_);
         if (finished_) {
-            ret_val = error_code::kZThreadPoolErrorCodePoolFinished;
+            ret_val = error_code::kZThreadPoolErrorCode_PoolFinished;
             Z_LOG_ERROR(ret_val, 0, "Thread pool finished, can't add task!");
             return ret_val;
         }

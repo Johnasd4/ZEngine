@@ -31,13 +31,13 @@ namespace zengine {
 namespace error_code {
 
 enum FFileSystemErrorCode : ReturnType {
-    kFFileSystemErrorCodeLinkError = kErrorCodeBaseFFileSystem,
-    kFFileSystemErrorCodeSystemError,
-    kFFileSystemErrorCodeFileDeleteFailed,
-    kFFileSystemErrorCodePathNotExist,
-    kFFileSystemErrorCodePathNotDirectory,
-    kFFileSystemErrorCodeDirectoryDeleteFailed,
-    kFFileSystemErrorCodeCreateDirectoryFailed
+    kFFileSystemErrorCode_LinkError = kErrorCodeBase_FFileSystem,
+    kFFileSystemErrorCode_SystemError,
+    kFFileSystemErrorCode_FileDeleteFailed,
+    kFFileSystemErrorCode_PathNotExist,
+    kFFileSystemErrorCode_PathNotDirectory,
+    kFFileSystemErrorCode_DirectoryDeleteFailed,
+    kFFileSystemErrorCode_CreateDirectoryFailed
 };
 
 }//error_code

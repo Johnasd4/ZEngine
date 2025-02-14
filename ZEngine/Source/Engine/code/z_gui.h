@@ -21,6 +21,7 @@
 
 #include "z_gui/z_frame.h"
 #include "z_gui/z_gui_object.h"
+#include "z_gui/z_input_text.h"
 #include "z_gui/z_text.h"
 #include "z_gui/z_widget_object.h"
 #include "z_gui/z_window.h"

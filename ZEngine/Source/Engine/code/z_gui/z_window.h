@@ -37,9 +37,9 @@ namespace gui {
 namespace error_code {
 
 enum ZWindowErrorCode : ReturnType {
-    kZWindowErrorCodeLinkError = kErrorCodeBaseZWindow,
-    kZWindowErrorCodeWindowAreadyCreated,
-    kZWindowErrorCodeWindowNotExist
+    kZWindowErrorCode_LinkError = kErrorCodeBase_ZWindow,
+    kZWindowErrorCode_WindowAreadyCreated,
+    kZWindowErrorCode_WindowNotExist
 };
 
 }//error_code
@@ -54,18 +54,18 @@ public:
         The window screen mode enum.
     */
     enum WindowScreenModeEnum_ {
-        kWindowScreenModeWindow,
-        kWindowScreenModeFullScreenCustomSize,
-        kWindowScreenModeFullScreenDefaultSize,
+        kWindowScreenMode_Window,
+        kWindowScreenMode_FullScreenCustomSize,
+        kWindowScreenMode_FullScreenDefaultSize,
     };
 
     /*
         The window state enum.
     */
     enum WindowStateEnum_ {
-        kWindowStateTerminated,
-        kWindowStateOpened,
-        kWindowStateHidden
+        kWindowState_Terminated,
+        kWindowState_Opened,
+        kWindowState_Hidden
     };
 
     /*
@@ -86,7 +86,7 @@ public:
         const Char* _name,
         GuiSize _size,
         GuiPos _pos = { 0, 0 }, 
-        WindowScreenModeEnum_ _screen_mode = kWindowScreenModeWindow
+        WindowScreenModeEnum_ _screen_mode = kWindowScreenMode_Window
     ) noexcept;
     
     ~ZWindow() noexcept;

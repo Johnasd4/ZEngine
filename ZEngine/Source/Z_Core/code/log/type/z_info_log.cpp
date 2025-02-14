@@ -39,7 +39,7 @@ Void ZInfoLog::GenerateLogString(const ZLog* _log_ptr, OutputString_* _output_st
         L"%04d/%02d/%02d-%02d:%02d:%02d | %ls: %ls",
         system_time.Year(), system_time.Month(), system_time.Day(),
         system_time.Hour(), system_time.Min(), system_time.Sec(),
-        kLogInfoString[info_log.info_type_], info_log.LogMsgPtr().w_str_.DataPtr());
+        kLogInfo_String[info_log.info_type_], info_log.LogMsgPtr().w_str_.DataPtr());
 }
 
 Void ZInfoLog::FileOutputLogString(const ZLog* _log_ptr, const ZLog::OutputString_& _output_str) noexcept {
@@ -54,7 +54,7 @@ Void ZInfoLog::FileOutputLogString(const ZLog* _log_ptr, const ZLog::OutputStrin
             system_time.Hour(), system_time.Min(), system_time.Sec());
         link_code = file.Open(file_dir.DataPtr(), ZFile::kOpenTypeAppend);
         if (link_code != kOK) {
-            Z_LOG_ERROR(error_code::kMLogErrorCodeLinkError, link_code, L"ZFile::OpenSafe() link error!");
+            Z_LOG_ERROR(error_code::kMLogErrorCode_LinkError, link_code, L"ZFile::OpenSafe() link error!");
         }
         return file;
     }();
@@ -62,29 +62,29 @@ Void ZInfoLog::FileOutputLogString(const ZLog* _log_ptr, const ZLog::OutputStrin
 
     link_code = file.Print(L"%ls\n", _output_str.w_str_.DataPtr());
     if (link_code != kOK) {
-        Z_LOG_ERROR(error_code::kMLogErrorCodeLinkError, link_code, L"ZFile::Print() link error!");
+        Z_LOG_ERROR(error_code::kMLogErrorCode_LinkError, link_code, L"ZFile::Print() link error!");
     }
 }
 
 Void ZInfoLog::ConsoleOutputLogString(const ZLog* _log_ptr, const ZLog::OutputString_& _output_str) noexcept {
     ZInfoLog& info_log = *(ZInfoLog*)_log_ptr;
     switch (info_log.info_type_) {
-    case kLogInfoMessage:
+    case kLogInfo_Message:
         console::PrintMessage(L"%ls\n", _output_str.w_str_.DataPtr());
         break;
-    case kLogInfoStart:
+    case kLogInfo_Start:
         console::PrintStart(L"%ls\n", _output_str.w_str_.DataPtr());
         break;
-    case kLogInfoProcess:
+    case kLogInfo_Process:
         console::PrintProcess(L"%ls\n", _output_str.w_str_.DataPtr());
         break;
-    case kLogInfoFinish:
+    case kLogInfo_Finish:
         console::PrintFinish(L"%ls\n", _output_str.w_str_.DataPtr());
         break;
-    case kLogInfoSuccess:
+    case kLogInfo_Success:
         console::PrintSuccess(L"%ls\n", _output_str.w_str_.DataPtr());
         break;
-    case kLogInfoFailure:
+    case kLogInfo_Failure:
         console::PrintFailure(L"%ls\n", _output_str.w_str_.DataPtr());
         break;
     }

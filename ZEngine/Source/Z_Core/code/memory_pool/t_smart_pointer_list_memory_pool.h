@@ -80,7 +80,7 @@ public:
 
     FORCEINLINE TSmartPointerListMemoryPool() : SuperType_() {
         SuperType_::InitializeP(
-            MemoryPoolEnum::kTSmartPointerListMemoryPool,
+            MemoryPoolEnum::kWindowState_TSmartPointerList,
             kMemoryBlockSize,
             kMemoryBlockMemorySize,
             kMemoryBlockDefaultNum);
@@ -90,17 +90,17 @@ public:
         ReturnType link_code = kOK;
 
         if (link_code != kOK) {
-            Z_LOG_ERROR(error_code::kMLogErrorCodeLinkError, link_code, L"ZFile::OpenSafe() link error!");
+            Z_LOG_ERROR(error_code::kMLogErrorCode_LinkError, link_code, L"ZFile::OpenSafe() link error!");
         }
 
         link_code = TMemoryPoolBase<kIsThreadSafe>::log_file_.Print("\n***** smart pointer pool *****\n\n");
         if (link_code != kOK) {
-            Z_LOG_ERROR(error_code::kFMemoryPoolErrorCodeLinkError, link_code, L"ZFile::OpenSafe() link error!");
+            Z_LOG_ERROR(error_code::kFMemoryPoolErrorCode_LinkError, link_code, L"ZFile::OpenSafe() link error!");
         }
 
         link_code = TMemoryPoolBase<kIsThreadSafe>::log_file_.Print("    size    | usable size |  total num  | applied times | used peak num | unused num\n");
         if (link_code != kOK) {
-            Z_LOG_ERROR(error_code::kFMemoryPoolErrorCodeLinkError, link_code, L"ZFile::OpenSafe() link error!");
+            Z_LOG_ERROR(error_code::kFMemoryPoolErrorCode_LinkError, link_code, L"ZFile::OpenSafe() link error!");
         }
         link_code = TMemoryPoolBase<kIsThreadSafe>::log_file_.Print(
             "  %8u  |  %9u  |  %9d  |   %9d   |   %9d   |  %8d\n",
@@ -111,7 +111,7 @@ public:
             momory_block_peak_num_,
             memory_block_used_current_num_);
         if (link_code != kOK) {
-            Z_LOG_ERROR(error_code::kFMemoryPoolErrorCodeLinkError, link_code, L"ZFile::OpenSafe() link error!");
+            Z_LOG_ERROR(error_code::kFMemoryPoolErrorCode_LinkError, link_code, L"ZFile::OpenSafe() link error!");
         }
 #endif //USE_MEMORY_POOL_TEST        
     }

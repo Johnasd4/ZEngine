@@ -39,13 +39,13 @@ CORE_DLLAPI NODISCARD ReturnType DeleteFileByPath(const WChar* _path_dir) noexce
         }
         else {
             Z_LOG_FAILURE(L"Deleted file failed! path: %ls", _path_dir);
-            ret_val = error_code::kFFileSystemErrorCodeFileDeleteFailed;
+            ret_val = error_code::kFFileSystemErrorCode_FileDeleteFailed;
             Z_LOG_ERROR(ret_val, 0, L"Deleted file failed! path: %ls", _path_dir);
             return ret_val;
         }
     }
     catch (const std::filesystem::filesystem_error& exception) {
-        ret_val = error_code::kFFileSystemErrorCodeSystemError;
+        ret_val = error_code::kFFileSystemErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, 0, L"System error! path: %ls error msg: %ls", 
             _path_dir, string::String2WString(exception.what()).String());
@@ -66,7 +66,7 @@ CORE_DLLAPI NODISCARD ReturnType RenameFileByPath(const WChar* _old_path_dir, co
         return ret_val;
     }
     catch (const std::filesystem::filesystem_error& exception) {
-        ret_val = error_code::kFFileSystemErrorCodeSystemError;
+        ret_val = error_code::kFFileSystemErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, 0, L"System error! old path: %ls new path: %ls error msg: %ls",
             _old_path_dir, _new_path_dir, string::String2WString(exception.what()).String());
@@ -86,20 +86,20 @@ CORE_DLLAPI NODISCARD ReturnType CreateDirectoryByPath(const WChar* _path_dir) n
         }
         else {
             Z_LOG_FAILURE(L"Create directory failed! path: %ls", _path_dir);
-            ret_val = error_code::kFFileSystemErrorCodeCreateDirectoryFailed;
+            ret_val = error_code::kFFileSystemErrorCode_CreateDirectoryFailed;
             Z_LOG_ERROR(ret_val, 0, L"Create directory failed! path: %ls", _path_dir);
             return ret_val;
         }
     }
     catch (const std::filesystem::filesystem_error& exception) {
-        ret_val = error_code::kFFileSystemErrorCodeSystemError;
+        ret_val = error_code::kFFileSystemErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, 0, L"System error! path: %ls error msg: %ls",
             _path_dir, string::String2WString(exception.what()).String());
         return ret_val;
     }
     catch (const std::exception& exception) {
-        ret_val = error_code::kFFileSystemErrorCodeSystemError;
+        ret_val = error_code::kFFileSystemErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, 0, L"System error! path: %ls error msg: %ls",
             _path_dir, string::String2WString(exception.what()).String());
@@ -119,13 +119,13 @@ CORE_DLLAPI NODISCARD ReturnType DeleteDirectoryByPath(const WChar* _path_dir) n
         }
         else {
             Z_LOG_FAILURE(L"Deleted directory failed! path: %ls", _path_dir);
-            ret_val = error_code::kFFileSystemErrorCodeDirectoryDeleteFailed;
+            ret_val = error_code::kFFileSystemErrorCode_DirectoryDeleteFailed;
             Z_LOG_ERROR(ret_val, 0, L"Deleted directory failed! path: %ls", _path_dir);
             return ret_val;
         }
     }
     catch (const std::filesystem::filesystem_error& exception) {
-        ret_val = error_code::kFFileSystemErrorCodeSystemError;
+        ret_val = error_code::kFFileSystemErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, 0, L"System error! path: %ls error msg: %ls",
             _path_dir, string::String2WString(exception.what()).String());
@@ -138,10 +138,10 @@ CORE_DLLAPI NODISCARD ReturnType GetFilesByPath(const WChar* _path_dir, TList<ZW
     ReturnType ret_val = kOK;
     try {
         Z_CHECK(
-            !std::filesystem::exists(_path_dir), error_code::kFFileSystemErrorCodePathNotExist,
+            !std::filesystem::exists(_path_dir), error_code::kFFileSystemErrorCode_PathNotExist,
             L"Path not exist! path: %ls", _path_dir);
         Z_CHECK(
-            !std::filesystem::is_directory(_path_dir), error_code::kFFileSystemErrorCodePathNotDirectory,
+            !std::filesystem::is_directory(_path_dir), error_code::kFFileSystemErrorCode_PathNotDirectory,
             L"Path not directory! path: %ls", _path_dir);
         for (const auto& entry : std::filesystem::directory_iterator(_path_dir)) {
             if (std::filesystem::is_regular_file(entry.path())) {
@@ -150,14 +150,14 @@ CORE_DLLAPI NODISCARD ReturnType GetFilesByPath(const WChar* _path_dir, TList<ZW
         }
     }
     catch (const std::filesystem::filesystem_error& exception) {
-        ret_val = error_code::kFFileSystemErrorCodeSystemError;
+        ret_val = error_code::kFFileSystemErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, 0, L"System error! path: %ls error msg: %ls",
             _path_dir, string::String2WString(exception.what()).String());
         return ret_val;
     }
     catch (const std::exception& exception) {
-        ret_val = error_code::kFFileSystemErrorCodeSystemError;
+        ret_val = error_code::kFFileSystemErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, 0, L"System error! path: %ls error msg: %ls",
             _path_dir, string::String2WString(exception.what()).String());
@@ -175,10 +175,10 @@ CORE_DLLAPI NODISCARD ReturnType GetDirectoriesByPath(const WChar* _path_dir, TL
     ReturnType link_code = kOK;
     try {
         Z_CHECK(
-            !std::filesystem::exists(_path_dir), error_code::kFFileSystemErrorCodePathNotExist,
+            !std::filesystem::exists(_path_dir), error_code::kFFileSystemErrorCode_PathNotExist,
             L"Path not exist! path: %ls", _path_dir);
         Z_CHECK(
-            !std::filesystem::is_directory(_path_dir), error_code::kFFileSystemErrorCodePathNotDirectory,
+            !std::filesystem::is_directory(_path_dir), error_code::kFFileSystemErrorCode_PathNotDirectory,
             L"Path not directory! path: %ls", _path_dir);
         for (const auto& file : std::filesystem::directory_iterator(_path_dir)) {
             if (std::filesystem::is_directory(file.path())) {
@@ -187,14 +187,14 @@ CORE_DLLAPI NODISCARD ReturnType GetDirectoriesByPath(const WChar* _path_dir, TL
         }
     }
     catch (const std::filesystem::filesystem_error& exception) {
-        ret_val = error_code::kFFileSystemErrorCodeSystemError;
+        ret_val = error_code::kFFileSystemErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, 0, L"System error! path: %ls error msg: %ls",
             _path_dir, string::String2WString(exception.what()).String());
         return ret_val;
     }
     catch (const std::exception& exception) {
-        ret_val = error_code::kFFileSystemErrorCodeSystemError;
+        ret_val = error_code::kFFileSystemErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, 0, L"System error! path: %ls error msg: %ls",
             _path_dir, string::String2WString(exception.what()).String());
@@ -209,10 +209,10 @@ CORE_DLLAPI NODISCARD ReturnType GetFilesAndDirectoriesByPath(
     ReturnType ret_val = kOK;
     try {
         Z_CHECK(
-            !std::filesystem::exists(_path_dir), error_code::kFFileSystemErrorCodePathNotExist,
+            !std::filesystem::exists(_path_dir), error_code::kFFileSystemErrorCode_PathNotExist,
             L"Path not exist! path: %ls", _path_dir);
         Z_CHECK(
-            !std::filesystem::is_directory(_path_dir), error_code::kFFileSystemErrorCodePathNotDirectory,
+            !std::filesystem::is_directory(_path_dir), error_code::kFFileSystemErrorCode_PathNotDirectory,
             L"Path not directory! path: %ls", _path_dir);
         for (const auto& entry : std::filesystem::directory_iterator(_path_dir)) {
             if (std::filesystem::is_regular_file(entry.path()) || std::filesystem::is_directory(entry.path())) {
@@ -221,14 +221,14 @@ CORE_DLLAPI NODISCARD ReturnType GetFilesAndDirectoriesByPath(
         }
     }
     catch (const std::filesystem::filesystem_error& exception) {
-        ret_val = error_code::kFFileSystemErrorCodeSystemError;
+        ret_val = error_code::kFFileSystemErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, 0, L"System error! path: %ls error msg: %ls",
             _path_dir, string::String2WString(exception.what()).String());
         return ret_val;
     }
     catch (const std::exception& exception) {
-        ret_val = error_code::kFFileSystemErrorCodeSystemError;
+        ret_val = error_code::kFFileSystemErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, 0, L"System error! path: %ls error msg: %ls",
             _path_dir, string::String2WString(exception.what()).String());
@@ -241,10 +241,10 @@ CORE_DLLAPI NODISCARD ReturnType GetFileTreeByPath(const WChar* _path_dir, TList
     ReturnType ret_val = kOK;
     try {
         Z_CHECK(
-            !std::filesystem::exists(_path_dir), error_code::kFFileSystemErrorCodePathNotExist,
+            !std::filesystem::exists(_path_dir), error_code::kFFileSystemErrorCode_PathNotExist,
             L"Path not exist! path: %ls", _path_dir);
         Z_CHECK(
-            !std::filesystem::is_directory(_path_dir), error_code::kFFileSystemErrorCodePathNotDirectory,
+            !std::filesystem::is_directory(_path_dir), error_code::kFFileSystemErrorCode_PathNotDirectory,
             L"Path not directory! path: %ls", _path_dir);
         for (const auto& entry : std::filesystem::directory_iterator(_path_dir)) {
             if (std::filesystem::is_regular_file(entry.path())) {
@@ -256,14 +256,14 @@ CORE_DLLAPI NODISCARD ReturnType GetFileTreeByPath(const WChar* _path_dir, TList
         }
     }
     catch (const std::filesystem::filesystem_error& exception) {
-        ret_val = error_code::kFFileSystemErrorCodeSystemError;
+        ret_val = error_code::kFFileSystemErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, 0, L"System error! path: %ls error msg: %ls",
             _path_dir, string::String2WString(exception.what()).String());
         return ret_val;
     }
     catch (const std::exception& exception) {
-        ret_val = error_code::kFFileSystemErrorCodeSystemError;
+        ret_val = error_code::kFFileSystemErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, 0, L"System error! path: %ls error msg: %ls",
             _path_dir, string::String2WString(exception.what()).String());

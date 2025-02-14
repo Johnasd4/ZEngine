@@ -34,20 +34,20 @@ namespace zengine {
 namespace error_code {
 
 enum ZTaskErrorCode : ReturnType {
-    kZTaskErrorCodeLinkError = kErrorCodeBaseZTask,
-    kZTaskErrorCodeTaskStateError,
-    kZTaskErrorCodeReturnValAlreadyGet,
-    kZTaskErrorCodeTaskAlreadyExist,
-    kZTaskErrorCodeCanNotBindVoidReturn
+    kZTaskErrorCode_LinkError = kErrorCodeBase_ZTask,
+    kZTaskErrorCode_TaskStateError,
+    kZTaskErrorCode_ReturnValAlreadyGet,
+    kZTaskErrorCode_TaskAlreadyExist,
+    kZTaskErrorCode_CanNotBindVoidReturn
 };
 
 }//error_code
 
 enum ZTaskState : IndexType {
-    kZTaskStateNoTask =         0x0,
-    kZTaskStateTaskSet =        0x1,
-    kZTaskStateTaskRunning =    0x2, 
-    kZTaskStateFinished =       0x4
+    kZTaskState_NoTask =         0x0,
+    kZTaskState_TaskSet =        0x1,
+    kZTaskState_TaskRunning =    0x2, 
+    kZTaskState_Finished =       0x4
 };
 
 /*
@@ -78,10 +78,10 @@ public:
     template<typename _TaskFunction, typename... _ArgsType>
     Void SetTask(_TaskFunction&& _func, _ArgsType&&... _args) noexcept {
         mutex_.Lock();
-        if (state_ == kZTaskStateTaskSet) {
-            state_ = kZTaskStateFinished;
+        if (state_ == kZTaskState_TaskSet) {
+            state_ = kZTaskState_Finished;
         }
-        if (state_ == kZTaskStateFinished) {
+        if (state_ == kZTaskState_Finished) {
             operate_func_ptr_(this);
         }
         SetTaskP(std::forward<_TaskFunction>(_func), std::forward<_ArgsType>(_args)...);
@@ -92,7 +92,7 @@ public:
     
     NODISCARD ReturnType Run() noexcept;
 
-    FORCEINLINE NODISCARD Bool Finished() const noexcept { return state_ == kZTaskStateFinished; }
+    FORCEINLINE NODISCARD Bool Finished() const noexcept { return state_ == kZTaskState_Finished; }
     FORCEINLINE NODISCARD ZTaskState State() const noexcept { return state_; }
 
 protected:
@@ -115,8 +115,8 @@ private:
 
         operate_func_ptr_ = [](ZTaskSafe* _task_ptr) {
             switch (_task_ptr->state_) {
-            case kZTaskStateTaskSet:
-                _task_ptr->state_ = kZTaskStateTaskRunning;
+            case kZTaskState_TaskSet:
+                _task_ptr->state_ = kZTaskState_TaskRunning;
                 if constexpr (kSameType<TaskReturnType, Void>) {
                     (reinterpret_cast<TaskParamsTuple*>(_task_ptr->params_ptr_))->Apply(
                         *reinterpret_cast<std::remove_reference<_TaskFunction>::type*>(_task_ptr->task_func_ptr_));
@@ -132,23 +132,23 @@ private:
                             *reinterpret_cast<std::remove_reference<_TaskFunction>::type*>(_task_ptr->task_func_ptr_));
                     }
                 }
-                _task_ptr->state_ = kZTaskStateFinished;
+                _task_ptr->state_ = kZTaskState_Finished;
                 break;
-            case kZTaskStateFinished:
+            case kZTaskState_Finished:
                 delete reinterpret_cast<TaskParamsTuple*>(_task_ptr->params_ptr_);
                 _task_ptr->params_ptr_ = nullptr;
-                _task_ptr->state_ = kZTaskStateNoTask;
+                _task_ptr->state_ = kZTaskState_NoTask;
                 break;
             default:
                 Z_LOG_ERROR(
-                    error_code::kZTaskErrorCodeTaskStateError, 0, 
+                    error_code::kZTaskErrorCode_TaskStateError, 0, 
                     L"Task state not expected! state_: %d", _task_ptr->state_);
             }
         };
         task_func_ptr_ = reinterpret_cast<Void*>(&_func);
         params_ptr_ = new TaskParamsTuple(std::forward<_ArgsType>(_args)...);
         ret_val_ptr_ = nullptr;
-        state_ = kZTaskStateTaskSet;
+        state_ = kZTaskState_TaskSet;
     }
 
     template<typename _TaskFunction>
@@ -157,8 +157,8 @@ private:
 
         operate_func_ptr_ = [](ZTaskSafe* _task_ptr) {
             switch (_task_ptr->state_) {
-            case kZTaskStateTaskSet:
-                _task_ptr->state_ = kZTaskStateTaskRunning;
+            case kZTaskState_TaskSet:
+                _task_ptr->state_ = kZTaskState_TaskRunning;
                 if constexpr (kSameType<TaskReturnType, Void>) {
                     (*reinterpret_cast<std::remove_reference<_TaskFunction>::type*>(_task_ptr->task_func_ptr_))();
                 }
@@ -171,17 +171,17 @@ private:
                         (*reinterpret_cast<std::remove_reference<_TaskFunction>::type*>(_task_ptr->task_func_ptr_))();
                     }
                 }
-                _task_ptr->state_ = kZTaskStateNoTask;
+                _task_ptr->state_ = kZTaskState_NoTask;
                 break;
             default:
                 Z_LOG_ERROR(
-                    error_code::kZTaskErrorCodeTaskStateError, 0, 
+                    error_code::kZTaskErrorCode_TaskStateError, 0, 
                     L"Task state not expected! state_: %d", _task_ptr->state_);
             }
         };
         task_func_ptr_ = reinterpret_cast<Void*>(&_func);
         ret_val_ptr_ = nullptr;
-        state_ = kZTaskStateTaskSet;
+        state_ = kZTaskState_TaskSet;
     }
 
 #pragma warning(pop)
@@ -221,10 +221,10 @@ public:
 
     template<typename TaskFunction, typename... ArgsType>
     Void SetTask(TaskFunction&& _func, ArgsType&&... _args) noexcept {
-        if (state_ == kZTaskStateTaskSet) {
-            state_ = kZTaskStateFinished;
+        if (state_ == kZTaskState_TaskSet) {
+            state_ = kZTaskState_Finished;
         }
-        if (state_ == kZTaskStateFinished) {
+        if (state_ == kZTaskState_Finished) {
             operate_func_ptr_(this);
         }
         SetTaskP(std::forward<TaskFunction>(_func), std::forward<ArgsType>(_args)...);
@@ -234,7 +234,7 @@ public:
     
     NODISCARD ReturnType Run() noexcept;
 
-    FORCEINLINE NODISCARD Bool Finished() const noexcept { return state_ == kZTaskStateFinished; }
+    FORCEINLINE NODISCARD Bool Finished() const noexcept { return state_ == kZTaskState_Finished; }
     FORCEINLINE NODISCARD ZTaskState State() const noexcept { return state_; }
 
 protected:
@@ -257,8 +257,8 @@ private:
 
         operate_func_ptr_ = [](ZTask* _task_ptr) {
             switch (_task_ptr->state_) {
-            case kZTaskStateTaskSet:
-                _task_ptr->state_ = kZTaskStateTaskRunning;
+            case kZTaskState_TaskSet:
+                _task_ptr->state_ = kZTaskState_TaskRunning;
                 if constexpr (kSameType<TaskReturnType, Void>) {
                     (reinterpret_cast<TaskParamsTuple*>(_task_ptr->params_ptr_))->Apply(
                         *reinterpret_cast<std::remove_reference<_TaskFunction>::type*>(_task_ptr->task_func_ptr_));
@@ -274,23 +274,23 @@ private:
                             *reinterpret_cast<std::remove_reference<_TaskFunction>::type*>(_task_ptr->task_func_ptr_));
                     }
                 }
-                _task_ptr->state_ = kZTaskStateFinished;
+                _task_ptr->state_ = kZTaskState_Finished;
                 break;
-            case kZTaskStateFinished:
+            case kZTaskState_Finished:
                 delete reinterpret_cast<TaskParamsTuple*>(_task_ptr->params_ptr_);
                 _task_ptr->params_ptr_ = nullptr;
-                _task_ptr->state_ = kZTaskStateNoTask;
+                _task_ptr->state_ = kZTaskState_NoTask;
                 break;
             default:
                 Z_LOG_ERROR(
-                    error_code::kZTaskErrorCodeTaskStateError, 0, 
+                    error_code::kZTaskErrorCode_TaskStateError, 0, 
                     L"Task state not expected! state_: %d", _task_ptr->state_);
             }
         };
         task_func_ptr_ = reinterpret_cast<Void*>(&_func);
         params_ptr_ = new TaskParamsTuple(std::forward<_ArgsType>(_args)...);
         ret_val_ptr_ = nullptr;
-        state_ = kZTaskStateTaskSet;
+        state_ = kZTaskState_TaskSet;
     }
 
     template<typename _TaskFunction>
@@ -299,8 +299,8 @@ private:
 
         operate_func_ptr_ = [](ZTask* _task_ptr) {
             switch (_task_ptr->state_) {
-            case kZTaskStateTaskSet:
-                _task_ptr->state_ = kZTaskStateTaskRunning;
+            case kZTaskState_TaskSet:
+                _task_ptr->state_ = kZTaskState_TaskRunning;
                 if constexpr (kSameType<TaskReturnType, Void>) {
                     (*reinterpret_cast<std::remove_reference<_TaskFunction>::type*>(_task_ptr->task_func_ptr_))();
                 }
@@ -313,17 +313,17 @@ private:
                         (*reinterpret_cast<std::remove_reference<_TaskFunction>::type*>(_task_ptr->task_func_ptr_))();
                     }
                 }
-                _task_ptr->state_ = kZTaskStateNoTask;
+                _task_ptr->state_ = kZTaskState_NoTask;
                 break;
             default:
                 Z_LOG_ERROR(
-                    error_code::kZTaskErrorCodeTaskStateError, 0, 
+                    error_code::kZTaskErrorCode_TaskStateError, 0, 
                     L"Task state not expected! state_: %d", _task_ptr->state_);
             }
         };
         task_func_ptr_ = reinterpret_cast<Void*>(&_func);
         ret_val_ptr_ = nullptr;
-        state_ = kZTaskStateTaskSet;
+        state_ = kZTaskState_TaskSet;
     }
 
 #pragma warning(pop)

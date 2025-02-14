@@ -73,7 +73,7 @@ NODISCARD ReturnType ZLogManager::RegisterLogServerInputFunction(
     _port_id = (_port_id + ZLogServer::kMaxPortNum) % ZLogServer::kMaxPortNum;
     link_code = ZLogManager::InstanceP().log_server_.RegisterInputFunction(_port_id, _input_func);
     if (link_code != kOK) {
-        ret_val = error_code::kMLogErrorCodeLinkError;
+        ret_val = error_code::kMLogErrorCode_LinkError;
         Z_LOG_ERROR(ret_val, link_code, L"ZLogServer::RegisterInputFunction() link error!");
         return ret_val;
     }
@@ -89,7 +89,7 @@ NODISCARD ReturnType ZLogManager::UnregisterLogServerInputFunction(
     _port_id = (_port_id + ZLogServer::kMaxPortNum) % ZLogServer::kMaxPortNum;
     link_code = ZLogManager::InstanceP().log_server_.UnregisterInputFunction(_port_id, _input_func);
     if (link_code != kOK) {
-        ret_val = error_code::kMLogErrorCodeLinkError;
+        ret_val = error_code::kMLogErrorCode_LinkError;
         Z_LOG_ERROR(ret_val, link_code, L"ZLogServer::UnregisterInputFunction() link error!");
         return ret_val;
     }
@@ -105,7 +105,7 @@ NODISCARD ReturnType ZLogManager::RegisterLogServerOutputFunction(
     _port_id = (_port_id + ZLogServer::kMaxPortNum) % ZLogServer::kMaxPortNum;
     link_code = ZLogManager::InstanceP().log_server_.RegisterOutputFunction(_port_id, _output_func);
     if (link_code != kOK) {
-        ret_val = error_code::kMLogErrorCodeLinkError;
+        ret_val = error_code::kMLogErrorCode_LinkError;
         Z_LOG_ERROR(ret_val, link_code, L"ZLogServer::RegisterOutputFunction() link error!");
         return ret_val;
     }
@@ -180,50 +180,50 @@ ZLogManager::ZLogManager() noexcept
     link_code = log_server_.RegisterInputFunction(kErrorLogPortID, ZErrorLog::GenerateLogString);
     if (link_code != kOK) {
         Z_LOG_ERROR(
-            error_code::kMLogErrorCodeLinkError, link_code, L"ZLogServer::RegisterInputFunction() link error!");
+            error_code::kMLogErrorCode_LinkError, link_code, L"ZLogServer::RegisterInputFunction() link error!");
     }
     link_code = log_server_.RegisterInputFunction(kTraceLogPortID, ZTraceLog::GenerateLogString);
     if (link_code != kOK) {
         Z_LOG_ERROR(
-            error_code::kMLogErrorCodeLinkError, link_code, L"ZLogServer::RegisterInputFunction() link error!");
+            error_code::kMLogErrorCode_LinkError, link_code, L"ZLogServer::RegisterInputFunction() link error!");
     }
     link_code = log_server_.RegisterInputFunction(kInfoLogPortID, ZInfoLog::GenerateLogString);
     if (link_code != kOK) {
         Z_LOG_ERROR(
-            error_code::kMLogErrorCodeLinkError, link_code, L"ZLogServer::RegisterInputFunction() link error!");
+            error_code::kMLogErrorCode_LinkError, link_code, L"ZLogServer::RegisterInputFunction() link error!");
     }
 #if USE_FILE_LOG
     link_code = log_server_.RegisterOutputFunction(kErrorLogPortID, ZErrorLog::FileOutputLogString);
     if (link_code != kOK) {
         Z_LOG_ERROR(
-            error_code::kMLogErrorCodeLinkError, link_code, L"ZLogServer::RegisterOutputFunction() link error!");
+            error_code::kMLogErrorCode_LinkError, link_code, L"ZLogServer::RegisterOutputFunction() link error!");
     }
     link_code = log_server_.RegisterOutputFunction(kTraceLogPortID, ZTraceLog::FileOutputLogString);
     if (link_code != kOK) {
         Z_LOG_ERROR(
-            error_code::kMLogErrorCodeLinkError, link_code, L"ZLogServer::RegisterOutputFunction() link error!");
+            error_code::kMLogErrorCode_LinkError, link_code, L"ZLogServer::RegisterOutputFunction() link error!");
     }
     link_code = log_server_.RegisterOutputFunction(kInfoLogPortID, ZInfoLog::FileOutputLogString);
     if (link_code != kOK) {
         Z_LOG_ERROR(
-            error_code::kMLogErrorCodeLinkError, link_code, L"ZLogServer::RegisterOutputFunction() link error!");
+            error_code::kMLogErrorCode_LinkError, link_code, L"ZLogServer::RegisterOutputFunction() link error!");
     }
 #endif
 #if USE_CONSOLE_LOG
     link_code = log_server_.RegisterOutputFunction(kErrorLogPortID, ZErrorLog::ConsoleOutputLogString);
     if (link_code != kOK) {
         Z_LOG_ERROR(
-            error_code::kMLogErrorCodeLinkError, link_code, L"ZLogServer::RegisterOutputFunction() link error!");
+            error_code::kMLogErrorCode_LinkError, link_code, L"ZLogServer::RegisterOutputFunction() link error!");
     }
     link_code = log_server_.RegisterOutputFunction(kTraceLogPortID, ZTraceLog::ConsoleOutputLogString);
     if (link_code != kOK) {
         Z_LOG_ERROR(
-            error_code::kMLogErrorCodeLinkError, link_code, L"ZLogServer::RegisterOutputFunction() link error!");
+            error_code::kMLogErrorCode_LinkError, link_code, L"ZLogServer::RegisterOutputFunction() link error!");
     }
     link_code = log_server_.RegisterOutputFunction(kInfoLogPortID, ZInfoLog::ConsoleOutputLogString);
     if (link_code != kOK) {
         Z_LOG_ERROR(
-            error_code::kMLogErrorCodeLinkError, link_code, L"ZLogServer::RegisterOutputFunction() link error!");
+            error_code::kMLogErrorCode_LinkError, link_code, L"ZLogServer::RegisterOutputFunction() link error!");
     }
 #endif
 }

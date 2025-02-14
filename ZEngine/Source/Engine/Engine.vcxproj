@@ -57,6 +57,7 @@
     <ClInclude Include="code\z_core\z_condition_variable.h" />
     <ClInclude Include="code\z_core\z_cs_mutex.h" />
     <ClInclude Include="code\z_core\z_file.h" />
+    <ClInclude Include="code\z_core\z_memory.h" />
     <ClInclude Include="code\z_core\z_mutex.h" />
     <ClInclude Include="code\z_core\z_object.h" />
     <ClInclude Include="code\z_core\z_sem_mutex.h" />
@@ -86,6 +87,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\main.cpp" />
+    <ClCompile Include="code\z_gui\z_input_text.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

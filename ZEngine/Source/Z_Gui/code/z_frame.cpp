@@ -190,7 +190,7 @@ Void ZFrame::Reset() noexcept {
 }
 
 Void ZFrame::Add(ZWidgetObject* _widget_obj) noexcept {
-    if (_widget_obj->WidgetType() == kWidgetTypeFrame) {
+    if (_widget_obj->WidgetType() == kWidgetType_Frame) {
         frame_ptr_set_.Insert(static_cast<ZFrame*>(_widget_obj));
         dynamic_cast<ZFrame*>(_widget_obj)->UpdateFrameLevelP(frame_level_);
     }
@@ -205,7 +205,7 @@ Void ZFrame::SetBackgruondColour(GuiColour _colour) noexcept {
 }
 
 NODISCARD ZFrame::WidgetTypeEnum ZFrame::WidgetType() const noexcept {
-    return WidgetTypeEnum::kWidgetTypeFrame;
+    return WidgetTypeEnum::kWidgetType_Frame;
 }
 
 NODISCARD GuiColour ZFrame::BackgruondColour() const noexcept {

@@ -26,10 +26,10 @@ namespace zengine {
 namespace error_code {
 
 enum FMemoryPoolErrorCode : ReturnType {
-    kFMemoryPoolErrorCodeLinkError = kErrorCodeBaseFMemoryPool,
-    kFMemoryPoolErrorCodeMemorySizeOutOfBound,
-    kFMemoryPoolErrorCodePoolTypeUnknown,
-    kFMemoryPoolErrorCodeApplyHeapMemoryFailed,
+    kFMemoryPoolErrorCode_LinkError = kErrorCodeBase_FMemoryPool,
+    kFMemoryPoolErrorCode_MemorySizeOutOfBound,
+    kFMemoryPoolErrorCode_PoolTypeUnknown,
+    kFMemoryPoolErrorCode_ApplyHeapMemoryFailed,
 };
 
 }//error_code

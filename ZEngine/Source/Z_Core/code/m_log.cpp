@@ -68,7 +68,7 @@ CORE_DLLAPI const WChar* ZLog::CreateAndGetLogPath() noexcept {
         ReturnType link_code = file_system::CreateDirectoryByPath(path_str.String());
         if (link_code != kOK) {
             Z_LOG_ERROR(
-                error_code::kMLogErrorCodeLinkError, link_code, L"file_system::CreateDirectoryByPath() link error!");
+                error_code::kMLogErrorCode_LinkError, link_code, L"file_system::CreateDirectoryByPath() link error!");
         }
 
         //clear the expired log files.
@@ -105,7 +105,7 @@ static ZFile& GetLogFile() noexcept {
             system_time.Hour(), system_time.Min(), system_time.Sec());
         link_code = file.Open(file_dir.DataPtr(), ZFile::kOpenTypeAppend);
         if (link_code != kOK) {
-            Z_LOG_ERROR(error_code::kMLogErrorCodeLinkError, link_code, L"ZFile::OpenSafe() link error!");
+            Z_LOG_ERROR(error_code::kMLogErrorCode_LinkError, link_code, L"ZFile::OpenSafe() link error!");
         }
         return file;
     }();
@@ -118,7 +118,7 @@ CORE_DLLAPI Void ZLog::FileOutputLogString(const ZLog* _log_ptr, const ZLog::Out
 
     link_code = file.Print(L"%ls\n", _output_str.w_str_.DataPtr());
     if (link_code != kOK) {
-        Z_LOG_ERROR(error_code::kMLogErrorCodeLinkError, link_code, L"ZFile::Print() link error!");
+        Z_LOG_ERROR(error_code::kMLogErrorCode_LinkError, link_code, L"ZFile::Print() link error!");
     }
 }
 
@@ -178,13 +178,13 @@ CORE_DLLAPI NODISCARD ReturnType RegisterLogServerInputFunction(
 
     Z_CHECK(
         _port_id < ZLogManager::kLogPortIDMin || _port_id >= ZLogManager::kLogPortIDMax, 
-        error_code::kMLogErrorCodePortIDOutOfRange,
+        error_code::kMLogErrorCode_PortIDOutOfRange,
         L"port_id %d out of range!", 
         _port_id);
 
     link_code = ZLogManager::RegisterLogServerInputFunction(_port_id, _input_func);
     if (link_code != kOK) {
-        ret_val = error_code::kMLogErrorCodeLinkError;
+        ret_val = error_code::kMLogErrorCode_LinkError;
         Z_LOG_ERROR(ret_val, link_code, L"ZLogManager::RegisterLogServerInputFunction() link error!");
         return ret_val;
     }
@@ -201,13 +201,13 @@ CORE_DLLAPI NODISCARD ReturnType UnregisterLogServerInputFunction(
 
     Z_CHECK(
         _port_id < ZLogManager::kLogPortIDMin || _port_id >= ZLogManager::kLogPortIDMax, 
-        error_code::kMLogErrorCodePortIDOutOfRange,
+        error_code::kMLogErrorCode_PortIDOutOfRange,
         L"port_id %d out of range!", 
         _port_id);
 
     link_code = ZLogManager::RegisterLogServerInputFunction(_port_id, _input_func);
     if (link_code != kOK) {
-        ret_val = error_code::kMLogErrorCodeLinkError;
+        ret_val = error_code::kMLogErrorCode_LinkError;
         Z_LOG_ERROR(ret_val, link_code, L"ZLogManager::RegisterLogServerInputFunction() link error!");
         return ret_val;
     }
@@ -224,13 +224,13 @@ CORE_DLLAPI NODISCARD ReturnType RegisterLogServerOutputFunction(
 
     Z_CHECK(
         _port_id < ZLogManager::kLogPortIDMin || _port_id >= ZLogManager::kLogPortIDMax, 
-        error_code::kMLogErrorCodePortIDOutOfRange,
+        error_code::kMLogErrorCode_PortIDOutOfRange,
         L"port_id %d out of range!", 
         _port_id);
 
     link_code = ZLogManager::RegisterLogServerOutputFunction(_port_id, _output_func);
     if (link_code != kOK) {
-        ret_val = error_code::kMLogErrorCodeLinkError;
+        ret_val = error_code::kMLogErrorCode_LinkError;
         Z_LOG_ERROR(ret_val, link_code, L"ZLogManager::RegisterLogServerInputFunction() link error!");
         return ret_val;
     }

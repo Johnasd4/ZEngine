@@ -204,9 +204,15 @@
     <ClInclude Include="code\z_gui\z_text.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="code\z_core\z_memory.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\z_gui\z_input_text.h">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

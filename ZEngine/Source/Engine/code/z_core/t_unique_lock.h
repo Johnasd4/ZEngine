@@ -29,10 +29,10 @@ namespace zengine {
 namespace error_code {
 
 enum TUniqueLockErrorCode : ReturnType {
-    kTUniqueLockErrorCodeLinkError = kErrorCodeBaseTUniqueLock,
-    kTUniqueLockErrorCodeMutexNotExist,
-    kTUniqueLockErrorCodeMutexAlreadyOwn,
-    kTUniqueLockErrorCodeMutexDoNotOwn
+    kTUniqueLockErrorCode_LinkError = kErrorCodeBase_TUniqueLock,
+    kTUniqueLockErrorCode_MutexNotExist,
+    kTUniqueLockErrorCode_MutexAlreadyOwn,
+    kTUniqueLockErrorCode_MutexDoNotOwn
 };
 
 }//error_code
@@ -116,7 +116,7 @@ public:
         ReturnType link_code = LockValidCheckP();
         if (link_code != kOK) {
             Z_LOG_ERROR(
-                error_code::kTUniqueLockErrorCodeLinkError, link_code, L"TUniqueLock::LockValidCheckP() link error!");
+                error_code::kTUniqueLockErrorCode_LinkError, link_code, L"TUniqueLock::LockValidCheckP() link error!");
             return;
         }
         mutex_ptr_->Lock(); 
@@ -129,7 +129,7 @@ public:
         ReturnType link_code = LockValidCheckP();
         if (link_code != kOK) {
             Z_LOG_ERROR(
-                error_code::kTUniqueLockErrorCodeLinkError, link_code, L"TUniqueLock::LockValidCheckP() link error!");
+                error_code::kTUniqueLockErrorCode_LinkError, link_code, L"TUniqueLock::LockValidCheckP() link error!");
             return false;
         }
         owns_lock_ = mutex_ptr_->TryLock();
@@ -142,7 +142,7 @@ public:
         ReturnType link_code = LockValidCheckP();
         if (link_code != kOK) {
             Z_LOG_ERROR(
-                error_code::kTUniqueLockErrorCodeLinkError, link_code, L"TUniqueLock::LockValidCheckP() link error!");
+                error_code::kTUniqueLockErrorCode_LinkError, link_code, L"TUniqueLock::LockValidCheckP() link error!");
             return false;
         }
         owns_lock_ = mutex_ptr_->TryLockFor(_time);
@@ -155,7 +155,7 @@ public:
         ReturnType link_code = LockValidCheckP();
         if (link_code != kOK) {
             Z_LOG_ERROR(
-                error_code::kTUniqueLockErrorCodeLinkError, link_code, L"TUniqueLock::LockValidCheckP() link error!");
+                error_code::kTUniqueLockErrorCode_LinkError, link_code, L"TUniqueLock::LockValidCheckP() link error!");
             return false;
         }
         owns_lock_ = mutex_ptr_->TryLockUntil(_time);
@@ -165,7 +165,7 @@ public:
         ReturnType link_code = UnlockValidCheckP();
         if (link_code != kOK) {
             Z_LOG_ERROR(
-                error_code::kTUniqueLockErrorCodeLinkError, link_code, L"TUniqueLock::UnlockValidCheckP() link error!");
+                error_code::kTUniqueLockErrorCode_LinkError, link_code, L"TUniqueLock::UnlockValidCheckP() link error!");
             return;
         }
         mutex_ptr_->Unlock();
@@ -208,12 +208,12 @@ private:
     NODISCARD ReturnType LockValidCheckP() noexcept {
         ReturnType ret_val = kOK;
         if (!mutex_ptr_) {
-            ret_val = error_code::kTUniqueLockErrorCodeMutexNotExist;
+            ret_val = error_code::kTUniqueLockErrorCode_MutexNotExist;
             Z_LOG_ERROR(ret_val, 0, L"Mutex pointer is null!");
             return false;
         }
         if (owns_lock_) {
-            ret_val = error_code::kTUniqueLockErrorCodeMutexAlreadyOwn;
+            ret_val = error_code::kTUniqueLockErrorCode_MutexAlreadyOwn;
             Z_LOG_ERROR(ret_val, 0, L"Already owns the mutex!");
             return false;
         }
@@ -226,12 +226,12 @@ private:
     NODISCARD ReturnType UnlockValidCheckP() noexcept {
         ReturnType ret_val = kOK;
         if (!mutex_ptr_) {
-            ret_val = error_code::kTUniqueLockErrorCodeMutexNotExist;
+            ret_val = error_code::kTUniqueLockErrorCode_MutexNotExist;
             Z_LOG_ERROR(ret_val, 0, L"Mutex pointer is null!");
             return false;
         }
         if (!owns_lock_) {
-            ret_val = error_code::kTUniqueLockErrorCodeMutexDoNotOwn;
+            ret_val = error_code::kTUniqueLockErrorCode_MutexDoNotOwn;
             Z_LOG_ERROR(ret_val, 0, L"Doesn't owns the mutex!");
             return false;
         }

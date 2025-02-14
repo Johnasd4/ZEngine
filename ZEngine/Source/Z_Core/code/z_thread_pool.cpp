@@ -81,7 +81,7 @@ ZThreadPool::~ZThreadPool() noexcept {
 NODISCARD ReturnType ZThreadPool::AddThreadNum(Int32 _thread_num) noexcept {
     ReturnType ret_val = kOK;
     if (_thread_num < 0) {
-        ret_val = error_code::kZThreadPoolErrorCodeAddNegitiveNumThread;
+        ret_val = error_code::kZThreadPoolErrorCode_AddNegitiveNumThread;
         Z_LOG_ERROR(ret_val, 0, L"Add thread < 0! thread_num_: %d", _thread_num);
         return ret_val;
     }
@@ -104,7 +104,7 @@ NODISCARD ReturnType ZThreadPool::AddTask(ZTask&& _task) noexcept {
     ReturnType ret_val = kOK;
     TUniqueLock<ZMutex> lock(pool_mutex_);
     if (finished_) {
-        ret_val = error_code::kZThreadPoolErrorCodePoolFinished;
+        ret_val = error_code::kZThreadPoolErrorCode_PoolFinished;
         Z_LOG_ERROR(ret_val, 0, L"Thread pool finished, can't add task!");
         return ret_val;
     }
@@ -121,7 +121,7 @@ NODISCARD ReturnType ZThreadPool::AddTask(ZTaskSafe&& _task) noexcept {
     ReturnType ret_val = kOK;
     TUniqueLock<ZMutex> lock(pool_mutex_);
     if (finished_) {
-        ret_val = error_code::kZThreadPoolErrorCodePoolFinished;
+        ret_val = error_code::kZThreadPoolErrorCode_PoolFinished;
         Z_LOG_ERROR(ret_val, 0, L"Thread pool finished, can't add task!");
         return ret_val;
     }
@@ -166,7 +166,7 @@ Void ZThreadPool::SubThread(ZThreadPool& _thread_pool) noexcept {
         }
         link_code = task.Run();
         if (link_code != kOK) {
-            Z_LOG_ERROR(error_code::kZThreadPoolErrorCodeLinkError, link_code, L"ZTask::Run() link error!");
+            Z_LOG_ERROR(error_code::kZThreadPoolErrorCode_LinkError, link_code, L"ZTask::Run() link error!");
         }
         task.Clear();
     }

@@ -26,11 +26,12 @@ namespace zengine {
 namespace gui {
 namespace error_code {
 
-inline constexpr ReturnType kErrorCodeBasePGui = 0x00200000u;
-inline constexpr ReturnType kErrorCodeBaseZApplication = kErrorCodeBasePGui + 0x100u;
-inline constexpr ReturnType kErrorCodeBaseZWindow = kErrorCodeBasePGui + 0x200u;
-inline constexpr ReturnType kErrorCodeBaseZFrame = kErrorCodeBasePGui + 0x300u;
-inline constexpr ReturnType kErrorCodeBaseZText = kErrorCodeBasePGui + 0x400u;
+inline constexpr ReturnType kErrorCodeBase_PGui = 0x00200000u;
+inline constexpr ReturnType kErrorCodeBase_ZApplication = kErrorCodeBase_PGui + 0x100u;
+inline constexpr ReturnType kErrorCodeBase_ZWindow = kErrorCodeBase_PGui + 0x200u;
+inline constexpr ReturnType kErrorCodeBase_ZFrame = kErrorCodeBase_PGui + 0x300u;
+inline constexpr ReturnType kErrorCodeBase_ZText = kErrorCodeBase_PGui + 0x400u;
+inline constexpr ReturnType kErrorCodeBase_ZInputText = kErrorCodeBase_PGui + 0x500u;
 
 }//error_code
 }//gui
