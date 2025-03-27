@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,7 +13,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
 #ifndef Z_GUI_INTERNAL_D_LIB_H_
@@ -38,7 +38,7 @@
 #ifdef _DEBUG
 #pragma comment(lib,"L_ImGui_1_90_9_Opengl3_x64_Debug.lib")
 #else
-#pragma comment(lib,"L_ImGui_1_90_9_Opengl3i_x64_Release.lib")
+#pragma comment(lib,"L_ImGui_1_90_9_Opengl3_x64_Release.lib")
 #endif//_DEBUG
 #else
 #ifdef _DEBUG

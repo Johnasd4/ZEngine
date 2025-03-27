@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,7 +13,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
 #ifndef Z_CORE_F_FILE_SYSTEM_H_
@@ -24,6 +24,7 @@
 #include <filesystem>
 
 #include "t_list.h"
+#include "t_vector.h"
 #include "z_string.h"
 
 namespace zengine {
@@ -37,7 +38,7 @@ enum FFileSystemErrorCode : ReturnType {
     kFFileSystemErrorCode_PathNotExist,
     kFFileSystemErrorCode_PathNotDirectory,
     kFFileSystemErrorCode_DirectoryDeleteFailed,
-    kFFileSystemErrorCode_CreateDirectoryFailed
+    kFFileSystemErrorCode_CreateDirectoryFailed,
 };
 
 }//error_code
@@ -55,6 +56,17 @@ struct ZFileInfo {
     ZWString name_;
     ZWString extension_;
     ZWString directory_;
+};
+
+/*
+    The file filter struct.
+    Exanple:
+        { L"Text Files", L"*.txt" },
+        { L"All Files", L"*.*" }
+*/
+struct ZFileFilter {
+    const WChar* hint_;
+    const WChar* extension_;
 };
 
 /*
@@ -86,34 +98,65 @@ CORE_DLLAPI NODISCARD Bool PathExist(const WChar* _path_dir) noexcept;
     Get all the files under the given path. 
     Pushs the file names into the given list.
 */
-CORE_DLLAPI NODISCARD ReturnType GetFilesByPath(const WChar* _path_dir, TList<ZWString>* file_list_ptr) noexcept;
+CORE_DLLAPI NODISCARD ReturnType GetFilesByPath(const WChar* _path_dir, TList<ZWString>* _file_list_ptr) noexcept;
 
 /*
     Get all the directories under the given path. 
     Pushs the file names into the given list.
 */
-CORE_DLLAPI NODISCARD ReturnType GetDirectoriesByPath(const WChar* _path_dir, TList<ZWString>* file_list_ptr) noexcept;
+CORE_DLLAPI NODISCARD ReturnType GetDirectoriesByPath(const WChar* _path_dir, TList<ZWString>* _file_list_ptr) noexcept;
 
 /*
     Get all the files and directories under the given path. 
     Pushs the file names into the given list.
 */
 CORE_DLLAPI NODISCARD ReturnType GetFilesAndDirectoriesByPath(
-    const WChar* _path_dir, TList<ZWString>* file_list_ptr
+    const WChar* _path_dir, TList<ZWString>* _file_list_ptr
 ) noexcept;
 
 /*
     Get all the files under the given path, even the file is in a deeper folder. 
     Pushs the file names into the given list.
 */
-CORE_DLLAPI NODISCARD ReturnType GetFileTreeByPath(const WChar* _path_dir, TList<ZWString>* file_list_ptr) noexcept;
+CORE_DLLAPI NODISCARD ReturnType GetFileTreeByPath(const WChar* _path_dir, TList<ZWString>* _file_list_ptr) noexcept;
+
+/*
+    Get the file info by the given path.
+*/
+CORE_DLLAPI NODISCARD ReturnType GetFileInfoByPath(
+    const ZWString& _file, ZFileInfo* _file_info_ptr
+) noexcept;
 
 /*
     Get the files info by the given path list.
 */
 CORE_DLLAPI NODISCARD ReturnType GetFileInfoListByPathList(
-    const TList<ZWString>* file_list_ptr, TList<ZFileInfo>* file_info_list_ptr
+    const TList<ZWString>& _file_list, TList<ZFileInfo>* _file_info_list_ptr
 ) noexcept;
+
+/*
+    Get file path by the file selector.
+*/
+CORE_DLLAPI NODISCARD ReturnType GetFileByFileSelector(
+    const TVector<ZFileFilter>& _file_filter_vector, ZWString* _file_ptr
+) noexcept;
+
+/*
+    Get mutiple file path by the file selector.
+*/
+CORE_DLLAPI NODISCARD ReturnType GetFilesByFileSelector(
+    const TVector<ZFileFilter>& _file_filter_vector, TList<ZWString>* _file_list_ptr
+) noexcept;
+
+/*
+    Get folder path by the file selector.
+*/
+CORE_DLLAPI NODISCARD ReturnType GetFolderByFileSelector(ZWString* _folder_ptr) noexcept;
+
+/*
+    Get mutiple folder path by the file selector.
+*/
+CORE_DLLAPI NODISCARD ReturnType GetFoldersByFileSelector(TList<ZWString>* _folder_list_ptr) noexcept;
 
 }//file_system
 }//zengine

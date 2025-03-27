@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,7 +13,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
 #ifndef Z_CORE_Z_STRING_H_
@@ -23,7 +23,9 @@
 
 #include <string>
 
+#include "m_log.h"
 #include "t_allocator.h"
+#include "t_list.h"
 #include "z_object.h"
 
 namespace zengine {
@@ -680,9 +682,82 @@ public:
     }
 
     FORCEINLINE constexpr Void Reserve(const SizeType _capacity) noexcept { str_.reserve(_capacity); }
+    
     FORCEINLINE constexpr Void ShrinkToFit() noexcept { str_.shrink_to_fit(); }
 
     FORCEINLINE constexpr Void Swap(TString& _str) noexcept { str_.swap(_str); }
+
+    NODISCARD ReturnType ToInt32(Int32* _ans_ptr) noexcept {
+        Int32 ans = 0;
+        ReturnType ret_val = kOK;
+        if constexpr (kSameType<_CharType, Char>) {
+            Int32& err_ref = errno;
+            err_ref = 0;
+            const Char* str = str_.c_str();
+            Char* err_str;
+            *_ans_ptr = std::strtol(str, &err_str, 10);
+            if (str == err_str) {
+                ret_val = error_code::kZStringErrorCodeLinkError;
+                Z_LOG_ERROR(ret_val, 0, L"std::strtol() link error! Wrong Parameter!");
+            }
+            else if (err_ref == ERANGE) {
+                ret_val = error_code::kZStringErrorCodeLinkError;
+                Z_LOG_ERROR(ret_val, 0, L"std::strtol() link error! Number out of range!");
+            }
+        }
+        else if constexpr (kSameType<_CharType, WChar>) {
+            Int32& err_ref = errno;
+            err_ref = 0;
+            const WChar* str = str_.c_str();
+            WChar* err_str;
+            *_ans_ptr = std::wcstol(str, &err_str, 10);
+            if (str == err_str) {
+                ret_val = error_code::kZStringErrorCodeLinkError;
+                Z_LOG_ERROR(ret_val, 0, L"std::wcstol() link error! Wrong Parameter!");
+            }
+            else if (err_ref == ERANGE) {
+                ret_val = error_code::kZStringErrorCodeLinkError;
+                Z_LOG_ERROR(ret_val, 0, L"std::wcstol() link error! Number out of range!");
+            }
+        }
+        return ret_val;
+    }
+
+    NODISCARD ReturnType Split(TList<TString<_CharType>>* _string_list_ptr, const _CharType _token) noexcept {
+        ReturnType ret_val = kOK;
+        IndexType start_index = 0;
+        IndexType end_index = 0;
+        IndexType str_len = 0;
+        _CharType temp_char = '\0';
+        while (end_index != str_.size()) {
+            if (str_[end_index] != _token) {
+                ++end_index;
+                continue;
+            }
+            else if (start_index == end_index) {
+                ++end_index;
+                start_index = end_index;
+                continue;
+            }
+            str_len = end_index - start_index;
+            temp_char = str_[end_index];
+            if constexpr (kSameType<_CharType, Char>) {
+                str_[end_index] = '\0';
+            }
+            else if constexpr (kSameType<_CharType, WChar>) {
+                str_[end_index] = L'\0';
+            }
+            _string_list_ptr->PushBack(TString<_CharType>(&str_[start_index]));
+            str_[end_index] = temp_char;
+            ++end_index;
+            start_index = end_index;
+        };
+        if (start_index != end_index) {
+            str_len = end_index - start_index;
+            _string_list_ptr->PushBack(TString<_CharType>(&str_[start_index]));
+        }
+        return ret_val;
+    };
 
 protected:
     using SuperType_ = ZObject;

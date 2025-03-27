@@ -36,5 +36,11 @@
     <ClCompile Include="code\z_input_text.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="code\z_button.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\d_function.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

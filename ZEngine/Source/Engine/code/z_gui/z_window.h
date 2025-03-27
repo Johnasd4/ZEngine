@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,7 +13,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
 #ifndef Z_GUI_Z_WINDOW_H_
@@ -120,11 +120,11 @@ public:
         Resets the object.
     */
     virtual Void Reset() noexcept;
-
     /*
         Destroy the window, release the resourses.
     */
     virtual Void Destroy() noexcept;
+
     /*
         Adds a frame to the window.
     */
@@ -134,6 +134,12 @@ public:
 
     virtual Void SetBackgruondColour(GuiColour _colour) noexcept;
     virtual Void SetScreenMode(WindowScreenModeEnum_ _screen_mode) noexcept;
+
+    /*
+        Sets the window pos at the screen center.
+        Based on the current window size and scrren size.
+    */
+    Void SetScreenCenter() noexcept;
 
     /*
         Returns the position that actually uses by the library.
@@ -156,6 +162,9 @@ public:
     virtual Void OnScrollMove(Float32 _x_offset, Float32 _y_offset) noexcept;
     virtual Void OnMouseMove(GuiPos _pre_pos, GuiPos _cur_pos) noexcept;
 
+    /*
+        Called before the window destroyed.
+    */
     virtual Void OnDestroy() noexcept;
 
 protected:

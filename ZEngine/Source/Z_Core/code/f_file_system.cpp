@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,16 +13,14 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
 #define CORE_DLLFILE
 
 #include "f_file_system.h"
 
-
-
-
+#include <shobjidl.h>
 #include "m_log.h"
 
 namespace zengine {
@@ -134,7 +132,7 @@ CORE_DLLAPI NODISCARD ReturnType DeleteDirectoryByPath(const WChar* _path_dir) n
     return ret_val;
 }
 
-CORE_DLLAPI NODISCARD ReturnType GetFilesByPath(const WChar* _path_dir, TList<ZWString>* file_list_ptr) noexcept {
+CORE_DLLAPI NODISCARD ReturnType GetFilesByPath(const WChar* _path_dir, TList<ZWString>* _file_list_ptr) noexcept {
     ReturnType ret_val = kOK;
     try {
         Z_CHECK(
@@ -145,7 +143,7 @@ CORE_DLLAPI NODISCARD ReturnType GetFilesByPath(const WChar* _path_dir, TList<ZW
             L"Path not directory! path: %ls", _path_dir);
         for (const auto& entry : std::filesystem::directory_iterator(_path_dir)) {
             if (std::filesystem::is_regular_file(entry.path())) {
-                file_list_ptr->PushBack(entry.path().c_str());
+                _file_list_ptr->PushBack(entry.path().c_str());
             }
         }
     }
@@ -170,7 +168,7 @@ CORE_DLLAPI NODISCARD Bool PathExist(const WChar* _path_dir) noexcept {
     return std::filesystem::exists(_path_dir);
 }
 
-CORE_DLLAPI NODISCARD ReturnType GetDirectoriesByPath(const WChar* _path_dir, TList<ZWString>* file_list_ptr) noexcept {
+CORE_DLLAPI NODISCARD ReturnType GetDirectoriesByPath(const WChar* _path_dir, TList<ZWString>* _file_list_ptr) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
     try {
@@ -182,7 +180,7 @@ CORE_DLLAPI NODISCARD ReturnType GetDirectoriesByPath(const WChar* _path_dir, TL
             L"Path not directory! path: %ls", _path_dir);
         for (const auto& file : std::filesystem::directory_iterator(_path_dir)) {
             if (std::filesystem::is_directory(file.path())) {
-                file_list_ptr->PushBack(file.path().c_str());
+                _file_list_ptr->PushBack(file.path().c_str());
             }
         }
     }
@@ -204,7 +202,7 @@ CORE_DLLAPI NODISCARD ReturnType GetDirectoriesByPath(const WChar* _path_dir, TL
 }
 
 CORE_DLLAPI NODISCARD ReturnType GetFilesAndDirectoriesByPath(
-    const WChar* _path_dir, TList<ZWString>* file_list_ptr
+    const WChar* _path_dir, TList<ZWString>* _file_list_ptr
 ) noexcept {
     ReturnType ret_val = kOK;
     try {
@@ -216,7 +214,7 @@ CORE_DLLAPI NODISCARD ReturnType GetFilesAndDirectoriesByPath(
             L"Path not directory! path: %ls", _path_dir);
         for (const auto& entry : std::filesystem::directory_iterator(_path_dir)) {
             if (std::filesystem::is_regular_file(entry.path()) || std::filesystem::is_directory(entry.path())) {
-                file_list_ptr->PushBack(entry.path().c_str());
+                _file_list_ptr->PushBack(entry.path().c_str());
             }
         }
     }
@@ -237,7 +235,7 @@ CORE_DLLAPI NODISCARD ReturnType GetFilesAndDirectoriesByPath(
     return ret_val;
 }
 
-CORE_DLLAPI NODISCARD ReturnType GetFileTreeByPath(const WChar* _path_dir, TList<ZWString>* file_list_ptr) noexcept {
+CORE_DLLAPI NODISCARD ReturnType GetFileTreeByPath(const WChar* _path_dir, TList<ZWString>* _file_list_ptr) noexcept {
     ReturnType ret_val = kOK;
     try {
         Z_CHECK(
@@ -248,10 +246,10 @@ CORE_DLLAPI NODISCARD ReturnType GetFileTreeByPath(const WChar* _path_dir, TList
             L"Path not directory! path: %ls", _path_dir);
         for (const auto& entry : std::filesystem::directory_iterator(_path_dir)) {
             if (std::filesystem::is_regular_file(entry.path())) {
-                file_list_ptr->PushBack(entry.path().c_str());
+                _file_list_ptr->PushBack(entry.path().c_str());
             }
             else if (std::filesystem::is_directory(entry.path())) {
-                GetFileTreeByPath(entry.path().c_str(), file_list_ptr);
+                GetFileTreeByPath(entry.path().c_str(), _file_list_ptr);
             }
         }
     }
@@ -272,16 +270,361 @@ CORE_DLLAPI NODISCARD ReturnType GetFileTreeByPath(const WChar* _path_dir, TList
     return ret_val;
 }
 
-CORE_DLLAPI NODISCARD ReturnType GetFileInfoListByPathList(
-    const TList<ZWString>* file_list_ptr, TList<ZFileInfo>* file_info_list_ptr
+CORE_DLLAPI NODISCARD ReturnType GetFileInfoByPath(
+    const ZWString& _file, ZFileInfo* _file_info_ptr
 ) noexcept {
     ReturnType ret_val = kOK;
-    for (auto file_path = file_list_ptr->Begin(); file_path != file_list_ptr->End(); ++file_path) {
+    std::filesystem::path path(_file.String());
+    _file_info_ptr->path_ = _file.String();
+    _file_info_ptr->name_ = path.filename().c_str();
+    _file_info_ptr->extension_ = path.extension().c_str();
+    _file_info_ptr->directory_ = path.parent_path().c_str();
+    return ret_val;
+}
+
+CORE_DLLAPI NODISCARD ReturnType GetFileInfoListByPathList(
+    const TList<ZWString>& _file_list, TList<ZFileInfo>* _file_info_list_ptr
+) noexcept {
+    ReturnType ret_val = kOK;
+    for (auto file_path = _file_list.Begin(); file_path != _file_list.End(); ++file_path) {
         std::filesystem::path path(file_path->String());
-        file_info_list_ptr->PushBack(
+        _file_info_list_ptr->PushBack(
             ZFileInfo(file_path->String(), path.filename().c_str(), path.extension().c_str(), path.parent_path().c_str())
         );
     }
+    return ret_val;
+}
+  
+CORE_DLLAPI NODISCARD ReturnType GetFileByFileSelector(
+    const TVector<ZFileFilter>& _file_filter_vector, ZWString* _file_ptr
+) noexcept {
+    ReturnType ret_val = kOK;
+
+    //Init COM lib
+    HRESULT link_code = CoInitialize(nullptr);
+    if (FAILED(link_code)) {
+        ret_val = error_code::kFFileSystemErrorCode_LinkError;
+        Z_LOG_ERROR(ret_val, link_code, L"Link error! Failed to init COM library!");
+        return ret_val;
+    }
+
+    IFileOpenDialog* file_open_dialog = nullptr;
+
+    //create dialog instance
+    link_code = CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_ALL, IID_PPV_ARGS(&file_open_dialog));
+    if (FAILED(link_code)) {
+        ret_val = error_code::kFFileSystemErrorCode_LinkError;
+        Z_LOG_ERROR(ret_val, link_code, L"Link error! Failed to create file open dialog instance!");
+        CoUninitialize();
+        return ret_val;
+    }
+
+    //set filter
+    file_open_dialog->SetFileTypes(
+        _file_filter_vector.Size(), reinterpret_cast<const COMDLG_FILTERSPEC*>(_file_filter_vector.DataPtr()));
+
+    //shows the file selector, returns neg value if no file selected
+    link_code = file_open_dialog->Show(nullptr);
+    if (FAILED(link_code)) {
+        Z_LOG_MESSAGE(L"No file selected!");
+        CoUninitialize();
+        return ret_val;
+    }
+
+    //get the selected file
+    IShellItem* file_item_ptr;
+    link_code = file_open_dialog->GetResult(&file_item_ptr);
+    if (FAILED(link_code)) {
+        ret_val = error_code::kFFileSystemErrorCode_LinkError;
+        Z_LOG_ERROR(ret_val, link_code, L"Link error! Failed to get the shell items!");
+        file_open_dialog->Release();
+        CoUninitialize();
+        return ret_val;
+    }
+
+    //get file path
+    WChar* file_path = nullptr;
+    link_code = file_item_ptr->GetDisplayName(SIGDN_FILESYSPATH, &file_path);
+    if (!SUCCEEDED(link_code)) {
+        ret_val = error_code::kFFileSystemErrorCode_LinkError;
+        Z_LOG_ERROR(ret_val, link_code, L"Link error! Failed to get the file path!");
+        file_item_ptr->Release();
+        file_open_dialog->Release();
+        CoUninitialize();
+        return ret_val;
+    }
+
+    //save the value.
+    *_file_ptr = file_path;
+
+    //release resourse
+    file_item_ptr->Release();
+    file_open_dialog->Release();
+    CoUninitialize();
+
+    return ret_val;
+}
+
+CORE_DLLAPI NODISCARD ReturnType GetFilesByFileSelector(
+    const TVector<ZFileFilter>& _file_filter_vector, TList<ZWString>* _file_list_ptr
+) noexcept {
+    ReturnType ret_val = kOK;
+
+    //Init COM lib
+    HRESULT link_code = CoInitialize(nullptr);
+    if (FAILED(link_code)) {
+        ret_val = error_code::kFFileSystemErrorCode_LinkError;
+        Z_LOG_ERROR(ret_val, link_code, L"Link error! Failed to init COM library!");
+        return ret_val;
+    }
+
+    IFileOpenDialog* file_open_dialog = nullptr;
+
+    //create dialog instance
+    link_code = CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_ALL, IID_PPV_ARGS(&file_open_dialog));
+    if (FAILED(link_code)) {
+        ret_val = error_code::kFFileSystemErrorCode_LinkError;
+        Z_LOG_ERROR(ret_val, link_code, L"Link error! Failed to create file open dialog instance!");
+        CoUninitialize();
+        return ret_val;
+    }
+
+    //set options to multiple files
+    file_open_dialog->SetOptions(FOS_ALLOWMULTISELECT | FOS_FILEMUSTEXIST);
+
+    //set filter
+    file_open_dialog->SetFileTypes(
+        _file_filter_vector.Size(), reinterpret_cast<const COMDLG_FILTERSPEC*>(_file_filter_vector.DataPtr()));
+
+    //shows the file selector, returns neg value if no file selected
+    link_code = file_open_dialog->Show(nullptr);
+    if (FAILED(link_code)) {
+        Z_LOG_MESSAGE(L"No file selected!");
+        CoUninitialize();
+        return ret_val;
+    }
+
+    //get the selected file
+    IShellItemArray* file_items_ptr;
+    link_code = file_open_dialog->GetResults(&file_items_ptr);
+    if (FAILED(link_code)) {
+        ret_val = error_code::kFFileSystemErrorCode_LinkError;
+        Z_LOG_ERROR(ret_val, link_code, L"Link error! Failed to get the shell items!");
+        file_open_dialog->Release();
+        CoUninitialize();
+        return ret_val;
+    }
+
+    DWORD file_num = 0;
+    link_code = file_items_ptr->GetCount(&file_num);
+    if (FAILED(link_code)) {
+        ret_val = error_code::kFFileSystemErrorCode_LinkError;
+        Z_LOG_ERROR(ret_val, link_code, L"Link error! Get file num failed!");
+        file_items_ptr->Release();
+        file_open_dialog->Release();
+        CoUninitialize();
+        return ret_val;
+    }
+
+    for (DWORD i = 0; i < file_num; ++i) {
+        IShellItem* file_item;
+        link_code = file_items_ptr->GetItemAt(i, &file_item);
+        if (FAILED(link_code)) {
+            ret_val = error_code::kFFileSystemErrorCode_LinkError;
+            Z_LOG_ERROR(ret_val, link_code, L"Link error! Get file item failed!");
+            file_items_ptr->Release();
+            file_open_dialog->Release();
+            CoUninitialize();
+            return ret_val;
+        }
+
+        //get file path
+        WChar* file_path = nullptr;
+        link_code = file_item->GetDisplayName(SIGDN_FILESYSPATH, &file_path);
+        if (FAILED(link_code)) {
+            ret_val = error_code::kFFileSystemErrorCode_LinkError;
+            Z_LOG_ERROR(ret_val, link_code, L"Link error! Get file item failed!");
+            file_item->Release();
+            file_items_ptr->Release();
+            file_open_dialog->Release();
+            CoUninitialize();
+            return ret_val;
+        }
+
+        _file_list_ptr->PushBack(file_path);
+
+        //release resourse
+        CoTaskMemFree(file_path);
+        file_item->Release();
+    }
+
+    //release resourse
+    file_items_ptr->Release();
+    file_open_dialog->Release();
+    CoUninitialize();
+
+    return ret_val;
+}
+
+CORE_DLLAPI NODISCARD ReturnType GetFolderByFileSelector(ZWString* _folder_ptr) noexcept {
+    ReturnType ret_val = kOK;
+
+    //Init COM lib
+    HRESULT link_code = CoInitialize(nullptr);
+    if (FAILED(link_code)) {
+        ret_val = error_code::kFFileSystemErrorCode_LinkError;
+        Z_LOG_ERROR(ret_val, link_code, L"Link error! Failed to init COM library!");
+        return ret_val;
+    }
+
+    IFileOpenDialog* file_open_dialog = nullptr;
+
+    //create dialog instance
+    link_code = CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_ALL, IID_PPV_ARGS(&file_open_dialog));
+    if (FAILED(link_code)) {
+        ret_val = error_code::kFFileSystemErrorCode_LinkError;
+        Z_LOG_ERROR(ret_val, link_code, L"Link error! Failed to create file open dialog instance!");
+        CoUninitialize();
+        return ret_val;
+    }
+
+    //set options to folder
+    file_open_dialog->SetOptions(FOS_PICKFOLDERS | FOS_FILEMUSTEXIST);
+
+    //shows the file selector, returns neg value if no file selected
+    link_code = file_open_dialog->Show(nullptr);
+    if (FAILED(link_code)) {
+        Z_LOG_MESSAGE(L"No file selected!");
+        CoUninitialize();
+        return ret_val;
+    }
+
+    //get the selected file
+    IShellItem* file_item_ptr;
+    link_code = file_open_dialog->GetResult(&file_item_ptr);
+    if (FAILED(link_code)) {
+        ret_val = error_code::kFFileSystemErrorCode_LinkError;
+        Z_LOG_ERROR(ret_val, link_code, L"Link error! Failed to get the shell items!");
+        file_open_dialog->Release();
+        CoUninitialize();
+        return ret_val;
+    }
+
+    //get folder path
+    WChar* folder_path = nullptr;
+    link_code = file_item_ptr->GetDisplayName(SIGDN_FILESYSPATH, &folder_path);
+    if (!SUCCEEDED(link_code)) {
+        ret_val = error_code::kFFileSystemErrorCode_LinkError;
+        Z_LOG_ERROR(ret_val, link_code, L"Link error! Failed to get the folder path!");
+        file_item_ptr->Release();
+        file_open_dialog->Release();
+        CoUninitialize();
+        return ret_val;
+    }
+
+    //save the value.
+    *_folder_ptr = folder_path;
+
+    //release resourse
+    file_item_ptr->Release();
+    file_open_dialog->Release();
+    CoUninitialize();
+
+    return ret_val;
+}
+
+CORE_DLLAPI NODISCARD ReturnType GetFoldersByFileSelector(TList<ZWString>* _folder_list_ptr) noexcept {
+    ReturnType ret_val = kOK;
+
+    //Init COM lib
+    HRESULT link_code = CoInitialize(nullptr);
+    if (FAILED(link_code)) {
+        ret_val = error_code::kFFileSystemErrorCode_LinkError;
+        Z_LOG_ERROR(ret_val, link_code, L"Link error! Failed to init COM library!");
+        return ret_val;
+    }
+
+    IFileOpenDialog* file_open_dialog = nullptr;
+
+    //create dialog instance
+    link_code = CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_ALL, IID_PPV_ARGS(&file_open_dialog));
+    if (FAILED(link_code)) {
+        ret_val = error_code::kFFileSystemErrorCode_LinkError;
+        Z_LOG_ERROR(ret_val, link_code, L"Link error! Failed to create file open dialog instance!");
+        CoUninitialize();
+        return ret_val;
+    }
+
+    //set options to multiple files
+    file_open_dialog->SetOptions(FOS_ALLOWMULTISELECT | FOS_PICKFOLDERS | FOS_FILEMUSTEXIST);
+
+    //shows the file selector, returns neg value if no file selected
+    link_code = file_open_dialog->Show(nullptr);
+    if (FAILED(link_code)) {
+        Z_LOG_MESSAGE(L"No file selected!");
+        CoUninitialize();
+        return ret_val;
+    }
+
+    //get the selected file
+    IShellItemArray* file_items_ptr;
+    link_code = file_open_dialog->GetResults(&file_items_ptr);
+    if (FAILED(link_code)) {
+        ret_val = error_code::kFFileSystemErrorCode_LinkError;
+        Z_LOG_ERROR(ret_val, link_code, L"Link error! Failed to get the shell items!");
+        file_open_dialog->Release();
+        CoUninitialize();
+        return ret_val;
+    }
+
+    DWORD file_num = 0;
+    link_code = file_items_ptr->GetCount(&file_num);
+    if (FAILED(link_code)) {
+        ret_val = error_code::kFFileSystemErrorCode_LinkError;
+        Z_LOG_ERROR(ret_val, link_code, L"Link error! Get file num failed!");
+        file_items_ptr->Release();
+        file_open_dialog->Release();
+        CoUninitialize();
+        return ret_val;
+    }
+
+    for (DWORD i = 0; i < file_num; ++i) {
+        IShellItem* file_item;
+        link_code = file_items_ptr->GetItemAt(i, &file_item);
+        if (FAILED(link_code)) {
+            ret_val = error_code::kFFileSystemErrorCode_LinkError;
+            Z_LOG_ERROR(ret_val, link_code, L"Link error! Get file item failed!");
+            file_items_ptr->Release();
+            file_open_dialog->Release();
+            CoUninitialize();
+            return ret_val;
+        }
+
+        //get folder path
+        WChar* folder_path = nullptr;
+        link_code = file_item->GetDisplayName(SIGDN_FILESYSPATH, &folder_path);
+        if (FAILED(link_code)) {
+            ret_val = error_code::kFFileSystemErrorCode_LinkError;
+            Z_LOG_ERROR(ret_val, link_code, L"Link error! Get file item failed!");
+            file_item->Release();
+            file_items_ptr->Release();
+            file_open_dialog->Release();
+            CoUninitialize();
+            return ret_val;
+        }
+
+        _folder_list_ptr->PushBack(folder_path);
+
+        //release resourse
+        CoTaskMemFree(folder_path);
+        file_item->Release();
+    }
+
+    //release resourse
+    file_items_ptr->Release();
+    file_open_dialog->Release();
+    CoUninitialize();
+
     return ret_val;
 }
 

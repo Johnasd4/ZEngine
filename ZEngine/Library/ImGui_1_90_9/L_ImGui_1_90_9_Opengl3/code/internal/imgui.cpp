@@ -15207,7 +15207,7 @@ bool ImGui::DebugBreakButton(const char* label, const char* description_of_locat
 
     // WE DO NOT USE ButtonEx() or ButtonBehavior() in order to reduce our side-effects.
     bool hovered = ItemHoverable(bb, id, g.CurrentItemFlags);
-    bool pressed = hovered && (IsKeyChordPressed(g.DebugBreakKeyChord) || IsMouseClicked(0) || g.NavActivateId == id);
+    bool pressed = hovered && (IsKeyChordPressed(g.DebugBreakKey_Chord) || IsMouseClicked(0) || g.NavActivateId == id);
     DebugBreakButtonTooltip(false, description_of_location);
 
     ImVec4 col4f = GetStyleColorVec4(hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
@@ -15838,7 +15838,7 @@ void ImGui::DebugLocateItemOnHover(ImGuiID target_id)
     if (g.IO.ConfigDebugIsDebuggerPresent && g.MouseStationaryTimer > 1.0f)
     {
         DebugBreakButtonTooltip(false, "in ItemAdd()");
-        if (IsKeyChordPressed(g.DebugBreakKeyChord))
+        if (IsKeyChordPressed(g.DebugBreakKey_Chord))
             g.DebugBreakInLocateId = true;
     }
 }

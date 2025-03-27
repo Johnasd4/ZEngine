@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright (c) YuLin Zhu (朱雨林)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,7 +13,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (朱雨林)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
 #define PROJECT_NAME L"Include"
@@ -28,7 +28,7 @@ using namespace zengine;
 using namespace zengine::gui;
 using namespace zengine::file_system;
 using namespace zengine::console;
-using namespace std;
+//using namespace std;
 
 Void TestThreadFunc() {
     ReturnType link_code = kOK;
@@ -48,6 +48,23 @@ Void TestThreadFunc() {
     //link_code = app.Execute();
 }
 
+#include <shobjidl.h> // For IFileOpenDialog
+//#include <commdlg.h>
+
+void OpenFileDialog() {
+    ZWString file_path;
+    TList<ZWString> file_paths;
+    TVector<ZFileFilter> file_filter_vector;
+    file_filter_vector.PushBack(ZFileFilter(L"Text Files", L"*.txt"));
+    file_filter_vector.PushBack(ZFileFilter(L"All Files", L"*.*"));
+    //GetFolderByFileSelector(&file_path);
+    GetFoldersByFileSelector(&file_paths);
+    //Z_LOG_MESSAGE(file_path.String());
+    for (auto file_path = file_paths.Begin(); file_path != file_paths.End(); ++file_path) {
+        Z_LOG_MESSAGE(file_path->String());
+    }
+}
+
 //Int32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 Int32 main() { 
     SetLanguage(kLanguageChinese);
@@ -63,6 +80,17 @@ Int32 main() {
     Z_LOG_FINISH(L"Finish...");
     Z_LOG_FAILURE(L"Failure...");
     Z_LOG_SUCCESS(L"Success...");
+
+    TList<ZWString> sub_str_list;
+    ZWString test_string(L";0112;;;;;31231;3123;");
+    Int32 test_int = 0;
+    test_string.ToInt32(&test_int);
+    test_string.Split(&sub_str_list, L';');
+    for (auto temp_str = sub_str_list.Begin(); temp_str != sub_str_list.End(); ++temp_str) {
+        Z_LOG_MESSAGE(L"%ls %d", temp_str->String(), temp_str->Size());
+    }
+    //Z_LOG_MESSAGE(L"%d", test_int);
+    //OpenFileDialog();
     //TList<ZWString> file_list;
     //TList<ZFileInfo> file_info_list;
     //GetFilesByPath(L"J:/夸克网盘/J 4k JOJO的奇妙冒险/JOJO的奇妙冒险 S3 不灭钻石 [JOJO&UHA-WING&Kamigami&MAI.] [Ma10p_2160p]" ,  &file_list);
@@ -116,6 +144,9 @@ Int32 main() {
     test_frame.Add(&test_input_text_2);
     test_frame.Add(&test_input_text_3);
     test_frame.Add(&test_input_text_4);
+    ZButton test_input_button("button_test");
+    test_frame.Add(&test_input_button);
+    test_window.SetScreenCenter();
     //test_frame_2.SetBackgruondColour({ 0.0f, 1.0f, 0.0f, 1.0f });
     //test_window.Add(&test_frame_2);
     //test_window.SetSize(GuiSize(1000,1000));

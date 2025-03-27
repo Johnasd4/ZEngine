@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,7 +13,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
 #ifndef Z_GUI_Z_TEXT_H_
@@ -32,9 +32,7 @@ namespace gui {
 namespace error_code {
 
 enum ZTextErrorCode : ReturnType {
-    kZTextErrorCode_LinkError = kErrorCodeBase_ZText,
-    kZTextErrorCode_TextAreadyCreated,
-    kZTextErrorCode_TextNotExist
+    kZTextErrorCode_LinkError = kErrorCodeBase_ZText
 };
 
 }//error_code

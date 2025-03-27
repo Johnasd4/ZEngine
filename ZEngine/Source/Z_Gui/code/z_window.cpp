@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,7 +13,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
 #define GUI_DLLFILE
@@ -364,6 +364,13 @@ Void ZWindow::SetScreenMode(WindowScreenModeEnum_ _screen_mode) noexcept {
     default:
         break;
     }
+}
+
+Void ZWindow::SetScreenCenter() noexcept {
+    GuiSize window_size = Size();
+    GuiSize screen_size = ScreenSize();
+    SetPos(GuiPos(screen_size.width_ * 0.5f - window_size.width_ * 0.5f,
+                  screen_size.height_ * 0.5f - window_size.height_ * 0.5f));
 }
 
 NODISCARD GuiColour ZWindow::BackgruondColour() const noexcept {

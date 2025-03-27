@@ -78,6 +78,7 @@
     <ClInclude Include="code\z_gui\internal\d_type.h" />
     <ClInclude Include="code\z_gui\internal\z_drive.h" />
     <ClInclude Include="code\z_gui\test.h" />
+    <ClInclude Include="code\z_gui\z_button.h" />
     <ClInclude Include="code\z_gui\z_frame.h" />
     <ClInclude Include="code\z_gui\z_gui_object.h" />
     <ClInclude Include="code\z_gui\z_text.h" />
@@ -169,7 +170,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Build/code</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Source\Engine\code</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile />
       <PrecompiledHeaderOutputFile />
     </ClCompile>
@@ -179,8 +180,8 @@
       <AdditionalLibraryDirectories>$(SolutionDir)Binaries\output\$(Platform)_$(Configuration);$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>if not exist "$(SolutionDir)Release\include\zengine" mkdir "$(SolutionDir)Release\include\zengine"
-xcopy /S /Y "$(SolutionDir)Source\$(ProjectName)\code\*.h*" "$(SolutionDir)Release\include\zengine" 
+      <Command>if not exist "$(SolutionDir)Release\include" mkdir "$(SolutionDir)Release\include"
+xcopy /S /Y "$(SolutionDir)Source\$(ProjectName)\code\*.h*" "$(SolutionDir)Release\include" 
 if not exist "$(SolutionDir)Release\include_library" mkdir "$(SolutionDir)Release\include_library"
 xcopy /E /Y "$(SolutionDir)Library\ImGui_1_90_9\include\*.h*" "$(SolutionDir)Release\include_library" 
 xcopy /E /Y "$(SolutionDir)Library\OpenGL2_vc2022\include\*.h*" "$(SolutionDir)Release\include_library" 
@@ -203,7 +204,7 @@ xcopy /S /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\*.lib*" 
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Build/code</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Source\Engine\code</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile />
       <PrecompiledHeaderOutputFile />
     </ClCompile>
@@ -215,8 +216,8 @@ xcopy /S /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\*.lib*" 
       <AdditionalLibraryDirectories>$(SolutionDir)Binaries\output\$(Platform)_$(Configuration);$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>if not exist "$(SolutionDir)Release\include\zengine" mkdir "$(SolutionDir)Release\include\zengine"
-xcopy /S /Y "$(SolutionDir)Source\$(ProjectName)\code\*.h*" "$(SolutionDir)Release\include\zengine" 
+      <Command>if not exist "$(SolutionDir)Release\include" mkdir "$(SolutionDir)Release\include"
+xcopy /S /Y "$(SolutionDir)Source\$(ProjectName)\code\*.h*" "$(SolutionDir)Release\include" 
 if not exist "$(SolutionDir)Release\include_library" mkdir "$(SolutionDir)Release\include_library"
 xcopy /E /Y "$(SolutionDir)Library\ImGui_1_90_9\include\*.h*" "$(SolutionDir)Release\include_library" 
 xcopy /E /Y "$(SolutionDir)Library\OpenGL2_vc2022\include\*.h*" "$(SolutionDir)Release\include_library" 
@@ -239,7 +240,7 @@ xcopy /S /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\*.lib*" 
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeaderFile />
       <PrecompiledHeaderOutputFile />
-      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Build/code</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Source\Engine\code</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -247,8 +248,8 @@ xcopy /S /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\*.lib*" 
       <AdditionalLibraryDirectories>$(SolutionDir)Binaries\output\$(Platform)_$(Configuration);$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>if not exist "$(SolutionDir)Release\include\zengine" mkdir "$(SolutionDir)Release\include\zengine"
-xcopy /S /Y "$(SolutionDir)Source\$(ProjectName)\code\*.h*" "$(SolutionDir)Release\include\zengine" 
+      <Command>if not exist "$(SolutionDir)Release\include" mkdir "$(SolutionDir)Release\include"
+xcopy /S /Y "$(SolutionDir)Source\$(ProjectName)\code\*.h*" "$(SolutionDir)Release\include" 
 if not exist "$(SolutionDir)Release\include_library" mkdir "$(SolutionDir)Release\include_library"
 xcopy /E /Y "$(SolutionDir)Library\ImGui_1_90_9\include\*.h*" "$(SolutionDir)Release\include_library" 
 xcopy /E /Y "$(SolutionDir)Library\OpenGL2_vc2022\include\*.h*" "$(SolutionDir)Release\include_library" 
@@ -273,7 +274,7 @@ xcopy /S /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\*.lib*" 
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeaderFile />
       <PrecompiledHeaderOutputFile />
-      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Build/code</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Source\Engine\code</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -283,8 +284,8 @@ xcopy /S /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\*.lib*" 
       <AdditionalLibraryDirectories>$(SolutionDir)Binaries\output\$(Platform)_$(Configuration);$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>if not exist "$(SolutionDir)Release\include\zengine" mkdir "$(SolutionDir)Release\include\zengine"
-xcopy /S /Y "$(SolutionDir)Source\$(ProjectName)\code\*.h*" "$(SolutionDir)Release\include\zengine" 
+      <Command>if not exist "$(SolutionDir)Release\include" mkdir "$(SolutionDir)Release\include"
+xcopy /S /Y "$(SolutionDir)Source\$(ProjectName)\code\*.h*" "$(SolutionDir)Release\include" 
 if not exist "$(SolutionDir)Release\include_library" mkdir "$(SolutionDir)Release\include_library"
 xcopy /E /Y "$(SolutionDir)Library\ImGui_1_90_9\include\*.h*" "$(SolutionDir)Release\include_library" 
 xcopy /E /Y "$(SolutionDir)Library\OpenGL2_vc2022\include\*.h*" "$(SolutionDir)Release\include_library" 

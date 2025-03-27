@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,7 +13,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
 #ifndef Z_GUI_Z_INPUT_TEXT_H_
@@ -21,9 +21,7 @@
 
 #include "internal/z_drive.h"
 
-#include "../z_core/t_set.h"
 #include "../z_core/z_memory.h"
-#include "../z_core/z_string.h"
 
 #include "z_widget_object.h"
 
@@ -33,9 +31,7 @@ namespace gui {
 namespace error_code {
 
 enum ZInputTextErrorCode : ReturnType {
-    kZInputTextErrorCode_LinkError = kErrorCodeBase_ZInputText,
-    kZInputTextErrorCode_InputTextAreadyCreated,
-    kZInputTextErrorCode_InputTextNotExist
+    kZInputTextErrorCode_LinkError = kErrorCodeBase_ZInputText
 };
 
 }//error_code
@@ -46,7 +42,7 @@ enum ZInputTextErrorCode : ReturnType {
 class GUI_DLLAPI ZInputText : public ZWidgetObject {
 public:
     /*
-        The input text display mode enum.
+        The button react mode enum.
     */
     enum InputTextFlagEnum_ {
         // Basic filters (also see ImGuiInputTextFlags_CallbackCharFilter)
@@ -116,10 +112,9 @@ public:
     };
 
     static constexpr GuiColour kDefaultTextColour = { 1.0f, 1.0f, 1.0f, 1.0f };
-    static constexpr GuiColour kDefaultBackgroundColour = { 0.3f, 0.3f, 0.3f, 1.0f };
+    static constexpr GuiColour kDefaultBackgroundColour = { 0.4f, 0.4f, 0.4f, 1.0f };
     static constexpr UInt32 kDefaultInputTextSize = 112;
     static constexpr Float32 kDefaultFontScale = 1.0f;
-    static constexpr Float32 kFontScaleMultFactor = 1.5f;
     static constexpr Int32 kDefaultInputTextFlag = kInputTextFlag_None;
 
     ZInputText() noexcept;
@@ -163,10 +158,14 @@ public:
     */
     virtual Void Reset() noexcept;
 
+    virtual Void SetXPos(Float32 _x_pos) noexcept;
+    virtual Void SetYPos(Float32 _y_pos) noexcept;
+    virtual Void SetPos(GuiPos _pos) noexcept;
     virtual Void SetTextColour(GuiColour _colour) noexcept;
     virtual Void SetBackgroundColour(GuiColour _colour) noexcept;
     virtual Void SetFontScale(Float32 _scale) noexcept;
     virtual Void SetInputTextBufferSize(UInt32 _buffer_size) noexcept;
+    virtual Void SetInputText(const Char* _input_text) noexcept;
 
     NODISCARD virtual WidgetTypeEnum WidgetType() const noexcept;
 
@@ -186,6 +185,7 @@ private:
     ZInputText& operator=(const ZInputText&) = delete;
 
     Void MoveP(ZInputText&& _text) noexcept;
+    Void InputTextChangedCallbackP() noexcept;
 
     GuiColour text_colour_;
     GuiColour background_colour_;
@@ -193,6 +193,8 @@ private:
     Float32 font_scale_;
     Int32 input_text_flag_;
     Bool if_pos_set_;
+    Bool if_input_text_changed_;
+
 };
 
 }//gui

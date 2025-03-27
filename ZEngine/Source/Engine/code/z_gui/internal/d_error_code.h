@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,7 +13,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
 #ifndef Z_GUI_INTERNAL_D_ERROR_CODE_H_
@@ -32,6 +32,7 @@ inline constexpr ReturnType kErrorCodeBase_ZWindow = kErrorCodeBase_PGui + 0x200
 inline constexpr ReturnType kErrorCodeBase_ZFrame = kErrorCodeBase_PGui + 0x300u;
 inline constexpr ReturnType kErrorCodeBase_ZText = kErrorCodeBase_PGui + 0x400u;
 inline constexpr ReturnType kErrorCodeBase_ZInputText = kErrorCodeBase_PGui + 0x500u;
+inline constexpr ReturnType kErrorCodeBase_ZButton = kErrorCodeBase_PGui + 0x600u;
 
 }//error_code
 }//gui

@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,7 +13,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
 #define GUI_DLLFILE
@@ -25,12 +25,6 @@
 namespace zengine {
 namespace gui {
 
-namespace internal {
-    
-static thread_local ZInputText* CallbackInputTextPtr = nullptr;
-
-}//internal
-
 ZInputText::ZInputText() noexcept 
     : SuperType_() 
     , text_colour_(kDefaultTextColour)
@@ -39,6 +33,7 @@ ZInputText::ZInputText() noexcept
     , font_scale_(kDefaultFontScale)
     , input_text_flag_(kDefaultInputTextFlag)
     , if_pos_set_(false) 
+    , if_input_text_changed_(false)
 {
     input_text_.Clear();
 }
@@ -56,10 +51,9 @@ ZInputText::ZInputText(const Char* _name) noexcept
     , input_text_(kDefaultInputTextSize)
     , font_scale_(kDefaultFontScale)
     , input_text_flag_(kDefaultInputTextFlag)
-    , if_pos_set_(false) {
-    if (*_name == '\0') {
-        SuperType_::SetName("##");
-    }
+    , if_pos_set_(false) 
+    , if_input_text_changed_(false)
+{
     input_text_.Clear();
 }
 
@@ -71,10 +65,8 @@ ZInputText::ZInputText(const Char* _name, GuiPos _pos) noexcept
     , font_scale_(kDefaultFontScale)
     , input_text_flag_(kDefaultInputTextFlag)
     , if_pos_set_(true) 
+    , if_input_text_changed_(false)
 {
-    if (*_name == '\0') {
-        SuperType_::SetName("##");
-    }
     input_text_.Clear();
 }
 
@@ -115,21 +107,39 @@ Void ZInputText::Tick(Float32 _delta_sec) noexcept {
                 background_colour_.alpha_)
         );
         ImGui::SetWindowFontScale(font_scale_ * kFontScaleMultFactor);
-        internal::CallbackInputTextPtr = this;
+        ZGuiObject::CallbackGuiObjectPtr() = this;
         ImGui::InputText(
-            Name(), (Char*)input_text_.DataPtr(), input_text_.Size(), input_text_flag_, 
+            Name(), reinterpret_cast<Char*>(input_text_.DataPtr()), input_text_.Size(), input_text_flag_,
             [](ImGuiInputTextCallbackData* _data) {
-                internal::CallbackInputTextPtr->OnInputTextChanged();
+                (dynamic_cast<ZInputText*>(ZGuiObject::CallbackGuiObjectPtr()))->InputTextChangedCallbackP();
                 return 0;
             }
         );
-        ImGui::PopStyleColor();
-        ImGui::PopStyleColor();
+        if (if_input_text_changed_) {
+            OnInputTextChanged();
+            if_input_text_changed_ = false;
+        }
+        ImGui::PopStyleColor(2);
     }
 }
 
 Void ZInputText::Reset() noexcept {
     SuperType_::Reset();
+}
+
+Void ZInputText::SetXPos(Float32 _x_pos) noexcept {
+    ZGuiObject::SetXPos(_x_pos);
+    if_pos_set_ = true;
+}
+
+Void ZInputText::SetYPos(Float32 _y_pos) noexcept {
+    ZGuiObject::SetYPos(_y_pos);
+    if_pos_set_ = true;
+}
+
+Void ZInputText::SetPos(GuiPos _pos) noexcept {
+    ZGuiObject::SetPos(_pos);
+    if_pos_set_ = true;
 }
 
 Void ZInputText::SetTextColour(GuiColour _colour) noexcept {
@@ -148,12 +158,16 @@ Void ZInputText::SetInputTextBufferSize(UInt32 _buffer_size) noexcept {
     input_text_.Resize(_buffer_size);
 }
 
+Void ZInputText::SetInputText(const Char* _input_text) noexcept {
+    strcpy((Char*)input_text_.DataPtr(), _input_text);
+}
+
 NODISCARD ZInputText::WidgetTypeEnum ZInputText::WidgetType() const noexcept {
     return WidgetTypeEnum::kWidgetType_InputText;
 }
 
 NODISCARD const Char* ZInputText::InputText() const noexcept {
-    return (Char*)(input_text_.DataPtr());
+    return reinterpret_cast<const Char*>(input_text_.DataPtr());
 }
 
 NODISCARD GuiColour ZInputText::TextColour() const noexcept {
@@ -180,12 +194,18 @@ Void ZInputText::MoveP(ZInputText&& _input_text) noexcept {
     font_scale_ = _input_text.font_scale_;
     input_text_flag_ = _input_text.input_text_flag_;
     if_pos_set_ = _input_text.if_pos_set_;
+    if_input_text_changed_ = _input_text.if_input_text_changed_;
     input_text_ = std::move(_input_text.input_text_);
     _input_text.text_colour_ = kDefaultTextColour;
     _input_text.background_colour_ = kDefaultBackgroundColour;
     _input_text.font_scale_ = kDefaultFontScale;
     _input_text.input_text_flag_ = kDefaultInputTextFlag;
     _input_text.if_pos_set_ = false;
+    _input_text.if_input_text_changed_ = false;
+}
+
+Void ZInputText::InputTextChangedCallbackP() noexcept {
+    if_input_text_changed_ = true;
 }
 
 }//gui

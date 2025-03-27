@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (朱雨林)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,7 +13,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (朱雨林)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
 #define GUI_DLLFILE
@@ -65,10 +65,30 @@ namespace gui {
             ImGui::PushStyleColor(
                 ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.5f, 1.0f)
             );
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));  // 背景为绿色
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.0f, 0.8f, 0.0f, 1.0f));  // 悬停时为亮绿色
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.0f, 0.6f, 0.0f, 1.0f));  // 激活时为暗绿色
+
+            if (ImGui::Button("test_button")) {
+                ImGui::Text("Image Button was clicked!");
+            }
+            if (ImGui::Button("test_button1")) {
+                ImGui::Text("Image Button was clicked!");
+            }
+
+            ImGui::PopStyleColor(4);
+
+            ImGui::PushStyleColor(
+                ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.5f, 1.0f)
+            );
             ImGui::InputText("##", numberBuffer, sizeof(numberBuffer), ImGuiInputTextFlags_CharsDecimal);
             //ImGui::InputText("##", numberBuffer, sizeof(numberBuffer), ImGuiInputTextFlags_CharsDecimal);
             ImGui::PopStyleColor();
+            ImGui::PushStyleColor(
+                ImGuiCol_ChildBg, ImVec4(0.0f, 0.0f, 0.8f, 1.0f)
+            );
             ImGui::Text("You entered: %s", numberBuffer);
+            ImGui::PopStyleColor();
             ImGui::Text("This is some text.");
             ImGui::End();
             ImGui::Render();

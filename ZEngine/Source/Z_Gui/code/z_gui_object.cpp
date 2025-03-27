@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,7 +13,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
 #define GUI_DLLFILE
@@ -26,6 +26,11 @@ namespace gui {
 NODISCARD ZMutex& ZGuiObject::OpenGLMutex() noexcept {
     static ZMutex opengl_mutex;
     return opengl_mutex;
+}
+
+NODISCARD ZGuiObject*& ZGuiObject::CallbackGuiObjectPtr() noexcept {
+    thread_local ZGuiObject* gui_object_ptr;
+    return gui_object_ptr;
 }
 
 Void ZGuiObject::Begin() noexcept {}
