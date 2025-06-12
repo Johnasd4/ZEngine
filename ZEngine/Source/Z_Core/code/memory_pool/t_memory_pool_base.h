@@ -16,8 +16,7 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_MEMORY_POOL_T_MEMORY_POOL_BASE_H_
-#define Z_CORE_MEMORY_POOL_T_MEMORY_POOL_BASE_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
@@ -25,6 +24,7 @@
 #include "m_log.h"
 #include "z_file.h"
 #include "z_string.h"
+#include "z_system_time.h"
 
 #include "t_memory_pool_thread_safe_base.h"
 
@@ -33,7 +33,8 @@ namespace memory_pool {
 
 enum MemoryPoolEnum : IndexType {
     kMemoryPool_TSmallMemoryList,
-    kWindowState_TSmartPointerList
+    kMemoryPool_TSmartPointerList,
+    kMemoryPool_TSystemMemory
 };
 
 /*
@@ -59,7 +60,7 @@ protected:
 #ifdef USE_MEMORY_POOL_TEST
     inline static ZFile& log_file_ = []() -> ZFile& {
         static ZFile file;
-        TWFixedString<ZFile::kFileNameLength> file_dir;
+        TFixedWString<ZFile::kFileNameLength> file_dir;
         const ZSystemTime& system_time = ZSystemTime::StartTimeInstance();
         file_dir.SetString(
             L"%ls\\%04d%02d%02d%02d%02d%02d_memory.log", log::ZLog::CreateAndGetLogPath(),
@@ -85,5 +86,3 @@ private:
 
 }//memory_pool
 }//zengine
-
-#endif // !Z_CORE_MEMORY_POOL_T_MEMORY_POOL_BASE_H_

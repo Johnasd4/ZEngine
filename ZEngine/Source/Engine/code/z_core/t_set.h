@@ -16,8 +16,7 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_T_SET_H_
-#define Z_CORE_T_SET_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
@@ -113,13 +112,11 @@ public:
         return TPair<ConstIterator_, ConstIterator_>(temp_pair.first, temp_pair.second);
     }
 
-    FORCEINLINE TPair<Iterator_, Bool> Insert(const _ObjectType& _val) noexcept {
-        auto temp_pair = set_.insert(_val);
-        return TPair<Iterator_, Bool>(temp_pair.first, temp_pair.second);
+    FORCEINLINE Iterator_ Insert(const _ObjectType& _val) noexcept {
+        return set_.insert(_val).first;
     }
-    FORCEINLINE TPair<Iterator_, Bool> Insert(_ObjectType&& _val) noexcept {
-        auto temp_pair = set_.insert(std::forward<_ObjectType>(_val));
-        return TPair<Iterator_, Bool>(temp_pair.first, temp_pair.second);
+    FORCEINLINE Iterator_ Insert(_ObjectType&& _val) noexcept {
+        return set_.insert(std::forward<_ObjectType>(_val)).first;
     }
     FORCEINLINE Iterator_ Insert(ConstIterator_ _hint_pos, const _ObjectType& _val) noexcept {
         return set_.insert(_hint_pos, _val);
@@ -136,18 +133,16 @@ public:
     }
 
     template <typename... _ArgsType>
-    FORCEINLINE TPair<Iterator_, Bool> Emplace(_ArgsType&&... _args) noexcept {
-        auto temp_pair = set_.emplace(std::forward<_ArgsType>(_args)...);
-        return TPair<Iterator_, Bool>(temp_pair.first, temp_pair.second);
+    FORCEINLINE Iterator_ Emplace(_ArgsType&&... _args) noexcept {
+        return set_.emplace(std::forward<_ArgsType>(_args)...).first;
     }
 
     template <typename... _ArgsType>
-    FORCEINLINE TPair<Iterator_, Bool> EmplaceHint(ConstIterator_ _pos,_ArgsType&&... _args) noexcept {
-        auto temp_pair = set_.emplace_hint(_pos, std::forward<_ArgsType>(_args)...);
-        return TPair<Iterator_, Bool>(temp_pair.first, temp_pair.second);
+    FORCEINLINE Iterator_ EmplaceHint(ConstIterator_ _pos,_ArgsType&&... _args) noexcept {
+        return set_.emplace_hint(_pos, std::forward<_ArgsType>(_args)...).first;
     }
 
-    FORCEINLINE Iterator_ Erase(const _ObjectType& _value) noexcept { return set_.erase(_value); }
+    FORCEINLINE UInt64 Erase(const _ObjectType& _value) noexcept { return set_.erase(_value); }
     FORCEINLINE Iterator_ Erase(Iterator_ _pos) noexcept { return set_.erase(_pos); }
     FORCEINLINE Iterator_ Erase(ConstIterator_ _first, ConstIterator_ _last) noexcept { 
         return set_.erase(_first, _last); 
@@ -295,5 +290,3 @@ private:
 };
 
 }//zengine
-
-#endif // !Z_CORE_T_SET_H_

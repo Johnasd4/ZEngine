@@ -16,8 +16,7 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_Z_SYSTEM_TIME_H_
-#define Z_CORE_Z_SYSTEM_TIME_H_
+#pragma once
 
 #pragma warning(disable : 26439)
 
@@ -51,13 +50,13 @@ public:
         Parameters:
         time_raw: use time(time_t) to get the raw value.
     */
-    Void UpdateTime(TimeType _time_raw = time(nullptr)) noexcept;
+    Void UpdateTime(TimeType _time_raw = Time()) noexcept;
     /*
         Update system time, use UpdateTime instead if updated only a few times pur day.
         Parameters:
         time_raw: use time(time_t) to get the raw value.
     */
-    Void UpdateTimeFast(TimeType _time_raw = time(nullptr)) noexcept;
+    Void UpdateTimeFast(TimeType _time_raw = Time()) noexcept;
 
 protected:
     using SuperType_ = ZObject;
@@ -72,5 +71,3 @@ private:
 };
 
 }//zengine
-
-#endif // !Z_CORE_Z_SYSTEM_TIME_H_

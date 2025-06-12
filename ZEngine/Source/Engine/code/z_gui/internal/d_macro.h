@@ -16,7 +16,4 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_GUI_INTERNAL_D_MACRO_H_
-#define Z_GUI_INTERNAL_D_MACRO_H_
-
-#endif // !Z_GUI_INTERNAL_D_MACRO_H_
+#pragma once

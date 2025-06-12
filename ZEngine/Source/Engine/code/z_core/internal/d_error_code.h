@@ -16,8 +16,7 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_INTERNAL_D_ERROR_CODE_H_
-#define Z_CORE_INTERNAL_D_ERROR_CODE_H_
+#pragma once
 
 #include "d_lib.h"
 #include "d_type.h"
@@ -28,7 +27,8 @@ inline constexpr ReturnType kOK = 0;
 
 namespace error_code {
 
-inline constexpr ReturnType kErrorCodeBase_PCore = 0x00100000u;
+inline constexpr ReturnType kErrorCodeBase_PCore = 0x00000000u;
+inline constexpr ReturnType kErrorCodeBase_ZString = kErrorCodeBase_PCore + 0x000u;
 inline constexpr ReturnType kErrorCodeBase_ZFile = kErrorCodeBase_PCore + 0x100u;
 inline constexpr ReturnType kErrorCodeBase_ZPrintManager = kErrorCodeBase_PCore + 0x200u;
 inline constexpr ReturnType kErrorCodeBase_MLog = kErrorCodeBase_PCore + 0x300u;
@@ -37,11 +37,8 @@ inline constexpr ReturnType kErrorCodeBase_ZThreadPool = kErrorCodeBase_PCore + 
 inline constexpr ReturnType kErrorCodeBase_FMemoryPool = kErrorCodeBase_PCore + 0x600u;
 inline constexpr ReturnType kErrorCodeBase_ZTask = kErrorCodeBase_PCore + 0x700u;
 inline constexpr ReturnType kErrorCodeBase_FFileSystem = kErrorCodeBase_PCore + 0x800u;
-inline constexpr ReturnType kErrorCodeBase_ZString = kErrorCodeBase_PCore + 0x900u;
-inline constexpr ReturnType kErrorCodeBase_FDiagnose = kErrorCodeBase_PCore + 0xA00u;
+inline constexpr ReturnType kErrorCodeBase_ZJson = kErrorCodeBase_PCore + 0x900u;
 
 }//error_code
 
 }//zengine
-
-#endif // !Z_CORE_INTERNAL_D_ERROR_CODE_H_

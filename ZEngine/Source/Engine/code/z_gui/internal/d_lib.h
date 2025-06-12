@@ -16,12 +16,11 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_GUI_INTERNAL_D_LIB_H_
-#define Z_GUI_INTERNAL_D_LIB_H_
+#pragma once
 
-#include "../../z_core/internal/z_drive.h"
+#include "z_core/internal/z_drive.h"
 
-//Define if at the start of the z_core cpp file.
+//Define if at the start of the z_gui cpp file.
 #ifdef GUI_DLLFILE
 
 #include "glfw/glfw3.h" 
@@ -63,5 +62,3 @@
 #endif//_DEBUG
 #endif//_WIN64
 #endif//GUI_DLLFILE
-
-#endif // !Z_GUI_INTERNAL_D_LIB_H_

@@ -16,10 +16,11 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_T_SMART_POINTER_H_
-#define Z_CORE_T_SMART_POINTER_H_
+#pragma once
 
 #include "internal/z_drive.h"
+
+#include <memory>
 
 #include "t_allocator.h"
 #include "z_object.h"
@@ -62,6 +63,10 @@ public:
         SuperType_::operator=(std::forward<TUniquePointer<_OtherObjectType>>(_ptr));
         ptr_ = std::move(_ptr.ptr_);
         return *this;
+    }
+    template<typename _PtrType>
+    FORCEINLINE TUniquePointer& operator==(_PtrType _ptr) noexcept {
+        return ptr_ == _ptr;
     }
 
     NODISCARD FORCEINLINE decltype(auto) operator*() const noexcept { return *ptr_; }
@@ -163,21 +168,37 @@ private:
     template<typename _ObjectType, typename... _ArgsType>
     friend NODISCARD FORCEINLINE TSharedPointer<_ObjectType> MakeShared(_ArgsType&&... _args) noexcept;
     template<typename _ObjectType, typename _OtherObjectType>
-    friend NODISCARD FORCEINLINE TSharedPointer<_ObjectType> StaticPointerCast(const TSharedPointer<_OtherObjectType>& _ptr) noexcept;
+    friend NODISCARD FORCEINLINE TSharedPointer<_ObjectType> StaticPointerCast(
+        const TSharedPointer<_OtherObjectType>& _ptr
+    ) noexcept;
     template<typename _ObjectType, typename _OtherObjectType>
-    friend NODISCARD FORCEINLINE TSharedPointer<_ObjectType> StaticPointerCast(TSharedPointer<_OtherObjectType>&& _ptr) noexcept;
+    friend NODISCARD FORCEINLINE TSharedPointer<_ObjectType> StaticPointerCast(
+        TSharedPointer<_OtherObjectType>&& _ptr
+    ) noexcept;
     template<typename _ObjectType, typename _OtherObjectType>
-    friend NODISCARD FORCEINLINE TSharedPointer<_ObjectType> ConstPointerCast(const TSharedPointer<_OtherObjectType>& _ptr) noexcept;
+    friend NODISCARD FORCEINLINE TSharedPointer<_ObjectType> ConstPointerCast(
+        const TSharedPointer<_OtherObjectType>& _ptr
+    ) noexcept;
     template<typename _ObjectType, typename _OtherObjectType>
-    friend NODISCARD FORCEINLINE TSharedPointer<_ObjectType> ConstPointerCast(TSharedPointer<_OtherObjectType>&& _ptr) noexcept;
+    friend NODISCARD FORCEINLINE TSharedPointer<_ObjectType> ConstPointerCast(
+        TSharedPointer<_OtherObjectType>&& _ptr
+    ) noexcept;
     template<typename _ObjectType, typename _OtherObjectType>
-    friend NODISCARD FORCEINLINE TSharedPointer<_ObjectType> ReinterpretPointerCast(const TSharedPointer<_OtherObjectType>& _ptr) noexcept;
+    friend NODISCARD FORCEINLINE TSharedPointer<_ObjectType> ReinterpretPointerCast(
+        const TSharedPointer<_OtherObjectType>& _ptr
+    ) noexcept;
     template<typename _ObjectType, typename _OtherObjectType>
-    friend NODISCARD FORCEINLINE TSharedPointer<_ObjectType> ReinterpretPointerCast(TSharedPointer<_OtherObjectType>&& _ptr) noexcept;
+    friend NODISCARD FORCEINLINE TSharedPointer<_ObjectType> ReinterpretPointerCast(
+        TSharedPointer<_OtherObjectType>&& _ptr
+    ) noexcept;
     template<typename _ObjectType, typename _OtherObjectType>
-    friend NODISCARD FORCEINLINE TSharedPointer<_ObjectType> DynamicPointerCast(const TSharedPointer<_OtherObjectType>& _ptr) noexcept;
+    friend NODISCARD FORCEINLINE TSharedPointer<_ObjectType> DynamicPointerCast(
+        const TSharedPointer<_OtherObjectType>& _ptr
+    ) noexcept;
     template<typename _ObjectType, typename _OtherObjectType>
-    friend NODISCARD FORCEINLINE TSharedPointer<_ObjectType> DynamicPointerCast(TSharedPointer<_OtherObjectType>&& _ptr) noexcept;
+    friend NODISCARD FORCEINLINE TSharedPointer<_ObjectType> DynamicPointerCast(
+        TSharedPointer<_OtherObjectType>&& _ptr
+    ) noexcept;
 
     STDSharedPointer_ ptr_;
 };
@@ -363,5 +384,3 @@ NODISCARD FORCEINLINE TSharedPointer<_ObjectType> DynamicPointerCast(
 }
 
 }//zengine
-
-#endif // !Z_CORE_T_SMART_POINTER_H_

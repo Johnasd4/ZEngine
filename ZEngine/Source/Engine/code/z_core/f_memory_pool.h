@@ -16,8 +16,7 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_F_MEMORY_POOL_H_
-#define Z_CORE_F_MEMORY_POOL_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
@@ -50,6 +49,20 @@ CORE_DLLAPI NODISCARD Void* ApplyMemory(MemoryType _size) noexcept;
     Returns the memory size of the memory block.
 */
 CORE_DLLAPI NODISCARD Void* ApplyMemory(MemoryType _size, MemoryType* _memory_size_ptr) noexcept;
+
+/*
+    Reapply the memory and copy the data to the new memory.
+*/
+CORE_DLLAPI NODISCARD Void* ReapplyMemory(Void* _old_memory_ptr, MemoryType _size) noexcept;
+
+/*
+    Reapply the memory and copy the data to the new memory.
+*/
+CORE_DLLAPI NODISCARD Void* ReapplyMemory(
+    Void* _old_memory_ptr, 
+    MemoryType _size, 
+    MemoryType* _memory_size_ptr
+) noexcept;
 
 /*
     Check if the memory can be extended to the given size without changing the memory,
@@ -100,7 +113,5 @@ CORE_DLLAPI NODISCARD decltype(auto) SmallMemoryListMemoryPoolMemoryBlockUsedNum
 CORE_DLLAPI NODISCARD decltype(auto) SmartPointerListMemoryPoolMemoryBlockUsedNum() noexcept;
 #endif //USE_MEMORY_POOL_TEST
 
-}//system_memory
+}//memory_pool
 }//zengine
-
-#endif // !Z_CORE_F_MEMORY_POOL_H_

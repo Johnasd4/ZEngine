@@ -16,13 +16,9 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_GUI_TEST_H_
-#define Z_GUI_TEST_H_
+#pragma once
 
 #include "internal/z_drive.h"
-
-#include "../z_core/t_vector.h"
-#include "../z_core/z_object.h"
 
 #include "z_window.h"
 
@@ -33,5 +29,3 @@ GUI_DLLAPI Int32 Test_000() noexcept;
  
 }//gui
 }//zengine
-
-#endif // !Z_GUI_APPLICATION_H_

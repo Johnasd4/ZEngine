@@ -16,13 +16,11 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_Z_THREAD_POOL_H_
-#define Z_CORE_Z_THREAD_POOL_H_
-
-#pragma warning(disable : 26439)
+#pragma once
 
 #include "internal/z_drive.h"
 
+#include "m_log.h"
 #include "t_list.h"
 #include "t_queue.h"
 #include "t_unique_lock.h"
@@ -117,5 +115,3 @@ private:
 };
 
 }//zengine
-
-#endif // !Z_CORE_Z_THREAD_POOL_H_

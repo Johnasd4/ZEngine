@@ -46,17 +46,21 @@
     <ClInclude Include="code\z_core\t_list.h" />
     <ClInclude Include="code\z_core\t_lock_guard.h" />
     <ClInclude Include="code\z_core\t_lookup_table.h" />
+    <ClInclude Include="code\z_core\t_matrix.h" />
     <ClInclude Include="code\z_core\t_pair.h" />
+    <ClInclude Include="code\z_core\t_pool.h" />
     <ClInclude Include="code\z_core\t_queue.h" />
     <ClInclude Include="code\z_core\t_set.h" />
     <ClInclude Include="code\z_core\t_smart_pointer.h" />
     <ClInclude Include="code\z_core\t_stack.h" />
     <ClInclude Include="code\z_core\t_tuple.h" />
     <ClInclude Include="code\z_core\t_unique_lock.h" />
+    <ClInclude Include="code\z_core\t_unordered_map.h" />
     <ClInclude Include="code\z_core\t_vector.h" />
     <ClInclude Include="code\z_core\z_condition_variable.h" />
     <ClInclude Include="code\z_core\z_cs_mutex.h" />
     <ClInclude Include="code\z_core\z_file.h" />
+    <ClInclude Include="code\z_core\z_json.h" />
     <ClInclude Include="code\z_core\z_memory.h" />
     <ClInclude Include="code\z_core\z_mutex.h" />
     <ClInclude Include="code\z_core\z_object.h" />
@@ -85,6 +89,179 @@
     <ClInclude Include="code\z_gui\z_widget_object.h" />
     <ClInclude Include="code\z_gui\z_window.h" />
     <ClInclude Include="code\z_gui\z_application.h" />
+    <ClInclude Include="code\z_lua.h" />
+    <ClInclude Include="code\z_lua\f_lua.h" />
+    <ClInclude Include="code\z_lua\internal\d_concept.h" />
+    <ClInclude Include="code\z_lua\internal\d_config.h" />
+    <ClInclude Include="code\z_lua\internal\d_constant.h" />
+    <ClInclude Include="code\z_lua\internal\d_error_code.h" />
+    <ClInclude Include="code\z_lua\internal\d_function.h" />
+    <ClInclude Include="code\z_lua\internal\d_lib.h" />
+    <ClInclude Include="code\z_lua\internal\d_macro.h" />
+    <ClInclude Include="code\z_lua\internal\d_type.h" />
+    <ClInclude Include="code\z_lua\internal\lua\lauxlib.h" />
+    <ClInclude Include="code\z_lua\internal\lua\lua.h" />
+    <ClInclude Include="code\z_lua\internal\lua\luaconf.h" />
+    <ClInclude Include="code\z_lua\internal\lua\lualib.h" />
+    <ClInclude Include="code\z_lua\internal\sol\assert.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\as_args.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\as_returns.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\base_traits.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\bind_traits.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\bytecode.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\call.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\compatibility.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\compatibility\compat-5.3.c.h" />
+    <ClInclude Include="code\z_lua\internal\sol\compatibility\compat-5.3.h" />
+    <ClInclude Include="code\z_lua\internal\sol\compatibility\compat-5.4.h" />
+    <ClInclude Include="code\z_lua\internal\sol\compatibility\lua_version.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\config.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\coroutine.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\debug.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\demangle.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\deprecate.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\detail\build_version.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\dump_handler.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\ebco.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\environment.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\epilogue.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\error.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\error_handler.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\forward.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\forward_detail.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\function.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\function_result.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\function_types.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\function_types_core.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\function_types_overloaded.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\function_types_stateful.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\function_types_stateless.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\function_types_templated.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\inheritance.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\in_place.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\load_result.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\lua_table.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\lua_value.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\make_reference.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\metatable.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\object.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\object_base.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\optional.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\optional_implementation.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\overload.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\packaged_coroutine.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\pairs_iterator.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\pointer_like.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\policies.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\prologue.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\property.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\protect.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\protected_function.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\protected_function_result.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\protected_handler.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\proxy_base.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\raii.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\reference.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\resolve.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\sol.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\stack.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\stack\detail\pairs.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\stack_check.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\stack_check_get.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\stack_check_get_qualified.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\stack_check_get_unqualified.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\stack_check_qualified.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\stack_check_unqualified.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\stack_core.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\stack_field.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\stack_get.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\stack_get_qualified.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\stack_get_unqualified.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\stack_guard.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\stack_iterator.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\stack_pop.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\stack_probe.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\stack_proxy.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\stack_proxy_base.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\stack_push.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\stack_reference.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\state.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\state_handling.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\state_view.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\string_view.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\table.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\table_core.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\table_iterator.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\table_proxy.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\thread.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\tie.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\traits.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\trampoline.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\tuple.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\types.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\unicode.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\unique_usertype_traits.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\unsafe_function.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\unsafe_function_result.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\userdata.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\usertype.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\usertype_container.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\usertype_container_launch.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\usertype_core.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\usertype_proxy.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\usertype_storage.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\usertype_traits.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\variadic_args.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\variadic_results.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\version.hpp" />
+    <ClInclude Include="code\z_lua\internal\sol\wrapper.hpp" />
+    <ClInclude Include="code\z_lua\internal\z_drive.h" />
+    <ClInclude Include="code\z_math.h" />
+    <ClInclude Include="code\z_math\basic_math\f_basic_math_compare.h" />
+    <ClInclude Include="code\z_math\basic_math\f_basic_math_digit.h" />
+    <ClInclude Include="code\z_math\basic_math\f_basic_math_valid.h" />
+    <ClInclude Include="code\z_math\basic_math\f_basic_math_trigonometric.h" />
+    <ClInclude Include="code\z_math\basic_math\f_basic_math_factorial.h" />
+    <ClInclude Include="code\z_math\basic_math\f_basic_math_log.h" />
+    <ClInclude Include="code\z_math\basic_math\f_basic_math_pow.h" />
+    <ClInclude Include="code\z_math\f_basic_math.h" />
+    <ClInclude Include="code\z_math\internal\d_concept.h" />
+    <ClInclude Include="code\z_math\internal\d_config.h" />
+    <ClInclude Include="code\z_math\internal\d_constant.h" />
+    <ClInclude Include="code\z_math\internal\d_error_code.h" />
+    <ClInclude Include="code\z_math\internal\d_function.h" />
+    <ClInclude Include="code\z_math\internal\d_lib.h" />
+    <ClInclude Include="code\z_math\internal\d_macro.h" />
+    <ClInclude Include="code\z_math\internal\d_type.h" />
+    <ClInclude Include="code\z_math\internal\z_drive.h" />
+    <ClInclude Include="code\z_math\z_complex.h" />
+    <ClInclude Include="code\z_math\z_interpolation_table.h" />
+    <ClInclude Include="code\z_tsrpg.h" />
+    <ClInclude Include="code\z_tsrpg\f_scene_control.h" />
+    <ClInclude Include="code\z_tsrpg\z_scene_event_manager.h" />
+    <ClInclude Include="code\z_tsrpg\z_rpg_object.h" />
+    <ClInclude Include="code\z_tsrpg\scene_event\z_move_tile_scene_event.h" />
+    <ClInclude Include="code\z_tsrpg\scene_event\z_scene_event.h" />
+    <ClInclude Include="code\z_tsrpg\z_logic_board.h" />
+    <ClInclude Include="code\z_tsrpg\z_logic_board_object.h" />
+    <ClInclude Include="code\z_tsrpg\z_logic_tile.h" />
+    <ClInclude Include="code\z_tsrpg\z_board_object.h" />
+    <ClInclude Include="code\z_tsrpg\z_world_board.h" />
+    <ClInclude Include="code\z_tsrpg\z_hex_logic_board.h" />
+    <ClInclude Include="code\z_tsrpg\z_hex_logic_tile.h" />
+    <ClInclude Include="code\z_tsrpg\internal\d_concept.h" />
+    <ClInclude Include="code\z_tsrpg\internal\d_config.h" />
+    <ClInclude Include="code\z_tsrpg\internal\d_constant.h" />
+    <ClInclude Include="code\z_tsrpg\internal\d_error_code.h" />
+    <ClInclude Include="code\z_tsrpg\internal\d_function.h" />
+    <ClInclude Include="code\z_tsrpg\internal\d_lib.h" />
+    <ClInclude Include="code\z_tsrpg\internal\d_macro.h" />
+    <ClInclude Include="code\z_tsrpg\internal\d_type.h" />
+    <ClInclude Include="code\z_tsrpg\internal\z_drive.h" />
+    <ClInclude Include="code\z_tsrpg\z_board.h" />
+    <ClInclude Include="code\z_tsrpg\z_tile.h" />
+    <ClInclude Include="code\z_tsrpg\z_world_board_object.h" />
+    <ClInclude Include="code\z_tsrpg\z_world_tile.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\main.cpp" />
@@ -170,7 +347,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Source\Engine\code</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Source\Engine\code;$(SolutionDir)Release\include_library</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile />
       <PrecompiledHeaderOutputFile />
     </ClCompile>
@@ -182,14 +359,14 @@
     <PostBuildEvent>
       <Command>if not exist "$(SolutionDir)Release\include" mkdir "$(SolutionDir)Release\include"
 xcopy /S /Y "$(SolutionDir)Source\$(ProjectName)\code\*.h*" "$(SolutionDir)Release\include" 
-if not exist "$(SolutionDir)Release\include_library" mkdir "$(SolutionDir)Release\include_library"
-xcopy /E /Y "$(SolutionDir)Library\ImGui_1_90_9\include\*.h*" "$(SolutionDir)Release\include_library" 
-xcopy /E /Y "$(SolutionDir)Library\OpenGL2_vc2022\include\*.h*" "$(SolutionDir)Release\include_library" 
 if not exist "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin" mkdir "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin"
 xcopy /S /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\*.dll*" "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin" 
+xcopy /S /Y "$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration)\*.dll*" "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin" 
+xcopy /S /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\*.pdb*" "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin" 
+xcopy /S /Y "$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration)\*.pdb*" "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin" 
 if not exist "$(SolutionDir)Release\$(Platform)_$(Configuration)\lib" mkdir "$(SolutionDir)Release\$(Platform)_$(Configuration)\lib"
 xcopy /S /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\*.lib*" "$(SolutionDir)Release\$(Platform)_$(Configuration)\lib" 
-</Command>
+xcopy /S /Y "$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration)\*.lib*" "$(SolutionDir)Release\$(Platform)_$(Configuration)\lib" </Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>if not exist "$(SolutionDir)Binaries\debugger" mkdir "$(SolutionDir)Binaries\debugger"</Command>
@@ -204,7 +381,7 @@ xcopy /S /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\*.lib*" 
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Source\Engine\code</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Source\Engine\code;$(SolutionDir)Release\include_library</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile />
       <PrecompiledHeaderOutputFile />
     </ClCompile>
@@ -218,14 +395,14 @@ xcopy /S /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\*.lib*" 
     <PostBuildEvent>
       <Command>if not exist "$(SolutionDir)Release\include" mkdir "$(SolutionDir)Release\include"
 xcopy /S /Y "$(SolutionDir)Source\$(ProjectName)\code\*.h*" "$(SolutionDir)Release\include" 
-if not exist "$(SolutionDir)Release\include_library" mkdir "$(SolutionDir)Release\include_library"
-xcopy /E /Y "$(SolutionDir)Library\ImGui_1_90_9\include\*.h*" "$(SolutionDir)Release\include_library" 
-xcopy /E /Y "$(SolutionDir)Library\OpenGL2_vc2022\include\*.h*" "$(SolutionDir)Release\include_library" 
 if not exist "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin" mkdir "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin"
 xcopy /S /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\*.dll*" "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin" 
+xcopy /S /Y "$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration)\*.dll*" "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin" 
+xcopy /S /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\*.pdb*" "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin" 
+xcopy /S /Y "$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration)\*.pdb*" "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin" 
 if not exist "$(SolutionDir)Release\$(Platform)_$(Configuration)\lib" mkdir "$(SolutionDir)Release\$(Platform)_$(Configuration)\lib"
 xcopy /S /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\*.lib*" "$(SolutionDir)Release\$(Platform)_$(Configuration)\lib" 
-</Command>
+xcopy /S /Y "$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration)\*.lib*" "$(SolutionDir)Release\$(Platform)_$(Configuration)\lib" </Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>if not exist "$(SolutionDir)Binaries\debugger" mkdir "$(SolutionDir)Binaries\debugger"</Command>
@@ -240,7 +417,7 @@ xcopy /S /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\*.lib*" 
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeaderFile />
       <PrecompiledHeaderOutputFile />
-      <AdditionalIncludeDirectories>$(SolutionDir)Source\Engine\code</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Source\Engine\code;$(SolutionDir)Release\include_library</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -250,14 +427,14 @@ xcopy /S /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\*.lib*" 
     <PostBuildEvent>
       <Command>if not exist "$(SolutionDir)Release\include" mkdir "$(SolutionDir)Release\include"
 xcopy /S /Y "$(SolutionDir)Source\$(ProjectName)\code\*.h*" "$(SolutionDir)Release\include" 
-if not exist "$(SolutionDir)Release\include_library" mkdir "$(SolutionDir)Release\include_library"
-xcopy /E /Y "$(SolutionDir)Library\ImGui_1_90_9\include\*.h*" "$(SolutionDir)Release\include_library" 
-xcopy /E /Y "$(SolutionDir)Library\OpenGL2_vc2022\include\*.h*" "$(SolutionDir)Release\include_library" 
 if not exist "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin" mkdir "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin"
 xcopy /S /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\*.dll*" "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin" 
+xcopy /S /Y "$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration)\*.dll*" "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin" 
+xcopy /S /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\*.pdb*" "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin" 
+xcopy /S /Y "$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration)\*.pdb*" "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin" 
 if not exist "$(SolutionDir)Release\$(Platform)_$(Configuration)\lib" mkdir "$(SolutionDir)Release\$(Platform)_$(Configuration)\lib"
 xcopy /S /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\*.lib*" "$(SolutionDir)Release\$(Platform)_$(Configuration)\lib" 
-</Command>
+xcopy /S /Y "$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration)\*.lib*" "$(SolutionDir)Release\$(Platform)_$(Configuration)\lib" </Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>if not exist "$(SolutionDir)Binaries\debugger" mkdir "$(SolutionDir)Binaries\debugger"</Command>
@@ -274,7 +451,7 @@ xcopy /S /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\*.lib*" 
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeaderFile />
       <PrecompiledHeaderOutputFile />
-      <AdditionalIncludeDirectories>$(SolutionDir)Source\Engine\code</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Source\Engine\code;$(SolutionDir)Release\include_library</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -286,14 +463,14 @@ xcopy /S /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\*.lib*" 
     <PostBuildEvent>
       <Command>if not exist "$(SolutionDir)Release\include" mkdir "$(SolutionDir)Release\include"
 xcopy /S /Y "$(SolutionDir)Source\$(ProjectName)\code\*.h*" "$(SolutionDir)Release\include" 
-if not exist "$(SolutionDir)Release\include_library" mkdir "$(SolutionDir)Release\include_library"
-xcopy /E /Y "$(SolutionDir)Library\ImGui_1_90_9\include\*.h*" "$(SolutionDir)Release\include_library" 
-xcopy /E /Y "$(SolutionDir)Library\OpenGL2_vc2022\include\*.h*" "$(SolutionDir)Release\include_library" 
 if not exist "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin" mkdir "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin"
 xcopy /S /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\*.dll*" "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin" 
+xcopy /S /Y "$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration)\*.dll*" "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin" 
+xcopy /S /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\*.pdb*" "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin" 
+xcopy /S /Y "$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration)\*.pdb*" "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin" 
 if not exist "$(SolutionDir)Release\$(Platform)_$(Configuration)\lib" mkdir "$(SolutionDir)Release\$(Platform)_$(Configuration)\lib"
 xcopy /S /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\*.lib*" "$(SolutionDir)Release\$(Platform)_$(Configuration)\lib" 
-</Command>
+xcopy /S /Y "$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration)\*.lib*" "$(SolutionDir)Release\$(Platform)_$(Configuration)\lib" </Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>if not exist "$(SolutionDir)Binaries\debugger" mkdir "$(SolutionDir)Binaries\debugger"</Command>

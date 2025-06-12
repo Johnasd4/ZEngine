@@ -16,17 +16,14 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_Z_CONDITION_VARIABLE_H_
-#define Z_CORE_Z_CONDITION_VARIABLE_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
-#include "t_stack.h"
 #include "t_unique_lock.h"
 #include "z_cs_mutex.h"
 #include "z_mutex.h"
 #include "z_object.h"
-#include "z_thread.h"
 
 namespace zengine {
 
@@ -104,5 +101,3 @@ private:
 };
 
 }//zengine
-
-#endif // !Z_CORE_Z_CONDITION_VARIABLE_H_

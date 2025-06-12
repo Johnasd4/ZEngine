@@ -20,7 +20,9 @@
 
 #include "f_file_system.h"
 
+#include <filesystem>
 #include <shobjidl.h>
+
 #include "m_log.h"
 
 namespace zengine {

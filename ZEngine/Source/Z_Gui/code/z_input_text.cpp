@@ -20,8 +20,6 @@
 
 #include "z_input_text.h"
 
-#include "../z_core/m_log.h"
-
 namespace zengine {
 namespace gui {
 
@@ -162,8 +160,8 @@ Void ZInputText::SetInputText(const Char* _input_text) noexcept {
     strcpy((Char*)input_text_.DataPtr(), _input_text);
 }
 
-NODISCARD ZInputText::WidgetTypeEnum ZInputText::WidgetType() const noexcept {
-    return WidgetTypeEnum::kWidgetType_InputText;
+NODISCARD ZInputText::WidgetTypeEnum_ ZInputText::WidgetType() const noexcept {
+    return WidgetTypeEnum_::kWidgetType_InputText;
 }
 
 NODISCARD const Char* ZInputText::InputText() const noexcept {

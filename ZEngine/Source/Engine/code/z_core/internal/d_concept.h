@@ -16,8 +16,7 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_INTERNAL_D_CONCEPT_H_
-#define Z_CORE_INTERNAL_D_CONCEPT_H_
+#pragma once
 
 #include "d_lib.h"
 #include "d_type.h"
@@ -88,5 +87,3 @@ concept kIsPredicateFunction = requires(_Function _func, _ObjectType _obj) {
 };
 
 }//zengine
-
-#endif // !Z_CORE_INTERNAL_D_CONCEPT_H_

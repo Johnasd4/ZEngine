@@ -16,13 +16,10 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_T_STACK_H_
-#define Z_CORE_T_STACK_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
-
-#include "t_allocator.h"
 #include "t_vector.h"
 #include "z_object.h"
 
@@ -105,5 +102,3 @@ private:
 };
 
 }//zengine
-
-#endif // !Z_CORE_T_STACK_H_

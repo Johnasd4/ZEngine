@@ -20,9 +20,10 @@
 
 #include "z_window.h"
 
-#include "../z_core/m_log.h"
-#include "../z_core/t_lock_guard.h"
-#include "../z_core/z_object.h"
+#include "z_core/m_log.h"
+#include "z_core/z_object.h"
+
+#include "z_frame.h"
 
 namespace zengine {
 namespace gui {

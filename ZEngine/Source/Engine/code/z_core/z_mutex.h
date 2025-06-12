@@ -16,12 +16,10 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_Z_MUTEX_H_
-#define Z_CORE_Z_MUTEX_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
-#include "m_log.h"
 #include "z_object.h"
 
 namespace zengine {
@@ -75,5 +73,3 @@ private:
 };
 
 }//zengine
-
-#endif // !Z_CORE_Z_MUTEX_H_

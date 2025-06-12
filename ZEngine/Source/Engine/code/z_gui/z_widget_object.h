@@ -16,13 +16,13 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_GUI_Z_WIDGET_OBJECT_H_
-#define Z_GUI_Z_WIDGET_OBJECT_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
+#include "z_core/z_string.h"
+
 #include "z_gui_object.h"
-#include "../z_core/z_string.h"
 
 namespace zengine {
 namespace gui {
@@ -39,7 +39,7 @@ class GUI_DLLAPI ZWidgetObject : public ZGuiObject {
 public:
     static constexpr Int32 kDefaultPriority = 0;
 
-    enum WidgetTypeEnum {
+    enum WidgetTypeEnum_ {
         kWidgetType_Frame,
         kWidgetType_Text,
         kWidgetType_InputText,
@@ -54,7 +54,7 @@ public:
     virtual Void SetName(const Char* _name) noexcept;
 
     NODISCARD virtual const Char* Name() const noexcept;
-    NODISCARD virtual WidgetTypeEnum WidgetType() const noexcept = 0;
+    NODISCARD virtual WidgetTypeEnum_ WidgetType() const noexcept = 0;
 
     //Base trigger functions.
 
@@ -100,5 +100,3 @@ struct ZWidgetObjectCompare {
 
 }//gui
 }//zengine
-
-#endif // !Z_GUI_Z_WIDGET_OBJECT_H_

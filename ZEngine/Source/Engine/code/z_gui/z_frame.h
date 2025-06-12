@@ -16,13 +16,11 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_GUI_Z_FRAME_H_
-#define Z_GUI_Z_FRAME_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
-#include "../z_core/t_set.h"
-#include "../z_core/z_string.h"
+#include "z_core/t_set.h"
 
 #include "z_widget_object.h"
 
@@ -149,7 +147,7 @@ public:
 
     virtual Void SetBackgruondColour(GuiColour _colour) noexcept;
 
-    NODISCARD virtual WidgetTypeEnum WidgetType() const noexcept;
+    NODISCARD virtual WidgetTypeEnum_ WidgetType() const noexcept;
 
     NODISCARD virtual GuiColour BackgruondColour() const noexcept;
 
@@ -184,5 +182,3 @@ private:
 
 }//gui
 }//zengine
-
-#endif // !Z_GUI_Z_FRAME_H_

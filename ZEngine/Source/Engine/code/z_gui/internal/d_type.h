@@ -16,8 +16,7 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_GUI_INTERNAL_D_TYPE_H_
-#define Z_GUI_INTERNAL_D_TYPE_H_
+#pragma once
 
 #include "d_lib.h"
 
@@ -68,7 +67,11 @@ struct GuiColour {
     Float32 alpha_;
 };
 
+class ZButton;
+class ZFrame;
+class ZInputText;
+class ZText;
+class ZWindow;
+
 }//gui
 }//zengine
-
-#endif // !Z_GUI_INTERNAL_D_TYPE_H_

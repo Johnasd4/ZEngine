@@ -16,18 +16,14 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_Z_TASK_H_
-#define Z_CORE_Z_TASK_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
-#include <type_traits>
-
 #include "m_log.h"
-#include "t_lock_guard.h"
-#include "t_tuple.h"
-#include "z_object.h"
 #include "z_mutex.h"
+#include "z_object.h"
+#include "t_tuple.h"
 
 namespace zengine {
 
@@ -336,5 +332,3 @@ private:
 };
 
 }//zengine
-
-#endif //!Z_CORE_Z_TASK_H_

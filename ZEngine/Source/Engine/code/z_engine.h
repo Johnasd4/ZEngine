@@ -16,10 +16,10 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_ENGINE_H_
-#define Z_ENGINE_H_
+#pragma once
 
 #include "z_core.h"
 #include "z_gui.h"
-
-#endif // !Z_ENGINE_H_
+#include "z_lua.h"
+#include "z_math.h"
+#include "z_tsrpg.h"

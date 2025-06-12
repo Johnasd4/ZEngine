@@ -16,8 +16,7 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_H_
-#define Z_CORE_H_
+#pragma once
 
 #include "z_core/f_console.h"
 #include "z_core/f_file_system.h"
@@ -34,18 +33,22 @@
 #include "z_core/t_list.h"
 #include "z_core/t_lock_guard.h" 
 #include "z_core/t_lookup_table.h" 
+#include "z_core/t_matrix.h"
 #include "z_core/t_pair.h"
+#include "z_core/t_pool.h"
 #include "z_core/t_queue.h"
 #include "z_core/t_set.h"
 #include "z_core/t_smart_pointer.h"
 #include "z_core/t_stack.h"
 #include "z_core/t_unique_lock.h"
+#include "z_core/t_unordered_map.h"
 #include "z_core/t_queue.h"
 #include "z_core/t_tuple.h"
 #include "z_core/t_vector.h"
 #include "z_core/z_condition_variable.h" 
 #include "z_core/z_cs_mutex.h" 
 #include "z_core/z_file.h" 
+#include "z_core/z_json.h" 
 #include "z_core/z_memory.h" 
 #include "z_core/z_mutex.h" 
 #include "z_core/z_object.h"
@@ -55,5 +58,3 @@
 #include "z_core/z_task.h"
 #include "z_core/z_thread.h"
 #include "z_core/z_thread_pool.h"
-
-#endif // !Z_CORE_H_  

@@ -16,12 +16,10 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_Z_OBJECT_H_
-#define Z_CORE_Z_OBJECT_H_
-
-#pragma warning(disable : 26439)
+#pragma once
 
 #include "internal/z_drive.h"
+
 #include "f_memory_pool.h"
 
 namespace zengine {
@@ -63,6 +61,6 @@ private:
     static Void operator delete[](Void*) = delete;
 };
 
-}//zengine
+#pragma warning(disable : 26439)
 
-#endif // !Z_CORE_Z_OBJECT_H_
+}//zengine

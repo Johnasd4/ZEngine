@@ -20,6 +20,8 @@
 
 #include "f_console.h"
 
+#include "z_core/z_mutex.h"
+
 namespace zengine {
 namespace console {
 

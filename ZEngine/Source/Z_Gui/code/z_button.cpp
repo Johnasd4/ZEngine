@@ -20,8 +20,6 @@
 
 #include "z_button.h"
 
-#include "../z_core/m_log.h"
-
 namespace zengine {
 namespace gui {
 
@@ -171,8 +169,8 @@ Void ZButton::SetFontScale(Float32 _scale) noexcept {
     font_scale_ = _scale;
 }
 
-NODISCARD ZButton::WidgetTypeEnum ZButton::WidgetType() const noexcept {
-    return WidgetTypeEnum::kWidgetType_Button;
+NODISCARD ZButton::WidgetTypeEnum_ ZButton::WidgetType() const noexcept {
+    return WidgetTypeEnum_::kWidgetType_Button;
 }
 
 NODISCARD GuiColour ZButton::TextColour() const noexcept {

@@ -26,9 +26,24 @@
 
 using namespace zengine;
 using namespace zengine::gui;
+using namespace zengine::math;
 using namespace zengine::file_system;
 using namespace zengine::console;
+using namespace zengine::tsrpg;
 //using namespace std;
+
+class TestClass {
+public:
+    int a = 1;
+    Void Print() {
+        Z_LOG_MESSAGE(L"%d", a);
+    }
+};
+
+Int32 TestFunc() {
+    Z_LOG_MESSAGE(L"1");
+    return 1;  // 返回值数量
+}
 
 Void TestThreadFunc() {
     ReturnType link_code = kOK;
@@ -48,30 +63,11 @@ Void TestThreadFunc() {
     //link_code = app.Execute();
 }
 
-#include <shobjidl.h> // For IFileOpenDialog
-//#include <commdlg.h>
-
-void OpenFileDialog() {
-    ZWString file_path;
-    TList<ZWString> file_paths;
-    TVector<ZFileFilter> file_filter_vector;
-    file_filter_vector.PushBack(ZFileFilter(L"Text Files", L"*.txt"));
-    file_filter_vector.PushBack(ZFileFilter(L"All Files", L"*.*"));
-    //GetFolderByFileSelector(&file_path);
-    GetFoldersByFileSelector(&file_paths);
-    //Z_LOG_MESSAGE(file_path.String());
-    for (auto file_path = file_paths.Begin(); file_path != file_paths.End(); ++file_path) {
-        Z_LOG_MESSAGE(file_path->String());
-    }
-}
-
 //Int32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 Int32 main() { 
     SetLanguage(kLanguageChinese);
-    ZString a("1230000000000000000000000000000000000000000000000000000000000000000000000000");
-    Z_LOG_ERROR(1, 2, L"TEST%d%d%d%d%x", 3, 4, 5, 6, ~7);
-    Z_LOG_ERROR(1, 2, L"TEST%d%d%d%d%d", 3, 4, 5, 6, 7);
-    Z_LOG_TRACE(L"TEST%d%d%d%d%d", 3, 4, 5, 6, 7);
+    Z_LOG_ERROR(1, 2, L"Error...");
+    Z_LOG_TRACE(L"Trace...");
     Z_LOG_MESSAGE(L"Message...");
     Z_LOG_START(L"Start...");
     Z_LOG_PROCESS(L"Process 1...");
@@ -81,14 +77,81 @@ Int32 main() {
     Z_LOG_FAILURE(L"Failure...");
     Z_LOG_SUCCESS(L"Success...");
 
-    TList<ZWString> sub_str_list;
-    ZWString test_string(L";0112;;;;;31231;3123;");
-    Int32 test_int = 0;
-    test_string.ToInt32(&test_int);
-    test_string.Split(&sub_str_list, L';');
-    for (auto temp_str = sub_str_list.Begin(); temp_str != sub_str_list.End(); ++temp_str) {
-        Z_LOG_MESSAGE(L"%ls %d", temp_str->String(), temp_str->Size());
+    ReturnType link_code;
+
+    ZJsonValue value("test", 1);
+    value["test"] = "hahhaa";
+    ZJsonDocument value2("test", 1);
+    value2["test"] = "hahhaa";
+    value2["test1"] = "hahhaa123";
+    value["tes3"] = "hahhaa";
+    value2["test2"] = value;
+    ZString str = value2.GenerateJsonString();
+    ZWString wstr = string::String2WString(str.String());
+    Z_LOG_MESSAGE(L"\n%s", wstr.String());
+    sizeof(ZString);
+    Void* mem_ptr = memory_pool::ApplyMemory(512 * kKB);
+    mem_ptr = memory_pool::ReapplyMemory(mem_ptr, 1024 * kKB);
+    memory_pool::ReleaseMemory(mem_ptr);
+
+    ZHexLogicBoard hex_logic_board;
+
+    link_code = hex_logic_board.Initialize(LogicVector2D(100, 100));
+    if (link_code != kOK) {
+        Z_LOG_ERROR(
+            0, link_code,
+            L"ZHexLogicBoard::Initialize() link error!"
+        );
+        return 0;
     }
+
+
+
+    ZHexLogicTile logic_tile_template;
+    link_code = hex_logic_board.Fill(logic_tile_template);
+    if (link_code != kOK) {
+        Z_LOG_ERROR(
+            0, link_code,
+            L"ZHexLogicBoard::Fill() link error!"
+        );
+        return 0;
+    }
+
+
+    hex_logic_board.Destroy();
+    link_code = hex_logic_board.Initialize(LogicVector2D(100, 100));
+    if (link_code != kOK) {
+        Z_LOG_ERROR(
+            0, link_code,
+            L"ZHexLogicBoard::Initialize() link error!"
+        );
+        return 0;
+    }
+    ////fill the board with tiles
+    //IndexType _radius = 1;
+    //IndexType num = 0;
+    //for (IndexType x = 0; x <= _radius * 2; ++x) {
+    //    IndexType y_start = zengine::math::Max(0, -x + _radius);
+    //    IndexType y_end = zengine::math::Min(_radius * 2, -x + _radius * 3);
+    //    for (IndexType y = y_start; y <= y_end; ++y) {
+    //        num = num + 1;
+    //    }
+    //}
+
+    //Z_LOG_MESSAGE(L"%d", num);
+
+    //lua::RegisterCFunction("TestFunc", TestFunc);
+    //lua::RunLuaScript("TestFunc()");
+
+    //TestClass asd;
+
+    //lua::RegisterCObject("a", &asd);
+    //lua::RegisterCClass<TestClass>("TestClass", "a", &TestClass::a, "Print", &TestClass::Print);
+    //lua::RunLuaScript("LogMessage(123123)");
+    //
+    
+
+
     //Z_LOG_MESSAGE(L"%d", test_int);
     //OpenFileDialog();
     //TList<ZWString> file_list;
@@ -122,36 +185,36 @@ Int32 main() {
     //ZThread thread_2(TestThreadFunc);
     //thread_1.Join();
     //thread_2.Join();
-    ReturnType link_code = kOK;
-    ZString TEST_STRING("123");
-    //ZApplication app;
-    ZWindow::SetVerticalSynchronization(1);
-    ZWindow test_window("Window1", GuiSize(1000, 1000), GuiPos(100, 100), ZWindow::kWindowScreenMode_Window);
-    ZFrame test_frame("##frame1", GuiSize(500, 500), GuiPos(100, 200));
-    //test_frame.SetBackgruondColour({ 1.0f, 0.0f, 0.0f, 1.0f });
-    test_window.Add(&test_frame);
-    //ZFrame test_frame_2("frame2", GuiSize(200, 200), GuiPos(100, 200));
-    ZText test_text("123");
-    //test_text.SetPos(GuiPos(50,50));
-    test_frame.Add(&test_text);
-    test_frame.Add(&test_text);
-    ZInputText test_input_text("##1234");
-    ZInputText test_input_text_2("##123");
-    ZInputText test_input_text_3("##234");
-    ZInputText test_input_text_4("##12345");
-    test_input_text.SetInputTextFlag(ZInputText::kInputTextFlag_CallbackEdit, true);
-    test_frame.Add(&test_input_text);
-    test_frame.Add(&test_input_text_2);
-    test_frame.Add(&test_input_text_3);
-    test_frame.Add(&test_input_text_4);
-    ZButton test_input_button("button_test");
-    test_frame.Add(&test_input_button);
-    test_window.SetScreenCenter();
-    //test_frame_2.SetBackgruondColour({ 0.0f, 1.0f, 0.0f, 1.0f });
-    //test_window.Add(&test_frame_2);
-    //test_window.SetSize(GuiSize(1000,1000));
-    //test_window.SetPos(GuiPos(100, 100));
-    link_code = test_window.Execute();
+    //ReturnType link_code = kOK;
+    //ZString TEST_STRING("123");
+    ////ZApplication app;
+    //ZWindow::SetVerticalSynchronization(1);
+    //ZWindow test_window("Window1", GuiSize(1000, 1000), GuiPos(100, 100), ZWindow::kWindowScreenMode_Window);
+    //ZFrame test_frame("##frame1", GuiSize(500, 500), GuiPos(100, 200));
+    ////test_frame.SetBackgruondColour({ 1.0f, 0.0f, 0.0f, 1.0f });
+    //test_window.Add(&test_frame);
+    ////ZFrame test_frame_2("frame2", GuiSize(200, 200), GuiPos(100, 200));
+    //ZText test_text("123");
+    ////test_text.SetPos(GuiPos(50,50));
+    //test_frame.Add(&test_text);
+    //test_frame.Add(&test_text);
+    //ZInputText test_input_text("##1234");
+    //ZInputText test_input_text_2("##123");
+    //ZInputText test_input_text_3("##234");
+    //ZInputText test_input_text_4("##12345");
+    //test_input_text.SetInputTextFlag(ZInputText::kInputTextFlag_CallbackEdit, true);
+    //test_frame.Add(&test_input_text);
+    //test_frame.Add(&test_input_text_2);
+    //test_frame.Add(&test_input_text_3);
+    //test_frame.Add(&test_input_text_4);
+    //ZButton test_input_button("button_test");
+    //test_frame.Add(&test_input_button);
+    //test_window.SetScreenCenter();
+    ////test_frame_2.SetBackgruondColour({ 0.0f, 1.0f, 0.0f, 1.0f });
+    ////test_window.Add(&test_frame_2);
+    ////test_window.SetSize(GuiSize(1000,1000));
+    ////test_window.SetPos(GuiPos(100, 100));
+    //link_code = test_window.Execute();
     //app.AddWindow(&test_window);
     //ZWindow test_window2("Window2", GuiSize(100, 100), GuiPos(100, 100), ZWindow::kWindowScreenMode_Window);
     //test_window2.SetSize(GuiSize(1000, 1000));
@@ -216,7 +279,7 @@ Int32 main() {
 
 
     /**/
-    Sleep(1000);
+    Sleep(kTimeBeforeProgramExit);
     return 0;
 }
   

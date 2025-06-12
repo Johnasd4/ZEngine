@@ -20,8 +20,6 @@
 
 #include "z_text.h"
 
-#include "../z_core/m_log.h"
-
 namespace zengine {
 namespace gui {
 
@@ -102,8 +100,8 @@ Void ZText::SetFontScale(Float32 _scale) noexcept {
     font_scale_ = _scale;
 }
 
-NODISCARD ZText::WidgetTypeEnum ZText::WidgetType() const noexcept {
-    return WidgetTypeEnum::kWidgetType_Text;
+NODISCARD ZText::WidgetTypeEnum_ ZText::WidgetType() const noexcept {
+    return WidgetTypeEnum_::kWidgetType_Text;
 }
 
 /*

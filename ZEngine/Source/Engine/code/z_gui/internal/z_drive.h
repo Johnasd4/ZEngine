@@ -16,8 +16,7 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_GUI_INTERNAL_Z_DRIVE_H_
-#define Z_GUI_INTERNAL_Z_DRIVE_H_
+#pragma once
 
 #include "d_concept.h"
 #include "d_config.h"
@@ -27,5 +26,3 @@
 #include "d_lib.h"
 #include "d_macro.h"
 #include "d_type.h"
-
-#endif // !Z_CORE_INTERNAL_Z_DRIVE_H_

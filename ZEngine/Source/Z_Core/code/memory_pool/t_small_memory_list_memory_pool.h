@@ -16,12 +16,10 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_MEMORY_POOL_T_SMALL_MEMORY_LIST_MEMORY_POOL_H_
-#define Z_CORE_MEMORY_POOL_T_SMALL_MEMORY_LIST_MEMORY_POOL_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
-#include "f_console.h"
 #include "t_array.h"
 #include "t_lookup_table.h"
 #include "t_pair.h"
@@ -45,7 +43,7 @@ struct TSmallMemoryBlock : public TMemoryBlockBase{
     The memory pool for small memory. This singleton pattern like class, it has
     a fixed number of instance. All the memory pool will be generated when any
     of the memory pool is used. The instance is private.
-    Waring: The program will crash if a nullptr is send in.
+    Warning: The program will crash if a nullptr is send in.
     Template Parameters:
     - kIsThreadSafe: Thread safe or not.
 */
@@ -53,7 +51,7 @@ template<Bool kIsThreadSafe>
 class TSmallMemoryListMemoryPool : public TListMemoryPoolBase<TSmallMemoryBlock<kIsThreadSafe>, sizeof(TSmallMemoryBlock<kIsThreadSafe>), kIsThreadSafe> {
 private:
     //The sizes of the memory blocks(includes the memory size).
-    static constexpr IndexType kMemoryBlockTypeNum = 10;
+    static constexpr IndexType kMemoryBlockTypeNum = 16;
     static constexpr MemoryType kMemoryBlockMinSize = 32;
     static constexpr MemoryType kMemoryBlockSizeMultGrowFactor = 2;
 
@@ -73,6 +71,7 @@ public:
 #endif //USE_MEMORY_POOL_TEST
         return memory_pool_array[memory_pool_index].SuperType_::ApplyMemory();
     }
+
     NODISCARD static Void* ApplyMemory(const MemoryType _size, MemoryType* _memory_size_ptr) noexcept {
         static TArray<TSmallMemoryListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>& memory_pool_array = InstanceP();
         IndexType size_index = (_size + SuperType_::NodeHeadOffset() - 1) / kMemoryBlockMinSize;
@@ -166,6 +165,7 @@ public:
             momory_block_applyed_num_,
             momory_block_peak_num_,
             memory_block_used_current_num_);
+        TMemoryPoolBase<kIsThreadSafe>::log_file_.Flush();
         if (link_code != kOK) {
             Z_LOG_ERROR(error_code::kFMemoryPoolErrorCode_LinkError, link_code, L"ZFile::OpenSafe() link error!");
         }
@@ -254,7 +254,6 @@ private:
             _capacity);
     }
 
-
 #ifdef USE_MEMORY_POOL_TEST
     Int32 memory_block_used_current_num_ = 0;
     Int32 momory_block_applyed_num_ = 0;
@@ -264,5 +263,3 @@ private:
 
 }//memory_pool
 }//zengine
-
-#endif // !Z_CORE_MEMORY_POOL_T_SMALL_MEMORY_LIST_MEMORY_POOL_H_

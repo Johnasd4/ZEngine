@@ -16,8 +16,7 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_INTERNAL_D_TYPE_H_
-#define Z_CORE_INTERNAL_D_TYPE_H_
+#pragma once
 
 #include "d_lib.h"
 
@@ -96,9 +95,30 @@ enum StringEnum : IndexType {
     kString_Str = kString_Min,
     kString_WStr,
     kString_Max
-
 };
 
-}//zengine
+namespace internal {
 
-#endif // !Z_CORE_INTERNAL_D_TYPE_H_
+template<typename _CharType>
+class TString;
+
+}//internal
+
+class ZConditionVariable;
+class ZCSMutex;
+class ZFile;
+class ZJsonDocument;
+class ZJsonValue;
+class ZMemory;
+class ZMutex;
+class ZObject;
+class ZSemMutex;
+using ZString = internal::TString<Char>;
+using ZWString = internal::TString<WChar>;
+class ZSystemTime;
+class ZTaskSafe;
+class ZTask;
+class ZThread;
+class ZThreadPool;
+
+}//zengine

@@ -16,12 +16,11 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_GUI_Z_INPUT_TEXT_H_
-#define Z_GUI_Z_INPUT_TEXT_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
-#include "../z_core/z_memory.h"
+#include "z_core/z_memory.h"
 
 #include "z_widget_object.h"
 
@@ -167,7 +166,7 @@ public:
     virtual Void SetInputTextBufferSize(UInt32 _buffer_size) noexcept;
     virtual Void SetInputText(const Char* _input_text) noexcept;
 
-    NODISCARD virtual WidgetTypeEnum WidgetType() const noexcept;
+    NODISCARD virtual WidgetTypeEnum_ WidgetType() const noexcept;
 
     NODISCARD virtual const Char* InputText() const noexcept;
     NODISCARD virtual GuiColour TextColour() const noexcept;
@@ -199,5 +198,3 @@ private:
 
 }//gui
 }//zengine
-
-#endif // !Z_GUI_Z_INPUT_TEXT_H_

@@ -16,8 +16,7 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_T_FIXED_STRING_H_
-#define Z_CORE_T_FIXED_STRING_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
@@ -49,7 +48,7 @@ public:
         : SuperType_(std::forward<TFixedString>(_str)), str_(std::move(_str.str_)) {}
     FORCEINLINE TFixedString(InitializerList_ _init_list) noexcept : SuperType_(), str_(_init_list) {}
     template<typename... _ArgsType>
-    FORCEINLINE constexpr TFixedString(_CharType* _format, _ArgsType&&... _args) noexcept : SuperType_() {
+    FORCEINLINE constexpr TFixedString(const _CharType* _format, _ArgsType&&... _args) noexcept : SuperType_() {
         if constexpr (kSameType<_CharType, Char>) {
             sprintf(DataPtr(), _format, std::forward<_ArgsType>(_args)...);
         }
@@ -136,7 +135,7 @@ private:
 template<IndexType kCapacity>
 using TFixedString = internal::TFixedString<Char, kCapacity>;
 template<IndexType kCapacity>
-using TWFixedString = internal::TFixedString<WChar, kCapacity>;
+using TFixedWString = internal::TFixedString<WChar, kCapacity>;
 
 template <IndexType kCapacity>
 union FixedStringUnion {
@@ -152,9 +151,7 @@ public:
     }
 
     TFixedString<kCapacity / sizeof(Char)> str_;
-    TWFixedString<kCapacity / sizeof(WChar)> w_str_;
+    TFixedWString<kCapacity / sizeof(WChar)> w_str_;
 };
 
 }//zengine
-
-#endif // !Z_CORE_T_FIXED_STRING_H_

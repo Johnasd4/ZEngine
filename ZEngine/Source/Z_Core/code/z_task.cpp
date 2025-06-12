@@ -20,6 +20,8 @@
 
 #include "z_task.h"
 
+#include "t_lock_guard.h"
+
 namespace zengine {
 
 ZTaskSafe::ZTaskSafe() noexcept

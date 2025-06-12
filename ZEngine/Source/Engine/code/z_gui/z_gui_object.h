@@ -16,13 +16,12 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_GUI_Z_GUI_OBJECT_H_
-#define Z_GUI_Z_GUI_OBJECT_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
-#include "../z_core/z_mutex.h"
-#include "../z_core/z_object.h"
+#include "z_core/z_mutex.h"
+#include "z_core/z_object.h"
 
 namespace zengine {
 namespace gui {
@@ -145,5 +144,3 @@ private:
 
 }//gui
 }//zengine
-
-#endif // !Z_GUI_Z_GUI_OBJECT_H_

@@ -22,7 +22,6 @@
 
 #include "f_file_system.h"
 #include "m_log.h"
-#include "z_string.h"
 
 namespace zengine {
 
@@ -55,7 +54,7 @@ NODISCARD ReturnType ZFile::Read(Void* _data_ptr, SizeType _data_size) noexcept 
     return ret_val;
 }
 
-NODISCARD ReturnType ZFile::Write(Void* _data_ptr, SizeType _data_size) noexcept {
+NODISCARD ReturnType ZFile::Write(const Void* _data_ptr, SizeType _data_size) noexcept {
     ReturnType ret_val = kOK;
 
     Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCode_NoFileOpened, L"No file opened!");
@@ -277,6 +276,24 @@ NODISCARD ReturnType ZFile::Tell(Int32* _pos_ptr) noexcept {
     *_pos_ptr = ftell(file_ptr_);
 
     return ret_val;
+}
+
+NODISCARD Int32 ZFile::Size() noexcept {
+    if (file_ptr_ == nullptr) {
+        return 0;
+    }
+    Int32 pre_index = ftell(file_ptr_);
+    fseek(file_ptr_, 0, kZFileSeekType_FileEnd);
+    Int32 size = ftell(file_ptr_);
+    fseek(file_ptr_, pre_index, kZFileSeekType_FileHead);
+    return size;
+}
+
+NODISCARD Void ZFile::Flush() noexcept {
+    if (file_ptr_ == nullptr) {
+        return;
+    }
+    fflush(file_ptr_);
 }
 
 Void ZFile::MoveP(ZFile&& _file) noexcept {

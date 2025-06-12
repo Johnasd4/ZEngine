@@ -16,12 +16,9 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_F_FILE_SYSTEM_H_
-#define Z_CORE_F_FILE_SYSTEM_H_
+#pragma once
 
 #include "internal/z_drive.h"
-
-#include <filesystem>
 
 #include "t_list.h"
 #include "t_vector.h"
@@ -160,5 +157,3 @@ CORE_DLLAPI NODISCARD ReturnType GetFoldersByFileSelector(TList<ZWString>* _fold
 
 }//file_system
 }//zengine
-
-#endif // !Z_CORE_F_FILE_SYSTEM_H_

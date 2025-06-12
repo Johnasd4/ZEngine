@@ -16,8 +16,7 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_INTERNAL_D_FUNCTION_H_
-#define Z_CORE_INTERNAL_D_FUNCTION_H_
+#pragma once
 
 #include "d_lib.h"
 #include "d_type.h"
@@ -46,6 +45,6 @@ NODISCARD FORCEINLINE constexpr decltype(auto) Ref(std::reference_wrapper<_Objec
     return std::ref(_obj);
 }
 
-}//zengine
+NODISCARD FORCEINLINE TimeType Time() noexcept { return time(nullptr); }
 
-#endif // !Z_CORE_INTERNAL_D_FUNCTION_H_
+}//zengine

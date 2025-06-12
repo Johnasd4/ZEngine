@@ -22,10 +22,10 @@
 
 #include "f_console.h"
 #include "f_file_system.h"
-#include "t_fixed_string.h"
 #include "z_file.h"
 #include "z_string.h"
 #include "z_system_time.h"
+
 #include "log/z_log_manager.h"
 
 namespace zengine {
@@ -59,7 +59,7 @@ CORE_DLLAPI const WChar* ZLog::CreateAndGetLogPath() noexcept {
     //log file path.
     static ZWString path_str = []() -> ZWString {
         const ZSystemTime& system_time = ZSystemTime::StartTimeInstance();
-        TWFixedString<ZFile::kFileNameLength> path_str;
+        TFixedWString<ZFile::kFileNameLength> path_str;
         path_str.SetString(
             L"%ls\\%04d%02d%02d%02d%02d%02d", kLogFileRootPathDir,
             system_time.Year(), system_time.Month(), system_time.Day(),
@@ -73,7 +73,7 @@ CORE_DLLAPI const WChar* ZLog::CreateAndGetLogPath() noexcept {
 
         //clear the expired log files.
         TList<ZWString> dir_list;
-        file_system::GetDirectoriesByPath(log::ZLog::kLogFileRootPathDir, &dir_list);
+        file_system::GetDirectoriesByPath(kLogFileRootPathDir, &dir_list);
         IndexType del_dir_num = dir_list.Size() - log::ZLog::kLogFileMaxNum;
         for (IndexType count = 0; count < del_dir_num; ++count) {
             file_system::DeleteDirectoryByPath(dir_list.Front().String());
@@ -97,7 +97,7 @@ static ZFile& GetLogFile() noexcept {
     static ZFile& file = []() ->ZFile& { 
         static ZFile file;
         ReturnType link_code = kOK;
-        TWFixedString<ZFile::kFileNameLength> file_dir;
+        TFixedWString<ZFile::kFileNameLength> file_dir;
         const ZSystemTime& system_time = ZSystemTime::StartTimeInstance();
         file_dir.SetString(
             L"%ls\\%04d%02d%02d%02d%02d%02d_default.log", ZLog::CreateAndGetLogPath(),

@@ -16,12 +16,9 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_F_CONSOLE_H_
-#define Z_CORE_F_CONSOLE_H_
+#pragma once
 
 #include "internal/z_drive.h"
-
-#include "z_mutex.h"
 
 namespace zengine{
 
@@ -210,5 +207,3 @@ FORCEINLINE Void PrintError(const _CharType* _format, _ArgsType&&... _args) noex
 
 }//console
 }//zengine
-
-#endif // !Z_CORE_F_CONSOLE_H_

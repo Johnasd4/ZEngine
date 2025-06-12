@@ -16,13 +16,11 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_M_LOG_H_
-#define Z_CORE_M_LOG_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
 #include "t_fixed_string.h"
-#include "z_system_time.h"
 
 #ifndef PROJECT_NAME
 #define PROJECT_NAME L"Unknown"
@@ -34,7 +32,7 @@
 #define Z_CHECK(_condition, _err_code, ...)\
     if(_condition) {\
         zengine::log::LogError(\
-            ::time(nullptr),\
+            zengine::Time(),\
             PROJECT_NAME,\
             __FILE__,\
             __func__,\
@@ -50,7 +48,7 @@
 */
 #define Z_LOG_ERROR(_err_code, _link_code, ...)\
     zengine::log::LogError(\
-        ::time(nullptr),\
+        zengine::Time(),\
         PROJECT_NAME,\
         __FILE__,\
         __func__,\
@@ -63,43 +61,43 @@
     Log trace.
 */
 #define Z_LOG_TRACE(...)\
-    zengine::log::LogTrace(::time(nullptr), PROJECT_NAME, __FILE__, __func__, __VA_ARGS__);
+    zengine::log::LogTrace(zengine::Time(), PROJECT_NAME, __FILE__, __func__, __VA_ARGS__);
 
 /*
     Log message.
 */
 #define Z_LOG_MESSAGE(...)\
-    zengine::log::LogInfo(::time(nullptr), kLogInfo_Message, __VA_ARGS__);
+    zengine::log::LogInfo(zengine::Time(), zengine::kLogInfo_Message, __VA_ARGS__);
 
 /*
     Log start.
 */
 #define Z_LOG_START(...)\
-    zengine::log::LogInfo(::time(nullptr), kLogInfo_Start, __VA_ARGS__);
+    zengine::log::LogInfo(zengine::Time(), zengine::kLogInfo_Start, __VA_ARGS__);
 
 /*
     Log process.
 */
 #define Z_LOG_PROCESS(...)\
-    zengine::log::LogInfo(::time(nullptr), kLogInfo_Process, __VA_ARGS__);
+    zengine::log::LogInfo(zengine::Time(), zengine::kLogInfo_Process, __VA_ARGS__);
 
 /*
     Log finish.
 */
 #define Z_LOG_FINISH(...)\
-    zengine::log::LogInfo(::time(nullptr), kLogInfo_Finish, __VA_ARGS__);
+    zengine::log::LogInfo(zengine::Time(), zengine::kLogInfo_Finish, __VA_ARGS__);
 
 /*
     Log success.
 */
 #define Z_LOG_SUCCESS(...)\
-    zengine::log::LogInfo(::time(nullptr), kLogInfo_Success, __VA_ARGS__);
+    zengine::log::LogInfo(zengine::Time(), zengine::kLogInfo_Success, __VA_ARGS__);
 
 /*
     Log failure.
 */
 #define Z_LOG_FAILURE(...)\
-    zengine::log::LogInfo(::time(nullptr), kLogInfo_Failure, __VA_ARGS__);
+    zengine::log::LogInfo(zengine::Time(), zengine::kLogInfo_Failure, __VA_ARGS__);
 
 namespace zengine {
 
@@ -142,8 +140,6 @@ public:
     static constexpr Int32 kLogMaxSize = 2048;
     //max size of the log message string.
     static constexpr Int32 kLogFileMaxNum = 10;
-    //the root path of the log files
-    static constexpr WChar kLogFileRootPathDir[] = L".\\log";
 
     using MsgString_ = FixedStringUnion<kMsgMaxSize>;
     using OutputString_ = FixedStringUnion<kLogMaxSize>;
@@ -275,5 +271,3 @@ CORE_DLLAPI Void UnregisterLogServerOutputFunction(
 
 }//log
 }//zengine
-
-#endif // !Z_CORE_M_LOG_H_

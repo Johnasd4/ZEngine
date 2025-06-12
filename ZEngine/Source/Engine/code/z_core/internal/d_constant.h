@@ -16,8 +16,7 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_INTERNAL_D_CONSTANT_H_
-#define Z_CORE_INTERNAL_D_CONSTANT_H_
+#pragma once
 
 #include "d_lib.h"
 #include "d_type.h"
@@ -43,6 +42,10 @@ inline constexpr MemoryType kHeapMemoryUnitSize = 4 * kKB;
 //the root folder of the code file.
 inline constexpr WChar kCodeFileRootDirWString[] = L"\\code\\";
 
-}//zengine
+//the root path of the log files.
+inline constexpr WChar kLogFileRootPathDir[] = L".\\log";
 
-#endif // !Z_CORE_INTERNAL_D_CONSTANT_H_
+//the time before program exiting.
+inline constexpr UInt32 kTimeBeforeProgramExit = 500U;
+
+}//zengine

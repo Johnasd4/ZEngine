@@ -20,10 +20,6 @@
 
 #include "z_log_manager.h"
 
-#include "f_file_system.h"
-#include "t_list.h"
-#include "z_string.h"
-
 namespace zengine {
 namespace log {
 

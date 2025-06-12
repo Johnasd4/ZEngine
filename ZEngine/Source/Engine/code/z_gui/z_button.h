@@ -16,8 +16,7 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_GUI_Z_BUTTON_H_
-#define Z_GUI_Z_BUTTON_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
@@ -114,7 +113,7 @@ public:
     virtual Void SetActiveColour(GuiColour _colour) noexcept;
     virtual Void SetFontScale(Float32 _scale) noexcept;
 
-    NODISCARD virtual WidgetTypeEnum WidgetType() const noexcept;
+    NODISCARD virtual WidgetTypeEnum_ WidgetType() const noexcept;
 
     NODISCARD virtual GuiColour TextColour() const noexcept;
     NODISCARD virtual GuiColour ButtonColour() const noexcept;
@@ -145,5 +144,3 @@ private:
 
 }//gui
 }//zengine
-
-#endif // !Z_GUI_Z_BUTTON_H_

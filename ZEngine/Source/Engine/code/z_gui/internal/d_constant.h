@@ -16,8 +16,7 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_GUI_INTERNAL_D_CONSTANT_H_
-#define Z_GUI_INTERNAL_D_CONSTANT_H_
+#pragma once
 
 #include "d_lib.h"
 #include "d_type.h"
@@ -159,5 +158,3 @@ inline constexpr Float32 kRGBAMax = 1.0f;
 
 }//gui
 }//zengine
-
-#endif // !Z_GUI_INTERNAL_D_CONSTANT_H_

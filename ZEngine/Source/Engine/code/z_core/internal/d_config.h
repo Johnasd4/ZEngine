@@ -16,8 +16,8 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_INTERNAL_D_CONFIG_H_
-#define Z_CORE_INTERNAL_D_CONFIG_H_
+
+#pragma once
 
 // Shows the use of the memory pool, includes the memory block left when the 
 // program emds, the total memory blocks appplyed and the peak situation of
@@ -27,9 +27,11 @@
 //Wheather the memory pool is thread safe.
 #define MEMORY_POOL_THREAD_SAFE true
 
-//If console log.
+//Log type.
+#ifdef _DEBUG
 #define USE_CONSOLE_LOG true
-//If file log.
 #define USE_FILE_LOG true
-
-#endif // !Z_CORE_INTERNAL_D_CONFIG_H_
+#else
+#define USE_CONSOLE_LOG false
+#define USE_FILE_LOG true
+#endif//_DEBUG

@@ -1,15 +1,32 @@
-#ifndef Z_MATH_Z_INTERPOLATION_TABLE_H_
-#define Z_MATH_Z_INTERPOLATION_TABLE_H_
+/*
+    Copyright (c) YuLin Zhu
 
-#include "internal/drive.h"
+    This code file is licensed under the Creative Commons
+    Attribution-NonCommercial 4.0 International License.
 
-#include "z_core/z_fixed_array.h"
+    You may obtain a copy of the License at
+    https://creativecommons.org/licenses/by-nc/4.0/
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+    Author: YuLin Zhu
+    Contact: 1152325286@qq.com
+*/
+#pragma once
+
+#include "internal/z_drive.h"
+
+#include "z_core/t_array.h"
 
 namespace zengine {
 namespace math {
 
 template<typename NumberType, IndexType kTableSize> 
-class ZInterpolationTable :public ZFixedArray<NumberType, kTableSize> {
+class ZInterpolationTable :public TArray<NumberType, kTableSize> {
 public:
     /*
         The work is done at compile time.
@@ -32,8 +49,8 @@ public:
         constexpr ZInterpolationTable<Int32, 10> test(10.0F,10.0F,init_function);
     */
     template<typename InitFunction, typename... ArgsType>
-    FORCEINLINE constexpr ZInterpolationTable(const NumberType index_offset, const NumberType step_distance, 
-                                                InitFunction&& init_function, ArgsType&&... args);    
+    FORCEINLINE constexpr ZInterpolationTable(const NumberType _index_offset, const NumberType _step_distance,
+                                                InitFunction&& _init_func, ArgsType&&... _args);
 
     NODISCARD FORCEINLINE constexpr NumberType index_offset() const { return index_offset_; }
     NODISCARD FORCEINLINE constexpr NumberType step_distance() const {
@@ -43,23 +60,23 @@ public:
     /*
         Search the table.
     */
-    NODISCARD FORCEINLINE constexpr const NumberType SearchTable(const NumberType index) const;
+    NODISCARD FORCEINLINE constexpr const NumberType SearchTable(const NumberType _index) const;
     /*
         Search the table.Will search the table over again if the index is bigger then the table size.
     */
-    NODISCARD FORCEINLINE constexpr const NumberType LoopSearchTable(const NumberType index) const;
+    NODISCARD FORCEINLINE constexpr const NumberType LoopSearchTable(const NumberType _index) const;
     /*
         Sereah the table with a linear compensation.
     */
-    NODISCARD FORCEINLINE constexpr const NumberType LinearSearchTable(const NumberType index) const;
+    NODISCARD FORCEINLINE constexpr const NumberType LinearSearchTable(const NumberType _index) const;
     /*
         Sereah the table with a linear compensation.
         Will search the table over again if the index is bigger then the table size.
     */
-    NODISCARD FORCEINLINE constexpr const NumberType LoopLinearSearchTable(const NumberType index) const;
+    NODISCARD FORCEINLINE constexpr const NumberType LoopLinearSearchTable(const NumberType _index) const;
 
 protected:
-    using SuperType = ZFixedArray<NumberType, kTableSize>;
+    using SuperType = TArray<NumberType, kTableSize>;
 
 private:
     //The offset of the index.
@@ -71,30 +88,30 @@ private:
 template<typename NumberType, IndexType kTableSize>
 template<typename InitFunction, typename... ArgsType>
 FORCEINLINE constexpr ZInterpolationTable<NumberType, kTableSize>::ZInterpolationTable(
-    const NumberType index_offset, const NumberType step_distance, 
-    InitFunction&& init_function, ArgsType&&... args)
+    const NumberType _index_offset, const NumberType _step_distance,
+    InitFunction&& _init_func, ArgsType&&... _args)
         : SuperType()
-        , index_offset_(index_offset)
-        , step_distance_reciprocal_(static_cast<NumberType>(1.0) / step_distance) {
-    init_function(this, std::forward<ArgsType>(args)...);
+        , index_offset_(_index_offset)
+        , step_distance_reciprocal_(static_cast<NumberType>(1.0) / _step_distance) {
+    _init_func(this, std::forward<ArgsType>(_args)...);
 }
 
 template<typename NumberType, IndexType kTableSize>
 NODISCARD FORCEINLINE constexpr const NumberType ZInterpolationTable<NumberType, kTableSize>::SearchTable(
-        const NumberType index) const {
-    return (*this)(static_cast<IndexType>(index * step_distance_reciprocal_ + 0.5));
+        const NumberType _index) const {
+    return (*this)(static_cast<IndexType>(_index * step_distance_reciprocal_ + 0.5));
 }
 
 template<typename NumberType, IndexType kTableSize>
 NODISCARD FORCEINLINE constexpr const NumberType ZInterpolationTable<NumberType, kTableSize>::LoopSearchTable(
-        const NumberType index) const {
-    return (*this)(static_cast<IndexType>(index * step_distance_reciprocal_ + 0.5) % SuperType::size());
+        const NumberType _index) const {
+    return (*this)(static_cast<IndexType>(_index * step_distance_reciprocal_ + 0.5) % SuperType::size());
 }
 
 template<typename NumberType, IndexType kTableSize>
 NODISCARD FORCEINLINE constexpr const NumberType ZInterpolationTable<NumberType, kTableSize>::LinearSearchTable(
-        const NumberType index) const {
-    NumberType table_index = (index - index_offset_) * step_distance_reciprocal_;
+        const NumberType _index) const {
+    NumberType table_index = (_index - index_offset_) * step_distance_reciprocal_;
     IndexType array_index = static_cast<IndexType>(table_index);
     return (*this)(array_index) + 
         ((*this)(array_index + 1) - (*this)(array_index)) * 
@@ -103,17 +120,14 @@ NODISCARD FORCEINLINE constexpr const NumberType ZInterpolationTable<NumberType,
 
 template<typename NumberType, IndexType kTableSize>
 NODISCARD FORCEINLINE constexpr const NumberType ZInterpolationTable<NumberType, kTableSize>::LoopLinearSearchTable(
-    const NumberType index) const {
-    NumberType table_index = (index - index_offset_) * step_distance_reciprocal_;
+    const NumberType _index) const {
+    NumberType table_index = (_index - index_offset_) * step_distance_reciprocal_;
     IndexType int_table_index = static_cast<IndexType>(table_index);
-    IndexType array_index = int_table_index % SuperType::size();
-    return (*this)(array_index) +
-        ((*this)(array_index + 1) - (*this)(array_index)) *
+    IndexType array_index = int_table_index % SuperType::Capacity();
+    return (*this)[array_index] +
+        ((*this)[array_index + 1] - (*this)[array_index]) *
         (table_index - static_cast<NumberType>(int_table_index));
 }
 
 }//math
 }//zengine
-
-
-#endif //!Z_MATH_Z_INTERPOLATION_TABLE_H_

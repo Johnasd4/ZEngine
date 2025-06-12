@@ -16,12 +16,10 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_Z_FILE_H_
-#define Z_CORE_Z_FILE_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
-#include "z_mutex.h"
 #include "z_object.h"
 
 namespace zengine {
@@ -50,8 +48,7 @@ public:
     enum SeekType_ : Int32 {
         kZFileSeekType_FileHead = SEEK_SET,
         kZFileSeekType_CurrntPtr = SEEK_CUR,
-        kZFileSeekType_FileEnd = SEEK_END,
-
+        kZFileSeekType_FileEnd = SEEK_END
     };
 
     /*Read only.*/
@@ -95,7 +92,7 @@ public:
     /*
         Write binary in to the file.
     */
-    NODISCARD ReturnType Write(Void* _data_ptr, SizeType _data_size) noexcept;
+    NODISCARD ReturnType Write(const Void* _data_ptr, SizeType _data_size) noexcept;
     /*
         Scans from the file.
     */
@@ -136,7 +133,7 @@ public:
     /*
         Opens the file, needs the path exist.
     */
-    NODISCARD ReturnType Open(const WChar* _file_dir,const WChar* _open_type) noexcept;
+    NODISCARD ReturnType Open(const WChar* _file_dir, const WChar* _open_type) noexcept;
     /*
         Opens the file safe, will create the path if the path doesn't exist.
     */
@@ -159,6 +156,17 @@ public:
         pos_ptr: returns the pos of the current ptr.
     */
     NODISCARD ReturnType Tell(Int32* _pos_ptr) noexcept;
+
+    /*
+        Returns the size of the file.
+    */
+    NODISCARD Int32 Size() noexcept;
+
+    /*
+        Flush the current file cache.
+    */
+    NODISCARD Void Flush() noexcept;
+
 protected:
     using SuperType_ = ZObject;
 
@@ -172,5 +180,3 @@ private:
 };
 
 }//zengine
-
-#endif // !Z_CORE_Z_FILE_H_

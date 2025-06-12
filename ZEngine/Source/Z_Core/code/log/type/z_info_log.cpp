@@ -46,7 +46,7 @@ Void ZInfoLog::FileOutputLogString(const ZLog* _log_ptr, const ZLog::OutputStrin
     static ZFile& file = []() ->ZFile& {
         static ZFile file;
         ReturnType link_code = kOK;
-        TWFixedString<ZFile::kFileNameLength> file_dir;
+        TFixedWString<ZFile::kFileNameLength> file_dir;
         const ZSystemTime& system_time = ZSystemTime::StartTimeInstance();
         file_dir.SetString(
             L"%ls\\%04d%02d%02d%02d%02d%02d_info.log", ZLog::CreateAndGetLogPath(),
@@ -61,6 +61,7 @@ Void ZInfoLog::FileOutputLogString(const ZLog* _log_ptr, const ZLog::OutputStrin
     ReturnType link_code = kOK;
 
     link_code = file.Print(L"%ls\n", _output_str.w_str_.DataPtr());
+    file.Flush();
     if (link_code != kOK) {
         Z_LOG_ERROR(error_code::kMLogErrorCode_LinkError, link_code, L"ZFile::Print() link error!");
     }

@@ -16,17 +16,15 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_GUI_Z_WINDOW_H_
-#define Z_GUI_Z_WINDOW_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
 #include "../z_core/t_atom.h"
 #include "../z_core/t_set.h"
-#include "../z_core/z_string.h"
 
-#include "z_frame.h"
 #include "z_gui_object.h"
+#include "z_widget_object.h"
 
 struct GLFWwindow;
 struct ImGuiContext;
@@ -196,5 +194,3 @@ private:
 
 }//gui
 }//zengine
-
-#endif // !Z_GUI_Z_WINDOW_H_

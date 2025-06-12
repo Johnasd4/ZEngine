@@ -16,8 +16,7 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_GUI_INTERNAL_D_CONCEPT_H_
-#define Z_GUI_INTERNAL_D_CONCEPT_H_
+#pragma once
 
 #include "d_lib.h"
 #include "d_type.h"
@@ -27,5 +26,3 @@ namespace gui {
 
 }//gui
 }//zengine
-
-#endif // !Z_GUI_INTERNAL_D_CONCEPT_H_

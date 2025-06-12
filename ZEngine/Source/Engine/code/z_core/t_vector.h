@@ -16,8 +16,7 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_T_VECTOR_H_
-#define Z_CORE_T_VECTOR_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
@@ -70,21 +69,21 @@ public:
     }
 
     FORCEINLINE Void Assign(SizeType _size, const _ObjectType& _val) noexcept {
-        return vec_.assign(_size, _val);
+        vec_.assign(_size, _val);
     }
     template <class _InputIterator>
     FORCEINLINE Void Assign(_InputIterator _first, _InputIterator _last) noexcept {
-        return vec_.assign(_first, _last);
+        vec_.assign(_first, _last);
     }
     FORCEINLINE Void Assign(InitializerList_ _init_list) noexcept {
-        return vec_.assign(_init_list);
+        vec_.assign(_init_list);
     }
 
     NODISCARD FORCEINLINE Bool operator==(const TVector& _vec) noexcept { return vec_ == _vec; }
     NODISCARD FORCEINLINE Bool operator!=(const TVector& _vec) noexcept { return vec_ != _vec; }
 
-    NODISCARD FORCEINLINE _ObjectType& operator[](const SizeType _index) noexcept { return vec_[_index]; }
-    NODISCARD FORCEINLINE const _ObjectType& operator[](const SizeType _index) const noexcept { return vec_[_index]; }
+    NODISCARD FORCEINLINE _ObjectType& operator[](SizeType _index) noexcept { return vec_[_index]; }
+    NODISCARD FORCEINLINE const _ObjectType& operator[](SizeType _index) const noexcept { return vec_[_index]; }
 
     NODISCARD FORCEINLINE _ObjectType& At(IndexType _index) noexcept { return vec_.at(_index); }
     NODISCARD FORCEINLINE const _ObjectType& At(IndexType _index) const noexcept { return vec_.at(_index); }
@@ -135,8 +134,8 @@ public:
     }
 
     FORCEINLINE Iterator_ Erase(ConstIterator_ _pos) noexcept { return vec_.erase(_pos); }
-    FORCEINLINE Iterator_ Erase(ConstIterator_ _first, ConstIterator_ _last) noexcept 
-    { return vec_.erase(_first, _last); 
+    FORCEINLINE Iterator_ Erase(ConstIterator_ _first, ConstIterator_ _last) noexcept { 
+        return vec_.erase(_first, _last); 
     }
     FORCEINLINE Void Clear() noexcept { vec_.clear(); }
 
@@ -164,5 +163,3 @@ private:
 };
 
 }//zengine
-
-#endif // !Z_CORE_T_VECTOR_H_

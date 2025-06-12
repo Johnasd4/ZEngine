@@ -16,8 +16,7 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_GUI_INTERNAL_D_FUNCTION_H_
-#define Z_GUI_INTERNAL_D_FUNCTION_H_
+#pragma once
 
 #include "d_lib.h"
 #include "d_type.h"
@@ -32,5 +31,3 @@ GUI_DLLAPI NODISCARD GuiSize ScreenSize() noexcept;
 
 }//gui
 }//zengine
-
-#endif // !Z_GUI_INTERNAL_D_FUNCTION_H_

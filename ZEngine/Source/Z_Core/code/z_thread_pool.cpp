@@ -20,8 +20,6 @@
 
 #include "z_thread_pool.h"
 
-#include "t_lock_guard.h"
-
 namespace zengine {
 
 ZThreadPool::ZThreadPool() noexcept 

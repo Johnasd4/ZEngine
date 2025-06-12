@@ -16,8 +16,7 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_T_FIXED_DEQUE_H_
-#define Z_CORE_T_FIXED_DEQUE_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
@@ -215,5 +214,3 @@ private:
 };
 
 }//zengine
-
-#endif // !Z_CORE_T_FIXED_DEQUE_H_

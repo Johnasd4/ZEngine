@@ -20,8 +20,6 @@
 
 #include "z_frame.h"
 
-#include "../z_core/m_log.h"
-
 namespace zengine {
 namespace gui {
 
@@ -204,8 +202,8 @@ Void ZFrame::SetBackgruondColour(GuiColour _colour) noexcept {
     frame_background_colour_ = _colour;
 }
 
-NODISCARD ZFrame::WidgetTypeEnum ZFrame::WidgetType() const noexcept {
-    return WidgetTypeEnum::kWidgetType_Frame;
+NODISCARD ZFrame::WidgetTypeEnum_ ZFrame::WidgetType() const noexcept {
+    return WidgetTypeEnum_::kWidgetType_Frame;
 }
 
 NODISCARD GuiColour ZFrame::BackgruondColour() const noexcept {

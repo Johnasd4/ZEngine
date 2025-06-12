@@ -16,8 +16,7 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_GUI_INTERNAL_D_ERROR_CODE_H_
-#define Z_GUI_INTERNAL_D_ERROR_CODE_H_
+#pragma once
 
 #include "d_lib.h"
 #include "d_type.h"
@@ -26,16 +25,14 @@ namespace zengine {
 namespace gui {
 namespace error_code {
 
-inline constexpr ReturnType kErrorCodeBase_PGui = 0x00200000u;
-inline constexpr ReturnType kErrorCodeBase_ZApplication = kErrorCodeBase_PGui + 0x100u;
-inline constexpr ReturnType kErrorCodeBase_ZWindow = kErrorCodeBase_PGui + 0x200u;
-inline constexpr ReturnType kErrorCodeBase_ZFrame = kErrorCodeBase_PGui + 0x300u;
-inline constexpr ReturnType kErrorCodeBase_ZText = kErrorCodeBase_PGui + 0x400u;
-inline constexpr ReturnType kErrorCodeBase_ZInputText = kErrorCodeBase_PGui + 0x500u;
-inline constexpr ReturnType kErrorCodeBase_ZButton = kErrorCodeBase_PGui + 0x600u;
+inline constexpr ReturnType kErrorCodeBase_PGui = 0x00100000u;
+inline constexpr ReturnType kErrorCodeBase_ZApplication = kErrorCodeBase_PGui + 0x000u;
+inline constexpr ReturnType kErrorCodeBase_ZWindow = kErrorCodeBase_PGui + 0x100u;
+inline constexpr ReturnType kErrorCodeBase_ZFrame = kErrorCodeBase_PGui + 0x200u;
+inline constexpr ReturnType kErrorCodeBase_ZText = kErrorCodeBase_PGui + 0x300u;
+inline constexpr ReturnType kErrorCodeBase_ZInputText = kErrorCodeBase_PGui + 0x400u;
+inline constexpr ReturnType kErrorCodeBase_ZButton = kErrorCodeBase_PGui + 0x500u;
 
 }//error_code
 }//gui
 }//zengine
-
-#endif // !Z_GUI_INTERNAL_D_ERROR_CODE_H_

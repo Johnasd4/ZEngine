@@ -16,14 +16,9 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_MEMORY_POOL_T_SMART_POINTER_LIST_MEMORY_POOL_H_
-#define Z_CORE_MEMORY_POOL_T_SMART_POINTER_LIST_MEMORY_POOL_H_
+#pragma once
 
 #include "internal/z_drive.h"
-
-#include "f_console.h"
-#include "t_array.h"
-#include "t_lookup_table.h"
 
 #include "t_list_memory_pool_base.h"
 #include "t_memory_block_base.h"
@@ -80,7 +75,7 @@ public:
 
     FORCEINLINE TSmartPointerListMemoryPool() : SuperType_() {
         SuperType_::InitializeP(
-            MemoryPoolEnum::kWindowState_TSmartPointerList,
+            MemoryPoolEnum::kMemoryPool_TSmartPointerList,
             kMemoryBlockSize,
             kMemoryBlockMemorySize,
             kMemoryBlockDefaultNum);
@@ -89,18 +84,18 @@ public:
 #if USE_MEMORY_POOL_TEST
         ReturnType link_code = kOK;
 
-        if (link_code != kOK) {
-            Z_LOG_ERROR(error_code::kMLogErrorCode_LinkError, link_code, L"ZFile::OpenSafe() link error!");
-        }
-
         link_code = TMemoryPoolBase<kIsThreadSafe>::log_file_.Print("\n***** smart pointer pool *****\n\n");
         if (link_code != kOK) {
-            Z_LOG_ERROR(error_code::kFMemoryPoolErrorCode_LinkError, link_code, L"ZFile::OpenSafe() link error!");
+            Z_LOG_ERROR(error_code::kFMemoryPoolErrorCode_LinkError, link_code, L"ZFile::Print() link error!");
+            return;
         }
 
-        link_code = TMemoryPoolBase<kIsThreadSafe>::log_file_.Print("    size    | usable size |  total num  | applied times | used peak num | unused num\n");
+        link_code = TMemoryPoolBase<kIsThreadSafe>::log_file_.Print(
+            "    size    | usable size |  total num  | applied times | used peak num | unused num\n"
+        );
         if (link_code != kOK) {
-            Z_LOG_ERROR(error_code::kFMemoryPoolErrorCode_LinkError, link_code, L"ZFile::OpenSafe() link error!");
+            Z_LOG_ERROR(error_code::kFMemoryPoolErrorCode_LinkError, link_code, L"ZFile::Print() link error!");
+            return;
         }
         link_code = TMemoryPoolBase<kIsThreadSafe>::log_file_.Print(
             "  %8u  |  %9u  |  %9d  |   %9d   |   %9d   |  %8d\n",
@@ -110,8 +105,10 @@ public:
             momory_block_applyed_num_,
             momory_block_peak_num_,
             memory_block_used_current_num_);
+        TMemoryPoolBase<kIsThreadSafe>::log_file_.Flush();
         if (link_code != kOK) {
-            Z_LOG_ERROR(error_code::kFMemoryPoolErrorCode_LinkError, link_code, L"ZFile::OpenSafe() link error!");
+            Z_LOG_ERROR(error_code::kFMemoryPoolErrorCode_LinkError, link_code, L"ZFile::Print() link error!");
+            return;
         }
 #endif //USE_MEMORY_POOL_TEST        
     }
@@ -147,5 +144,3 @@ private:
 
 }//memory_pool
 }//zengine
-
-#endif // !Z_CORE_MEMORY_POOL_T_SMART_POINTER_LIST_MEMORY_POOL_H_

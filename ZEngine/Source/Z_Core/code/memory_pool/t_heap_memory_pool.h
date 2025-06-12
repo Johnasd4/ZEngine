@@ -16,8 +16,7 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_MEMORY_POOL_T_HEAP_MEMORY_POOL_H_
-#define Z_CORE_MEMORY_POOL_T_HEAP_MEMORY_POOL_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
@@ -101,6 +100,8 @@ NODISCARD Void* THeapMemoryPool<kIsThreadSafe>::ApplyMemory(MemoryType _size) no
     return heap_memory_ptr;
 }
 
+#pragma warning(disable : 6001)
+
 template<Bool kIsThreadSafe>
 THeapMemoryPool<kIsThreadSafe>::~THeapMemoryPool() noexcept {
     //Delete the filled nodes.
@@ -125,7 +126,7 @@ THeapMemoryPool<kIsThreadSafe>::~THeapMemoryPool() noexcept {
     free(head_node_ptr);
 }
 
+#pragma warning(default : 6001)
+
 }//memory_pool
 }//zengine
-
-#endif // !Z_CORE_MEMORY_POOL_T_HEAP_MEMORY_POOL_H_

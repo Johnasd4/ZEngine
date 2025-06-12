@@ -30,6 +30,7 @@
     <ClCompile Include="code\f_memory_pool.cpp" />
     <ClCompile Include="code\z_condition_variable.cpp" />
     <ClCompile Include="code\z_file.cpp" />
+    <ClCompile Include="code\z_json.cpp" />
     <ClCompile Include="code\z_string.cpp" />
     <ClCompile Include="code\z_system_time.cpp" />
     <ClCompile Include="code\z_thread.cpp" />
@@ -50,6 +51,7 @@
     <ClInclude Include="code\memory_pool\t_memory_pool_thread_safe_base.h" />
     <ClInclude Include="code\memory_pool\t_small_memory_list_memory_pool.h" />
     <ClInclude Include="code\memory_pool\t_smart_pointer_list_memory_pool.h" />
+    <ClInclude Include="code\memory_pool\t_system_memory_pool.h" />
     <ClInclude Include="code\memory_pool\z_heap_memory_pool.h" />
     <ClInclude Include="code\memory_pool\z_list_memory_pool_base.h" />
     <ClInclude Include="code\memory_pool\z_memory_block_base.h" />
@@ -140,7 +142,7 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code;$(SolutionDir)Source/Engine/code/z_core</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code;$(SolutionDir)Source/Engine/code/z_core;$(SolutionDir)/Library/Rapidjson_1_1_0/include</AdditionalIncludeDirectories>
       <PrecompiledHeaderOutputFile />
     </ClCompile>
     <Link>
@@ -167,7 +169,7 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code;$(SolutionDir)Source/Engine/code/z_core</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code;$(SolutionDir)Source/Engine/code/z_core;$(SolutionDir)/Library/Rapidjson_1_1_0/include</AdditionalIncludeDirectories>
       <PrecompiledHeaderOutputFile />
     </ClCompile>
     <Link>
@@ -194,7 +196,7 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile />
-      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code;$(SolutionDir)Source/Engine/code/z_core</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code;$(SolutionDir)Source/Engine/code/z_core;$(SolutionDir)/Library/Rapidjson_1_1_0/include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -221,7 +223,7 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile />
-      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code;$(SolutionDir)Source/Engine/code/z_core</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code;$(SolutionDir)Source/Engine/code/z_core;$(SolutionDir)/Library/Rapidjson_1_1_0/include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>

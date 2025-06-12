@@ -1,10 +1,23 @@
-#ifndef Z_MATH_H_
-#define Z_MATH_H_
+/*
+    Copyright (c) YuLin Zhu
 
-#include"z_math/f_basic.h"
-#include"z_math/f_digital_signal.h"
-#include"z_math/f_fourier.h"
-#include"z_math/z_complex.h"
-#include"z_math/z_interpolation_table.h"
+    This code file is licensed under the Creative Commons
+    Attribution-NonCommercial 4.0 International License.
 
-#endif // !Z_MATH_H_
+    You may obtain a copy of the License at
+    https://creativecommons.org/licenses/by-nc/4.0/
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+    Author: YuLin Zhu
+    Contact: 1152325286@qq.com
+*/
+#pragma once
+
+#include "z_math/f_basic_math.h"
+#include "z_math/z_complex.h"
+#include "z_math/z_interpolation_table.h"

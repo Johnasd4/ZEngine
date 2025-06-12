@@ -16,8 +16,7 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_Z_STRING_H_
-#define Z_CORE_Z_STRING_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
@@ -786,5 +785,3 @@ CORE_DLLAPI NODISCARD ZString WString2String(const WChar* _str) noexcept;
 }//string
 
 }//zengine
-
-#endif // !Z_CORE_Z_STRING_H_
