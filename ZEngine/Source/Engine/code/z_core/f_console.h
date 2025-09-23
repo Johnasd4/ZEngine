@@ -20,24 +20,20 @@
 
 #include "internal/z_drive.h"
 
-namespace zengine{
-
+namespace zengine {
 namespace error_code {
-
 enum ZPrintManagerErrorCodeEnum : ReturnType {
     kZPrintManagerErrorCodeLinkError = kErrorCodeBase_ZPrintManager,
     kZPrintManagerErrorCodeParamOutOfRange,
 };
-
 }//error_code
+}//zengine
 
+namespace zengine{
 namespace console{
 
 using PrintColourType = UInt16;
 using LanguageType = const Char*;
-
-//language chinese
-inline constexpr Char kLanguageChinese[] = "zh_CN.UTF-8";
 
 enum PrintTextColourEnum : PrintColourType {
     kPrintTextColour_Min = 0x00u,

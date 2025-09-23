@@ -22,23 +22,22 @@
 
 #include "z_logic_board.h"
 #include "z_logic_tile.h"
-#include "Z_world_board.h"
-#include "z_world_tile.h"
+#include "Z_display_board.h"
+#include "z_display_tile.h"
 
 namespace zengine {
 namespace tsrpg {
 
 ZMoveTileSceneEvent::ZMoveTileSceneEvent() noexcept
     : SuperType_()
-    , tile_ptr_() 
-    , start_pos_()
-    , move_offset_()
+    , move_params_vector_()
 {}
 
 ZMoveTileSceneEvent::~ZMoveTileSceneEvent() noexcept {}
 
 Void ZMoveTileSceneEvent::Destroy() noexcept {
     SuperType_::Destroy();
+    move_params_vector_.Clear();
 }
 
 NODISCARD ReturnType ZMoveTileSceneEvent::Initialize(
@@ -85,20 +84,15 @@ NODISCARD ReturnType ZMoveTileSceneEvent::Initialize(
     }
 
     ZLogicTile* logic_tile_ptr = static_cast<ZLogicTile*>(tile_ptr);
-    ZLogicBoard* logic_board_ptr = static_cast<ZLogicBoard*>(tile_ptr->OwnerBoardPtr());
-    ZWorldBoard* world_board_ptr = logic_board_ptr->world_board_ptr_;
-    if (world_board_ptr == nullptr) {
-        ret_val = error_code::kZSceneEventErrorCode_WorldBoardNotExist;
-        Z_LOG_ERROR(
-            ret_val, 0,
-            L"World board not exist!");
-        return ret_val;
+    ZDisplayTile* display_tile_ptr = logic_tile_ptr->display_tile_head_ptr_;
+    while (display_tile_ptr != nullptr) {
+        ZDisplayBoard* display_board_ptr = static_cast<ZDisplayBoard*>(display_tile_ptr->owner_board_ptr_);
+        move_params_vector_.PushBack(MoveParams_(
+            display_tile_ptr,
+            display_tile_ptr->pos_,
+            display_board_ptr->CalculateDisplayVectorByLogicVector(target_logic_vector - logic_tile_ptr->pos_)
+        ));
     }
-
-    tile_ptr_ = (*world_board_ptr)(logic_tile_ptr->Index());
-    ZWorldTile* world_tile_ptr = static_cast<ZWorldTile*>(tile_ptr_);
-    start_pos_ = world_tile_ptr->Pos();
-    move_offset_ = world_board_ptr->CalculateWorldVectorByLogicVector(target_logic_vector - logic_tile_ptr->pos_);
     return ret_val;
 }
 
@@ -113,26 +107,30 @@ NODISCARD ReturnType ZMoveTileSceneEvent::Execute(Float32 _delta_time) noexcept 
             L"ZSceneEvent::Execute() link error!");
         return ret_val;
     }
+    //TODO: Tiles might be destroyed during the event, do something.
+    if (move_params_vector_.Size() == 0) {
+        link_code = FinishImmediately();
+        return ret_val;
+    }
     if (WaitingP()) {
         return ret_val;
     }
-    ZWorldTile* world_tile_ptr = static_cast<ZWorldTile*>(tile_ptr_);
-    link_code = world_tile_ptr->SetPos(start_pos_ + move_offset_ * ExecutePercentP());
-    if (link_code != kOK) {
-        ret_val = error_code::kZSceneEventErrorCode_LinkError;
-        Z_LOG_ERROR(
-            ret_val, link_code,
-            L"ZWorldTile::SetPos() link error!");
-        return ret_val;
-    }
+    //TODO: Change to tiles
+    //ZDisplayTile* display_tile_ptr = static_cast<ZDisplayTile*>(tile_ptr_);
+    //link_code = display_tile_ptr->SetPos(start_pos_ + move_offset_ * ExecutePercentP());
+    //if (link_code != kOK) {
+    //    ret_val = error_code::kZSceneEventErrorCode_LinkError;
+    //    Z_LOG_ERROR(
+    //        ret_val, link_code,
+    //        L"ZDisplayTile::SetPos() link error!");
+    //    return ret_val;
+    //}
     return ret_val;
 }
 
 Void ZMoveTileSceneEvent::MoveP(ZMoveTileSceneEvent&& _event) noexcept {
-    tile_ptr_ = _event.tile_ptr_;
-    start_pos_ = _event.start_pos_;
-    move_offset_ = _event.move_offset_;
-    _event.tile_ptr_ = nullptr;
+    move_params_vector_ = std::move(_event.move_params_vector_);
+    _event.move_params_vector_.Clear();
 }
 
 }//tsrpg

@@ -45,6 +45,4 @@ NODISCARD FORCEINLINE constexpr decltype(auto) Ref(std::reference_wrapper<_Objec
     return std::ref(_obj);
 }
 
-NODISCARD FORCEINLINE TimeType Time() noexcept { return time(nullptr); }
-
 }//zengine

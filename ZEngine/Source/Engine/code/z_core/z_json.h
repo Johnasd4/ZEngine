@@ -23,6 +23,16 @@
 #include "z_string.h"
 #include "z_object.h"
 
+namespace zengine {
+namespace error_code {
+enum ZJsonErrorCode : ReturnType {
+    kZJsonErrorCode_LinkError = kErrorCodeBase_ZJson,
+    kZJsonErrorCode_JsonParseError,
+    kZJsonErrorCode_NullptrParams
+};
+}//error_code
+}//zengine
+
 namespace rapidjson {
 
 template<typename _EncodingType, typename _AllocatorType>
@@ -35,6 +45,7 @@ struct UTF8;
 }
 
 namespace zengine {
+
 namespace internal {
     
 class JsonAllocatorP;
@@ -43,21 +54,6 @@ using JsonAllocator = rapidjson::MemoryPoolAllocator<internal::JsonAllocatorP>;
 using JsonValue = rapidjson::GenericValue<rapidjson::UTF8<>, JsonAllocator>;
 
 }
-}
-
-namespace zengine {
-
-namespace error_code {
-
-enum ZJsonErrorCode : ReturnType {
-    kZJsonErrorCode_LinkError = kErrorCodeBase_ZJson,
-    kZJsonErrorCode_JsonParseError,
-    kZJsonErrorCode_NullptrParams
-};
-
-}//error_code
-
-
 
 /*
     Json value class.

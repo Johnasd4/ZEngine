@@ -24,21 +24,25 @@
 namespace zengine {
 namespace tsrpg {
 
-enum BoardTypeEnum : UInt64 {
+using RPGObjectType = UInt64;
+
+enum BoardTypeEnum : RPGObjectType {
     kBoardType_LogicBoard = 1 << 0,
-    kBoardType_WorldBoard = 1 << 1,
-    kBoardType_HexBoard = 1 << 2
+    kBoardType_DisplayBoard = 1 << 1,
+    kBoardType_HexBoard = 1 << 2,
+    kBoardType_SquareBoard = 1 << 3
 };
 
-enum TileTypeEnum : UInt64 {
+enum TileTypeEnum : RPGObjectType {
     kTileType_LogicTile = 1 << 0,
-    kTileType_WorldTile = 1 << 1,
-    kTileType_HexTile = 1 << 2
+    kTileType_DisplayTile = 1 << 1,
+    kTileType_HexTile = 1 << 2,
+    kTileType_SquareTile = 1 << 3
 };
 
-enum BoardObjectTypeEnum : UInt64 {
+enum BoardObjectTypeEnum : RPGObjectType {
     kBoardObjectType_LogicBoardObject = 1 << 0,
-    kBoardObjectType_WorldBoardObject = 1 << 1
+    kBoardObjectType_DisplayBoardObject = 1 << 1
 };
 
 //the config path

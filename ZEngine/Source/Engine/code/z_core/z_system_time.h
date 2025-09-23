@@ -18,13 +18,15 @@
 */
 #pragma once
 
-#pragma warning(disable : 26439)
-
 #include "internal/z_drive.h"
 
 #include "z_object.h"
 
 namespace zengine {
+
+CORE_DLLAPI NODISCARD TimeType TimeSec() noexcept;
+CORE_DLLAPI NODISCARD TimeType TimeMs() noexcept;
+
 /*
     The time struct, contains [year, month, day, hour, min ,sec].
 */
@@ -50,13 +52,13 @@ public:
         Parameters:
         time_raw: use time(time_t) to get the raw value.
     */
-    Void UpdateTime(TimeType _time_raw = Time()) noexcept;
+    Void UpdateTime(TimeType _time_raw = TimeSec()) noexcept;
     /*
         Update system time, use UpdateTime instead if updated only a few times pur day.
         Parameters:
         time_raw: use time(time_t) to get the raw value.
     */
-    Void UpdateTimeFast(TimeType _time_raw = Time()) noexcept;
+    Void UpdateTimeFast(TimeType _time_raw = TimeSec()) noexcept;
 
 protected:
     using SuperType_ = ZObject;
@@ -69,5 +71,15 @@ private:
     Int32 min_;
     Int32 sec_;
 };
+
+/*
+    Returns sec since 1970-01-01 00:00:00
+*/
+CORE_DLLAPI NODISCARD TimeType TimeSec() noexcept;
+
+/*
+    Returns ms since 1970-01-01 00:00:00
+*/
+CORE_DLLAPI NODISCARD TimeType TimeMs() noexcept;
 
 }//zengine

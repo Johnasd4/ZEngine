@@ -23,9 +23,7 @@
 #include "z_object.h"
 
 namespace zengine {
-
 namespace error_code {
-
 enum ZFileErrorCode : ReturnType {
     kZFileErrorCode_LinkError = kErrorCodeBase_ZFile,
     kZFileErrorCode_OpenFileFailed,
@@ -36,8 +34,10 @@ enum ZFileErrorCode : ReturnType {
     kZFileErrorCode_ReadFailed,
     kZFileErrorCode_WriteFailed
 };
-
 }//error_code
+}//zengine
+
+namespace zengine {
 
 /*
     File class.

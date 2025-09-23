@@ -22,16 +22,17 @@
 
 #include "z_widget_object.h"
 
+
 namespace zengine {
-namespace gui {
-
 namespace error_code {
-
 enum ZButtonErrorCode : ReturnType {
     kZButtonErrorCode_LinkError = kErrorCodeBase_ZButton
 };
-
 }//error_code
+}//zengine
+
+namespace zengine {
+namespace gui {
 
 /*
     Button class.

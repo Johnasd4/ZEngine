@@ -23,6 +23,7 @@
 #include "d_constant.h"
 #include "d_error_code.h"
 #include "d_function.h"
+#include "d_initialize.h"
 #include "d_lib.h"
 #include "d_macro.h"
 #include "d_type.h"

@@ -23,134 +23,134 @@
 namespace zengine {
 namespace tsrpg {
 
-/*
-    World vector, used for world scenes.
-*/
-struct WorldVector3D {
-    Float32 x_;
-    Float32 y_;
-    Float32 z_;
+template<typename _NumberType>
+struct Vector3D {
+    _NumberType x_;
+    _NumberType y_;
+    _NumberType z_;
 
-    NODISCARD FORCEINLINE Bool operator==(const WorldVector3D& _pos) const noexcept {
+    NODISCARD FORCEINLINE Bool operator==(const Vector3D& _pos) const noexcept {
         return (x_ == _pos.x_) && (y_ == _pos.y_) && (z_ == _pos.z_);
     }
 
-    FORCEINLINE WorldVector3D operator+(const WorldVector3D& _pos) const noexcept {
-        return WorldVector3D(x_ + _pos.x_, y_ + _pos.y_, z_ + _pos.z_);
+    NODISCARD FORCEINLINE Vector3D operator+(const Vector3D& _pos) const noexcept {
+        return Vector3D(x_ + _pos.x_, y_ + _pos.y_, z_ + _pos.z_);
     }
-    FORCEINLINE WorldVector3D& operator+=(const WorldVector3D& _pos) noexcept {
+    FORCEINLINE Vector3D& operator+=(const Vector3D& _pos) noexcept {
         x_ += _pos.x_;
         y_ += _pos.y_;
         z_ += _pos.z_;
         return *this;
     }
-    FORCEINLINE WorldVector3D operator-(const WorldVector3D& _pos) const noexcept {
-        return WorldVector3D(x_ - _pos.x_, y_ - _pos.y_, z_ - _pos.z_);
+    NODISCARD FORCEINLINE Vector3D operator-(const Vector3D& _pos) const noexcept {
+        return Vector3D(x_ - _pos.x_, y_ - _pos.y_, z_ - _pos.z_);
     }
-    FORCEINLINE WorldVector3D& operator-=(const WorldVector3D& _pos) noexcept {
+    FORCEINLINE Vector3D& operator-=(const Vector3D& _pos) noexcept {
         x_ -= _pos.x_;
         y_ -= _pos.y_;
         z_ -= _pos.z_;
         return *this;
     }
 
-    FORCEINLINE WorldVector3D operator*(Float32 _num) const noexcept {
-        return WorldVector3D(x_ * _num, y_ * _num, z_ * _num);
+    NODISCARD FORCEINLINE Vector3D operator*(_NumberType _num) const noexcept {
+        return Vector3D(x_ * _num, y_ * _num, z_ * _num);
     }
-    FORCEINLINE WorldVector3D& operator*=(Float32 _num) noexcept {
+    FORCEINLINE Vector3D& operator*=(_NumberType _num) noexcept {
         x_ *= _num;
         y_ *= _num;
         z_ *= _num;
         return *this;
     }
 
+    NODISCARD FORCEINLINE Vector3D operator/(_NumberType _num) const noexcept {
+        return Vector3D(x_ / _num, y_ / _num, z_ / _num);
+    }
+    FORCEINLINE Vector3D& operator/=(_NumberType _num) noexcept {
+        x_ /= _num;
+        y_ /= _num;
+        z_ /= _num;
+        return *this;
+    }
 };
 
-/*
-    Logic vector, used for game logics.
-*/
-struct LogicVector2D {
-    Int32 x_;
-    Int32 y_;
+template<typename _NumberType>
+struct Vector2D {
+    _NumberType x_;
+    _NumberType y_;
 
-    FORCEINLINE Bool operator==(const LogicVector2D& _pos) const noexcept {
+    NODISCARD FORCEINLINE Bool operator==(const Vector2D& _pos) const noexcept {
         return (x_ == _pos.x_) && (y_ == _pos.y_);
     }
 
-    FORCEINLINE LogicVector2D operator+(const LogicVector2D& _pos) const noexcept {
-        return LogicVector2D(x_ + _pos.x_, y_ + _pos.y_);
+    NODISCARD FORCEINLINE Vector2D operator+(const Vector2D& _pos) const noexcept {
+        return Vector2D(x_ + _pos.x_, y_ + _pos.y_);
     }
-    FORCEINLINE LogicVector2D& operator+=(const LogicVector2D& _pos) noexcept {
+    FORCEINLINE Vector2D& operator+=(const Vector2D& _pos) noexcept {
         x_ += _pos.x_;
         y_ += _pos.y_;
         return *this;
     }
-    FORCEINLINE LogicVector2D operator-(const LogicVector2D& _pos) const noexcept {
-        return LogicVector2D(x_ - _pos.x_, y_ - _pos.y_);
+    NODISCARD FORCEINLINE Vector2D operator-(const Vector2D& _pos) const noexcept {
+        return Vector2D(x_ - _pos.x_, y_ - _pos.y_);
     }
-    FORCEINLINE LogicVector2D& operator-=(const LogicVector2D& _pos) noexcept {
+    FORCEINLINE Vector2D& operator-=(const Vector2D& _pos) noexcept {
         x_ -= _pos.x_;
         y_ -= _pos.y_;
         return *this;
     }
-};
 
-/*
-    Logic vector, used for game logics.
-*/
-struct LogicVector3D {
-    Int32 x_;
-    Int32 y_;
-    Int32 z_;
-
-    FORCEINLINE Bool operator==(const LogicVector3D& _pos) const noexcept {
-        return (x_ == _pos.x_) && (y_ == _pos.y_) && (z_ == _pos.z_);
+    NODISCARD FORCEINLINE Vector2D operator*(_NumberType _num) const noexcept {
+        return Vector2D(x_ * _num, y_ * _num);
     }
-
-    FORCEINLINE LogicVector3D operator+(const LogicVector3D& _pos) const noexcept {
-        return LogicVector3D(x_ + _pos.x_, y_ + _pos.y_, z_ + _pos.z_);
-    }
-    FORCEINLINE LogicVector3D& operator+=(const LogicVector3D& _pos) noexcept {
-        x_ += _pos.x_;
-        y_ += _pos.y_;
-        z_ += _pos.z_;
+    FORCEINLINE Vector2D& operator*=(_NumberType _num) noexcept {
+        x_ *= _num;
+        y_ *= _num;
         return *this;
     }
-    FORCEINLINE LogicVector3D operator-(const LogicVector3D& _pos) const noexcept {
-        return LogicVector3D(x_ - _pos.x_, y_ - _pos.y_, z_ - _pos.z_);
+
+    NODISCARD FORCEINLINE Vector2D operator/(_NumberType _num) const noexcept {
+        return Vector2D(x_ / _num, y_ / _num);
     }
-    FORCEINLINE LogicVector3D& operator-=(const LogicVector3D& _pos) noexcept {
-        x_ -= _pos.x_;
-        y_ -= _pos.y_;
-        z_ -= _pos.z_;
+    FORCEINLINE Vector2D& operator/=(_NumberType _num) noexcept {
+        x_ /= _num;
+        y_ /= _num;
         return *this;
     }
 };
+
+using DisplayVector3D = Vector3D<Float64>;
+using LogicVector3D = Vector3D<Int32>;
+using LogicVector2D = Vector2D<Int32>;
 
 /*
     Tile size type.
 */
 struct TileSizeType {
-    Float32 radius_;
-    Float32 height_;
+    Float64 radius_;
+    Float64 height_;
 
     NODISCARD FORCEINLINE Bool operator==(const TileSizeType& _size) const noexcept {
-        return (radius_ == _size.radius_) || (height_ == _size.height_);
+        return (radius_ == _size.radius_) && (height_ == _size.height_);
     }
 };
 
 class ZBoard;
-class ZBoardObject;
-class ZHexLogicBoard;
-class ZHexLogicTile;
+class ZDisplayBoard;
 class ZLogicBoard;
-class ZLogicBoardObject;
-class ZLogicTile;
-class ZSceneEvent;
+class ZLogicBoardViewport;
+class ZLogicHexBoard;
+
 class ZTile;
-class ZWorldBoard;
-class ZWorldBoardObject;
-class ZWorldTile;
+class ZLogicTile;
+class ZLogicTileTexture;
+class ZDisplayTile;
+class ZLogicHexTile;
+
+class ZBoardObject;
+class ZLogicBoardObject;
+class ZDisplayBoardObject;
+
+class ZSceneEvent;
 
 }//tsrpg
 }//zengine

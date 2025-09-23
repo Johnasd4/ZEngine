@@ -53,7 +53,7 @@ Void ZTraceLog::GenerateLogString(const ZLog* _log_ptr, OutputString_* _output_s
     file_dir = std::move(file_dir.SubString(file_dir_start_pos));
     system_time.UpdateTimeFast(trace_log.raw_time_);
     _output_str_ptr->w_str_.SetString(
-        L"%04d/%02d/%02d-%02d:%02d:%02d | <%ls> %ls-%ls %ls",
+        L"%04d/%02d/%02d-%02d:%02d:%02d | <%ls> %ls-%ls | %ls",
         system_time.Year(), system_time.Month(), system_time.Day(),
         system_time.Hour(), system_time.Min(), system_time.Sec(),
         trace_log.proj_name_, file_dir.String(), string::String2WString(trace_log.func_name_).String(),

@@ -22,4 +22,5 @@
 #include "z_gui.h"
 #include "z_lua.h"
 #include "z_math.h"
+#include "z_socket.h"
 #include "z_tsrpg.h"

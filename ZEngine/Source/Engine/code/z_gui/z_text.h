@@ -23,15 +23,15 @@
 #include "z_widget_object.h"
 
 namespace zengine {
-namespace gui {
-
 namespace error_code {
-
 enum ZTextErrorCode : ReturnType {
     kZTextErrorCode_LinkError = kErrorCodeBase_ZText
 };
-
 }//error_code
+}//zengine
+
+namespace zengine {
+namespace gui {
 
 /*
     Text class.

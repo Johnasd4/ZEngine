@@ -24,7 +24,9 @@
 namespace zengine {
 
 inline constexpr Int32 kInt32Max = 2147483647;
-inline constexpr Int32 kInt32Min = -2147483647;
+inline constexpr Int32 kInt32Min = -2147483647; 
+inline constexpr Int64 kInt64Max = 9223372036854775807LL;
+inline constexpr Int64 kInt64Min = -9223372036854775807LL;
 inline constexpr Float32 kFloat32Max = 3.402823466e+38F;
 inline constexpr Float32 kFloat32Min = -3.402823466e+38F;
 

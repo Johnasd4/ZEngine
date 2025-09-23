@@ -20,6 +20,9 @@
 
 #include "z_board.h"
 
+#include "z_core/m_log.h"
+#include "z_math/f_basic_math.h"
+
 #include "z_tile.h"
 
 namespace zengine {
@@ -34,7 +37,6 @@ ZBoard::~ZBoard() noexcept {}
 
 Void ZBoard::Destroy() noexcept {
     SuperType_::Destroy();
-    Bool initialized_ = false;
     //clear the old tiles
     for (auto tile_ptr = tile_matrix_.Begin(); tile_ptr != tile_matrix_.End(); ++tile_ptr) {
         if (*tile_ptr == nullptr) {
@@ -43,12 +45,57 @@ Void ZBoard::Destroy() noexcept {
         (*tile_ptr)->Destroy();
         delete (*tile_ptr);
     }
+    tile_matrix_.Clear();
 }
 
-NODISCARD ReturnType ZBoard::Initialize(const LogicVector2D& _size) noexcept {
+NODISCARD ReturnType ZBoard::GetSurroundTile(
+    TVector<ZTile*>* _tile_list_ptr,
+    const LogicVector2D& _center_index,
+    Int32 _inner_radius,
+    Int32 _outer_radius
+) noexcept {
+    Z_TSRPG_INITIALIZE_CHECK();
     ReturnType ret_val = kOK;
-    SuperType_::Initialize();
-    tile_matrix_.Resize(_size.x_, _size.y_, nullptr);
+    Z_CHECK(
+        _tile_list_ptr == nullptr, error_code::kZBoardErrorCode_NullptrParams,
+        L"_tile_list_ptr is nullptr!"
+    );
+    if (IsType(kBoardType_HexBoard)) {
+        _tile_list_ptr->Clear();
+        _tile_list_ptr->Reserve(_outer_radius * 12);
+
+        IndexType dx_start = -_outer_radius;
+        IndexType dx_end = _outer_radius;
+        for (IndexType dx = -_outer_radius; dx <= _outer_radius; ++dx) {
+            IndexType dy_start = math::Max(-_outer_radius, -dx - _outer_radius);
+            IndexType dy_end = math::Min(_outer_radius, -dx + _outer_radius);
+            for (IndexType dy = dy_start; dy <= dy_end; ++dy) {
+                Int32 x = _center_index.x_ + dx;
+                Int32 y = _center_index.y_ + dy;
+                if (!IndexCheck(x, y)) {
+                    continue;
+                }
+                //outer of inner circle
+                if ((math::Abs(dx) + math::Abs(dx + dy) + math::Abs(dy)) / 2 >= _inner_radius) {
+                    _tile_list_ptr->PushBack(At(x, y));
+                }
+            }
+        }
+    }
+    //else if (IsType(kBoardType_SquareBoard)) {
+    //}
+    else {
+        ret_val = error_code::kZBoardErrorCode_BoardTypeNotExist;
+        Z_LOG_ERROR(ret_val, 0, L"Board type not exist! Type: %d", Type());
+        return ret_val;
+    }
+    return ret_val;
+}
+
+NODISCARD ReturnType ZBoard::InitializeP(const LogicVector2D& _board_size) noexcept {
+    ReturnType ret_val = kOK;
+    SuperType_::InitializeP();
+    tile_matrix_.Resize(_board_size.x_, _board_size.y_, nullptr);
     return ret_val;
 }
 

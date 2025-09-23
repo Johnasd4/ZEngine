@@ -25,15 +25,17 @@
 #include "z_rpg_object.h"
 
 namespace zengine {
-namespace tsrpg {
-
 namespace error_code {
-
 enum ZBoardErrorCode : ReturnType {
     kZBoardErrorCode_LinkError = kErrorCodeBase_ZBoard,
+    kZBoardErrorCode_BoardTypeNotExist,
+    kZBoardErrorCode_NullptrParams
 };
-
 }//error_code
+}//zengine
+
+namespace zengine {
+namespace tsrpg {
 
 /*
     The board base class.
@@ -56,6 +58,18 @@ public:
     NODISCARD FORCEINLINE ZTile* const& operator()(LogicVector2D _index) const noexcept {
         return tile_matrix_(_index.x_, _index.y_);
     }
+    NODISCARD FORCEINLINE ZTile*& At(IndexType _x, IndexType _y) noexcept {
+        return tile_matrix_(_x, _y);
+    }
+    NODISCARD FORCEINLINE ZTile* const& At(IndexType _x, IndexType _y) const noexcept {
+        return tile_matrix_(_x, _y);
+    }
+    NODISCARD FORCEINLINE ZTile*& At(LogicVector2D _index) noexcept {
+        return tile_matrix_(_index.x_, _index.y_);
+    }
+    NODISCARD FORCEINLINE ZTile* const& At(LogicVector2D _index) const noexcept {
+        return tile_matrix_(_index.x_, _index.y_);
+    }
 
     NODISCARD FORCEINLINE IndexType XLength() const noexcept { return tile_matrix_.Row(); }
     NODISCARD FORCEINLINE IndexType YLength() const noexcept { return tile_matrix_.Column(); }
@@ -64,9 +78,22 @@ public:
     }
 
     /*
+        Returns false if the index is out of bound.
+    */
+    NODISCARD FORCEINLINE Bool IndexCheck(IndexType _x, IndexType _y) const noexcept {
+        return _x >= 0 && _x < XLength() && _y >= 0 && _y < YLength();
+    }
+    /*
+        Returns false if the index is out of bound.
+    */
+    NODISCARD FORCEINLINE Bool IndexCheck(LogicVector2D _index) const noexcept {
+        return _index.x_ >= 0 && _index.x_ < XLength() && _index.y_ >= 0 && _index.y_ < YLength();
+    }
+
+    /*
         Get the board type.
     */
-    NODISCARD virtual UInt64 Type() const noexcept = 0;
+    NODISCARD virtual RPGObjectType Type() const noexcept = 0;
 
     /*
         Empty the board and remove all the relative links.
@@ -74,19 +101,32 @@ public:
     virtual Void Destroy() noexcept;
 
     /*
-        Initialize the board to the given size. The board is still empty.
+        Gets the tile's surrounded tile by the given inner and outer radius(distance to the center tile).
+        Includes the inner circle and outer circle.
     */
-    NODISCARD virtual ReturnType Initialize(const LogicVector2D& _size) noexcept;
+    NODISCARD virtual ReturnType GetSurroundTile(
+        TVector<ZTile*>* _tile_list_ptr,
+        const LogicVector2D& _center_index,
+        Int32 _inner_radius = 1,
+        Int32 _outer_radius = 1
+    ) noexcept;
 
-    TMatrix<ZTile*> tile_matrix_;
 protected:
     using SuperType_ = ZRPGObject;
     
+    /*
+        Initialize the board to the given size. The board is still empty.
+    */
+    NODISCARD ReturnType InitializeP(const LogicVector2D& _board_size) noexcept;
+
 private:
     ZBoard(const ZBoard&) = delete;
     ZBoard(ZBoard&&) = delete;
     ZBoard& operator=(const ZBoard&) = delete;
     ZBoard& operator=(ZBoard&&) = delete;
+
+public:
+    TMatrix<ZTile*> tile_matrix_;
 };
 
 }//tsrpg

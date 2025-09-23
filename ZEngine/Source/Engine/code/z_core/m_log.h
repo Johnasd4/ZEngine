@@ -21,6 +21,7 @@
 #include "internal/z_drive.h"
 
 #include "t_fixed_string.h"
+#include "z_system_time.h"
 
 #ifndef PROJECT_NAME
 #define PROJECT_NAME L"Unknown"
@@ -32,7 +33,7 @@
 #define Z_CHECK(_condition, _err_code, ...)\
     if(_condition) {\
         zengine::log::LogError(\
-            zengine::Time(),\
+            zengine::TimeSec(),\
             PROJECT_NAME,\
             __FILE__,\
             __func__,\
@@ -48,7 +49,7 @@
 */
 #define Z_LOG_ERROR(_err_code, _link_code, ...)\
     zengine::log::LogError(\
-        zengine::Time(),\
+        zengine::TimeSec(),\
         PROJECT_NAME,\
         __FILE__,\
         __func__,\
@@ -61,43 +62,43 @@
     Log trace.
 */
 #define Z_LOG_TRACE(...)\
-    zengine::log::LogTrace(zengine::Time(), PROJECT_NAME, __FILE__, __func__, __VA_ARGS__);
+    zengine::log::LogTrace(zengine::TimeSec(), PROJECT_NAME, __FILE__, __func__, __VA_ARGS__);
 
 /*
     Log message.
 */
 #define Z_LOG_MESSAGE(...)\
-    zengine::log::LogInfo(zengine::Time(), zengine::kLogInfo_Message, __VA_ARGS__);
+    zengine::log::LogInfo(zengine::TimeSec(), zengine::kLogInfo_Message, __VA_ARGS__);
 
 /*
     Log start.
 */
 #define Z_LOG_START(...)\
-    zengine::log::LogInfo(zengine::Time(), zengine::kLogInfo_Start, __VA_ARGS__);
+    zengine::log::LogInfo(zengine::TimeSec(), zengine::kLogInfo_Start, __VA_ARGS__);
 
 /*
     Log process.
 */
 #define Z_LOG_PROCESS(...)\
-    zengine::log::LogInfo(zengine::Time(), zengine::kLogInfo_Process, __VA_ARGS__);
+    zengine::log::LogInfo(zengine::TimeSec(), zengine::kLogInfo_Process, __VA_ARGS__);
 
 /*
     Log finish.
 */
 #define Z_LOG_FINISH(...)\
-    zengine::log::LogInfo(zengine::Time(), zengine::kLogInfo_Finish, __VA_ARGS__);
+    zengine::log::LogInfo(zengine::TimeSec(), zengine::kLogInfo_Finish, __VA_ARGS__);
 
 /*
     Log success.
 */
 #define Z_LOG_SUCCESS(...)\
-    zengine::log::LogInfo(zengine::Time(), zengine::kLogInfo_Success, __VA_ARGS__);
+    zengine::log::LogInfo(zengine::TimeSec(), zengine::kLogInfo_Success, __VA_ARGS__);
 
 /*
     Log failure.
 */
 #define Z_LOG_FAILURE(...)\
-    zengine::log::LogInfo(zengine::Time(), zengine::kLogInfo_Failure, __VA_ARGS__);
+    zengine::log::LogInfo(zengine::TimeSec(), zengine::kLogInfo_Failure, __VA_ARGS__);
 
 namespace zengine {
 
@@ -227,7 +228,8 @@ CORE_DLLAPI Void LogInfo(
     Each port can have 1 input function and 8 output function.
     Port -1(max port num - 1) is error log, 2 output function used. 
     Port -2(max port num - 2) is trace log, 2 output function used.
-    Port 0~5 is not used.
+    Port -3(max port num - 3) is info log, 2 output function used.
+    Port 0~4 is not used.
 */
 CORE_DLLAPI NODISCARD ReturnType RegisterLogServerInputFunction(
     IndexType _port_id, 
@@ -236,10 +238,11 @@ CORE_DLLAPI NODISCARD ReturnType RegisterLogServerInputFunction(
 
 /*
     Removes the log server port output function.
-    Port -1 is error log, -2 is trace log, port 0~5 is not used.
+    Each port can have 1 input function and 8 output function.
     Port -1(max port num - 1) is error log, 2 output function used.
     Port -2(max port num - 2) is trace log, 2 output function used.
-    Port 0~5 is not used.
+    Port -3(max port num - 3) is info log, 2 output function used.
+    Port 0~4 is not used.
 */
 CORE_DLLAPI NODISCARD ReturnType UnregisterLogServerInputFunction(
     IndexType _port_id, 
@@ -248,10 +251,11 @@ CORE_DLLAPI NODISCARD ReturnType UnregisterLogServerInputFunction(
 
 /*
     Register the log server port output function, the function will be called when log happens.
-    Port -1 is error log, -2 is trace log, port 0~5 is not used.
+    Each port can have 1 input function and 8 output function.
     Port -1(max port num - 1) is error log, 2 output function used.
     Port -2(max port num - 2) is trace log, 2 output function used.
-    Port 0~5 is not used.
+    Port -3(max port num - 3) is info log, 2 output function used.
+    Port 0~4 is not used.
 */
 CORE_DLLAPI NODISCARD ReturnType RegisterLogServerOutputFunction(
     IndexType _port_id, 
@@ -260,10 +264,11 @@ CORE_DLLAPI NODISCARD ReturnType RegisterLogServerOutputFunction(
 
 /*
     Removes the log server port output function.
-    Port -1 is error log, -2 is trace log, port 0~5 is not used.
+    Each port can have 1 input function and 8 output function.
     Port -1(max port num - 1) is error log, 2 output function used.
     Port -2(max port num - 2) is trace log, 2 output function used.
-    Port 0~5 is not used.
+    Port -3(max port num - 3) is info log, 2 output function used.
+    Port 0~4 is not used.
 */
 CORE_DLLAPI Void UnregisterLogServerOutputFunction(
     Void(*_output_func)(const ZLog*, const ZLog::OutputString_&)

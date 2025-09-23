@@ -36,7 +36,7 @@ Void ZInfoLog::GenerateLogString(const ZLog* _log_ptr, OutputString_* _output_st
     const ZInfoLog& info_log = *reinterpret_cast<const ZInfoLog*>(_log_ptr);
     system_time.UpdateTimeFast(info_log.raw_time_);
     _output_str_ptr->w_str_.SetString(
-        L"%04d/%02d/%02d-%02d:%02d:%02d | %ls: %ls",
+        L"%04d/%02d/%02d-%02d:%02d:%02d | %ls | %ls",
         system_time.Year(), system_time.Month(), system_time.Day(),
         system_time.Hour(), system_time.Min(), system_time.Sec(),
         kLogInfo_String[info_log.info_type_], info_log.LogMsgPtr().w_str_.DataPtr());

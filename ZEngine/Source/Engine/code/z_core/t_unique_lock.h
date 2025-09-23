@@ -24,17 +24,17 @@
 #include "z_object.h"
 
 namespace zengine {
-
 namespace error_code {
-
 enum TUniqueLockErrorCode : ReturnType {
     kTUniqueLockErrorCode_LinkError = kErrorCodeBase_TUniqueLock,
     kTUniqueLockErrorCode_MutexNotExist,
     kTUniqueLockErrorCode_MutexAlreadyOwn,
     kTUniqueLockErrorCode_MutexDoNotOwn
 };
-
 }//error_code
+}//zengine
+
+namespace zengine {
 
 /*
     Unique lock class, controls the mutex.

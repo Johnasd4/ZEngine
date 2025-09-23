@@ -25,17 +25,17 @@
 #include "z_widget_object.h"
 
 namespace zengine {
-namespace gui {
-
 namespace error_code {
-
 enum ZFrameErrorCode : ReturnType {
     kZFrameErrorCode_LinkError = kErrorCodeBase_ZFrame,
     kZFrameErrorCode_FrameAreadyCreated,
     kZFrameErrorCode_FrameNotExist
 };
-
 }//error_code
+}//zengine
+
+namespace zengine {
+namespace gui {
 
 /*
     Frame class.

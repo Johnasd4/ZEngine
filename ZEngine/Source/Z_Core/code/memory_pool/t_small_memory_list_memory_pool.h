@@ -151,7 +151,7 @@ public:
                 Z_LOG_ERROR(error_code::kFMemoryPoolErrorCode_LinkError, link_code, L"ZFile::OpenSafe() link error!");
             }
 
-            link_code = TMemoryPoolBase<kIsThreadSafe>::log_file_.Print("    size    | usable size |  total num  | applied times | used peak num | unused num\n");
+            link_code = TMemoryPoolBase<kIsThreadSafe>::log_file_.Print("    size    | usable size |  total num  | applied times | used peak num | unreleased num\n");
             if (link_code != kOK) {
                 Z_LOG_ERROR(error_code::kFMemoryPoolErrorCode_LinkError, link_code, L"ZFile::OpenSafe() link error!");
             }

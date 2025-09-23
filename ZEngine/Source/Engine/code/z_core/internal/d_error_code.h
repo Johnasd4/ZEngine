@@ -24,21 +24,26 @@
 namespace zengine {
 
 inline constexpr ReturnType kOK = 0;
+inline constexpr ReturnType kErrorCodeSolutionMask = 0x10000000u;
+inline constexpr ReturnType kErrorCodeProjcetMask = 0x100000u;
+inline constexpr ReturnType kErrorCodeTypeMask = 0x100u;
 
 namespace error_code {
 
-inline constexpr ReturnType kErrorCodeBase_PCore = 0x00000000u;
-inline constexpr ReturnType kErrorCodeBase_ZString = kErrorCodeBase_PCore + 0x000u;
-inline constexpr ReturnType kErrorCodeBase_ZFile = kErrorCodeBase_PCore + 0x100u;
-inline constexpr ReturnType kErrorCodeBase_ZPrintManager = kErrorCodeBase_PCore + 0x200u;
-inline constexpr ReturnType kErrorCodeBase_MLog = kErrorCodeBase_PCore + 0x300u;
-inline constexpr ReturnType kErrorCodeBase_TUniqueLock = kErrorCodeBase_PCore + 0x400u;
-inline constexpr ReturnType kErrorCodeBase_ZThreadPool = kErrorCodeBase_PCore + 0x500u;
-inline constexpr ReturnType kErrorCodeBase_FMemoryPool = kErrorCodeBase_PCore + 0x600u;
-inline constexpr ReturnType kErrorCodeBase_ZTask = kErrorCodeBase_PCore + 0x700u;
-inline constexpr ReturnType kErrorCodeBase_FFileSystem = kErrorCodeBase_PCore + 0x800u;
-inline constexpr ReturnType kErrorCodeBase_ZJson = kErrorCodeBase_PCore + 0x900u;
+inline constexpr ReturnType kErrorCodeBase_SZEngine = 0x0u * kErrorCodeSolutionMask;
+inline constexpr ReturnType kErrorCodeBase_PCore = 0x0u * kErrorCodeProjcetMask + kErrorCodeBase_SZEngine;
+
+inline constexpr ReturnType kErrorCodeBase_ZString = 0x0u * kErrorCodeTypeMask + kErrorCodeBase_PCore;
+inline constexpr ReturnType kErrorCodeBase_ZFile = 0x1u * kErrorCodeTypeMask + kErrorCodeBase_PCore;
+inline constexpr ReturnType kErrorCodeBase_ZPrintManager = 0x2u * kErrorCodeTypeMask + kErrorCodeBase_PCore;
+inline constexpr ReturnType kErrorCodeBase_MLog = 0x3u * kErrorCodeTypeMask + kErrorCodeBase_PCore;
+inline constexpr ReturnType kErrorCodeBase_TUniqueLock = 0x4u * kErrorCodeTypeMask + kErrorCodeBase_PCore;
+inline constexpr ReturnType kErrorCodeBase_ZThreadPool = 0x5u * kErrorCodeTypeMask + kErrorCodeBase_PCore;
+inline constexpr ReturnType kErrorCodeBase_FMemoryPool = 0x6u * kErrorCodeTypeMask + kErrorCodeBase_PCore;
+inline constexpr ReturnType kErrorCodeBase_ZTask = 0x7u * kErrorCodeTypeMask + kErrorCodeBase_PCore;
+inline constexpr ReturnType kErrorCodeBase_FFileSystem = 0x8u * kErrorCodeTypeMask + kErrorCodeBase_PCore;
+inline constexpr ReturnType kErrorCodeBase_ZJson = 0x9u * kErrorCodeTypeMask + kErrorCodeBase_PCore;
+inline constexpr ReturnType kErrorCodeBase_ZTimer = 0xAu * kErrorCodeTypeMask + kErrorCodeBase_PCore;
 
 }//error_code
-
 }//zengine

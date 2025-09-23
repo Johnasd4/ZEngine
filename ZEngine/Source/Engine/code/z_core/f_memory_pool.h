@@ -21,22 +21,17 @@
 #include "internal/z_drive.h"
 
 namespace zengine {
-
 namespace error_code {
-
 enum FMemoryPoolErrorCode : ReturnType {
     kFMemoryPoolErrorCode_LinkError = kErrorCodeBase_FMemoryPool,
     kFMemoryPoolErrorCode_MemorySizeOutOfBound,
     kFMemoryPoolErrorCode_PoolTypeUnknown,
     kFMemoryPoolErrorCode_ApplyHeapMemoryFailed,
 };
-
 }//error_code
+}//zengine
 
-/*
-    The namespace contains the function that controls the heap memory.
-    It has it's own garbage collection.
-*/
+namespace zengine {
 namespace memory_pool {
 
 /*

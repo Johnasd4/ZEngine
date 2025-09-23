@@ -53,7 +53,8 @@ NODISCARD ReturnType ZTaskSafe::operator()() noexcept {
         ret_val = error_code::kZTaskErrorCode_TaskStateError;
         Z_LOG_ERROR(
             ret_val, 0, L"Task stata error, can not run! state_: %d expect state: %d",
-            state_, kZTaskState_TaskSet);
+            state_, kZTaskState_TaskSet
+        );
         return ret_val;
     }
     operate_func_ptr_(this);

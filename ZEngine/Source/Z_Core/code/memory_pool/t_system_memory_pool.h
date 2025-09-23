@@ -67,7 +67,6 @@ public:
         if (block_ptr == nullptr) {
             Z_LOG_ERROR(error_code::kFMemoryPoolErrorCode_ApplyHeapMemoryFailed, 0,
                 L"Apply heap memory failed! Exit program! size: %d", _size);
-            Sleep(kTimeBeforeProgramExit);
             exit(EXIT_FAILURE);
             return nullptr;
         }
@@ -84,7 +83,6 @@ public:
         if (block_ptr == nullptr) {
             Z_LOG_ERROR(error_code::kFMemoryPoolErrorCode_ApplyHeapMemoryFailed, 0,
                 L"Apply heap memory failed! Exit program! size: %d", _size);
-            Sleep(kTimeBeforeProgramExit);
             exit(EXIT_FAILURE);
             return nullptr;
         }

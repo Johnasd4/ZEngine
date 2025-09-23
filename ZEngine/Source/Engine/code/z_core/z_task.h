@@ -26,9 +26,7 @@
 #include "t_tuple.h"
 
 namespace zengine {
-
 namespace error_code {
-
 enum ZTaskErrorCode : ReturnType {
     kZTaskErrorCode_LinkError = kErrorCodeBase_ZTask,
     kZTaskErrorCode_TaskStateError,
@@ -36,8 +34,10 @@ enum ZTaskErrorCode : ReturnType {
     kZTaskErrorCode_TaskAlreadyExist,
     kZTaskErrorCode_CanNotBindVoidReturn
 };
-
 }//error_code
+}//zengine
+
+namespace zengine {
 
 enum ZTaskState : IndexType {
     kZTaskState_NoTask =         0x0,
@@ -198,9 +198,9 @@ class CORE_DLLAPI ZTask : public ZObject {
 public:
     ZTask() noexcept;
     ZTask(ZTask&& _task) noexcept;
-    template<typename TaskFunction, typename... ArgsType>
-    ZTask(TaskFunction&& _func, ArgsType&&... _args) noexcept : SuperType_() {
-        SetTaskP(std::forward<TaskFunction>(_func), std::forward<ArgsType>(_args)...);
+    template<typename _TaskFunction, typename... _ArgsType>
+    ZTask(_TaskFunction&& _func, _ArgsType&&... _args) noexcept : SuperType_() {
+        SetTaskP(std::forward<_TaskFunction>(_func), std::forward<_ArgsType>(_args)...);
     }
     ~ZTask() noexcept;
 
@@ -215,15 +215,15 @@ public:
     */
     NODISCARD ReturnType BindReturn(Void* _ret_val_ptr) noexcept;
 
-    template<typename TaskFunction, typename... ArgsType>
-    Void SetTask(TaskFunction&& _func, ArgsType&&... _args) noexcept {
+    template<typename _TaskFunction, typename... _ArgsType>
+    Void SetTask(_TaskFunction&& _func, _ArgsType&&... _args) noexcept {
         if (state_ == kZTaskState_TaskSet) {
             state_ = kZTaskState_Finished;
         }
         if (state_ == kZTaskState_Finished) {
             operate_func_ptr_(this);
         }
-        SetTaskP(std::forward<TaskFunction>(_func), std::forward<ArgsType>(_args)...);
+        SetTaskP(std::forward<_TaskFunction>(_func), std::forward<_ArgsType>(_args)...);
     }
 
     Void Clear() noexcept;

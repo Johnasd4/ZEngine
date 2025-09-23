@@ -23,5 +23,6 @@
 #include "basic_math/f_basic_math_factorial.h"
 #include "basic_math/f_basic_math_log.h"
 #include "basic_math/f_basic_math_pow.h"
+#include "basic_math/f_basic_math_random.h"
 #include "basic_math/f_basic_math_trigonometric.h"
 #include "basic_math/f_basic_math_valid.h"

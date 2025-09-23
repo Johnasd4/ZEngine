@@ -23,15 +23,15 @@
 #include "z_board_object.h"
 
 namespace zengine {
-namespace tsrpg {
-
 namespace error_code {
-
 enum ZLogicBoardObjectErrorCode : ReturnType {
     kZLogicBoardObjectErrorCode_LinkError = kErrorCodeBase_ZLogicBoardObject
 };
-
 }//error_code
+}//zengine
+
+namespace zengine {
+namespace tsrpg {
 
 /*
     The objects that are placed on the board. Used for logic calculation.
@@ -42,16 +42,10 @@ public:
 
     virtual ~ZLogicBoardObject() noexcept;
 
-    NODISCARD FORCEINLINE ZWorldBoardObject* WorldObjectPtr() noexcept { return world_object_ptr_; }
-    NODISCARD FORCEINLINE const ZWorldBoardObject* WorldObjectPtr() const noexcept { return world_object_ptr_; }
-    NODISCARD FORCEINLINE Bool Visible() const noexcept { return visible_; }
-    NODISCARD FORCEINLINE Bool Attackable() const noexcept { return attackable_; }
-    NODISCARD FORCEINLINE Bool IfObstacle() const noexcept { return if_obstacle_; }
-
     /*
         Get the board object type.
     */
-    NODISCARD virtual UInt64 Type() const noexcept;
+    NODISCARD virtual RPGObjectType Type() const noexcept;
 
     /*
         Destroy the board object.
@@ -63,10 +57,6 @@ public:
     */
     NODISCARD virtual ReturnType Initialize(ZTile* _owner_tile_ptr) noexcept;
 
-    ZWorldBoardObject* world_object_ptr_;
-    Bool visible_;
-    Bool attackable_;
-    Bool if_obstacle_;
 protected:
     using SuperType_ = ZBoardObject;
 
@@ -75,6 +65,13 @@ private:
     ZLogicBoardObject(ZLogicBoardObject&&) = delete;
     ZLogicBoardObject& operator=(const ZLogicBoardObject&) = delete;
     ZLogicBoardObject& operator=(ZLogicBoardObject&&) = delete;
+
+public:
+    Bool visible_;
+    Bool attackable_;
+    Bool if_obstacle_;
+
+    ZDisplayBoardObject* display_board_object_head_ptr_;
 };
 
 }//tsrpg

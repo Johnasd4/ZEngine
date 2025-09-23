@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="code\d_initialize.cpp" />
     <ClCompile Include="code\f_console.cpp" />
     <ClCompile Include="code\f_file_system.cpp" />
     <ClCompile Include="code\log\type\z_error_log.cpp" />
@@ -36,6 +37,7 @@
     <ClCompile Include="code\z_thread.cpp" />
     <ClCompile Include="code\z_thread_pool.cpp" />
     <ClCompile Include="code\z_task.cpp" />
+    <ClCompile Include="code\z_timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\log\t_log_queue.h" />
@@ -153,8 +155,8 @@
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>if not exist "$(SolutionDir)Release\include_library" mkdir "$(SolutionDir)Release\include_library"
+xcopy /E /Y "$(SolutionDir)Library\Boost_1_88_0\include\*.*" "$(SolutionDir)Release\include_library"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -182,8 +184,8 @@
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>if not exist "$(SolutionDir)Release\include_library" mkdir "$(SolutionDir)Release\include_library"
+xcopy /E /Y "$(SolutionDir)Library\Boost_1_88_0\include\*.*" "$(SolutionDir)Release\include_library"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -207,8 +209,8 @@
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>if not exist "$(SolutionDir)Release\include_library" mkdir "$(SolutionDir)Release\include_library"
+xcopy /E /Y "$(SolutionDir)Library\Boost_1_88_0\include\*.*" "$(SolutionDir)Release\include_library"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -236,8 +238,8 @@
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>if not exist "$(SolutionDir)Release\include_library" mkdir "$(SolutionDir)Release\include_library"
+xcopy /E /Y "$(SolutionDir)Library\Boost_1_88_0\include\*.*" "$(SolutionDir)Release\include_library"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

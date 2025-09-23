@@ -23,16 +23,16 @@
 #include "z_core/z_object.h"
 
 namespace zengine {
-namespace tsrpg {
-
 namespace error_code {
-
 enum ZRPGObjectErrorCode : ReturnType {
     kZRPGObjectErrorCode_LinkError = kErrorCodeBase_ZRPGObject,
     kZRPGObjectErrorCode_NotInitialized
 };
-
 }//error_code
+}//zengine
+
+namespace zengine {
+namespace tsrpg {
 
 /*
     The base class objects that are placed on the board.
@@ -45,32 +45,34 @@ public:
 
     NODISCARD FORCEINLINE Bool Initialized() const noexcept { return initialized_; }
 
-    NODISCARD Bool IsType(UInt64 _type_enum) const noexcept;
+    NODISCARD Bool IsType(RPGObjectType _type_enum) const noexcept;
 
     /*
         Get the rpg object type.
     */
-    NODISCARD virtual UInt64 Type() const noexcept = 0;
+    NODISCARD virtual RPGObjectType Type() const noexcept = 0;
 
     /*
         Destroy the rpg object.
     */
-    virtual Void Destroy() noexcept;
+    Void Destroy() noexcept;
+
+protected:
+    using SuperType_ = ZObject;
 
     /*
         Initialize the rpg object.
     */
-    NODISCARD Void Initialize() noexcept;
-
-    Bool initialized_;
-protected:
-    using SuperType_ = ZObject;
+    NODISCARD Void InitializeP() noexcept;
 
 private:
     ZRPGObject(const ZRPGObject&) = delete;
     ZRPGObject(ZRPGObject&&) = delete;
     ZRPGObject& operator=(const ZRPGObject&) = delete;
     ZRPGObject& operator=(ZRPGObject&&) = delete;
+
+public:
+    Bool initialized_;
 };
 
 }//tsrpg

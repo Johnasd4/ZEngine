@@ -28,16 +28,15 @@
 #include "z_object.h"
 
 namespace zengine {
-
 namespace error_code {
-
 enum ZStringErrorCode : ReturnType {
     kZStringErrorCodeLinkError = kErrorCodeBase_ZString,
     kZStringErrorCodeInvalidString
 };
-
 }//error_code
+}//zengine
 
+namespace zengine {
 namespace internal {
 
 /*
@@ -68,7 +67,10 @@ public:
     FORCEINLINE constexpr TString(_InputIterator _first, _InputIterator _last) noexcept 
         : SuperType_(), str_(_first, _last) {}
     FORCEINLINE constexpr TString(InitializerList_ _init_list) noexcept : SuperType_(), str_(_init_list) {}
- 
+    FORCEINLINE constexpr TString(const STDString_& _std_string) noexcept : SuperType_(), str_(_std_string) {}
+    FORCEINLINE constexpr TString(STDString_&& _std_string) noexcept 
+        : SuperType_(), str_(std::forward<STDString_>(_std_string)) {}
+
     FORCEINLINE constexpr ~TString() noexcept {}
 
     FORCEINLINE constexpr TString& operator=(const TString& _str) noexcept {

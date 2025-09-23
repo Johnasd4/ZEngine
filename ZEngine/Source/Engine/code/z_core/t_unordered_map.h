@@ -24,6 +24,7 @@
 
 #include "t_allocator.h"
 #include "z_object.h"
+#include "t_pair.h"
 
 namespace zengine {
 
@@ -72,11 +73,10 @@ public:
         return *this;
     }
 
-    NODISCARD FORCEINLINE Bool operator==(const TUnorderedMap& _map) noexcept { return map_ == _map; }
-    NODISCARD FORCEINLINE Bool operator!=(const TUnorderedMap& _map) noexcept { return map_ != _map; }
+    NODISCARD FORCEINLINE Bool operator==(const TUnorderedMap& _map) noexcept { return map_ == _map.map_; }
+    NODISCARD FORCEINLINE Bool operator!=(const TUnorderedMap& _map) noexcept { return map_ != _map.map_; }
 
     NODISCARD FORCEINLINE _ValueType& operator[](const _KeyType& _key) noexcept { return map_[_key]; }
-    NODISCARD FORCEINLINE const _ValueType& operator[](const _KeyType& _key) const noexcept { return map_[_key]; }
 
     NODISCARD FORCEINLINE _ValueType& At(const _KeyType& _key) noexcept { return map_.at(_key); }
     NODISCARD FORCEINLINE const _ValueType& At(const _KeyType& _key) const noexcept { return map_.at(_key); }
@@ -133,11 +133,15 @@ public:
         return map_.try_emplace(std::forward<_KeyType>(_key), std::forward<_ArgsType>(_args)...).first;
     }
 
-    FORCEINLINE Iterator_ Erase(const _KeyType& _key) noexcept { return map_.erase(_key); }
+    FORCEINLINE Void Erase(const _KeyType& _key) noexcept { map_.erase(_key); }
     FORCEINLINE Iterator_ Erase(Iterator_ _pos) noexcept { return map_.erase(_pos); }
     FORCEINLINE Iterator_ Erase(ConstIterator_ _pos) noexcept { return map_.erase(_pos); }
     FORCEINLINE Iterator_ Erase(Iterator_ _first, Iterator_ _last) noexcept {
         return map_.erase(_first, _last);
+    }
+
+    FORCEINLINE ConstIterator_ Find(const _KeyType& _key) const noexcept {
+        return map_.find(_key);
     }
 
     FORCEINLINE Bool Contains(const _KeyType& _key) const noexcept {
@@ -149,7 +153,7 @@ public:
 
     FORCEINLINE Void Clear() noexcept { map_.clear(); }
     
-    FORCEINLINE Void Swap(TUnorderedMap& _map) noexcept { map_.swap(_map); }
+    FORCEINLINE Void Swap(TUnorderedMap& _map) noexcept { map_.swap(_map.map_); }
 
 protected:
     using SuperType_ = ZObject;

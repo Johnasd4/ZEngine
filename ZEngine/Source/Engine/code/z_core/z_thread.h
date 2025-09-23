@@ -101,4 +101,14 @@ private:
     Handle handle_;
 };
 
+/*
+    The current thread suspends the given time(s)
+*/
+CORE_DLLAPI NODISCARD Void SleepSec(TimeType _time) noexcept;
+
+/*
+    The current thread suspends the given time(ms)
+*/
+CORE_DLLAPI NODISCARD Void SleepMs(TimeType _time) noexcept;
+
 }//zengine

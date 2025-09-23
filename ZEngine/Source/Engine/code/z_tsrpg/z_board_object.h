@@ -23,16 +23,17 @@
 #include "z_rpg_object.h"
 
 namespace zengine {
-namespace tsrpg {
-
 namespace error_code {
-
 enum ZBoardObjectErrorCode : ReturnType {
     kZBoardObjectErrorCode_LinkError = kErrorCodeBase_ZBoardObject,
-    kZBoardObjectErrorCode_OnwerTileNotExist
+    kZBoardObjectErrorCode_NullptrParams,
+    kZBoardObjectErrorCode_OnwerTileNotInitialized
 };
-
 }//error_code
+}//zengine
+
+namespace zengine {
+namespace tsrpg {
 
 /*
     The base class objects that are placed on the board.
@@ -43,35 +44,34 @@ public:
 
     virtual ~ZBoardObject() noexcept;
 
-    NODISCARD FORCEINLINE ZTile* OwnerTilePtr() noexcept { return owner_tile_ptr_; }
-    NODISCARD FORCEINLINE const ZTile* OwnerTilePtr() const noexcept { return owner_tile_ptr_; }
-
     /*
         Get the board object type.
     */
-    NODISCARD virtual UInt64 Type() const noexcept = 0;
+    NODISCARD virtual RPGObjectType Type() const noexcept = 0;
 
     /*
         Destroy the board object.
     */
     virtual Void Destroy() noexcept;
 
+protected:
+    using SuperType_ = ZRPGObject;
+
     /*
         Initialize the board object.
     */
-    NODISCARD virtual ReturnType Initialize(ZTile* _owner_tile_ptr) noexcept;
-
-    ZBoardObject* pre_object_ptr_;
-    ZBoardObject* next_object_ptr_;
-    ZTile* owner_tile_ptr_;
-protected:
-    using SuperType_ = ZRPGObject;
+    NODISCARD virtual ReturnType InitializeP(ZTile* _owner_tile_ptr) noexcept;
 
 private:
     ZBoardObject(const ZBoardObject&) = delete;
     ZBoardObject(ZBoardObject&&) = delete;
     ZBoardObject& operator=(const ZBoardObject&) = delete;
     ZBoardObject& operator=(ZBoardObject&&) = delete;
+
+public:
+    ZTile* owner_tile_ptr_;
+    ZBoardObject* pre_object_ptr_;
+    ZBoardObject* next_object_ptr_;
 };
 
 }//tsrpg

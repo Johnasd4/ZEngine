@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="code\z_hex_logic_tile.cpp">
+    <ClCompile Include="code\z_logic_hex_tile.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="code\z_board.cpp">
@@ -24,7 +24,7 @@
     <ClCompile Include="code\z_tile.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="code\z_hex_logic_board.cpp">
+    <ClCompile Include="code\z_logic_hex_board.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="code\event\z_scene_event.cpp">
@@ -42,13 +42,10 @@
     <ClCompile Include="code\z_logic_board.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="code\z_world_board.cpp">
+    <ClCompile Include="code\z_display_board.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="code\z_logic_tile.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\z_world_tile.cpp">
+    <ClCompile Include="code\z_display_tile.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="code\z_board_object.cpp">
@@ -57,10 +54,16 @@
     <ClCompile Include="code\z_logic_board_object.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="code\z_world_board_object.cpp">
+    <ClCompile Include="code\z_display_board_object.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="code\z_rpg_object.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\z_logic_board_viewport.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\z_logic_tile.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

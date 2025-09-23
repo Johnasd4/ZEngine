@@ -20,6 +20,9 @@
 
 #include "z_string.h"
 
+#include <codecvt>
+
+#include "t_array.h"
 #include "t_vector.h"
 
 namespace zengine {

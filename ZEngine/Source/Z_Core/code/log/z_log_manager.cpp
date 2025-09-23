@@ -158,7 +158,7 @@ Void ZLogManager::LogThread() noexcept {
 
         //log str
         if (!if_log) {
-            Sleep(1);
+            SleepMs(1);
         }
     }
 }

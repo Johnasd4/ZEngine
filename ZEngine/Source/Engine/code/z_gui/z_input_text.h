@@ -25,15 +25,15 @@
 #include "z_widget_object.h"
 
 namespace zengine {
-namespace gui {
-
 namespace error_code {
-
 enum ZInputTextErrorCode : ReturnType {
     kZInputTextErrorCode_LinkError = kErrorCodeBase_ZInputText
 };
-
 }//error_code
+}//zengine
+
+namespace zengine {
+namespace gui {
 
 /*
     Input text class.

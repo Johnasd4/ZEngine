@@ -22,7 +22,8 @@
 
 #include "z_core/m_log.h"
 
-#include "z_world_board.h"
+#include "z_logic_board_viewport.h"
+#include "z_display_board.h"
 #include "z_logic_tile.h"
 
 namespace zengine {
@@ -30,12 +31,12 @@ namespace tsrpg {
 
 ZLogicBoard::ZLogicBoard() noexcept 
     : SuperType_()
-    , sub_board_ptr_set_()
-    , owner_board_ptr_(nullptr)
-    , world_board_ptr_(nullptr)
-    , teleport_info_list_()
-    , relevant_board_ptr_set_()
     , pos_offset_()
+    , logic_board_viewport_head_ptr_(nullptr)
+    , owner_board_ptr_(nullptr)
+    , sub_board_head_ptr_(nullptr)
+    , next_sub_board_ptr_(nullptr)
+    , pre_sub_board_ptr_(nullptr)
 {}
 
 ZLogicBoard::~ZLogicBoard() noexcept {}
@@ -44,41 +45,27 @@ ReturnType ZLogicBoard::SetPosOffset(const LogicVector3D& _offset) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
     pos_offset_ = _offset;
-    if (world_board_ptr_ != nullptr) {
-        link_code = world_board_ptr_->SetPosOffset(_offset);
+    ZLogicBoardViewport* logic_board_viewport_ptr = logic_board_viewport_head_ptr_;
+    while (logic_board_viewport_ptr != nullptr) {
+        link_code = logic_board_viewport_ptr->OnLogicBoardPosOffsetChanged(_offset);
         if (link_code != kOK) {
             ret_val = error_code::kZLogicTileErrorCode_LinkError;
-            Z_LOG_ERROR(ret_val, link_code, L"ZWoardBoard::SetPosOffset() link error!");
-            return ret_val;
+            Z_LOG_ERROR(ret_val, link_code, L"ZLogicBoardViewport::OnLogicBoardPosOffsetChanged() link error!");
         }
+        logic_board_viewport_ptr = logic_board_viewport_ptr->next_logic_board_viewport_ptr_;
     }
     return ret_val;
 }
 
-NODISCARD ReturnType ZLogicBoard::AddTeleportInfo(
-    ZLogicTile* _source_tile_ptr,
-    ZLogicBoard* _target_board_ptr,
-    ZLogicTile* _target_tile_ptr
-) noexcept {
-    Z_TSRPG_INITIALIZE_CHECK();
+ReturnType ZLogicBoard::SetBaseLayerTexture(const WChar* _texture_name) noexcept {
     ReturnType ret_val = kOK;
-
-    Z_CHECK(
-        _source_tile_ptr == nullptr, error_code::kZLogicBoardErrorCode_NullptrParams,
-        L"_source_tile_ptr is nullptr!");
-    Z_CHECK(
-        _target_board_ptr == nullptr, error_code::kZLogicBoardErrorCode_NullptrParams,
-        L"_target_board_ptr is nullptr!");
-    Z_CHECK(
-        _target_tile_ptr == nullptr, error_code::kZLogicBoardErrorCode_NullptrParams,
-        L"_target_tile_ptr is nullptr!");
-
-    teleport_info_list_.PushBack(TeleportInfo_(_source_tile_ptr, _target_board_ptr, _target_tile_ptr));
-
-    if (_target_board_ptr != this) {
-        _target_board_ptr->relevant_board_ptr_set_.Insert(this);
+    const ZLogicTileTexture* texture_ptr = ZLogicTileTexture::GetLogicTileTextureByName(_texture_name);
+    if (texture_ptr == nullptr) {
+        ret_val = error_code::kZLogicBoardErrorCode_TileTextureNotExist;
+        Z_LOG_ERROR(ret_val, 0, L"Tile texture not exist! Name: %ls", _texture_name);
+        return ret_val;
     }
-
+    base_layer_texture_ptr_ = texture_ptr;
     return ret_val;
 }
 
@@ -92,39 +79,45 @@ NODISCARD ReturnType ZLogicBoard::AddSubBoard(
 
     Z_CHECK(
         _board_ptr == nullptr, error_code::kZLogicBoardErrorCode_NullptrParams,
-        L"_board_ptr is nullptr!");
+        L"_board_ptr is nullptr!"
+    );
     Z_CHECK(
         _board_ptr->owner_board_ptr_ != nullptr, error_code::kZLogicBoardErrorCode_OwnerBoardAlreadyExists,
-        L"Owner board already exists!");
+        L"Owner board already exists!"
+    );
 
-    sub_board_ptr_set_.Insert(_board_ptr);
-    _board_ptr->owner_board_ptr_ = this;
-    _board_ptr->pos_offset_ = _logic_pos_offset;
-    if (_board_ptr->world_board_ptr_ != nullptr) {
-        link_code = _board_ptr->world_board_ptr_->SetPosOffset(_logic_pos_offset);
-        if (link_code != kOK) {
-            ret_val = error_code::kZLogicBoardErrorCode_LinkError;
-            Z_LOG_ERROR(ret_val, link_code, L"ZWoardBoard::SetPosOffset() link error!");
-            return ret_val;
-        }
+    if (sub_board_head_ptr_ != nullptr) {
+        _board_ptr->pre_sub_board_ptr_ = nullptr;
     }
-    return ret_val;
-}
+    sub_board_head_ptr_ = _board_ptr;
+    _board_ptr->owner_board_ptr_ = this;
+    link_code = _board_ptr->SetPosOffset(_logic_pos_offset);
+    if (link_code != kOK) {
+        ret_val = error_code::kZLogicTileErrorCode_LinkError;
+        Z_LOG_ERROR(ret_val, link_code, L"ZLogicBoard::SetPosOffset() link error!");
+        return ret_val;
+    }
 
-NODISCARD Void ZLogicBoard::RemoveTeleportInfo(
-    ZLogicTile* _source_tile_ptr,
-    ZLogicBoard* _target_board_ptr,
-    ZLogicTile* _target_tile_ptr
-) noexcept {
-    teleport_info_list_.Remove(TeleportInfo_(_source_tile_ptr, _target_board_ptr, _target_tile_ptr));
+    return ret_val;
 }
 
 NODISCARD Void ZLogicBoard::RemoveSubBoard(
     ZLogicBoard* _board_ptr
 ) noexcept {
     if (_board_ptr != nullptr && _board_ptr->owner_board_ptr_ == this) {
-        sub_board_ptr_set_.Erase(_board_ptr);
+        if (pre_sub_board_ptr_ != nullptr) {
+            pre_sub_board_ptr_->next_sub_board_ptr_ = next_sub_board_ptr_;
+        }
+        //if head node
+        else {
+            sub_board_head_ptr_ = pre_sub_board_ptr_->next_sub_board_ptr_;
+        }
+        if (next_sub_board_ptr_ != nullptr) {
+            next_sub_board_ptr_->pre_sub_board_ptr_ = pre_sub_board_ptr_;
+        }
         _board_ptr->owner_board_ptr_ = nullptr;
+        _board_ptr->next_sub_board_ptr_ = nullptr;
+        _board_ptr->pre_sub_board_ptr_ = nullptr;
     }
 }
 
@@ -145,38 +138,30 @@ NODISCARD UInt64 ZLogicBoard::Type() const noexcept { return kBoardType_LogicBoa
 Void ZLogicBoard::Destroy() noexcept {
     SuperType_::Destroy();
 
-    ClearReleventInfoP();
-
-    //clear the sub boards
-    for (auto board_ptr = sub_board_ptr_set_.Begin(); board_ptr != sub_board_ptr_set_.End(); ++board_ptr) {
-        (*board_ptr)->Destroy();
+    //destroy the logic board viewport
+    while (logic_board_viewport_head_ptr_ != nullptr) {
+        logic_board_viewport_head_ptr_->Destroy();
     }
-    sub_board_ptr_set_.Clear();
 
     //clear the owner board link
     if (owner_board_ptr_ != nullptr) {
-        owner_board_ptr_->sub_board_ptr_set_.Erase(this);
+        owner_board_ptr_->RemoveSubBoard(this);
         owner_board_ptr_ = nullptr;
     }
 
-    //destroy the world board
-    if (world_board_ptr_ != nullptr) {
-        world_board_ptr_->Destroy();
-        delete world_board_ptr_;
-        world_board_ptr_ = nullptr;
+    //destroy the sub boards
+    while (sub_board_head_ptr_ != nullptr) {
+        sub_board_head_ptr_->Destroy();
     }
 
     //clear position offset
     pos_offset_ = LogicVector3D(0, 0, 0);
 }
 
-/*
-    Initialize the board to the given size.
-*/
-NODISCARD ReturnType ZLogicBoard::Initialize(const LogicVector2D& _size) noexcept {
+NODISCARD ReturnType ZLogicBoard::Initialize(const LogicVector2D& _board_size) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
-    link_code = SuperType_::Initialize(_size);
+    link_code = SuperType_::InitializeP(_board_size);
     if (link_code != kOK) {
         ret_val = error_code::kZLogicBoardErrorCode_LinkError;
         Z_LOG_ERROR(ret_val, link_code, L"ZBoard::Initialize() link error!");
@@ -186,31 +171,53 @@ NODISCARD ReturnType ZLogicBoard::Initialize(const LogicVector2D& _size) noexcep
     return ret_val;
 }
 
-/*
-    Fill the board with the tile template.
-*/
-NODISCARD ReturnType ZLogicBoard::Fill(const ZLogicTile& _tile_template) noexcept {
+NODISCARD ReturnType ZLogicBoard::Fill(
+    Int32 _horizontal,
+    const WChar* _texture_name,
+    Int32 _texture_length
+) noexcept {
     Z_TSRPG_INITIALIZE_CHECK();
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
+
+    //destroy all the existing logic board viewport
+    while (logic_board_viewport_head_ptr_ != nullptr) {
+        logic_board_viewport_head_ptr_->Destroy();
+    }
+
+    const ZLogicTileTexture* tile_texture_ptr = nullptr;
+    if (_texture_name != nullptr) {
+        //get texture
+        tile_texture_ptr = ZLogicTileTexture::GetLogicTileTextureByName(_texture_name);
+        if (tile_texture_ptr == nullptr) {
+            ret_val = error_code::kZLogicBoardErrorCode_TileTextureNotExist;
+            Z_LOG_ERROR(ret_val, 0, L"Tile texture not exist! Name: %ls", _texture_name);
+            return ret_val;
+        }
+    }
+
+    //fill the board
     for (IndexType x = 0; x < XLength(); ++x) {
         for (IndexType y = 0; y < YLength(); ++y) {
             if ((*this)(x, y) != nullptr) {
                 (*this)(x, y)->Destroy();
                 delete (*this)(x, y);
+                (*this)(x, y) = nullptr;
             }
-            ZLogicTile* logic_tile_ptr = static_cast<ZLogicTile*>(_tile_template.CreateCopy());
-            logic_tile_ptr->pos_ = LogicVector3D(x, y, _tile_template.Z());
+            ZLogicTile* logic_tile_ptr = CreateLogicTileP();
+            link_code = logic_tile_ptr->Initialize(
+                this,
+                LogicVector3D(x, y, _horizontal),
+                tile_texture_ptr,
+                _texture_length
+            );
+            if (link_code != kOK) {
+                ret_val = error_code::kZLogicBoardErrorCode_LinkError;
+                Z_LOG_ERROR(ret_val, link_code, L"ZLogicTile::Initialize() link error!");
+                return ret_val;
+            }
             (*this)(x, y) = logic_tile_ptr;
         }
-    }
-
-    //clear all the relevant info
-    ClearReleventInfoP();
-
-    //destroy the world board if exist
-    if (world_board_ptr_ != nullptr) {
-        world_board_ptr_->Destroy();
     }
 
     return ret_val;
@@ -224,29 +231,15 @@ NODISCARD Bool ZLogicBoard::CalculateRelativeBoardLogicPosOffsetP(
     if (this == _target_board_ptr) {
         return true;
     }
-    for (auto board_ptr = sub_board_ptr_set_.Begin(); board_ptr != sub_board_ptr_set_.End(); ++board_ptr) {
-        if ((*board_ptr)->CalculateRelativeBoardLogicPosOffsetP(_target_board_ptr, _offset_ptr)) {
-            *_offset_ptr += (*board_ptr)->pos_offset_;
+    ZLogicBoard* sub_board_ptr = sub_board_head_ptr_;
+    while (sub_board_ptr != nullptr) {
+        if (sub_board_ptr->CalculateRelativeBoardLogicPosOffsetP(_target_board_ptr, _offset_ptr)) {
+            *_offset_ptr += sub_board_ptr->pos_offset_;
             return true;
         }
+        sub_board_ptr = sub_board_ptr->next_sub_board_ptr_;
     }
     return false;
-}
-
-NODISCARD Void ZLogicBoard::ClearReleventInfoP() noexcept {
-    //clear the relevant info
-    teleport_info_list_.Clear();
-    for (auto board_ptr = relevant_board_ptr_set_.Begin(); board_ptr != relevant_board_ptr_set_.End(); ++board_ptr) {
-        //teleport info
-        for (auto teleport_info = teleport_info_list_.Begin(); teleport_info != teleport_info_list_.End();) {
-            if (teleport_info->target_board_ptr_ == this) {
-                teleport_info = teleport_info_list_.Erase(teleport_info);
-                continue;
-            }
-            ++teleport_info;
-        }
-    }
-    relevant_board_ptr_set_.Clear();
 }
 
 }//tsrpg

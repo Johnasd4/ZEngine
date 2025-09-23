@@ -22,15 +22,17 @@
 
 #include "z_core/m_log.h"
 
+#include "z_display_board_object.h"
+
 namespace zengine {
 namespace tsrpg {
 
 ZLogicBoardObject::ZLogicBoardObject() noexcept
     : SuperType_()
-    , world_object_ptr_(nullptr)
     , visible_(false)
     , attackable_(false)
     , if_obstacle_(false)
+    , display_board_object_head_ptr_(nullptr)
 {}
 
 ZLogicBoardObject::~ZLogicBoardObject() noexcept {}
@@ -39,12 +41,19 @@ NODISCARD UInt64 ZLogicBoardObject::Type() const noexcept { return kBoardObjectT
 
 Void ZLogicBoardObject::Destroy() noexcept {
     SuperType_::Destroy();
+    visible_ = false;
+    attackable_ = false;
+    if_obstacle_ = false;
+
+    while (display_board_object_head_ptr_ != nullptr) {
+        display_board_object_head_ptr_->Destroy();
+    }
 }
 
 NODISCARD ReturnType ZLogicBoardObject::Initialize(ZTile* _owner_tile_ptr) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
-    link_code = SuperType_::Initialize(_owner_tile_ptr);
+    link_code = SuperType_::InitializeP(_owner_tile_ptr);
     if (link_code != kOK) {
         ret_val = error_code::kZLogicBoardObjectErrorCode_LinkError;
         Z_LOG_ERROR(ret_val, link_code, L"ZBoard::Initialize() link error!");

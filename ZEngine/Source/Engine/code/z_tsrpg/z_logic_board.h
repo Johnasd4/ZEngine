@@ -26,17 +26,18 @@
 #include "z_board.h"
 
 namespace zengine {
-namespace tsrpg {
-
 namespace error_code {
-
 enum ZLogicBoardErrorCode : ReturnType {
     kZLogicBoardErrorCode_LinkError = kErrorCodeBase_ZLogicBoard,
     kZLogicBoardErrorCode_NullptrParams,
     kZLogicBoardErrorCode_OwnerBoardAlreadyExists,
+    kZLogicBoardErrorCode_TileTextureNotExist
 };
-
 }//error_code
+}//zengine
+
+namespace zengine {
+namespace tsrpg {
 
 /*
     The logic board base class, used for logic calculation.
@@ -62,22 +63,12 @@ public:
 
     virtual ~ZLogicBoard() noexcept;
 
-    NODISCARD FORCEINLINE ZLogicBoard* OwnerBoardPtr() noexcept { return owner_board_ptr_; }
-    NODISCARD FORCEINLINE const ZLogicBoard* OwnerBoardPtr() const noexcept { return owner_board_ptr_; }
-    NODISCARD FORCEINLINE ZWorldBoard* WorldBoardPtr() noexcept { return world_board_ptr_; }
-    NODISCARD FORCEINLINE const ZWorldBoard* WorldBoardPtr() const noexcept { return world_board_ptr_; }
-    NODISCARD FORCEINLINE LogicVector3D PosOffset() const noexcept { return pos_offset_; }
-
     ReturnType SetPosOffset(const LogicVector3D& _offset) noexcept;
 
     /*
-        Register a teleport info.
+        Set the base layer texture of the logic board. 
     */
-    NODISCARD ReturnType AddTeleportInfo(
-        ZLogicTile* _source_tile_ptr,
-        ZLogicBoard* _target_board_ptr,
-        ZLogicTile* _target_tile_ptr
-    ) noexcept;
+    ReturnType SetBaseLayerTexture(const WChar* _texture_name) noexcept;
 
     /*
         Adds a sub board to the board.
@@ -85,15 +76,6 @@ public:
     NODISCARD ReturnType AddSubBoard(
         ZLogicBoard* _board_ptr,
         const LogicVector3D& _logic_pos_offset
-    ) noexcept;
-
-    /*
-        Remove a teleport info.
-    */
-    NODISCARD Void RemoveTeleportInfo(
-        ZLogicTile* _source_tile_ptr,
-        ZLogicBoard* _target_board_ptr,
-        ZLogicTile* _target_tile_ptr
     ) noexcept;
 
     /*
@@ -115,7 +97,7 @@ public:
     /*
         Get the board type.
     */
-    NODISCARD virtual UInt64 Type() const noexcept;
+    NODISCARD virtual RPGObjectType Type() const noexcept;
 
     /*
         Empty the board and remove all the relative links.
@@ -125,23 +107,28 @@ public:
     /*
         Initialize the board to the given size.
     */
-    NODISCARD virtual ReturnType Initialize(const LogicVector2D& _size) noexcept;
+    NODISCARD virtual ReturnType Initialize(const LogicVector2D& _board_size) noexcept;
 
     /*
-        Fill the board with the tile template. Will clear the existing tiles.
+        Fill the board. Will clear the existing tiles.
+        _horizontal: Tile's pos z.
+        _texture_name: Tile's texture type. (nullptr = no texture)
+        _texture_depth: Tile's texture length.
     */
-    NODISCARD virtual ReturnType Fill(const ZLogicTile& _tile_template) noexcept;
-
-    TSet<ZLogicBoard*> sub_board_ptr_set_;
-    ZLogicBoard* owner_board_ptr_;
-    ZWorldBoard* world_board_ptr_;
-    TSet<ZLogicBoard*> relevant_board_ptr_set_;
-    TList<TeleportInfo_> teleport_info_list_;
-    LogicVector3D pos_offset_;
+    NODISCARD virtual ReturnType Fill(
+        Int32 _horizontal, 
+        const WChar* _texture_name, 
+        Int32 _texture_length
+    ) noexcept;
 
 protected:
     using SuperType_ = ZBoard;
     
+    /*
+        News a logic tile, returns the tile ptr.
+    */
+    NODISCARD virtual ZLogicTile* CreateLogicTileP() const noexcept = 0;
+
 private:
     ZLogicBoard(const ZLogicBoard&) = delete;
     ZLogicBoard(ZLogicBoard&&) = delete;
@@ -153,7 +140,17 @@ private:
         LogicVector3D* _offset_ptr
     ) const noexcept;
 
-    NODISCARD Void ClearReleventInfoP() noexcept;
+public:
+    LogicVector3D pos_offset_;
+
+    const ZLogicTileTexture* base_layer_texture_ptr_;
+
+    ZLogicBoardViewport* logic_board_viewport_head_ptr_;
+    ZLogicBoard* owner_board_ptr_;
+    ZLogicBoard* sub_board_head_ptr_;
+    //used for sub board
+    ZLogicBoard* next_sub_board_ptr_;
+    ZLogicBoard* pre_sub_board_ptr_;
 };
 
 }//tsrpg

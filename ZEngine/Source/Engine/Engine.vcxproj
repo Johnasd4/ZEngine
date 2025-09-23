@@ -25,6 +25,10 @@
     <ClInclude Include="code\z_core\f_console.h" />
     <ClInclude Include="code\z_core\f_memory_pool.h" />
     <ClInclude Include="code\z_core\f_diagnose.h" />
+    <ClInclude Include="code\z_core\internal\d_initialize.h" />
+    <ClInclude Include="code\z_socket.h" />
+    <ClInclude Include="code\z_socket\z_tcp_client.h" />
+    <ClInclude Include="code\z_socket\z_tcp_server.h" />
     <ClInclude Include="code\z_core\internal\d_concept.h" />
     <ClInclude Include="code\z_core\internal\d_config.h" />
     <ClInclude Include="code\z_core\internal\d_constant.h" />
@@ -70,6 +74,7 @@
     <ClInclude Include="code\z_core\z_task.h" />
     <ClInclude Include="code\z_core\z_thread.h" />
     <ClInclude Include="code\z_core\z_thread_pool.h" />
+    <ClInclude Include="code\z_core\z_timer.h" />
     <ClInclude Include="code\z_engine.h" />
     <ClInclude Include="code\z_gui.h" />
     <ClInclude Include="code\z_gui\internal\d_concept.h" />
@@ -224,6 +229,7 @@
     <ClInclude Include="code\z_math\basic_math\f_basic_math_factorial.h" />
     <ClInclude Include="code\z_math\basic_math\f_basic_math_log.h" />
     <ClInclude Include="code\z_math\basic_math\f_basic_math_pow.h" />
+    <ClInclude Include="code\z_math\basic_math\f_basic_math_random.h" />
     <ClInclude Include="code\z_math\f_basic_math.h" />
     <ClInclude Include="code\z_math\internal\d_concept.h" />
     <ClInclude Include="code\z_math\internal\d_config.h" />
@@ -236,19 +242,29 @@
     <ClInclude Include="code\z_math\internal\z_drive.h" />
     <ClInclude Include="code\z_math\z_complex.h" />
     <ClInclude Include="code\z_math\z_interpolation_table.h" />
+    <ClInclude Include="code\z_socket\internal\d_concept.h" />
+    <ClInclude Include="code\z_socket\internal\d_config.h" />
+    <ClInclude Include="code\z_socket\internal\d_constant.h" />
+    <ClInclude Include="code\z_socket\internal\d_error_code.h" />
+    <ClInclude Include="code\z_socket\internal\d_function.h" />
+    <ClInclude Include="code\z_socket\internal\d_lib.h" />
+    <ClInclude Include="code\z_socket\internal\d_macro.h" />
+    <ClInclude Include="code\z_socket\internal\d_type.h" />
+    <ClInclude Include="code\z_socket\internal\z_drive.h" />
     <ClInclude Include="code\z_tsrpg.h" />
     <ClInclude Include="code\z_tsrpg\f_scene_control.h" />
+    <ClInclude Include="code\z_tsrpg\z_logic_tile.h" />
+    <ClInclude Include="code\z_tsrpg\z_logic_board_viewport.h" />
     <ClInclude Include="code\z_tsrpg\z_scene_event_manager.h" />
     <ClInclude Include="code\z_tsrpg\z_rpg_object.h" />
     <ClInclude Include="code\z_tsrpg\scene_event\z_move_tile_scene_event.h" />
     <ClInclude Include="code\z_tsrpg\scene_event\z_scene_event.h" />
     <ClInclude Include="code\z_tsrpg\z_logic_board.h" />
     <ClInclude Include="code\z_tsrpg\z_logic_board_object.h" />
-    <ClInclude Include="code\z_tsrpg\z_logic_tile.h" />
     <ClInclude Include="code\z_tsrpg\z_board_object.h" />
-    <ClInclude Include="code\z_tsrpg\z_world_board.h" />
-    <ClInclude Include="code\z_tsrpg\z_hex_logic_board.h" />
-    <ClInclude Include="code\z_tsrpg\z_hex_logic_tile.h" />
+    <ClInclude Include="code\z_tsrpg\z_display_board.h" />
+    <ClInclude Include="code\z_tsrpg\z_logic_hex_board.h" />
+    <ClInclude Include="code\z_tsrpg\z_logic_hex_tile.h" />
     <ClInclude Include="code\z_tsrpg\internal\d_concept.h" />
     <ClInclude Include="code\z_tsrpg\internal\d_config.h" />
     <ClInclude Include="code\z_tsrpg\internal\d_constant.h" />
@@ -260,8 +276,8 @@
     <ClInclude Include="code\z_tsrpg\internal\z_drive.h" />
     <ClInclude Include="code\z_tsrpg\z_board.h" />
     <ClInclude Include="code\z_tsrpg\z_tile.h" />
-    <ClInclude Include="code\z_tsrpg\z_world_board_object.h" />
-    <ClInclude Include="code\z_tsrpg\z_world_tile.h" />
+    <ClInclude Include="code\z_tsrpg\z_display_board_object.h" />
+    <ClInclude Include="code\z_tsrpg\z_display_tile.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\main.cpp" />

@@ -20,6 +20,8 @@
 
 #include "z_scene_event.h"
 
+#include "z_core/t_vector.h"
+
 namespace zengine {
 namespace tsrpg {
 
@@ -46,6 +48,12 @@ protected:
     using SuperType_ = ZSceneEvent;
 
 private:    
+    struct MoveParams_ {
+        ZDisplayTile* tile_ptr_;
+        DisplayVector3D start_pos_;
+        DisplayVector3D move_offset_;
+    };
+
     ZMoveTileSceneEvent(const ZMoveTileSceneEvent&) = delete;
     ZMoveTileSceneEvent(ZMoveTileSceneEvent&&) = delete;
     ZMoveTileSceneEvent& operator=(const ZMoveTileSceneEvent&) = delete;
@@ -53,9 +61,7 @@ private:
 
     Void MoveP(ZMoveTileSceneEvent&& _event) noexcept;
 
-    ZTile* tile_ptr_;
-    WorldVector3D start_pos_;
-    WorldVector3D move_offset_;
+    TVector<MoveParams_> move_params_vector_;
 };
 
 }//tsrpg

@@ -24,10 +24,7 @@
 #include "z_core/z_string.h"
 
 namespace zengine {
-namespace lua { 
-
 namespace error_code {
-
 enum FLuaErrorCode : ReturnType {
     kFLuaErrorCode_LinkError = kErrorCodeBase_FLua,
     kFLuaErrorCode_LuaFunctionNotExist,
@@ -37,8 +34,11 @@ enum FLuaErrorCode : ReturnType {
     kFLuaErrorCode_LuaTableNotExist,
     kFLuaErrorCode_LuaLogError
 };
-
 }//error_code
+}//zengine
+
+namespace zengine {
+namespace lua { 
 
 using LuaHandle = sol::state;
 using LuaResult = sol::unsafe_function_result;

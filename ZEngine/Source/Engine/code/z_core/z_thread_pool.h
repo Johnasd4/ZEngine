@@ -32,16 +32,16 @@
 #include "z_thread.h"
 
 namespace zengine {
-
 namespace error_code {
-
 enum ZThreadPoolErrorCode : ReturnType {
     kZThreadPoolErrorCode_LinkError = kErrorCodeBase_ZThreadPool,
     kZThreadPoolErrorCode_AddNegitiveNumThread,
     kZThreadPoolErrorCode_PoolFinished
 };
-
 }//error_code
+}//zengine
+
+namespace zengine {
 
 /*
     Thread pool class.

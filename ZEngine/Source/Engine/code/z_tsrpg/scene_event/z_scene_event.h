@@ -24,17 +24,17 @@
 #include "z_lua/f_lua.h"
 
 namespace zengine {
-namespace tsrpg {
-
 namespace error_code {
-
 enum ZSceneEventErrorCode : ReturnType {
     kZSceneEventErrorCode_LinkError = kErrorCodeBase_ZSceneEvent,
     kZSceneEventErrorCode_TileNotExist,
-    kZSceneEventErrorCode_WorldBoardNotExist
+    kZSceneEventErrorCode_DisplayBoardNotExist
 };
-
 }//error_code
+}//zengine
+
+namespace zengine {
+namespace tsrpg {
 
 /*
     The scene event base class.

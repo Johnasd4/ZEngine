@@ -276,13 +276,13 @@
     <ClInclude Include="code\z_tsrpg\z_tile.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\z_tsrpg\z_hex_logic_tile.h">
+    <ClInclude Include="code\z_tsrpg\z_logic_hex_tile.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\z_tsrpg.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\z_tsrpg\z_hex_logic_board.h">
+    <ClInclude Include="code\z_tsrpg\z_logic_hex_board.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\z_math\internal\d_concept.h">
@@ -348,7 +348,7 @@
     <ClInclude Include="code\z_core\t_matrix.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\z_tsrpg\z_world_board.h">
+    <ClInclude Include="code\z_tsrpg\z_display_board.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\z_tsrpg\f_scene_control.h">
@@ -714,10 +714,7 @@
     <ClInclude Include="code\z_tsrpg\z_logic_board.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\z_tsrpg\z_logic_tile.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\z_tsrpg\z_world_tile.h">
+    <ClInclude Include="code\z_tsrpg\z_display_tile.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\z_tsrpg\z_board_object.h">
@@ -726,7 +723,7 @@
     <ClInclude Include="code\z_tsrpg\z_logic_board_object.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\z_tsrpg\z_world_board_object.h">
+    <ClInclude Include="code\z_tsrpg\z_display_board_object.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\z_tsrpg\z_rpg_object.h">
@@ -739,6 +736,57 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\z_tsrpg\z_scene_event_manager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_math\basic_math\f_basic_math_random.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_core\z_timer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_tsrpg\z_logic_board_viewport.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_tsrpg\z_logic_tile.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_socket\internal\d_concept.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_socket\internal\d_config.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_socket\internal\d_constant.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_socket\internal\d_error_code.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_socket\internal\d_function.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_socket\internal\d_lib.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_socket\internal\d_macro.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_socket\internal\d_type.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_socket\internal\z_drive.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_socket\z_tcp_server.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_socket.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_socket\z_tcp_client.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_core\internal\d_initialize.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

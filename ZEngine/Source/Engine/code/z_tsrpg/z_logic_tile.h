@@ -20,40 +20,110 @@
 
 #include "internal/z_drive.h"
 
+#include "z_core/t_vector.h"
+#include "z_core/z_string.h"
+
 #include "z_tile.h"
+
+namespace zengine {
+namespace error_code {
+enum ZLogicTileErrorCode : ReturnType {
+    kZLogicTileErrorCode_LinkError = kErrorCodeBase_ZLogicTile,
+    kZLogicTileErrorCode_NullptrParams,
+    kZLogicTileErrorCode_TextureNotExist,
+    kZLogicTileErrorCode_TexturePosZOutOfRange
+};
+}//error_code
+}//zengine
 
 namespace zengine {
 namespace tsrpg {
 
-namespace error_code {
+/*
+    Tile texture, contains the name of the texture and the name of the relevant material.
+*/
+class TSRPG_DLLAPI ZLogicTileTexture : public ZObject {
+public:
+    static Void RegisterLogicTileTexture(ZLogicTileTexture&& _texture) noexcept;
+    NODISCARD static const ZLogicTileTexture* GetLogicTileTextureByName(const WChar* _texture_name) noexcept;
 
-enum ZLogicTileErrorCode : ReturnType {
-    kZLogicTileErrorCode_LinkError = kErrorCodeBase_ZLogicTile
+    ZLogicTileTexture() noexcept;
+    ZLogicTileTexture(ZLogicTileTexture&& _texture) noexcept;
+    ZLogicTileTexture(const WChar* _texture_name, const WChar* _material_name) noexcept;
+
+    ZLogicTileTexture& operator=(ZLogicTileTexture&& _texture) noexcept;
+
+    //TODO: all kinds of function ptr
+    ZWString texture_name_;
+    ZWString material_name_;
+
+private:
+    Void MoveP(ZLogicTileTexture&& _texture) noexcept;
 };
 
-}//error_code
+}//tsrpg
+}//zengine
+
+namespace zengine {
+namespace tsrpg {
 
 /*
     The logic tile base class, used for logic calculation.
 */
 class TSRPG_DLLAPI ZLogicTile : public ZTile {
 public:
-    static constexpr Int32 kDistanceNotConnet = -1;
+
+    /*
+        Bottom node first, top node last.
+        pos_z_: The top of the texture node.
+        num_: The num of the same texture.
+    */
+    struct TextureNode_ {    
+        const ZLogicTileTexture* texture_ptr_;
+        Int32 pos_z_;
+        Int32 num_;
+    };
+
+    static constexpr Int32 kDistanceNotConnect = -1;
 
     ZLogicTile() noexcept;
 
     virtual ~ZLogicTile() noexcept;
 
-    NODISCARD FORCEINLINE LogicVector2D Index() const noexcept { return LogicVector2D(pos_.x_, pos_.y_); }
-    NODISCARD FORCEINLINE LogicVector3D Pos() const noexcept { return pos_; }
     NODISCARD FORCEINLINE Int32 X() const noexcept { return pos_.x_; }
     NODISCARD FORCEINLINE Int32 Y() const noexcept { return pos_.y_; }
     NODISCARD FORCEINLINE Int32 Z() const noexcept { return pos_.z_; }
+    NODISCARD FORCEINLINE LogicVector3D Pos() const noexcept { return pos_; }
+    NODISCARD ReturnType SetPos(const LogicVector3D& _pos) noexcept;
+
+    /*
+        Returns the top texture of the tile.
+    */
+    NODISCARD const ZLogicTileTexture* GetTopTexturePtr() const noexcept;
+
+    /*
+        Returns the texture of the tile by pos z.
+    */
+    NODISCARD const ZLogicTileTexture* GetTexturePtrByPosZ(Int32 _pos_z) const noexcept;
+
+    /*
+        Returns the texture vector by the given pos z and length.
+    */
+    NODISCARD const ReturnType CalculateTexturePtrVectorByPosZAndLength(
+        TVector<const ZLogicTileTexture*>* _texture_ptr_vector_ptr,
+        Int32 _pos_z, 
+        Int32 _length
+    ) const noexcept;
+
+    /*
+        Gets the tile's board index.
+    */
+    NODISCARD virtual LogicVector2D Index() const noexcept;
 
     /*
         Get the tile type.
     */
-    NODISCARD virtual UInt64 Type() const noexcept;
+    NODISCARD virtual RPGObjectType Type() const noexcept;
 
     /*
         Destroy the tile.
@@ -63,7 +133,12 @@ public:
     /*
         Initialize the tile.
     */
-    NODISCARD virtual ReturnType Initialize(ZBoard* _owner_board_ptr) noexcept;
+    NODISCARD virtual ReturnType Initialize(
+        ZBoard* _owner_board_ptr, 
+        const LogicVector3D& _pos, 
+        const ZLogicTileTexture* _texture_ptr,
+        Int32 _texture_length
+    ) noexcept;
 
     /*
         Returns a copy of the current tile. Must be overrided.
@@ -80,7 +155,11 @@ public:
     */
     NODISCARD virtual Int32 CalculateDistanceWithoutHeight(const ZLogicTile& _tile) const noexcept = 0;
 
-    LogicVector3D pos_;
+    /*
+        Called after pos changed.
+    */
+    NODISCARD virtual ReturnType OnPosChanged(const LogicVector3D& _old_pos, const LogicVector3D& _new_pos) noexcept;
+
 protected:
     using SuperType_ = ZTile;
 
@@ -89,6 +168,16 @@ private:
     ZLogicTile(ZLogicTile&&) = delete;
     ZLogicTile& operator=(const ZLogicTile&) = delete;
     ZLogicTile& operator=(ZLogicTile&&) = delete;
+
+public:
+    LogicVector3D pos_;
+    TVector<TextureNode_> texture_node_vector_;
+
+    ZDisplayTile* display_tile_head_ptr_;
+    //upper tile
+    ZLogicTile* upper_logic_tile_ptr_;
+    //lower tile
+    ZLogicTile* lower_logic_tile_ptr_;
 };
 
 }//tsrpg

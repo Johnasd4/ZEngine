@@ -27,28 +27,27 @@
 namespace zengine {
 namespace tsrpg {
 
-ZTile::ZTile() noexcept : SuperType_(), owner_board_ptr_(nullptr), board_object_ptr_(nullptr) {}
+ZTile::ZTile() noexcept : SuperType_(), owner_board_ptr_(nullptr), board_object_head_ptr_(nullptr) {}
 
 ZTile::~ZTile() noexcept {}
 
 Void ZTile::Destroy() noexcept {
     SuperType_::Destroy();
     //destroy all the objects on the tile
-    while (board_object_ptr_ != nullptr) {
-        board_object_ptr_->Destroy();
-        delete board_object_ptr_;
-        board_object_ptr_ = board_object_ptr_->next_object_ptr_;
+    while (board_object_head_ptr_ != nullptr) {
+        board_object_head_ptr_->Destroy();
+        delete board_object_head_ptr_;
+        board_object_head_ptr_ = board_object_head_ptr_->next_object_ptr_;
     }
 }
 
-NODISCARD ReturnType ZTile::Initialize(ZBoard* _owner_board_ptr) noexcept {
+NODISCARD ReturnType ZTile::InitializeP(ZBoard* _owner_board_ptr) noexcept {
     ReturnType ret_val = kOK;
-    SuperType_::Initialize();
-
+    SuperType_::InitializeP();
     Z_CHECK(
         _owner_board_ptr == nullptr, error_code::kZTileErrorCode_NullptrParams,
-        L"_owner_board_ptr is nullptr!");
-
+        L"_owner_board_ptr is nullptr!"
+    );
     owner_board_ptr_ = _owner_board_ptr;
     return ret_val;
 }

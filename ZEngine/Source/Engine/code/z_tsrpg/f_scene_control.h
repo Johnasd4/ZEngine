@@ -25,17 +25,17 @@
 #include "scene_event/z_scene_event.h"
 
 namespace zengine {
-namespace tsrpg {
-
 namespace error_code {
-
 enum FSceneControlErrorCode : ReturnType {
     kFSceneControlErrorCode_LinkError = kErrorCodeBase_FSceneControl,
     kFSceneControlErrorCode_LuaObjectNotValid,
     kFSceneControlErrorCode_EventIdNotExist
 };
-
 }//error_code
+}//zengine
+
+namespace zengine {
+namespace tsrpg {
 
 enum ZSceneEventEnum : IndexType {
     kZSceneEventEnum_MoveTile       = 0,

@@ -22,30 +22,29 @@
 #include "d_type.h"
 
 namespace zengine {
-namespace tsrpg {
 namespace error_code {
 
-inline constexpr ReturnType kErrorCodeBase_PTSRPG = 0x20000000u;
+inline constexpr ReturnType kErrorCodeBase_PTSRPG = 0xF0u * kErrorCodeProjcetMask + kErrorCodeBase_SZEngine;
 
-inline constexpr ReturnType kErrorCodeBase_ZRPGObject = kErrorCodeBase_PTSRPG + 0x000u;
+inline constexpr ReturnType kErrorCodeBase_ZRPGObject = 0x0u * kErrorCodeTypeMask + kErrorCodeBase_PTSRPG;
 
-inline constexpr ReturnType kErrorCodeBase_ZTile = kErrorCodeBase_PTSRPG + 0x000u;
-inline constexpr ReturnType kErrorCodeBase_ZLogicTile = kErrorCodeBase_PTSRPG + 0x100u;
-inline constexpr ReturnType kErrorCodeBase_ZWorldTile = kErrorCodeBase_PTSRPG + 0x200u;
-inline constexpr ReturnType kErrorCodeBase_ZBoard = kErrorCodeBase_PTSRPG + 0x300u;
-inline constexpr ReturnType kErrorCodeBase_ZWorldBoard = kErrorCodeBase_PTSRPG + 0x400u;
-inline constexpr ReturnType kErrorCodeBase_ZLogicBoard = kErrorCodeBase_PTSRPG + 0x500u;
-inline constexpr ReturnType kErrorCodeBase_ZBoardObject = kErrorCodeBase_PTSRPG + 0x600u;
-inline constexpr ReturnType kErrorCodeBase_ZLogicBoardObject = kErrorCodeBase_PTSRPG + 0x700u;
-inline constexpr ReturnType kErrorCodeBase_ZWorldBoardObject = kErrorCodeBase_PTSRPG + 0x800u;
+inline constexpr ReturnType kErrorCodeBase_ZBoard = 0x10u * kErrorCodeTypeMask + kErrorCodeBase_PTSRPG;
+inline constexpr ReturnType kErrorCodeBase_ZDisplayBoard = 0x11u * kErrorCodeTypeMask + kErrorCodeBase_PTSRPG;
+inline constexpr ReturnType kErrorCodeBase_ZLogicBoard = 0x12u * kErrorCodeTypeMask + kErrorCodeBase_PTSRPG;
+inline constexpr ReturnType kErrorCodeBase_ZLogicBoardViewer = 0x13u * kErrorCodeTypeMask + kErrorCodeBase_PTSRPG;
+inline constexpr ReturnType kErrorCodeBase_ZLogicHexBoard = 0x14u * kErrorCodeTypeMask + kErrorCodeBase_PTSRPG;
 
-inline constexpr ReturnType kErrorCodeBase_ZHexLogicTile = kErrorCodeBase_PTSRPG + 0x1000u;
-inline constexpr ReturnType kErrorCodeBase_ZHexLogicBoard = kErrorCodeBase_PTSRPG + 0x1100u;
+inline constexpr ReturnType kErrorCodeBase_ZTile = 0x20u * kErrorCodeTypeMask + kErrorCodeBase_PTSRPG;
+inline constexpr ReturnType kErrorCodeBase_ZLogicTile = 0x21u * kErrorCodeTypeMask + kErrorCodeBase_PTSRPG;
+inline constexpr ReturnType kErrorCodeBase_ZDisplayTile = 0x22u * kErrorCodeTypeMask + kErrorCodeBase_PTSRPG;
+inline constexpr ReturnType kErrorCodeBase_ZLogicHexTile = 0x23u * kErrorCodeTypeMask + kErrorCodeBase_PTSRPG;
 
-inline constexpr ReturnType kErrorCodeBase_FSceneControl = kErrorCodeBase_PTSRPG + 0x2000u;
-inline constexpr ReturnType kErrorCodeBase_ZSceneEvent = kErrorCodeBase_PTSRPG + 0x2100u;
+inline constexpr ReturnType kErrorCodeBase_ZBoardObject = 0x30u * kErrorCodeTypeMask + kErrorCodeBase_PTSRPG;
+inline constexpr ReturnType kErrorCodeBase_ZLogicBoardObject = 0x31u * kErrorCodeTypeMask + kErrorCodeBase_PTSRPG;
+inline constexpr ReturnType kErrorCodeBase_ZDisplayBoardObject = 0x32u * kErrorCodeTypeMask + kErrorCodeBase_PTSRPG;
 
+inline constexpr ReturnType kErrorCodeBase_FSceneControl = 0x100u * kErrorCodeTypeMask + kErrorCodeBase_PTSRPG;
+inline constexpr ReturnType kErrorCodeBase_ZSceneEvent = 0x101u * kErrorCodeTypeMask + kErrorCodeBase_PTSRPG;
 
 }//error_code
-}//tsrpg
 }//zengine

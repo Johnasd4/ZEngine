@@ -25,9 +25,7 @@
 #include "z_string.h"
 
 namespace zengine {
-
 namespace error_code {
-
 enum FFileSystemErrorCode : ReturnType {
     kFFileSystemErrorCode_LinkError = kErrorCodeBase_FFileSystem,
     kFFileSystemErrorCode_SystemError,
@@ -37,12 +35,10 @@ enum FFileSystemErrorCode : ReturnType {
     kFFileSystemErrorCode_DirectoryDeleteFailed,
     kFFileSystemErrorCode_CreateDirectoryFailed,
 };
-
 }//error_code
+}//zengine
 
-/*
-    The namespace contains the function that controls files.
-*/
+namespace zengine {
 namespace file_system {
 
 /*

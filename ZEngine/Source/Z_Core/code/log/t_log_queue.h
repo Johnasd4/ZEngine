@@ -51,7 +51,7 @@ public:
 
     Void Push(const LogType& _log) noexcept {
         log_mutex_.Lock();
-        log_queue_.Push(_log);
+        log_queue_.PushBack(_log);
         if (log_queue_.Size() > log_queue_.Capacity()) {
             log_queue_.Clear();
             Z_LOG_ERROR(error_code::kMLogErrorCode_LogQueueOverflow, 0, L"Log queue overflow! Clear all logs!");

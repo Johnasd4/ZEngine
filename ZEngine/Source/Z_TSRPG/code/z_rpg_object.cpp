@@ -34,13 +34,13 @@ ZRPGObject::~ZRPGObject() noexcept {
     }
 }
 
-NODISCARD Bool ZRPGObject::IsType(UInt64 _type_enum) const noexcept { return (Type() & _type_enum) != 0ULL; }
+NODISCARD Bool ZRPGObject::IsType(RPGObjectType _type_enum) const noexcept { return (Type() & _type_enum) != 0ULL; }
 
 Void ZRPGObject::Destroy() noexcept {
     initialized_ = false;
 }
 
-NODISCARD Void ZRPGObject::Initialize() noexcept {
+NODISCARD Void ZRPGObject::InitializeP() noexcept {
     if (initialized_) {
         Destroy();
     }

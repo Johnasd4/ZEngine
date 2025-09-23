@@ -26,21 +26,21 @@
 #include "z_gui_object.h"
 #include "z_widget_object.h"
 
-struct GLFWwindow;
-struct ImGuiContext;
-
 namespace zengine {
-namespace gui {
-
 namespace error_code {
-
 enum ZWindowErrorCode : ReturnType {
     kZWindowErrorCode_LinkError = kErrorCodeBase_ZWindow,
     kZWindowErrorCode_WindowAreadyCreated,
     kZWindowErrorCode_WindowNotExist
 };
-
 }//error_code
+}//zengine
+
+struct GLFWwindow;
+struct ImGuiContext;
+
+namespace zengine {
+namespace gui {
 
 /*
     Window class. Only creates the window, before adding widgets, a ZFrame must be added first. 

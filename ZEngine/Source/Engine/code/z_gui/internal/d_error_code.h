@@ -22,17 +22,16 @@
 #include "d_type.h"
 
 namespace zengine {
-namespace gui {
 namespace error_code {
 
-inline constexpr ReturnType kErrorCodeBase_PGui = 0x00100000u;
-inline constexpr ReturnType kErrorCodeBase_ZApplication = kErrorCodeBase_PGui + 0x000u;
-inline constexpr ReturnType kErrorCodeBase_ZWindow = kErrorCodeBase_PGui + 0x100u;
-inline constexpr ReturnType kErrorCodeBase_ZFrame = kErrorCodeBase_PGui + 0x200u;
-inline constexpr ReturnType kErrorCodeBase_ZText = kErrorCodeBase_PGui + 0x300u;
-inline constexpr ReturnType kErrorCodeBase_ZInputText = kErrorCodeBase_PGui + 0x400u;
-inline constexpr ReturnType kErrorCodeBase_ZButton = kErrorCodeBase_PGui + 0x500u;
+inline constexpr ReturnType kErrorCodeBase_PGui = 0x1u * kErrorCodeProjcetMask + kErrorCodeBase_SZEngine;
+
+inline constexpr ReturnType kErrorCodeBase_ZApplication = 0x0u * kErrorCodeTypeMask + kErrorCodeBase_PGui;
+inline constexpr ReturnType kErrorCodeBase_ZWindow = 0x1u * kErrorCodeTypeMask + kErrorCodeBase_PGui;
+inline constexpr ReturnType kErrorCodeBase_ZFrame = 0x2u * kErrorCodeTypeMask + kErrorCodeBase_PGui;
+inline constexpr ReturnType kErrorCodeBase_ZText = 0x3u * kErrorCodeTypeMask + kErrorCodeBase_PGui;
+inline constexpr ReturnType kErrorCodeBase_ZInputText = 0x4u * kErrorCodeTypeMask + kErrorCodeBase_PGui;
+inline constexpr ReturnType kErrorCodeBase_ZButton = 0x5u * kErrorCodeTypeMask + kErrorCodeBase_PGui;
 
 }//error_code
-}//gui
 }//zengine

@@ -23,16 +23,16 @@
 #include "z_rpg_object.h"
 
 namespace zengine {
-namespace tsrpg {
-
 namespace error_code {
-
 enum ZTileErrorCode : ReturnType {
     kZTileErrorCode_LinkError = kErrorCodeBase_ZTile,
     kZTileErrorCode_NullptrParams
 };
-
 }//error_code
+}//zengine
+
+namespace zengine {
+namespace tsrpg {
 
 /*
     The tile base class.
@@ -43,15 +43,15 @@ public:
 
     virtual ~ZTile() noexcept;
 
-    NODISCARD FORCEINLINE ZBoard* OwnerBoardPtr() noexcept { return owner_board_ptr_; }
-    NODISCARD FORCEINLINE const ZBoard* OwnerBoardPtr() const noexcept { return owner_board_ptr_; }
-    NODISCARD FORCEINLINE ZBoardObject* BoardObjectPtr() noexcept { return board_object_ptr_; }
-    NODISCARD FORCEINLINE const ZBoardObject* BoardObjectPtr() const noexcept { return board_object_ptr_; }
+    /*
+        Gets the tile's board index.
+    */
+    NODISCARD virtual LogicVector2D Index() const noexcept = 0;
 
     /*
         Get the tile type.
     */
-    NODISCARD virtual UInt64 Type() const noexcept = 0;
+    NODISCARD virtual RPGObjectType Type() const noexcept = 0;
 
     /*
         Destroy the tile.
@@ -59,25 +59,27 @@ public:
     virtual Void Destroy() noexcept;
 
     /*
-        Initialize the tile.
-    */
-    NODISCARD virtual ReturnType Initialize(ZBoard* _owner_board_ptr) noexcept;
-
-    /*
         Returns a copy of the current tile. Must be overrided.
     */
     NODISCARD virtual ZTile* CreateCopy() const noexcept = 0;
 
-    ZBoard* owner_board_ptr_;
-    ZBoardObject* board_object_ptr_;
 protected:
     using SuperType_ = ZRPGObject;
+
+    /*
+        Initialize the tile.
+    */
+    NODISCARD virtual ReturnType InitializeP(ZBoard* _owner_board_ptr) noexcept;
 
 private:
     ZTile(const ZTile&) = delete;
     ZTile(ZTile&&) = delete;
     ZTile& operator=(const ZTile&) = delete;
     ZTile& operator=(ZTile&&) = delete;
+
+public:
+    ZBoard* owner_board_ptr_;
+    ZBoardObject* board_object_head_ptr_;
 };
 
 }//tsrpg

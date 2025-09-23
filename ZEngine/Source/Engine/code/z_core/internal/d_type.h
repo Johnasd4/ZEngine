@@ -56,10 +56,10 @@ using PointerType = SizeType;
 using MemoryType = UInt32;
 //The type of the index.
 using IndexType = Int32;
-//The type of return value.
+//The type of return value. Format: 0xSPPTTTEE(S: Solution, P: Project, T: Type, E: Error)
 using ReturnType = UInt32;
 //The type of time.
-using TimeType = time_t;
+using TimeType = Int64;
 //The type of time.
 using ArgListType = va_list;
 //The type of nullptr.

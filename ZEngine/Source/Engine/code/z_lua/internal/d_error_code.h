@@ -22,12 +22,11 @@
 #include "d_type.h"
 
 namespace zengine {
-namespace lua {
 namespace error_code {
 
-inline constexpr ReturnType kErrorCodeBase_PLua = 0x10000000u;
-inline constexpr ReturnType kErrorCodeBase_FLua = kErrorCodeBase_PLua + 0x000u;
+inline constexpr ReturnType kErrorCodeBase_PLua = 0x2u * kErrorCodeProjcetMask + kErrorCodeBase_SZEngine;
+
+inline constexpr ReturnType kErrorCodeBase_FLua = 0x0u * kErrorCodeTypeMask + kErrorCodeBase_PLua;
 
 }//error_code
-}//lua
 }//zengine

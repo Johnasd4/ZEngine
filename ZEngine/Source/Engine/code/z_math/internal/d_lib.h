@@ -26,17 +26,17 @@
 #define PROJECT_NAME L"ZMath"
 #else
 #define MATH_DLLAPI DLLIMPORT
-//#ifdef _WIN64
-//#ifdef _DEBUG
-//#pragma comment(lib,"Z_Math_x64_Debug.lib")
-//#else
-//#pragma comment(lib,"Z_Math_x64_Release.lib")
-//#endif//_DEBUG
-//#else
-//#ifdef _DEBUG
-//#pragma comment(lib,"Z_Math_Win32_Debug.lib")
-//#else
-//#pragma comment(lib,"Z_Math_Win32_Release.lib")
-//#endif//_DEBUG
-//#endif//_WIN64
+#ifdef _WIN64
+#ifdef _DEBUG
+#pragma comment(lib,"Z_Math_x64_Debug.lib")
+#else
+#pragma comment(lib,"Z_Math_x64_Release.lib")
+#endif//_DEBUG
+#else
+#ifdef _DEBUG
+#pragma comment(lib,"Z_Math_Win32_Debug.lib")
+#else
+#pragma comment(lib,"Z_Math_Win32_Release.lib")
+#endif//_DEBUG
+#endif//_WIN64
 #endif//MATH_DLLFILE

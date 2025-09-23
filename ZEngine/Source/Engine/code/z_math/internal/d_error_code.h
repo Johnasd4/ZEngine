@@ -22,13 +22,11 @@
 #include "d_type.h"
 
 namespace zengine {
-namespace tsrpg {
 namespace error_code {
 
-inline constexpr ReturnType kErrorCodeBase_PMath = 0x00200000u;
-//inline constexpr ReturnType kErrorCodeBase_ZTile = kErrorCodeBase_PMath + 0x000u;
+inline constexpr ReturnType kErrorCodeBase_PMath = 0x3u * kErrorCodeProjcetMask + kErrorCodeBase_SZEngine;
 
+inline constexpr ReturnType kErrorCodeBase_FBasicMathRandom = 0x0u * kErrorCodeTypeMask + kErrorCodeBase_PMath;
 
 }//error_code
-}//tsrpg
 }//zengine
