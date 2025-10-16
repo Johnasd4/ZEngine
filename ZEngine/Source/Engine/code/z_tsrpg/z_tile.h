@@ -26,7 +26,9 @@ namespace zengine {
 namespace error_code {
 enum ZTileErrorCode : ReturnType {
     kZTileErrorCode_LinkError = kErrorCodeBase_ZTile,
-    kZTileErrorCode_NullptrParams
+    kZTileErrorCode_SystemError,
+    kZTileErrorCode_NullptrParam,
+    kZTileErrorCode_ParamOutOfRange,
 };
 }//error_code
 }//zengine

@@ -20,6 +20,8 @@
 
 #include "internal/z_drive.h"
 
+#include <atomic>
+
 #include "t_lock_guard.h"
 #include "z_mutex.h"
 #include "z_object.h"
@@ -29,7 +31,7 @@ namespace zengine {
 /*
     Atom template class, the variable will be thread safe.
 */
-template<typename _ObjectType>
+template<typename _ObjectType, typename = void>
 class TAtom : public ZObject {
 public:
     FORCEINLINE TAtom() noexcept : SuperType_(), mutex_(), obj_() {}
@@ -337,6 +339,240 @@ protected:
 private:
     mutable ZMutex mutex_;
     _ObjectType obj_;
+};
+
+template<typename _ObjectType>
+class TAtom<_ObjectType, typename std::enable_if<kIsBasicType<_ObjectType>>::type> : public ZObject {
+public:
+    using STDAtom_ = std::atomic<_ObjectType>;
+
+    FORCEINLINE TAtom() noexcept : SuperType_(), obj_() {}
+    FORCEINLINE TAtom(const TAtom& _atom) noexcept : SuperType_(_atom) {
+        obj_ = _atom.obj_;
+    }
+    FORCEINLINE TAtom(TAtom&& _atom) noexcept : SuperType_(std::forward<TAtom>(_atom)) {
+        obj_ = std::move(_atom.obj_);
+    }
+    FORCEINLINE TAtom(const _ObjectType& _obj) noexcept : SuperType_(), obj_(_obj) {}
+    FORCEINLINE TAtom(_ObjectType&& _obj) noexcept : SuperType_(), obj_(std::move(_obj)) {}
+
+    FORCEINLINE ~TAtom() noexcept {}
+
+    FORCEINLINE TAtom& operator=(const TAtom& _atom) noexcept {
+        SuperType_::operator=(_atom);
+        obj_ = _atom.obj_;
+        return *this;
+    }
+    FORCEINLINE TAtom& operator=(TAtom&& _atom) noexcept {
+        SuperType_::operator=(std::forward<TAtom>(_atom));
+        obj_ = std::move(_atom.obj_);
+        return *this;
+    }
+    FORCEINLINE TAtom& operator=(const _ObjectType& _obj) noexcept {
+        obj_ = _obj;
+        return *this;
+    }
+    FORCEINLINE TAtom& operator=(_ObjectType&& _obj) noexcept {
+        obj_ = std::move(_obj);
+        return *this;
+    }
+
+    FORCEINLINE TAtom& operator++() noexcept {
+        ++obj_;
+        return *this;
+    }
+    FORCEINLINE TAtom& operator--() noexcept {
+        --obj_;
+        return *this;
+    }
+    template<typename _OtherObjectType>
+    FORCEINLINE TAtom& operator+=(const _OtherObjectType& _obj) noexcept {
+        obj_ += _obj;
+        return *this;
+    }
+    template<typename _OtherObjectType>
+    FORCEINLINE TAtom& operator-=(const _OtherObjectType& _obj) noexcept {
+        obj_ -= _obj;
+        return *this;
+    }
+    template<typename _OtherObjectType>
+    FORCEINLINE TAtom& operator*=(const _OtherObjectType& _obj) noexcept {
+        obj_ *= _obj;
+        return *this;
+    }
+    template<typename _OtherObjectType>
+    FORCEINLINE TAtom& operator/=(const _OtherObjectType& _obj) noexcept {
+        obj_ /= _obj;
+        return *this;
+    }
+    template<typename _OtherObjectType>
+    FORCEINLINE TAtom& operator|=(const _OtherObjectType& _obj) noexcept {
+        obj_ /= _obj;
+        return *this;
+    }
+    template<typename _OtherObjectType>
+    FORCEINLINE TAtom& operator&=(const _OtherObjectType& _obj) noexcept {
+        obj_ /= _obj;
+        return *this;
+    }
+
+    template<typename _OtherObjectType>
+    FORCEINLINE auto operator>>(const _OtherObjectType& _obj) noexcept {
+        return obj_ >> _obj;
+    }
+    template<typename _OtherObjectType>
+    FORCEINLINE auto operator<<(const _OtherObjectType& _obj) noexcept {
+        return obj_ << _obj;
+    }
+
+    NODISCARD FORCEINLINE auto operator~() noexcept {
+        return ~obj_;
+    }
+    NODISCARD FORCEINLINE auto operator!() noexcept {
+        return !obj_;
+    }
+
+    friend NODISCARD FORCEINLINE auto operator+(const TAtom& _left, const TAtom& _right) noexcept {
+        return _left.obj_ + _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE auto operator+(const _ObjectType& _left, const TAtom& _right) noexcept {
+        return _left + _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE auto operator+(const TAtom& _left, const _ObjectType& _right) noexcept {
+        TLockGuard<ZMutex> lock_guard_left(_left.mutex_);
+        return _left.obj_ + _right;
+    }
+    friend NODISCARD FORCEINLINE auto operator-(const TAtom& _left, const TAtom& _right) noexcept {
+        return _left.obj_ - _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE auto operator-(const _ObjectType& _left, const TAtom& _right) noexcept {
+        return _left - _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE auto operator-(const TAtom& _left, const _ObjectType& _right) noexcept {
+        return _left.obj_ - _right;
+    }
+    friend NODISCARD FORCEINLINE auto operator*(const TAtom& _left, const TAtom& _right) noexcept {
+        return _left.obj_ * _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE auto operator*(const _ObjectType& _left, const TAtom& _right) noexcept {
+        return _left * _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE auto operator*(const TAtom& _left, const _ObjectType& _right) noexcept {
+        return _left.obj_ * _right;
+    }
+    friend NODISCARD FORCEINLINE auto operator/(const TAtom& _left, const TAtom& _right) noexcept {
+        return _left.obj_ / _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE auto operator/(const _ObjectType& _left, const TAtom& _right) noexcept {
+        return _left / _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE auto operator/(const TAtom& _left, const _ObjectType& _right) noexcept {
+        return _left.obj_ / _right;
+    }
+    friend NODISCARD FORCEINLINE auto operator%(const TAtom& _left, const TAtom& _right) noexcept {
+        return _left.obj_ % _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE auto operator%(const _ObjectType& _left, const TAtom& _right) noexcept {
+        return _left % _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE auto operator%(const TAtom& _left, const _ObjectType& _right) noexcept {
+        return _left.obj_ % _right;
+    }
+    friend NODISCARD FORCEINLINE auto operator^(const TAtom& _left, const TAtom& _right) noexcept {
+        return _left.obj_ ^ _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE auto operator^(const _ObjectType& _left, const TAtom& _right) noexcept {
+        return _left ^ _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE auto operator^(const TAtom& _left, const _ObjectType& _right) noexcept {
+        return _left.obj_ ^ _right;
+    }
+    friend NODISCARD FORCEINLINE auto operator|(const TAtom& _left, const TAtom& _right) noexcept {
+        return _left.obj_ | _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE auto operator|(const _ObjectType& _left, const TAtom& _right) noexcept {
+        return _left | _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE auto operator|(const TAtom& _left, const _ObjectType& _right) noexcept {
+        return _left.obj_ | _right;
+    }
+    friend NODISCARD FORCEINLINE auto operator&(const TAtom& _left, const TAtom& _right) noexcept {
+        return _left.obj_ & _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE auto operator&(const _ObjectType& _left, const TAtom& _right) noexcept {
+        return _left & _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE auto operator&(const TAtom& _left, const _ObjectType& _right) noexcept {
+        return _left.obj_ & _right;
+    }
+
+    friend NODISCARD FORCEINLINE Bool operator==(const TAtom& _left, const TAtom& _right) noexcept {
+        return _left.obj_ == _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE Bool operator==(const _ObjectType& _left, const TAtom& _right) noexcept {
+        return _left == _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE Bool operator==(const TAtom& _left, const _ObjectType& _right) noexcept {
+        return _left.obj_ == _right;
+    }
+    friend NODISCARD FORCEINLINE Bool operator!=(const TAtom& _left, const TAtom& _right) noexcept {
+        return _left.obj_ != _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE Bool operator!=(const _ObjectType& _left, const TAtom& _right) noexcept {
+        return _left != _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE Bool operator!=(const TAtom& _left, const _ObjectType& _right) noexcept {
+        return _left.obj_ != _right;
+    }
+    friend NODISCARD FORCEINLINE Bool operator>(const TAtom& _left, const TAtom& _right) noexcept {
+        return _left.obj_ > _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE Bool operator>(const _ObjectType& _left, const TAtom& _right) noexcept {
+        return _left > _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE Bool operator>(const TAtom& _left, const _ObjectType& _right) noexcept {
+        return _left.obj_ > _right;
+    }
+    friend NODISCARD FORCEINLINE Bool operator>=(const TAtom& _left, const TAtom& _right) noexcept {
+        return _left.obj_ >= _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE Bool operator>=(const _ObjectType& _left, const TAtom& _right) noexcept {
+        return _left >= _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE Bool operator>=(const TAtom& _left, const _ObjectType& _right) noexcept {
+        return _left.obj_ >= _right;
+    }
+    friend NODISCARD FORCEINLINE Bool operator<(const TAtom& _left, const TAtom& _right) noexcept {
+        return _left.obj_ < _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE Bool operator<(const _ObjectType& _left, const TAtom& _right) noexcept {
+        return _left < _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE Bool operator<(const TAtom& _left, const _ObjectType& _right) noexcept {
+        return _left.obj_ < _right;
+    }
+    friend NODISCARD FORCEINLINE Bool operator<=(const TAtom& _left, const TAtom& _right) noexcept {
+        return _left.obj_ <= _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE Bool operator<=(const _ObjectType& _left, const TAtom& _right) noexcept {
+        return _left <= _right.obj_;
+    }
+    friend NODISCARD FORCEINLINE Bool operator<=(const TAtom& _left, const _ObjectType& _right) noexcept {
+        return _left.obj_ <= _right;
+    }
+
+    NODISCARD FORCEINLINE _ObjectType Value() noexcept {
+        return obj_;
+    }
+    NODISCARD FORCEINLINE const _ObjectType Value() const noexcept {
+        return obj_;
+    }
+
+protected:
+    using SuperType_ = ZObject;
+
+private:
+    STDAtom_ obj_;
 };
 
 }//zengine

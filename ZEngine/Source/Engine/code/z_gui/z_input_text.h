@@ -27,7 +27,10 @@
 namespace zengine {
 namespace error_code {
 enum ZInputTextErrorCode : ReturnType {
-    kZInputTextErrorCode_LinkError = kErrorCodeBase_ZInputText
+    kZInputTextErrorCode_LinkError = kErrorCodeBase_ZInputText,
+    kZInputTextErrorCode_SystemError,
+    kZInputTextErrorCode_NullptrParam,
+    kZInputTextErrorCode_ParamOutOfRange,
 };
 }//error_code
 }//zengine

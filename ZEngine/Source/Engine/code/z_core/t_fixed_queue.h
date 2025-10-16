@@ -41,9 +41,6 @@ public:
     FORCEINLINE constexpr TFixedQueue(TFixedQueue&& _queue) noexcept : SuperType_(std::forward<TFixedQueue>(_queue)) {
         MoveP(std::forward<TFixedQueue>(_queue));
     }
-    FORCEINLINE TFixedQueue(InitializerList_ _init_list) noexcept 
-        : SuperType_(), queue_(_init_list), front_index_(0), back_index_(kCapacity - 1), size_(kCapacity) {}
-
 
     FORCEINLINE constexpr ~TFixedQueue() noexcept {}
 
@@ -128,14 +125,14 @@ protected:
 
 private:
     FORCEINLINE Void CopyP(const TFixedQueue& _queue) noexcept {
-        queue_ = _queue.queue_;
+        Copy(&queue_, &_queue.queue_);
         front_index_ = _queue.front_index_;
         back_index_ = _queue.back_index_;
         size_ = _queue.size_;
     }
 
     FORCEINLINE Void MoveP(TFixedQueue&& _queue) noexcept {
-        queue_ = std::move(_queue.queue_);
+        Copy(&queue_, &_queue.queue_);
         front_index_ = _queue.front_index_;
         back_index_ = _queue.back_index_;
         size_ = _queue.size_;

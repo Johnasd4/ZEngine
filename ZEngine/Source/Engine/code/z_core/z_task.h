@@ -21,14 +21,17 @@
 #include "internal/z_drive.h"
 
 #include "m_log.h"
+#include "t_tuple.h"
 #include "z_mutex.h"
 #include "z_object.h"
-#include "t_tuple.h"
 
 namespace zengine {
 namespace error_code {
 enum ZTaskErrorCode : ReturnType {
     kZTaskErrorCode_LinkError = kErrorCodeBase_ZTask,
+    kZTaskErrorCode_SystemError,
+    kZTaskErrorCode_NullptrParam,
+    kZTaskErrorCode_ParamOutOfRange,
     kZTaskErrorCode_TaskStateError,
     kZTaskErrorCode_ReturnValAlreadyGet,
     kZTaskErrorCode_TaskAlreadyExist,
@@ -47,7 +50,7 @@ enum ZTaskState : IndexType {
 };
 
 /*
-    Task class, package a function and it's params, the task can only run one time, thread safe.
+    Task class, package a function and it's params, the task can only execute one time, thread safe.
     Use ZTask instead for thread pool tasks.
 */
 class CORE_DLLAPI ZTaskSafe : public ZObject {
@@ -191,7 +194,7 @@ private:
 };
 
 /*
-    Task class, package a function and it's params, the task can only run one time, not thread safe, 
+    Task class, package a function and it's params, the task can only execute one time, not thread safe, 
     Used if for thread pool tasks.
 */
 class CORE_DLLAPI ZTask : public ZObject {
@@ -328,6 +331,108 @@ private:
     Void* task_func_ptr_;
     Void* params_ptr_;
     Void* ret_val_ptr_;
+    ZTaskState state_;
+};
+
+/*
+    Task class, package a function and it's params, the task can execute multiple times.
+*/
+class CORE_DLLAPI ZRepeatTask : public ZObject {
+public:
+    ZRepeatTask() noexcept;
+    ZRepeatTask(ZRepeatTask&& _task) noexcept;
+    template<typename _TaskFunction, typename... _ArgsType>
+    ZRepeatTask(_TaskFunction&& _func, _ArgsType&&... _args) noexcept : SuperType_() {
+        SetTaskP(std::forward<_TaskFunction>(_func), std::forward<_ArgsType>(_args)...);
+    }
+    ~ZRepeatTask() noexcept;
+
+    ZRepeatTask& operator=(ZRepeatTask&& _task) noexcept;
+
+    NODISCARD ReturnType operator()() noexcept;
+
+    template<typename _TaskFunction, typename... _ArgsType>
+    Void SetTask(_TaskFunction&& _func, _ArgsType&&... _args) noexcept {
+        if (state_ == kZTaskState_TaskSet) {
+            state_ = kZTaskState_Finished;
+            operate_func_ptr_(this);
+        }
+        SetTaskP(std::forward<_TaskFunction>(_func), std::forward<_ArgsType>(_args)...);
+    }
+
+    Void Clear() noexcept;
+    
+    NODISCARD ReturnType Run() noexcept;
+
+    FORCEINLINE NODISCARD Bool TaskSet() const noexcept { return state_ == kZTaskState_TaskSet;}
+    FORCEINLINE NODISCARD ZTaskState State() const noexcept { return state_; }
+
+protected:
+    using SuperType_ = ZObject;
+
+private:
+    ZRepeatTask(const ZRepeatTask&) = delete;
+    ZRepeatTask& operator=(const ZRepeatTask&) = delete;
+
+    Void MoveP(ZRepeatTask&& _task) noexcept;
+
+#pragma warning(push)
+#pragma warning(disable: 6031)
+#pragma warning(disable: 4834)
+
+    template<typename _TaskFunction, typename... _ArgsType>
+    Void SetTaskP(_TaskFunction&& _func, _ArgsType&&... _args) noexcept {
+        using TaskParamsTuple = TTuple<_ArgsType...>;
+
+        operate_func_ptr_ = [](ZRepeatTask* _task_ptr) {
+            switch (_task_ptr->state_) {
+            case kZTaskState_TaskSet:
+                (reinterpret_cast<TaskParamsTuple*>(_task_ptr->params_ptr_))->Apply(
+                    *reinterpret_cast<std::remove_reference<_TaskFunction>::type*>(_task_ptr->task_func_ptr_));
+                break;
+            case kZTaskState_Finished:
+                delete reinterpret_cast<TaskParamsTuple*>(_task_ptr->params_ptr_);
+                _task_ptr->params_ptr_ = nullptr;
+                _task_ptr->state_ = kZTaskState_NoTask;
+                break;
+            default:
+                Z_LOG_ERROR(
+                    error_code::kZTaskErrorCode_TaskStateError, 0, 
+                    L"Task state not expected! state_: %d", _task_ptr->state_
+                );
+            }
+        };
+        task_func_ptr_ = reinterpret_cast<Void*>(&_func);
+        params_ptr_ = new TaskParamsTuple(std::forward<_ArgsType>(_args)...);
+        state_ = kZTaskState_TaskSet;
+    }
+
+    template<typename _TaskFunction>
+    Void SetTaskP(_TaskFunction&& _func) noexcept {
+        operate_func_ptr_ = [](ZRepeatTask* _task_ptr) {
+            switch (_task_ptr->state_) {
+            case kZTaskState_TaskSet:
+                (*reinterpret_cast<std::remove_reference<_TaskFunction>::type*>(_task_ptr->task_func_ptr_))();
+                break;
+            case kZTaskState_Finished:
+                _task_ptr->state_ = kZTaskState_NoTask;
+                break;
+            default:
+                Z_LOG_ERROR(
+                    error_code::kZTaskErrorCode_TaskStateError, 0, 
+                    L"Task state not expected! state_: %d", _task_ptr->state_
+                );
+            }
+        };
+        task_func_ptr_ = reinterpret_cast<Void*>(&_func);
+        state_ = kZTaskState_TaskSet;
+    }
+
+#pragma warning(pop)
+
+    Void(*operate_func_ptr_)(ZRepeatTask*);
+    Void* task_func_ptr_;
+    Void* params_ptr_;
     ZTaskState state_;
 };
 

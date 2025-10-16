@@ -187,7 +187,70 @@ Void ZTask::MoveP(ZTask&& _task) noexcept {
     operate_func_ptr_ = _task.operate_func_ptr_;
     task_func_ptr_ = _task.task_func_ptr_;
     params_ptr_ = _task.params_ptr_;
-    ret_val_ptr_ = _task.ret_val_ptr_;
+    state_ = _task.state_;
+    _task.params_ptr_ = nullptr;
+    _task.state_ = kZTaskState_NoTask;
+}
+
+ZRepeatTask::ZRepeatTask() noexcept
+    : SuperType_()
+    , operate_func_ptr_(nullptr)
+    , task_func_ptr_(nullptr)
+    , params_ptr_(nullptr)
+    , state_(kZTaskState_NoTask) {
+}
+
+ZRepeatTask::ZRepeatTask(ZRepeatTask&& _task) noexcept : SuperType_(std::forward<ZRepeatTask>(_task)) {
+    MoveP(std::forward<ZRepeatTask>(_task));
+}
+
+ZRepeatTask::~ZRepeatTask() noexcept { Clear(); }
+
+ZRepeatTask& ZRepeatTask::operator=(ZRepeatTask&& _task) noexcept {
+    SuperType_::operator=(std::forward<ZRepeatTask>(_task));
+    MoveP(std::forward<ZRepeatTask>(_task));
+    return *this;
+}
+
+NODISCARD ReturnType ZRepeatTask::operator()() noexcept {
+    ReturnType ret_val = kOK;
+    if (!IN_STATE(state_, kZTaskState_TaskSet)) {
+        ret_val = error_code::kZTaskErrorCode_TaskStateError;
+        Z_LOG_ERROR(
+            ret_val, 0, L"Task stata error, can not run! state_: %d expect state: %d",
+            state_, kZTaskState_TaskSet);
+        return ret_val;
+    }
+    operate_func_ptr_(this);
+    return ret_val;
+}
+
+Void ZRepeatTask::Clear() noexcept {
+    if (state_ == kZTaskState_TaskSet) {
+        state_ = kZTaskState_Finished;
+    }
+    if (state_ == kZTaskState_Finished) {
+        operate_func_ptr_(this);
+    }
+    state_ = kZTaskState_NoTask;
+}
+
+NODISCARD ReturnType ZRepeatTask::Run() noexcept {
+    ReturnType ret_val = kOK;
+    if (!IN_STATE(state_, kZTaskState_TaskSet)) {
+        ret_val = error_code::kZTaskErrorCode_TaskStateError;
+        Z_LOG_ERROR(ret_val, 0, L"Task stata error, can not run! state_: %d expect state: %d",
+            state_, kZTaskState_TaskSet);
+        return ret_val;
+    }
+    operate_func_ptr_(this);
+    return ret_val;
+}
+
+Void ZRepeatTask::MoveP(ZRepeatTask&& _task) noexcept {
+    operate_func_ptr_ = _task.operate_func_ptr_;
+    task_func_ptr_ = _task.task_func_ptr_;
+    params_ptr_ = _task.params_ptr_;
     state_ = _task.state_;
     _task.params_ptr_ = nullptr;
     _task.state_ = kZTaskState_NoTask;

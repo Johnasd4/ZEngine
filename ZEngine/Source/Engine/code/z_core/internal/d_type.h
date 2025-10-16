@@ -105,6 +105,7 @@ class TString;
 }//internal
 
 class ZConditionVariable;
+class ZConfig;
 class ZCSMutex;
 class ZFile;
 class ZJsonDocument;
@@ -118,6 +119,7 @@ using ZWString = internal::TString<WChar>;
 class ZSystemTime;
 class ZTaskSafe;
 class ZTask;
+class ZRepeatTask;
 class ZThread;
 class ZThreadPool;
 

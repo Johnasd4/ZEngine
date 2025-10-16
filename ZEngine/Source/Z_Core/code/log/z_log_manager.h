@@ -20,10 +20,10 @@
 
 #include "internal/z_drive.h"
 
-#include "type/z_error_log.h"
-#include "type/z_info_log.h"
-#include "type/z_trace_log.h"
-#include "t_log_queue.h"
+#include "log/z_error_log.h"
+#include "log/z_info_log.h"
+#include "log/z_trace_log.h"
+#include "t_fixed_queue_safe.h"
 #include "z_log_server.h"
 #include "z_thread.h"
 
@@ -39,11 +39,8 @@ class ZLogManager : public ZObject {
 public:
     static constexpr IndexType kLogQueueSize = 1024;
 
-    static constexpr IndexType kErrorLogPortID = ZLogServer::kMaxPortNum - 1;
-    static constexpr IndexType kTraceLogPortID = ZLogServer::kMaxPortNum - 2;
-    static constexpr IndexType kInfoLogPortID = ZLogServer::kMaxPortNum - 3;
     static constexpr IndexType kLogPortIDMin = - 3;
-    static constexpr IndexType kLogPortIDMax = ZLogServer::kMaxPortNum - kLogPortIDMin;
+    static constexpr IndexType kLogPortIDMax = kLogMaxPortNum - kLogPortIDMin;
 
     static Void LogError(
         TimeType _raw_time,
@@ -68,7 +65,7 @@ public:
 
     static Void LogInfo(
         TimeType _raw_time,
-        LogInfoEnum _info_type,
+        InfoLogTypeEnum _info_type,
         const WChar* _format,
         ArgListType _args
     ) noexcept;
@@ -124,10 +121,10 @@ private:
 
     ~ZLogManager() noexcept;
 
-    TLogQueue<ZErrorLog, kLogQueueSize> error_log_queue_;
-    TLogQueue<ZTraceLog, kLogQueueSize> trace_log_queue_;
-    TLogQueue<ZInfoLog, kLogQueueSize> info_log_queue_;
-    TArray<TLogQueue<ZErrorLog, kLogQueueSize>, ZLogServer::kMaxPortNum - kLogPortIDMin> log_queue_array_;
+    TFixedQueueSafe<ZErrorLog, kLogQueueSize> error_log_queue_;
+    TFixedQueueSafe<ZTraceLog, kLogQueueSize> trace_log_queue_;
+    TFixedQueueSafe<ZInfoLog, kLogQueueSize> info_log_queue_;
+    TArray<TFixedQueueSafe<ZErrorLog, kLogQueueSize>, kLogMaxPortNum - kLogPortIDMin> log_queue_array_;
     ZLogServer log_server_;
     Bool log_thread_finished_;
     ZThread log_thread_;

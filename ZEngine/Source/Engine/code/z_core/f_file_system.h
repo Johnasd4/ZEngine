@@ -29,11 +29,15 @@ namespace error_code {
 enum FFileSystemErrorCode : ReturnType {
     kFFileSystemErrorCode_LinkError = kErrorCodeBase_FFileSystem,
     kFFileSystemErrorCode_SystemError,
+    kFFileSystemErrorCode_NullptrParam,
+    kFFileSystemErrorCode_ParamOutOfRange,
+    kFFileSystemErrorCode_FileCreateFailed,
     kFFileSystemErrorCode_FileDeleteFailed,
     kFFileSystemErrorCode_PathNotExist,
     kFFileSystemErrorCode_PathNotDirectory,
     kFFileSystemErrorCode_DirectoryDeleteFailed,
     kFFileSystemErrorCode_CreateDirectoryFailed,
+    kFFileSystemErrorCode_CopyFileFailed
 };
 }//error_code
 }//zengine
@@ -63,6 +67,26 @@ struct ZFileFilter {
 };
 
 /*
+   Returns the program's path.
+*/
+CORE_DLLAPI NODISCARD ZWString ProgramPath() noexcept;
+
+/*
+   Returns the program's directory.
+*/
+CORE_DLLAPI NODISCARD ZWString ProgramDirectory() noexcept;
+
+/*
+    Get program info.
+*/
+CORE_DLLAPI NODISCARD ReturnType ProgramInfo(ZFileInfo* _file_info_ptr) noexcept;
+
+/*
+    Create file by the given path.
+*/
+CORE_DLLAPI NODISCARD ReturnType CreateFileByPath(const WChar* _path_dir) noexcept;
+
+/*
     Delete file by the given path.
 */
 CORE_DLLAPI NODISCARD ReturnType DeleteFileByPath(const WChar* _path_dir) noexcept;
@@ -71,6 +95,15 @@ CORE_DLLAPI NODISCARD ReturnType DeleteFileByPath(const WChar* _path_dir) noexce
     Rename file by the given path.
 */
 CORE_DLLAPI NODISCARD ReturnType RenameFileByPath(const WChar* _old_path_dir, const WChar* _new_path_dir) noexcept;
+
+/*
+    Copy file by the given path.
+*/
+CORE_DLLAPI NODISCARD ReturnType CopyFileByPath(
+    const WChar* _source_path_dir, 
+    const WChar* _target_path_dir,
+    Bool overwrite_exist = true
+) noexcept;
 
 /*
     Create directory by the given path.

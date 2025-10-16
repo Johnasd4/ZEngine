@@ -20,8 +20,16 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="code\z_tcp_multiple_session_server.cpp" />
+    <ClCompile Include="code\f_tcp_log_output.cpp" />
     <ClCompile Include="code\z_tcp_client.cpp" />
-    <ClCompile Include="code\z_tcp_server.cpp" />
+    <ClCompile Include="code\z_tcp_single_session_server.cpp" />
+    <ClCompile Include="code\z_tcp_socket.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="code\data\z_tcp_client_data.h" />
+    <ClInclude Include="code\data\z_tcp_server_data.h" />
+    <ClInclude Include="code\data\z_tcp_socket_data.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

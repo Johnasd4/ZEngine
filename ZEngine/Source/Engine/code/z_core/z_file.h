@@ -26,6 +26,9 @@ namespace zengine {
 namespace error_code {
 enum ZFileErrorCode : ReturnType {
     kZFileErrorCode_LinkError = kErrorCodeBase_ZFile,
+    kZFileErrorCode_SystemError,
+    kZFileErrorCode_NullptrParam,
+    kZFileErrorCode_ParamOutOfRange,
     kZFileErrorCode_OpenFileFailed,
     kZFileErrorCode_CloseFileFailed,
     kZFileErrorCode_NoFileOpened,
@@ -76,7 +79,7 @@ public:
     /*Read and write, starts at the end of the file.(binary file)*/
     static constexpr WChar kOpenTypeAppendPlusBin[] = L"ab+";
     /*The max length of the file name.*/
-    static constexpr IndexType kFileNameLength = 512;
+    static constexpr IndexType kFileNameLength = MAX_PATH;
 
     ZFile() noexcept;
     ZFile(ZFile&& _file) noexcept;

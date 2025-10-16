@@ -18,5 +18,7 @@
 */
 #pragma once
 
+#include "z_socket/f_tcp_log_output.h"
 #include "z_socket/z_tcp_client.h"
 #include "z_socket/z_tcp_server.h"
+#include "z_socket/z_tcp_socket.h"

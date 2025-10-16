@@ -61,6 +61,14 @@ Void TestThreadFunc() {
     //link_code = app.Execute();
 }
 
+// 普通函数
+int add(int a, int b) { return a + b; }
+
+// 函数对象
+struct Multiply {
+    int operator()(int a, int b) const { return a * b; }
+};
+
 //Int32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 Int32 main() { 
     zengine::Initialize();
@@ -76,33 +84,117 @@ Int32 main() {
     Z_LOG_FAILURE(L"Failure...");
     Z_LOG_SUCCESS(L"Success...");
 
-    sizeof(wchar_t);
+    ReturnType link_code = kOK;
 
-    ReturnType link_code;
+    TFixedMemory<1024> buffer;
+    ZTCPSingleSessionServer tcp_server;
 
-    ZTCPClient tcp_client;
-    link_code = tcp_client.SetEndpoint("127.0.0.1", 12345);
-    link_code = tcp_client.Connect(3);
-    if (link_code == kOK) {
-        for (;;) {
-            // 接收客户端消息
-            char data[1024] = { 0 };
-            SizeType length;
-            link_code = tcp_client.Read(static_cast<Void*>(data), 1024, &length);
+    TFunction<Void(Void*, SizeType)> read_handle_func;
+    TFunction<Void(Void*, SizeType)> write_handle_func;
+    read_handle_func = [&tcp_server, &buffer, &read_handle_func](Void* _data_buffer, SizeType _write_length) {
+        ReturnType link_code = kOK;
+        Z_LOG_MESSAGE(L"Client: %ls", static_cast<WChar*>(_data_buffer));
+        link_code = tcp_server.AsyncRead(buffer.DataPtr<Void*>(), 1024, read_handle_func);
+        if (link_code != kOK) {
+            Z_LOG_ERROR(0, 0, L"AsyncRead() error!");
+        }
+        };
+    write_handle_func = [&tcp_server, &buffer, &write_handle_func](Void* _data_buffer, SizeType _write_length) {
+        ReturnType link_code = kOK;
+        Z_LOG_MESSAGE(L"Send: %ls", static_cast<WChar*>(_data_buffer));
+        };
 
-            std::cout << "Received: " << data;
 
-            std::string message;
-            std::getline(std::cin, message);
+    TFunction<Void(Void*, SizeType)> handle_func_1(write_handle_func);
 
-            // 回显消息给客户端
-            link_code = tcp_client.Write(static_cast<const Void*>(message.c_str()), message.length() + 1);
 
-            if (tcp_client.State() != ZTCPClient::State_::ZTCPClientState_Connect) {
-                break;
-            }
+
+    link_code = tcp_server.SetEndpoint("127.0.0.1", 8080);
+    link_code = tcp_server.Listen();
+    link_code = tcp_server.Accept();
+    link_code = tcp_server.AsyncRun();
+
+
+
+    link_code = tcp_server.AsyncRead(buffer.DataPtr<Void*>(), 1024, read_handle_func);
+    if (link_code != kOK) {
+        Z_LOG_ERROR(0, 0, L"AsyncRead() error!");
+    }
+
+    while (true) {
+        wscanf(L"%1024ls", buffer.DataPtr<WChar*>());
+        link_code = tcp_server.AsyncWrite(buffer.DataPtr<Void*>(), 1024, write_handle_func);
+        if (link_code != kOK) {
+            Z_LOG_ERROR(0, 0, L"AsyncRead() error!");
+            break;
         }
     }
+
+    // 
+    //tcp_server->Write(&buffer, 1024);
+    //Int32 temp_int = 10;
+    //tcp_server.Write(&temp_int, 4);
+
+    //ZTCPClient tcp_client;
+    //link_code = tcp_client.SetEndpoints("zyl4090.f1.luyouxia.net:19216");
+    //link_code = tcp_client.Connect();
+
+    //Int32 temp_int = 10;
+    //tcp_client.Write(&temp_int, 4);
+
+
+    //link_code = StartLogOutputServer();
+    //if (link_code != kOK) {
+    //    Z_LOG_ERROR(
+    //        0, link_code,
+    //        L"socket::StartLogOutputServer() link error!"
+    //    );
+    //    return 0;
+    //}
+
+    //Int32 index = 0;
+    //while (true) {
+    //    Z_LOG_MESSAGE(L"Message... %d", index++);
+    //    Sleep(1000);
+    //}
+
+    //link_code = StopLogOutputServer();
+
+    //ZTCPClient tcp_client;
+    //link_code = tcp_client.SetEndpoint("127.0.0.1", 12345);
+    //link_code = tcp_client.Connect(3);
+    //if (link_code == kOK) {
+    //    for (;;) {
+    //        // 接收客户端消息
+    //        char data[1024] = { 0 };
+    //        SizeType length;
+    //        link_code = tcp_client.Read(static_cast<Void*>(data), 1024, &length);
+
+    //        std::cout << "Received: " << data;
+
+    //        std::string message;
+    //        std::getline(std::cin, message);
+
+    //        // 回显消息给客户端
+    //        link_code = tcp_client.Write(static_cast<const Void*>(message.c_str()), message.length() + 1);
+
+    //        if (tcp_client.State() != ZTCPClient::State_::ZTCPClientState_Connect) {
+    //            break;
+    //        }
+    //    }
+    //}
+     
+    //ZConfig z_config(L"config\\test.ini");
+    //z_config.AddMember("test", 123);
+    ////z_config.SetMemberValue("test", 456);
+    //TFixedMemory<123> fixed_memory;
+    //fixed_memory.At<Int32>(10) = 10;
+    //Z_LOG_MESSAGE(L"%d", fixed_memory.At<Int32>(9));
+    //ZJsonDocument json;
+    //json["12"] = 123;
+    //json["123"] = 123;
+    //json.AddMember("123", 4321, false);
+    //Z_LOG_MESSAGE(L"%ls", string::String2WString(json.GenerateJsonString().String()).String());
     //ZTCPServer tcp_server;
     //link_code = tcp_server.SetEndpoint("127.0.0.1", 12345);
     ////link_code = tcp_server.SetEndpoint("127.012312312.0.1", 12345);
@@ -110,9 +202,9 @@ Int32 main() {
     //link_code = tcp_server.Accept();
 
 
-    //// 向客户端发送欢迎消息
-    //ZString welcome_msg = "Welcome to the server!\n";
-    //link_code = tcp_server.Write(static_cast<const Void*>(welcome_msg.String()), welcome_msg.Size() + 1);
+    ////// 向客户端发送欢迎消息
+    ////ZString welcome_msg = "Welcome to the server!\n";
+    ////link_code = tcp_server.Write(static_cast<const Void*>(welcome_msg.String()), welcome_msg.Size() + 1);
 
     //// 持续通信循环
     //for (;;) {
@@ -123,8 +215,8 @@ Int32 main() {
 
     //    std::cout << "Received: " << data;
 
-    //    // 回显消息给客户端
-    //    link_code = tcp_server.Write(static_cast<const Void*>(data), length);
+    //    //// 回显消息给客户端
+    //    //link_code = tcp_server.Write(static_cast<const Void*>(data), length);
 
     //    if (tcp_server.State() == ZTCPServer::State_::ZTCPServerState_Listen) {
     //        link_code = tcp_server.Accept();

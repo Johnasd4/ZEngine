@@ -22,9 +22,11 @@
 
 namespace zengine {
 namespace error_code {
-enum ZPrintManagerErrorCodeEnum : ReturnType {
-    kZPrintManagerErrorCodeLinkError = kErrorCodeBase_ZPrintManager,
-    kZPrintManagerErrorCodeParamOutOfRange,
+enum FConsoleErrorCodeEnum : ReturnType {
+    kFConsoleErrorCode_LinkError = kErrorCodeBase_FConsole,
+    kFConsoleErrorCode_SystemError,
+    kFConsoleErrorCode_NullptrParam,
+    kFConsoleErrorCode_ParamOutOfRange
 };
 }//error_code
 }//zengine
@@ -76,11 +78,6 @@ enum PrintBackgroundColourEnum : PrintColourType {
     kPrintBackgroundColour_LightWhite = 0xF0u,
     kPrintBackgroundColour_Max = 0x10u
 };
-
-/*
-    Sets language.
-*/
-CORE_DLLAPI Void SetLanguage(LanguageType _language) noexcept;
 
 /*
     Sets the current print colour.

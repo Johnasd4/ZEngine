@@ -23,6 +23,15 @@
 
 namespace zengine {
 
+template<typename _DstObjectType, typename _SrcObjectType>
+FORCEINLINE constexpr Void Copy(
+    _DstObjectType* _dst_obj,
+    const _SrcObjectType* _src_obj,
+    SizeType _size = sizeof(_DstObjectType)
+) {
+    memcpy(_dst_obj, _src_obj, _size);
+}
+
 template<typename _ObjectType>
 FORCEINLINE constexpr Void Swap(_ObjectType* _obj_1, _ObjectType* _obj_2) {
     _ObjectType temp_obj(std::move(*_obj_1));

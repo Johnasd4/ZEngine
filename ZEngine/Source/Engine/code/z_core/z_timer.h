@@ -28,6 +28,9 @@ namespace zengine {
 namespace error_code {
 enum ZTimerErrorCode : ReturnType {
     kZTimerErrorCode_LinkError = kErrorCodeBase_ZTimer,
+    kZTimerErrorCode_SystemError,
+    kZTimerErrorCode_NullptrParam,
+    kZTimerErrorCode_ParamOutOfRange,
     kZTimerErrorCode_TimerStateError
 };
 }//error_code

@@ -25,8 +25,22 @@
     <ClInclude Include="code\z_core\f_console.h" />
     <ClInclude Include="code\z_core\f_memory_pool.h" />
     <ClInclude Include="code\z_core\f_diagnose.h" />
+    <ClInclude Include="code\z_core\f_system.h" />
+    <ClInclude Include="code\z_core\log\c_log.h" />
+    <ClInclude Include="code\z_core\log\f_log.h" />
+    <ClInclude Include="code\z_core\log\z_log.h" />
+    <ClInclude Include="code\z_core\log\z_error_log.h" />
+    <ClInclude Include="code\z_core\log\z_info_log.h" />
+    <ClInclude Include="code\z_core\log\z_trace_log.h" />
+    <ClInclude Include="code\z_core\t_fixed_queue_safe.h" />
+    <ClInclude Include="code\z_core\t_queue_safe.h" />
+    <ClInclude Include="code\z_core\z_config.h" />
     <ClInclude Include="code\z_core\internal\d_initialize.h" />
+    <ClInclude Include="code\z_core\t_fixed_memory.h" />
+    <ClInclude Include="code\z_core\t_function.h" />
     <ClInclude Include="code\z_socket.h" />
+    <ClInclude Include="code\z_socket\f_tcp_log_output.h" />
+    <ClInclude Include="code\z_socket\z_tcp_socket.h" />
     <ClInclude Include="code\z_socket\z_tcp_client.h" />
     <ClInclude Include="code\z_socket\z_tcp_server.h" />
     <ClInclude Include="code\z_core\internal\d_concept.h" />
@@ -439,6 +453,7 @@ xcopy /S /Y "$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration)\
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)Binaries\output\$(Platform)_$(Configuration);$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration)</AdditionalLibraryDirectories>
+      <UACExecutionLevel>AsInvoker</UACExecutionLevel>
     </Link>
     <PostBuildEvent>
       <Command>if not exist "$(SolutionDir)Release\include" mkdir "$(SolutionDir)Release\include"

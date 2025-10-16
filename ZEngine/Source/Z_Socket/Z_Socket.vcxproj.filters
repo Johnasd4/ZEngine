@@ -15,11 +15,31 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="code\z_tcp_server.cpp">
+    <ClCompile Include="code\z_tcp_single_session_server.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="code\z_tcp_client.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="code\f_tcp_log_output.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\z_tcp_multiple_session_server.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\z_tcp_socket.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="code\data\z_tcp_socket_data.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\data\z_tcp_client_data.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\data\z_tcp_server_data.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

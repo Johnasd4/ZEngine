@@ -41,7 +41,7 @@ public:
         return _memory_ptr;
     }
     NODISCARD FORCEINLINE static Void operator delete(Void* _memory_ptr) noexcept {
-        memory_pool::ReleaseMemory(reinterpret_cast<Void*>(_memory_ptr));
+        memory_pool::ReleaseMemory(_memory_ptr);
     }
     NODISCARD FORCEINLINE static Void operator delete(Void* _delete_memory, Void* _memory_ptr) noexcept {}
 

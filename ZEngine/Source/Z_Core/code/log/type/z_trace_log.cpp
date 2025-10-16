@@ -18,7 +18,7 @@
 */
 #define CORE_DLLFILE
 
-#include "z_trace_log.h"
+#include "log/z_trace_log.h"
 
 #include "f_console.h"
 #include "z_file.h"
@@ -28,22 +28,21 @@
 namespace zengine {
 namespace log {
 
-ZTraceLog::ZTraceLog() noexcept : SuperType_(), raw_time_(), proj_name_(), file_dir_(), func_name_() {}
+ZTraceLog::ZTraceLog() noexcept : SuperType_(), proj_name_(), file_dir_(), func_name_() {}
 ZTraceLog::ZTraceLog(
-    TimeType _raw_time, 
+    TimeType _log_time, 
     const WChar* _proj_name,
     const Char* _file_dir,
     const Char* _func_name,
     const WChar* _format, 
     ArgListType _args
 ) noexcept 
-    : SuperType_(_format, _args)
-    , raw_time_(_raw_time)
+    : SuperType_(kLogType_Trace, _log_time, _format, _args)
     , proj_name_(_proj_name)
     , file_dir_(_file_dir)
     , func_name_(_func_name) {}
 
-Void ZTraceLog::GenerateLogString(const ZLog* _log_ptr, OutputString_* _output_str_ptr) noexcept {
+Void ZTraceLog::GenerateLogString(const ZLog* _log_ptr, ZLog::OutputString_* _output_str_ptr) noexcept {
     static ZSystemTime system_time;
     const ZTraceLog& trace_log = *reinterpret_cast<const ZTraceLog*>(_log_ptr);
     ZWString file_dir = string::String2WString(trace_log.file_dir_);
@@ -51,16 +50,16 @@ Void ZTraceLog::GenerateLogString(const ZLog* _log_ptr, OutputString_* _output_s
     SizeType file_dir_start_pos =
         file_dir.ReserveFind(kCodeFileRootDirWString) + sizeof(kCodeFileRootDirWString) / sizeof(WChar) - 1;
     file_dir = std::move(file_dir.SubString(file_dir_start_pos));
-    system_time.UpdateTimeFast(trace_log.raw_time_);
-    _output_str_ptr->w_str_.SetString(
+    system_time.UpdateTimeFast(trace_log.LogTime());
+    _output_str_ptr->SetString(
         L"%04d/%02d/%02d-%02d:%02d:%02d | <%ls> %ls-%ls | %ls",
         system_time.Year(), system_time.Month(), system_time.Day(),
         system_time.Hour(), system_time.Min(), system_time.Sec(),
         trace_log.proj_name_, file_dir.String(), string::String2WString(trace_log.func_name_).String(),
-        trace_log.LogMsgPtr().w_str_.DataPtr());
+        trace_log.LogMsgPtr().DataPtr());
 }
 
-Void ZTraceLog::FileOutputLogString(const ZLog* _log_ptr, const ZLog::OutputString_& _output_str) noexcept {
+Void ZTraceLog::FileOutputLog(const ZLog* _log_ptr, const ZLog::OutputString_& _output_str) noexcept {
     static ZFile& file = []() ->ZFile& {
         static ZFile file;
         ReturnType link_code = kOK;
@@ -78,7 +77,7 @@ Void ZTraceLog::FileOutputLogString(const ZLog* _log_ptr, const ZLog::OutputStri
     }();
     ReturnType link_code = kOK;
 
-    link_code = file.Print(L"%ls\n", _output_str.w_str_.DataPtr());
+    link_code = file.Print(L"%ls\n", _output_str.DataPtr());
     file.Flush();
     if (link_code != kOK) {
         Z_LOG_ERROR(error_code::kMLogErrorCode_LinkError, link_code, L"ZFile::Print() link error!");
@@ -86,8 +85,8 @@ Void ZTraceLog::FileOutputLogString(const ZLog* _log_ptr, const ZLog::OutputStri
     }
 }
 
-Void ZTraceLog::ConsoleOutputLogString(const ZLog* _log_ptr, const ZLog::OutputString_& _output_str) noexcept {
-    console::PrintTrace("%ls\n", _output_str.w_str_.DataPtr());
+Void ZTraceLog::ConsoleOutputLog(const ZLog* _log_ptr, const ZLog::OutputString_& _output_str) noexcept {
+    console::PrintTrace("%ls\n", _output_str.DataPtr());
 }
 
 }//log

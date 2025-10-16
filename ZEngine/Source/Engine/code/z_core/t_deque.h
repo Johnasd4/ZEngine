@@ -78,8 +78,8 @@ public:
         return deque_.assign(_init_list);
     }
 
-    NODISCARD FORCEINLINE Bool operator==(const TDeque& _deque) noexcept { return deque_ == _deque; }
-    NODISCARD FORCEINLINE Bool operator!=(const TDeque& _deque) noexcept { return deque_ != _deque; }
+    NODISCARD FORCEINLINE Bool operator==(const TDeque& _deque) noexcept { return deque_ == _deque.deque_; }
+    NODISCARD FORCEINLINE Bool operator!=(const TDeque& _deque) noexcept { return deque_ != _deque.deque_; }
 
     NODISCARD FORCEINLINE _ObjectType& operator[](const SizeType _index) noexcept { return deque_[_index]; }
     NODISCARD FORCEINLINE const _ObjectType& operator[](const SizeType _index) const noexcept { return deque_[_index]; }
@@ -156,9 +156,7 @@ public:
     FORCEINLINE Void Resize(SizeType _size) noexcept { deque_.resize(_size); }
     FORCEINLINE Void Resize(SizeType _size, const _ObjectType& _val) noexcept { deque_.resize(_size, _val); }
 
-    FORCEINLINE Void Reverse(SizeType _capacity) noexcept { deque_.reverse(_capacity); }
-
-    FORCEINLINE Void Swap(TDeque& _deque) noexcept { deque_.swap(_deque); }
+    FORCEINLINE Void Swap(TDeque& _deque) noexcept { deque_.swap(_deque.deque_); }
 
 protected:
     using SuperType_ = ZObject;

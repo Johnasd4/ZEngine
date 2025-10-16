@@ -57,7 +57,7 @@ NODISCARD ReturnType ZBoard::GetSurroundTile(
     Z_TSRPG_INITIALIZE_CHECK();
     ReturnType ret_val = kOK;
     Z_CHECK(
-        _tile_list_ptr == nullptr, error_code::kZBoardErrorCode_NullptrParams,
+        _tile_list_ptr == nullptr, error_code::kZBoardErrorCode_NullptrParam,
         L"_tile_list_ptr is nullptr!"
     );
     if (IsType(kBoardType_HexBoard)) {

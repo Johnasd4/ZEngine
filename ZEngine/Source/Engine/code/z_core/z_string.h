@@ -30,8 +30,11 @@
 namespace zengine {
 namespace error_code {
 enum ZStringErrorCode : ReturnType {
-    kZStringErrorCodeLinkError = kErrorCodeBase_ZString,
-    kZStringErrorCodeInvalidString
+    kZStringErrorCode_LinkError = kErrorCodeBase_ZString,
+    kZStringErrorCode_SystemError,
+    kZStringErrorCode_NullptrParam,
+    kZStringErrorCode_ParamOutOfRange,
+    kZStringErrorCode_InvalidString
 };
 }//error_code
 }//zengine
@@ -688,6 +691,17 @@ public:
 
     FORCEINLINE constexpr Void Swap(TString& _str) noexcept { str_.swap(_str); }
 
+    template<typename _NumberType>
+    requires kIsNumber<_NumberType>
+    FORCEINLINE constexpr Void FromNum(_NumberType _num) noexcept {
+        if constexpr (kSameType<_CharType, Char>) {
+            str_ = std::to_string(_num);
+        }
+        else {
+            str_ = std::to_wstring(_num);
+        }
+    }
+
     NODISCARD ReturnType ToInt32(Int32* _ans_ptr) noexcept {
         Int32 ans = 0;
         ReturnType ret_val = kOK;
@@ -698,11 +712,11 @@ public:
             Char* err_str;
             *_ans_ptr = std::strtol(str, &err_str, 10);
             if (str == err_str) {
-                ret_val = error_code::kZStringErrorCodeLinkError;
+                ret_val = error_code::kZStringErrorCode_LinkError;
                 Z_LOG_ERROR(ret_val, 0, L"std::strtol() link error! Wrong Parameter!");
             }
             else if (err_ref == ERANGE) {
-                ret_val = error_code::kZStringErrorCodeLinkError;
+                ret_val = error_code::kZStringErrorCode_LinkError;
                 Z_LOG_ERROR(ret_val, 0, L"std::strtol() link error! Number out of range!");
             }
         }
@@ -713,23 +727,24 @@ public:
             WChar* err_str;
             *_ans_ptr = std::wcstol(str, &err_str, 10);
             if (str == err_str) {
-                ret_val = error_code::kZStringErrorCodeLinkError;
+                ret_val = error_code::kZStringErrorCode_LinkError;
                 Z_LOG_ERROR(ret_val, 0, L"std::wcstol() link error! Wrong Parameter!");
             }
             else if (err_ref == ERANGE) {
-                ret_val = error_code::kZStringErrorCodeLinkError;
+                ret_val = error_code::kZStringErrorCode_LinkError;
                 Z_LOG_ERROR(ret_val, 0, L"std::wcstol() link error! Number out of range!");
             }
         }
         return ret_val;
     }
 
-    NODISCARD ReturnType Split(TList<TString<_CharType>>* _string_list_ptr, const _CharType _token) noexcept {
+    NODISCARD TList<TString<_CharType>> Split(const _CharType _token) noexcept {
         ReturnType ret_val = kOK;
         IndexType start_index = 0;
         IndexType end_index = 0;
         IndexType str_len = 0;
         _CharType temp_char = '\0';
+        TList<TString<_CharType>> result_list;
         while (end_index != str_.size()) {
             if (str_[end_index] != _token) {
                 ++end_index;
@@ -748,16 +763,16 @@ public:
             else if constexpr (kSameType<_CharType, WChar>) {
                 str_[end_index] = L'\0';
             }
-            _string_list_ptr->PushBack(TString<_CharType>(&str_[start_index]));
+            result_list.PushBack(TString<_CharType>(&str_[start_index]));
             str_[end_index] = temp_char;
             ++end_index;
             start_index = end_index;
         };
         if (start_index != end_index) {
             str_len = end_index - start_index;
-            _string_list_ptr->PushBack(TString<_CharType>(&str_[start_index]));
+            result_list.PushBack(TString<_CharType>(&str_[start_index]));
         }
-        return ret_val;
+        return result_list;
     };
 
 protected:

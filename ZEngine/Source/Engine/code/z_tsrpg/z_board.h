@@ -28,8 +28,10 @@ namespace zengine {
 namespace error_code {
 enum ZBoardErrorCode : ReturnType {
     kZBoardErrorCode_LinkError = kErrorCodeBase_ZBoard,
-    kZBoardErrorCode_BoardTypeNotExist,
-    kZBoardErrorCode_NullptrParams
+    kZBoardErrorCode_SystemError,
+    kZBoardErrorCode_NullptrParam,
+    kZBoardErrorCode_ParamOutOfRange,
+    kZBoardErrorCode_BoardTypeNotExist
 };
 }//error_code
 }//zengine

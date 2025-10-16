@@ -25,7 +25,10 @@
 namespace zengine {
 namespace error_code {
 enum ZLogicBoardObjectErrorCode : ReturnType {
-    kZLogicBoardObjectErrorCode_LinkError = kErrorCodeBase_ZLogicBoardObject
+    kZLogicBoardObjectErrorCode_LinkError = kErrorCodeBase_ZLogicBoardObject,
+    kZLogicBoardObjectErrorCode_SystemError,
+    kZLogicBoardObjectErrorCode_NullptrParam,
+    kZLogicBoardObjectErrorCode_ParamOutOfRange,
 };
 }//error_code
 }//zengine

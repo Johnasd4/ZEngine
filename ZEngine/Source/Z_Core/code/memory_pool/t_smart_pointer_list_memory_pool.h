@@ -22,6 +22,7 @@
 
 #include "t_list_memory_pool_base.h"
 #include "t_memory_block_base.h"
+#include "t_smart_pointer.h"
 
 namespace zengine {
 namespace memory_pool {
@@ -118,8 +119,8 @@ protected:
 
 private:
     static constexpr MemoryType kMemoryBlockHeadSize = SuperType_::NodeHeadOffset();
-    static constexpr MemoryType kMemoryBlockSize = 32;
-    static constexpr MemoryType kMemoryBlockMemorySize = kMemoryBlockSize - kMemoryBlockHeadSize;
+    static constexpr MemoryType kMemoryBlockMemorySize = sizeof(internal::TControlBlockP);
+    static constexpr MemoryType kMemoryBlockSize = kMemoryBlockMemorySize + kMemoryBlockHeadSize;
 
     //The number of the blocks that the memory pool contains when created.
     static constexpr IndexType kMemoryBlockDefaultNum = 0;

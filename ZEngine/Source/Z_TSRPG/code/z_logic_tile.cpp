@@ -156,7 +156,7 @@ NODISCARD const ReturnType ZLogicTile::CalculateTexturePtrVectorByPosZAndLength(
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
     Z_CHECK(
-        _texture_ptr_vector_ptr == nullptr, error_code::kZLogicTileErrorCode_NullptrParams, 
+        _texture_ptr_vector_ptr == nullptr, error_code::kZLogicTileErrorCode_NullptrParam, 
         L"_texture_ptr_vector_ptr is nullptr!"
     )
     IndexType node_index = texture_node_vector_.Size() - 1;
@@ -227,7 +227,7 @@ NODISCARD ReturnType ZLogicTile::Initialize(
     ReturnType link_code = kOK;
 
     Z_CHECK(
-        _owner_board_ptr == nullptr, error_code::kZLogicTileErrorCode_NullptrParams,
+        _owner_board_ptr == nullptr, error_code::kZLogicTileErrorCode_NullptrParam,
         L"_TileMeshPtr is nullptr!"
     );
 

@@ -26,15 +26,19 @@ namespace error_code {
 
 inline constexpr ReturnType kErrorCodeBase_PSocket = 0x4u * kErrorCodeProjcetMask + kErrorCodeBase_SZEngine;
 
+inline constexpr ReturnType kErrorCodeBase_FTCPLogOutput = 0x0u * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
+
 enum ZSocketErrorCode : ReturnType {
     kZSocketErrorCode_LinkError = kErrorCodeBase_PSocket,
-    kZSocketErrorCode_UnknownError,
+    kZSocketErrorCode_SystemError,
+    kZSocketErrorCode_NullptrParam,
+    kZSocketErrorCode_ParamOutOfRange,
     kZSocketErrorCode_StateError,
     kZSocketErrorCode_AddressNotVaild,
     kZSocketErrorCode_PortNotVaild,
-    kZSocketErrorCode_ClientDisconnected,
-    kZSocketErrorCode_ServerEndpointNotSet,
-    kZSocketErrorCode_ClientConnectServerFailed,
+    kZSocketErrorCode_Disconnected,
+    kZSocketErrorCode_EndpointNotSet,
+    kZSocketErrorCode_ConnectFailed,
 
 };
 

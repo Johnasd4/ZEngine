@@ -31,15 +31,12 @@ namespace log {
 */
 class ZLogServer : public ZObject {
 public:
-    static constexpr Int32 kMaxPortNum = 8;
-    static constexpr Int32 kMaxOutputPurPort = 8;
-
     /*
         Single port.
     */
     struct ZLogPort {
         Void(*input_func_)(const ZLog*, ZLog::OutputString_*) = nullptr;
-        TArray<Void(*)(const ZLog*, const ZLog::OutputString_&), kMaxOutputPurPort> output_func_array_;
+        TArray<Void(*)(const ZLog*, const ZLog::OutputString_&), kLogPortMaxOutputNum> output_func_array_;
     };
 
     ZLogServer() noexcept;
@@ -88,7 +85,7 @@ private:
     ZLogServer& operator=(const ZLogServer&) = delete;
     ZLogServer& operator=(ZLogServer&&) = delete;
 
-    TArray<ZLogPort, kMaxPortNum> port_array_;
+    TArray<ZLogPort, kLogMaxPortNum> port_array_;
 };
 
 }//log

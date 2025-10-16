@@ -31,7 +31,7 @@ class ZMemory : public ZObject {
 public:
     FORCEINLINE ZMemory() noexcept : SuperType_(), data_ptr_(), size_(0u) {}
     FORCEINLINE ZMemory(const ZMemory& _mem) noexcept : SuperType_(_mem), size_(_mem.size_) { 
-        memcpy(data_ptr_, _mem.data_ptr_, size_);
+        Copy(data_ptr_, _mem.data_ptr_, size_);
     }
     FORCEINLINE ZMemory(ZMemory&& _mem) noexcept 
         : SuperType_(std::forward<ZMemory>(_mem)), data_ptr_(_mem.data_ptr_), size_(_mem.size_) 
@@ -45,7 +45,7 @@ public:
     FORCEINLINE ~ZMemory() noexcept {}
 
     FORCEINLINE ZMemory& operator=(const ZMemory& _mem) noexcept {
-        memcpy(data_ptr_, _mem.data_ptr_, size_);
+        Copy(data_ptr_, _mem.data_ptr_, size_);
         size_ = _mem.size_;
         return *this;
     }
@@ -71,7 +71,7 @@ public:
     FORCEINLINE Void Resize(MemoryType _size) noexcept { 
         if (!memory_pool::CheckMemory(data_ptr_, _size)) {
             Byte* data_ptr = static_cast<Byte*>(memory_pool::ApplyMemory(_size));
-            memcpy(data_ptr, data_ptr_, size_);
+            Copy(data_ptr, data_ptr_, size_);
             memory_pool::ReleaseMemory(data_ptr_);
             data_ptr_ = data_ptr;
         }

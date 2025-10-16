@@ -35,6 +35,9 @@ namespace zengine {
 namespace error_code {
 enum ZThreadPoolErrorCode : ReturnType {
     kZThreadPoolErrorCode_LinkError = kErrorCodeBase_ZThreadPool,
+    kZThreadPoolErrorCode_SystemError,
+    kZThreadPoolErrorCode_NullptrParam,
+    kZThreadPoolErrorCode_ParamOutOfRange,
     kZThreadPoolErrorCode_AddNegitiveNumThread,
     kZThreadPoolErrorCode_PoolFinished
 };

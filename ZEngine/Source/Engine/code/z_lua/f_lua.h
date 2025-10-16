@@ -27,6 +27,9 @@ namespace zengine {
 namespace error_code {
 enum FLuaErrorCode : ReturnType {
     kFLuaErrorCode_LinkError = kErrorCodeBase_FLua,
+    kFLuaErrorCode_SystemError,
+    kFLuaErrorCode_NullptrParam,
+    kFLuaErrorCode_ParamOutOfRange,
     kFLuaErrorCode_LuaFunctionNotExist,
     kFLuaErrorCode_LuaFileNotLoaded,
     kFLuaErrorCode_LuaCrash,

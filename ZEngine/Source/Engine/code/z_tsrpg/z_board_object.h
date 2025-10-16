@@ -26,7 +26,9 @@ namespace zengine {
 namespace error_code {
 enum ZBoardObjectErrorCode : ReturnType {
     kZBoardObjectErrorCode_LinkError = kErrorCodeBase_ZBoardObject,
-    kZBoardObjectErrorCode_NullptrParams,
+    kZBoardObjectErrorCode_SystemError,
+    kZBoardObjectErrorCode_NullptrParam,
+    kZBoardObjectErrorCode_ParamOutOfRange,
     kZBoardObjectErrorCode_OnwerTileNotInitialized
 };
 }//error_code

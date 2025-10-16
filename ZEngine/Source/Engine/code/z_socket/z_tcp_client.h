@@ -20,13 +20,17 @@
 
 #include "internal/z_drive.h"
 
+#include "z_core/t_function.h"
+#include "z_core/t_smart_pointer.h"
 #include "z_core/z_object.h"
+
+#include "z_tcp_socket.h"
 
 namespace zengine {
 namespace socket {
 namespace internal {
 
-class ZTCPClientData;
+struct ZTCPClientData;
 
 }//internal
 }//socket
@@ -53,12 +57,17 @@ public:
 
     ~ZTCPClient() noexcept;
 
-    NODISCARD State_ State() noexcept;
+    NODISCARD FORCEINLINE State_ State() noexcept { return state_; }
 
     /*
-        Sets the address and port. Call before Connect() or after Close().
+        Resolve domain and set endpoint. Call before Connect() or after Close().
     */
-    NODISCARD ReturnType SetEndpoint(const Char* _address_str, Int32 _port) noexcept;
+    NODISCARD ReturnType SetEndpoints(const Char* _domain_str) noexcept;
+
+    /*
+        Resolve address and port and set endpoint. Call before Connect() or after Close().
+    */
+    NODISCARD ReturnType SetEndpoints(const Char* _address_str, const Char* _port_str) noexcept;
 
     /*
         Sets the socket buffer size. Call after a client is connected.
@@ -66,27 +75,94 @@ public:
     NODISCARD ReturnType SetSocketBufferSize(Int32 _size) noexcept;
 
     /*
-        Coonect to server.
-    */
-    NODISCARD ReturnType Connect(Int32 _repeat_times = kConnectRetryForever) noexcept;
-
-    /*
         Close the connection.
     */
     NODISCARD ReturnType Close() noexcept;
 
     /*
+        Reset the client to idle.
+    */
+    NODISCARD ReturnType Reset() noexcept;
+
+    /*
+        Coonect to server.
+    */
+    NODISCARD ReturnType Connect(Int32 _repeat_times = kConnectRetryForever) noexcept;
+
+    /*
+        Get socket ptr.
+        WARNING: Moving the socket data might cause fatal errors.
+    */
+    NODISCARD FORCEINLINE ZTCPSocket* GetSocketPtr() noexcept { return &socket_; }
+
+    /*
         Read a message from the client. Will suspend the current thread until a message is received.
     */
-    NODISCARD ReturnType Read(Void* _data_buffer, Int32 _buffer_size, SizeType* _message_size_ptr = nullptr) noexcept;
+    NODISCARD ReturnType Read(
+        Void* _data_buffer, 
+        Int32 _buffer_size, 
+        SizeType* _message_size_ptr = nullptr
+    ) noexcept;
+
+    /*
+        Read a message from the client. Will not suspend the current thread.
+        _handle_func only needs to handle the message recieved.
+        _handle_func(Void* _data_buffer, SizeType _read_length)
+    */
+    NODISCARD ReturnType AsyncRead(
+        Void* _data_buffer,
+        Int32 _buffer_size,
+        const TFunction<Void(Void*, SizeType)>& _handle_func
+    ) noexcept;
+    /*
+        Read a message from the client. Will not suspend the current thread.
+        _handle_func only needs to handle the message recieved.
+        _handle_func(Void* _data_buffer, SizeType _read_length)
+    */
+    NODISCARD ReturnType AsyncRead(
+        Void* _data_buffer,
+        Int32 _buffer_size,
+        const TSimpleFunction<Void(Void*, SizeType)>& _handle_func
+    ) noexcept;
 
     /*
         Send a message to the client.
     */
-    NODISCARD ReturnType Write(const Void* _data_ptr, SizeType _date_size) noexcept;
+    NODISCARD ReturnType Write(
+        const Void* _data_buffer,
+        SizeType _date_size
+    ) noexcept;
+
+    /*
+        Send a message to the client. Will not suspend the current thread.
+        _handle_func will be called after the message send.
+        _handle_func(Void* _data_buffer, SizeType _read_length)
+    */
+    NODISCARD ReturnType AsyncWrite(
+        Void* _data_buffer,
+        Int32 _buffer_size,
+        const TFunction<Void(Void*, SizeType)>& _handle_func
+    ) noexcept;
+
+    /*
+        Send a message to the client. Will not suspend the current thread.
+        _handle_func will be called after the message send.
+        _handle_func(Void* _data_buffer, SizeType _read_length)
+    */
+    NODISCARD ReturnType AsyncWrite(
+        Void* _data_buffer,
+        Int32 _buffer_size,
+        const TSimpleFunction<Void(Void*, SizeType)>& _handle_func
+    ) noexcept;
+
+    /*
+        Starts to deal with async operation until server closed or client disconnnected.
+    */
+    NODISCARD ReturnType AsyncRun() noexcept;
 
 protected:
     using SuperType_ = ZObject;
+    friend class ZTCPSocket;
 
 private:
     ZTCPClient(const ZTCPClient&) = delete;
@@ -95,9 +171,9 @@ private:
     ZTCPClient& operator=(ZTCPClient&&) = delete;
 
 private:
+    TUniquePointer<internal::ZTCPClientData> data_ptr_;
+    ZTCPSocket socket_;
     State_ state_;
-
-    internal::ZTCPClientData* data_ptr_;
 };
 
 }//socket

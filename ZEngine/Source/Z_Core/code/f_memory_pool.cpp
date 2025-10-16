@@ -80,7 +80,7 @@ CORE_DLLAPI NODISCARD Void* ReapplyMemory(Void* _old_memory_ptr, MemoryType _siz
             return _old_memory_ptr;
         }
         Void* new_memory_ptr = ApplyMemory(_size);
-        memcpy(
+        Copy(
             new_memory_ptr, _old_memory_ptr, 
             static_cast<internal::SmallMemoryListMemoryPool*>(owner_memory_pool_ptr)->MemoryBlockMemorySize());
 
@@ -114,7 +114,7 @@ CORE_DLLAPI NODISCARD Void* ReapplyMemory(
         }
         Void* new_memory_ptr = ApplyMemory(_size, _memory_size_ptr);
 
-        memcpy(
+        Copy(
             new_memory_ptr, _old_memory_ptr,
             static_cast<internal::SmallMemoryListMemoryPool*>(owner_memory_pool_ptr)->MemoryBlockMemorySize());
 

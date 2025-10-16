@@ -789,6 +789,48 @@
     <ClInclude Include="code\z_core\internal\d_initialize.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="code\z_socket\f_tcp_log_output.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_core\z_config.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_core\t_fixed_memory.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_core\log\z_trace_log.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_core\log\z_info_log.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_core\log\z_error_log.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_core\t_queue_safe.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_core\t_fixed_queue_safe.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_core\log\z_log.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_core\log\f_log.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_core\log\c_log.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_core\f_system.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_core\t_function.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_socket\z_tcp_socket.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\main.cpp">

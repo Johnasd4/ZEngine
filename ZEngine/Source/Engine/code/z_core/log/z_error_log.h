@@ -20,7 +20,7 @@
 
 #include "internal/z_drive.h"
 
-#include "m_log.h"
+#include "z_log.h"
 
 namespace zengine {
 namespace log {
@@ -32,7 +32,7 @@ class ZErrorLog : public ZLog {
 public:
     ZErrorLog() noexcept;
     ZErrorLog(
-        TimeType _raw_time,
+        TimeType _log_time,
         const WChar* _proj_name,
         const Char* _file_dir,
         const Char* _func_name,
@@ -46,23 +46,22 @@ public:
     /*
         Override it to output different formats.
     */
-    static Void GenerateLogString(const ZLog* _log_ptr, OutputString_* _output_str_ptr) noexcept;
+    static Void GenerateLogString(const ZLog* _log_ptr, ZLog::OutputString_* _output_str_ptr) noexcept;
 
     /*
         Console output error log string.
     */
-    static Void FileOutputLogString(const ZLog* _log_ptr, const ZLog::OutputString_& _output_str) noexcept;
+    static Void FileOutputLog(const ZLog* _log_ptr, const ZLog::OutputString_& _output_str) noexcept;
 
     /*
         File output error log string.
     */
-    static Void ConsoleOutputLogString(const ZLog* _log_ptr, const ZLog::OutputString_& _output_str) noexcept;
+    static Void ConsoleOutputLog(const ZLog* _log_ptr, const ZLog::OutputString_& _output_str) noexcept;
 
 protected:
     using SuperType_ = ZLog;
 
 private:
-    TimeType raw_time_;
     const WChar* proj_name_;
     const Char* file_dir_;
     const Char* func_name_;

@@ -20,6 +20,9 @@
 
 #include "z_core/internal/z_drive.h"
 
+#pragma warning(disable: 26495)
+#pragma warning(disable: 4624)
+
 //Define if at the start of the z_socket cpp file.
 #ifdef SOCKET_DLLFILE
 #define SOCKET_DLLAPI DLLEXPORT

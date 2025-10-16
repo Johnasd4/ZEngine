@@ -46,7 +46,6 @@ public:
     FORCEINLINE constexpr TFixedString(const TFixedString& _str) noexcept : SuperType_(_str), str_(_str.str_) {}
     FORCEINLINE constexpr TFixedString(TFixedString&& _str) noexcept 
         : SuperType_(std::forward<TFixedString>(_str)), str_(std::move(_str.str_)) {}
-    FORCEINLINE TFixedString(InitializerList_ _init_list) noexcept : SuperType_(), str_(_init_list) {}
     template<typename... _ArgsType>
     FORCEINLINE constexpr TFixedString(const _CharType* _format, _ArgsType&&... _args) noexcept : SuperType_() {
         if constexpr (kSameType<_CharType, Char>) {
@@ -59,22 +58,32 @@ public:
 
     FORCEINLINE constexpr ~TFixedString() noexcept {}
 
-    NODISCARD FORCEINLINE TFixedString& operator=(const TFixedString& _str) noexcept {
+    FORCEINLINE TFixedString& operator=(const TFixedString& _str) noexcept {
         SuperType_::operator=(_str);
         str_ = _str.str_;
         return *this;
     }
-    NODISCARD FORCEINLINE TFixedString& operator=(TFixedString&& _str) noexcept {
+    FORCEINLINE TFixedString& operator=(TFixedString&& _str) noexcept {
         SuperType_::operator=(std::forward<TFixedString>(_str));
         str_ = std::move(_str.str_);
         return *this;
     }
 
     NODISCARD FORCEINLINE Bool operator==(const TFixedString& _str) noexcept { 
-        return strcmp(DataPtr(), _str.DataPtr()) == 0;
+        if constexpr (kSameType<_CharType, Char>) {
+            return strcmp(DataPtr(), _str.DataPtr()) == 0;
+        }
+        else {
+            return wcscmp(DataPtr(), _str.DataPtr()) == 0;
+        }
     }
     NODISCARD FORCEINLINE Bool operator!=(const TFixedString& _str) noexcept {
-        return strcmp(DataPtr(), _str.DataPtr()) != 0;
+        if constexpr (kSameType<_CharType, Char>) {
+            return strcmp(DataPtr(), _str.DataPtr()) == 0;
+        }
+        else {
+            return wcscmp(DataPtr(), _str.DataPtr()) == 0;
+        }
     }
      
     NODISCARD FORCEINLINE constexpr _CharType& operator[](IndexType _index) noexcept { return str_[_index]; }
@@ -121,7 +130,7 @@ public:
         }
     }
     FORCEINLINE Void Fill(const _CharType& _val) noexcept { str_.fill(_val); }
-    FORCEINLINE Void Swap(TFixedString& _array) noexcept { str_.swap(_array); }
+    FORCEINLINE Void Swap(TFixedString& _array) noexcept { str_.swap(_array.str_); }
 
 protected:
     using SuperType_ = ZObject;

@@ -20,6 +20,7 @@
 
 #include "f_file_system.h"
 
+#include <fstream>
 #include <filesystem>
 #include <shobjidl.h>
 
@@ -27,6 +28,74 @@
 
 namespace zengine {
 namespace file_system {
+
+CORE_DLLAPI NODISCARD ZWString ProgramPath() noexcept {
+    return (std::filesystem::current_path() / std::filesystem::path(__argv[0]).filename()).c_str();
+}
+
+CORE_DLLAPI NODISCARD ZWString ProgramDirectory() noexcept {
+    return std::filesystem::current_path().c_str();
+}
+
+CORE_DLLAPI NODISCARD ReturnType ProgramInfo(ZFileInfo* _file_info_ptr) noexcept {
+    ReturnType ret_val = kOK;
+    ReturnType link_code = kOK;
+    link_code = GetFileInfoByPath(
+        ZWString((std::filesystem::current_path() / std::filesystem::path(__argv[0]).filename()).c_str()),
+        _file_info_ptr
+    );
+    if (link_code != kOK) {
+        ret_val = error_code::kFFileSystemErrorCode_LinkError;
+        Z_LOG_ERROR(ret_val, link_code, L"file_system::GetFileInfoByPath() link error!");
+        return ret_val;
+    }
+    return ret_val;
+}
+
+CORE_DLLAPI NODISCARD ReturnType CreateFileByPath(const WChar* _path_dir) noexcept {
+    ReturnType ret_val = kOK;
+    ReturnType link_code = kOK;
+    try {
+        if (std::filesystem::exists(_path_dir)) {
+            Z_LOG_MESSAGE(L"File already exist! path: %ls", _path_dir);
+        }
+        else {
+            std::filesystem::path path(_path_dir);
+
+            //create directory if not exist
+            link_code = CreateDirectoryByPath(path.parent_path().c_str());
+            if (link_code != kOK) {
+                ret_val = error_code::kFFileSystemErrorCode_LinkError;
+                Z_LOG_FAILURE(L"Create file failed! path: %ls", _path_dir);
+                Z_LOG_ERROR(ret_val, link_code, L"file_system::CreateDirectoryByPath() link error!");
+                return ret_val;
+            }
+
+            //create file
+            std::ofstream file(_path_dir);
+            if (file.is_open()) {
+                file.close();
+                Z_LOG_SUCCESS(L"Create file succeed! path: %ls", _path_dir);
+            }
+            else {
+                Z_LOG_FAILURE(L"Create file failed! path: %ls", _path_dir);
+                ret_val = error_code::kFFileSystemErrorCode_FileCreateFailed;
+                Z_LOG_ERROR(ret_val, 0, L"Create file failed! path: %ls", _path_dir);
+                return ret_val;
+            }
+            return ret_val;
+        }
+    }
+    catch (const std::filesystem::filesystem_error& exception) {
+        ret_val = error_code::kFFileSystemErrorCode_SystemError;
+        Z_LOG_ERROR(ret_val, 0, L"Create file failed! path: %ls", _path_dir);
+        Z_LOG_ERROR(
+            ret_val, 0, L"System error! path: %ls error msg: %ls", 
+            _path_dir, string::String2WString(exception.what()).String());
+        return ret_val;
+    }
+    return ret_val;
+}
 
 CORE_DLLAPI NODISCARD ReturnType DeleteFileByPath(const WChar* _path_dir) noexcept {
     ReturnType ret_val = kOK;
@@ -38,7 +107,7 @@ CORE_DLLAPI NODISCARD ReturnType DeleteFileByPath(const WChar* _path_dir) noexce
             Z_LOG_SUCCESS(L"Deleted file succeed! path: %ls", _path_dir);
         }
         else {
-            Z_LOG_FAILURE(L"Deleted file failed! path: %ls", _path_dir);
+
             ret_val = error_code::kFFileSystemErrorCode_FileDeleteFailed;
             Z_LOG_ERROR(ret_val, 0, L"Deleted file failed! path: %ls", _path_dir);
             return ret_val;
@@ -46,6 +115,7 @@ CORE_DLLAPI NODISCARD ReturnType DeleteFileByPath(const WChar* _path_dir) noexce
     }
     catch (const std::filesystem::filesystem_error& exception) {
         ret_val = error_code::kFFileSystemErrorCode_SystemError;
+        Z_LOG_FAILURE(L"Deleted file failed! path: %ls", _path_dir);
         Z_LOG_ERROR(
             ret_val, 0, L"System error! path: %ls error msg: %ls", 
             _path_dir, string::String2WString(exception.what()).String());
@@ -67,9 +137,86 @@ CORE_DLLAPI NODISCARD ReturnType RenameFileByPath(const WChar* _old_path_dir, co
     }
     catch (const std::filesystem::filesystem_error& exception) {
         ret_val = error_code::kFFileSystemErrorCode_SystemError;
+        Z_LOG_FAILURE(L"Rename file failed! old_path: %ls new_path: %ls", _old_path_dir, _new_path_dir);
         Z_LOG_ERROR(
             ret_val, 0, L"System error! old path: %ls new path: %ls error msg: %ls",
             _old_path_dir, _new_path_dir, string::String2WString(exception.what()).String());
+        return ret_val;
+    }
+    return ret_val;
+}
+
+CORE_DLLAPI NODISCARD ReturnType CopyFileByPath(
+    const WChar* _source_path_dir,
+    const WChar* _target_path_dir,
+    Bool overwrite_exist
+) noexcept {
+    ReturnType ret_val = kOK;
+    try {
+
+        //check source file exist
+        if (!std::filesystem::exists(_source_path_dir)) {
+            ret_val = error_code::kFFileSystemErrorCode_PathNotExist;
+            Z_LOG_FAILURE(
+                L"Copy file failed! source_path: %ls target_path: %ls",
+                _target_path_dir, _source_path_dir
+            );
+            Z_LOG_ERROR(ret_val, 0, L"Copy file failed! Source path not exist! path: %ls", _source_path_dir);
+            return ret_val;
+        }
+
+        //generate target directory if not exist
+        std::filesystem::path path(_target_path_dir);
+        if (!std::filesystem::exists(path.parent_path().c_str())) {
+            if (!std::filesystem::create_directories(path.parent_path().c_str())) {
+                ret_val = error_code::kFFileSystemErrorCode_PathNotDirectory;
+                Z_LOG_FAILURE(
+                    L"Copy file failed! source_path: %ls target_path: %ls",
+                    _target_path_dir, _source_path_dir
+                );
+                Z_LOG_ERROR(
+                    ret_val, 0,
+                    L"Copy file failed! Target directory not valid! path: %ls",
+                    path.parent_path().c_str()
+                );
+                return ret_val;
+            }
+        }
+        //copy file
+        auto copy_options = std::filesystem::copy_options::none;
+        if (overwrite_exist) {
+            copy_options |= std::filesystem::copy_options::overwrite_existing;
+        }
+        if (!std::filesystem::copy_file(_source_path_dir, _target_path_dir, copy_options)) {
+            ret_val = error_code::kFFileSystemErrorCode_CopyFileFailed;
+            Z_LOG_FAILURE(
+                L"Copy file failed! source_path: %ls target_path: %ls",
+                _target_path_dir, _source_path_dir
+            );
+            Z_LOG_ERROR(
+                ret_val, 0, 
+                L"Copy file failed! source_path: %ls target_path: %ls", 
+                _target_path_dir, _source_path_dir
+            );
+            return ret_val;
+        }
+        
+        Z_LOG_SUCCESS(
+            L"Copy file succeed! source_path: %ls target_path: %ls",
+            _target_path_dir, _source_path_dir
+        );
+
+        return ret_val;
+    }
+    catch (const std::filesystem::filesystem_error& exception) {
+        ret_val = error_code::kFFileSystemErrorCode_SystemError;
+        Z_LOG_FAILURE(
+            L"Copy file failed! source_path: %ls target_path: %ls",
+            _target_path_dir, _source_path_dir
+        );
+        Z_LOG_ERROR(
+            ret_val, 0, L"System error! source_path: %ls target_path: %ls",
+            _target_path_dir, _source_path_dir, string::String2WString(exception.what()).String());
         return ret_val;
     }
     return ret_val;
@@ -85,14 +232,15 @@ CORE_DLLAPI NODISCARD ReturnType CreateDirectoryByPath(const WChar* _path_dir) n
             Z_LOG_SUCCESS(L"Create directory succeed! path: %ls", _path_dir);
         }
         else {
-            Z_LOG_FAILURE(L"Create directory failed! path: %ls", _path_dir);
             ret_val = error_code::kFFileSystemErrorCode_CreateDirectoryFailed;
+            Z_LOG_FAILURE(L"Create directory failed! path: %ls", _path_dir);
             Z_LOG_ERROR(ret_val, 0, L"Create directory failed! path: %ls", _path_dir);
             return ret_val;
         }
     }
     catch (const std::filesystem::filesystem_error& exception) {
         ret_val = error_code::kFFileSystemErrorCode_SystemError;
+        Z_LOG_FAILURE(L"Create directory failed! path: %ls", _path_dir);
         Z_LOG_ERROR(
             ret_val, 0, L"System error! path: %ls error msg: %ls",
             _path_dir, string::String2WString(exception.what()).String());
@@ -100,6 +248,7 @@ CORE_DLLAPI NODISCARD ReturnType CreateDirectoryByPath(const WChar* _path_dir) n
     }
     catch (const std::exception& exception) {
         ret_val = error_code::kFFileSystemErrorCode_SystemError;
+        Z_LOG_FAILURE(L"Create directory failed! path: %ls", _path_dir);
         Z_LOG_ERROR(
             ret_val, 0, L"System error! path: %ls error msg: %ls",
             _path_dir, string::String2WString(exception.what()).String());
@@ -118,14 +267,15 @@ CORE_DLLAPI NODISCARD ReturnType DeleteDirectoryByPath(const WChar* _path_dir) n
             Z_LOG_SUCCESS(L"Deleted directory succeed! path: %ls", _path_dir);
         }
         else {
-            Z_LOG_FAILURE(L"Deleted directory failed! path: %ls", _path_dir);
             ret_val = error_code::kFFileSystemErrorCode_DirectoryDeleteFailed;
+            Z_LOG_FAILURE(L"Deleted directory failed! path: %ls", _path_dir);
             Z_LOG_ERROR(ret_val, 0, L"Deleted directory failed! path: %ls", _path_dir);
             return ret_val;
         }
     }
     catch (const std::filesystem::filesystem_error& exception) {
         ret_val = error_code::kFFileSystemErrorCode_SystemError;
+        Z_LOG_FAILURE(L"Deleted directory failed! path: %ls", _path_dir);
         Z_LOG_ERROR(
             ret_val, 0, L"System error! path: %ls error msg: %ls",
             _path_dir, string::String2WString(exception.what()).String());

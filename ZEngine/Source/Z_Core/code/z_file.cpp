@@ -44,7 +44,7 @@ NODISCARD ReturnType ZFile::Read(Void* _data_ptr, SizeType _data_size) noexcept 
 
     Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCode_NoFileOpened, L"No file opened!");
 
-    SizeType read_size = fread(_data_ptr, _data_size, 1LL, file_ptr_);
+    SizeType read_size = fread(_data_ptr, 1LL, _data_size, file_ptr_);
     if (read_size != _data_size) {
         ret_val = error_code::kZFileErrorCode_ReadFailed;
         Z_LOG_ERROR(ret_val, 0, L"Failed to read file! data_size: %lld, read_size: %lld", _data_size, read_size);
@@ -59,7 +59,7 @@ NODISCARD ReturnType ZFile::Write(const Void* _data_ptr, SizeType _data_size) no
 
     Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCode_NoFileOpened, L"No file opened!");
 
-    SizeType write_size = fwrite(_data_ptr, _data_size, 1LL, file_ptr_);
+    SizeType write_size = fwrite(_data_ptr, 1LL, _data_size, file_ptr_);
     if (write_size != _data_size) {
         ret_val = error_code::kZFileErrorCode_WriteFailed;
         Z_LOG_ERROR(ret_val, 0, L"Failed to write file! data_size: %lld, write_size: %lld", _data_size, write_size);

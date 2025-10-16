@@ -78,7 +78,7 @@ NODISCARD ReturnType ZLogicBoard::AddSubBoard(
     ReturnType link_code = kOK;
 
     Z_CHECK(
-        _board_ptr == nullptr, error_code::kZLogicBoardErrorCode_NullptrParams,
+        _board_ptr == nullptr, error_code::kZLogicBoardErrorCode_NullptrParam,
         L"_board_ptr is nullptr!"
     );
     Z_CHECK(

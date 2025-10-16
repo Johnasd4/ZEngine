@@ -23,5 +23,10 @@
 namespace zengine {
 namespace socket {
 
+class ZTCPSocket;
+class ZTCPClient;
+class ZTCPSingleSessionServer;
+class ZTCPMultipleSessionServer;
+
 }//socket
 }//zengine

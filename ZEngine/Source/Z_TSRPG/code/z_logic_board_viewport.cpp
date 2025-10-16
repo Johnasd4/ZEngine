@@ -167,7 +167,7 @@ NODISCARD ReturnType ZLogicBoardViewport::Initialize(
     SuperType_::InitializeP();
 
     Z_CHECK(
-        _logic_board_ptr == nullptr, error_code::kZLogicBoardViewerErrorCode_NullptrParams,
+        _logic_board_ptr == nullptr, error_code::kZLogicBoardViewerErrorCode_NullptrParam,
         L"_logic_board_ptr is nullptr!"
     );
 

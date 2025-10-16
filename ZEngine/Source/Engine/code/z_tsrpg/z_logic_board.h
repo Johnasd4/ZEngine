@@ -29,7 +29,9 @@ namespace zengine {
 namespace error_code {
 enum ZLogicBoardErrorCode : ReturnType {
     kZLogicBoardErrorCode_LinkError = kErrorCodeBase_ZLogicBoard,
-    kZLogicBoardErrorCode_NullptrParams,
+    kZLogicBoardErrorCode_SystemError,
+    kZLogicBoardErrorCode_NullptrParam,
+    kZLogicBoardErrorCode_ParamOutOfRange,
     kZLogicBoardErrorCode_OwnerBoardAlreadyExists,
     kZLogicBoardErrorCode_TileTextureNotExist
 };

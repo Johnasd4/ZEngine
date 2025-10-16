@@ -26,12 +26,14 @@
 #define USE_MEMORY_POOL_TEST true
 //Wheather the memory pool is thread safe.
 #define MEMORY_POOL_THREAD_SAFE true
+//Wheather the smart pointer is thread safe.
+#define SMART_POINTER_THREAD_SAFE true
 
 //Log type.
 #ifdef _DEBUG
 #define USE_CONSOLE_LOG true
 #define USE_FILE_LOG true
 #else
-#define USE_CONSOLE_LOG false
+#define USE_CONSOLE_LOG true
 #define USE_FILE_LOG true
 #endif//_DEBUG

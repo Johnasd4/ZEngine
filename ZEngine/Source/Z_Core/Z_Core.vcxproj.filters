@@ -21,7 +21,7 @@
     <ClCompile Include="code\f_memory_pool.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="code\m_log.cpp">
+    <ClCompile Include="code\log\z_log.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="code\z_system_time.cpp">
@@ -72,6 +72,15 @@
     <ClCompile Include="code\d_initialize.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="code\z_config.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\log\f_log.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\f_system.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\memory_pool\z_memory_pool_base.h">
@@ -96,18 +105,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\log\z_log_manager.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\log\type\z_error_log.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\log\t_log_queue.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\log\type\z_trace_log.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\log\type\z_info_log.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\memory_pool\t_heap_memory_pool.h">

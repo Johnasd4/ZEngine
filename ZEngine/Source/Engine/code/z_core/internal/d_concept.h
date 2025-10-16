@@ -23,8 +23,11 @@
 
 namespace zengine {
 
-template<typename _LeftObjectType,typename _RightObjectType>
-concept kSameType = std::is_same_v<_LeftObjectType, _RightObjectType>;
+template<typename _LeftObjectType, typename _RightObjectType>
+concept kSameType = std::is_same_v<std::decay_t<_LeftObjectType>, std::decay_t<_RightObjectType>>;
+
+template<typename _LeftObjectType, typename _RightObjectType>
+concept kNotType = !std::is_same_v<std::decay_t<_LeftObjectType>, std::decay_t<_RightObjectType>>;
 
 template<typename _ObjectType>
 concept kIsClass = std::is_class_v<_ObjectType>;
@@ -54,6 +57,23 @@ concept kIsFloat = kSameType<_NumberType, Float32> || kSameType<_NumberType, Flo
 
 template<typename _NumberType>
 concept kIsNumber = kIsInt<_NumberType> || kIsFloat<_NumberType>;
+
+template<typename _ObjectType>
+concept kIsBasicType =
+    kSameType<_ObjectType, Int8> ||
+    kSameType<_ObjectType, Int16> ||
+    kSameType<_ObjectType, Int32> ||
+    kSameType<_ObjectType, Int64> ||
+    kSameType<_ObjectType, UInt8> ||
+    kSameType<_ObjectType, UInt16> ||
+    kSameType<_ObjectType, UInt32> ||
+    kSameType<_ObjectType, UInt64> ||
+    kSameType<_ObjectType, Float32> ||
+    kSameType<_ObjectType, Float64> ||
+    kSameType<_ObjectType, Char> ||
+    kSameType<_ObjectType, WChar> ||
+    kSameType<_ObjectType, Bool> ||
+    kSameType<_ObjectType, Void*>;
 
 template<auto kNumber>
 concept kIsZero = kNumber == 0;

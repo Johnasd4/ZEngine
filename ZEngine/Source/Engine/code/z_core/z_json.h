@@ -27,8 +27,10 @@ namespace zengine {
 namespace error_code {
 enum ZJsonErrorCode : ReturnType {
     kZJsonErrorCode_LinkError = kErrorCodeBase_ZJson,
-    kZJsonErrorCode_JsonParseError,
-    kZJsonErrorCode_NullptrParams
+    kZJsonErrorCode_SystemError,
+    kZJsonErrorCode_NullptrParam,
+    kZJsonErrorCode_ParamOutOfRange,
+    kZJsonErrorCode_JsonParseError
 };
 }//error_code
 }//zengine
@@ -63,6 +65,7 @@ public:
     ZJsonValue() noexcept;
     ZJsonValue(ZJsonValue&& _value) noexcept;
 
+    ZJsonValue(const Char* _key, Bool _value) noexcept;
     ZJsonValue(const Char* _key, Int32 _value) noexcept;
     ZJsonValue(const Char* _key, Int64 _value) noexcept;
     ZJsonValue(const Char* _key, UInt32 _value) noexcept;
@@ -75,6 +78,7 @@ public:
 
     ~ZJsonValue() noexcept;
     
+    ZJsonValue& operator=(Bool _value) noexcept;
     ZJsonValue& operator=(Int32 _value) noexcept;
     ZJsonValue& operator=(Int64 _value) noexcept;
     ZJsonValue& operator=(UInt32 _value) noexcept;
@@ -85,27 +89,76 @@ public:
     ZJsonValue& operator=(const ZJsonValue& _value) noexcept;
     ZJsonValue& operator=(ZJsonValue&& _value) noexcept;
 
+    operator Bool() noexcept;
+    operator Int32() noexcept;
+    operator Int64() noexcept;
+    operator UInt32() noexcept;
+    operator UInt64() noexcept;
+    operator Float32() noexcept;
+    operator Float64() noexcept;
+    operator const Char*() noexcept;
+
     NODISCARD ZJsonValue operator[](const Char* _key) noexcept;
 
-    Void AddKey(const Char* _key, Int32 _value) noexcept;
-    Void AddKey(const Char* _key, Int64 _value) noexcept;
-    Void AddKey(const Char* _key, UInt32 _value) noexcept;
-    Void AddKey(const Char* _key, UInt64 _value) noexcept;
-    Void AddKey(const Char* _key, Float32 _value) noexcept;
-    Void AddKey(const Char* _key, Float64 _value) noexcept;
-    Void AddKey(const Char* _key, const Char* _value) noexcept;
-    Void AddKey(const Char* _key, const ZJsonValue& _value) noexcept;
-    Void AddKey(const Char* _key, ZJsonValue&& _value) noexcept;
+    NODISCARD Bool GetBool() noexcept;
+    NODISCARD Int32 GetInt32() noexcept;
+    NODISCARD Int64 GetInt64() noexcept;
+    NODISCARD UInt32 GetUInt32() noexcept;
+    NODISCARD UInt64 GetUInt64() noexcept;
+    NODISCARD Float32 GetFloat32() noexcept;
+    NODISCARD Float64 GetFloat64() noexcept;
+    NODISCARD const Char* GetString() noexcept;
 
     /*
-        Returns true if the key exist.
+        Default overwrites the existing member if already exists.
     */
-    NODISCARD Bool RemoveKey(const Char* _key) noexcept;
+    Void AddMember(const Char* _key, Bool _value, Bool _overwrite_exist = true) noexcept;
+    /*
+        Default overwrites the existing member if already exists.
+    */
+    Void AddMember(const Char* _key, Int32 _value, Bool _overwrite_exist = true) noexcept;
+    /*
+        Default overwrites the existing member if already exists.
+    */
+    Void AddMember(const Char* _key, Int64 _value, Bool _overwrite_exist = true) noexcept;
+    /*
+        Default overwrites the existing member if already exists.
+    */
+    Void AddMember(const Char* _key, UInt32 _value, Bool _overwrite_exist = true) noexcept;
+    /*
+        Default overwrites the existing member if already exists.
+    */
+    Void AddMember(const Char* _key, UInt64 _value, Bool _overwrite_exist = true) noexcept;
+    /*
+        Default overwrites the existing member if already exists.
+    */
+    Void AddMember(const Char* _key, Float32 _value, Bool _overwrite_exist = true) noexcept;
+    /*
+        Default overwrites the existing member if already exists.
+    */
+    Void AddMember(const Char* _key, Float64 _value, Bool _overwrite_exist = true) noexcept;
+    /*
+        Default overwrites the existing member if already exists.
+    */
+    Void AddMember(const Char* _key, const Char* _value, Bool _overwrite_exist = true) noexcept;
+    /*
+        Default overwrites the existing member if already exists.
+    */
+    Void AddMember(const Char* _key, const ZJsonValue& _value, Bool _overwrite_exist = true) noexcept;
+    /*
+        Default overwrites the existing member if already exists.
+    */
+    Void AddMember(const Char* _key, ZJsonValue&& _value, Bool _overwrite_exist = true) noexcept;
 
     /*
-        Returns true if the key exist.
+        Returns true if the member exist.
     */
-    NODISCARD Bool HasKey(const Char* _key) noexcept;
+    NODISCARD Bool RemoveMember(const Char* _key) noexcept;
+
+    /*
+        Returns true if the member exist.
+    */
+    NODISCARD Bool HasMember(const Char* _key) noexcept;
 
     Void Clear() noexcept;
 
@@ -135,6 +188,7 @@ public:
     ZJsonDocument() noexcept;
     ZJsonDocument(ZJsonDocument&& _value) noexcept;
 
+    ZJsonDocument(const Char* _key, Bool _value) noexcept;
     ZJsonDocument(const Char* _key, Int32 _value) noexcept;
     ZJsonDocument(const Char* _key, Int64 _value) noexcept;
     ZJsonDocument(const Char* _key, UInt32 _value) noexcept;
@@ -142,6 +196,8 @@ public:
     ZJsonDocument(const Char* _key, Float32 _value) noexcept;
     ZJsonDocument(const Char* _key, Float64 _value) noexcept;
     ZJsonDocument(const Char* _key, const Char* _value) noexcept;
+    ZJsonDocument(const Char* _key, const ZJsonValue& _value) noexcept;
+    ZJsonDocument(const Char* _key, ZJsonValue&& _value) noexcept;
     ZJsonDocument(const Char* _key, const ZJsonDocument& _value) noexcept;
     ZJsonDocument(const Char* _key, ZJsonDocument&& _value) noexcept;
 
@@ -151,25 +207,64 @@ public:
 
     NODISCARD ZJsonValue operator[](const Char* _key) noexcept;
 
-    Void AddKey(const Char* _key, Int32 _value) noexcept;
-    Void AddKey(const Char* _key, Int64 _value) noexcept;
-    Void AddKey(const Char* _key, UInt32 _value) noexcept;
-    Void AddKey(const Char* _key, UInt64 _value) noexcept;
-    Void AddKey(const Char* _key, Float32 _value) noexcept;
-    Void AddKey(const Char* _key, Float64 _value) noexcept;
-    Void AddKey(const Char* _key, const Char* _value) noexcept;
-    Void AddKey(const Char* _key, const ZJsonDocument& _value) noexcept;
-    Void AddKey(const Char* _key, ZJsonDocument&& _value) noexcept;
+    /*
+        Default overwrites the existing member if already exists.
+    */
+    Void AddMember(const Char* _key, Bool _value, Bool _overwrite_exist = true) noexcept;
+    /*
+        Default overwrites the existing member if already exists.
+    */
+    Void AddMember(const Char* _key, Int32 _value, Bool _overwrite_exist = true) noexcept;
+    /*
+        Default overwrites the existing member if already exists.
+    */
+    Void AddMember(const Char* _key, Int64 _value, Bool _overwrite_exist = true) noexcept;
+    /*
+        Default overwrites the existing member if already exists.
+    */
+    Void AddMember(const Char* _key, UInt32 _value, Bool _overwrite_exist = true) noexcept;
+    /*
+        Default overwrites the existing member if already exists.
+    */
+    Void AddMember(const Char* _key, UInt64 _value, Bool _overwrite_exist = true) noexcept;
+    /*
+        Default overwrites the existing member if already exists.
+    */
+    Void AddMember(const Char* _key, Float32 _value, Bool _overwrite_exist = true) noexcept;
+    /*
+        Default overwrites the existing member if already exists.
+    */
+    Void AddMember(const Char* _key, Float64 _value, Bool _overwrite_exist = true) noexcept;
+    /*
+        Default overwrites the existing member if already exists.
+    */
+    Void AddMember(const Char* _key, const Char* _value, Bool _overwrite_exist = true) noexcept;
+    /*
+        Default overwrites the existing member if already exists.
+    */
+    Void AddMember(const Char* _key, const ZJsonValue& _value, Bool _overwrite_exist = true) noexcept;
+    /*
+        Default overwrites the existing member if already exists.
+    */
+    Void AddMember(const Char* _key, ZJsonValue&& _value, Bool _overwrite_exist = true) noexcept;
+    /*
+        Default overwrites the existing member if already exists.
+    */
+    Void AddMember(const Char* _key, const ZJsonDocument& _value, Bool _overwrite_exist = true) noexcept;
+    /*
+        Default overwrites the existing member if already exists.
+    */
+    Void AddMember(const Char* _key, ZJsonDocument&& _value, Bool _overwrite_exist = true) noexcept;
 
     /*
-        Returns true if the key exist.
+        Returns true if the member exist.
     */
-    NODISCARD Bool RemoveKey(const Char* _key) noexcept;
+    NODISCARD Bool RemoveMember(const Char* _key) noexcept;
 
     /*
-        Returns true if the key exist.
+        Returns true if the member exist.
     */
-    NODISCARD Bool HasKey(const Char* _key) noexcept;
+    NODISCARD Bool HasMember(const Char* _key) noexcept;
 
     Void Clear() noexcept;
 

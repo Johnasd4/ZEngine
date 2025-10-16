@@ -27,6 +27,9 @@ namespace zengine {
 namespace error_code {
 enum TUniqueLockErrorCode : ReturnType {
     kTUniqueLockErrorCode_LinkError = kErrorCodeBase_TUniqueLock,
+    kTUniqueLockErrorCode_SystemError,
+    kTUniqueLockErrorCode_NullptrParam,
+    kTUniqueLockErrorCode_ParamOutOfRange,
     kTUniqueLockErrorCode_MutexNotExist,
     kTUniqueLockErrorCode_MutexAlreadyOwn,
     kTUniqueLockErrorCode_MutexDoNotOwn

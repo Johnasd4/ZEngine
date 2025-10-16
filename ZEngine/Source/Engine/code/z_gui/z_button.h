@@ -26,7 +26,10 @@
 namespace zengine {
 namespace error_code {
 enum ZButtonErrorCode : ReturnType {
-    kZButtonErrorCode_LinkError = kErrorCodeBase_ZButton
+    kZButtonErrorCode_LinkError = kErrorCodeBase_ZButton,
+    kZButtonErrorCode_SystemError,
+    kZButtonErrorCode_NullptrParam,
+    kZButtonErrorCode_ParamOutOfRange,
 };
 }//error_code
 }//zengine

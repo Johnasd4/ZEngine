@@ -24,6 +24,9 @@ namespace zengine {
 namespace error_code {
 enum FMemoryPoolErrorCode : ReturnType {
     kFMemoryPoolErrorCode_LinkError = kErrorCodeBase_FMemoryPool,
+    kFMemoryPoolErrorCode_SystemError,
+    kFMemoryPoolErrorCode_NullptrParam,
+    kFMemoryPoolErrorCode_ParamOutOfRange,
     kFMemoryPoolErrorCode_MemorySizeOutOfBound,
     kFMemoryPoolErrorCode_PoolTypeUnknown,
     kFMemoryPoolErrorCode_ApplyHeapMemoryFailed,

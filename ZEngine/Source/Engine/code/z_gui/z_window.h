@@ -30,6 +30,9 @@ namespace zengine {
 namespace error_code {
 enum ZWindowErrorCode : ReturnType {
     kZWindowErrorCode_LinkError = kErrorCodeBase_ZWindow,
+    kZWindowErrorCode_SystemError,
+    kZWindowErrorCode_NullptrParam,
+    kZWindowErrorCode_ParamOutOfRange,
     kZWindowErrorCode_WindowAreadyCreated,
     kZWindowErrorCode_WindowNotExist
 };
