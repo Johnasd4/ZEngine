@@ -64,7 +64,8 @@ Void ZErrorLog::GenerateLogString(const ZLog* _log_ptr, ZLog::OutputString_* _ou
         system_time.Year(), system_time.Month(), system_time.Day(),
         system_time.Hour(), system_time.Min(), system_time.Sec(),
         err_log.proj_name_, file_dir.String(), string::String2WString(err_log.func_name_).String(), err_log.err_line_,
-        err_log.err_code_, err_log.link_code_, err_log.LogMsgPtr().DataPtr());
+        err_log.err_code_, err_log.link_code_, err_log.LogMsgPtr().DataPtr()
+    );
 }
 
 Void ZErrorLog::FileOutputLog(const ZLog* _log_ptr, const ZLog::OutputString_& _output_str) noexcept {
@@ -76,7 +77,8 @@ Void ZErrorLog::FileOutputLog(const ZLog* _log_ptr, const ZLog::OutputString_& _
         file_dir.SetString(
             L"%ls\\%04d%02d%02d%02d%02d%02d_error.log", ZLog::CreateAndGetLogPath(),
             system_time.Year(), system_time.Month(), system_time.Day(),
-            system_time.Hour(), system_time.Min(), system_time.Sec());
+            system_time.Hour(), system_time.Min(), system_time.Sec()
+        );
         link_code = file.Open(file_dir.DataPtr(), ZFile::kOpenTypeAppend);
         if (link_code != kOK) {
             Z_LOG_ERROR(error_code::kMLogErrorCode_LinkError, link_code, L"ZFile::Open() link error!");

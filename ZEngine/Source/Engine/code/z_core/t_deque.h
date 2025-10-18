@@ -28,7 +28,7 @@
 namespace zengine {
 
 /*
-    Double end queue caintainer.
+    Double end queue container.
 */
 template<typename _ObjectType>
 class TDeque : public ZObject {

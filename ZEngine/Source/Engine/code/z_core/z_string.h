@@ -43,7 +43,7 @@ namespace zengine {
 namespace internal {
 
 /*
-    String caintainer.
+    String container.
 */
 template<typename _CharType>
 class TString : public ZObject {

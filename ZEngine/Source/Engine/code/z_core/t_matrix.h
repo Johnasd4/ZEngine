@@ -26,7 +26,7 @@
 namespace zengine {
 
 /*
-    Vector caintainer.
+    Vector container.
 */
 template<typename _ObjectType>
 class TMatrix : public ZObject {

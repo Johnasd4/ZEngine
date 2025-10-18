@@ -53,6 +53,13 @@ protected:
     FORCEINLINE constexpr const ZObject& operator=(const ZObject& _obj) noexcept { return *this; }
     FORCEINLINE constexpr const ZObject& operator=(ZObject&& _obj) noexcept { return *this; }
 
+    NODISCARD FORCEINLINE Bool operator==(const ZObject& _obj) noexcept {
+        return this == &_obj;
+    }
+    NODISCARD FORCEINLINE Bool operator!=(const ZObject& _obj) noexcept {
+        return this != &_obj;
+    }
+
     FORCEINLINE constexpr ~ZObject() noexcept {}
 
 private:

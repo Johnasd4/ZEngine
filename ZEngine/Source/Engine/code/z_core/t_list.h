@@ -28,7 +28,7 @@
 namespace zengine {
 
 /*
-    List caintainer.
+    List container.
 */
 template<typename _ObjectType>
 class TList : public ZObject {

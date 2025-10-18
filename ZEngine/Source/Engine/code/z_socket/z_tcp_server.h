@@ -21,6 +21,7 @@
 #include "internal/z_drive.h"
 
 #include "z_core/t_function.h"
+#include "z_core/t_pool_list.h"
 #include "z_core/t_smart_pointer.h"
 #include "z_core/z_object.h"
 
@@ -93,7 +94,7 @@ public:
         Get socket ptr.
         WARNING: Moving the socket data might cause fatal errors.
     */
-    NODISCARD FORCEINLINE ZTCPSocket* GetSocketPtr() noexcept { return &socket_; }
+    NODISCARD FORCEINLINE ZTCPSocket& GetSocket() noexcept { return socket_; }
 
     /*
         Read a message from the client. Will suspend the current thread until a message is received.
@@ -157,6 +158,13 @@ public:
 
     /*
         Starts to deal with async operation until server closed or client disconnnected.
+        Suspend the current thread, returns when the connection breaks.
+    */
+    NODISCARD ReturnType Run() noexcept;
+
+    /*
+        Starts to deal with async operation until server closed or client disconnnected.
+        Starts a new thread and returns immediately.
     */
     NODISCARD ReturnType AsyncRun() noexcept;
 
@@ -178,13 +186,13 @@ private:
 
 /*
     Multiple session tcp server. Multiple clients are allowed to connect at a time.
-    SetEndpoint -> Listen -> Accept -> Read/Write -> Close
+    SetEndpoint -> Listen -> Async accept -> Handle socket -> Close
 */
 class SOCKET_DLLAPI ZTCPMultipleSessionServer : public ZObject {
 public:
     enum State_ {
         ZTCPMultipleSessionServerState_Idle,
-        ZTCPMultipleSessionServerState_Execute,
+        ZTCPMultipleSessionServerState_Listen,
         ZTCPMultipleSessionServerState_Error
     };
 
@@ -192,17 +200,12 @@ public:
 
     ~ZTCPMultipleSessionServer() noexcept;
 
-    NODISCARD State_ State() noexcept;
+    NODISCARD FORCEINLINE State_ State() noexcept { return state_; }
 
     /*
         Sets the address and port. Call before Listen() or after Close().
     */
     NODISCARD ReturnType SetEndpoint(const Char* _address_str, Int32 _port) noexcept;
-
-    /*
-        Sets the socket buffer size. Call after a client is connected.
-    */
-    NODISCARD ReturnType SetSocketBufferSize(Int32 _size) noexcept;
 
     /*
         Starts the server.
@@ -220,63 +223,46 @@ public:
     NODISCARD ReturnType Reset() noexcept;
 
     /*
-        Allow a client connection.
+        Wait for a client to connected. Will not suspend the current thread.
+        _handle_func will be called after a client is connected.
+        _handle_func(ZTCPMultipleSessionServer* _server_ptr, ZTCPSocket* _socket_ptr)
     */
-    NODISCARD ReturnType AsyncAccept(const TFunction<Void()>& _handle_func) noexcept;
-
-    /*
-        Allow a client connection.
-    */
-    NODISCARD ReturnType AsyncAccept(const TSimpleFunction<Void()>& _handle_func) noexcept;
-
-    /*
-        Read a message from the client. Will suspend the current thread until a message is received.
-    */
-    NODISCARD ReturnType Read(Void* _data_buffer, Int32 _buffer_size, SizeType* _message_size_ptr = nullptr) noexcept;
-
-    /*
-        Read a message from the client. Will not suspend the current thread.
-        _handle_func only needs to handle the message recieved.
-        _handle_func(Void* _data_buffer, SizeType _read_length)
-    */
-    NODISCARD ReturnType AsyncRead(
-        Void* _data_buffer,
-        Int32 _buffer_size,
-        const TFunction<Void(Void*, SizeType)>& _handle_func
-    ) noexcept;
-    /*
-        Read a message from the client. Will not suspend the current thread.
-        _handle_func only needs to handle the message recieved.
-        _handle_func(Void* _data_buffer, SizeType _read_length)
-    */
-    NODISCARD ReturnType AsyncRead(
-        Void* _data_buffer,
-        Int32 _buffer_size,
-        const TSimpleFunction<Void(Void*, SizeType)>& _handle_func
+    NODISCARD ReturnType AsyncAccept(
+        const TFunction<Void(ZTCPMultipleSessionServer*, ZTCPSocket*)>& _handle_func
     ) noexcept;
 
     /*
-        Send a message to the client.
+        Wait for a client to connected. Will not suspend the current thread.
+        _handle_func will be called after a client is connected.
+        _handle_func(ZTCPMultipleSessionServer* _server_ptr, ZTCPSocket* _socket_ptr)
     */
-    NODISCARD ReturnType Write(const Void* _data_ptr, SizeType _date_size) noexcept;
+    NODISCARD ReturnType AsyncAccept(
+        const TSimpleFunction<Void(ZTCPMultipleSessionServer*, ZTCPSocket*)>& _handle_func
+    ) noexcept;
 
     /*
-        Send a message to the client. Will not suspend the current thread.
+        Get socket ptr.
+        WARNING: Moving the socket data might cause fatal errors.
+    */
+    NODISCARD FORCEINLINE TPoolListSafe<ZTCPSocket>& GetSocketPool() noexcept { return socket_pool_list_; }
+
+    /*
+        Send a message to all clients. Will not suspend the current thread.
         _handle_func will be called after the message send.
         _handle_func(Void* _data_buffer, SizeType _read_length)
     */
-    NODISCARD ReturnType AsyncWrite(
+    NODISCARD ReturnType AsyncBroadcast(
         Void* _data_buffer,
         Int32 _buffer_size,
         const TFunction<Void(Void*, SizeType)>& _handle_func
     ) noexcept;
 
     /*
-        Send a message to the client. Will not suspend the current thread.
+        Send a message to all clients. Will not suspend the current thread.
         _handle_func will be called after the message send.
         _handle_func(Void* _data_buffer, SizeType _read_length)
     */
-    NODISCARD ReturnType AsyncWrite(
+    NODISCARD ReturnType AsyncBroadcast(
         Void* _data_buffer,
         Int32 _buffer_size,
         const TSimpleFunction<Void(Void*, SizeType)>& _handle_func
@@ -284,11 +270,19 @@ public:
 
     /*
         Starts to deal with async operation until server closed or client disconnnected.
+        Suspend the current thread, returns when the connection breaks.
+    */
+    NODISCARD ReturnType Run() noexcept;
+
+    /*
+        Starts to deal with async operation until server closed or client disconnnected.
+        Starts a new thread and returns immediately.
     */
     NODISCARD ReturnType AsyncRun() noexcept;
 
 protected:
     using SuperType_ = ZObject;
+    friend class ZTCPSocket;
 
 private:
     ZTCPMultipleSessionServer(const ZTCPMultipleSessionServer&) = delete;
@@ -298,7 +292,7 @@ private:
 
 private:
     TUniquePointer<internal::ZTCPMultipleSessionServerData> data_ptr_;
-    ZTCPSocket socket_;
+    TPoolListSafe<ZTCPSocket> socket_pool_list_;
     State_ state_;
 
 };

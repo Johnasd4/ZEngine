@@ -101,8 +101,83 @@ namespace internal {
 
 template<typename _CharType>
 class TString;
+template<typename _CharType, IndexType kCapacity>
+class TFixedString;
 
 }//internal
+
+template<typename _ObjectType>
+class TContainerAllocator;
+template<typename _ObjectType>
+class TSmartPointerAllocator;
+template<typename _ObjectType, IndexType kCapacity>
+class TArray;
+template<typename _ObjectType, typename>
+class TAtom;
+template<typename _ObjectType>
+class TDeque;
+template<typename _ObjectType, IndexType kCapacity>
+class TFixedDeque;
+template<IndexType _size>
+class TFixedMemory;
+template<typename _ObjectType, IndexType kCapacity>
+class TFixedQueue;
+template<typename _ObjectType, IndexType kCapacity, typename _MutexType>
+class TFixedQueueSafe;
+template<IndexType kCapacity>
+using TFixedString = internal::TFixedString<Char, kCapacity>;
+template<IndexType kCapacity>
+using TFixedWString = internal::TFixedString<WChar, kCapacity>;
+template<typename _ObjectType>
+class TForwardList;
+template<typename _ObjectType>
+class TForwardList;
+template<typename _Signature>
+class TSimpleFunction;
+template<typename _ReturnType, typename... Args>
+class TSimpleFunction<_ReturnType(Args...)>;
+template<typename _Signature>
+class TFunction;
+template<typename _ReturnType, typename... Args>
+class TFunction<_ReturnType(Args...)>;
+template<typename _ObjectType>
+class TList;
+template<typename _MutexType>
+class TLockGuard;
+template<typename _ObjectType, IndexType kTableSize>
+class TLookupTable;
+template<typename _ObjectType>
+class TMatrix;
+template<typename _LeftObjectType, typename _RightObjectType>
+struct TPair;
+template<typename _ObjectType, Bool kIfCallConstructorAndDestructor>
+class TPool;
+template<typename _ObjectType, Bool kIfCallConstructorAndDestructor>
+class TPoolSafe;
+template<typename _ObjectType, Bool kIfCallConstructorAndDestructor>
+class TPoolList;
+template<typename _ObjectType, typename _ContainerType>
+class TQueue;
+template<typename _ObjectType, typename _ContainerType, typename _MutexType>
+class TQueueSafe;
+template<typename _ObjectType, typename _CompareFunction>
+class TSet;
+template<typename _ObjectType>
+class TUniquePointer;
+template<typename _ObjectType>
+class TSharedPointer;
+template<typename _ObjectType>
+class TWeakPointer;
+template<typename _ObjectType, typename _ContainerType>
+class TStack;
+template<typename... _ArgsType>
+class TTuple;
+template<typename _MutexType>
+class TUniqueLock;
+template<typename _KeyType, typename _ValueType>
+class TUnorderedMap;
+template<typename _ObjectType>
+class TVector;
 
 class ZConditionVariable;
 class ZConfig;

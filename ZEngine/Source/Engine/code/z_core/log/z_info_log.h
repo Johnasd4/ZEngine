@@ -36,9 +36,9 @@ public:
         TArray<const WChar*, kInfoLogType_Max>(
             [](TArray<const WChar*, kInfoLogType_Max>* _array_ptr) {
                 (*_array_ptr)[kInfoLogType_Message] = L"Message";
-                (*_array_ptr)[kInfoLogType_Start] = L"Start";
+                (*_array_ptr)[kInfoLogType_Start] = L"Start  ";
                 (*_array_ptr)[kInfoLogType_Process] = L"Process";
-                (*_array_ptr)[kInfoLogType_Finish] = L"Finish";
+                (*_array_ptr)[kInfoLogType_Finish] = L"Finish ";
                 (*_array_ptr)[kInfoLogType_Success] = L"Success";
                 (*_array_ptr)[kInfoLogType_Failure] = L"Failure";
             });

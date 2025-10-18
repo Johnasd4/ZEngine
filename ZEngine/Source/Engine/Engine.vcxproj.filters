@@ -807,12 +807,6 @@
     <ClInclude Include="code\z_core\log\z_error_log.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\z_core\t_queue_safe.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\z_core\t_fixed_queue_safe.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="code\z_core\log\z_log.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -829,6 +823,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\z_socket\z_tcp_socket.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_core\t_pool_list.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

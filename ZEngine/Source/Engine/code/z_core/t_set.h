@@ -29,7 +29,7 @@
 namespace zengine {
 
 /*
-    Set caintainer.
+    Set container.
 */
 template<typename _ObjectType, typename _CompareFunction = std::less<_ObjectType>>
 class TSet : public ZObject {
@@ -159,7 +159,7 @@ private:
 };
 
 /*
-    Multipul Set caintainer.
+    Multipul Set container.
 */
 template<typename _ObjectType, typename _CompareFunction = std::less<_ObjectType>>
 class TMultiset : public ZObject {

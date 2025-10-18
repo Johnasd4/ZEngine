@@ -102,8 +102,8 @@ class TFunction : public ZObject {
     static_assert(!kSameType<_Signature, _Signature>, "TFunction signature not valid!");
 };
 
-template<typename _ReturnType, typename... Args>
-class TFunction<_ReturnType(Args...)> : public ZObject {
+template<typename _ReturnType, typename... ArgTypes>
+class TFunction<_ReturnType(ArgTypes...)> : public ZObject {
 public:
     FORCEINLINE TFunction() noexcept : SuperType_(), func_ptr_() {}
 
@@ -123,17 +123,21 @@ public:
         func_ptr_ = _func.func_ptr_ ? _func.func_ptr_->Clone() : nullptr;
         return *this;
     }
-    TFunction& operator=(TFunction&& _func) noexcept {
+    FORCEINLINE TFunction& operator=(TFunction&& _func) noexcept {
         func_ptr_ = std::move(_func.func_ptr_);
         return *this;
     }
 
-    _ReturnType operator()(Args... args) const noexcept {
+    _ReturnType operator()(ArgTypes... args) const noexcept {
         if (!func_ptr_) {
             Z_LOG_ERROR(error_code::kTFunctionErrorCode_FunctionNotExist, 0, L"Function not exist, can not execute!");
             return _ReturnType();
         }
-        return func_ptr_->Execute(std::forward<Args>(args)...);
+        return func_ptr_->Execute(std::forward<ArgTypes>(args)...);
+    }
+
+    FORCEINLINE operator Bool() const noexcept {
+        return func_ptr_.operator Bool();
     }
 
 protected:
@@ -143,7 +147,7 @@ private:
     class FunctionBaseP_ : public ZObject {
     public:
         FORCEINLINE FunctionBaseP_() noexcept : SuperType_() {}
-        virtual _ReturnType Execute(Args... args) const noexcept = 0;
+        virtual _ReturnType Execute(ArgTypes... args) const noexcept = 0;
         virtual TUniquePointer<FunctionBaseP_> Clone() const noexcept = 0;
 
     protected:
@@ -157,8 +161,8 @@ private:
         FORCEINLINE FunctionImplP_(_OriginFunc&& _func) noexcept 
             : SuperType_(), func_(std::forward<_OriginFunc>(_func)) {}
 
-        virtual _ReturnType Execute(Args... args) const noexcept {
-            return func_(std::forward<Args>(args)...);
+        virtual _ReturnType Execute(ArgTypes... args) const noexcept {
+            return func_(std::forward<ArgTypes>(args)...);
         }
 
         virtual TUniquePointer<FunctionBaseP_> Clone() const noexcept {

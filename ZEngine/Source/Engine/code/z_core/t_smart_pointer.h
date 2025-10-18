@@ -114,7 +114,6 @@ public:
 
     template<typename _SrcObjectType>
     FORCEINLINE TUniquePointer& operator=(TUniquePointer<_SrcObjectType>&& _ptr) noexcept {
-        SuperType_::operator=(std::forward<TUniquePointer<_SrcObjectType>>(_ptr));
         MoveP(std::forward<TUniquePointer<_SrcObjectType>>(_ptr));
         return *this;
     }

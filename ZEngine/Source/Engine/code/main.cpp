@@ -30,13 +30,6 @@ using namespace zengine::tsrpg;
 using namespace zengine::socket;
 //using namespace std;
 
-class TestClass {
-public:
-    int a = 1;
-    Void Print() {
-        Z_LOG_MESSAGE(L"%d", a);
-    }
-};
 
 Int32 TestFunc() {
     Z_LOG_MESSAGE(L"1");
@@ -69,6 +62,22 @@ struct Multiply {
     int operator()(int a, int b) const { return a * b; }
 };
 
+Int32 count = 0;
+// 函数对象
+class TestClass {
+public:
+    TestClass() {
+        a = count++;
+        Z_LOG_MESSAGE(L"Construct %d", a);
+    }
+    ~TestClass() {
+        Z_LOG_MESSAGE(L"Destruct %d", a);
+    }
+
+private:
+    Int32 a;
+};
+
 //Int32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 Int32 main() { 
     zengine::Initialize();
@@ -85,50 +94,95 @@ Int32 main() {
     Z_LOG_SUCCESS(L"Success...");
 
     ReturnType link_code = kOK;
+    //{
+    //    TPoolList<TestClass> test_pool;
+    //    TArray<TestClass*, 100> test_array;
+    //    for (IndexType i = 0; i < 100; ++i) {
+    //        test_array[i] = test_pool.Apply();
+    //        test_pool.Push(test_array[i]);
+    //    }
+    //    link_code = kOK;
+    //    //for (IndexType i = 99; i >= 0; --i) {
+    //    //    test_pool.Release(test_array[i]);
+    //    //}
+    //    //for (auto i = test_pool.Begin(); i != test_pool.End();) {
+    //    //    i = test_pool.Release(i);
+    //    //}
+    //    Int32 num = 0;
+    //    for (auto i = test_pool.Begin(); i != test_pool.End(); ++i) {
+    //        ++num;
+    //    }
+    //    Z_LOG_MESSAGE(L"Total num: %d", num);
+
+    //    //link_code = kOK;
+    //    //for (IndexType i = 0; i < 100; ++i) {
+    //    //    test_array[i] = test_pool.Apply();
+    //    //}
+    //    //link_code = kOK;
+    //    //for (IndexType i = 0; i < 100; ++i) {
+    //    //    test_pool.Release(test_array[i]);
+    //    //}
+    //    //link_code = kOK;
+    //    //for (IndexType i = 0; i < 100; ++i) {
+    //    //    test_array[i] = test_pool.Apply();
+    //    //}
+    //    link_code = kOK;
+    //}
+    //SleepMs(kTimeBeforeProgramExit);
+    //return 0;
 
     TFixedMemory<1024> buffer;
     ZTCPSingleSessionServer tcp_server;
 
-    TFunction<Void(Void*, SizeType)> read_handle_func;
-    TFunction<Void(Void*, SizeType)> write_handle_func;
-    read_handle_func = [&tcp_server, &buffer, &read_handle_func](Void* _data_buffer, SizeType _write_length) {
-        ReturnType link_code = kOK;
-        Z_LOG_MESSAGE(L"Client: %ls", static_cast<WChar*>(_data_buffer));
+    link_code = tcp_server.SetEndpoint("127.0.0.1", 8080);
+    link_code = tcp_server.Listen();
+
+    while (true) {
+        link_code = tcp_server.Accept();
+
+        TFunction<Void(Void*, SizeType)> read_handle_func;
+        TFunction<Void(Void*, SizeType)> write_handle_func;
+        read_handle_func = [&tcp_server, &buffer, &read_handle_func](Void* _data_buffer, SizeType _write_length) {
+            ReturnType link_code = kOK;
+            Z_LOG_MESSAGE(L"Client: %ls", static_cast<WChar*>(_data_buffer));
+            link_code = tcp_server.AsyncRead(buffer.DataPtr<Void*>(), 1024, read_handle_func);
+            if (link_code != kOK) {
+                Z_LOG_ERROR(0, 0, L"AsyncRead() error!");
+            }
+            };
+        write_handle_func = [&tcp_server, &buffer, &write_handle_func](Void* _data_buffer, SizeType _write_length) {
+            ReturnType link_code = kOK;
+            Z_LOG_MESSAGE(L"Send: %ls", static_cast<WChar*>(_data_buffer));
+            };
+
         link_code = tcp_server.AsyncRead(buffer.DataPtr<Void*>(), 1024, read_handle_func);
         if (link_code != kOK) {
             Z_LOG_ERROR(0, 0, L"AsyncRead() error!");
         }
-        };
-    write_handle_func = [&tcp_server, &buffer, &write_handle_func](Void* _data_buffer, SizeType _write_length) {
-        ReturnType link_code = kOK;
-        Z_LOG_MESSAGE(L"Send: %ls", static_cast<WChar*>(_data_buffer));
-        };
 
+        link_code = tcp_server.Run();
+        //while (tcp_server.State() == ZTCPSingleSessionServer::ZTCPSingleSessionServerState_Connect) {
+        //    wscanf(L"%1024ls", buffer.DataPtr<WChar*>());
+        //    link_code = tcp_server.AsyncWrite(buffer.DataPtr<Void*>(), 1024, write_handle_func);
+        //    if (link_code != kOK) {
+        //        if (link_code != error_code::kZSocketErrorCode_Disconnected) {
+        //            Z_LOG_ERROR(0, 0, L"AsyncWrite() error!");
+        //        }
+        //        break;
+        //    }
+        //}
 
-    TFunction<Void(Void*, SizeType)> handle_func_1(write_handle_func);
-
-
-
-    link_code = tcp_server.SetEndpoint("127.0.0.1", 8080);
-    link_code = tcp_server.Listen();
-    link_code = tcp_server.Accept();
-    link_code = tcp_server.AsyncRun();
-
-
-
-    link_code = tcp_server.AsyncRead(buffer.DataPtr<Void*>(), 1024, read_handle_func);
-    if (link_code != kOK) {
-        Z_LOG_ERROR(0, 0, L"AsyncRead() error!");
-    }
-
-    while (true) {
-        wscanf(L"%1024ls", buffer.DataPtr<WChar*>());
-        link_code = tcp_server.AsyncWrite(buffer.DataPtr<Void*>(), 1024, write_handle_func);
-        if (link_code != kOK) {
-            Z_LOG_ERROR(0, 0, L"AsyncRead() error!");
+        if (tcp_server.State() != ZTCPSingleSessionServer::ZTCPSingleSessionServerState_Listen) {
             break;
         }
+
+        //if (link_code != error_code::kZSocketErrorCode_Disconnected) {
+        //    break;
+        //}
+
     }
+
+
 
     // 
     //tcp_server->Write(&buffer, 1024);

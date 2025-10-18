@@ -112,10 +112,12 @@ Void ZSceneEventManager::Tick(Float32 _delta_time) noexcept {
 ZSceneEventManager::ZSceneEventManager() noexcept 
     : SuperType_()
     , scene_event_group_execute_list_()
-    , temp_scene_event_group_ptr_(SceneEventGroup_::InstancePool().Apply())
     , speed_mult_(kDefaultSpeedMult)
     , if_pause_(false)
-{}
+{   
+    SceneEventGroup_::InstancePool().ExtendPool(SceneEventGroup_::kDefaultInstancePoolDefaultSize);
+    temp_scene_event_group_ptr_ = SceneEventGroup_::InstancePool().Apply();
+}
 
 ZSceneEventManager::~ZSceneEventManager() noexcept {}
 
@@ -124,7 +126,7 @@ ZSceneEventManager::SceneEventGroup_::SceneEventGroup_() noexcept
     , interactive_(false) {}
 
 NODISCARD TPool<ZSceneEventManager::SceneEventGroup_>& ZSceneEventManager::SceneEventGroup_::InstancePool() noexcept {
-    static TPool<ZSceneEventManager::SceneEventGroup_> pool(kDefaultInstancePoolDefaultSize);
+    static TPool<ZSceneEventManager::SceneEventGroup_> pool;
     return pool;
 }
 

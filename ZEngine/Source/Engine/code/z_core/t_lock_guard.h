@@ -31,8 +31,29 @@ namespace zengine {
 template<typename _MutexType>
 class TLockGuard : public ZObject {
 public:
-    FORCEINLINE TLockGuard(_MutexType& _mutex) noexcept : SuperType_(), mutex_ptr_(&_mutex) { mutex_ptr_->Lock(); }
+    FORCEINLINE TLockGuard(_MutexType& _mutex) noexcept 
+        : SuperType_()
+        , mutex_ptr_(&_mutex) 
+    { 
+        mutex_ptr_->Lock(); 
+    }
+    FORCEINLINE TLockGuard(TLockGuard&& _lock_guard) noexcept 
+        : SuperType_()
+        , mutex_ptr_(_lock_guard.mutex_ptr_)
+    { 
+        _lock_guard.mutex_ptr_ = nullptr;
+    }
     FORCEINLINE ~TLockGuard() noexcept { mutex_ptr_->Unlock(); }
+
+
+    FORCEINLINE TLockGuard& operator=(TLockGuard&& _lock_guard) noexcept {
+        if (mutex_ptr_ != nullptr) {
+            mutex_ptr_->Unlock();
+        }
+        mutex_ptr_ = _lock_guard.mutex_ptr_;
+        _lock_guard.mutex_ptr_ = nullptr;
+        return *this;
+    }
 
 protected:
     using SuperType_ = ZObject;
@@ -40,10 +61,8 @@ protected:
 private:
     TLockGuard() = delete;
     TLockGuard(const TLockGuard&) = delete;
-    TLockGuard(TLockGuard&&) = delete;
 
     TLockGuard& operator=(const TLockGuard&) = delete;
-    TLockGuard& operator=(TLockGuard&&) = delete;
 
     _MutexType* mutex_ptr_;
 };

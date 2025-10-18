@@ -26,7 +26,7 @@
 namespace zengine {
 
 /*
-    Stack caintainer.
+    Stack container.
 */
 template<typename _ObjectType, typename _ContainerType = TVector<_ObjectType>>
 class TStack : public ZObject {

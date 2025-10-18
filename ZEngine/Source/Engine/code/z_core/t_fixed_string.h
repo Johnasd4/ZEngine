@@ -29,10 +29,9 @@ namespace zengine {
 namespace internal {
 
 /*
-    Array caintainer.
+    Array container.
 */
 template<typename _CharType, IndexType kCapacity>
-requires kIsChar<_CharType>
 class TFixedString : public ZObject {
 public:
     using STDArray_ = std::array<_CharType, kCapacity>;

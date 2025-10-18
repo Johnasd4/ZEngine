@@ -36,11 +36,19 @@ Void ZInfoLog::GenerateLogString(const ZLog* _log_ptr, ZLog::OutputString_* _out
     static ZSystemTime system_time;
     const ZInfoLog& info_log = *reinterpret_cast<const ZInfoLog*>(_log_ptr);
     system_time.UpdateTimeFast(info_log.LogTime()); 
+  
     _output_str_ptr->SetString(
         L"%04d/%02d/%02d-%02d:%02d:%02d | %ls | %ls",
         system_time.Year(), system_time.Month(), system_time.Day(),
         system_time.Hour(), system_time.Min(), system_time.Sec(),
-        kInfoLogType_String[info_log.info_type_], info_log.LogMsgPtr().DataPtr());
+        kInfoLogType_String[info_log.info_type_], info_log.LogMsgPtr().DataPtr()
+    );
+    //_output_str_ptr->SetString(
+    //    L"%04d/%02d/%02d-%02d:%02d:%02d | %ls",
+    //    system_time.Year(), system_time.Month(), system_time.Day(),
+    //    system_time.Hour(), system_time.Min(), system_time.Sec(),
+    //    info_log.LogMsgPtr().DataPtr()
+    //);
 }
 
 Void ZInfoLog::FileOutputLog(const ZLog* _log_ptr, const ZLog::OutputString_& _output_str) noexcept {
@@ -52,7 +60,8 @@ Void ZInfoLog::FileOutputLog(const ZLog* _log_ptr, const ZLog::OutputString_& _o
         file_dir.SetString(
             L"%ls\\%04d%02d%02d%02d%02d%02d_info.log", ZLog::CreateAndGetLogPath(),
             system_time.Year(), system_time.Month(), system_time.Day(),
-            system_time.Hour(), system_time.Min(), system_time.Sec());
+            system_time.Hour(), system_time.Min(), system_time.Sec()
+        );
         link_code = file.Open(file_dir.DataPtr(), ZFile::kOpenTypeAppend);
         if (link_code != kOK) {
             Z_LOG_ERROR(error_code::kMLogErrorCode_LinkError, link_code, L"ZFile::OpenSafe() link error!");

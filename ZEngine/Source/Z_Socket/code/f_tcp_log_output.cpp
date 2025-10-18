@@ -26,7 +26,7 @@
 #include "z_core/m_log.h"
 #include "z_core/t_atom.h"
 #include "z_core/t_fixed_memory.h"
-#include "z_core/t_queue_safe.h"
+#include "z_core/t_queue.h"
 #include "z_core/z_mutex.h"
 #include "z_core/z_object.h"
 #include "z_core/z_thread.h"

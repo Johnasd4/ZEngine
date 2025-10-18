@@ -22,6 +22,8 @@
 
 #include <boost/asio.hpp>
 
+#include "z_core/t_allocator.h"
+#include "z_core/t_function.h"
 #include "z_core/t_smart_pointer.h"
 #include "z_core/z_object.h"
 
@@ -33,24 +35,20 @@ struct ZTCPSocketData : public ZObject {
 public:
     FORCEINLINE ZTCPSocketData(boost::asio::io_context* _io_context_ptr) noexcept
         : socket_ptr_(MakeUnique<boost::asio::ip::tcp::socket>(*_io_context_ptr))
+        , io_context_ptr_(_io_context_ptr)
         , address_string_()
-        , port_string_() {}
-
-    FORCEINLINE ZTCPSocketData(boost::asio::ip::tcp::socket* _socket_ptr) noexcept
-        : socket_ptr_(_socket_ptr)
-    {
-        auto remote_endpoint = _socket_ptr->remote_endpoint();
-        address_string_ = remote_endpoint.address().to_string().c_str();
-        port_string_.FromNum(remote_endpoint.port());
-    }
+        , port_string_()
+        , async_error_handle_func_() {}
 
 protected:
     using SuperType_ = ZObject;
 
 public:
     TUniquePointer<boost::asio::ip::tcp::socket> socket_ptr_;
+    boost::asio::io_context* io_context_ptr_;
     ZString address_string_;
     ZString port_string_;
+    TFunction<Void()> async_error_handle_func_;
 };
 
 }//internal

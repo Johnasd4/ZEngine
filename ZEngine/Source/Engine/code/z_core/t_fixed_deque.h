@@ -34,7 +34,7 @@ concept kIsFixedDequeInitFunction = requires(_FixedDequeType * _deque, _Function
 }//internal
 
 /*
-    Fixed deque caintainer, front points at the first object, back points at the last object.
+    Fixed deque container, front points at the first object, back points at the last object.
 */
 template<typename _ObjectType, IndexType kCapacity>
 class TFixedDeque : public ZObject {

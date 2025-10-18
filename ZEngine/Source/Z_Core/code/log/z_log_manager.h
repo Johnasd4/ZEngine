@@ -23,7 +23,7 @@
 #include "log/z_error_log.h"
 #include "log/z_info_log.h"
 #include "log/z_trace_log.h"
-#include "t_fixed_queue_safe.h"
+#include "t_fixed_queue.h"
 #include "z_log_server.h"
 #include "z_thread.h"
 

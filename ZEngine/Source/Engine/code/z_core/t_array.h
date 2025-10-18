@@ -36,7 +36,7 @@ concept kIsArrayInitFunction = requires(_ArrayType* _array, _Function _func, _Ar
 }//internal
 
 /*
-    Array caintainer.
+    Array container.
 */
 template<typename _ObjectType, IndexType kCapacity>
 class TArray : public ZObject {

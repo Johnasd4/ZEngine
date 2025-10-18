@@ -93,7 +93,7 @@ public:
         Get socket ptr.
         WARNING: Moving the socket data might cause fatal errors.
     */
-    NODISCARD FORCEINLINE ZTCPSocket* GetSocketPtr() noexcept { return &socket_; }
+    NODISCARD FORCEINLINE ZTCPSocket& GetSocket() noexcept { return socket_; }
 
     /*
         Read a message from the client. Will suspend the current thread until a message is received.
@@ -157,6 +157,13 @@ public:
 
     /*
         Starts to deal with async operation until server closed or client disconnnected.
+        Suspend the current thread, returns when the connection breaks.
+    */
+    NODISCARD ReturnType Run() noexcept;
+
+    /*
+        Starts to deal with async operation until server closed or client disconnnected.
+        Starts a new thread and returns immediately.
     */
     NODISCARD ReturnType AsyncRun() noexcept;
 

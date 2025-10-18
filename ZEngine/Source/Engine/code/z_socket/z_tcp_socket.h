@@ -51,13 +51,31 @@ public:
     };
 
     ZTCPSocket() noexcept;
+    ZTCPSocket(const ZTCPSocket& _socket) noexcept;
     ZTCPSocket(ZTCPSocket&& _socket) noexcept;
+    ZTCPSocket(ZTCPClient* _client_ptr) noexcept;
+    ZTCPSocket(ZTCPSingleSessionServer* _server_ptr) noexcept;
+    ZTCPSocket(ZTCPMultipleSessionServer* _server_ptr) noexcept;
 
     ~ZTCPSocket() noexcept;
 
+    ZTCPSocket& operator=(const ZTCPSocket& _socket) noexcept;
     ZTCPSocket& operator=(ZTCPSocket&& _socket) noexcept;
 
     NODISCARD FORCEINLINE State_ State() noexcept { return state_; }
+
+    /*
+        Initialize socket.
+    */
+    NODISCARD ReturnType Initialize(ZTCPClient* _client_ptr) noexcept;
+    /*
+        Initialize socket.
+    */
+    NODISCARD ReturnType Initialize(ZTCPSingleSessionServer* _server_ptr) noexcept;
+    /*
+        Initialize socket.
+    */
+    NODISCARD ReturnType Initialize(ZTCPMultipleSessionServer* _server_ptr) noexcept;
 
     /*
         Sets the socket buffer size. Call after connected.
@@ -138,24 +156,20 @@ protected:
     using SuperType_ = ZObject;
     friend class ZTCPClient;
     friend class ZTCPSingleSessionServer;
+    friend class ZTCPMultipleSessionServer;
 
 private:
-    ZTCPSocket(const ZTCPSocket&) = delete;
-    ZTCPSocket& operator=(const ZTCPSocket&) = delete;
-
-    ZTCPSocket(ZTCPClient* _client_ptr) noexcept;
-    ZTCPSocket(ZTCPSingleSessionServer* _server_ptr) noexcept;
-
-    /*
-        Initialize socket.
-    */
-    NODISCARD ReturnType Initialize(ZTCPClient* _client_ptr) noexcept;
-    /*
-        Initialize socket.
-    */
-    NODISCARD ReturnType Initialize(ZTCPSingleSessionServer* _server_ptr) noexcept;
-
     Void MoveP(ZTCPSocket&& _socket) noexcept;
+
+    /*
+        Called when socket connected.
+    */
+    Void OnConnectP() noexcept;
+
+    /*
+        Sets the aysnc error handle func, called when aysnc error happens.
+    */
+    NODISCARD Void SetAsyncErrorHandleFunction(TFunction<Void()>&& _handle_func) noexcept;
 
 private:
     TUniquePointer<internal::ZTCPSocketData> data_ptr_;

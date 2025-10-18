@@ -37,7 +37,20 @@ ZTCPClient::ZTCPClient() noexcept
     : data_ptr_(MakeUnique<internal::ZTCPClientData>())
     , socket_(this)
     , state_(ZTCPClientState_Idle)
-{}
+{
+    socket_.SetAsyncErrorHandleFunction(
+        [this]() {
+            //disconnect
+            if (socket_.State() == ZTCPSocket::ZTCPSocketState_Idle) {
+                //connect->listen
+                if (state_ == ZTCPClientState_Connect) {
+                    state_ = ZTCPClientState_Idle;
+                    Z_LOG_FINISH(L"Server disconnected!");
+                }
+            }
+        }
+    );
+}
 
 ZTCPClient::~ZTCPClient() noexcept {
     ReturnType link_code = kOK;
@@ -230,7 +243,7 @@ NODISCARD ReturnType ZTCPClient::Connect(Int32 _repeat_times) noexcept {
     Int32 reconnect_times = 0;
 
     Z_LOG_START(
-        L"try to connect server... server_address: %ls server_port: %ls",
+        L"Try to connect server... server_address: %ls server_port: %ls",
         string::String2WString(socket_.data_ptr_->address_string_.String()).String(),
         string::String2WString(socket_.data_ptr_->port_string_.String()).String()
     );
@@ -251,7 +264,7 @@ NODISCARD ReturnType ZTCPClient::Connect(Int32 _repeat_times) noexcept {
                 ret_val = error_code::kZSocketErrorCode_SystemError;
                 Z_LOG_ERROR(
                     ret_val, error_code.value(),
-                    L"Unknown error! error info: %ls",
+                    L"System error! error info: %ls",
                     string::String2WString(error_code.message().c_str()).String()
                 );
                 state_ = ZTCPClientState_Error;
@@ -259,8 +272,9 @@ NODISCARD ReturnType ZTCPClient::Connect(Int32 _repeat_times) noexcept {
             }
         }
         else {
-            socket_.state_ = ZTCPSocket::ZTCPSocketState_Connect;
+            socket_.OnConnectP();
             state_ = ZTCPClientState_Connect;
+            Z_LOG_SUCCESS(L"Server connected!");
             break;
         }
     } while (_repeat_times > reconnect_times);
@@ -275,12 +289,6 @@ NODISCARD ReturnType ZTCPClient::Connect(Int32 _repeat_times) noexcept {
         );
         return ret_val;    
     }
-
-    Z_LOG_SUCCESS(
-        L"Server connected! address: %ls port: %ls",
-        string::String2WString(socket_.data_ptr_->address_string_.String()).String(),
-        string::String2WString(socket_.data_ptr_->port_string_.String()).String()
-    );
 
     return ret_val;
 }
@@ -303,13 +311,16 @@ NODISCARD ReturnType ZTCPClient::Read(
     link_code = socket_.Read(_data_buffer, _buffer_size, _message_size_ptr);
     if (link_code != kOK) {
         if (ret_val == error_code::kZSocketErrorCode_Disconnected) {
-            Z_LOG_MESSAGE(L"Server disconnected!");
-            return link_code;
+            state_ = ZTCPClientState_Idle;
+            Z_LOG_FINISH(L"Server disconnected!");
+            ret_val = error_code::kZSocketErrorCode_Disconnected;
+            return ret_val;
         }
         else {
             state_ = ZTCPClientState_Error;
+            ret_val = error_code::kZSocketErrorCode_LinkError;
             Z_LOG_ERROR(
-                error_code::kZSocketErrorCode_LinkError, link_code,
+                ret_val, link_code,
                 L"ZTCPSocket::Read() link error!"
             );
             return ret_val;
@@ -336,18 +347,13 @@ NODISCARD ReturnType ZTCPClient::AsyncRead(
 
     link_code = socket_.AsyncRead(_data_buffer, _buffer_size, _handle_func);
     if (link_code != kOK) {
-        if (ret_val == error_code::kZSocketErrorCode_Disconnected) {
-            Z_LOG_MESSAGE(L"Server disconnected!");
-            return link_code;
-        }
-        else {
-            state_ = ZTCPClientState_Error;
-            Z_LOG_ERROR(
-                error_code::kZSocketErrorCode_LinkError, link_code,
-                L"ZTCPSocket::AsyncRead() link error!"
-            );
-            return ret_val;
-        }
+        state_ = ZTCPClientState_Error;
+        ret_val = error_code::kZSocketErrorCode_LinkError;
+        Z_LOG_ERROR(
+            ret_val, link_code,
+            L"ZTCPSocket::AsyncRead() link error!"
+        );
+        return ret_val;
     }
 
     return ret_val;
@@ -370,18 +376,13 @@ NODISCARD ReturnType ZTCPClient::AsyncRead(
 
     link_code = socket_.AsyncRead(_data_buffer, _buffer_size, _handle_func);
     if (link_code != kOK) {
-        if (ret_val == error_code::kZSocketErrorCode_Disconnected) {
-            Z_LOG_MESSAGE(L"Server disconnected!");
-            return link_code;
-        }
-        else {
-            state_ = ZTCPClientState_Error;
-            Z_LOG_ERROR(
-                error_code::kZSocketErrorCode_LinkError, link_code,
-                L"ZTCPSocket::AsyncRead() link error!"
-            );
-            return ret_val;
-        }
+        state_ = ZTCPClientState_Error;
+        ret_val = error_code::kZSocketErrorCode_LinkError;
+        Z_LOG_ERROR(
+            ret_val, link_code,
+            L"ZTCPSocket::AsyncRead() link error!"
+        );
+        return ret_val;
     }
 
     return ret_val;
@@ -404,13 +405,16 @@ NODISCARD ReturnType ZTCPClient::Write(
     link_code = socket_.Write(_data_buffer, _date_size);
     if (link_code != kOK) {
         if (ret_val == error_code::kZSocketErrorCode_Disconnected) {
-            Z_LOG_MESSAGE(L"Server disconnected!");
-            return link_code;
+            state_ = ZTCPClientState_Idle;
+            Z_LOG_FINISH(L"Server disconnected!");
+            ret_val = error_code::kZSocketErrorCode_Disconnected;
+            return ret_val;
         }
         else {
             state_ = ZTCPClientState_Error;
+            ret_val = error_code::kZSocketErrorCode_LinkError;
             Z_LOG_ERROR(
-                error_code::kZSocketErrorCode_LinkError, link_code,
+                ret_val, link_code,
                 L"ZTCPSocket::Write() link error!"
             );
             return ret_val;
@@ -437,18 +441,13 @@ NODISCARD ReturnType ZTCPClient::AsyncWrite(
 
     link_code = socket_.AsyncWrite(_data_buffer, _buffer_size, _handle_func);
     if (link_code != kOK) {
-        if (ret_val == error_code::kZSocketErrorCode_Disconnected) {
-            Z_LOG_MESSAGE(L"Server disconnected!");
-            return link_code;
-        }
-        else {
-            state_ = ZTCPClientState_Error;
-            Z_LOG_ERROR(
-                error_code::kZSocketErrorCode_LinkError, link_code,
-                L"ZTCPSocket::AsyncWrite() link error!"
-            );
-            return ret_val;
-        }
+        state_ = ZTCPClientState_Error;
+        ret_val = error_code::kZSocketErrorCode_LinkError;
+        Z_LOG_ERROR(
+            ret_val, link_code,
+            L"ZTCPSocket::AsyncWrite() link error!"
+        );
+        return ret_val;
     }
 
     return ret_val;
@@ -471,19 +470,30 @@ NODISCARD ReturnType ZTCPClient::AsyncWrite(
 
     link_code = socket_.AsyncWrite(_data_buffer, _buffer_size, _handle_func);
     if (link_code != kOK) {
-        if (ret_val == error_code::kZSocketErrorCode_Disconnected) {
-            Z_LOG_MESSAGE(L"Server disconnected!");
-            return link_code;
-        }
-        else {
-            state_ = ZTCPClientState_Error;
-            Z_LOG_ERROR(
-                error_code::kZSocketErrorCode_LinkError, link_code,
-                L"ZTCPSocket::AsyncWrite() link error!"
-            );
-            return ret_val;
-        }
+        state_ = ZTCPClientState_Error;
+        ret_val = error_code::kZSocketErrorCode_LinkError;
+        Z_LOG_ERROR(
+            ret_val, link_code,
+            L"ZTCPSocket::AsyncWrite() link error!"
+        );
+        return ret_val;
     }
+
+    return ret_val;
+}
+
+NODISCARD ReturnType ZTCPClient::Run() noexcept {
+    ReturnType ret_val = kOK;
+
+    Z_CHECK(
+        state_ != ZTCPClientState_Connect,
+        error_code::kZSocketErrorCode_StateError,
+        L"Client state error! state: %d expect state: %d",
+        state_, ZTCPClientState_Connect
+    );
+
+    //start dealing with async operation.
+    data_ptr_->io_context_.run();
 
     return ret_val;
 }

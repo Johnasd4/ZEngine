@@ -56,7 +56,8 @@ Void ZTraceLog::GenerateLogString(const ZLog* _log_ptr, ZLog::OutputString_* _ou
         system_time.Year(), system_time.Month(), system_time.Day(),
         system_time.Hour(), system_time.Min(), system_time.Sec(),
         trace_log.proj_name_, file_dir.String(), string::String2WString(trace_log.func_name_).String(),
-        trace_log.LogMsgPtr().DataPtr());
+        trace_log.LogMsgPtr().DataPtr()
+    );
 }
 
 Void ZTraceLog::FileOutputLog(const ZLog* _log_ptr, const ZLog::OutputString_& _output_str) noexcept {
@@ -68,7 +69,8 @@ Void ZTraceLog::FileOutputLog(const ZLog* _log_ptr, const ZLog::OutputString_& _
         file_dir.SetString(
             L"%ls\\%04d%02d%02d%02d%02d%02d_trace.log", ZLog::CreateAndGetLogPath(),
             system_time.Year(), system_time.Month(), system_time.Day(),
-            system_time.Hour(), system_time.Min(), system_time.Sec());
+            system_time.Hour(), system_time.Min(), system_time.Sec()
+        );
         link_code = file.Open(file_dir.DataPtr(), ZFile::kOpenTypeAppend);
         if (link_code != kOK) {
             Z_LOG_ERROR(error_code::kMLogErrorCode_LinkError, link_code, L"ZFile::OpenSafe() link error!");

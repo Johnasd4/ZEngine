@@ -32,8 +32,7 @@
     <ClInclude Include="code\z_core\log\z_error_log.h" />
     <ClInclude Include="code\z_core\log\z_info_log.h" />
     <ClInclude Include="code\z_core\log\z_trace_log.h" />
-    <ClInclude Include="code\z_core\t_fixed_queue_safe.h" />
-    <ClInclude Include="code\z_core\t_queue_safe.h" />
+    <ClInclude Include="code\z_core\t_pool_list.h" />
     <ClInclude Include="code\z_core\z_config.h" />
     <ClInclude Include="code\z_core\internal\d_initialize.h" />
     <ClInclude Include="code\z_core\t_fixed_memory.h" />

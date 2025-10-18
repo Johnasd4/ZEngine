@@ -28,7 +28,7 @@
 namespace zengine {
 
 /*
-    Forward List caintainer.
+    Forward List container.
 */
 template<typename _ObjectType>
 class TForwardList : public ZObject {
