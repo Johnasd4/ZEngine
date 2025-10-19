@@ -152,7 +152,7 @@ NODISCARD ReturnType ZTCPClient::SetEndpoints(const Char* _address_str, const Ch
     return ret_val;
 }
 
-NODISCARD ReturnType ZTCPClient::SetSocketBufferSize(Int32 _size) noexcept {
+NODISCARD ReturnType ZTCPClient::SetOSWriteBufferSize(Int32 _size) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
 
@@ -163,11 +163,34 @@ NODISCARD ReturnType ZTCPClient::SetSocketBufferSize(Int32 _size) noexcept {
         state_, ZTCPClientState_Connect
     );
 
-    link_code = socket_.SetSocketBufferSize(_size);
+    link_code = socket_.SetOSWriteBufferSize(_size);
     if (link_code != kOK) {
         Z_LOG_ERROR(
             error_code::kZSocketErrorCode_LinkError, link_code,
-            L"ZTCPSocket::SetSocketBufferSize() link error!"
+            L"ZTCPSocket::SetOSWriteBufferSize() link error!"
+        );
+        return ret_val;
+    }
+
+    return ret_val;
+}
+
+NODISCARD ReturnType ZTCPClient::SetOSReadBufferSize(Int32 _size) noexcept {
+    ReturnType ret_val = kOK;
+    ReturnType link_code = kOK;
+
+    Z_CHECK(
+        state_ != ZTCPClientState_Connect,
+        error_code::kZSocketErrorCode_StateError,
+        L"Client state error! state: %d expect state: %d",
+        state_, ZTCPClientState_Connect
+    );
+
+    link_code = socket_.SetOSReadBufferSize(_size);
+    if (link_code != kOK) {
+        Z_LOG_ERROR(
+            error_code::kZSocketErrorCode_LinkError, link_code,
+            L"ZTCPSocket::SetOSReadBufferSize() link error!"
         );
         return ret_val;
     }
@@ -333,7 +356,7 @@ NODISCARD ReturnType ZTCPClient::Read(
 NODISCARD ReturnType ZTCPClient::AsyncRead(
     Void* _data_buffer,
     Int32 _buffer_size,
-    const TFunction<Void(Void*, SizeType)>& _handle_func
+    const TFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
@@ -362,7 +385,7 @@ NODISCARD ReturnType ZTCPClient::AsyncRead(
 NODISCARD ReturnType ZTCPClient::AsyncRead(
     Void* _data_buffer,
     Int32 _buffer_size,
-    const TSimpleFunction<Void(Void*, SizeType)>& _handle_func
+    const TSimpleFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
@@ -427,7 +450,7 @@ NODISCARD ReturnType ZTCPClient::Write(
 NODISCARD ReturnType ZTCPClient::AsyncWrite(
     Void* _data_buffer,
     Int32 _buffer_size,
-    const TFunction<Void(Void*, SizeType)>& _handle_func
+    const TFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
@@ -456,7 +479,7 @@ NODISCARD ReturnType ZTCPClient::AsyncWrite(
 NODISCARD ReturnType ZTCPClient::AsyncWrite(
     Void* _data_buffer,
     Int32 _buffer_size,
-    const TSimpleFunction<Void(Void*, SizeType)>& _handle_func
+    const TSimpleFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;

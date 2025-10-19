@@ -102,22 +102,45 @@ NODISCARD ReturnType ZTCPSingleSessionServer::SetEndpoint(const Char* _address_s
     return ret_val;
 }
 
-NODISCARD ReturnType ZTCPSingleSessionServer::SetSocketBufferSize(Int32 _size) noexcept {
+NODISCARD ReturnType ZTCPSingleSessionServer::SetOSWriteBufferSize(Int32 _size) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
 
     Z_CHECK(
         state_ != ZTCPSingleSessionServerState_Connect,
         error_code::kZSocketErrorCode_StateError,
-        L"Server state error! state: %d expect state: %d",
+        L"Client state error! state: %d expect state: %d",
         state_, ZTCPSingleSessionServerState_Connect
     );
 
-    link_code = socket_.SetSocketBufferSize(_size);
+    link_code = socket_.SetOSWriteBufferSize(_size);
     if (link_code != kOK) {
         Z_LOG_ERROR(
             error_code::kZSocketErrorCode_LinkError, link_code,
-            L"ZTCPSocket::SetSocketBufferSize() link error!"
+            L"ZTCPSocket::SetOSWriteBufferSize() link error!"
+        );
+        return ret_val;
+    }
+
+    return ret_val;
+}
+
+NODISCARD ReturnType ZTCPSingleSessionServer::SetOSReadBufferSize(Int32 _size) noexcept {
+    ReturnType ret_val = kOK;
+    ReturnType link_code = kOK;
+
+    Z_CHECK(
+        state_ != ZTCPSingleSessionServerState_Connect,
+        error_code::kZSocketErrorCode_StateError,
+        L"Client state error! state: %d expect state: %d",
+        state_, ZTCPSingleSessionServerState_Connect
+    );
+
+    link_code = socket_.SetOSReadBufferSize(_size);
+    if (link_code != kOK) {
+        Z_LOG_ERROR(
+            error_code::kZSocketErrorCode_LinkError, link_code,
+            L"ZTCPSocket::SetOSReadBufferSize() link error!"
         );
         return ret_val;
     }
@@ -308,7 +331,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::Read(
 NODISCARD ReturnType ZTCPSingleSessionServer::AsyncRead(
     Void* _data_buffer,
     Int32 _buffer_size,
-    const TFunction<Void(Void*, SizeType)>& _handle_func
+    const TFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
@@ -337,7 +360,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::AsyncRead(
 NODISCARD ReturnType ZTCPSingleSessionServer::AsyncRead(
     Void* _data_buffer,
     Int32 _buffer_size,
-    const TSimpleFunction<Void(Void*, SizeType)>& _handle_func
+    const TSimpleFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
@@ -402,7 +425,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::Write(
 NODISCARD ReturnType ZTCPSingleSessionServer::AsyncWrite(
     Void* _data_buffer,
     Int32 _buffer_size,
-    const TFunction<Void(Void*, SizeType)>& _handle_func
+    const TFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
@@ -431,7 +454,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::AsyncWrite(
 NODISCARD ReturnType ZTCPSingleSessionServer::AsyncWrite(
     Void* _data_buffer,
     Int32 _buffer_size,
-    const TSimpleFunction<Void(Void*, SizeType)>& _handle_func
+    const TSimpleFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;

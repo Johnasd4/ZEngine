@@ -38,8 +38,8 @@ namespace zengine {
 namespace socket {
 
 /*
-    Simple one-on-one socket tcp client.
-    Resolve -> Connect -> Read/Write -> Close
+    TCP socket type.
+    Contains a extra ptr that can be linked to any object. Call LinkObjectPtr<_ObjectType>() to get the object ptr.
 */
 class SOCKET_DLLAPI ZTCPSocket : public ZObject {
 public:
@@ -63,6 +63,10 @@ public:
     ZTCPSocket& operator=(ZTCPSocket&& _socket) noexcept;
 
     NODISCARD FORCEINLINE State_ State() noexcept { return state_; }
+    template<typename _ObjectType>
+    NODISCARD FORCEINLINE _ObjectType* LinkObjectPtr() noexcept { return link_object_ptr_; }
+    NODISCARD const ZString RemoteAddressString() noexcept;
+    NODISCARD const ZString RemotePortString() noexcept;
 
     /*
         Initialize socket.
@@ -78,9 +82,13 @@ public:
     NODISCARD ReturnType Initialize(ZTCPMultipleSessionServer* _server_ptr) noexcept;
 
     /*
-        Sets the socket buffer size. Call after connected.
+        Sets os write buffer size. Call after connected.
     */
-    NODISCARD ReturnType SetSocketBufferSize(Int32 _size) noexcept;
+    NODISCARD ReturnType SetOSWriteBufferSize(Int32 _size) noexcept;
+    /*
+        Sets os read buffer size. Call after connected.
+    */
+    NODISCARD ReturnType SetOSReadBufferSize(Int32 _size) noexcept;
 
     /*
         Close the socket.
@@ -104,22 +112,22 @@ public:
     /*
         Read a message from the client. Will not suspend the current thread.
         _handle_func only needs to handle the message recieved.
-        _handle_func(Void* _data_buffer, SizeType _read_length)
+        _handle_func(ZTCPSocket* _socket_ptr, Void* _data_buffer, SizeType _read_length)
     */
     NODISCARD ReturnType AsyncRead(
         Void* _data_buffer,
         Int32 _buffer_size,
-        const TFunction<Void(Void*, SizeType)>& _handle_func
+        const TFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
     ) noexcept;
     /*
         Read a message from the client. Will not suspend the current thread.
         _handle_func only needs to handle the message recieved.
-        _handle_func(Void* _data_buffer, SizeType _read_length)
+        _handle_func(ZTCPSocket* _socket_ptr, Void* _data_buffer, SizeType _read_length)
     */
     NODISCARD ReturnType AsyncRead(
         Void* _data_buffer,
         Int32 _buffer_size,
-        const TSimpleFunction<Void(Void*, SizeType)>& _handle_func
+        const TSimpleFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
     ) noexcept;
 
     /*
@@ -133,23 +141,23 @@ public:
     /*
         Send a message to the client. Will not suspend the current thread.
         _handle_func will be called after the message send.
-        _handle_func(Void* _data_buffer, SizeType _read_length)
+        _handle_func(ZTCPSocket* _socket_ptr, Void* _data_buffer, SizeType _write_length)
     */
     NODISCARD ReturnType AsyncWrite(
         Void* _data_buffer,
         Int32 _buffer_size,
-        const TFunction<Void(Void*, SizeType)>& _handle_func
+        const TFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
     ) noexcept;
 
     /*
         Send a message to the client. Will not suspend the current thread.
         _handle_func will be called after the message send.
-        _handle_func(Void* _data_buffer, SizeType _read_length)
+        _handle_func(ZTCPSocket* _socket_ptr, Void* _data_buffer, SizeType _write_length)
     */
     NODISCARD ReturnType AsyncWrite(
         Void* _data_buffer,
         Int32 _buffer_size,
-        const TSimpleFunction<Void(Void*, SizeType)>& _handle_func
+        const TSimpleFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
     ) noexcept;
 
 protected:
@@ -174,6 +182,7 @@ private:
 private:
     TUniquePointer<internal::ZTCPSocketData> data_ptr_;
     State_ state_;
+    Void* link_object_ptr_;
 };
 
 }//socket

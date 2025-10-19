@@ -103,6 +103,13 @@ ZTCPSocket& ZTCPSocket::operator=(ZTCPSocket&& _socket) noexcept {
     return *this;
 }
 
+NODISCARD const ZString ZTCPSocket::RemoteAddressString() noexcept {
+    return data_ptr_->address_string_;
+}
+NODISCARD const ZString ZTCPSocket::RemotePortString() noexcept {
+    return data_ptr_->port_string_;
+}
+
 NODISCARD ReturnType ZTCPSocket::Initialize(ZTCPClient* _client_ptr) noexcept {
 
     ReturnType ret_val = kOK;
@@ -146,7 +153,7 @@ NODISCARD ReturnType ZTCPSocket::Initialize(ZTCPMultipleSessionServer* _server_p
     return ret_val;
 }
 
-NODISCARD ReturnType ZTCPSocket::SetSocketBufferSize(Int32 _size) noexcept {
+NODISCARD ReturnType ZTCPSocket::SetOSWriteBufferSize(Int32 _size) noexcept {
     ReturnType ret_val = kOK;
 
     Z_CHECK(
@@ -158,6 +165,32 @@ NODISCARD ReturnType ZTCPSocket::SetSocketBufferSize(Int32 _size) noexcept {
 
     boost::system::error_code error_code;
     data_ptr_->socket_ptr_->set_option(boost::asio::socket_base::send_buffer_size(_size), error_code);
+    if (error_code) {
+        ret_val = error_code::kZSocketErrorCode_SystemError;
+        Z_LOG_ERROR(
+            ret_val, error_code.value(),
+            L"System error! error info: %ls",
+            string::String2WString(error_code.message().c_str()).String()
+        );
+        state_ = ZTCPSocketState_Error;
+        return ret_val;
+    }
+
+    return ret_val;
+}
+
+NODISCARD ReturnType ZTCPSocket::SetOSReadBufferSize(Int32 _size) noexcept {
+    ReturnType ret_val = kOK;
+
+    Z_CHECK(
+        state_ != ZTCPSocketState_Connect,
+        error_code::kZSocketErrorCode_StateError,
+        L"Socket state error! state: %d expect state: %d",
+        state_, ZTCPSocketState_Connect
+    );
+
+    boost::system::error_code error_code;
+    data_ptr_->socket_ptr_->set_option(boost::asio::socket_base::receive_buffer_size(_size), error_code);
     if (error_code) {
         ret_val = error_code::kZSocketErrorCode_SystemError;
         Z_LOG_ERROR(
@@ -276,7 +309,7 @@ NODISCARD ReturnType ZTCPSocket::Read(Void* _data_buffer, Int32 _buffer_size, Si
 NODISCARD ReturnType ZTCPSocket::AsyncRead(
     Void* _data_buffer,
     Int32 _buffer_size,
-    const TFunction<Void(Void*, SizeType)>& _handle_func
+    const TFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
@@ -325,7 +358,7 @@ NODISCARD ReturnType ZTCPSocket::AsyncRead(
             }
 
             //handle read message
-            _handle_func(_data_buffer, _read_length);
+            _handle_func(this, _data_buffer, _read_length);
         }
     );
 
@@ -335,7 +368,7 @@ NODISCARD ReturnType ZTCPSocket::AsyncRead(
 NODISCARD ReturnType ZTCPSocket::AsyncRead(
     Void* _data_buffer,
     Int32 _buffer_size,
-    const TSimpleFunction<Void(Void*, SizeType)>& _handle_func
+    const TSimpleFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
@@ -384,7 +417,7 @@ NODISCARD ReturnType ZTCPSocket::AsyncRead(
             }
 
             //handle read message
-            _handle_func(_data_buffer, _read_length);
+            _handle_func(this, _data_buffer, _read_length);
         }
     );
 
@@ -405,7 +438,6 @@ NODISCARD ReturnType ZTCPSocket::Write(
     }
 
     SizeType length = data_ptr_->socket_ptr_->write_some(boost::asio::buffer(_data_buffer, _date_size), error_code);
-
     if (error_code) {
         if (error_code == boost::asio::error::connection_reset || error_code.value() == ERROR_FILE_NOT_FOUND) {
             data_ptr_->socket_ptr_->close(error_code);
@@ -437,7 +469,7 @@ NODISCARD ReturnType ZTCPSocket::Write(
 NODISCARD ReturnType ZTCPSocket::AsyncWrite(
     Void* _data_buffer,
     Int32 _buffer_size,
-    const TFunction<Void(Void*, SizeType)>& _handle_func
+    const TFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
@@ -486,7 +518,7 @@ NODISCARD ReturnType ZTCPSocket::AsyncWrite(
             }
 
             //handle write message
-            _handle_func(_data_buffer, _write_length);
+            _handle_func(this, _data_buffer, _write_length);
         }
     );
 
@@ -496,7 +528,7 @@ NODISCARD ReturnType ZTCPSocket::AsyncWrite(
 NODISCARD ReturnType ZTCPSocket::AsyncWrite(
     Void* _data_buffer,
     Int32 _buffer_size,
-    const TSimpleFunction<Void(Void*, SizeType)>& _handle_func
+    const TSimpleFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
@@ -545,7 +577,7 @@ NODISCARD ReturnType ZTCPSocket::AsyncWrite(
             }
 
             //handle write message
-            _handle_func(_data_buffer, _write_length);
+            _handle_func(this, _data_buffer, _write_length);
         }
     );
 
@@ -555,7 +587,9 @@ NODISCARD ReturnType ZTCPSocket::AsyncWrite(
 Void ZTCPSocket::MoveP(ZTCPSocket&& _socket) noexcept {
     data_ptr_ = std::move(_socket.data_ptr_);
     state_ = _socket.state_;
+    link_object_ptr_ = _socket.link_object_ptr_;
     _socket.state_ = ZTCPSocketState_Uninitialized;
+    _socket.link_object_ptr_ = nullptr;
 }
 
 Void ZTCPSocket::OnConnectP() noexcept {

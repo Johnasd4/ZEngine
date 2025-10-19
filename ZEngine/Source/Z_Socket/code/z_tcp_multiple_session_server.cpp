@@ -265,6 +265,7 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncAccept(
                 return;
             }
 
+            socket_pool_list_.Push(socket_ptr);
             socket_ptr->OnConnectP();
             Z_LOG_SUCCESS(L"Client connected!");
 
@@ -312,6 +313,7 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncAccept(
                     return;
                 }
 
+                socket_pool_list_.Push(socket_ptr);
                 socket_ptr->OnConnectP();
                 Z_LOG_SUCCESS(L"Client connected!");
 
@@ -325,7 +327,7 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncAccept(
 NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncBroadcast(
     Void* _data_buffer,
     Int32 _buffer_size,
-    const TFunction<Void(Void*, SizeType)>& _handle_func
+    const TFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
@@ -374,7 +376,7 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncBroadcast(
 NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncBroadcast(
     Void* _data_buffer,
     Int32 _buffer_size,
-    const TSimpleFunction<Void(Void*, SizeType)>& _handle_func
+    const TSimpleFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
