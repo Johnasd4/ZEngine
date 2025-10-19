@@ -244,8 +244,9 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncAccept(
     ZTCPSocket* socket_ptr = socket_pool_list_.Apply();
     data_ptr_->acceptor_.async_accept(
         *socket_ptr->data_ptr_->socket_ptr_, 
-        [this, socket_ptr, &_handle_func](
-            const boost::system::error_code& _error_code) {
+        [this, socket_ptr, _handle_func](
+            const boost::system::error_code& _error_code
+        ) {
             if (_error_code) {
                 Z_LOG_ERROR(
                     error_code::kZSocketErrorCode_SystemError, _error_code.value(),
@@ -269,55 +270,9 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncAccept(
             socket_ptr->OnConnectP();
             Z_LOG_SUCCESS(L"Client connected!");
 
-            _handle_func(this, socket_ptr);
-        }
-    );
-
-    return ret_val;
-}
-
-NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncAccept(
-    const TSimpleFunction<Void(ZTCPMultipleSessionServer*, ZTCPSocket*)>& _handle_func
-) noexcept {
-    ReturnType ret_val = kOK;
-    ReturnType link_code = kOK;
-
-    Z_CHECK(
-        state_ != ZTCPMultipleSessionServerState_Listen,
-        error_code::kZSocketErrorCode_StateError,
-        L"Server state error! state: %d expect state: %d",
-        state_, ZTCPMultipleSessionServerState_Listen
-    );
-
-    ZTCPSocket* socket_ptr = socket_pool_list_.Apply();
-    data_ptr_->acceptor_.async_accept(
-        *socket_ptr->data_ptr_->socket_ptr_,
-        [this, socket_ptr, &_handle_func](
-            const boost::system::error_code& _error_code) {
-                if (_error_code) {
-                    Z_LOG_ERROR(
-                        error_code::kZSocketErrorCode_SystemError, _error_code.value(),
-                        L"System error! error info: %ls",
-                        string::String2WString(_error_code.message().c_str()).String()
-                    );
-
-                    //reset and release socket
-                    ReturnType link_code = socket_ptr->Reset();
-                    if (link_code != kOK) {
-                        Z_LOG_ERROR(
-                            error_code::kZSocketErrorCode_LinkError, link_code,
-                            L"ZTCPMultipleSessionServer::Reset() link error!"
-                        );
-                    }
-                    socket_pool_list_.Release(socket_ptr);
-                    return;
-                }
-
-                socket_pool_list_.Push(socket_ptr);
-                socket_ptr->OnConnectP();
-                Z_LOG_SUCCESS(L"Client connected!");
-
+            if (_handle_func) {
                 _handle_func(this, socket_ptr);
+            }
         }
     );
 
@@ -339,55 +294,6 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncBroadcast(
         state_, ZTCPMultipleSessionServerState_Listen
     );
     
-    socket_pool_list_.Lock();
-    auto socket_ptr = socket_pool_list_.Begin();
-    while (socket_ptr != socket_pool_list_.End()) {
-        link_code = socket_ptr->AsyncWrite(_data_buffer, _buffer_size, _handle_func);
-        if (link_code != kOK) {
-            //disconnect
-            if (socket_ptr->State() == ZTCPSocket::ZTCPSocketState_Idle) {
-                Z_LOG_FINISH(L"Client disconnected!");
-            }
-            else {
-                Z_LOG_ERROR(
-                    error_code::kZSocketErrorCode_LinkError, link_code,
-                    L"ZTCPSocket::AsyncWrite() link error!"
-                );
-            }
-            //reset and release socket
-            link_code = socket_ptr->Reset();
-            if (link_code != kOK) {
-                Z_LOG_ERROR(
-                    error_code::kZSocketErrorCode_LinkError, link_code,
-                    L"ZTCPSocket::Reset() link error!"
-                );
-            }
-            socket_ptr = socket_pool_list_.Release(socket_ptr);
-        }
-        else {
-            ++socket_ptr;
-        }
-    }
-    socket_pool_list_.Unlock();
-
-    return ret_val;
-}
-
-NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncBroadcast(
-    Void* _data_buffer,
-    Int32 _buffer_size,
-    const TSimpleFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
-) noexcept {
-    ReturnType ret_val = kOK;
-    ReturnType link_code = kOK;
-
-    Z_CHECK(
-        state_ != ZTCPMultipleSessionServerState_Listen,
-        error_code::kZSocketErrorCode_StateError,
-        L"Server state error! state: %d expect state: %d",
-        state_, ZTCPMultipleSessionServerState_Listen
-    );
-
     socket_pool_list_.Lock();
     auto socket_ptr = socket_pool_list_.Begin();
     while (socket_ptr != socket_pool_list_.End()) {

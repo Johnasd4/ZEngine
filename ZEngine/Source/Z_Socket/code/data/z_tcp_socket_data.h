@@ -36,8 +36,8 @@ public:
     FORCEINLINE ZTCPSocketData(boost::asio::io_context* _io_context_ptr) noexcept
         : socket_ptr_(MakeUnique<boost::asio::ip::tcp::socket>(*_io_context_ptr))
         , io_context_ptr_(_io_context_ptr)
-        , address_string_()
-        , port_string_()
+        , address_()
+        , port_()
         , async_error_handle_func_() {}
 
 protected:
@@ -46,8 +46,8 @@ protected:
 public:
     TUniquePointer<boost::asio::ip::tcp::socket> socket_ptr_;
     boost::asio::io_context* io_context_ptr_;
-    ZString address_string_;
-    ZString port_string_;
+    ZString address_;
+    Int32 port_;
     TFunction<Void()> async_error_handle_func_;
 };
 

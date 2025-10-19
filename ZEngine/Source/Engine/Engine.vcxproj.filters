@@ -828,6 +828,9 @@
     <ClInclude Include="code\z_core\t_pool_list.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="code\z_socket\z_udp_socket.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\main.cpp">

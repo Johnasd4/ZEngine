@@ -53,7 +53,7 @@ public:
     ZTCPSocket() noexcept;
     ZTCPSocket(const ZTCPSocket& _socket) noexcept;
     ZTCPSocket(ZTCPSocket&& _socket) noexcept;
-    ZTCPSocket(ZTCPClient* _client_ptr) noexcept;
+    ZTCPSocket(ZTCPSingleSessionClient* _client_ptr) noexcept;
     ZTCPSocket(ZTCPSingleSessionServer* _server_ptr) noexcept;
     ZTCPSocket(ZTCPMultipleSessionServer* _server_ptr) noexcept;
 
@@ -65,13 +65,13 @@ public:
     NODISCARD FORCEINLINE State_ State() noexcept { return state_; }
     template<typename _ObjectType>
     NODISCARD FORCEINLINE _ObjectType* LinkObjectPtr() noexcept { return link_object_ptr_; }
-    NODISCARD const ZString RemoteAddressString() noexcept;
-    NODISCARD const ZString RemotePortString() noexcept;
+    NODISCARD const ZString& RemoteAddress() noexcept;
+    NODISCARD const Int32 RemotePort() noexcept;
 
     /*
         Initialize socket.
     */
-    NODISCARD ReturnType Initialize(ZTCPClient* _client_ptr) noexcept;
+    NODISCARD ReturnType Initialize(ZTCPSingleSessionClient* _client_ptr) noexcept;
     /*
         Initialize socket.
     */
@@ -119,16 +119,6 @@ public:
         Int32 _buffer_size,
         const TFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
     ) noexcept;
-    /*
-        Read a message from the client. Will not suspend the current thread.
-        _handle_func only needs to handle the message recieved.
-        _handle_func(ZTCPSocket* _socket_ptr, Void* _data_buffer, SizeType _read_length)
-    */
-    NODISCARD ReturnType AsyncRead(
-        Void* _data_buffer,
-        Int32 _buffer_size,
-        const TSimpleFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
-    ) noexcept;
 
     /*
         Send a message to the client.
@@ -149,20 +139,9 @@ public:
         const TFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
     ) noexcept;
 
-    /*
-        Send a message to the client. Will not suspend the current thread.
-        _handle_func will be called after the message send.
-        _handle_func(ZTCPSocket* _socket_ptr, Void* _data_buffer, SizeType _write_length)
-    */
-    NODISCARD ReturnType AsyncWrite(
-        Void* _data_buffer,
-        Int32 _buffer_size,
-        const TSimpleFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
-    ) noexcept;
-
 protected:
     using SuperType_ = ZObject;
-    friend class ZTCPClient;
+    friend class ZTCPSingleSessionClient;
     friend class ZTCPSingleSessionServer;
     friend class ZTCPMultipleSessionServer;
 
@@ -177,7 +156,7 @@ private:
     /*
         Sets the aysnc error handle func, called when aysnc error happens.
     */
-    NODISCARD Void SetAsyncErrorHandleFunction(TFunction<Void()>&& _handle_func) noexcept;
+    NODISCARD Void SetAsyncErrorHandleFunctionP(TFunction<Void()>&& _handle_func) noexcept;
 
 private:
     TUniquePointer<internal::ZTCPSocketData> data_ptr_;

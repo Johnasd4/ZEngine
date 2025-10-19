@@ -38,7 +38,7 @@ ZTCPSingleSessionServer::ZTCPSingleSessionServer() noexcept
     , socket_(this)
     , state_(ZTCPSingleSessionServerState_Idle)
 {
-    socket_.SetAsyncErrorHandleFunction(
+    socket_.SetAsyncErrorHandleFunctionP(
         [this]() {
             //disconnect
             if (socket_.State() == ZTCPSocket::ZTCPSocketState_Idle) {
@@ -357,35 +357,6 @@ NODISCARD ReturnType ZTCPSingleSessionServer::AsyncRead(
     return ret_val;
 }
 
-NODISCARD ReturnType ZTCPSingleSessionServer::AsyncRead(
-    Void* _data_buffer,
-    Int32 _buffer_size,
-    const TSimpleFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
-) noexcept {
-    ReturnType ret_val = kOK;
-    ReturnType link_code = kOK;
-
-    Z_CHECK(
-        state_ != ZTCPSingleSessionServerState_Connect,
-        error_code::kZSocketErrorCode_StateError,
-        L"Server state error! state: %d expect state: %d",
-        state_, ZTCPSingleSessionServerState_Connect
-    );
-
-    link_code = socket_.AsyncRead(_data_buffer, _buffer_size, _handle_func);
-    if (link_code != kOK) {
-        state_ = ZTCPSingleSessionServerState_Error;
-        ret_val = error_code::kZSocketErrorCode_LinkError;
-        Z_LOG_ERROR(
-            ret_val, link_code,
-            L"ZTCPSocket::AsyncRead() link error!"
-        );
-        return ret_val;
-    }
-
-    return ret_val;
-}
-
 NODISCARD ReturnType ZTCPSingleSessionServer::Write(
     const Void* _data_buffer, 
     SizeType _date_size
@@ -426,35 +397,6 @@ NODISCARD ReturnType ZTCPSingleSessionServer::AsyncWrite(
     Void* _data_buffer,
     Int32 _buffer_size,
     const TFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
-) noexcept {
-    ReturnType ret_val = kOK;
-    ReturnType link_code = kOK;
-
-    Z_CHECK(
-        state_ != ZTCPSingleSessionServerState_Connect,
-        error_code::kZSocketErrorCode_StateError,
-        L"Server state error! state: %d expect state: %d",
-        state_, ZTCPSingleSessionServerState_Connect
-    );
-
-    link_code = socket_.AsyncWrite(_data_buffer, _buffer_size, _handle_func);
-    if (link_code != kOK) {
-        state_ = ZTCPSingleSessionServerState_Error;
-        ret_val = error_code::kZSocketErrorCode_LinkError;
-        Z_LOG_ERROR(
-            ret_val, link_code,
-            L"ZTCPSocket::AsyncWrite() link error!"
-        );
-        return ret_val;
-    }
-
-    return ret_val;
-}
-
-NODISCARD ReturnType ZTCPSingleSessionServer::AsyncWrite(
-    Void* _data_buffer,
-    Int32 _buffer_size,
-    const TSimpleFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;

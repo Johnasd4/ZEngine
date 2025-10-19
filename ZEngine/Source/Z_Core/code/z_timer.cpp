@@ -30,7 +30,7 @@ ZTimer::ZTimer() noexcept
     , interval_ms_(kDefaultInterval)
     , repeat_times_(kTimerNeverEnd)
     , state_(kTimerState_Idle)
-    , temp_tick_func_ptr_(nullptr)
+    , temp_tick_func_()
     , timer_thread_()
     , timer_mutex_()
 {}
@@ -57,9 +57,14 @@ NODISCARD Void ZTimer::SetIntervalMs(TimeType _interval_ms) noexcept {
     timer_mutex_.Unlock();
 }
 
-NODISCARD Void ZTimer::SetTickFunc(Void(*_tick_func_ptr)()) noexcept { 
+NODISCARD Void ZTimer::SetTickFunc(const TFunction<Void()>& _tick_func) noexcept {
     timer_mutex_.Lock();
-    temp_tick_func_ptr_ = _tick_func_ptr;
+    temp_tick_func_ = _tick_func;
+    timer_mutex_.Unlock();
+}
+NODISCARD Void ZTimer::SetTickFunc(TFunction<Void()>&& _tick_func) noexcept {
+    timer_mutex_.Lock();
+    temp_tick_func_ = std::move(_tick_func);
     timer_mutex_.Unlock();
 }
 
@@ -133,15 +138,14 @@ Void ZTimer::TimerThreadFunc(ZTimer* _timer_ptr) noexcept {
     Bool finished = false;
     Int32 repeat_times_count;
     TimeType next_tick_time;
-    Void(*tick_func_ptr)() = nullptr;
+    TFunction<Void()> tick_func;
 
     //init
     _timer_ptr->timer_mutex_.Lock();
 
     repeat_times_count = _timer_ptr->repeat_times_ < 0 ? kTimerNeverEnd - 1 : 0;
     next_tick_time = TimeMs() + _timer_ptr->delay_start_time_;
-    tick_func_ptr = _timer_ptr->temp_tick_func_ptr_;
-    _timer_ptr->temp_tick_func_ptr_ = nullptr;
+    tick_func = std::move(_timer_ptr->temp_tick_func_);
 
     _timer_ptr->timer_mutex_.Unlock();
 
@@ -175,9 +179,8 @@ Void ZTimer::TimerThreadFunc(ZTimer* _timer_ptr) noexcept {
         }
 
         //if tick func changed
-        if (_timer_ptr->temp_tick_func_ptr_ != nullptr) {
-            tick_func_ptr = _timer_ptr->temp_tick_func_ptr_;
-            _timer_ptr->temp_tick_func_ptr_ = nullptr;
+        if (_timer_ptr->temp_tick_func_) {
+            tick_func = std::move(_timer_ptr->temp_tick_func_);
         }
 
         //update next tick time
@@ -191,8 +194,8 @@ Void ZTimer::TimerThreadFunc(ZTimer* _timer_ptr) noexcept {
         }
 
         //call tick func
-        if (tick_func_ptr != nullptr) {
-            tick_func_ptr();
+        if (tick_func) {
+            tick_func();
         }
 
     } while (!finished);

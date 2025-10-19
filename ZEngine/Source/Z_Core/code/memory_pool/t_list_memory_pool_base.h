@@ -38,7 +38,7 @@ namespace memory_pool {
 template<typename _MemoryBlockType, PointerType kMemoryBlockHeadOffset, Bool kIsThreadSafe>
 class TListMemoryPoolBase : public TMemoryPoolBase<kIsThreadSafe> {
 private:
-    //The multipul factor that container auto extends based on the origin size.
+    //The multiple factor that container auto extends based on the origin size.
     static constexpr Float32 kAutoExtendMulFactor = 0.2F;
     //The min number the container auto extends at least.
     static constexpr IndexType kAutoExtendMinNum = 1;

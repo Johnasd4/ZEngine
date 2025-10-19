@@ -264,6 +264,7 @@
     <ClInclude Include="code\z_socket\internal\d_macro.h" />
     <ClInclude Include="code\z_socket\internal\d_type.h" />
     <ClInclude Include="code\z_socket\internal\z_drive.h" />
+    <ClInclude Include="code\z_socket\z_udp_socket.h" />
     <ClInclude Include="code\z_tsrpg.h" />
     <ClInclude Include="code\z_tsrpg\f_scene_control.h" />
     <ClInclude Include="code\z_tsrpg\z_logic_tile.h" />

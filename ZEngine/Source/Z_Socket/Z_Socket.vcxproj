@@ -20,9 +20,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="code\z_tcp_multiple_session_client.cpp" />
     <ClCompile Include="code\z_tcp_multiple_session_server.cpp" />
     <ClCompile Include="code\f_tcp_log_output.cpp" />
-    <ClCompile Include="code\z_tcp_client.cpp" />
+    <ClCompile Include="code\z_tcp_single_session_client.cpp" />
     <ClCompile Include="code\z_tcp_single_session_server.cpp" />
     <ClCompile Include="code\z_tcp_socket.cpp" />
   </ItemGroup>

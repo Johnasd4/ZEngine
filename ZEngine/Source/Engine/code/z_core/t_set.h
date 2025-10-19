@@ -159,7 +159,7 @@ private:
 };
 
 /*
-    Multipul Set container.
+    Multiple Set container.
 */
 template<typename _ObjectType, typename _CompareFunction = std::less<_ObjectType>>
 class TMultiset : public ZObject {

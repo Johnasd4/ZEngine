@@ -42,7 +42,7 @@ struct TSystemMemoryBlock : public TMemoryBlockBase {
 template<Bool kIsThreadSafe>
 class TSystemMemoryPool : public TMemoryPoolBase<kIsThreadSafe> {
 private:
-    //The multipul factor that container auto extends based on the origin size.
+    //The multiple factor that container auto extends based on the origin size.
     static constexpr PointerType kNodeHeadOffset = 8ULL;
 
 public:

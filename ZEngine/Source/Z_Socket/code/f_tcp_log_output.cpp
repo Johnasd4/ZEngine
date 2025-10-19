@@ -348,20 +348,12 @@ public:
             log_client_thread_state_.Value(), LogClientState_Idle
         );
 
-        //set end point
-        link_code = log_client_.SetEndpoints(_address_str, _port_str);
-        if (link_code != kOK) {
-            ret_val = error_code::kZSocketErrorCode_LinkError;
-            Z_LOG_ERROR(ret_val, link_code, L"ZTCPClient::SetEndpoint() link error!");
-            return ret_val;
-        }
-
         //set handle func
         handle_func_ = _handle_func;
 
         //start log client
         log_client_thread_state_ = LogClientState_Initialzing;
-        client_thread_ = ZThread(LogClientThreadFunc);
+        client_thread_ = ZThread(LogClientThreadFunc, _address_str, _port_str);
 
         return ret_val;
     }
@@ -401,15 +393,18 @@ private:
         LogClientState_Closing
     };
 
-    static Void LogClientThreadFunc() noexcept {
+    static Void LogClientThreadFunc(
+        const Char* _address_str,
+        const Char* _port_str
+    ) noexcept {
         ReturnType link_code = kOK;
 
-        while (Instance().log_client_.State() == ZTCPClient::ZTCPClientState_Idle) {
+        while (Instance().log_client_.State() == ZTCPSingleSessionClient::ZTCPSingleSessionClientState_Idle) {
 
             Instance().log_client_thread_state_ = LogClientState_WaitingToConnect;
 
             //wait for clinet connect
-            link_code = Instance().log_client_.Connect();
+            link_code = Instance().log_client_.Connect(_address_str, _port_str);
             if (link_code != kOK) {
                 Instance().log_client_thread_state_ = LogClientState_Idle;
                 Z_LOG_ERROR(error_code::kZSocketErrorCode_LinkError, link_code, L"ZTCPClient::Accept() link error!");
@@ -500,7 +495,7 @@ private:
 
 private:
     Void (*handle_func_)(const TCPLogOutputReplyLogData*);
-    ZTCPClient log_client_;
+    ZTCPSingleSessionClient log_client_;
     ZThread client_thread_;
     TAtom<LogClientThreadState_> log_client_thread_state_;
 };

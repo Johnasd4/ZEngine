@@ -29,13 +29,11 @@ namespace zengine {
 namespace socket {
 namespace internal {
 
-struct ZTCPClientData : public ZObject {
+struct ZTCPSingleSessionClientData : public ZObject {
 public:
-    ZTCPClientData() noexcept 
+    ZTCPSingleSessionClientData() noexcept 
         : io_context_()
         , resolver_(io_context_)
-        , endpoints_set_(false)
-        , endpoints_()
         , aysnc_thread_() {
     }
 
@@ -45,8 +43,23 @@ protected:
 public:
     boost::asio::io_context io_context_;
     boost::asio::ip::tcp::resolver resolver_;
-    boost::asio::ip::tcp::resolver::results_type endpoints_;
-    Bool endpoints_set_;
+    ZThread aysnc_thread_;
+};
+
+struct ZTCPMultipleSessionClientData : public ZObject {
+public:
+    ZTCPMultipleSessionClientData() noexcept
+        : io_context_()
+        , resolver_(io_context_)
+        , aysnc_thread_() {
+    }
+
+protected:
+    using SuperType_ = ZObject;
+
+public:
+    boost::asio::io_context io_context_;
+    boost::asio::ip::tcp::resolver resolver_;
     ZThread aysnc_thread_;
 };
 

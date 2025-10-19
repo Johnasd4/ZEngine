@@ -77,6 +77,7 @@ public:
     NODISCARD FORCEINLINE Bool operator!=(const TUnorderedMap& _map) noexcept { return map_ != _map.map_; }
 
     NODISCARD FORCEINLINE _ValueType& operator[](const _KeyType& _key) noexcept { return map_[_key]; }
+    NODISCARD FORCEINLINE const _ValueType& operator[](const _KeyType& _key) const noexcept { return map_[_key]; }
 
     NODISCARD FORCEINLINE _ValueType& At(const _KeyType& _key) noexcept { return map_.at(_key); }
     NODISCARD FORCEINLINE const _ValueType& At(const _KeyType& _key) const noexcept { return map_.at(_key); }

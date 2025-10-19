@@ -691,6 +691,10 @@ public:
 
     FORCEINLINE constexpr Void Swap(TString& _str) noexcept { str_.swap(_str); }
 
+    NODISCARD FORCEINLINE constexpr SizeType Hash() const noexcept {
+        return std::hash<STDString_>()(str_);
+    }
+
     template<typename _NumberType>
     requires kIsNumber<_NumberType>
     FORCEINLINE constexpr Void FromNum(_NumberType _num) noexcept {
@@ -802,3 +806,19 @@ CORE_DLLAPI NODISCARD ZString WString2String(const WChar* _str) noexcept;
 }//string
 
 }//zengine
+
+namespace std {
+    template<>
+    struct hash<zengine::ZString> {
+        size_t operator()(const zengine::ZString& _str) const noexcept {
+            return _str.Hash();
+        }
+    };
+
+    template<>
+    struct hash<zengine::ZWString> {
+        size_t operator()(const zengine::ZWString& _str) const noexcept {
+            return _str.Hash();
+        }
+    };
+}

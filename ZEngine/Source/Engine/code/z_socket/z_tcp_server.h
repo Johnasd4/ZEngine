@@ -41,8 +41,10 @@ struct ZTCPMultipleSessionServerData;
 namespace zengine {
 namespace socket {
 
+using ZTCPServer = ZTCPSingleSessionServer;
+
 /*
-    single session tcp server. Only one client is allowed to connect at a time.
+    Single session tcp server. Only one client is allowed to connect at a time.
     SetEndpoint -> Listen -> Accept -> Read/Write -> Close
 */
 class SOCKET_DLLAPI ZTCPSingleSessionServer : public ZObject {
@@ -119,16 +121,6 @@ public:
         Int32 _buffer_size,
         const TFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
     ) noexcept;
-    /*
-        Read a message from the client. Will not suspend the current thread.
-        _handle_func only needs to handle the message recieved.
-        _handle_func(ZTCPSocket* _socket_ptr, Void* _data_buffer, SizeType _read_length)
-    */
-    NODISCARD ReturnType AsyncRead(
-        Void* _data_buffer,
-        Int32 _buffer_size,
-        const TSimpleFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
-    ) noexcept;
 
     /*
         Send a message to the client.
@@ -147,17 +139,6 @@ public:
         Void* _data_buffer,
         Int32 _buffer_size,
         const TFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
-    ) noexcept;
-
-    /*
-        Send a message to the client. Will not suspend the current thread.
-        _handle_func will be called after the message send.
-        _handle_func(ZTCPSocket* _socket_ptr, Void* _data_buffer, SizeType _write_length)
-    */
-    NODISCARD ReturnType AsyncWrite(
-        Void* _data_buffer,
-        Int32 _buffer_size,
-        const TSimpleFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
     ) noexcept;
 
     /*
@@ -236,19 +217,10 @@ public:
     ) noexcept;
 
     /*
-        Wait for a client to connected. Will not suspend the current thread.
-        _handle_func will be called after a client is connected.
-        _handle_func(ZTCPMultipleSessionServer* _server_ptr, ZTCPSocket* _socket_ptr)
-    */
-    NODISCARD ReturnType AsyncAccept(
-        const TSimpleFunction<Void(ZTCPMultipleSessionServer*, ZTCPSocket*)>& _handle_func
-    ) noexcept;
-
-    /*
         Get socket ptr.
         WARNING: Moving the socket data might cause fatal errors.
     */
-    NODISCARD FORCEINLINE TPoolListSafe<ZTCPSocket>& GetSocketPool() noexcept { return socket_pool_list_; }
+    NODISCARD FORCEINLINE TPoolListSafe<ZTCPSocket>& GetSocketPoolList() noexcept { return socket_pool_list_; }
 
     /*
         Send a message to all clients. Will not suspend the current thread.
@@ -259,17 +231,6 @@ public:
         Void* _data_buffer,
         Int32 _buffer_size,
         const TFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
-    ) noexcept;
-
-    /*
-        Send a message to all clients. Will not suspend the current thread.
-        _handle_func will be called after the message send.
-        _handle_func(ZTCPSocket* _socket_ptr, Void* _data_buffer, SizeType _write_length)
-    */
-    NODISCARD ReturnType AsyncBroadcast(
-        Void* _data_buffer,
-        Int32 _buffer_size,
-        const TSimpleFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
     ) noexcept;
 
     /*

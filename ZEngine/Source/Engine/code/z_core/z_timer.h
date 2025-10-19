@@ -20,6 +20,7 @@
 
 #include "internal/z_drive.h"
 
+#include "t_function.h"
 #include "z_mutex.h"
 #include "z_object.h"
 #include "z_thread.h"
@@ -65,7 +66,11 @@ public:
     /*
         Sets the tick function.
     */
-    NODISCARD Void SetTickFunc(Void(*_tick_func_ptr)()) noexcept;
+    NODISCARD Void SetTickFunc(const TFunction<Void()>& _tick_func) noexcept;
+    /*
+        Sets the tick function.
+    */
+    NODISCARD Void SetTickFunc(TFunction<Void()>&& _tick_func) noexcept;
 
     /*
         Sets the time the timer will repeat. Default always repeat.
@@ -127,11 +132,10 @@ private:
     static Void TimerThreadFunc(ZTimer* _timer_ptr) noexcept;
 
     TimeType delay_start_time_;
-    TimeType interval_ms_
-        ;
+    TimeType interval_ms_;
     Int32 repeat_times_;
     TimerState_ state_;
-    Void(*temp_tick_func_ptr_)();
+    TFunction<Void()> temp_tick_func_;
     ZThread timer_thread_;
     ZMutex timer_mutex_;
 };
