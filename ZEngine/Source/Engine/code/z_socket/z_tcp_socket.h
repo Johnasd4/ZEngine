@@ -54,6 +54,7 @@ public:
     ZTCPSocket(const ZTCPSocket& _socket) noexcept;
     ZTCPSocket(ZTCPSocket&& _socket) noexcept;
     ZTCPSocket(ZTCPSingleSessionClient* _client_ptr) noexcept;
+    ZTCPSocket(ZTCPMultipleSessionClient* _client_ptr) noexcept;
     ZTCPSocket(ZTCPSingleSessionServer* _server_ptr) noexcept;
     ZTCPSocket(ZTCPMultipleSessionServer* _server_ptr) noexcept;
 
@@ -75,6 +76,10 @@ public:
     /*
         Initialize socket.
     */
+    NODISCARD ReturnType Initialize(ZTCPMultipleSessionClient* _client_ptr) noexcept;
+    /*
+        Initialize socket.
+    */
     NODISCARD ReturnType Initialize(ZTCPSingleSessionServer* _server_ptr) noexcept;
     /*
         Initialize socket.
@@ -89,6 +94,11 @@ public:
         Sets os read buffer size. Call after connected.
     */
     NODISCARD ReturnType SetOSReadBufferSize(Int32 _size) noexcept;
+
+    /*
+        Cancel async operation.
+    */
+    NODISCARD ReturnType Cancel() noexcept;
 
     /*
         Close the socket.
@@ -142,6 +152,7 @@ public:
 protected:
     using SuperType_ = ZObject;
     friend class ZTCPSingleSessionClient;
+    friend class ZTCPMultipleSessionClient;
     friend class ZTCPSingleSessionServer;
     friend class ZTCPMultipleSessionServer;
 

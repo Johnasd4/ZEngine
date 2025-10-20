@@ -57,7 +57,7 @@ Void ZConditionVariable::Wait(TUniqueLock<ZMutex>& _mutex) noexcept {
 Void ZConditionVariable::WaitFor(TUniqueLock<ZMutex>& _mutex, UInt32 _time) noexcept {
     LockP(_mutex);
     if (!cv_finished_) {
-        SleepConditionVariableCS(&cv_, &cs_mutex_.mutex_, INFINITE);
+        SleepConditionVariableCS(&cv_, &cs_mutex_.mutex_, _time);
     }
     UnlockP(_mutex);
 }
@@ -66,7 +66,7 @@ Void ZConditionVariable::WaitUntil(TUniqueLock<ZMutex>& _mutex, UInt32 _time) no
     _time -= clock();
     LockP(_mutex);
     if (!cv_finished_) {
-        SleepConditionVariableCS(&cv_, &cs_mutex_.mutex_, INFINITE);
+        SleepConditionVariableCS(&cv_, &cs_mutex_.mutex_, _time);
     }
     UnlockP(_mutex);
 }

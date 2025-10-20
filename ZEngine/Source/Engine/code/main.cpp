@@ -78,6 +78,8 @@ private:
     Int32 a;
 };
 
+#include<mutex>
+
 //Int32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 Int32 main() { 
     zengine::Initialize();
@@ -94,6 +96,12 @@ Int32 main() {
     Z_LOG_SUCCESS(L"Success...");
 
     ReturnType link_code = kOK;
+
+    ZTCPMultipleSessionClient test_client;
+    link_code = test_client.AsyncConnect("127.0.0.1:8080", [](ZTCPMultipleSessionClient* a, ZTCPSocket* b){}, 5);
+    link_code = test_client.Run();
+
+    while (true) {};
 
     TFixedMemory<1024> buffer;
     ZTCPMultipleSessionServer tcp_server;

@@ -243,27 +243,33 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncAccept(
 
     ZTCPSocket* socket_ptr = socket_pool_list_.Apply();
     data_ptr_->acceptor_.async_accept(
-        *socket_ptr->data_ptr_->socket_ptr_, 
+        socket_ptr->data_ptr_->socket_, 
         [this, socket_ptr, _handle_func](
             const boost::system::error_code& _error_code
         ) {
             if (_error_code) {
-                Z_LOG_ERROR(
-                    error_code::kZSocketErrorCode_SystemError, _error_code.value(),
-                    L"System error! error info: %ls",
-                    string::String2WString(_error_code.message().c_str()).String()
-                );
-
                 //reset and release socket
                 ReturnType link_code = socket_ptr->Reset();
                 if (link_code != kOK) {
                     Z_LOG_ERROR(
                         error_code::kZSocketErrorCode_LinkError, link_code,
-                        L"ZTCPMultipleSessionServer::Reset() link error!"
+                        L"ZTCPSocket::Reset() link error!"
                     );
                 }
                 socket_pool_list_.Release(socket_ptr);
                 return;
+
+                //handle error
+                if (_error_code == boost::asio::error::operation_aborted) {
+                    Z_LOG_FAILURE(L"Server accept cancelled!");
+                }
+                else {
+                    Z_LOG_ERROR(
+                        error_code::kZSocketErrorCode_SystemError, _error_code.value(),
+                        L"System error! error info: %ls",
+                        string::String2WString(_error_code.message().c_str()).String()
+                    );
+                }
             }
 
             socket_pool_list_.Push(socket_ptr);

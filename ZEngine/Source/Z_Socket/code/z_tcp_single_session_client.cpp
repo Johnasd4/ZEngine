@@ -167,6 +167,7 @@ NODISCARD ReturnType ZTCPSingleSessionClient::Connect(
     Int32 _repeat_times
 ) noexcept {
     ReturnType ret_val = kOK;
+    ReturnType link_code = kOK;
     boost::system::error_code error_code;
 
     Z_CHECK(
@@ -190,6 +191,7 @@ NODISCARD ReturnType ZTCPSingleSessionClient::Connect(
     result_str_list.PopFront();
     ZString port_string = std::move(result_str_list.Front());
 
+
     //resolve endpoints
     boost::asio::ip::tcp::resolver::results_type endpoints;
     endpoints = std::move(data_ptr_->resolver_.resolve(address_string.String(), port_string.String(), error_code));
@@ -206,52 +208,14 @@ NODISCARD ReturnType ZTCPSingleSessionClient::Connect(
     }
 
     //connect
-    Z_LOG_START(
-        L"Try to connect server... server_address: %ls server_port: %ls",
-        string::String2WString(address_string.String()).String(),
-        string::String2WString(port_string.String()).String()
-    );
-
-    Int32 reconnect_times = 0;
-    do {
-        boost::asio::connect(*socket_.data_ptr_->socket_ptr_, endpoints, error_code);
-        if (error_code) {
-            if (error_code == boost::asio::error::connection_refused) {
-                reconnect_times += 1;
-                Z_LOG_PROCESS(
-                    L"Retry to connect server... repeat_times: %d server_address: %ls server_port: %ls",
-                    reconnect_times,
-                    string::String2WString(address_string.String()).String(),
-                    string::String2WString(port_string.String()).String()
-                );
-            }
-            else {
-                ret_val = error_code::kZSocketErrorCode_SystemError;
-                Z_LOG_ERROR(
-                    ret_val, error_code.value(),
-                    L"System error! error info: %ls",
-                    string::String2WString(error_code.message().c_str()).String()
-                );
-                state_ = ZTCPSingleSessionClientState_Error;
-                return ret_val;
-            }
-        }
-        else {
-            socket_.OnConnectP();
-            state_ = ZTCPSingleSessionClientState_Connect;
-            Z_LOG_SUCCESS(L"Server connected!");
-            break;
-        }
-    } while (_repeat_times > reconnect_times);
-
-    if (state_ != ZTCPSingleSessionClientState_Connect) {
-        ret_val = error_code::kZSocketErrorCode_ConnectFailed;
-        Z_LOG_FAILURE(
-            L"Connect server failed! server_address: %ls server_port: %ls",
-            string::String2WString(address_string.String()).String(),
-            string::String2WString(port_string.String()).String()
+    link_code = Connect(address_string.String(), port_string.String(), _repeat_times);
+    if (link_code != kOK) {
+        ret_val = error_code::kZSocketErrorCode_LinkError;
+        Z_LOG_ERROR(
+            ret_val, link_code,
+            L"ZTCPSocket::Connect() link error!"
         );
-        return ret_val;    
+        return ret_val;
     }
 
     return ret_val;
@@ -297,7 +261,7 @@ NODISCARD ReturnType ZTCPSingleSessionClient::Connect(
 
     Int32 reconnect_times = 0;
     do {
-        boost::asio::connect(*socket_.data_ptr_->socket_ptr_, endpoints, error_code);
+        boost::asio::connect(socket_.data_ptr_->socket_, endpoints, error_code);
         if (error_code) {
             if (error_code == boost::asio::error::connection_refused) {
                 reconnect_times += 1;

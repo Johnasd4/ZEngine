@@ -48,13 +48,15 @@ public:
     /*
         Try to get the lock in a certain time(ms), return true if success.
     */
-    FORCEINLINE Bool TryLockFor(UInt32 _time) noexcept { return WaitForSingleObject(handle_, _time) == WAIT_OBJECT_0; }
+    FORCEINLINE Bool TryLockFor(UInt32 _time_ms) noexcept { 
+        return WaitForSingleObject(handle_, _time_ms) == WAIT_OBJECT_0; 
+    }
     /*
         Try to get the lock before a certain time(ms), use clock() to get the current time, return true if success.
     */
-    FORCEINLINE Bool TryLockUntil(UInt32 _time) noexcept { 
-        _time -= clock();
-        return WaitForSingleObject(handle_, _time > 0 ? _time : 0) == WAIT_OBJECT_0; 
+    FORCEINLINE Bool TryLockUntil(UInt32 _time_ms) noexcept {
+        _time_ms -= clock();
+        return WaitForSingleObject(handle_, _time_ms > 0 ? _time_ms : 0) == WAIT_OBJECT_0;
     }
     FORCEINLINE Void Unlock() noexcept { ReleaseMutex(handle_); }
 protected:

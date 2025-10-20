@@ -234,13 +234,13 @@ public:
     ) noexcept;
 
     /*
-        Starts to deal with async operation until server closed or client disconnnected.
+        Deal with async operation until server closed or operation finished.
         Suspend the current thread, returns when the connection breaks.
     */
     NODISCARD ReturnType Run() noexcept;
 
     /*
-        Starts to deal with async operation until server closed or client disconnnected.
+        Deal with async operation until server closed or operation finished.
         Starts a new thread and returns immediately.
     */
     NODISCARD ReturnType AsyncRun() noexcept;

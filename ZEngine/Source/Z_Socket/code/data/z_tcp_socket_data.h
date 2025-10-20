@@ -34,7 +34,7 @@ namespace internal {
 struct ZTCPSocketData : public ZObject {
 public:
     FORCEINLINE ZTCPSocketData(boost::asio::io_context* _io_context_ptr) noexcept
-        : socket_ptr_(MakeUnique<boost::asio::ip::tcp::socket>(*_io_context_ptr))
+        : socket_(*_io_context_ptr)
         , io_context_ptr_(_io_context_ptr)
         , address_()
         , port_()
@@ -44,7 +44,7 @@ protected:
     using SuperType_ = ZObject;
 
 public:
-    TUniquePointer<boost::asio::ip::tcp::socket> socket_ptr_;
+    boost::asio::ip::tcp::socket socket_;
     boost::asio::io_context* io_context_ptr_;
     ZString address_;
     Int32 port_;

@@ -85,7 +85,7 @@ public:
     NODISCARD ReturnType Reset() noexcept;
 
     /*
-        Coonect to server.
+        Coonect to server. Will suspend the current thread.
         Use ':' to split address and port
     */
     NODISCARD ReturnType Connect(
@@ -94,7 +94,7 @@ public:
     ) noexcept;
 
     /*
-        Coonect to server.
+        Coonect to server. Will suspend the current thread.
     */
     NODISCARD ReturnType Connect(
         const Char* _address_str, 
@@ -148,13 +148,13 @@ public:
     ) noexcept;
 
     /*
-        Starts to deal with async operation until server closed or client disconnnected.
-        Suspend the current thread, returns when the connection breaks.
+        Deal with async operation until all operation finished.
+        Suspend the current thread, returns until finish.
     */
     NODISCARD ReturnType Run() noexcept;
 
     /*
-        Starts to deal with async operation until server closed or client disconnnected.
+        Deal with async operation until all operation finished.
         Starts a new thread and returns immediately.
     */
     NODISCARD ReturnType AsyncRun() noexcept;
@@ -182,7 +182,6 @@ private:
 class SOCKET_DLLAPI ZTCPMultipleSessionClient : public ZObject {
 public:
     static constexpr Int32 kConnectRetryForever = kInt32Max;
-    static constexpr Int32 kAsyncConnectTimeOutForever = kInt32Max;
 
     enum State_ {
         ZTCPMultipleSessionClientState_Idle,
@@ -213,7 +212,7 @@ public:
     NODISCARD ReturnType AsyncConnect(
         const Char* _domain_str,
         const TFunction<Void(ZTCPMultipleSessionClient*, ZTCPSocket*)>& _handle_func,
-        Int32 _timeout_ms = kAsyncConnectTimeOutForever
+        Int32 _repeat_times = kConnectRetryForever
     ) noexcept;
 
     /*
@@ -222,9 +221,10 @@ public:
         _handle_func(ZTCPMultipleSessionClient* _server_ptr, ZTCPSocket* _socket_ptr)
     */
     NODISCARD ReturnType AsyncConnect(
-        const Char* _address_str, const Char* _port_str,
+        const Char* _address_str, 
+        const Char* _port_str,
         const TFunction<Void(ZTCPMultipleSessionClient*, ZTCPSocket*)>& _handle_func,
-        Int32 _timeout_ms = kAsyncConnectTimeOutForever
+        Int32 _repeat_times = kConnectRetryForever
     ) noexcept;
 
     /*
@@ -245,13 +245,13 @@ public:
     ) noexcept;
 
     /*
-        Starts to deal with async operation until server closed or client disconnnected.
-        Suspend the current thread, returns when the connection breaks.
+        Deal with async operation until all operation finished.
+        Suspend the current thread, returns until finish.
     */
     NODISCARD ReturnType Run() noexcept;
 
     /*
-        Starts to deal with async operation until server closed or client disconnnected.
+        Deal with async operation until all operation finished.
         Starts a new thread and returns immediately.
     */
     NODISCARD ReturnType AsyncRun() noexcept;
@@ -265,6 +265,18 @@ private:
     ZTCPMultipleSessionClient(ZTCPMultipleSessionClient&&) = delete;
     ZTCPMultipleSessionClient& operator=(const ZTCPMultipleSessionClient&) = delete;
     ZTCPMultipleSessionClient& operator=(ZTCPMultipleSessionClient&&) = delete;
+
+    /*
+        Async connect execute func.
+    */
+    NODISCARD ReturnType AsyncConnectExecuteP(
+        ZString&& _address_str,
+        ZString&& _port_str,
+        Void* _endpoints_ptr,
+        const TFunction<Void(ZTCPMultipleSessionClient*, ZTCPSocket*)>& _handle_func,
+        Int32 _repeat_times,
+        Int32 _reconnect_times
+    ) noexcept;
 
 private:
     TUniquePointer<internal::ZTCPMultipleSessionClientData> data_ptr_;

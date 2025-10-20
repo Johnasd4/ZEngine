@@ -51,8 +51,7 @@ public:
     ZTCPMultipleSessionClientData() noexcept
         : io_context_()
         , resolver_(io_context_)
-        , aysnc_thread_() {
-    }
+        , aysnc_thread_() {}
 
 protected:
     using SuperType_ = ZObject;

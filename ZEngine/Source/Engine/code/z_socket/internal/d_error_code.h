@@ -34,6 +34,7 @@ enum ZSocketErrorCode : ReturnType {
     kZSocketErrorCode_NullptrParam,
     kZSocketErrorCode_ParamOutOfRange,
     kZSocketErrorCode_StateError,
+    kZSocketErrorCode_SocketNotOpen,
     kZSocketErrorCode_AddressNotVaild,
     kZSocketErrorCode_PortNotVaild,
     kZSocketErrorCode_Disconnected,

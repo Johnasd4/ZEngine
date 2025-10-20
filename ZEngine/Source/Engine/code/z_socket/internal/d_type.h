@@ -25,6 +25,7 @@ namespace socket {
 
 class ZTCPSocket;
 class ZTCPSingleSessionClient;
+class ZTCPMultipleSessionClient;
 class ZTCPSingleSessionServer;
 class ZTCPMultipleSessionServer;
 

@@ -21,172 +21,260 @@
 #include "z_timer.h"
 
 #include "m_log.h"
+#include "t_lock_guard.h"
+
+#pragma warning(disable : 26800)
+
+namespace zengine {
+namespace internal {
+
+struct ZTimerData : public ZObject {
+public:
+    ZTimerData() noexcept
+        : SuperType_()
+        , delay_start_time_(0)
+        , interval_ms_(ZTimer::kDefaultInterval)
+        , repeat_times_(ZTimer::kTimerNeverEnd)
+        , state_(ZTimer::kTimerState_Idle)
+        , temp_tick_func_()
+        , timer_thread_()
+        , timer_mutex_()
+        , sleep_mutex_()
+    {}
+
+    TimeType delay_start_time_;
+    TimeType interval_ms_;
+    Int32 repeat_times_;
+    ZTimer::TimerState_ state_;
+    TFunction<Void()> temp_tick_func_;
+    ZThread timer_thread_;
+    ZMutex timer_mutex_;
+    ZSemMutex sleep_mutex_;
+
+protected:
+    using SuperType_ = ZObject;
+};
+
+}//internal
+}//zengine
 
 namespace zengine {
 
 ZTimer::ZTimer() noexcept 
     : SuperType_()
-    , delay_start_time_(0)
-    , interval_ms_(kDefaultInterval)
-    , repeat_times_(kTimerNeverEnd)
-    , state_(kTimerState_Idle)
-    , temp_tick_func_()
-    , timer_thread_()
-    , timer_mutex_()
+    , timer_data_ptr_(nullptr)
 {}
 
+ZTimer::ZTimer(ZTimer&& _timer) noexcept 
+    : SuperType_(std::forward<ZTimer>(_timer))
+{
+    timer_data_ptr_ = _timer.timer_data_ptr_;
+    _timer.timer_data_ptr_ = nullptr;
+}
+
 ZTimer::~ZTimer() noexcept {
-    timer_mutex_.Lock();
-    state_ = kTimerState_Finished;
-    timer_mutex_.Unlock();
-    if (timer_thread_.Joinable()) {
-        timer_thread_.Join();
+    if (timer_data_ptr_ == nullptr) {
+        return;
+    }
+    {
+        TLockGuard lock_guard(timer_data_ptr_->timer_mutex_);
+        timer_data_ptr_->state_ = kTimerState_Finished;
+    }
+    if (timer_data_ptr_->timer_thread_.Joinable()) {
+        timer_data_ptr_->timer_thread_.Join();
+    }
+    if (timer_data_ptr_ != nullptr) {
+        delete timer_data_ptr_;
     }
 }
 
+ZTimer& ZTimer::operator=(ZTimer&& _timer) noexcept {
+    SuperType_::operator=(std::forward<ZTimer>(_timer));
+    if (timer_data_ptr_ != nullptr) {
+        //finish current timer
+        {
+            TLockGuard lock_guard(timer_data_ptr_->timer_mutex_);
+            if (timer_data_ptr_->state_ != kTimerState_Idle) {
+                Stop();
+                WaitUntilFinished();
+            }
+        }
+        delete timer_data_ptr_;
+    }
+    timer_data_ptr_ = _timer.timer_data_ptr_;
+    _timer.timer_data_ptr_ = nullptr;
+    return *this;
+}
+
 NODISCARD TimeType ZTimer::IntervalMs() noexcept { 
-    timer_mutex_.Lock();
-    TimeType interval = interval_ms_;
-    timer_mutex_.Unlock();
-    return interval_ms_; 
+    if (timer_data_ptr_ == nullptr) {
+        timer_data_ptr_ = new internal::ZTimerData();
+    }
+    TLockGuard lock_guard(timer_data_ptr_->timer_mutex_);
+    return timer_data_ptr_->interval_ms_;
 }
 
-NODISCARD Void ZTimer::SetIntervalMs(TimeType _interval_ms) noexcept {
-    timer_mutex_.Lock();
-    interval_ms_ = _interval_ms;
-    timer_mutex_.Unlock();
+Void ZTimer::SetIntervalMs(TimeType _interval_ms) noexcept {
+    if (timer_data_ptr_ == nullptr) {
+        timer_data_ptr_ = new internal::ZTimerData();
+    }
+    TLockGuard lock_guard(timer_data_ptr_->timer_mutex_);
+    timer_data_ptr_->interval_ms_ = _interval_ms;
 }
 
-NODISCARD Void ZTimer::SetTickFunc(const TFunction<Void()>& _tick_func) noexcept {
-    timer_mutex_.Lock();
-    temp_tick_func_ = _tick_func;
-    timer_mutex_.Unlock();
+Void ZTimer::SetTickFunc(const TFunction<Void()>& _tick_func) noexcept {
+    if (timer_data_ptr_ == nullptr) {
+        timer_data_ptr_ = new internal::ZTimerData();
+    }
+    TLockGuard lock_guard(timer_data_ptr_->timer_mutex_);
+    timer_data_ptr_->temp_tick_func_ = _tick_func;
 }
-NODISCARD Void ZTimer::SetTickFunc(TFunction<Void()>&& _tick_func) noexcept {
-    timer_mutex_.Lock();
-    temp_tick_func_ = std::move(_tick_func);
-    timer_mutex_.Unlock();
-}
-
-NODISCARD Void ZTimer::SetRepeatTimes(Int32 _repeat_times) noexcept {
-    timer_mutex_.Lock();
-    repeat_times_ = _repeat_times < 0 ? -1 : _repeat_times;
-    timer_mutex_.Unlock();
+Void ZTimer::SetTickFunc(TFunction<Void()>&& _tick_func) noexcept {
+    if (timer_data_ptr_ == nullptr) {
+        timer_data_ptr_ = new internal::ZTimerData();
+    }
+    TLockGuard lock_guard(timer_data_ptr_->timer_mutex_);
+    timer_data_ptr_->temp_tick_func_ = std::forward<TFunction<Void()>>(_tick_func);
 }
 
-NODISCARD Void ZTimer::SetDelayStartTime(Int32 _delay_start_time) noexcept {
-    timer_mutex_.Lock();
-    delay_start_time_ = _delay_start_time;
-    timer_mutex_.Unlock();
+Void ZTimer::SetRepeatTimes(Int32 _repeat_times) noexcept {
+    if (timer_data_ptr_ == nullptr) {
+        timer_data_ptr_ = new internal::ZTimerData();
+    }
+    TLockGuard lock_guard(timer_data_ptr_->timer_mutex_);
+    timer_data_ptr_->repeat_times_ = _repeat_times < 0 ? -1 : _repeat_times;
+}
+
+Void ZTimer::SetDelayStartTime(Int32 _delay_start_time) noexcept {
+    if (timer_data_ptr_ == nullptr) {
+        timer_data_ptr_ = new internal::ZTimerData();
+    }
+    TLockGuard lock_guard(timer_data_ptr_->timer_mutex_);
+    timer_data_ptr_->delay_start_time_ = _delay_start_time;
 }
 
 NODISCARD Void ZTimer::WaitUntilFinished() noexcept {
-    if (timer_thread_.Joinable()) {
-        timer_thread_.Join();
+    if (timer_data_ptr_ == nullptr) {
+        timer_data_ptr_ = new internal::ZTimerData();
+    }
+    if (timer_data_ptr_->timer_thread_.Joinable()) {
+        timer_data_ptr_->timer_thread_.Join();
     }
 }
 
 NODISCARD Bool ZTimer::ReadyToStart() noexcept {
-    timer_mutex_.Lock();
-    Bool ready = (state_ == kTimerState_Idle);
-    timer_mutex_.Unlock();
-    return ready;
+    if (timer_data_ptr_ == nullptr) {
+        timer_data_ptr_ = new internal::ZTimerData();
+    }
+    TLockGuard lock_guard(timer_data_ptr_->timer_mutex_);
+    return timer_data_ptr_->state_ == kTimerState_Idle;
 }
 
 NODISCARD ReturnType ZTimer::Start() noexcept {
-    ReturnType ret_val = kOK;
-    if (state_ != kTimerState_Idle) {
-        ret_val = error_code::kZTimerErrorCode_TimerStateError;
-        Z_LOG_ERROR(
-            ret_val, 0, L"Timer state error! state: %d expect state: %d",
-            state_, kTimerState_Idle
-        );
-        return ret_val;
+    if (timer_data_ptr_ == nullptr) {
+        timer_data_ptr_ = new internal::ZTimerData();
     }
-    timer_mutex_.Lock();
-    state_ = kTimerState_Execute;
-    timer_mutex_.Unlock();
-    timer_thread_ = ZThread(TimerThreadFunc, this);
+    ReturnType ret_val = kOK;
+    TLockGuard lock_guard(timer_data_ptr_->timer_mutex_);
+
+    Z_CHECK(
+        timer_data_ptr_->state_ != kTimerState_Idle,
+        error_code::kZTimerErrorCode_TimerStateError,
+        L"Client state error! state: %d expect state: %d",
+        timer_data_ptr_->state_, kTimerState_Idle
+    );
+
+    timer_data_ptr_->state_ = kTimerState_Execute;
+    timer_data_ptr_->sleep_mutex_.Lock();
+    timer_data_ptr_->timer_thread_ = ZThread(TimerThreadFuncP, timer_data_ptr_);
+
     return ret_val;
 }
 
-NODISCARD Void ZTimer::End() noexcept {
-    timer_mutex_.Lock();
-    if (state_ != kTimerState_Idle) {
-        state_ = kTimerState_Finished;
+Void ZTimer::Stop() noexcept {
+    if (timer_data_ptr_ == nullptr) {
+        timer_data_ptr_ = new internal::ZTimerData();
     }
-    timer_mutex_.Unlock();
+    TLockGuard lock_guard(timer_data_ptr_->timer_mutex_);
+    if (timer_data_ptr_->state_ != kTimerState_Idle) {
+        timer_data_ptr_->sleep_mutex_.Unlock();
+        timer_data_ptr_->state_ = kTimerState_Finished;
+    }
 }
 
-NODISCARD Void ZTimer::Pause() noexcept {
-    timer_mutex_.Lock();
-    if (state_ == kTimerState_Execute) {
-        state_ = kTimerState_Pause;
+Void ZTimer::Pause() noexcept {
+    if (timer_data_ptr_ == nullptr) {
+        timer_data_ptr_ = new internal::ZTimerData();
     }
-    timer_mutex_.Unlock();
+    TLockGuard lock_guard(timer_data_ptr_->timer_mutex_);
+    if (timer_data_ptr_->state_ == kTimerState_Execute) {
+        timer_data_ptr_->state_ = kTimerState_Pause;
+    }
 }
 
-NODISCARD Void ZTimer::Continue() noexcept {
-    timer_mutex_.Lock();
-    if (state_ == kTimerState_Pause) {
-        state_ = kTimerState_Execute;
+Void ZTimer::Continue() noexcept {
+    if (timer_data_ptr_ == nullptr) {
+        timer_data_ptr_ = new internal::ZTimerData();
     }
-    timer_mutex_.Unlock();
+    TLockGuard lock_guard(timer_data_ptr_->timer_mutex_);
+    if (timer_data_ptr_->state_ == kTimerState_Pause) {
+        timer_data_ptr_->state_ = kTimerState_Execute;
+    }
 }
 
-Void ZTimer::TimerThreadFunc(ZTimer* _timer_ptr) noexcept {
+Void ZTimer::TimerThreadFuncP(internal::ZTimerData* _data_ptr) noexcept {
     Bool finished = false;
     Int32 repeat_times_count;
     TimeType next_tick_time;
     TFunction<Void()> tick_func;
 
     //init
-    _timer_ptr->timer_mutex_.Lock();
-
-    repeat_times_count = _timer_ptr->repeat_times_ < 0 ? kTimerNeverEnd - 1 : 0;
-    next_tick_time = TimeMs() + _timer_ptr->delay_start_time_;
-    tick_func = std::move(_timer_ptr->temp_tick_func_);
-
-    _timer_ptr->timer_mutex_.Unlock();
+    {
+        TLockGuard lock_guard(_data_ptr->timer_mutex_);
+        repeat_times_count = _data_ptr->repeat_times_ < 0 ? kTimerNeverEnd - 1 : 0;
+        next_tick_time = TimeMs() + _data_ptr->delay_start_time_;
+        tick_func = std::move(_data_ptr->temp_tick_func_);
+    }
 
     do {
         //sleep
         TimeType sleep_time = next_tick_time - TimeMs();
         if (sleep_time > 0) {
-            SleepMs(sleep_time);
+            //end
+            if (_data_ptr->sleep_mutex_.TryLockFor(sleep_time)) {
+                _data_ptr->sleep_mutex_.Unlock();
+                break;
+            }
         }
 
-        _timer_ptr->timer_mutex_.Lock();
+        //timer state update
+        {
+            TLockGuard lock_guard(_data_ptr->timer_mutex_);
+            //if finished all repeats
+            if (repeat_times_count == _data_ptr->repeat_times_) {
+                _data_ptr->state_ = kTimerState_Finished;
+            }
 
-        //if finished all repeats
-        if (repeat_times_count == _timer_ptr->repeat_times_) {
-            _timer_ptr->state_ = kTimerState_Finished;
+            //if finished
+            if (_data_ptr->state_ == kTimerState_Finished) {
+                //reset the timer state for a new start
+                finished = true;
+                continue;
+            }
+
+            //if paused
+            if (_data_ptr->state_ == kTimerState_Pause) {
+                continue;
+            }
+
+            //if tick func changed
+            if (_data_ptr->temp_tick_func_) {
+                tick_func = std::move(_data_ptr->temp_tick_func_);
+            }
+
+            //update next tick time
+            next_tick_time += _data_ptr->interval_ms_;
         }
-
-        //if finished
-        if (_timer_ptr->state_ == kTimerState_Finished) {
-            //reset the timer state for a new start
-            _timer_ptr->state_ = kTimerState_Idle;
-            _timer_ptr->timer_mutex_.Unlock();
-            finished = true;
-            continue;
-        }
-        
-        //if paused
-        if (_timer_ptr->state_ == kTimerState_Pause) {
-            _timer_ptr->timer_mutex_.Unlock();
-            continue;
-        }
-
-        //if tick func changed
-        if (_timer_ptr->temp_tick_func_) {
-            tick_func = std::move(_timer_ptr->temp_tick_func_);
-        }
-
-        //update next tick time
-        next_tick_time += _timer_ptr->interval_ms_;
-
-        _timer_ptr->timer_mutex_.Unlock();
 
         // < 0 means never end
         if (repeat_times_count >= 0) {
@@ -199,6 +287,15 @@ Void ZTimer::TimerThreadFunc(ZTimer* _timer_ptr) noexcept {
         }
 
     } while (!finished);
+    
+    //unlock sleep mutex
+    _data_ptr->sleep_mutex_.Unlock();
+
+    //reset state
+    {
+        TLockGuard lock_guard(_data_ptr->timer_mutex_);
+        _data_ptr->state_ = kTimerState_Idle;
+    }
 }
 
 }//zengine

@@ -273,7 +273,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::Accept() noexcept {
 
     Z_LOG_START(L"Wait for client connect...");
 
-    data_ptr_->acceptor_.accept(*socket_.data_ptr_->socket_ptr_, error_code);
+    data_ptr_->acceptor_.accept(socket_.data_ptr_->socket_, error_code);
     if (error_code) {
         ret_val = error_code::kZSocketErrorCode_SystemError;
         Z_LOG_ERROR(

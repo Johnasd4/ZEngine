@@ -20,9 +20,12 @@
 
 #include "internal/z_drive.h"
 
+#include "t_atom.h"
 #include "t_function.h"
+#include "t_smart_pointer.h"
 #include "z_mutex.h"
 #include "z_object.h"
+#include "z_sem_mutex.h"
 #include "z_thread.h"
 
 namespace zengine {
@@ -38,6 +41,14 @@ enum ZTimerErrorCode : ReturnType {
 }//zengine
 
 namespace zengine {
+namespace internal {
+
+struct ZTimerData;
+
+}//internal
+}//zengine
+
+namespace zengine {
 
 /*
     Timer class.
@@ -49,7 +60,10 @@ public:
     static constexpr Int32 kTimerNeverEnd = -1;
 
     ZTimer() noexcept;
+    ZTimer(ZTimer&& _timer) noexcept;
     ~ZTimer() noexcept;
+
+    ZTimer& operator=(ZTimer&& _timer) noexcept;
 
     /*
         Returns the timer interval(ms).
@@ -60,35 +74,36 @@ public:
         Sets the time interval, default is 1000ms. 
         The frequency accuracy is 1ms, but the interval accuracy is ¡À16 ms.
         If the interval is set to 1ms, it might run 16 times in a role and sleep for 16 ms.
+        WARNING: Does not effect the first tick.
     */
-    NODISCARD Void SetIntervalMs(TimeType _interval_ms) noexcept;
+    Void SetIntervalMs(TimeType _interval_ms) noexcept;
 
     /*
         Sets the tick function.
     */
-    NODISCARD Void SetTickFunc(const TFunction<Void()>& _tick_func) noexcept;
+    Void SetTickFunc(const TFunction<Void()>& _tick_func) noexcept;
     /*
         Sets the tick function.
     */
-    NODISCARD Void SetTickFunc(TFunction<Void()>&& _tick_func) noexcept;
+    Void SetTickFunc(TFunction<Void()>&& _tick_func) noexcept;
 
     /*
         Sets the time the timer will repeat. Default always repeat.
     */
-    NODISCARD Void SetRepeatTimes(Int32 _repeat_times) noexcept;
+    Void SetRepeatTimes(Int32 _repeat_times) noexcept;
 
     /*
         Only effects before calling Start(). The accuracy is +- 16ms.
     */
-    NODISCARD Void SetDelayStartTime(Int32 _delay_start_time) noexcept;
+    Void SetDelayStartTime(Int32 _delay_start_time) noexcept;
 
     /*
         Will suspend the current thread until the timer is finished.
     */
-    NODISCARD Void WaitUntilFinished() noexcept;
+    Void WaitUntilFinished() noexcept;
 
     /*
-        Starts the timer. Will start a new thread.
+        If timer can start.
     */
     NODISCARD Bool ReadyToStart() noexcept;
 
@@ -100,21 +115,21 @@ public:
     /*
         Ends the timer.
     */
-    NODISCARD Void End() noexcept;
+    Void Stop() noexcept;
 
     /*
         Pause the timer. Only effect when the timer is started.
     */
-    NODISCARD Void Pause() noexcept;
+    Void Pause() noexcept;
 
     /*
         Continue the timer. Only effect when the timer is paused.
     */
-    NODISCARD Void Continue() noexcept;
-
+    Void Continue() noexcept;
 
 protected:
     using SuperType_ = ZObject;
+    friend struct internal::ZTimerData;
 
 private:
     enum TimerState_ {
@@ -125,19 +140,11 @@ private:
     };
 
     ZTimer(const ZTimer&) = delete;
-    ZTimer(ZTimer&&) = delete;
     ZTimer& operator=(const ZTimer&) = delete;
-    ZTimer& operator=(ZTimer&&) = delete;
 
-    static Void TimerThreadFunc(ZTimer* _timer_ptr) noexcept;
+    static Void TimerThreadFuncP(internal::ZTimerData* _data_ptr) noexcept;
 
-    TimeType delay_start_time_;
-    TimeType interval_ms_;
-    Int32 repeat_times_;
-    TimerState_ state_;
-    TFunction<Void()> temp_tick_func_;
-    ZThread timer_thread_;
-    ZMutex timer_mutex_;
+    internal::ZTimerData* timer_data_ptr_;
 };
 
 }//zengine
