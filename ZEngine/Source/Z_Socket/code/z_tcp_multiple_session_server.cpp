@@ -27,17 +27,34 @@
 #include "z_core/z_string.h"
 #include "z_core/z_thread.h"
 
+#include "z_socket_context.h"
+
+#include "data/z_context_data.h"
 #include "data/z_tcp_server_data.h"
 #include "data/z_tcp_socket_data.h"
 
 namespace zengine {
 namespace socket {
 
-ZTCPMultipleSessionServer::ZTCPMultipleSessionServer() noexcept 
-    : data_ptr_(MakeUnique<internal::ZTCPMultipleSessionServerData>())
-    , socket_pool_list_(this)
-    , state_(ZTCPMultipleSessionServerState_Idle)
-{}
+ZTCPMultipleSessionServer::ZTCPMultipleSessionServer(ZSocketContext* _context_ptr) noexcept
+    : data_ptr_()
+    , socket_pool_list_()
+    , context_ptr_(_context_ptr)
+    , state_(ZTCPMultipleSessionServerState_Uninitialized)
+{
+    if (_context_ptr == nullptr) {
+        Z_LOG_ERROR(
+            error_code::kZSocketErrorCode_NullptrParam, 0,
+            L"_context_ptr is nullptr!"
+        );
+        return;
+    }
+
+    data_ptr_ = MakeUnique<internal::ZTCPMultipleSessionServerData>(&_context_ptr->data_ptr_->io_context_);
+    socket_pool_list_.SetModel(_context_ptr);
+
+    state_ = ZTCPMultipleSessionServerState_Idle;
+}
 
 ZTCPMultipleSessionServer::~ZTCPMultipleSessionServer() noexcept {
     ReturnType link_code = kOK;
@@ -49,12 +66,9 @@ ZTCPMultipleSessionServer::~ZTCPMultipleSessionServer() noexcept {
         );
         return;
     }
-    if (data_ptr_->aysnc_thread_.Joinable()) {
-        data_ptr_->aysnc_thread_.Join();
-    }
 }
 
-NODISCARD ReturnType ZTCPMultipleSessionServer::SetEndpoint(const Char* _address_str, Int32 _port) noexcept {
+NODISCARD ReturnType ZTCPMultipleSessionServer::BindEndpoint(const Char* _address_str, Int32 _port) noexcept {
     ReturnType ret_val = kOK;
 
     Z_CHECK(
@@ -84,7 +98,7 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::SetEndpoint(const Char* _address
     data_ptr_->server_endpoint_.address(address);
     data_ptr_->server_endpoint_.port(_port);
 
-    data_ptr_->endpoint_set_ = true;
+    data_ptr_->if_endpoint_bind_ = true;
 
     return ret_val;
 }
@@ -94,9 +108,9 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::Listen() noexcept {
     boost::system::error_code error_code;
 
     Z_CHECK(
-        !data_ptr_->endpoint_set_,
-        error_code::kZSocketErrorCode_EndpointNotSet,
-        L"Endpoint not set! Can not open!"
+        !data_ptr_->if_endpoint_bind_,
+        error_code::kZSocketErrorCode_EndpointNotBind,
+        L"Endpoint not bind! Can not open!"
     );
     Z_CHECK(
         state_ != ZTCPMultipleSessionServerState_Idle,
@@ -274,6 +288,12 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncAccept(
 
             socket_pool_list_.Push(socket_ptr);
             socket_ptr->OnConnectP();
+            socket_ptr->SetAsyncErrorHandleFunctionP(
+                []() {
+                    //disconnect
+                    Z_LOG_FINISH(L"Client disconnected!");
+                }
+            );
             Z_LOG_SUCCESS(L"Client connected!");
 
             if (_handle_func) {
@@ -330,45 +350,6 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncBroadcast(
         }
     }
     socket_pool_list_.Unlock();
-
-    return ret_val;
-}
-
-NODISCARD ReturnType ZTCPMultipleSessionServer::Run() noexcept {
-    ReturnType ret_val = kOK;
-    ReturnType link_code = kOK;
-
-    Z_CHECK(
-        state_ != ZTCPMultipleSessionServerState_Listen,
-        error_code::kZSocketErrorCode_StateError,
-        L"Server state error! state: %d expect state: %d",
-        state_, ZTCPMultipleSessionServerState_Listen
-    );
-
-    data_ptr_->io_context_.run();
-    data_ptr_->io_context_.restart();
-
-    return ret_val;
-}
-
-NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncRun() noexcept {
-    ReturnType ret_val = kOK;
-    ReturnType link_code = kOK;
-
-    Z_CHECK(
-        state_ != ZTCPMultipleSessionServerState_Listen,
-        error_code::kZSocketErrorCode_StateError,
-        L"Server state error! state: %d expect state: %d",
-        state_, ZTCPMultipleSessionServerState_Listen
-    );
-
-    //start dealing with async operation.
-    data_ptr_->aysnc_thread_ = ZThread(
-        [this]() {
-            data_ptr_->io_context_.run();
-            data_ptr_->io_context_.restart();
-        }
-    );
 
     return ret_val;
 }

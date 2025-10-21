@@ -39,6 +39,7 @@
     <ClInclude Include="code\z_core\t_function.h" />
     <ClInclude Include="code\z_socket.h" />
     <ClInclude Include="code\z_socket\f_tcp_log_output.h" />
+    <ClInclude Include="code\z_socket\z_socket_context.h" />
     <ClInclude Include="code\z_socket\z_tcp_socket.h" />
     <ClInclude Include="code\z_socket\z_tcp_client.h" />
     <ClInclude Include="code\z_socket\z_tcp_server.h" />
@@ -295,6 +296,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\main.cpp" />
+    <ClCompile Include="code\main_1.cpp" />
     <ClCompile Include="code\z_gui\z_input_text.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

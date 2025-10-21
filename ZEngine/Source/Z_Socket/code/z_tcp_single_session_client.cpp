@@ -27,29 +27,41 @@
 #include "z_core/z_string.h"
 #include "z_core/z_thread.h"
 
+#include "z_socket_context.h"
+
+#include "data/z_context_data.h"
 #include "data/z_tcp_client_data.h"
 #include "data/z_tcp_socket_data.h"
 
 namespace zengine {
 namespace socket {
 
-ZTCPSingleSessionClient::ZTCPSingleSessionClient() noexcept 
-    : data_ptr_(MakeUnique<internal::ZTCPSingleSessionClientData>())
-    , socket_(this)
-    , state_(ZTCPSingleSessionClientState_Idle)
+ZTCPSingleSessionClient::ZTCPSingleSessionClient(ZSocketContext* _context_ptr) noexcept
+    : data_ptr_()
+    , socket_()
+    , context_ptr_(_context_ptr)
+    , state_(ZTCPSingleSessionClientState_Uninitialized)
 {
-    socket_.SetAsyncErrorHandleFunctionP(
-        [this]() {
-            //disconnect
-            if (socket_.State() == ZTCPSocket::ZTCPSocketState_Idle) {
-                //connect->listen
-                if (state_ == ZTCPSingleSessionClientState_Connect) {
-                    state_ = ZTCPSingleSessionClientState_Idle;
-                    Z_LOG_FINISH(L"Server disconnected!");
-                }
-            }
-        }
-    );
+    if (_context_ptr == nullptr) {
+        Z_LOG_ERROR(
+            error_code::kZSocketErrorCode_NullptrParam, 0,
+            L"_context_ptr is nullptr!"
+        );
+        return;
+    }
+
+    ReturnType link_code = kOK;
+    data_ptr_ = MakeUnique<internal::ZTCPSingleSessionClientData>(&_context_ptr->data_ptr_->io_context_);
+    link_code = socket_.Initialize(_context_ptr);
+    if (link_code != kOK) {
+        Z_LOG_ERROR(
+            error_code::kZSocketErrorCode_LinkError, link_code,
+            L"ZTCPSocket::Initialize() link error!"
+        );
+        return;
+    }
+
+    state_ = ZTCPSingleSessionClientState_Idle;
 }
 
 ZTCPSingleSessionClient::~ZTCPSingleSessionClient() noexcept {
@@ -61,9 +73,6 @@ ZTCPSingleSessionClient::~ZTCPSingleSessionClient() noexcept {
             L"ZTCPClient::Reset() link error!"
         );
         return;
-    }
-    if (data_ptr_->aysnc_thread_.Joinable()) {
-        data_ptr_->aysnc_thread_.Join();
     }
 }
 
@@ -191,7 +200,6 @@ NODISCARD ReturnType ZTCPSingleSessionClient::Connect(
     result_str_list.PopFront();
     ZString port_string = std::move(result_str_list.Front());
 
-
     //resolve endpoints
     boost::asio::ip::tcp::resolver::results_type endpoints;
     endpoints = std::move(data_ptr_->resolver_.resolve(address_string.String(), port_string.String(), error_code));
@@ -284,7 +292,19 @@ NODISCARD ReturnType ZTCPSingleSessionClient::Connect(
             }
         }
         else {
+            ZString address_str(_address_str);
+            ZString port_str(_port_str);
             socket_.OnConnectP();
+            socket_.SetAsyncErrorHandleFunctionP(
+                [address_str = std::move(address_str), port_str = std::move(port_str)]() {
+                    //disconnect
+                    Z_LOG_FINISH(
+                        L"Server disconnected! server_address: %ls server_port: %ls",
+                        string::String2WString(address_str.String()).String(),
+                        string::String2WString(port_str.String()).String()
+                    );
+                }
+            );
             state_ = ZTCPSingleSessionClientState_Connect;
             Z_LOG_SUCCESS(L"Server connected!");
             break;
@@ -431,42 +451,6 @@ NODISCARD ReturnType ZTCPSingleSessionClient::AsyncWrite(
         );
         return ret_val;
     }
-
-    return ret_val;
-}
-
-NODISCARD ReturnType ZTCPSingleSessionClient::Run() noexcept {
-    ReturnType ret_val = kOK;
-
-    Z_CHECK(
-        state_ != ZTCPSingleSessionClientState_Connect,
-        error_code::kZSocketErrorCode_StateError,
-        L"Client state error! state: %d expect state: %d",
-        state_, ZTCPSingleSessionClientState_Connect
-    );
-
-    //start dealing with async operation.
-    data_ptr_->io_context_.run();
-
-    return ret_val;
-}
-
-NODISCARD ReturnType ZTCPSingleSessionClient::AsyncRun() noexcept {
-    ReturnType ret_val = kOK;
-
-    Z_CHECK(
-        state_ != ZTCPSingleSessionClientState_Connect,
-        error_code::kZSocketErrorCode_StateError,
-        L"Client state error! state: %d expect state: %d",
-        state_, ZTCPSingleSessionClientState_Connect
-    );
-
-    //start dealing with async operation.
-    data_ptr_->aysnc_thread_ = ZThread(
-        [this]() {
-            data_ptr_->io_context_.run();
-        }
-    );
 
     return ret_val;
 }

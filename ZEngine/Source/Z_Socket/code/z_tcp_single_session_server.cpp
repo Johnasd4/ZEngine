@@ -27,17 +27,40 @@
 #include "z_core/z_string.h"
 #include "z_core/z_thread.h"
 
+#include "z_socket_context.h"
+
+#include "data/z_context_data.h"
 #include "data/z_tcp_server_data.h"
 #include "data/z_tcp_socket_data.h"
 
 namespace zengine {
 namespace socket {
 
-ZTCPSingleSessionServer::ZTCPSingleSessionServer() noexcept 
-    : data_ptr_(MakeUnique<internal::ZTCPSingleSessionServerData>())
-    , socket_(this)
-    , state_(ZTCPSingleSessionServerState_Idle)
+ZTCPSingleSessionServer::ZTCPSingleSessionServer(ZSocketContext* _context_ptr) noexcept
+    : data_ptr_()
+    , socket_()
+    , context_ptr_(_context_ptr)
+    , state_(ZTCPSingleSessionServerState_Uninitialized)
 {
+    if (_context_ptr == nullptr) {
+        Z_LOG_ERROR(
+            error_code::kZSocketErrorCode_NullptrParam, 0,
+            L"_context_ptr is nullptr!"
+        );
+        return;
+    }
+
+    ReturnType link_code = kOK;
+    data_ptr_ = MakeUnique<internal::ZTCPSingleSessionServerData>(&_context_ptr->data_ptr_->io_context_);
+    link_code = socket_.Initialize(_context_ptr);
+    if (link_code != kOK) {
+        Z_LOG_ERROR(
+            error_code::kZSocketErrorCode_LinkError, link_code,
+            L"ZTCPSocket::Initialize() link error!"
+        );
+        return;
+    }
+
     socket_.SetAsyncErrorHandleFunctionP(
         [this]() {
             //disconnect
@@ -50,6 +73,8 @@ ZTCPSingleSessionServer::ZTCPSingleSessionServer() noexcept
             }
         }
     );
+
+    state_ = ZTCPSingleSessionServerState_Idle;
 }
 
 ZTCPSingleSessionServer::~ZTCPSingleSessionServer() noexcept {
@@ -62,12 +87,9 @@ ZTCPSingleSessionServer::~ZTCPSingleSessionServer() noexcept {
         );
         return;
     }
-    if (data_ptr_->aysnc_thread_.Joinable()) {
-        data_ptr_->aysnc_thread_.Join();
-    }
 }
 
-NODISCARD ReturnType ZTCPSingleSessionServer::SetEndpoint(const Char* _address_str, Int32 _port) noexcept {
+NODISCARD ReturnType ZTCPSingleSessionServer::BindEndpoint(const Char* _address_str, Int32 _port) noexcept {
     ReturnType ret_val = kOK;
 
     Z_CHECK(
@@ -97,7 +119,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::SetEndpoint(const Char* _address_s
     data_ptr_->server_endpoint_.address(address);
     data_ptr_->server_endpoint_.port(_port);
 
-    data_ptr_->endpoint_set_ = true;
+    data_ptr_->if_endpoint_bind_ = true;
 
     return ret_val;
 }
@@ -153,9 +175,9 @@ NODISCARD ReturnType ZTCPSingleSessionServer::Listen() noexcept {
     boost::system::error_code error_code;
 
     Z_CHECK(
-        !data_ptr_->endpoint_set_,
-        error_code::kZSocketErrorCode_EndpointNotSet,
-        L"Endpoint not set! Can not open!"
+        !data_ptr_->if_endpoint_bind_,
+        error_code::kZSocketErrorCode_EndpointNotBind,
+        L"Endpoint not bind! Can not open!"
     );
     Z_CHECK(
         state_ != ZTCPSingleSessionServerState_Idle,
@@ -418,45 +440,6 @@ NODISCARD ReturnType ZTCPSingleSessionServer::AsyncWrite(
         );
         return ret_val;
     }
-
-    return ret_val;
-}
-
-NODISCARD ReturnType ZTCPSingleSessionServer::Run() noexcept {
-    ReturnType ret_val = kOK;
-    ReturnType link_code = kOK;
-
-    Z_CHECK(
-        state_ != ZTCPSingleSessionServerState_Connect,
-        error_code::kZSocketErrorCode_StateError,
-        L"Server state error! state: %d expect state: %d",
-        state_, ZTCPSingleSessionServerState_Connect
-    );
-
-    data_ptr_->io_context_.run();
-    data_ptr_->io_context_.restart();
-
-    return ret_val;
-}
-
-NODISCARD ReturnType ZTCPSingleSessionServer::AsyncRun() noexcept {
-    ReturnType ret_val = kOK;
-    ReturnType link_code = kOK;
-
-    Z_CHECK(
-        state_ != ZTCPSingleSessionServerState_Connect,
-        error_code::kZSocketErrorCode_StateError,
-        L"Server state error! state: %d expect state: %d",
-        state_, ZTCPSingleSessionServerState_Connect
-    );
-
-    //start dealing with async operation.
-    data_ptr_->aysnc_thread_ = ZThread(
-        [this]() {
-            data_ptr_->io_context_.run();
-            data_ptr_->io_context_.restart();
-        }
-    );
 
     return ret_val;
 }

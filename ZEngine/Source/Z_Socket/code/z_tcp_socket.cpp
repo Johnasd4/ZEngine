@@ -25,12 +25,10 @@
 #include "z_core/m_log.h"
 #include "z_core/z_string.h"
 
-#include "data/z_tcp_client_data.h"
-#include "data/z_tcp_server_data.h"
+#include "data/z_context_data.h"
 #include "data/z_tcp_socket_data.h"
 
-#include "z_tcp_client.h"
-#include "z_tcp_server.h"
+#include "z_socket_context.h"
 
 namespace zengine {
 namespace socket {
@@ -58,26 +56,22 @@ ZTCPSocket::ZTCPSocket(ZTCPSocket&& _socket) noexcept
     MoveP(std::forward<ZTCPSocket>(_socket));
 }
 
-ZTCPSocket::ZTCPSocket(ZTCPSingleSessionClient* _client_ptr) noexcept
+ZTCPSocket::ZTCPSocket(ZSocketContext* _context_ptr) noexcept
     : SuperType_()
-    , data_ptr_(MakeUnique<internal::ZTCPSocketData>(&_client_ptr->data_ptr_->io_context_))
-    , state_(ZTCPSocketState_Idle)
-{}
-ZTCPSocket::ZTCPSocket(ZTCPMultipleSessionClient* _client_ptr) noexcept
-    : SuperType_()
-    , data_ptr_(MakeUnique<internal::ZTCPSocketData>(&_client_ptr->data_ptr_->io_context_))
-    , state_(ZTCPSocketState_Idle)
-{}
-ZTCPSocket::ZTCPSocket(ZTCPSingleSessionServer* _server_ptr) noexcept
-    : SuperType_()
-    , data_ptr_(MakeUnique<internal::ZTCPSocketData>(&_server_ptr->data_ptr_->io_context_))
-    , state_(ZTCPSocketState_Idle)
-{}
-ZTCPSocket::ZTCPSocket(ZTCPMultipleSessionServer* _server_ptr) noexcept
-    : SuperType_()
-    , data_ptr_(MakeUnique<internal::ZTCPSocketData>(&_server_ptr->data_ptr_->io_context_))
-    , state_(ZTCPSocketState_Idle)
-{}
+    , data_ptr_(nullptr)
+    , state_(ZTCPSocketState_Uninitialized)
+{
+    if (_context_ptr == nullptr) {
+        Z_LOG_ERROR(
+            error_code::kZSocketErrorCode_NullptrParam, 0,
+            L"_context_ptr is nullptr!"
+        );
+        return;
+    }
+
+    data_ptr_ = MakeUnique<internal::ZTCPSocketData>(&_context_ptr->data_ptr_->io_context_);
+    state_ = ZTCPSocketState_Idle;
+}
 
 ZTCPSocket::~ZTCPSocket() noexcept {
     ReturnType link_code = kOK;
@@ -116,8 +110,7 @@ NODISCARD const Int32 ZTCPSocket::RemotePort() noexcept {
     return data_ptr_->port_;
 }
 
-NODISCARD ReturnType ZTCPSocket::Initialize(ZTCPSingleSessionClient* _client_ptr) noexcept {
-
+NODISCARD ReturnType ZTCPSocket::Initialize(ZSocketContext* _context_ptr) noexcept {
     ReturnType ret_val = kOK;
     Z_CHECK(
         state_ != ZTCPSocketState_Uninitialized,
@@ -126,49 +119,14 @@ NODISCARD ReturnType ZTCPSocket::Initialize(ZTCPSingleSessionClient* _client_ptr
         state_, ZTCPSocketState_Uninitialized
     );
 
-    data_ptr_ = MakeUnique<internal::ZTCPSocketData>(&_client_ptr->data_ptr_->io_context_);
-
-    return ret_val;
-}
-NODISCARD ReturnType ZTCPSocket::Initialize(ZTCPMultipleSessionClient* _client_ptr) noexcept {
-
-    ReturnType ret_val = kOK;
     Z_CHECK(
-        state_ != ZTCPSocketState_Uninitialized,
-        error_code::kZSocketErrorCode_StateError,
-        L"Socket state error! state: %d expect state: %d",
-        state_, ZTCPSocketState_Uninitialized
+        _context_ptr == nullptr,
+        error_code::kZSocketErrorCode_NullptrParam,
+        L"_context_ptr is nullptr!"
     );
 
-    data_ptr_ = MakeUnique<internal::ZTCPSocketData>(&_client_ptr->data_ptr_->io_context_);
-
-    return ret_val;
-}
-NODISCARD ReturnType ZTCPSocket::Initialize(ZTCPSingleSessionServer* _server_ptr) noexcept {
-    ReturnType ret_val = kOK;
-
-    Z_CHECK(
-        state_ != ZTCPSocketState_Uninitialized,
-        error_code::kZSocketErrorCode_StateError,
-        L"Socket state error! state: %d expect state: %d",
-        state_, ZTCPSocketState_Uninitialized
-    );
-
-    data_ptr_ = MakeUnique<internal::ZTCPSocketData>(&_server_ptr->data_ptr_->io_context_);
-
-    return ret_val;
-}
-NODISCARD ReturnType ZTCPSocket::Initialize(ZTCPMultipleSessionServer* _server_ptr) noexcept {
-    ReturnType ret_val = kOK;
-
-    Z_CHECK(
-        state_ != ZTCPSocketState_Uninitialized,
-        error_code::kZSocketErrorCode_StateError,
-        L"Socket state error! state: %d expect state: %d",
-        state_, ZTCPSocketState_Uninitialized
-    );
-
-    data_ptr_ = MakeUnique<internal::ZTCPSocketData>(&_server_ptr->data_ptr_->io_context_);
+    data_ptr_ = MakeUnique<internal::ZTCPSocketData>(&_context_ptr->data_ptr_->io_context_);
+    state_ = ZTCPSocketState_Idle;
 
     return ret_val;
 }
@@ -263,6 +221,7 @@ NODISCARD ReturnType ZTCPSocket::Close() noexcept {
     );
 
     try {
+        data_ptr_->socket_.cancel();
         if (state_ == ZTCPSocketState_Connect) {
             data_ptr_->socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
         }
@@ -484,8 +443,7 @@ NODISCARD ReturnType ZTCPSocket::AsyncWrite(
             //handle error
             if (_error_code) {
                 if (
-
-                                       _error_code.value() == boost::asio::error::connection_reset ||
+                     _error_code.value() == boost::asio::error::connection_reset ||
                     _error_code.value() == ERROR_FILE_NOT_FOUND
                     ) {
                     boost::system::error_code error_code;

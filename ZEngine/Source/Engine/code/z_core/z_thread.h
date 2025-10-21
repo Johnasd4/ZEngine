@@ -55,7 +55,8 @@ public:
             thread_func,
             (Void*)params_ptr,
             0,
-            &id_);
+            &id_
+        );
     }
 
     ~ZThread() noexcept;

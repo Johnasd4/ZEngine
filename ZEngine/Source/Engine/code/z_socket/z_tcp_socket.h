@@ -53,10 +53,7 @@ public:
     ZTCPSocket() noexcept;
     ZTCPSocket(const ZTCPSocket& _socket) noexcept;
     ZTCPSocket(ZTCPSocket&& _socket) noexcept;
-    ZTCPSocket(ZTCPSingleSessionClient* _client_ptr) noexcept;
-    ZTCPSocket(ZTCPMultipleSessionClient* _client_ptr) noexcept;
-    ZTCPSocket(ZTCPSingleSessionServer* _server_ptr) noexcept;
-    ZTCPSocket(ZTCPMultipleSessionServer* _server_ptr) noexcept;
+    ZTCPSocket(ZSocketContext* _context_ptr) noexcept;
 
     ~ZTCPSocket() noexcept;
 
@@ -72,19 +69,7 @@ public:
     /*
         Initialize socket.
     */
-    NODISCARD ReturnType Initialize(ZTCPSingleSessionClient* _client_ptr) noexcept;
-    /*
-        Initialize socket.
-    */
-    NODISCARD ReturnType Initialize(ZTCPMultipleSessionClient* _client_ptr) noexcept;
-    /*
-        Initialize socket.
-    */
-    NODISCARD ReturnType Initialize(ZTCPSingleSessionServer* _server_ptr) noexcept;
-    /*
-        Initialize socket.
-    */
-    NODISCARD ReturnType Initialize(ZTCPMultipleSessionServer* _server_ptr) noexcept;
+    NODISCARD ReturnType Initialize(ZSocketContext* _context_ptr) noexcept;
 
     /*
         Sets os write buffer size. Call after connected.
@@ -111,7 +96,7 @@ public:
     NODISCARD ReturnType Reset() noexcept;
 
     /*
-        Read a message from the client. Will suspend the current thread until a message is received.
+        Read data. Will suspend the current thread until data read.
     */
     NODISCARD ReturnType Read(
         Void* _data_buffer, 
@@ -120,8 +105,8 @@ public:
     ) noexcept;
 
     /*
-        Read a message from the client. Will not suspend the current thread.
-        _handle_func only needs to handle the message recieved.
+        Read data. Will not suspend the current thread.
+        _handle_func only needs to handle the read data.
         _handle_func(ZTCPSocket* _socket_ptr, Void* _data_buffer, SizeType _read_length)
     */
     NODISCARD ReturnType AsyncRead(
@@ -131,16 +116,16 @@ public:
     ) noexcept;
 
     /*
-        Send a message to the client.
+        Write data. Will suspend the current thread until data write.
     */
     NODISCARD ReturnType Write(
         const Void* _data_buffer,
         SizeType _date_size
     ) noexcept;
 
-    /*
-        Send a message to the client. Will not suspend the current thread.
-        _handle_func will be called after the message send.
+    /*       
+        Write data. Will not suspend the current thread.
+        _handle_func will be called after the data send.
         _handle_func(ZTCPSocket* _socket_ptr, Void* _data_buffer, SizeType _write_length)
     */
     NODISCARD ReturnType AsyncWrite(

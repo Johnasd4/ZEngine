@@ -18,7 +18,7 @@
 */
 #define SOCKET_DLLFILE
 
-#include "z_tcp_server.h"
+#include "z_tcp_client.h"
 
 #include <boost/asio.hpp>
 
@@ -27,17 +27,34 @@
 #include "z_core/z_string.h"
 #include "z_core/z_thread.h"
 
+#include "z_socket_context.h"
+
+#include "data/z_context_data.h"
 #include "data/z_tcp_client_data.h"
 #include "data/z_tcp_socket_data.h"
 
 namespace zengine {
 namespace socket {
 
-ZTCPMultipleSessionClient::ZTCPMultipleSessionClient() noexcept 
-    : data_ptr_(MakeUnique<internal::ZTCPMultipleSessionClientData>())
-    , socket_pool_list_(this)
-    , state_(ZTCPMultipleSessionClientState_Idle)
-{}
+ZTCPMultipleSessionClient::ZTCPMultipleSessionClient(ZSocketContext* _context_ptr) noexcept
+    : data_ptr_()
+    , socket_pool_list_()
+    , context_ptr_(_context_ptr)
+    , state_(ZTCPMultipleSessionClientState_Uninitialized)
+{
+    if (_context_ptr == nullptr) {
+        Z_LOG_ERROR(
+            error_code::kZSocketErrorCode_NullptrParam, 0,
+            L"_context_ptr is nullptr!"
+        );
+        return;
+    }
+
+    data_ptr_ = MakeUnique<internal::ZTCPMultipleSessionClientData>(&_context_ptr->data_ptr_->io_context_);
+    socket_pool_list_.SetModel(_context_ptr);
+
+    state_ = ZTCPMultipleSessionClientState_Idle;
+}
 
 ZTCPMultipleSessionClient::~ZTCPMultipleSessionClient() noexcept {
     ReturnType link_code = kOK;
@@ -48,9 +65,6 @@ ZTCPMultipleSessionClient::~ZTCPMultipleSessionClient() noexcept {
             L"ZTCPMultipleSessionClient::Reset() link error!"
         );
         return;
-    }
-    if (data_ptr_->aysnc_thread_.Joinable()) {
-        data_ptr_->aysnc_thread_.Join();
     }
 }
 
@@ -231,6 +245,7 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncConnect(
         return ret_val;
     }
 
+    return ret_val;
 }
 
 NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncConnectExecuteP(
@@ -325,6 +340,17 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncConnectExecuteP(
 
                 socket_pool_list_.Push(socket_ptr);
                 socket_ptr->OnConnectP();
+                socket_ptr->SetAsyncErrorHandleFunctionP(
+                    [address_str = std::move(address_str), port_str = std::move(port_str)]() {
+                        //disconnect
+                        Z_LOG_FINISH(
+                            L"Server disconnected! server_address: %ls server_port: %ls",
+                            string::String2WString(address_str.String()).String(),
+                            string::String2WString(port_str.String()).String()
+                        );
+                    }
+                );
+
                 Z_LOG_SUCCESS(L"Server connected!");
 
                 if (_handle_func) {
@@ -381,45 +407,6 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncBroadcast(
         }
     }
     socket_pool_list_.Unlock();
-
-    return ret_val;
-}
-
-NODISCARD ReturnType ZTCPMultipleSessionClient::Run() noexcept {
-    ReturnType ret_val = kOK;
-    ReturnType link_code = kOK;
-
-    Z_CHECK(
-        state_ != ZTCPMultipleSessionClientState_Idle,
-        error_code::kZSocketErrorCode_StateError,
-        L"Server state error! state: %d expect state: %d",
-        state_, ZTCPMultipleSessionClientState_Idle
-    );
-
-    data_ptr_->io_context_.run();
-    data_ptr_->io_context_.restart();
-
-    return ret_val;
-}
-
-NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncRun() noexcept {
-    ReturnType ret_val = kOK;
-    ReturnType link_code = kOK;
-
-    Z_CHECK(
-        state_ != ZTCPMultipleSessionClientState_Idle,
-        error_code::kZSocketErrorCode_StateError,
-        L"Server state error! state: %d expect state: %d",
-        state_, ZTCPMultipleSessionClientState_Idle
-    );
-
-    //start dealing with async operation.
-    data_ptr_->aysnc_thread_ = ZThread(
-        [this]() {
-            data_ptr_->io_context_.run();
-            data_ptr_->io_context_.restart();
-        }
-    );
 
     return ret_val;
 }

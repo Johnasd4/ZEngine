@@ -31,35 +31,26 @@ namespace internal {
 
 struct ZTCPSingleSessionClientData : public ZObject {
 public:
-    ZTCPSingleSessionClientData() noexcept 
-        : io_context_()
-        , resolver_(io_context_)
-        , aysnc_thread_() {
-    }
+    ZTCPSingleSessionClientData(boost::asio::io_context* _io_context_ptr) noexcept
+        : resolver_(*_io_context_ptr) {}
 
 protected:
     using SuperType_ = ZObject;
 
 public:
-    boost::asio::io_context io_context_;
     boost::asio::ip::tcp::resolver resolver_;
-    ZThread aysnc_thread_;
 };
 
 struct ZTCPMultipleSessionClientData : public ZObject {
 public:
-    ZTCPMultipleSessionClientData() noexcept
-        : io_context_()
-        , resolver_(io_context_)
-        , aysnc_thread_() {}
+    ZTCPMultipleSessionClientData(boost::asio::io_context* _io_context_ptr) noexcept
+        : resolver_(*_io_context_ptr) {}
 
 protected:
     using SuperType_ = ZObject;
 
 public:
-    boost::asio::io_context io_context_;
     boost::asio::ip::tcp::resolver resolver_;
-    ZThread aysnc_thread_;
 };
 
 }//internal

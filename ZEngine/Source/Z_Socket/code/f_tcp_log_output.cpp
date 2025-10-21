@@ -31,6 +31,7 @@
 #include "z_core/z_object.h"
 #include "z_core/z_thread.h"
 
+#include "z_socket_context.h"
 #include "z_tcp_client.h"
 #include "z_tcp_server.h"
 
@@ -99,7 +100,7 @@ public:
         );
 
         //set end point
-        link_code = log_server_.SetEndpoint(_address_str, _port);
+        link_code = log_server_.BindEndpoint(_address_str, _port);
         if (link_code != kOK) {
             ret_val = error_code::kZSocketErrorCode_LinkError;
             Z_LOG_ERROR(ret_val, link_code, L"ZTCPServer::SetEndpoint() link error!");
@@ -295,7 +296,8 @@ private:
 
     ZTCPLogServer() noexcept
         : log_buffer_ptr_queue_()
-        , log_server_()
+        , socket_context_()
+        , log_server_(&socket_context_)
         , server_thread_()
         , log_server_thread_state_(LogServerState_Idle)
     {}
@@ -321,6 +323,7 @@ private:
 
 private:
     TQueueSafe<TCPLogOutputReplyLogData*> log_buffer_ptr_queue_;
+    ZSocketContext socket_context_;
     ZTCPSingleSessionServer log_server_;
     ZThread server_thread_;
     TAtom<LogServerThreadState_> log_server_thread_state_;
@@ -481,7 +484,8 @@ private:
 
     ZTCPLogClient() noexcept
         : handle_func_(nullptr)
-        , log_client_()
+        , socket_context_()
+        , log_client_(&socket_context_)
         , client_thread_()
         , log_client_thread_state_(LogClientState_Idle)
     {
@@ -495,6 +499,7 @@ private:
 
 private:
     Void (*handle_func_)(const TCPLogOutputReplyLogData*);
+    ZSocketContext socket_context_;
     ZTCPSingleSessionClient log_client_;
     ZThread client_thread_;
     TAtom<LogClientThreadState_> log_client_thread_state_;

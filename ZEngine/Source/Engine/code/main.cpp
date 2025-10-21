@@ -97,16 +97,19 @@ Int32 main() {
 
     ReturnType link_code = kOK;
 
-    ZTCPMultipleSessionClient test_client;
-    link_code = test_client.AsyncConnect("127.0.0.1:8080", [](ZTCPMultipleSessionClient* a, ZTCPSocket* b){}, 5);
-    link_code = test_client.Run();
+    ZSocketContext socket_context;
 
-    while (true) {};
+
+    //ZTCPMultipleSessionClient test_client(&socket_context);
+    //link_code = test_client.AsyncConnect("127.0.0.1:8080", [](ZTCPMultipleSessionClient* a, ZTCPSocket* b){}, 5);
+    //link_code = socket_context.Run();
+    //while (true) {};
+
 
     TFixedMemory<1024> buffer;
-    ZTCPMultipleSessionServer tcp_server;
+    ZTCPMultipleSessionServer tcp_server(&socket_context);
 
-    link_code = tcp_server.SetEndpoint("127.0.0.1", 8080);
+    link_code = tcp_server.BindEndpoint("127.0.0.1", 8080);
     link_code = tcp_server.Listen();
 
     TFunction<Void(ZTCPSocket*, Void*, SizeType)> read_handle_func;
@@ -146,7 +149,7 @@ Int32 main() {
 
     link_code = tcp_server.AsyncAccept(accept_handle_func);
 
-    link_code = tcp_server.Run();
+    link_code = socket_context.Run();
 
     while (true) {
 

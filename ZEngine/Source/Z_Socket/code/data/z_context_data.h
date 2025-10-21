@@ -18,18 +18,31 @@
 */
 #pragma once
 
-#include "d_lib.h"
+#include "internal/z_drive.h"
+
+#include <boost/asio.hpp>
+
+#include "z_core/z_object.h"
+#include "z_core/z_thread.h"
 
 namespace zengine {
 namespace socket {
+namespace internal {
 
-class ZSocketContext;
-class ZTCPSocket;
-class ZUDPSocket;
-class ZTCPSingleSessionClient;
-class ZTCPMultipleSessionClient;
-class ZTCPSingleSessionServer;
-class ZTCPMultipleSessionServer;
+struct ZContextData : public ZObject {
+public:
+    ZContextData() noexcept
+        : io_context_()
+        , aysnc_thread_() {}
 
+protected:
+    using SuperType_ = ZObject;
+
+public:
+    boost::asio::io_context io_context_;
+    ZThread aysnc_thread_;
+};
+
+}//internal
 }//socket
 }//zengine

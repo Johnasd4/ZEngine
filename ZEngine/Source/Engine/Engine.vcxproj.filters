@@ -831,12 +831,18 @@
     <ClInclude Include="code\z_socket\z_udp_socket.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="code\z_socket\z_socket_context.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="code\z_gui\z_input_text.h">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\main_1.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

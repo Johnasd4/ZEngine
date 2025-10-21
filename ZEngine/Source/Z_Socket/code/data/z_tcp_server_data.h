@@ -31,37 +31,29 @@ namespace internal {
 
 struct ZTCPSingleSessionServerData : public ZObject {
 public:
-    ZTCPSingleSessionServerData() noexcept 
-        : io_context_()
-        , acceptor_(io_context_) 
+    ZTCPSingleSessionServerData(boost::asio::io_context* _io_context_ptr) noexcept
+        : acceptor_(*_io_context_ptr)
         , server_endpoint_()
-        , endpoint_set_(false)
-        , aysnc_thread_() {}
+        , if_endpoint_bind_(false) {}
 
 public:
-    boost::asio::io_context io_context_;
     boost::asio::ip::tcp::tcp::acceptor acceptor_;
     boost::asio::ip::tcp::endpoint server_endpoint_;
-    Bool endpoint_set_;
-    ZThread aysnc_thread_;
+    Bool if_endpoint_bind_;
 };
 
 struct ZTCPMultipleSessionServerData : public ZObject {
 public:
-    ZTCPMultipleSessionServerData() noexcept
-        : io_context_()
-        , acceptor_(io_context_)
+    ZTCPMultipleSessionServerData(boost::asio::io_context* _io_context_ptr) noexcept
+        : acceptor_(*_io_context_ptr)
         , server_endpoint_()
-        , endpoint_set_(false)
-        , aysnc_thread_() {
+        , if_endpoint_bind_(false) {
     }
 
 public:
-    boost::asio::io_context io_context_;
     boost::asio::ip::tcp::tcp::acceptor acceptor_;
     boost::asio::ip::tcp::endpoint server_endpoint_;
-    Bool endpoint_set_;
-    ZThread aysnc_thread_;
+    Bool if_endpoint_bind_;
 };
 
 }//internal
