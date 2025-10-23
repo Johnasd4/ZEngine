@@ -20,6 +20,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="code\z_socket_allocator.cpp" />
     <ClCompile Include="code\z_socket_context.cpp" />
     <ClCompile Include="code\z_tcp_multiple_session_client.cpp" />
     <ClCompile Include="code\z_tcp_multiple_session_server.cpp" />
@@ -27,12 +28,15 @@
     <ClCompile Include="code\z_tcp_single_session_client.cpp" />
     <ClCompile Include="code\z_tcp_single_session_server.cpp" />
     <ClCompile Include="code\z_tcp_socket.cpp" />
+    <ClCompile Include="code\z_udp_socket.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\data\z_context_data.h" />
+    <ClInclude Include="code\z_socket_allocator.h" />
     <ClInclude Include="code\data\z_tcp_client_data.h" />
     <ClInclude Include="code\data\z_tcp_server_data.h" />
     <ClInclude Include="code\data\z_tcp_socket_data.h" />
+    <ClInclude Include="code\data\z_udp_socket_data.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

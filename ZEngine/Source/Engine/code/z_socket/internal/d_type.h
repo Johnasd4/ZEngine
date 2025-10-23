@@ -20,10 +20,19 @@
 
 #include "d_lib.h"
 
+#include "z_core/z_object.h"
+#include "z_core/z_string.h"
+
 namespace zengine {
 namespace socket {
 
-class ZSocketContext;
+}//socket
+}//zengine
+
+namespace zengine {
+namespace socket {
+
+class ZIOContext;
 class ZTCPSocket;
 class ZUDPSocket;
 class ZTCPSingleSessionClient;

@@ -97,39 +97,43 @@ Int32 main() {
 
     ReturnType link_code = kOK;
 
-    ZSocketContext socket_context;
-
-
-    //ZTCPMultipleSessionClient test_client(&socket_context);
-    //link_code = test_client.AsyncConnect("127.0.0.1:8080", [](ZTCPMultipleSessionClient* a, ZTCPSocket* b){}, 5);
-    //link_code = socket_context.Run();
-    //while (true) {};
-
-
+    ZIOContext io_context;
     TFixedMemory<1024> buffer;
-    ZTCPMultipleSessionServer tcp_server(&socket_context);
+
+    ZUDPSocket udp_socket(&io_context);
+    while (true) {
+        wscanf(L"%1024ls", buffer.DataPtr<WChar*>());
+        link_code = udp_socket.SendTo(buffer.DataPtr<Void*>(), 1024, "127.0.0.1", 8080);
+    };
+
+    ZTCPMultipleSessionClient test_client(&io_context);
+    link_code = test_client.AsyncConnect("127.0.0.1", "8080", [](ZTCPMultipleSessionClient* a, ZTCPSocket* b){}, 5);
+    link_code = io_context.Run();
+
+
+    ZTCPMultipleSessionServer tcp_server(&io_context);
 
     link_code = tcp_server.BindEndpoint("127.0.0.1", 8080);
     link_code = tcp_server.Listen();
 
-    TFunction<Void(ZTCPSocket*, Void*, SizeType)> read_handle_func;
-    TFunction<Void(ZTCPSocket*, Void*, SizeType)> write_handle_func;
-    write_handle_func = [](ZTCPSocket* _socket_ptr, Void* _data_buffer, SizeType _write_length) {};
+    TFunction<Void(ZTCPSocket*, const Void*, SizeType)> read_handle_func;
+    TFunction<Void(ZTCPSocket*, const Void*, SizeType)> write_handle_func;
+    write_handle_func = [](ZTCPSocket* _socket_ptr, const Void* _data_buffer, SizeType _write_length) {};
     TFunction< Void(ZTCPMultipleSessionServer*, ZTCPSocket*)> accept_handle_func;
-    read_handle_func = [&tcp_server, &write_handle_func, &read_handle_func](ZTCPSocket* _socket_ptr, Void* _data_buffer, SizeType _write_length) {
+    read_handle_func = [&buffer, &tcp_server, &write_handle_func, &read_handle_func](ZTCPSocket* _socket_ptr, const Void* _data_buffer, SizeType _write_length) {
         ReturnType link_code = kOK;
         TFixedWString<512> str(
             L"Client %ls(%d): %ls",
             string::String2WString(_socket_ptr->RemoteAddress().String()).String(),
             _socket_ptr->RemotePort(),
-            static_cast<WChar*>(_data_buffer)
+            static_cast<const WChar*>(_data_buffer)
         );
         Z_LOG_MESSAGE(L"%ls", str.String());
         link_code = tcp_server.AsyncBroadcast(str.DataPtr(), 1024, write_handle_func);
         if (link_code != kOK) {
             Z_LOG_ERROR(0, 0, L"AsyncRead() error!");
         }
-        link_code = _socket_ptr->AsyncRead(_data_buffer, 1024, read_handle_func);
+        link_code = _socket_ptr->AsyncRead(buffer.DataPtr<Void*>(), 1024, read_handle_func);
         if (link_code != kOK) {
             Z_LOG_ERROR(0, 0, L"AsyncRead() error!");
         }
@@ -149,7 +153,7 @@ Int32 main() {
 
     link_code = tcp_server.AsyncAccept(accept_handle_func);
 
-    link_code = socket_context.Run();
+    link_code = io_context.Run();
 
     while (true) {
 

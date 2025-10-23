@@ -50,7 +50,7 @@ public:
         , if_endpoint_bind_(false) {
     }
 
-public:
+public: 
     boost::asio::ip::tcp::tcp::acceptor acceptor_;
     boost::asio::ip::tcp::endpoint server_endpoint_;
     Bool if_endpoint_bind_;

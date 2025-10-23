@@ -18,7 +18,7 @@
 */
 #define SOCKET_DLLFILE
 
-#include "z_socket_context.h"
+#include "z_io_context.h"
 
 #include <boost/asio.hpp>
 
@@ -31,22 +31,22 @@
 namespace zengine {
 namespace socket {
 
-ZSocketContext::ZSocketContext() noexcept
+ZIOContext::ZIOContext() noexcept
     : SuperType_()
     , data_ptr_(MakeUnique<internal::ZContextData>())
-    , state_(ZSocketContextState_Idle)
+    , state_(ZIOContextState_Idle)
 {}
 
-ZSocketContext::~ZSocketContext() noexcept {}
+ZIOContext::~ZIOContext() noexcept {}
 
-NODISCARD ReturnType ZSocketContext::Stop() noexcept {
+NODISCARD ReturnType ZIOContext::Stop() noexcept {
     ReturnType ret_val = kOK;
 
     Z_CHECK(
-        state_ != ZSocketContextState_Run,
+        state_ != ZIOContextState_Run,
         error_code::kZSocketErrorCode_StateError,
         L"Context state error! state: %d expect state: %d",
-        state_, ZSocketContextState_Run
+        state_, ZIOContextState_Run
     );
 
     data_ptr_->io_context_.stop();
@@ -54,39 +54,39 @@ NODISCARD ReturnType ZSocketContext::Stop() noexcept {
     return ret_val;
 }
 
-NODISCARD ReturnType ZSocketContext::Run() noexcept {
+NODISCARD ReturnType ZIOContext::Run() noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
 
     Z_CHECK(
-        state_ != ZSocketContextState_Idle,
+        state_ != ZIOContextState_Idle,
         error_code::kZSocketErrorCode_StateError,
         L"Context state error! state: %d expect state: %d",
-        state_, ZSocketContextState_Idle
+        state_, ZIOContextState_Idle
     );
 
-    state_ = ZSocketContextState_Run;
+    state_ = ZIOContextState_Run;
 
     data_ptr_->io_context_.run();
     data_ptr_->io_context_.restart();
 
-    state_ = ZSocketContextState_Idle;
+    state_ = ZIOContextState_Idle;
 
     return ret_val;
 }
 
-NODISCARD ReturnType ZSocketContext::AsyncRun() noexcept {
+NODISCARD ReturnType ZIOContext::AsyncRun() noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
 
     Z_CHECK(
-        state_ != ZSocketContextState_Idle,
+        state_ != ZIOContextState_Idle,
         error_code::kZSocketErrorCode_StateError,
         L"Context state error! state: %d expect state: %d",
-        state_, ZSocketContextState_Idle
+        state_, ZIOContextState_Idle
     );
 
-    state_ = ZSocketContextState_Run;
+    state_ = ZIOContextState_Run;
 
     data_ptr_->aysnc_thread_ = ZThread(
         [this]() {
@@ -94,7 +94,7 @@ NODISCARD ReturnType ZSocketContext::AsyncRun() noexcept {
             data_ptr_->io_context_.run();
             data_ptr_->io_context_.restart();
 
-            state_ = ZSocketContextState_Idle;
+            state_ = ZIOContextState_Idle;
         }
     );
 

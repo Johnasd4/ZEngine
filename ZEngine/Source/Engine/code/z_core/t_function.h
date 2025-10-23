@@ -105,39 +105,51 @@ class TFunction : public ZObject {
 template<typename _ReturnType, typename... ArgTypes>
 class TFunction<_ReturnType(ArgTypes...)> : public ZObject {
 public:
-    FORCEINLINE TFunction() noexcept : SuperType_(), func_ptr_() {}
+    FORCEINLINE TFunction() noexcept : SuperType_(), func_() {}
 
     template<typename _OriginFunc, typename = std::enable_if<kNotType<TFunction, _OriginFunc>>::type>
     FORCEINLINE TFunction(_OriginFunc&& _origin_func) noexcept
         : SuperType_()
-        , func_ptr_(MakeUnique<FunctionImplP_<std::decay_t<_OriginFunc>>>(std::forward<_OriginFunc>(_origin_func))) {}
+        , func_(MakeUnique<FunctionImplP_<std::decay_t<_OriginFunc>>>(std::forward<_OriginFunc>(_origin_func))) {}
 
     TFunction(const TFunction& _func) noexcept
         : SuperType_()
-        , func_ptr_(_func.func_ptr_ ? _func.func_ptr_->Clone() : nullptr) {}
+        , func_(_func.func_ ? _func.func_->Clone() : nullptr) {}
     TFunction(TFunction&& _func) noexcept
         : SuperType_()
-        , func_ptr_(std::move(_func.func_ptr_)) {}
+        , func_(std::move(_func.func_)) {}
 
     TFunction& operator=(const TFunction& _func) noexcept {
-        func_ptr_ = _func.func_ptr_ ? _func.func_ptr_->Clone() : nullptr;
+        func_ = _func.func_ ? _func.func_->Clone() : nullptr;
         return *this;
     }
     FORCEINLINE TFunction& operator=(TFunction&& _func) noexcept {
-        func_ptr_ = std::move(_func.func_ptr_);
+        func_ = std::move(_func.func_);
+        return *this;
+    }
+    TFunction& operator=(NullptrType _nullptr) noexcept {
+        func_.Reset();
+        return *this;
+    }
+    template<typename _OriginFunc, typename = std::enable_if<kNotType<TFunction, _OriginFunc>>::type>
+    TFunction& operator=(_OriginFunc&& _origin_func) noexcept {
+        func_ = std::move(
+            MakeUnique<FunctionImplP_<std::decay_t<_OriginFunc>>>(std::forward<_OriginFunc>(_origin_func))
+        );
         return *this;
     }
 
     _ReturnType operator()(ArgTypes... args) const noexcept {
-        if (!func_ptr_) {
+        if (!func_) {
             Z_LOG_ERROR(error_code::kTFunctionErrorCode_FunctionNotExist, 0, L"Function not exist, can not execute!");
             return _ReturnType();
         }
-        return func_ptr_->Execute(std::forward<ArgTypes>(args)...);
+        return func_->Execute(std::forward<ArgTypes>(args)...);
     }
 
+
     FORCEINLINE operator Bool() const noexcept {
-        return func_ptr_.operator Bool();
+        return func_.operator Bool();
     }
 
 protected:
@@ -159,24 +171,24 @@ private:
     public:
         template<typename _OriginFunc>
         FORCEINLINE FunctionImplP_(_OriginFunc&& _func) noexcept 
-            : SuperType_(), func_(std::forward<_OriginFunc>(_func)) {}
+            : SuperType_(), decay_func_(std::forward<_OriginFunc>(_func)) {}
 
         virtual _ReturnType Execute(ArgTypes... args) const noexcept {
-            return func_(std::forward<ArgTypes>(args)...);
+            return decay_func_(std::forward<ArgTypes>(args)...);
         }
 
         virtual TUniquePointer<FunctionBaseP_> Clone() const noexcept {
-            return MakeUnique<FunctionImplP_>(func_);
+            return MakeUnique<FunctionImplP_>(decay_func_);
         }
 
     protected:
         using SuperType_ = FunctionBaseP_;
 
     private:
-        _DecayFunction func_;
+        _DecayFunction decay_func_;
     };
 
-    TUniquePointer<FunctionBaseP_> func_ptr_;
+    TUniquePointer<FunctionBaseP_> func_;
 };
 
 }//zengine

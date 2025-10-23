@@ -21,6 +21,7 @@
 #include "internal/z_drive.h"
 
 #include "z_core/t_function.h"
+#include "z_core/t_pool_list.h"
 #include "z_core/t_smart_pointer.h"
 #include "z_core/z_object.h"
 
@@ -41,15 +42,15 @@ namespace socket {
     TCP socket type.
     Contains a extra ptr that can be linked to any object. Call LinkObjectPtr<_ObjectType>() to get the object ptr.
 */
-class SOCKET_DLLAPI ZSocketContext : public ZObject {
+class SOCKET_DLLAPI ZIOContext : public ZObject {
 public:
     enum State_ {
-        ZSocketContextState_Idle,
-        ZSocketContextState_Run
+        ZIOContextState_Idle,
+        ZIOContextState_Run
     };
 
-    ZSocketContext() noexcept;
-    ~ZSocketContext() noexcept;
+    ZIOContext() noexcept;
+    ~ZIOContext() noexcept;
 
     NODISCARD FORCEINLINE State_ State() noexcept { return state_; }
 
@@ -73,7 +74,7 @@ public:
     /*
         If dealing with async operation.
     */
-    NODISCARD FORCEINLINE Bool IsRunning() noexcept { return state_ == ZSocketContextState_Run; }
+    NODISCARD FORCEINLINE Bool IsRunning() noexcept { return state_ == ZIOContextState_Run; }
 
 protected:
     using SuperType_ = ZObject;
@@ -85,10 +86,10 @@ protected:
     friend class ZTCPMultipleSessionServer;
 
 private:
-    ZSocketContext(const ZSocketContext&) = delete;
-    ZSocketContext(ZSocketContext&&) = delete;
-    ZSocketContext& operator=(const ZSocketContext&) = delete;
-    ZSocketContext& operator=(ZSocketContext&&) = delete;
+    ZIOContext(const ZIOContext&) = delete;
+    ZIOContext(ZIOContext&&) = delete;
+    ZIOContext& operator=(const ZIOContext&) = delete;
+    ZIOContext& operator=(ZIOContext&&) = delete;
 
 private:
     TUniquePointer<internal::ZContextData> data_ptr_;

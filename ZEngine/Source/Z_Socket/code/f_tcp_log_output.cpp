@@ -31,7 +31,7 @@
 #include "z_core/z_object.h"
 #include "z_core/z_thread.h"
 
-#include "z_socket_context.h"
+#include "z_io_context.h"
 #include "z_tcp_client.h"
 #include "z_tcp_server.h"
 
@@ -323,7 +323,7 @@ private:
 
 private:
     TQueueSafe<TCPLogOutputReplyLogData*> log_buffer_ptr_queue_;
-    ZSocketContext socket_context_;
+    ZIOContext socket_context_;
     ZTCPSingleSessionServer log_server_;
     ZThread server_thread_;
     TAtom<LogServerThreadState_> log_server_thread_state_;
@@ -499,7 +499,7 @@ private:
 
 private:
     Void (*handle_func_)(const TCPLogOutputReplyLogData*);
-    ZSocketContext socket_context_;
+    ZIOContext socket_context_;
     ZTCPSingleSessionClient log_client_;
     ZThread client_thread_;
     TAtom<LogClientThreadState_> log_client_thread_state_;

@@ -33,6 +33,11 @@ class TContainerAllocator : public ZObject {
 public:
     using value_type = _ObjectType;
 
+    NODISCARD static TContainerAllocator& Instance() noexcept {
+        static TContainerAllocator allocator;
+        return allocator;
+    }
+
     FORCEINLINE TContainerAllocator() noexcept : SuperType_() {}
     template<typename _OtherObjectType>
     FORCEINLINE TContainerAllocator(const TContainerAllocator<_OtherObjectType>& _alocator) noexcept 

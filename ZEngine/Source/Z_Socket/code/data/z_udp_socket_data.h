@@ -22,29 +22,34 @@
 
 #include <boost/asio.hpp>
 
-#include "z_core/t_pool.h"
+#include "z_core/t_allocator.h"
+#include "z_core/t_function.h"
+#include "z_core/t_smart_pointer.h"
 #include "z_core/z_object.h"
-#include "z_core/z_thread.h"
+#include "z_core/z_string.h"
 
 namespace zengine {
 namespace socket {
 namespace internal {
 
-struct ZContextData : public ZObject {
+struct ZUDPSocketData : public ZObject {
 public:
-    ZContextData() noexcept
-        : io_context_()
-        , async_resolver_(io_context_)
-        , aysnc_thread_() 
-    {}
+    FORCEINLINE ZUDPSocketData(boost::asio::io_context* _io_context_ptr) noexcept
+        : socket_(*_io_context_ptr)
+        , async_receive_endpoint_()
+        , if_endpoint_bind_(false)
+        , if_connected_(true)
+        , async_error_handle_func_() {}
 
 protected:
     using SuperType_ = ZObject;
 
 public:
-    boost::asio::io_context io_context_;
-    boost::asio::ip::tcp::resolver async_resolver_;
-    ZThread aysnc_thread_;
+    boost::asio::ip::udp::socket socket_;
+    boost::asio::ip::udp::endpoint async_receive_endpoint_;
+    Bool if_endpoint_bind_;
+    Bool if_connected_;
+    TFunction<Void()> async_error_handle_func_;
 };
 
 }//internal

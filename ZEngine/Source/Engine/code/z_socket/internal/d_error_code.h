@@ -39,6 +39,7 @@ enum ZSocketErrorCode : ReturnType {
     kZSocketErrorCode_PortNotVaild,
     kZSocketErrorCode_Disconnected,
     kZSocketErrorCode_EndpointNotBind,
+    kZSocketErrorCode_UDPSocketNotConnected,
     kZSocketErrorCode_ConnectFailed,
 
 };

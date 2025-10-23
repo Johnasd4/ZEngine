@@ -241,7 +241,7 @@ Void ZTimer::TimerThreadFuncP(internal::ZTimerData* _data_ptr) noexcept {
         TimeType sleep_time = next_tick_time - TimeMs();
         if (sleep_time > 0) {
             //end
-            if (_data_ptr->sleep_mutex_.TryLockFor(sleep_time)) {
+            if (_data_ptr->sleep_mutex_.TryLockFor(static_cast<UInt32>(sleep_time))) {
                 _data_ptr->sleep_mutex_.Unlock();
                 break;
             }

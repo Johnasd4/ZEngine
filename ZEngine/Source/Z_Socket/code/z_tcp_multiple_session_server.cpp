@@ -27,7 +27,7 @@
 #include "z_core/z_string.h"
 #include "z_core/z_thread.h"
 
-#include "z_socket_context.h"
+#include "z_io_context.h"
 
 #include "data/z_context_data.h"
 #include "data/z_tcp_server_data.h"
@@ -36,22 +36,22 @@
 namespace zengine {
 namespace socket {
 
-ZTCPMultipleSessionServer::ZTCPMultipleSessionServer(ZSocketContext* _context_ptr) noexcept
+ZTCPMultipleSessionServer::ZTCPMultipleSessionServer(ZIOContext* _io_context_ptr) noexcept
     : data_ptr_()
     , socket_pool_list_()
-    , context_ptr_(_context_ptr)
+    , io_context_ptr_(_io_context_ptr)
     , state_(ZTCPMultipleSessionServerState_Uninitialized)
 {
-    if (_context_ptr == nullptr) {
+    if (_io_context_ptr == nullptr) {
         Z_LOG_ERROR(
             error_code::kZSocketErrorCode_NullptrParam, 0,
-            L"_context_ptr is nullptr!"
+            L"_io_context_ptr is nullptr!"
         );
         return;
     }
 
-    data_ptr_ = MakeUnique<internal::ZTCPMultipleSessionServerData>(&_context_ptr->data_ptr_->io_context_);
-    socket_pool_list_.SetModel(_context_ptr);
+    data_ptr_ = MakeUnique<internal::ZTCPMultipleSessionServerData>(&_io_context_ptr->data_ptr_->io_context_);
+    socket_pool_list_.SetModel(_io_context_ptr);
 
     state_ = ZTCPMultipleSessionServerState_Idle;
 }
@@ -288,7 +288,7 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncAccept(
 
             socket_pool_list_.Push(socket_ptr);
             socket_ptr->OnConnectP();
-            socket_ptr->SetAsyncErrorHandleFunctionP(
+            socket_ptr->SetAsyncErrorHandleFunction(
                 []() {
                     //disconnect
                     Z_LOG_FINISH(L"Client disconnected!");
@@ -306,9 +306,9 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncAccept(
 }
 
 NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncBroadcast(
-    Void* _data_buffer,
-    Int32 _buffer_size,
-    const TFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
+    const Void* _data_ptr,
+    SizeType _data_size,
+    const TFunction<Void(ZTCPSocket*, const Void*, SizeType)>& _handle_func
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
@@ -323,7 +323,7 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncBroadcast(
     socket_pool_list_.Lock();
     auto socket_ptr = socket_pool_list_.Begin();
     while (socket_ptr != socket_pool_list_.End()) {
-        link_code = socket_ptr->AsyncWrite(_data_buffer, _buffer_size, _handle_func);
+        link_code = socket_ptr->AsyncWrite(_data_ptr, _data_size, _handle_func);
         if (link_code != kOK) {
             //disconnect
             if (socket_ptr->State() == ZTCPSocket::ZTCPSocketState_Idle) {

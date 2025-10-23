@@ -43,6 +43,9 @@ namespace socket {
 */
 class SOCKET_DLLAPI ZTCPSocket : public ZObject {
 public:
+    static constexpr Int32 kConnectRetryForever = kInt32Max;
+
+public:
     enum State_ {
         ZTCPSocketState_Uninitialized,
         ZTCPSocketState_Idle,
@@ -53,7 +56,7 @@ public:
     ZTCPSocket() noexcept;
     ZTCPSocket(const ZTCPSocket& _socket) noexcept;
     ZTCPSocket(ZTCPSocket&& _socket) noexcept;
-    ZTCPSocket(ZSocketContext* _context_ptr) noexcept;
+    ZTCPSocket(ZIOContext* _context_ptr) noexcept;
 
     ~ZTCPSocket() noexcept;
 
@@ -61,15 +64,22 @@ public:
     ZTCPSocket& operator=(ZTCPSocket&& _socket) noexcept;
 
     NODISCARD FORCEINLINE State_ State() noexcept { return state_; }
+    NODISCARD FORCEINLINE ZIOContext* IOContextPtr() noexcept { return io_context_ptr_; }
     template<typename _ObjectType>
     NODISCARD FORCEINLINE _ObjectType* LinkObjectPtr() noexcept { return link_object_ptr_; }
+
     NODISCARD const ZString& RemoteAddress() noexcept;
     NODISCARD const Int32 RemotePort() noexcept;
 
     /*
         Initialize socket.
     */
-    NODISCARD ReturnType Initialize(ZSocketContext* _context_ptr) noexcept;
+    NODISCARD ReturnType Initialize(ZIOContext* _io_context_ptr) noexcept;
+
+    /*
+        Bind endpoint by address and port. Call before connected.
+    */
+    NODISCARD ReturnType BindEndpoint(const Char* _address_str, Int32 _port) noexcept;
 
     /*
         Sets os write buffer size. Call after connected.
@@ -79,6 +89,11 @@ public:
         Sets os read buffer size. Call after connected.
     */
     NODISCARD ReturnType SetOSReadBufferSize(Int32 _size) noexcept;
+
+    /*
+        Sets the aysnc error handle func, called when aysnc error happens.
+    */
+    NODISCARD Void SetAsyncErrorHandleFunction(TFunction<Void()>&& _handle_func) noexcept;
 
     /*
         Cancel async operation.
@@ -96,43 +111,68 @@ public:
     NODISCARD ReturnType Reset() noexcept;
 
     /*
+        Conect to target socket. Will suspend the current thread.
+    */
+    NODISCARD ReturnType Connect(
+        const Char* _address_str,
+        const Char* _port_str,
+        Int32 _repeat_times = kConnectRetryForever
+    ) noexcept;
+
+    /*
+        Conect to target socket. Will not suspend the current thread.
+        _handle_func(Bool _connect_success)
+    */
+    NODISCARD ReturnType AsyncConnect(
+        const Char* _address_str,
+        const Char* _port_str,
+        const TFunction<Void(Bool)>& _handle_func,
+        Int32 _repeat_times = kConnectRetryForever
+    ) noexcept;
+
+    /*
         Read data. Will suspend the current thread until data read.
     */
     NODISCARD ReturnType Read(
-        Void* _data_buffer, 
-        Int32 _buffer_size, 
-        SizeType* _message_size_ptr = nullptr
+        Void* _buffer_ptr,
+        SizeType _buffer_size,
+        SizeType* _data_size_ptr = nullptr
     ) noexcept;
 
     /*
         Read data. Will not suspend the current thread.
         _handle_func only needs to handle the read data.
-        _handle_func(ZTCPSocket* _socket_ptr, Void* _data_buffer, SizeType _read_length)
+        _handle_func(ZTCPSocket* _socket_ptr, const Void* _buffer_ptr, SizeType _data_size)
     */
     NODISCARD ReturnType AsyncRead(
-        Void* _data_buffer,
-        Int32 _buffer_size,
-        const TFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
+        Void* _buffer_ptr,
+        SizeType _buffer_size,
+        const TFunction<Void(ZTCPSocket*, const Void*, SizeType)>& _handle_func
     ) noexcept;
 
     /*
         Write data. Will suspend the current thread until data write.
     */
     NODISCARD ReturnType Write(
-        const Void* _data_buffer,
-        SizeType _date_size
+        const Void* _data_ptr,
+        SizeType _data_size
     ) noexcept;
 
     /*       
         Write data. Will not suspend the current thread.
         _handle_func will be called after the data send.
-        _handle_func(ZTCPSocket* _socket_ptr, Void* _data_buffer, SizeType _write_length)
+        _handle_func(ZTCPSocket* _socket_ptr, const Void* _data_ptr, SizeType _data_size)
     */
     NODISCARD ReturnType AsyncWrite(
-        Void* _data_buffer,
-        Int32 _buffer_size,
-        const TFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
+        const Void* _data_ptr,
+        SizeType _data_size,
+        const TFunction<Void(ZTCPSocket*, const Void*, SizeType)>& _handle_func
     ) noexcept;
+
+    /*
+        Return the size of the data can be read.
+    */
+    NODISCARD SizeType ReadableDataSize() noexcept;
 
 protected:
     using SuperType_ = ZObject;
@@ -150,14 +190,23 @@ private:
     Void OnConnectP() noexcept;
 
     /*
-        Sets the aysnc error handle func, called when aysnc error happens.
+        Async connect execute func.
     */
-    NODISCARD Void SetAsyncErrorHandleFunctionP(TFunction<Void()>&& _handle_func) noexcept;
+    NODISCARD ReturnType AsyncConnectExecuteP(
+        ZString&& _address_str,
+        ZString&& _port_str,
+        Void* _endpoints_ptr,
+        Void* _endpoint_iterator,
+        const TFunction<Void(Bool)>& _handle_func,
+        Int32 _repeat_times,
+        Int32 _reconnect_times
+    ) noexcept;
 
-private:
+private:    
     TUniquePointer<internal::ZTCPSocketData> data_ptr_;
-    State_ state_;
+    ZIOContext* io_context_ptr_;
     Void* link_object_ptr_;
+    State_ state_;
 };
 
 }//socket

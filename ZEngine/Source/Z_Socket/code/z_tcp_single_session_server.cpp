@@ -27,7 +27,7 @@
 #include "z_core/z_string.h"
 #include "z_core/z_thread.h"
 
-#include "z_socket_context.h"
+#include "z_io_context.h"
 
 #include "data/z_context_data.h"
 #include "data/z_tcp_server_data.h"
@@ -36,23 +36,23 @@
 namespace zengine {
 namespace socket {
 
-ZTCPSingleSessionServer::ZTCPSingleSessionServer(ZSocketContext* _context_ptr) noexcept
+ZTCPSingleSessionServer::ZTCPSingleSessionServer(ZIOContext* _io_context_ptr) noexcept
     : data_ptr_()
     , socket_()
-    , context_ptr_(_context_ptr)
+    , io_context_ptr_(_io_context_ptr)
     , state_(ZTCPSingleSessionServerState_Uninitialized)
 {
-    if (_context_ptr == nullptr) {
+    if (_io_context_ptr == nullptr) {
         Z_LOG_ERROR(
             error_code::kZSocketErrorCode_NullptrParam, 0,
-            L"_context_ptr is nullptr!"
+            L"_io_context_ptr is nullptr!"
         );
         return;
     }
 
     ReturnType link_code = kOK;
-    data_ptr_ = MakeUnique<internal::ZTCPSingleSessionServerData>(&_context_ptr->data_ptr_->io_context_);
-    link_code = socket_.Initialize(_context_ptr);
+    data_ptr_ = MakeUnique<internal::ZTCPSingleSessionServerData>(&_io_context_ptr->data_ptr_->io_context_);
+    link_code = socket_.Initialize(_io_context_ptr);
     if (link_code != kOK) {
         Z_LOG_ERROR(
             error_code::kZSocketErrorCode_LinkError, link_code,
@@ -61,7 +61,7 @@ ZTCPSingleSessionServer::ZTCPSingleSessionServer(ZSocketContext* _context_ptr) n
         return;
     }
 
-    socket_.SetAsyncErrorHandleFunctionP(
+    socket_.SetAsyncErrorHandleFunction(
         [this]() {
             //disconnect
             if (socket_.State() == ZTCPSocket::ZTCPSocketState_Idle) {
@@ -314,9 +314,9 @@ NODISCARD ReturnType ZTCPSingleSessionServer::Accept() noexcept {
 }
 
 NODISCARD ReturnType ZTCPSingleSessionServer::Read(
-    Void* _data_buffer, 
-    Int32 _buffer_size, 
-    SizeType* _message_size_ptr
+    Void* _buffer_ptr, 
+    SizeType _buffer_size,
+    SizeType* _data_size_ptr
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
@@ -328,7 +328,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::Read(
         state_, ZTCPSingleSessionServerState_Connect
     );
 
-    link_code = socket_.Read(_data_buffer, _buffer_size, _message_size_ptr);
+    link_code = socket_.Read(_buffer_ptr, _buffer_size, _data_size_ptr);
     if (link_code != kOK) {
         if (ret_val == error_code::kZSocketErrorCode_Disconnected) {
             state_ = ZTCPSingleSessionServerState_Listen;
@@ -351,9 +351,9 @@ NODISCARD ReturnType ZTCPSingleSessionServer::Read(
 }
 
 NODISCARD ReturnType ZTCPSingleSessionServer::AsyncRead(
-    Void* _data_buffer,
-    Int32 _buffer_size,
-    const TFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
+    Void* _buffer_ptr,
+    SizeType _buffer_size,
+    const TFunction<Void(ZTCPSocket*, const Void*, SizeType)>& _handle_func
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
@@ -365,7 +365,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::AsyncRead(
         state_, ZTCPSingleSessionServerState_Connect
     );
 
-    link_code = socket_.AsyncRead(_data_buffer, _buffer_size, _handle_func);
+    link_code = socket_.AsyncRead(_buffer_ptr, _buffer_size, _handle_func);
     if (link_code != kOK) {
         state_ = ZTCPSingleSessionServerState_Error;
         ret_val = error_code::kZSocketErrorCode_LinkError;
@@ -380,8 +380,8 @@ NODISCARD ReturnType ZTCPSingleSessionServer::AsyncRead(
 }
 
 NODISCARD ReturnType ZTCPSingleSessionServer::Write(
-    const Void* _data_buffer, 
-    SizeType _date_size
+    const Void* _data_ptr, 
+    SizeType _data_size
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
@@ -393,7 +393,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::Write(
         state_, ZTCPSingleSessionServerState_Connect
     );
 
-    link_code = socket_.Write(_data_buffer, _date_size);
+    link_code = socket_.Write(_data_ptr, _data_size);
     if (link_code != kOK) {
         if (ret_val == error_code::kZSocketErrorCode_Disconnected) {
             state_ = ZTCPSingleSessionServerState_Listen;
@@ -416,9 +416,9 @@ NODISCARD ReturnType ZTCPSingleSessionServer::Write(
 }
 
 NODISCARD ReturnType ZTCPSingleSessionServer::AsyncWrite(
-    Void* _data_buffer,
-    Int32 _buffer_size,
-    const TFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
+    const Void* _data_ptr,
+    SizeType _data_size,
+    const TFunction<Void(ZTCPSocket*, const Void*, SizeType)>& _handle_func
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
@@ -430,7 +430,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::AsyncWrite(
         state_, ZTCPSingleSessionServerState_Connect
     );
 
-    link_code = socket_.AsyncWrite(_data_buffer, _buffer_size, _handle_func);
+    link_code = socket_.AsyncWrite(_data_ptr, _data_size, _handle_func);
     if (link_code != kOK) {
         state_ = ZTCPSingleSessionServerState_Error;
         ret_val = error_code::kZSocketErrorCode_LinkError;

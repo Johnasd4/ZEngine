@@ -57,12 +57,12 @@ public:
         ZTCPSingleSessionServerState_Error
     };
 
-    ZTCPSingleSessionServer(ZSocketContext* _context_ptr) noexcept;
+    ZTCPSingleSessionServer(ZIOContext* _io_context_ptr) noexcept;
 
     ~ZTCPSingleSessionServer() noexcept;
 
     NODISCARD FORCEINLINE State_ State() noexcept { return state_; }
-    NODISCARD FORCEINLINE ZSocketContext* ContextPtr() noexcept { return context_ptr_; }
+    NODISCARD FORCEINLINE ZIOContext* IOContextPtr() noexcept { return io_context_ptr_; }
 
     /*
         Bind endpoint by address and port. Call before Listen() or after Close().
@@ -108,40 +108,47 @@ public:
         Read data. Will suspend the current thread until data read.
     */
     NODISCARD ReturnType Read(
-        Void* _data_buffer,
-        Int32 _buffer_size,
-        SizeType* _message_size_ptr = nullptr
+        Void* _buffer_ptr,
+        SizeType _buffer_size,
+        SizeType* _data_size_ptr = nullptr
     ) noexcept;
 
     /*
         Read data. Will not suspend the current thread.
         _handle_func only needs to handle the read data.
-        _handle_func(ZTCPSocket* _socket_ptr, Void* _data_buffer, SizeType _read_length)
+        _handle_func(ZTCPSocket* _socket_ptr, const Void* _buffer_ptr, SizeType _data_size)
     */
     NODISCARD ReturnType AsyncRead(
-        Void* _data_buffer,
-        Int32 _buffer_size,
-        const TFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
+        Void* _buffer_ptr,
+        SizeType _buffer_size,
+        const TFunction<Void(ZTCPSocket*, const Void*, SizeType)>& _handle_func
     ) noexcept;
 
     /*
         Write data. Will suspend the current thread until data write.
     */
     NODISCARD ReturnType Write(
-        const Void* _data_buffer,
-        SizeType _date_size
+        const Void* _data_ptr,
+        SizeType _data_size
     ) noexcept;
 
     /*
         Write data. Will not suspend the current thread.
         _handle_func will be called after the data send.
-        _handle_func(ZTCPSocket* _socket_ptr, Void* _data_buffer, SizeType _write_length)
+        _handle_func(ZTCPSocket* _socket_ptr, const Void* _data_ptr, SizeType _data_size)
     */
     NODISCARD ReturnType AsyncWrite(
-        Void* _data_buffer,
-        Int32 _buffer_size,
-        const TFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
+        const Void* _data_ptr,
+        SizeType _data_size,
+        const TFunction<Void(ZTCPSocket*, const Void*, SizeType)>& _handle_func
     ) noexcept;
+
+    /*
+        Return the size of the data can be read.
+    */
+    NODISCARD FORCEINLINE SizeType ReadableDataSize() noexcept {
+        return socket_.ReadableDataSize();
+    }
 
 protected:
     using SuperType_ = ZObject;
@@ -155,7 +162,7 @@ private:
 private:
     TUniquePointer<internal::ZTCPSingleSessionServerData> data_ptr_;
     ZTCPSocket socket_;
-    ZSocketContext* context_ptr_;
+    ZIOContext* io_context_ptr_;
     State_ state_;
 };
 
@@ -172,12 +179,12 @@ public:
         ZTCPMultipleSessionServerState_Error
     };
 
-    ZTCPMultipleSessionServer(ZSocketContext* _context_ptr) noexcept;
+    ZTCPMultipleSessionServer(ZIOContext* _io_context_ptr) noexcept;
 
     ~ZTCPMultipleSessionServer() noexcept;
 
     NODISCARD FORCEINLINE State_ State() noexcept { return state_; }
-    NODISCARD FORCEINLINE ZSocketContext* ContextPtr() noexcept { return context_ptr_; }
+    NODISCARD FORCEINLINE ZIOContext* IOContextPtr() noexcept { return io_context_ptr_; }
 
     /*
         Bind endpoint by address and port. Call before Listen() or after Close().
@@ -217,12 +224,12 @@ public:
     /*
         Write data to all server. Will not suspend the current thread.
         _handle_func will be called after the data send.
-        _handle_func(ZTCPSocket* _socket_ptr, Void* _data_buffer, SizeType _write_length)
+        _handle_func(ZTCPSocket* _socket_ptr, const Void* _data_ptr, SizeType _data_size)
     */
     NODISCARD ReturnType AsyncBroadcast(
-        Void* _data_buffer,
-        Int32 _buffer_size,
-        const TFunction<Void(ZTCPSocket*, Void*, SizeType)>& _handle_func
+        const Void* _data_ptr,
+        SizeType _data_size,
+        const TFunction<Void(ZTCPSocket*, const Void*, SizeType)>& _handle_func
     ) noexcept;
 
 protected:
@@ -237,7 +244,7 @@ private:
 private:
     TUniquePointer<internal::ZTCPMultipleSessionServerData> data_ptr_;
     TPoolListSafe<ZTCPSocket> socket_pool_list_;
-    ZSocketContext* context_ptr_;
+    ZIOContext* io_context_ptr_;
     State_ state_;
 
 };

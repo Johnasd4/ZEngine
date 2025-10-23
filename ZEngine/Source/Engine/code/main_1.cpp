@@ -4,54 +4,39 @@
 //
 //using boost::asio::ip::udp;
 //
-//class UDPServer {
-//public:
-//    UDPServer(boost::asio::io_context& io_context, unsigned short port)
-//        : socket_(io_context, udp::endpoint(udp::v4(), port)) {
-//        start_receive();
-//    }
-//
-//private:
-//    void start_receive() {
-//        socket_.async_receive_from(
-//            boost::asio::buffer(recv_buffer_), remote_endpoint_,
-//            [this](boost::system::error_code ec, std::size_t bytes_recvd) {
-//                handle_receive(ec, bytes_recvd);
-//            });
-//    }
-//
-//    void handle_receive(const boost::system::error_code& error, std::size_t bytes_transferred) {
-//        if (!error) {
-//            std::string message = std::string(recv_buffer_.data(), bytes_transferred);
-//            std::cout << "Received from " << remote_endpoint_.address().to_string()
-//                << ":" << remote_endpoint_.port() << " - " << message << std::endl;
-//
-//            // 回显消息给客户端
-//            response = "Echo: " + message;
-//            socket_.async_send_to(
-//                boost::asio::buffer(response), remote_endpoint_,
-//                [this](boost::system::error_code /*ec*/, std::size_t /*bytes_sent*/) {
-//                    start_receive();  // 继续接收下一条消息
-//                });
-//        }
-//        else {
-//            std::cerr << "Receive error: " << error.message() << std::endl;
-//            start_receive();  // 即使出错也继续接收
-//        }
-//    }
-//    std::string response;
-//    udp::socket socket_;
-//    udp::endpoint remote_endpoint_;
-//    std::array<char, 1024> recv_buffer_;
-//};
-//
-//int main() {
+//int main(int argc, char* argv[]) {
 //    try {
-//        boost::asio::io_context io_context;
-//        UDPServer server(io_context, 12345);
 //
-//        std::cout << "UDP Server started on port 12345..." << std::endl;
-//        io_context.run();
+//        // 创建IO服务对象
+//        boost::asio::io_context io_context;
+//
+//        // 创建UDP Socket:cite[3]
+//        udp::socket socket(io_context);
+//        socket.open(udp::v4()); // 打开Socket，使用IPv4协议:cite[4]
+//
+//        boost::asio::ip::address address = boost::asio::ip::make_address("127.0.0.1");
+//
+//        // 设置服务器端点 (使用命令行传入的IP和固定端口8001):cite[3]
+//        udp::endpoint server_endpoint(address, 8001);
+//
+//        // 准备要发送的消息
+//        std::string message = "Hello, UDP Server!";
+//
+//        // 同步发送数据到服务器:cite[3]
+//        socket.send_to(boost::asio::buffer(message), server_endpoint);
+//        std::cout << "Sent message to server: " << message << std::endl;
+//
+//        // 准备接收服务器的回复:cite[3]
+//        char recv_buf[1024];
+//        udp::endpoint sender_endpoint;
+//
+//        // 同步接收数据:cite[3]
+//        size_t len = socket.receive_from(boost::asio::buffer(recv_buf), sender_endpoint);
+//
+//        // 显示回复
+//        std::string reply(recv_buf, len);
+//        std::cout << "Received from server: " << reply << std::endl;
+//
 //    }
 //    catch (std::exception& e) {
 //        std::cerr << "Exception: " << e.what() << std::endl;
