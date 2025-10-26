@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,11 +13,10 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_T_LIST_H_
-#define Z_CORE_T_LIST_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
@@ -29,7 +28,7 @@
 namespace zengine {
 
 /*
-    List caintainer.
+    List container.
 */
 template<typename _ObjectType>
 class TList : public ZObject {
@@ -42,8 +41,8 @@ public:
     using InitializerList_ = std::initializer_list<_ObjectType>;
 
     FORCEINLINE TList() noexcept : SuperType_(), list_() {}
-    FORCEINLINE TList(const TList& _list) noexcept : SuperType_(), list_(_list.list_) {}
-    FORCEINLINE TList(TList&& _list) noexcept : SuperType_(), list_(std::move(_list.list_)) {}
+    FORCEINLINE TList(const TList& _list) noexcept : SuperType_(_list), list_(_list.list_) {}
+    FORCEINLINE TList(TList&& _list) noexcept : SuperType_(std::forward<TList>(_list)), list_(std::move(_list.list_)) {}
 
     FORCEINLINE TList(SizeType _size) noexcept : SuperType_(), list_(_size) {}
     FORCEINLINE TList(SizeType _size, const _ObjectType& _val) noexcept : SuperType_(), list_(_size, _val) {}
@@ -54,10 +53,12 @@ public:
     FORCEINLINE ~TList() noexcept {}
 
     FORCEINLINE TList& operator=(const TList& _list) noexcept { 
+        SuperType_::operator=(_list);
         list_ = _list.list_;
         return *this;
     }
     FORCEINLINE TList& operator=(TList&& _list) noexcept { 
+        SuperType_::operator=(std::forward<TList>(_list));
         list_ = std::move(_list.list_);
         return *this;
     }
@@ -251,5 +252,3 @@ private:
 };
 
 }//zengine
-
-#endif // !Z_CORE_T_LIST_H_

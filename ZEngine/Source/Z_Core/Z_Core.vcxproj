@@ -19,30 +19,32 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="code\d_initialize.cpp" />
     <ClCompile Include="code\f_console.cpp" />
     <ClCompile Include="code\f_file_system.cpp" />
+    <ClCompile Include="code\f_system.cpp" />
+    <ClCompile Include="code\log\f_log.cpp" />
     <ClCompile Include="code\log\type\z_error_log.cpp" />
     <ClCompile Include="code\log\type\z_info_log.cpp" />
     <ClCompile Include="code\log\z_log_manager.cpp" />
     <ClCompile Include="code\log\z_log_server.cpp" />
     <ClCompile Include="code\log\type\z_trace_log.cpp" />
-    <ClCompile Include="code\m_log.cpp" />
+    <ClCompile Include="code\log\z_log.cpp" />
     <ClCompile Include="code\f_memory_pool.cpp" />
     <ClCompile Include="code\z_condition_variable.cpp" />
+    <ClCompile Include="code\z_config.cpp" />
     <ClCompile Include="code\z_file.cpp" />
+    <ClCompile Include="code\z_json.cpp" />
     <ClCompile Include="code\z_string.cpp" />
     <ClCompile Include="code\z_system_time.cpp" />
     <ClCompile Include="code\z_thread.cpp" />
     <ClCompile Include="code\z_thread_pool.cpp" />
     <ClCompile Include="code\z_task.cpp" />
+    <ClCompile Include="code\z_timer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="code\log\t_log_queue.h" />
-    <ClInclude Include="code\log\type\z_error_log.h" />
-    <ClInclude Include="code\log\type\z_info_log.h" />
     <ClInclude Include="code\log\z_log_manager.h" />
     <ClInclude Include="code\log\z_log_server.h" />
-    <ClInclude Include="code\log\type\z_trace_log.h" />
     <ClInclude Include="code\memory_pool\t_heap_memory_pool.h" />
     <ClInclude Include="code\memory_pool\t_list_memory_pool_base.h" />
     <ClInclude Include="code\memory_pool\t_memory_block_base.h" />
@@ -50,6 +52,7 @@
     <ClInclude Include="code\memory_pool\t_memory_pool_thread_safe_base.h" />
     <ClInclude Include="code\memory_pool\t_small_memory_list_memory_pool.h" />
     <ClInclude Include="code\memory_pool\t_smart_pointer_list_memory_pool.h" />
+    <ClInclude Include="code\memory_pool\t_system_memory_pool.h" />
     <ClInclude Include="code\memory_pool\z_heap_memory_pool.h" />
     <ClInclude Include="code\memory_pool\z_list_memory_pool_base.h" />
     <ClInclude Include="code\memory_pool\z_memory_block_base.h" />
@@ -140,7 +143,7 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code;$(SolutionDir)Source/Engine/code/z_core</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code;$(SolutionDir)Source/Engine/code/z_core;$(SolutionDir)/Library/Rapidjson_1_1_0/include</AdditionalIncludeDirectories>
       <PrecompiledHeaderOutputFile />
     </ClCompile>
     <Link>
@@ -151,8 +154,8 @@
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>if not exist "$(SolutionDir)Release\include_library" mkdir "$(SolutionDir)Release\include_library"
+xcopy /E /Y "$(SolutionDir)Library\Boost_1_88_0\include\*.*" "$(SolutionDir)Release\include_library"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -167,7 +170,7 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code;$(SolutionDir)Source/Engine/code/z_core</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code;$(SolutionDir)Source/Engine/code/z_core;$(SolutionDir)/Library/Rapidjson_1_1_0/include</AdditionalIncludeDirectories>
       <PrecompiledHeaderOutputFile />
     </ClCompile>
     <Link>
@@ -180,8 +183,8 @@
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>if not exist "$(SolutionDir)Release\include_library" mkdir "$(SolutionDir)Release\include_library"
+xcopy /E /Y "$(SolutionDir)Library\Boost_1_88_0\include\*.*" "$(SolutionDir)Release\include_library"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -194,7 +197,7 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile />
-      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code;$(SolutionDir)Source/Engine/code/z_core</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code;$(SolutionDir)Source/Engine/code/z_core;$(SolutionDir)/Library/Rapidjson_1_1_0/include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -205,8 +208,8 @@
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>if not exist "$(SolutionDir)Release\include_library" mkdir "$(SolutionDir)Release\include_library"
+xcopy /E /Y "$(SolutionDir)Library\Boost_1_88_0\include\*.*" "$(SolutionDir)Release\include_library"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -221,7 +224,7 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile />
-      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code;$(SolutionDir)Source/Engine/code/z_core</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code;$(SolutionDir)Source/Engine/code/z_core;$(SolutionDir)/Library/Rapidjson_1_1_0/include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -234,8 +237,8 @@
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>if not exist "$(SolutionDir)Release\include_library" mkdir "$(SolutionDir)Release\include_library"
+xcopy /E /Y "$(SolutionDir)Library\Boost_1_88_0\include\*.*" "$(SolutionDir)Release\include_library"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

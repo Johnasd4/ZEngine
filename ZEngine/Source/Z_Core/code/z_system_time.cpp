@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,12 +13,15 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
 #define CORE_DLLFILE
 
 #include "z_system_time.h"
+
+#include <chrono>
+#include <thread>
 
 namespace zengine {
 
@@ -39,7 +42,7 @@ static constexpr TimeType kStartTimeOffset = 62167219200LL;  //start at year 0 i
 namespace internal {
 
 static TimeType CalculateRegionTimeOffset() noexcept {
-    time_t raw_time = time(nullptr);
+    time_t raw_time = TimeSec();
     tm local_time = *localtime(&raw_time);
     tm utc_time = *gmtime(&raw_time);
 
@@ -161,6 +164,18 @@ Void ZSystemTime::UpdateTimeFast(TimeType _time_raw) noexcept {
         day_ = day + 1;
         month_ = month + 1;
     }
+}
+
+CORE_DLLAPI NODISCARD TimeType TimeSec() noexcept {
+    return std::chrono::duration_cast<std::chrono::seconds>(
+        std::chrono::system_clock::now().time_since_epoch()
+    ).count();
+}
+
+CORE_DLLAPI NODISCARD TimeType TimeMs() noexcept {
+    return std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::system_clock::now().time_since_epoch()
+    ).count();
 }
 
 }//zengine

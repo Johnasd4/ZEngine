@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,11 +13,10 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_T_FIXED_STRING_H_
-#define Z_CORE_T_FIXED_STRING_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
@@ -30,10 +29,9 @@ namespace zengine {
 namespace internal {
 
 /*
-    Array caintainer.
+    Array container.
 */
 template<typename _CharType, IndexType kCapacity>
-requires kIsChar<_CharType>
 class TFixedString : public ZObject {
 public:
     using STDArray_ = std::array<_CharType, kCapacity>;
@@ -44,12 +42,11 @@ public:
     using InitializerList_ = std::initializer_list<_CharType>;
 
     FORCEINLINE constexpr TFixedString() noexcept : SuperType_(), str_() {}
-    FORCEINLINE constexpr TFixedString(const TFixedString& _array) noexcept : SuperType_(), str_(_array.str_) {}
-    FORCEINLINE constexpr TFixedString(TFixedString&& _array) noexcept 
-        : SuperType_(), str_(std::move(_array.str_)) {}
-    FORCEINLINE TFixedString(InitializerList_ _init_list) noexcept : SuperType_(), str_(_init_list) {}
+    FORCEINLINE constexpr TFixedString(const TFixedString& _str) noexcept : SuperType_(_str), str_(_str.str_) {}
+    FORCEINLINE constexpr TFixedString(TFixedString&& _str) noexcept 
+        : SuperType_(std::forward<TFixedString>(_str)), str_(std::move(_str.str_)) {}
     template<typename... _ArgsType>
-    FORCEINLINE constexpr TFixedString(_CharType* _format, _ArgsType&&... _args) noexcept : SuperType_() {
+    FORCEINLINE constexpr TFixedString(const _CharType* _format, _ArgsType&&... _args) noexcept : SuperType_() {
         if constexpr (kSameType<_CharType, Char>) {
             sprintf(DataPtr(), _format, std::forward<_ArgsType>(_args)...);
         }
@@ -60,15 +57,32 @@ public:
 
     FORCEINLINE constexpr ~TFixedString() noexcept {}
 
-    NODISCARD FORCEINLINE Bool operator=(const TFixedString& _str) noexcept {
-        return memcpy(DataPtr(), _str.DataPtr(), sizeof(_CharType) * kCapacity);
+    FORCEINLINE TFixedString& operator=(const TFixedString& _str) noexcept {
+        SuperType_::operator=(_str);
+        str_ = _str.str_;
+        return *this;
+    }
+    FORCEINLINE TFixedString& operator=(TFixedString&& _str) noexcept {
+        SuperType_::operator=(std::forward<TFixedString>(_str));
+        str_ = std::move(_str.str_);
+        return *this;
     }
 
     NODISCARD FORCEINLINE Bool operator==(const TFixedString& _str) noexcept { 
-        return strcmp(DataPtr(), _str.DataPtr()) == 0;
+        if constexpr (kSameType<_CharType, Char>) {
+            return strcmp(DataPtr(), _str.DataPtr()) == 0;
+        }
+        else {
+            return wcscmp(DataPtr(), _str.DataPtr()) == 0;
+        }
     }
     NODISCARD FORCEINLINE Bool operator!=(const TFixedString& _str) noexcept {
-        return strcmp(DataPtr(), _str.DataPtr()) != 0;
+        if constexpr (kSameType<_CharType, Char>) {
+            return strcmp(DataPtr(), _str.DataPtr()) == 0;
+        }
+        else {
+            return wcscmp(DataPtr(), _str.DataPtr()) == 0;
+        }
     }
      
     NODISCARD FORCEINLINE constexpr _CharType& operator[](IndexType _index) noexcept { return str_[_index]; }
@@ -115,7 +129,7 @@ public:
         }
     }
     FORCEINLINE Void Fill(const _CharType& _val) noexcept { str_.fill(_val); }
-    FORCEINLINE Void Swap(TFixedString& _array) noexcept { str_.swap(_array); }
+    FORCEINLINE Void Swap(TFixedString& _array) noexcept { str_.swap(_array.str_); }
 
 protected:
     using SuperType_ = ZObject;
@@ -129,7 +143,7 @@ private:
 template<IndexType kCapacity>
 using TFixedString = internal::TFixedString<Char, kCapacity>;
 template<IndexType kCapacity>
-using TWFixedString = internal::TFixedString<WChar, kCapacity>;
+using TFixedWString = internal::TFixedString<WChar, kCapacity>;
 
 template <IndexType kCapacity>
 union FixedStringUnion {
@@ -145,9 +159,7 @@ public:
     }
 
     TFixedString<kCapacity / sizeof(Char)> str_;
-    TWFixedString<kCapacity / sizeof(WChar)> w_str_;
+    TFixedWString<kCapacity / sizeof(WChar)> w_str_;
 };
 
 }//zengine
-
-#endif // !Z_CORE_T_FIXED_STRING_H_

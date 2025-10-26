@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,11 +13,10 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_T_UNIQUE_LOCK_H_
-#define Z_CORE_T_UNIQUE_LOCK_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
@@ -25,17 +24,20 @@
 #include "z_object.h"
 
 namespace zengine {
-
 namespace error_code {
-
 enum TUniqueLockErrorCode : ReturnType {
-    kTUniqueLockErrorCodeLinkError = kErrorCodeBaseTUniqueLock,
-    kTUniqueLockErrorCodeMutexNotExist,
-    kTUniqueLockErrorCodeMutexAlreadyOwn,
-    kTUniqueLockErrorCodeMutexDoNotOwn
+    kTUniqueLockErrorCode_LinkError = kErrorCodeBase_TUniqueLock,
+    kTUniqueLockErrorCode_SystemError,
+    kTUniqueLockErrorCode_NullptrParam,
+    kTUniqueLockErrorCode_ParamOutOfRange,
+    kTUniqueLockErrorCode_MutexNotExist,
+    kTUniqueLockErrorCode_MutexAlreadyOwn,
+    kTUniqueLockErrorCode_MutexDoNotOwn
 };
-
 }//error_code
+}//zengine
+
+namespace zengine {
 
 /*
     Unique lock class, controls the mutex.
@@ -43,10 +45,10 @@ enum TUniqueLockErrorCode : ReturnType {
 template<typename _MutexType>
 class TUniqueLock : public ZObject {
 private:
-    struct NoLockType_ { Int32 value; };
-    struct TryLockType_ { Int32 value; };
-    struct TryLockForType_ { Int32 value; };
-    struct TryLockUntilType_ { Int32 value; };
+    struct NoLockType_ { Int32 value_; };
+    struct TryLockType_ { Int32 value_; };
+    struct TryLockForType_ { Int32 value_; };
+    struct TryLockUntilType_ { Int32 value_; };
 
 public:
     static constexpr NoLockType_ kNoLock = { 0 };
@@ -55,11 +57,8 @@ public:
     static constexpr TryLockUntilType_ kTryLockUntil = { 0 };
 
     TUniqueLock() noexcept : SuperType_(), mutex_ptr_(nullptr), owns_lock_(false) {}
-    TUniqueLock(TUniqueLock&& _unique_lock) noexcept 
-        : SuperType_(), mutex_ptr_(_unique_lock.mutex_ptr_), owns_lock_(_unique_lock.owns_lock_)  
-    {
-        _unique_lock.mutex_ptr_ = nullptr;
-        _unique_lock.owns_lock_ = true;
+    TUniqueLock(TUniqueLock&& _unique_lock) noexcept : SuperType_(std::forward<TUniqueLock>(_unique_lock)) {
+        MoveP(std::forward<TUniqueLock>(_unique_lock));
     }
     /*
         Locks the mutex.
@@ -107,8 +106,8 @@ public:
     }
 
     TUniqueLock& operator=(TUniqueLock&& _unique_lock) noexcept {
-        mutex_ptr_ = _unique_lock.mutex_ptr_;
-        owns_lock_ = _unique_lock.owns_lock_;
+        SuperType_::operator=(std::forward<TUniqueLock>(_unique_lock));
+        MoveP(std::forward<TUniqueLock>(_unique_lock));
         return *this;
     }
 
@@ -119,7 +118,7 @@ public:
         ReturnType link_code = LockValidCheckP();
         if (link_code != kOK) {
             Z_LOG_ERROR(
-                error_code::kTUniqueLockErrorCodeLinkError, link_code, L"TUniqueLock::LockValidCheckP() link error!");
+                error_code::kTUniqueLockErrorCode_LinkError, link_code, L"TUniqueLock::LockValidCheckP() link error!");
             return;
         }
         mutex_ptr_->Lock(); 
@@ -132,7 +131,7 @@ public:
         ReturnType link_code = LockValidCheckP();
         if (link_code != kOK) {
             Z_LOG_ERROR(
-                error_code::kTUniqueLockErrorCodeLinkError, link_code, L"TUniqueLock::LockValidCheckP() link error!");
+                error_code::kTUniqueLockErrorCode_LinkError, link_code, L"TUniqueLock::LockValidCheckP() link error!");
             return false;
         }
         owns_lock_ = mutex_ptr_->TryLock();
@@ -145,7 +144,7 @@ public:
         ReturnType link_code = LockValidCheckP();
         if (link_code != kOK) {
             Z_LOG_ERROR(
-                error_code::kTUniqueLockErrorCodeLinkError, link_code, L"TUniqueLock::LockValidCheckP() link error!");
+                error_code::kTUniqueLockErrorCode_LinkError, link_code, L"TUniqueLock::LockValidCheckP() link error!");
             return false;
         }
         owns_lock_ = mutex_ptr_->TryLockFor(_time);
@@ -158,7 +157,7 @@ public:
         ReturnType link_code = LockValidCheckP();
         if (link_code != kOK) {
             Z_LOG_ERROR(
-                error_code::kTUniqueLockErrorCodeLinkError, link_code, L"TUniqueLock::LockValidCheckP() link error!");
+                error_code::kTUniqueLockErrorCode_LinkError, link_code, L"TUniqueLock::LockValidCheckP() link error!");
             return false;
         }
         owns_lock_ = mutex_ptr_->TryLockUntil(_time);
@@ -168,7 +167,7 @@ public:
         ReturnType link_code = UnlockValidCheckP();
         if (link_code != kOK) {
             Z_LOG_ERROR(
-                error_code::kTUniqueLockErrorCodeLinkError, link_code, L"TUniqueLock::UnlockValidCheckP() link error!");
+                error_code::kTUniqueLockErrorCode_LinkError, link_code, L"TUniqueLock::UnlockValidCheckP() link error!");
             return;
         }
         mutex_ptr_->Unlock();
@@ -198,18 +197,25 @@ private:
     TUniqueLock(const TUniqueLock&) = delete;
     const TUniqueLock& operator=(const TUniqueLock&) = delete;
 
+    FORCEINLINE Void MoveP(TUniqueLock&& _unique_lock) noexcept {
+        mutex_ptr_ = _unique_lock.mutex_ptr_;
+        owns_lock_ = _unique_lock.owns_lock_;
+        _unique_lock.mutex_ptr_ = nullptr;
+        _unique_lock.owns_lock_ = true;
+    }
+
     /*
         Checks if the mutex is able to lock.
     */
     NODISCARD ReturnType LockValidCheckP() noexcept {
         ReturnType ret_val = kOK;
         if (!mutex_ptr_) {
-            ret_val = error_code::kTUniqueLockErrorCodeMutexNotExist;
+            ret_val = error_code::kTUniqueLockErrorCode_MutexNotExist;
             Z_LOG_ERROR(ret_val, 0, L"Mutex pointer is null!");
             return false;
         }
         if (owns_lock_) {
-            ret_val = error_code::kTUniqueLockErrorCodeMutexAlreadyOwn;
+            ret_val = error_code::kTUniqueLockErrorCode_MutexAlreadyOwn;
             Z_LOG_ERROR(ret_val, 0, L"Already owns the mutex!");
             return false;
         }
@@ -222,12 +228,12 @@ private:
     NODISCARD ReturnType UnlockValidCheckP() noexcept {
         ReturnType ret_val = kOK;
         if (!mutex_ptr_) {
-            ret_val = error_code::kTUniqueLockErrorCodeMutexNotExist;
+            ret_val = error_code::kTUniqueLockErrorCode_MutexNotExist;
             Z_LOG_ERROR(ret_val, 0, L"Mutex pointer is null!");
             return false;
         }
         if (!owns_lock_) {
-            ret_val = error_code::kTUniqueLockErrorCodeMutexDoNotOwn;
+            ret_val = error_code::kTUniqueLockErrorCode_MutexDoNotOwn;
             Z_LOG_ERROR(ret_val, 0, L"Doesn't owns the mutex!");
             return false;
         }
@@ -239,5 +245,3 @@ private:
 };
 
 }//zengine
-
-#endif // !Z_CORE_T_UNIQUE_LOCK_H_

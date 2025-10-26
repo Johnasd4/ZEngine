@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,7 +13,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
 #define CORE_DLLFILE
@@ -57,7 +57,7 @@ Void ZConditionVariable::Wait(TUniqueLock<ZMutex>& _mutex) noexcept {
 Void ZConditionVariable::WaitFor(TUniqueLock<ZMutex>& _mutex, UInt32 _time) noexcept {
     LockP(_mutex);
     if (!cv_finished_) {
-        SleepConditionVariableCS(&cv_, &cs_mutex_.mutex_, INFINITE);
+        SleepConditionVariableCS(&cv_, &cs_mutex_.mutex_, _time);
     }
     UnlockP(_mutex);
 }
@@ -66,7 +66,7 @@ Void ZConditionVariable::WaitUntil(TUniqueLock<ZMutex>& _mutex, UInt32 _time) no
     _time -= clock();
     LockP(_mutex);
     if (!cv_finished_) {
-        SleepConditionVariableCS(&cv_, &cs_mutex_.mutex_, INFINITE);
+        SleepConditionVariableCS(&cv_, &cs_mutex_.mutex_, _time);
     }
     UnlockP(_mutex);
 }

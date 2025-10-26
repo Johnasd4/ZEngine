@@ -1,0 +1,237 @@
+﻿  t_window.cpp
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_concept.h(28,9): error C2061: syntax error: identifier 'kSameType'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_concept.h(31,9): error C2061: syntax error: identifier 'kIsClass'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_concept.h(34,9): error C2061: syntax error: identifier 'kIsChar'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_concept.h(37,9): error C2061: syntax error: identifier 'kIsSignedInt'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_concept.h(44,9): error C2061: syntax error: identifier 'kIsUnsignedInt'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_concept.h(51,9): error C2061: syntax error: identifier 'kIsInt'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_concept.h(54,9): error C2061: syntax error: identifier 'kIsFloat'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_concept.h(57,9): error C2061: syntax error: identifier 'kIsNumber'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_concept.h(59,10): error C3533: a parameter cannot have a type that contains 'auto'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_concept.h(59,10):
+  'auto' in non-type template parameters requires at least '/std:c++17'
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_concept.h(60,9): error C2061: syntax error: identifier 'kIsZero'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_concept.h(62,10): error C3533: a parameter cannot have a type that contains 'auto'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_concept.h(62,10):
+  'auto' in non-type template parameters requires at least '/std:c++17'
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_concept.h(63,9): error C2061: syntax error: identifier 'kIsNotZero'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_concept.h(66,9): error C2061: syntax error: identifier 'kIsComparable'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_concept.h(66,74): error C2143: syntax error: missing ';' before '{'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_concept.h(66,74): error C2447: '{': missing function header (old-style formal list?)
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_concept.h(76,9): error C2061: syntax error: identifier 'kIsCopyable'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_concept.h(76,72): error C2143: syntax error: missing ';' before '{'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_concept.h(76,72): error C2447: '{': missing function header (old-style formal list?)
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_concept.h(81,9): error C2061: syntax error: identifier 'kIsMovable'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_concept.h(81,71): error C2143: syntax error: missing ';' before '{'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_concept.h(81,71): error C2447: '{': missing function header (old-style formal list?)
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_concept.h(86,9): error C2061: syntax error: identifier 'kIsPredicateFunction'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_concept.h(86,76): error C2143: syntax error: missing ';' before '{'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_concept.h(86,76): error C2447: '{': missing function header (old-style formal list?)
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_constant.h(27,24): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_constant.h(28,24): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_constant.h(29,26): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_constant.h(30,26): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_constant.h(32,24): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_constant.h(33,24): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_constant.h(35,29): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_constant.h(36,29): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_constant.h(37,29): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_constant.h(38,29): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_constant.h(41,29): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_constant.h(44,24): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_error_code.h(27,29): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_error_code.h(31,29): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_error_code.h(32,29): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_error_code.h(33,29): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_error_code.h(34,29): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_error_code.h(35,29): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_error_code.h(36,29): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_error_code.h(37,29): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_error_code.h(38,29): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_error_code.h(39,29): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_error_code.h(40,29): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\internal\d_error_code.h(41,29): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_gui\internal\d_type.h(52,22): error C2440: '<function-style-cast>': cannot convert from 'initializer list' to 'zengine::gui::GuiPos'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  I:\ZEngine\ZEngine\Source\Engine\code\z_gui\internal\d_type.h(52,22):
+  'zengine::gui::GuiPos::GuiPos': function does not take 2 arguments
+  	I:\ZEngine\ZEngine\Source\Engine\code\z_gui\internal\d_type.h(52,22):
+  	while trying to match the argument list '(zengine::Float32, zengine::Float32)'
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_gui\internal\d_type.h(55,22): error C2440: '<function-style-cast>': cannot convert from 'initializer list' to 'zengine::gui::GuiPos'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  I:\ZEngine\ZEngine\Source\Engine\code\z_gui\internal\d_type.h(55,22):
+  'zengine::gui::GuiPos::GuiPos': function does not take 2 arguments
+  	I:\ZEngine\ZEngine\Source\Engine\code\z_gui\internal\d_type.h(55,22):
+  	while trying to match the argument list '(zengine::Float32, zengine::Float32)'
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_gui\internal\d_constant.h(157,26): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_gui\internal\d_constant.h(158,26): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_gui\internal\d_error_code.h(29,29): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_gui\internal\d_error_code.h(30,29): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_gui\internal\d_error_code.h(31,29): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_gui\internal\d_error_code.h(32,29): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_gui\internal\d_error_code.h(33,29): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_gui\internal\d_error_code.h(34,29): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_gui\internal\d_error_code.h(35,29): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\f_memory_pool.h(29,39): error C2131: expression did not evaluate to a constant
+  (compiling source file 'code/z_gui/t_window.cpp')
+  I:\ZEngine\ZEngine\Source\Engine\code\z_core\f_memory_pool.h(29,39):
+  failure was caused by a read of an uninitialized symbol
+  I:\ZEngine\ZEngine\Source\Engine\code\z_core\f_memory_pool.h(29,39):
+  see usage of 'zengine::error_code::kErrorCodeBase_FMemoryPool'
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\z_object.h(58,28): error C2178: 'zengine::ZObject::~ZObject' cannot be declared with 'constexpr' specifier
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\t_fixed_string.h(36,10): error C2061: syntax error: identifier 'kIsChar'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\t_fixed_string.h(37,22): error C2988: unrecognizable template declaration/definition
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\t_fixed_string.h(37,22): error C2059: syntax error: 'public'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\t_fixed_string.h(37,37): error C2143: syntax error: missing ';' before '{'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\t_fixed_string.h(37,37): error C2447: '{': missing function header (old-style formal list?)
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\t_fixed_string.h(137,32): error C2039: 'TFixedString': is not a member of 'zengine::internal'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  I:\ZEngine\ZEngine\Source\Engine\code\z_core\t_fixed_string.h(30,11):
+  see declaration of 'zengine::internal'
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\t_fixed_string.h(137,32): error C2061: syntax error: identifier 'TFixedString'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\t_fixed_string.h(139,33): error C2039: 'TFixedString': is not a member of 'zengine::internal'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  I:\ZEngine\ZEngine\Source\Engine\code\z_core\t_fixed_string.h(30,11):
+  see declaration of 'zengine::internal'
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\t_fixed_string.h(139,33): error C2061: syntax error: identifier 'TFixedString'
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\t_fixed_string.h(142,7): error C2631: 'FixedStringUnion': a class or enum cannot be defined in an alias template
+  (compiling source file 'code/z_gui/t_window.cpp')
+  
+I:\ZEngine\ZEngine\Source\Engine\code\z_core\z_system_time.h(28,1): error C1903: unable to recover from previous error(s); stopping compilation
+  (compiling source file 'code/z_gui/t_window.cpp')
+  

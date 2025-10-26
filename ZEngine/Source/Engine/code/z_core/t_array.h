@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,11 +13,10 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_T_ARRAY_H_
-#define Z_CORE_T_ARRAY_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
@@ -37,7 +36,7 @@ concept kIsArrayInitFunction = requires(_ArrayType* _array, _Function _func, _Ar
 }//internal
 
 /*
-    Array caintainer.
+    Array container.
 */
 template<typename _ObjectType, IndexType kCapacity>
 class TArray : public ZObject {
@@ -50,8 +49,9 @@ public:
     using InitializerList_ = std::initializer_list<_ObjectType>;
 
     FORCEINLINE constexpr TArray() noexcept : SuperType_(), array_() {}
-    FORCEINLINE constexpr TArray(const TArray& _array) noexcept : SuperType_(), array_(_array.array_) {}
-    FORCEINLINE constexpr TArray(TArray&& _array) noexcept : SuperType_(), array_(std::move(_array.array_)) {}
+    FORCEINLINE constexpr TArray(const TArray& _array) noexcept : SuperType_(_array), array_(_array.array_) {}
+    FORCEINLINE constexpr TArray(TArray&& _array) noexcept 
+        : SuperType_(std::forward<TArray>(_array)), array_(std::move(_array.array_)) {}
     FORCEINLINE constexpr TArray(InitializerList_ _init_list) noexcept : SuperType_(), array_(_init_list) {}
 
     /*
@@ -79,6 +79,17 @@ public:
     }
 
     FORCEINLINE constexpr ~TArray() noexcept {}
+
+    FORCEINLINE TArray& operator=(const TArray& _array) noexcept {
+        SuperType_::operator=(_array);
+        array_ = _array.array_;
+        return *this;
+    }
+    FORCEINLINE TArray& operator=(TArray&& _array) noexcept {
+        SuperType_::operator=(std::forward<TArray>(_array));
+        array_ = std::move(_array.array_);
+        return *this;
+    }
 
     NODISCARD FORCEINLINE constexpr Bool operator==(const TArray& _array) noexcept { return array_ == _array.array_; }
     NODISCARD FORCEINLINE constexpr Bool operator!=(const TArray& _array) noexcept { return array_ != _array.array_; }
@@ -124,5 +135,3 @@ private:
 };
 
 }//zengine
-
-#endif // !Z_CORE_T_ARRAY_H_

@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,14 +13,12 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
 #define CORE_DLLFILE
 
 #include "z_thread_pool.h"
-
-#include "t_lock_guard.h"
 
 namespace zengine {
 
@@ -51,7 +49,7 @@ ZThreadPool::ZThreadPool(Int32 _thread_num) noexcept
 {
     pool_idle_mutex_.Lock();
     for (IndexType thread_index = 0; thread_index < _thread_num; ++thread_index) {
-        thread_list_.EmplaceBack(ThreadFunc, Ref(*this));
+        thread_list_.EmplaceBack(SubThread, Ref(*this));
     }
 }
 
@@ -81,13 +79,13 @@ ZThreadPool::~ZThreadPool() noexcept {
 NODISCARD ReturnType ZThreadPool::AddThreadNum(Int32 _thread_num) noexcept {
     ReturnType ret_val = kOK;
     if (_thread_num < 0) {
-        ret_val = error_code::kZThreadPoolErrorCodeAddNegitiveNumThread;
+        ret_val = error_code::kZThreadPoolErrorCode_AddNegitiveNumThread;
         Z_LOG_ERROR(ret_val, 0, L"Add thread < 0! thread_num_: %d", _thread_num);
         return ret_val;
     }
     max_thread_num_ += _thread_num;
     for (IndexType thread_index = 0; thread_index < _thread_num; ++thread_index) {
-        thread_list_.EmplaceBack(std::move(ZThread(ThreadFunc, Ref(*this))));
+        thread_list_.EmplaceBack(std::move(ZThread(SubThread, Ref(*this))));
     }
     return ret_val;
 }
@@ -104,7 +102,7 @@ NODISCARD ReturnType ZThreadPool::AddTask(ZTask&& _task) noexcept {
     ReturnType ret_val = kOK;
     TUniqueLock<ZMutex> lock(pool_mutex_);
     if (finished_) {
-        ret_val = error_code::kZThreadPoolErrorCodePoolFinished;
+        ret_val = error_code::kZThreadPoolErrorCode_PoolFinished;
         Z_LOG_ERROR(ret_val, 0, L"Thread pool finished, can't add task!");
         return ret_val;
     }
@@ -121,7 +119,7 @@ NODISCARD ReturnType ZThreadPool::AddTask(ZTaskSafe&& _task) noexcept {
     ReturnType ret_val = kOK;
     TUniqueLock<ZMutex> lock(pool_mutex_);
     if (finished_) {
-        ret_val = error_code::kZThreadPoolErrorCodePoolFinished;
+        ret_val = error_code::kZThreadPoolErrorCode_PoolFinished;
         Z_LOG_ERROR(ret_val, 0, L"Thread pool finished, can't add task!");
         return ret_val;
     }
@@ -139,7 +137,7 @@ Void ZThreadPool::ClearTask() noexcept {
     task_queue_.Clear();
 }
 
-Void ZThreadPool::ThreadFunc(ZThreadPool& _thread_pool) noexcept {
+Void ZThreadPool::SubThread(ZThreadPool& _thread_pool) noexcept {
     ZTask task;
     ReturnType link_code = kOK;
     while(true) {
@@ -166,7 +164,7 @@ Void ZThreadPool::ThreadFunc(ZThreadPool& _thread_pool) noexcept {
         }
         link_code = task.Run();
         if (link_code != kOK) {
-            Z_LOG_ERROR(error_code::kZTaskErrorCodeLinkError, link_code, L"ZFastTask::Run() link error!");
+            Z_LOG_ERROR(error_code::kZThreadPoolErrorCode_LinkError, link_code, L"ZTask::Run() link error!");
         }
         task.Clear();
     }

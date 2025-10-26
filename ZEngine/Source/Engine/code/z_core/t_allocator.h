@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,11 +13,10 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_T_ALLOCATOR_H_
-#define Z_CORE_T_ALLOCATOR_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
@@ -34,9 +33,15 @@ class TContainerAllocator : public ZObject {
 public:
     using value_type = _ObjectType;
 
-    FORCEINLINE TContainerAllocator() : SuperType_() {}
+    NODISCARD static TContainerAllocator& Instance() noexcept {
+        static TContainerAllocator allocator;
+        return allocator;
+    }
+
+    FORCEINLINE TContainerAllocator() noexcept : SuperType_() {}
     template<typename _OtherObjectType>
-    FORCEINLINE TContainerAllocator(const TContainerAllocator<_OtherObjectType>& _alocator) : SuperType_() {}
+    FORCEINLINE TContainerAllocator(const TContainerAllocator<_OtherObjectType>& _alocator) noexcept 
+        : SuperType_(_alocator) {}
     FORCEINLINE ~TContainerAllocator() {}
 
     NODISCARD FORCEINLINE _ObjectType* allocate(SizeType _capacity) noexcept {
@@ -59,9 +64,10 @@ class TSmartPointerAllocator : public ZObject {
 public:
     using value_type = _ObjectType;
 
-    FORCEINLINE TSmartPointerAllocator() : SuperType_() {}
+    FORCEINLINE TSmartPointerAllocator() noexcept : SuperType_() {}
     template<typename _OtherObjectType>
-    FORCEINLINE TSmartPointerAllocator(const TSmartPointerAllocator<_OtherObjectType>& _alocator) : SuperType_() {}
+    FORCEINLINE TSmartPointerAllocator(const TSmartPointerAllocator<_OtherObjectType>& _alocator) noexcept
+        : SuperType_(_alocator) {}
     FORCEINLINE ~TSmartPointerAllocator() {}
 
     NODISCARD FORCEINLINE _ObjectType* allocate(SizeType _capacity) noexcept {
@@ -77,5 +83,3 @@ protected:
 };
 
 }//zengine
-
-#endif // !Z_CORE_T_ALLOCATOR_H_

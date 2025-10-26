@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,49 +13,28 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_F_MEMORY_POOL_H_
-#define Z_CORE_F_MEMORY_POOL_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
-#ifdef _DEBUG
-// Shows the use of the memory pool, includes the memory block left when the 
-// program emds, the total memory blocks appplyed and the peak situation of
-// the memory pool. Using this test will slightly reduce the performance of 
-// the program.
-#define USE_MEMORY_POOL_TEST true
-//Wheather the memory pool is thread safe.
-#define MEMORY_POOL_THREAD_SAFE true
-#else
-// Shows the use of the memory pool, includes the memory block left when the 
-// program emds, the total memory blocks appplyed and the peak situation of
-// the memory pool. Using this test will slightly reduce the performance of 
-// the program.
-#define USE_MEMORY_POOL_TEST false
-//Wheather the memory pool is thread safe.
-#define MEMORY_POOL_THREAD_SAFE true
-#endif
+namespace zengine {
+namespace error_code {
+enum FMemoryPoolErrorCode : ReturnType {
+    kFMemoryPoolErrorCode_LinkError = kErrorCodeBase_FMemoryPool,
+    kFMemoryPoolErrorCode_SystemError,
+    kFMemoryPoolErrorCode_NullptrParam,
+    kFMemoryPoolErrorCode_ParamOutOfRange,
+    kFMemoryPoolErrorCode_MemorySizeOutOfBound,
+    kFMemoryPoolErrorCode_PoolTypeUnknown,
+    kFMemoryPoolErrorCode_ApplyHeapMemoryFailed,
+};
+}//error_code
+}//zengine
 
 namespace zengine {
-
-namespace error_code {
-
-enum FMemoryPoolErrorCode : ReturnType {
-    kFMemoryPoolErrorCodeLinkError = kErrorCodeBaseFMemoryPool,
-    kFMemoryPoolErrorCodeMemorySizeOutOfBound,
-    kFMemoryPoolErrorCodePoolTypeUnknown,
-    kFMemoryPoolErrorCodeApplyHeapMemoryFailed,
-};
-
-}//error_code
-
-/*
-    The namespace contains the function that controls the heap memory.
-    It has it's own garbage collection.
-*/
 namespace memory_pool {
 
 /*
@@ -68,6 +47,20 @@ CORE_DLLAPI NODISCARD Void* ApplyMemory(MemoryType _size) noexcept;
     Returns the memory size of the memory block.
 */
 CORE_DLLAPI NODISCARD Void* ApplyMemory(MemoryType _size, MemoryType* _memory_size_ptr) noexcept;
+
+/*
+    Reapply the memory and copy the data to the new memory.
+*/
+CORE_DLLAPI NODISCARD Void* ReapplyMemory(Void* _old_memory_ptr, MemoryType _size) noexcept;
+
+/*
+    Reapply the memory and copy the data to the new memory.
+*/
+CORE_DLLAPI NODISCARD Void* ReapplyMemory(
+    Void* _old_memory_ptr, 
+    MemoryType _size, 
+    MemoryType* _memory_size_ptr
+) noexcept;
 
 /*
     Check if the memory can be extended to the given size without changing the memory,
@@ -118,7 +111,5 @@ CORE_DLLAPI NODISCARD decltype(auto) SmallMemoryListMemoryPoolMemoryBlockUsedNum
 CORE_DLLAPI NODISCARD decltype(auto) SmartPointerListMemoryPoolMemoryBlockUsedNum() noexcept;
 #endif //USE_MEMORY_POOL_TEST
 
-}//system_memory
+}//memory_pool
 }//zengine
-
-#endif // !Z_CORE_F_MEMORY_POOL_H_

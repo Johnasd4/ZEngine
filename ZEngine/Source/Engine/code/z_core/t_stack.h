@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,23 +13,20 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_T_STACK_H_
-#define Z_CORE_T_STACK_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
-
-#include "t_allocator.h"
 #include "t_vector.h"
 #include "z_object.h"
 
 namespace zengine {
 
 /*
-    Stack caintainer.
+    Stack container.
 */
 template<typename _ObjectType, typename _ContainerType = TVector<_ObjectType>>
 class TStack : public ZObject {
@@ -37,8 +34,9 @@ public:
     using InitializerList_ = std::initializer_list<_ObjectType>;
 
     FORCEINLINE TStack() noexcept : SuperType_(), stack_() {}
-    FORCEINLINE TStack(const TStack& _stack) noexcept : SuperType_(), stack_(_stack.stack_) {}
-    FORCEINLINE TStack(TStack&& _stack) noexcept : SuperType_(), stack_(std::move(_stack.stack_)) {}
+    FORCEINLINE TStack(const TStack& _stack) noexcept : SuperType_(_stack), stack_(_stack.stack_) {}
+    FORCEINLINE TStack(TStack&& _stack) noexcept 
+        : SuperType_(std::forward<TStack>(_stack)), stack_(std::move(_stack.stack_)) {}
 
     FORCEINLINE TStack(SizeType _size) noexcept : SuperType_(), stack_(_size) {}
     FORCEINLINE TStack(SizeType _size, const _ObjectType& _val) noexcept : SuperType_(), stack_(_size, _val) {}
@@ -49,10 +47,12 @@ public:
     FORCEINLINE ~TStack() noexcept {}
 
     FORCEINLINE TStack& operator=(const TStack& _stack) noexcept { 
+        SuperType_::operator=(_stack);
         stack_ = _stack.stack_;
         return *this;
     }
     FORCEINLINE TStack& operator=(TStack&& _stack) noexcept { 
+        SuperType_::operator=(std::forward<TStack>(_stack));
         stack_ = std::move(_stack.stack_);
         return *this;
     }
@@ -102,5 +102,3 @@ private:
 };
 
 }//zengine
-
-#endif // !Z_CORE_T_STACK_H_

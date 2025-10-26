@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,11 +13,10 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_MEMORY_POOL_T_HEAP_MEMORY_POOL_H_
-#define Z_CORE_MEMORY_POOL_T_HEAP_MEMORY_POOL_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
@@ -38,7 +37,7 @@ namespace memory_pool {
     - kIsThreadSafe: Thread safe or not.
 */
 template<Bool kIsThreadSafe>
-class THeapMemoryPool :protected TMemoryPoolThreadSafeBase<kIsThreadSafe> {
+class THeapMemoryPool : protected TMemoryPoolThreadSafeBase<kIsThreadSafe> {
 public:
     NODISCARD static Void* ApplyMemory(MemoryType _size) noexcept;
 
@@ -85,7 +84,7 @@ NODISCARD Void* THeapMemoryPool<kIsThreadSafe>::ApplyMemory(MemoryType _size) no
     Void* heap_memory_ptr = malloc(_size);
     if (heap_memory_ptr == nullptr) {
         Z_LOG_ERROR(
-            error_code::kFMemoryPoolErrorCodeApplyHeapMemoryFailed, 0, L"Apply heap memory failed! size: %d", _size);
+            error_code::kFMemoryPoolErrorCode_ApplyHeapMemoryFailed, 0, L"Apply heap memory failed! size: %d", _size);
         return heap_memory_ptr;
     }
     memory_pool.MutexType_::Lock();
@@ -100,6 +99,8 @@ NODISCARD Void* THeapMemoryPool<kIsThreadSafe>::ApplyMemory(MemoryType _size) no
     memory_pool.MutexType_::Unlock();
     return heap_memory_ptr;
 }
+
+#pragma warning(disable : 6001)
 
 template<Bool kIsThreadSafe>
 THeapMemoryPool<kIsThreadSafe>::~THeapMemoryPool() noexcept {
@@ -125,7 +126,7 @@ THeapMemoryPool<kIsThreadSafe>::~THeapMemoryPool() noexcept {
     free(head_node_ptr);
 }
 
+#pragma warning(default : 6001)
+
 }//memory_pool
 }//zengine
-
-#endif // !Z_CORE_MEMORY_POOL_T_HEAP_MEMORY_POOL_H_

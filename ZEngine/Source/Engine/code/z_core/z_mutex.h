@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,15 +13,13 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_Z_MUTEX_H_
-#define Z_CORE_Z_MUTEX_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
-#include "m_log.h"
 #include "z_object.h"
 
 namespace zengine {
@@ -32,12 +30,13 @@ namespace zengine {
 class CORE_DLLAPI ZMutex : public ZObject {
 public:
     FORCEINLINE ZMutex() noexcept : SuperType_(), handle_(CreateMutex(nullptr, FALSE, nullptr)) {}
-    FORCEINLINE ZMutex(ZMutex&& _mutex) noexcept : SuperType_(), handle_(_mutex.handle_) { handle_ = nullptr; }
+    FORCEINLINE ZMutex(ZMutex&& _mutex) noexcept : SuperType_(std::forward<ZMutex>(_mutex)) { 
+        MoveP(std::forward<ZMutex>(_mutex)); 
+    }
     FORCEINLINE ~ZMutex() noexcept { CloseHandle(handle_); }
 
     FORCEINLINE ZMutex& operator=(ZMutex&& _mutex) noexcept {
-        handle_ = _mutex.handle_;
-        _mutex.handle_ = nullptr;
+        MoveP(std::forward<ZMutex>(_mutex));
         return *this;
     }
 
@@ -49,13 +48,15 @@ public:
     /*
         Try to get the lock in a certain time(ms), return true if success.
     */
-    FORCEINLINE Bool TryLockFor(UInt32 _time) noexcept { return WaitForSingleObject(handle_, _time) == WAIT_OBJECT_0; }
+    FORCEINLINE Bool TryLockFor(UInt32 _time_ms) noexcept { 
+        return WaitForSingleObject(handle_, _time_ms) == WAIT_OBJECT_0; 
+    }
     /*
         Try to get the lock before a certain time(ms), use clock() to get the current time, return true if success.
     */
-    FORCEINLINE Bool TryLockUntil(UInt32 _time) noexcept { 
-        _time -= clock();
-        return WaitForSingleObject(handle_, _time > 0 ? _time : 0) == WAIT_OBJECT_0; 
+    FORCEINLINE Bool TryLockUntil(UInt32 _time_ms) noexcept {
+        _time_ms -= clock();
+        return WaitForSingleObject(handle_, _time_ms > 0 ? _time_ms : 0) == WAIT_OBJECT_0;
     }
     FORCEINLINE Void Unlock() noexcept { ReleaseMutex(handle_); }
 protected:
@@ -63,12 +64,14 @@ protected:
 
 private:
     ZMutex(const ZMutex&) = delete;
-
     ZMutex& operator=(const ZMutex&) = delete;
+
+    FORCEINLINE Void MoveP(ZMutex&& _mutex) noexcept {
+        handle_ = _mutex.handle_;
+        _mutex.handle_ = nullptr;
+    }
 
     Handle handle_;
 };
 
 }//zengine
-
-#endif // !Z_CORE_Z_MUTEX_H_

@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,22 +13,19 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
 #define CORE_DLLFILE
 
 #include "z_log_server.h"
 
-#include "f_file_system.h"
 #include "m_log.h"
-#include "t_list.h"
-#include "z_string.h"
 
 namespace zengine {
 namespace log {
 
-ZLogServer::ZLogServer() noexcept {
+ZLogServer::ZLogServer() noexcept : SuperType_() {
     //init ports
     port_array_.FillZero();
 }
@@ -59,7 +56,7 @@ NODISCARD ReturnType ZLogServer::RegisterInputFunction(
     Bool registered = false;
 
     if (port_array_[_port_id].input_func_ != nullptr) {
-        ret_val = error_code::kMLogErrorCodeLogPortInputFunctionAlreadyRegistered;
+        ret_val = error_code::kMLogErrorCode_LogPortInputFunctionAlreadyRegistered;
         Z_LOG_ERROR(ret_val, 0, L"Register failed, port %d input function already registered!", _port_id);
 
         return ret_val;
@@ -76,7 +73,7 @@ NODISCARD ReturnType ZLogServer::UnregisterInputFunction(
 ) noexcept {
     ReturnType ret_val = kOK;
     if (port_array_[_port_id].input_func_ != _input_func) {
-        ret_val = error_code::kMLogErrorCodeLogPortInputFunctionUnregisteredFailed;
+        ret_val = error_code::kMLogErrorCode_LogPortInputFunctionUnregisteredFailed;
         Z_LOG_ERROR(ret_val, 0, L"Unregister failed, port %d function does't match!", _port_id);
 
         return ret_val;
@@ -98,7 +95,7 @@ NODISCARD ReturnType ZLogServer::RegisterOutputFunction(
         if (port_array_[_port_id].output_func_array_[index] != nullptr) {
             //Check for same output.
             if (port_array_[_port_id].output_func_array_[index] == _output_func) {
-                ret_val = error_code::kMLogErrorCodeLogPortOutputFunctionAlreadyRegistered;
+                ret_val = error_code::kMLogErrorCode_LogPortOutputFunctionAlreadyRegistered;
                 Z_LOG_ERROR(ret_val, 0, L"Register failed, port %d output function already registered!", _port_id);
 
                 return ret_val;
@@ -114,7 +111,7 @@ NODISCARD ReturnType ZLogServer::RegisterOutputFunction(
     }
 
     if (!registered) {
-        ret_val = error_code::kMLogErrorCodeLogPortOutputFunctionFull;
+        ret_val = error_code::kMLogErrorCode_LogPortOutputFunctionFull;
         Z_LOG_ERROR(ret_val, 0, L"Register failed, port %d output function array full!", _port_id);
         return ret_val;
     }

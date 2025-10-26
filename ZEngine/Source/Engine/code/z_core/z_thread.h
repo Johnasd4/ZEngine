@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,15 +13,14 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_Z_THREAD_H_
-#define Z_CORE_Z_THREAD_H_
-
-#pragma warning(disable : 26439)
+#pragma once
 
 #include "internal/z_drive.h"
+
+#include <process.h>
 
 #include "t_tuple.h"
 #include "z_object.h"
@@ -41,10 +40,10 @@ public:
     ZThread(ZThread&& _thread) noexcept;
 
     template <typename _Function, typename... _ArgsType>
-    ZThread(_Function&& _func, _ArgsType&&... _args) noexcept {
+    ZThread(_Function&& _func, _ArgsType&&... _args) noexcept : SuperType_() {
         using ParamsType = TTuple<_Function, TTuple<_ArgsType...>>;
-        ParamsType* params_ptr = new ParamsType(std::forward<_Function>(_func), 
-                                                tuple::MakeTuple(std::forward<_ArgsType>(_args)...));
+        ParamsType* params_ptr = new ParamsType(
+            std::forward<_Function>(_func), tuple::MakeTuple(std::forward<_ArgsType>(_args)...));
         auto thread_func = [](Void* _params_ptr) -> UInt32 {
             tuple::Apply(((ParamsType*)_params_ptr)->Get<0>(), std::move(((ParamsType*)_params_ptr)->Get<1>()));
             delete (ParamsType*)_params_ptr;
@@ -56,7 +55,8 @@ public:
             thread_func,
             (Void*)params_ptr,
             0,
-            &id_);
+            &id_
+        );
     }
 
     ~ZThread() noexcept;
@@ -94,13 +94,22 @@ protected:
 
 private:
     ZThread(const ZThread&) = delete;
-
     ZThread& operator=(const ZThread&) = delete;
+
+    Void MoveP(ZThread&& _thread) noexcept;
 
     ThreadIDType_ id_;
     Handle handle_;
 };
 
-}//zengine
+/*
+    The current thread suspends the given time(s)
+*/
+CORE_DLLAPI NODISCARD Void SleepSec(TimeType _time) noexcept;
 
-#endif // !Z_CORE_Z_THREAD_H_
+/*
+    The current thread suspends the given time(ms)
+*/
+CORE_DLLAPI NODISCARD Void SleepMs(TimeType _time) noexcept;
+
+}//zengine

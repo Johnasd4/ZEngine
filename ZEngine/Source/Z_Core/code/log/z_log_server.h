@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,11 +13,10 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_LOG_Z_LOG_SERVER_H_
-#define Z_CORE_LOG_Z_LOG_SERVER_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
@@ -32,15 +31,12 @@ namespace log {
 */
 class ZLogServer : public ZObject {
 public:
-    static constexpr Int32 kMaxPortNum = 8;
-    static constexpr Int32 kMaxOutputPurPort = 8;
-
     /*
         Single port.
     */
     struct ZLogPort {
         Void(*input_func_)(const ZLog*, ZLog::OutputString_*) = nullptr;
-        TArray<Void(*)(const ZLog*, const ZLog::OutputString_&), kMaxOutputPurPort> output_func_array_;
+        TArray<Void(*)(const ZLog*, const ZLog::OutputString_&), kLogPortMaxOutputNum> output_func_array_;
     };
 
     ZLogServer() noexcept;
@@ -84,10 +80,13 @@ protected:
     using SuperType_ = ZObject;
 
 private:
-    TArray<ZLogPort, kMaxPortNum> port_array_;
+    ZLogServer(const ZLogServer&) = delete;
+    ZLogServer(ZLogServer&&) = delete;
+    ZLogServer& operator=(const ZLogServer&) = delete;
+    ZLogServer& operator=(ZLogServer&&) = delete;
+
+    TArray<ZLogPort, kLogMaxPortNum> port_array_;
 };
 
 }//log
 }//zengine
-
-#endif // !Z_CORE_LOG_Z_LOG_PORT_H_

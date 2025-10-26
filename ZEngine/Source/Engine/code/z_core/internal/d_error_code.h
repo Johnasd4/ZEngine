@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,11 +13,10 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_INTERNAL_D_ERROR_CODE_H_
-#define Z_CORE_INTERNAL_D_ERROR_CODE_H_
+#pragma once
 
 #include "d_lib.h"
 #include "d_type.h"
@@ -25,23 +24,30 @@
 namespace zengine {
 
 inline constexpr ReturnType kOK = 0;
+inline constexpr ReturnType kErrorCodeSolutionMask = 0x10000000u;
+inline constexpr ReturnType kErrorCodeProjcetMask = 0x100000u;
+inline constexpr ReturnType kErrorCodeTypeMask = 0x100u;
 
 namespace error_code {
 
-inline constexpr ReturnType kErrorCodeBasePCore = 0x00100000u;
-inline constexpr ReturnType kErrorCodeBaseZFile = kErrorCodeBasePCore + 0x100u;
-inline constexpr ReturnType kErrorCodeBaseZPrintManager = kErrorCodeBasePCore + 0x200u;
-inline constexpr ReturnType kErrorCodeBaseMLog = kErrorCodeBasePCore + 0x300u;
-inline constexpr ReturnType kErrorCodeBaseTUniqueLock = kErrorCodeBasePCore + 0x400u;
-inline constexpr ReturnType kErrorCodeBaseZThreadPool = kErrorCodeBasePCore + 0x500u;
-inline constexpr ReturnType kErrorCodeBaseFMemoryPool = kErrorCodeBasePCore + 0x600u;
-inline constexpr ReturnType kErrorCodeBaseZTask = kErrorCodeBasePCore + 0x700u;
-inline constexpr ReturnType kErrorCodeBaseFFileSystem = kErrorCodeBasePCore + 0x800u;
-inline constexpr ReturnType kErrorCodeBaseZString = kErrorCodeBasePCore + 0x900u;
-inline constexpr ReturnType kErrorCodeBaseFTest = kErrorCodeBasePCore + 0xA00u;
+inline constexpr ReturnType kErrorCodeBase_SZEngine = 0x0u * kErrorCodeSolutionMask;
+inline constexpr ReturnType kErrorCodeBase_PCore = 0x0u * kErrorCodeProjcetMask + kErrorCodeBase_SZEngine;
+
+inline constexpr ReturnType kErrorCodeBase_ZString = 0x0u * kErrorCodeTypeMask + kErrorCodeBase_PCore;
+inline constexpr ReturnType kErrorCodeBase_ZFile = 0x1u * kErrorCodeTypeMask + kErrorCodeBase_PCore;
+inline constexpr ReturnType kErrorCodeBase_FConsole = 0x2u * kErrorCodeTypeMask + kErrorCodeBase_PCore;
+inline constexpr ReturnType kErrorCodeBase_MLog = 0x3u * kErrorCodeTypeMask + kErrorCodeBase_PCore;
+inline constexpr ReturnType kErrorCodeBase_TUniqueLock = 0x4u * kErrorCodeTypeMask + kErrorCodeBase_PCore;
+inline constexpr ReturnType kErrorCodeBase_ZThreadPool = 0x5u * kErrorCodeTypeMask + kErrorCodeBase_PCore;
+inline constexpr ReturnType kErrorCodeBase_FMemoryPool = 0x6u * kErrorCodeTypeMask + kErrorCodeBase_PCore;
+inline constexpr ReturnType kErrorCodeBase_ZTask = 0x7u * kErrorCodeTypeMask + kErrorCodeBase_PCore;
+inline constexpr ReturnType kErrorCodeBase_FFileSystem = 0x8u * kErrorCodeTypeMask + kErrorCodeBase_PCore;
+inline constexpr ReturnType kErrorCodeBase_ZJson = 0x9u * kErrorCodeTypeMask + kErrorCodeBase_PCore;
+inline constexpr ReturnType kErrorCodeBase_ZTimer = 0xAu * kErrorCodeTypeMask + kErrorCodeBase_PCore;
+inline constexpr ReturnType kErrorCodeBase_ZConfig = 0xBu * kErrorCodeTypeMask + kErrorCodeBase_PCore;
+inline constexpr ReturnType kErrorCodeBase_FSystem = 0xCu * kErrorCodeTypeMask + kErrorCodeBase_PCore;
+inline constexpr ReturnType kErrorCodeBase_TFunction = 0xDu * kErrorCodeTypeMask + kErrorCodeBase_PCore;
+
 
 }//error_code
-
 }//zengine
-
-#endif // !Z_CORE_INTERNAL_D_ERROR_CODE_H_

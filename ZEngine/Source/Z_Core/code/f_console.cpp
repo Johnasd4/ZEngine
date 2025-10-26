@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,12 +13,14 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
 #define CORE_DLLFILE
 
 #include "f_console.h"
+
+#include "z_core/z_mutex.h"
 
 namespace zengine {
 namespace console {
@@ -98,8 +100,8 @@ protected:
     using SuperType_ = ZObject;
 
 private:
-    static constexpr PrintTextColourEnum kDefaultTextColour = kPrintTextColourLightWhite;
-    static constexpr PrintBackgroundColourEnum kDefaultBackgroundColour = kPrintBackgroundColourDarkBlack;
+    static constexpr PrintTextColourEnum kDefaultTextColour = kPrintTextColour_LightWhite;
+    static constexpr PrintBackgroundColourEnum kDefaultBackgroundColour = kPrintBackgroundColour_DarkBlack;
 
     NODISCARD static ZPrintManager& InstanceP() {
         static ZPrintManager instance;

@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,44 +13,97 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_F_FILE_SYSTEM_H_
-#define Z_CORE_F_FILE_SYSTEM_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
-#include <filesystem>
-
 #include "t_list.h"
+#include "t_vector.h"
 #include "z_string.h"
 
 namespace zengine {
-
 namespace error_code {
-
 enum FFileSystemErrorCode : ReturnType {
-    kFFileSystemErrorCodeLinkError = kErrorCodeBaseFFileSystem,
-    kFFileSystemErrorCodeSystemError,
-    kFFileSystemErrorCodeFileDeleteFailed,
-    kFFileSystemErrorCodePathNotExist,
-    kFFileSystemErrorCodePathNotDirectory,
-    kFFileSystemErrorCodeDirectoryDeleteFailed,
-    kFFileSystemErrorCodeCreateDirectoryFailed
+    kFFileSystemErrorCode_LinkError = kErrorCodeBase_FFileSystem,
+    kFFileSystemErrorCode_SystemError,
+    kFFileSystemErrorCode_NullptrParam,
+    kFFileSystemErrorCode_ParamOutOfRange,
+    kFFileSystemErrorCode_FileCreateFailed,
+    kFFileSystemErrorCode_FileDeleteFailed,
+    kFFileSystemErrorCode_PathNotExist,
+    kFFileSystemErrorCode_PathNotDirectory,
+    kFFileSystemErrorCode_DirectoryDeleteFailed,
+    kFFileSystemErrorCode_CreateDirectoryFailed,
+    kFFileSystemErrorCode_CopyFileFailed
 };
-
 }//error_code
+}//zengine
 
-/*
-    The namespace contains the function that controls files.
-*/
+namespace zengine {
 namespace file_system {
 
 /*
-    Delete files by the given path.
+    The info of the files, contains: path, name, extension, directory.
+*/
+struct ZFileInfo {
+    ZWString path_;
+    ZWString name_;
+    ZWString extension_;
+    ZWString directory_;
+};
+
+/*
+    The file filter struct.
+    Exanple:
+        { L"Text Files", L"*.txt" },
+        { L"All Files", L"*.*" }
+*/
+struct ZFileFilter {
+    const WChar* hint_;
+    const WChar* extension_;
+};
+
+/*
+   Returns the program's path.
+*/
+CORE_DLLAPI NODISCARD ZWString ProgramPath() noexcept;
+
+/*
+   Returns the program's directory.
+*/
+CORE_DLLAPI NODISCARD ZWString ProgramDirectory() noexcept;
+
+/*
+    Get program info.
+*/
+CORE_DLLAPI NODISCARD ReturnType ProgramInfo(ZFileInfo* _file_info_ptr) noexcept;
+
+/*
+    Create file by the given path.
+*/
+CORE_DLLAPI NODISCARD ReturnType CreateFileByPath(const WChar* _path_dir) noexcept;
+
+/*
+    Delete file by the given path.
 */
 CORE_DLLAPI NODISCARD ReturnType DeleteFileByPath(const WChar* _path_dir) noexcept;
+
+/*
+    Rename file by the given path.
+*/
+CORE_DLLAPI NODISCARD ReturnType RenameFileByPath(const WChar* _old_path_dir, const WChar* _new_path_dir) noexcept;
+
+/*
+    Copy file by the given path.
+*/
+CORE_DLLAPI NODISCARD ReturnType CopyFileByPath(
+    const WChar* _source_path_dir, 
+    const WChar* _target_path_dir,
+    Bool overwrite_exist = true
+) noexcept;
 
 /*
     Create directory by the given path.
@@ -71,29 +124,65 @@ CORE_DLLAPI NODISCARD Bool PathExist(const WChar* _path_dir) noexcept;
     Get all the files under the given path. 
     Pushs the file names into the given list.
 */
-CORE_DLLAPI NODISCARD ReturnType GetFilesByPath(const WChar* _path_dir, TList<ZWString>* file_list_ptr) noexcept;
+CORE_DLLAPI NODISCARD ReturnType GetFilesByPath(const WChar* _path_dir, TList<ZWString>* _file_list_ptr) noexcept;
 
 /*
     Get all the directories under the given path. 
     Pushs the file names into the given list.
 */
-CORE_DLLAPI NODISCARD ReturnType GetDirectoriesByPath(const WChar* _path_dir, TList<ZWString>* file_list_ptr) noexcept;
+CORE_DLLAPI NODISCARD ReturnType GetDirectoriesByPath(const WChar* _path_dir, TList<ZWString>* _file_list_ptr) noexcept;
 
 /*
     Get all the files and directories under the given path. 
     Pushs the file names into the given list.
 */
 CORE_DLLAPI NODISCARD ReturnType GetFilesAndDirectoriesByPath(
-    const WChar* _path_dir, TList<ZWString>* file_list_ptr
+    const WChar* _path_dir, TList<ZWString>* _file_list_ptr
 ) noexcept;
 
 /*
     Get all the files under the given path, even the file is in a deeper folder. 
     Pushs the file names into the given list.
 */
-CORE_DLLAPI NODISCARD ReturnType GetFileTreeByPath(const WChar* _path_dir, TList<ZWString>* file_list_ptr) noexcept;
+CORE_DLLAPI NODISCARD ReturnType GetFileTreeByPath(const WChar* _path_dir, TList<ZWString>* _file_list_ptr) noexcept;
+
+/*
+    Get the file info by the given path.
+*/
+CORE_DLLAPI NODISCARD ReturnType GetFileInfoByPath(
+    const ZWString& _file, ZFileInfo* _file_info_ptr
+) noexcept;
+
+/*
+    Get the files info by the given path list.
+*/
+CORE_DLLAPI NODISCARD ReturnType GetFileInfoListByPathList(
+    const TList<ZWString>& _file_list, TList<ZFileInfo>* _file_info_list_ptr
+) noexcept;
+
+/*
+    Get file path by the file selector.
+*/
+CORE_DLLAPI NODISCARD ReturnType GetFileByFileSelector(
+    const TVector<ZFileFilter>& _file_filter_vector, ZWString* _file_ptr
+) noexcept;
+
+/*
+    Get mutiple file path by the file selector.
+*/
+CORE_DLLAPI NODISCARD ReturnType GetFilesByFileSelector(
+    const TVector<ZFileFilter>& _file_filter_vector, TList<ZWString>* _file_list_ptr
+) noexcept;
+
+/*
+    Get folder path by the file selector.
+*/
+CORE_DLLAPI NODISCARD ReturnType GetFolderByFileSelector(ZWString* _folder_ptr) noexcept;
+
+/*
+    Get mutiple folder path by the file selector.
+*/
+CORE_DLLAPI NODISCARD ReturnType GetFoldersByFileSelector(TList<ZWString>* _folder_list_ptr) noexcept;
 
 }//file_system
 }//zengine
-
-#endif // !Z_CORE_F_FILE_SYSTEM_H_

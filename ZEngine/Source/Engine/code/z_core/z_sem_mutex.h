@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,15 +13,13 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_Z_SEM_MUTEX_H_
-#define Z_CORE_Z_SEM_MUTEX_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
-#include "m_log.h"
 #include "z_object.h"
 
 namespace zengine {
@@ -32,12 +30,14 @@ namespace zengine {
 class ZSemMutex : public ZObject {
 public:
     FORCEINLINE ZSemMutex() noexcept : SuperType_(), handle_(CreateSemaphore(nullptr, 1, 1, nullptr)) {}
-    FORCEINLINE ZSemMutex(ZSemMutex&& _mutex) noexcept : SuperType_(), handle_(_mutex.handle_) { handle_ = nullptr; }
+    FORCEINLINE ZSemMutex(ZSemMutex&& _mutex) noexcept : SuperType_(std::forward<ZSemMutex>(_mutex)) {
+        MoveP(std::forward<ZSemMutex>(_mutex));
+    }
     FORCEINLINE ~ZSemMutex() noexcept { CloseHandle(handle_); }
 
     FORCEINLINE ZSemMutex& operator=(ZSemMutex&& _mutex) noexcept {
-        handle_ = _mutex.handle_;
-        _mutex.handle_ = nullptr;
+        SuperType_::operator=(std::forward<ZSemMutex>(_mutex));
+        MoveP(std::forward<ZSemMutex>(_mutex));
         return *this;
     }
 
@@ -63,12 +63,14 @@ protected:
 
 private:
     ZSemMutex(const ZSemMutex&) = delete;
-
     ZSemMutex& operator=(const ZSemMutex&) = delete;
+
+    FORCEINLINE Void MoveP(ZSemMutex&& _mutex) noexcept {
+        handle_ = _mutex.handle_;
+        _mutex.handle_ = nullptr;
+    }
 
     Handle handle_;
 };
 
 }//zengine
-
-#endif // !Z_CORE_Z_SEM_MUTEX_H_

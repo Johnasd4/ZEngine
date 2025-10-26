@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,16 +13,24 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_INTERNAL_D_FUNCTION_H_
-#define Z_CORE_INTERNAL_D_FUNCTION_H_
+#pragma once
 
 #include "d_lib.h"
 #include "d_type.h"
 
 namespace zengine {
+
+template<typename _DstObjectType, typename _SrcObjectType>
+FORCEINLINE constexpr Void Copy(
+    _DstObjectType* _dst_obj,
+    const _SrcObjectType* _src_obj,
+    SizeType _size = sizeof(_DstObjectType)
+) {
+    memcpy(_dst_obj, _src_obj, _size);
+}
 
 template<typename _ObjectType>
 FORCEINLINE constexpr Void Swap(_ObjectType* _obj_1, _ObjectType* _obj_2) {
@@ -47,5 +55,3 @@ NODISCARD FORCEINLINE constexpr decltype(auto) Ref(std::reference_wrapper<_Objec
 }
 
 }//zengine
-
-#endif // !Z_CORE_INTERNAL_D_FUNCTION_H_

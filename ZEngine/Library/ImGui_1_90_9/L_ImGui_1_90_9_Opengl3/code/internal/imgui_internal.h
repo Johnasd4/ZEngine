@@ -191,7 +191,7 @@ typedef void (*ImGuiErrorLogCallback)(void* user_data, const char* fmt, ...);
 //-----------------------------------------------------------------------------
 
 #ifndef GImGui
-extern IMGUI_API ImGuiContext* GImGui;  // Current implicit context pointer
+extern IMGUI_API thread_local ImGuiContext* GImGui;  // Current implicit context pointer
 #endif
 
 //-------------------------------------------------------------------------
@@ -2234,7 +2234,7 @@ struct ImGuiContext
     ImU8                    DebugLogAutoDisableFrames;
     ImU8                    DebugLocateFrames;                  // For DebugLocateItemOnHover(). This is used together with DebugLocateId which is in a hot/cached spot above.
     bool                    DebugBreakInLocateId;               // Debug break in ItemAdd() call for g.DebugLocateId.
-    ImGuiKeyChord           DebugBreakKeyChord;                 // = ImGuiKey_Pause
+    ImGuiKeyChord           DebugBreakKey_Chord;                 // = ImGuiKey_Pause
     ImS8                    DebugBeginReturnValueCullDepth;     // Cycle between 0..9 then wrap around.
     bool                    DebugItemPickerActive;              // Item picker is active (started with DebugStartItemPicker())
     ImU8                    DebugItemPickerMouseButton;
@@ -2450,7 +2450,7 @@ struct ImGuiContext
         DebugBreakInWindow = 0;
         DebugBreakInTable = 0;
         DebugBreakInLocateId = false;
-        DebugBreakKeyChord = ImGuiKey_Pause;
+        DebugBreakKey_Chord = ImGuiKey_Pause;
         DebugBreakInShortcutRouting = ImGuiKey_None;
 
         memset(FramerateSecPerFrame, 0, sizeof(FramerateSecPerFrame));

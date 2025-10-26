@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,11 +13,10 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_MEMORY_POOL_INTERNAL_T_LIST_MEMORY_POOL_BASE_H_
-#define Z_MEMORY_POOL_INTERNAL_T_LIST_MEMORY_POOL_BASE_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
@@ -29,7 +28,7 @@ namespace memory_pool {
 
 /*
     The base type of the memory pool that use the structure of list pool.
-    Waring: The program will crash if a nullptr is send in.
+    Warning: The program will crash if a nullptr is send in.
     Template Parameters:
     - MemoryBlockType: The memory block type of the memory pool.
     - kMemoryBlockHeadOffset: The memory might not start at the start of the 
@@ -37,9 +36,9 @@ namespace memory_pool {
     - kIsThreadSafe: Thread safe or not.
 */
 template<typename _MemoryBlockType, PointerType kMemoryBlockHeadOffset, Bool kIsThreadSafe>
-class TListMemoryPoolBase :public TMemoryPoolBase<kIsThreadSafe> {
+class TListMemoryPoolBase : public TMemoryPoolBase<kIsThreadSafe> {
 private:
-    //The multipul factor that container auto extends based on the origin size.
+    //The multiple factor that container auto extends based on the origin size.
     static constexpr Float32 kAutoExtendMulFactor = 0.2F;
     //The min number the container auto extends at least.
     static constexpr IndexType kAutoExtendMinNum = 1;
@@ -47,6 +46,9 @@ private:
     static constexpr MemoryType kApplyHeapMemoryMaxSizePurTime = 4 * kMB;
     //The unit size of the applied memory.
     static constexpr MemoryType kApplyHeapMemoryUnitSize = 4 * kHeapMemoryUnitSize;
+
+public:
+    NODISCARD FORCEINLINE MemoryType MemoryBlockMemorySize() const noexcept { return memory_block_memory_size_; }
 
 protected:
     using SuperType_ = TMemoryPoolBase<kIsThreadSafe>;
@@ -77,7 +79,6 @@ protected:
     FORCEINLINE static constexpr MemoryType NodeHeadOffset() noexcept { return kNodeHeadOffset; }
     NODISCARD FORCEINLINE MemoryType Capacity() const noexcept { return capacity_; }
     NODISCARD FORCEINLINE MemoryType MemoryBlockSize() const noexcept { return memory_block_size_; }
-    NODISCARD FORCEINLINE MemoryType MemoryBlockMemorySize() const noexcept { return memory_block_memory_size_; }
 
     /*
         It returns the memory's pointer(not the memory block).It's inlined
@@ -180,5 +181,3 @@ private:
 
 }//memory_pool
 }//zengine
-
-#endif // !Z_MEMORY_POOL_INTERNAL_T_LIST_MEMORY_POOL_BASE_H_

@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,23 +13,25 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_GUI_INTERNAL_D_ERROR_CODE_H_
-#define Z_GUI_INTERNAL_D_ERROR_CODE_H_
+#pragma once
 
 #include "d_lib.h"
 #include "d_type.h"
 
 namespace zengine {
-namespace gui {
 namespace error_code {
 
-inline constexpr ReturnType kErrorCodeBasePGui = 0x00200000u;
+inline constexpr ReturnType kErrorCodeBase_PGui = 0x1u * kErrorCodeProjcetMask + kErrorCodeBase_SZEngine;
+
+inline constexpr ReturnType kErrorCodeBase_ZApplication = 0x0u * kErrorCodeTypeMask + kErrorCodeBase_PGui;
+inline constexpr ReturnType kErrorCodeBase_ZWindow = 0x1u * kErrorCodeTypeMask + kErrorCodeBase_PGui;
+inline constexpr ReturnType kErrorCodeBase_ZFrame = 0x2u * kErrorCodeTypeMask + kErrorCodeBase_PGui;
+inline constexpr ReturnType kErrorCodeBase_ZText = 0x3u * kErrorCodeTypeMask + kErrorCodeBase_PGui;
+inline constexpr ReturnType kErrorCodeBase_ZInputText = 0x4u * kErrorCodeTypeMask + kErrorCodeBase_PGui;
+inline constexpr ReturnType kErrorCodeBase_ZButton = 0x5u * kErrorCodeTypeMask + kErrorCodeBase_PGui;
 
 }//error_code
-}//gui
 }//zengine
-
-#endif // !Z_GUI_INTERNAL_D_ERROR_CODE_H_

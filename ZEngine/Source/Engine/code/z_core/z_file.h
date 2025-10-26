@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,33 +13,34 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_Z_FILE_H_
-#define Z_CORE_Z_FILE_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
-#include "z_mutex.h"
 #include "z_object.h"
 
 namespace zengine {
-
 namespace error_code {
-
 enum ZFileErrorCode : ReturnType {
-    kZFileErrorCodeLinkError = kErrorCodeBaseZFile,
-    kZFileErrorCodeOpenFileFailed,
-    kZFileErrorCodeCloseFileFailed,
-    kZFileErrorCodeNoFileOpened,
-    kZFileErrorCodeOtherFileOpened,
-    kZFileErrorCodeCreatePathFailed,
-    kZFileErrorCodeReadFailed,
-    kZFileErrorCodeWriteFailed
+    kZFileErrorCode_LinkError = kErrorCodeBase_ZFile,
+    kZFileErrorCode_SystemError,
+    kZFileErrorCode_NullptrParam,
+    kZFileErrorCode_ParamOutOfRange,
+    kZFileErrorCode_OpenFileFailed,
+    kZFileErrorCode_CloseFileFailed,
+    kZFileErrorCode_NoFileOpened,
+    kZFileErrorCode_OtherFileOpened,
+    kZFileErrorCode_CreatePathFailed,
+    kZFileErrorCode_ReadFailed,
+    kZFileErrorCode_WriteFailed
 };
-
 }//error_code
+}//zengine
+
+namespace zengine {
 
 /*
     File class.
@@ -48,10 +49,9 @@ class CORE_DLLAPI ZFile : public ZObject {
 public:
 
     enum SeekType_ : Int32 {
-        kZFileSeekTypeFileHead = SEEK_SET,
-        kZFileSeekTypeCurrntPtr = SEEK_CUR,
-        kZFileSeekTypeFileEnd = SEEK_END,
-
+        kZFileSeekType_FileHead = SEEK_SET,
+        kZFileSeekType_CurrntPtr = SEEK_CUR,
+        kZFileSeekType_FileEnd = SEEK_END
     };
 
     /*Read only.*/
@@ -79,17 +79,14 @@ public:
     /*Read and write, starts at the end of the file.(binary file)*/
     static constexpr WChar kOpenTypeAppendPlusBin[] = L"ab+";
     /*The max length of the file name.*/
-    static constexpr IndexType kFileNameLength = 512;
+    static constexpr IndexType kFileNameLength = MAX_PATH;
 
-    FORCEINLINE ZFile() noexcept : SuperType_(), file_ptr_(nullptr) {}
-    FORCEINLINE ZFile(ZFile&& _file) noexcept : SuperType_(), file_ptr_(_file.file_ptr_) {}
+    ZFile() noexcept;
+    ZFile(ZFile&& _file) noexcept;
 
-    FORCEINLINE ~ZFile() noexcept { if (file_ptr_ != nullptr) { fclose(file_ptr_); } }
+    ~ZFile() noexcept;
 
-    FORCEINLINE ZFile& operator=(ZFile&& _file) noexcept {
-        file_ptr_ = _file.file_ptr_;
-        return *this;
-    }
+    ZFile& operator=(ZFile&& _file) noexcept;
 
     /*
         Read binary out of the file.
@@ -98,7 +95,7 @@ public:
     /*
         Write binary in to the file.
     */
-    NODISCARD ReturnType Write(Void* _data_ptr, SizeType _data_size) noexcept;
+    NODISCARD ReturnType Write(const Void* _data_ptr, SizeType _data_size) noexcept;
     /*
         Scans from the file.
     */
@@ -139,7 +136,7 @@ public:
     /*
         Opens the file, needs the path exist.
     */
-    NODISCARD ReturnType Open(const WChar* _file_dir,const WChar* _open_type) noexcept;
+    NODISCARD ReturnType Open(const WChar* _file_dir, const WChar* _open_type) noexcept;
     /*
         Opens the file safe, will create the path if the path doesn't exist.
     */
@@ -163,19 +160,26 @@ public:
     */
     NODISCARD ReturnType Tell(Int32* _pos_ptr) noexcept;
 
+    /*
+        Returns the size of the file.
+    */
+    NODISCARD Int32 Size() noexcept;
 
+    /*
+        Flush the current file cache.
+    */
+    NODISCARD Void Flush() noexcept;
 
 protected:
     using SuperType_ = ZObject;
 
 private:
     ZFile(const ZFile&) = delete;
-
     ZFile& operator=(const ZFile&) = delete;
+
+    Void MoveP(ZFile&& _file) noexcept;
 
     FILE* file_ptr_;
 };
 
 }//zengine
-
-#endif // !Z_CORE_Z_FILE_H_

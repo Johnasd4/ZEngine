@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,10 +13,12 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
 #define CORE_DLLFILE
+
+#include <thread>
 
 #include "z_thread.h"
 
@@ -24,18 +26,15 @@ namespace zengine {
 
 ZThread::ZThread() noexcept : SuperType_(), id_(NULL), handle_(nullptr) {}
 
-ZThread::ZThread(ZThread&& _thread) noexcept : SuperType_(), id_(_thread.id_), handle_(_thread.handle_) { 
-    _thread.id_ = NULL; 
-    _thread.handle_ = nullptr;
+ZThread::ZThread(ZThread&& _thread) noexcept : SuperType_(std::forward<ZThread>(_thread)) {
+    MoveP(std::forward<ZThread>(_thread));
 }
 
 ZThread::~ZThread() noexcept {}
 
 ZThread& ZThread::operator=(ZThread&& _thread) noexcept {
-    id_ = _thread.id_;
-    handle_ = _thread.handle_;
-    _thread.id_ = NULL;
-    _thread.handle_ = nullptr;
+    SuperType_::operator=(std::forward<ZThread>(_thread));
+    MoveP(std::forward<ZThread>(_thread));
     return *this;
 }
 
@@ -54,5 +53,19 @@ Void ZThread::Swap(ZThread& _thread) noexcept {
     _thread.handle_ = handle_;
 }
 
+Void ZThread::MoveP(ZThread&& _thread) noexcept {
+    id_ = _thread.id_;
+    handle_ = _thread.handle_;
+    _thread.id_ = NULL;
+    _thread.handle_ = nullptr;
+}
+
+CORE_DLLAPI NODISCARD Void SleepSec(TimeType _time) noexcept {
+    std::this_thread::sleep_for(std::chrono::seconds(_time));
+}
+
+CORE_DLLAPI NODISCARD Void SleepMs(TimeType _time) noexcept {
+    std::this_thread::sleep_for(std::chrono::milliseconds(_time));
+}
 
 }//zengine

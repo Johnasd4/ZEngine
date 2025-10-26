@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,16 +13,18 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
 #define CORE_DLLFILE
 
 #include "f_memory_pool.h"
+
 #include "m_log.h"
 
 #include "memory_pool/t_small_memory_list_memory_pool.h"
 #include "memory_pool/t_smart_pointer_list_memory_pool.h"
+#include "memory_pool/t_system_memory_pool.h"
 
 namespace zengine {
 namespace memory_pool {
@@ -32,9 +34,10 @@ namespace internal {
 using MemoryPoolBase = TMemoryPoolBase<MEMORY_POOL_THREAD_SAFE>;
 
 using SmallMemoryBlock = TSmallMemoryBlock<MEMORY_POOL_THREAD_SAFE>;
+using SystemMemoryBlock = TSystemMemoryBlock<MEMORY_POOL_THREAD_SAFE>;
 using SmallMemoryListMemoryPool = TSmallMemoryListMemoryPool<MEMORY_POOL_THREAD_SAFE>;
-
 using SmartPointerListMemoryPool = TSmartPointerListMemoryPool<MEMORY_POOL_THREAD_SAFE>;
+using SystemMemoryPool = TSystemMemoryPool<MEMORY_POOL_THREAD_SAFE>;
 
 }
 
@@ -43,28 +46,89 @@ CORE_DLLAPI NODISCARD Void* ApplyMemory(MemoryType _size) noexcept {
     if (_size <= internal::SmallMemoryListMemoryPool::MemoryBlockMemoryMaxSize()) {
         return internal::SmallMemoryListMemoryPool::ApplyMemory(_size);
     }
+    //system memory pool
     else {
-        Z_LOG_ERROR(error_code::kFMemoryPoolErrorCodeMemorySizeOutOfBound, 0, 
-                    L"Memory size out of bound! size: %d", _size);
-        //TODO(Johnasd4):Apply memory from other memory pools.
-
-        exit(EXIT_FAILURE);
+        return internal::SystemMemoryPool::ApplyMemory(_size);
     }
-    return 0;
 }
 
 CORE_DLLAPI NODISCARD Void* ApplyMemory(MemoryType _size, MemoryType* _memory_size_ptr) noexcept {
-    //small memory blocka
+    //small memory block
     if (_size <= internal::SmallMemoryListMemoryPool::MemoryBlockMemoryMaxSize()){
         return internal::SmallMemoryListMemoryPool::ApplyMemory(_size, _memory_size_ptr);
     }
+    //system memory pool
     else{
-        Z_LOG_ERROR(error_code::kFMemoryPoolErrorCodeMemorySizeOutOfBound, 0, 
-                    L"Memory size out of bound! size: %d", _size);
-        //TODO(Johnasd4):Apply memory from other memory pools.
-        exit(EXIT_FAILURE);
+        *_memory_size_ptr = _size;
+        return internal::SystemMemoryPool::ApplyMemory(_size);
     }
-    return 0;
+}
+
+CORE_DLLAPI NODISCARD Void* ReapplyMemory(Void* _old_memory_ptr, MemoryType _size) noexcept {
+    if (_old_memory_ptr == nullptr) {
+        return ApplyMemory(_size);
+    }
+    //Gets the memory pool's pointer that owns the memory block.
+    internal::MemoryPoolBase* owner_memory_pool_ptr =
+        *reinterpret_cast<internal::MemoryPoolBase**>(reinterpret_cast<PointerType>(_old_memory_ptr) - sizeof(Void*));
+    switch (owner_memory_pool_ptr->PoolType())
+    {
+    //small memory block
+    case MemoryPoolEnum::kMemoryPool_TSmallMemoryList:
+    {
+        if (CheckMemory(_old_memory_ptr, _size)) {
+            return _old_memory_ptr;
+        }
+        Void* new_memory_ptr = ApplyMemory(_size);
+        Copy(
+            new_memory_ptr, _old_memory_ptr, 
+            static_cast<internal::SmallMemoryListMemoryPool*>(owner_memory_pool_ptr)->MemoryBlockMemorySize());
+
+        internal::SmallMemoryListMemoryPool::ReleaseMemory(
+            static_cast<internal::SmallMemoryListMemoryPool*>(owner_memory_pool_ptr), _old_memory_ptr);
+
+        return new_memory_ptr;
+        break;
+    }
+    //system memory pool
+    default:
+        return internal::SystemMemoryPool::RepplyMemory(_old_memory_ptr, _size);
+    }
+}
+
+CORE_DLLAPI NODISCARD Void* ReapplyMemory(
+    Void* _old_memory_ptr,
+    MemoryType _size,
+    MemoryType* _memory_size_ptr
+) noexcept {
+    //Gets the memory pool's pointer that owns the memory block.
+    internal::MemoryPoolBase* owner_memory_pool_ptr =
+        *reinterpret_cast<internal::MemoryPoolBase**>(reinterpret_cast<PointerType>(_old_memory_ptr) - sizeof(Void*));
+    switch (owner_memory_pool_ptr->PoolType())
+    {
+    //small memory block
+    case MemoryPoolEnum::kMemoryPool_TSmallMemoryList:
+    {
+        if (CheckMemory(_old_memory_ptr, _size, _memory_size_ptr)) {
+            return _old_memory_ptr;
+        }
+        Void* new_memory_ptr = ApplyMemory(_size, _memory_size_ptr);
+
+        Copy(
+            new_memory_ptr, _old_memory_ptr,
+            static_cast<internal::SmallMemoryListMemoryPool*>(owner_memory_pool_ptr)->MemoryBlockMemorySize());
+
+        internal::SmallMemoryListMemoryPool::ReleaseMemory(
+            static_cast<internal::SmallMemoryListMemoryPool*>(owner_memory_pool_ptr), _old_memory_ptr);
+
+        return new_memory_ptr;
+        break;
+    }
+    //system memory pool
+    default:
+        *_memory_size_ptr = _size;
+        return internal::SystemMemoryPool::RepplyMemory(_old_memory_ptr, _size);
+    }
 }
 
 CORE_DLLAPI NODISCARD Bool CheckMemory(Void* _memory_ptr, MemoryType _size) noexcept {
@@ -75,19 +139,15 @@ CORE_DLLAPI NODISCARD Bool CheckMemory(Void* _memory_ptr, MemoryType _size) noex
         *reinterpret_cast<internal::MemoryPoolBase**>(reinterpret_cast<PointerType>(_memory_ptr) - sizeof(Void*));
     switch (owner_memory_pool_ptr->PoolType())
     {
-        //small memory block
-    case MemoryPoolEnum::kTSmallMemoryListMemoryPool:
+    //small memory block
+    case MemoryPoolEnum::kMemoryPool_TSmallMemoryList:
         return internal::SmallMemoryListMemoryPool::CheckMemory(
             static_cast<internal::SmallMemoryListMemoryPool*>(owner_memory_pool_ptr), _size);
         break;
-    //TODO(Johnasd4):Check memory to other memory pools.
+    //system memory pool
     default:
-        Z_LOG_ERROR(error_code::kFMemoryPoolErrorCodeMemorySizeOutOfBound, 0, 
-                    L"Memory size out of bound! size: %d", _size);
-        exit(EXIT_FAILURE);
-        break;
+        return internal::SystemMemoryPool::CheckMemory(_size);
     }
-    return false;
 }
 
 CORE_DLLAPI NODISCARD Bool CheckMemory(Void* _memory_ptr, MemoryType _size, MemoryType* _memory_size_ptr) noexcept {
@@ -98,33 +158,27 @@ CORE_DLLAPI NODISCARD Bool CheckMemory(Void* _memory_ptr, MemoryType _size, Memo
         *reinterpret_cast<internal::MemoryPoolBase**>(reinterpret_cast<PointerType>(_memory_ptr) - sizeof(Void*));
     switch (owner_memory_pool_ptr->PoolType())
     {
-        //small memory block
-    case MemoryPoolEnum::kTSmallMemoryListMemoryPool:
+    //small memory block
+    case MemoryPoolEnum::kMemoryPool_TSmallMemoryList:
         return internal::SmallMemoryListMemoryPool::CheckMemory(
             static_cast<internal::SmallMemoryListMemoryPool*>(owner_memory_pool_ptr), _size, _memory_size_ptr);
         break;
-        //TODO(Johnasd4):Check memory to other memory pools.
+    //system memory pool
     default:
-        Z_LOG_ERROR(
-            error_code::kFMemoryPoolErrorCodeMemorySizeOutOfBound, 0, L"Memory size out of bound! size: %d", _size);
-        exit(EXIT_FAILURE);
-        break;
+        *_memory_size_ptr = 0U;
+        return internal::SystemMemoryPool::CheckMemory(_size);
     }
-    return false;
 }
 
 CORE_DLLAPI NODISCARD MemoryType CalculateMemory(MemoryType _size) noexcept {
-    //small memory blocka
+    //small memory block
     if (_size <= internal::SmallMemoryListMemoryPool::MemoryBlockMemoryMaxSize()) {
         return internal::SmallMemoryListMemoryPool::CalculateMemory(_size);
     }
+    //system memory pool
     else {
-        Z_LOG_ERROR(
-            error_code::kFMemoryPoolErrorCodeMemorySizeOutOfBound, 0, L"Memory size out of bound! size: %d", _size);
-        //TODO(Johnasd4):Apply memory from other memory pools.
-        exit(EXIT_FAILURE);
+        return internal::SystemMemoryPool::CalculateMemory(_size);
     }
-    return 0;
 }
 
 CORE_DLLAPI Void ReleaseMemory(Void* _memory_ptr) noexcept {
@@ -133,22 +187,17 @@ CORE_DLLAPI Void ReleaseMemory(Void* _memory_ptr) noexcept {
     }
     //Gets the memory pool's pointer that owns the memory block.
     internal::MemoryPoolBase* owner_memory_pool_ptr =
-        reinterpret_cast<internal::SmallMemoryBlock*>(_memory_ptr)[-1].owner_memory_pool_ptr;
+        *reinterpret_cast<internal::MemoryPoolBase**>(reinterpret_cast<PointerType>(_memory_ptr) - sizeof(Void*));
     switch (owner_memory_pool_ptr->PoolType())
     {
-        //small memory block
-    case MemoryPoolEnum::kTSmallMemoryListMemoryPool:
+    //small memory block
+    case MemoryPoolEnum::kMemoryPool_TSmallMemoryList:
         internal::SmallMemoryListMemoryPool::ReleaseMemory(
             static_cast<internal::SmallMemoryListMemoryPool*>(owner_memory_pool_ptr), _memory_ptr);
         break;
-        //TODO(Johnasd4):Release memory to other memory pools.
+    //system memory pool
     default:
-        Z_LOG_ERROR(
-            error_code::kFMemoryPoolErrorCodePoolTypeUnknown, 
-            0, 
-            L"Memory pool type unknown! size: %d", 
-            owner_memory_pool_ptr->PoolType());
-        exit(EXIT_FAILURE);
+        internal::SystemMemoryPool::ReleaseMemory(_memory_ptr);
         break;
     }
 }

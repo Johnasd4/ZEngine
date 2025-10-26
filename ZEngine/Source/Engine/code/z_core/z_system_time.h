@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,19 +13,20 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_Z_SYSTEM_TIME_H_
-#define Z_CORE_Z_SYSTEM_TIME_H_
-
-#pragma warning(disable : 26439)
+#pragma once
 
 #include "internal/z_drive.h"
 
 #include "z_object.h"
 
 namespace zengine {
+
+CORE_DLLAPI NODISCARD TimeType TimeSec() noexcept;
+CORE_DLLAPI NODISCARD TimeType TimeMs() noexcept;
+
 /*
     The time struct, contains [year, month, day, hour, min ,sec].
 */
@@ -51,13 +52,13 @@ public:
         Parameters:
         time_raw: use time(time_t) to get the raw value.
     */
-    Void UpdateTime(TimeType _time_raw = time(nullptr)) noexcept;
+    Void UpdateTime(TimeType _time_raw = TimeSec()) noexcept;
     /*
         Update system time, use UpdateTime instead if updated only a few times pur day.
         Parameters:
         time_raw: use time(time_t) to get the raw value.
     */
-    Void UpdateTimeFast(TimeType _time_raw = time(nullptr)) noexcept;
+    Void UpdateTimeFast(TimeType _time_raw = TimeSec()) noexcept;
 
 protected:
     using SuperType_ = ZObject;
@@ -71,6 +72,14 @@ private:
     Int32 sec_;
 };
 
-}//zengine
+/*
+    Returns sec since 1970-01-01 00:00:00
+*/
+CORE_DLLAPI NODISCARD TimeType TimeSec() noexcept;
 
-#endif // !Z_CORE_Z_SYSTEM_TIME_H_
+/*
+    Returns ms since 1970-01-01 00:00:00
+*/
+CORE_DLLAPI NODISCARD TimeType TimeMs() noexcept;
+
+}//zengine

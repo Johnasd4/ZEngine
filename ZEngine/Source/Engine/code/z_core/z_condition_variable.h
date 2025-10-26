@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,20 +13,17 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_Z_CONDITION_VARIABLE_H_
-#define Z_CORE_Z_CONDITION_VARIABLE_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
-#include "t_stack.h"
 #include "t_unique_lock.h"
 #include "z_cs_mutex.h"
 #include "z_mutex.h"
 #include "z_object.h"
-#include "z_thread.h"
 
 namespace zengine {
 
@@ -89,6 +86,11 @@ protected:
     using SuperType_ = ZObject;
 
 private:
+    ZConditionVariable(const ZConditionVariable&) = delete;
+    ZConditionVariable(ZConditionVariable&&) = delete;
+    ZConditionVariable& operator=(const ZConditionVariable&) = delete;
+    ZConditionVariable& operator=(ZConditionVariable&&) = delete;
+
     Void LockP(TUniqueLock<ZMutex>& _mutex) noexcept;
     Void UnlockP(TUniqueLock<ZMutex>& _mutex) noexcept;
 
@@ -99,5 +101,3 @@ private:
 };
 
 }//zengine
-
-#endif // !Z_CORE_Z_CONDITION_VARIABLE_H_

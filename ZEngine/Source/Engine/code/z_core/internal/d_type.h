@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,11 +13,10 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_INTERNAL_D_TYPE_H_
-#define Z_CORE_INTERNAL_D_TYPE_H_
+#pragma once
 
 #include "d_lib.h"
 
@@ -57,10 +56,10 @@ using PointerType = SizeType;
 using MemoryType = UInt32;
 //The type of the index.
 using IndexType = Int32;
-//The type of return value.
+//The type of return value. Format: 0xSPPTTTEE(S: Solution, P: Project, T: Type, E: Error)
 using ReturnType = UInt32;
 //The type of time.
-using TimeType = time_t;
+using TimeType = Int64;
 //The type of time.
 using ArgListType = va_list;
 //The type of nullptr.
@@ -92,13 +91,111 @@ union Size64Union {
 };
 
 enum StringEnum : IndexType {
-    kStringMin = 0,
-    kStringCStr = kStringMin,
-    kStringTStr,
-    kStringMax
-
+    kString_Min = 0,
+    kString_Str = kString_Min,
+    kString_WStr,
+    kString_Max
 };
 
-}//zengine
+namespace internal {
 
-#endif // !Z_CORE_INTERNAL_D_TYPE_H_
+template<typename _CharType>
+class TString;
+template<typename _CharType, IndexType kCapacity>
+class TFixedString;
+
+}//internal
+
+template<typename _ObjectType>
+class TContainerAllocator;
+template<typename _ObjectType>
+class TSmartPointerAllocator;
+template<typename _ObjectType, IndexType kCapacity>
+class TArray;
+template<typename _ObjectType, typename>
+class TAtom;
+template<typename _ObjectType>
+class TDeque;
+template<typename _ObjectType, IndexType kCapacity>
+class TFixedDeque;
+template<IndexType _size>
+class TFixedMemory;
+template<typename _ObjectType, IndexType kCapacity>
+class TFixedQueue;
+template<typename _ObjectType, IndexType kCapacity, typename _MutexType>
+class TFixedQueueSafe;
+template<IndexType kCapacity>
+using TFixedString = internal::TFixedString<Char, kCapacity>;
+template<IndexType kCapacity>
+using TFixedWString = internal::TFixedString<WChar, kCapacity>;
+template<typename _ObjectType>
+class TForwardList;
+template<typename _ObjectType>
+class TForwardList;
+template<typename _Signature>
+class TSimpleFunction;
+template<typename _ReturnType, typename... Args>
+class TSimpleFunction<_ReturnType(Args...)>;
+template<typename _Signature>
+class TFunction;
+template<typename _ReturnType, typename... Args>
+class TFunction<_ReturnType(Args...)>;
+template<typename _ObjectType>
+class TList;
+template<typename _MutexType>
+class TLockGuard;
+template<typename _ObjectType, IndexType kTableSize>
+class TLookupTable;
+template<typename _ObjectType>
+class TMatrix;
+template<typename _LeftObjectType, typename _RightObjectType>
+struct TPair;
+template<typename _ObjectType, Bool kIfCallConstructorAndDestructor>
+class TPool;
+template<typename _ObjectType, Bool kIfCallConstructorAndDestructor>
+class TPoolSafe;
+template<typename _ObjectType, Bool kIfCallConstructorAndDestructor>
+class TPoolList;
+template<typename _ObjectType, typename _ContainerType>
+class TQueue;
+template<typename _ObjectType, typename _ContainerType, typename _MutexType>
+class TQueueSafe;
+template<typename _ObjectType, typename _CompareFunction>
+class TSet;
+template<typename _ObjectType>
+class TUniquePointer;
+template<typename _ObjectType>
+class TSharedPointer;
+template<typename _ObjectType>
+class TWeakPointer;
+template<typename _ObjectType, typename _ContainerType>
+class TStack;
+template<typename... _ArgsType>
+class TTuple;
+template<typename _MutexType>
+class TUniqueLock;
+template<typename _KeyType, typename _ValueType>
+class TUnorderedMap;
+template<typename _ObjectType>
+class TVector;
+
+class ZConditionVariable;
+class ZConfig;
+class ZCSMutex;
+class ZFile;
+class ZJsonDocument;
+class ZJsonValue;
+class ZMemory;
+class ZMutex;
+class ZObject;
+class ZSemMutex;
+using ZString = internal::TString<Char>;
+using ZWString = internal::TString<WChar>;
+class ZSystemTime;
+class ZTaskSafe;
+class ZTask;
+class ZRepeatTask;
+class ZThread;
+class ZThreadPool;
+
+}//zengine

@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,11 +13,10 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_INTERNAL_D_CONSTANT_H_
-#define Z_CORE_INTERNAL_D_CONSTANT_H_
+#pragma once
 
 #include "d_lib.h"
 #include "d_type.h"
@@ -25,7 +24,9 @@
 namespace zengine {
 
 inline constexpr Int32 kInt32Max = 2147483647;
-inline constexpr Int32 kInt32Min = -2147483647;
+inline constexpr Int32 kInt32Min = -2147483647; 
+inline constexpr Int64 kInt64Max = 9223372036854775807LL;
+inline constexpr Int64 kInt64Min = -9223372036854775807LL;
 inline constexpr Float32 kFloat32Max = 3.402823466e+38F;
 inline constexpr Float32 kFloat32Min = -3.402823466e+38F;
 
@@ -43,6 +44,10 @@ inline constexpr MemoryType kHeapMemoryUnitSize = 4 * kKB;
 //the root folder of the code file.
 inline constexpr WChar kCodeFileRootDirWString[] = L"\\code\\";
 
-}//zengine
+//the root path of the log files.
+inline constexpr WChar kLogFileRootPathDir[] = L".\\log";
 
-#endif // !Z_CORE_INTERNAL_D_CONSTANT_H_
+//the time before program exiting.
+inline constexpr UInt32 kTimeBeforeProgramExit = 500U;
+
+}//zengine

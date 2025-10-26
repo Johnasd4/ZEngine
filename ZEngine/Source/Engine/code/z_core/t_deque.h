@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,11 +13,10 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_T_DEQUE_H_
-#define Z_CORE_T_DEQUE_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
@@ -29,7 +28,7 @@
 namespace zengine {
 
 /*
-    Double end queue caintainer.
+    Double end queue container.
 */
 template<typename _ObjectType>
 class TDeque : public ZObject {
@@ -42,8 +41,8 @@ public:
     using InitializerList_ = std::initializer_list<_ObjectType>;
 
     FORCEINLINE TDeque() noexcept : SuperType_(), deque_() {}
-    FORCEINLINE TDeque(const TDeque& _deque) noexcept : SuperType_(), deque_(_deque.deque_) {}
-    FORCEINLINE TDeque(TDeque&& _deque) noexcept : SuperType_(), deque_(std::move(_deque.deque_)) {}
+    FORCEINLINE TDeque(const TDeque& _deque) noexcept : SuperType_(_deque), deque_(_deque.deque_) {}
+    FORCEINLINE TDeque(TDeque&& _deque) noexcept : SuperType_(std::forward<TDeque>(_deque)), deque_(std::move(_deque.deque_)) {}
 
     FORCEINLINE TDeque(SizeType _size) noexcept : SuperType_(), deque_(_size) {}
     FORCEINLINE TDeque(SizeType _size, const _ObjectType& _value) noexcept : SuperType_(), deque_(_size, _value) {}
@@ -54,10 +53,12 @@ public:
     FORCEINLINE ~TDeque() noexcept {}
 
     FORCEINLINE TDeque& operator=(const TDeque& _deque) noexcept { 
+        SuperType_::operator=(_deque);
         deque_ = _deque.deque_;
         return *this;
     }
     FORCEINLINE TDeque& operator=(TDeque&& _deque) noexcept { 
+        SuperType_::operator=(std::forward<TDeque>(_deque));
         deque_= std::move(_deque.deque_);
         return *this;
     }
@@ -77,8 +78,8 @@ public:
         return deque_.assign(_init_list);
     }
 
-    NODISCARD FORCEINLINE Bool operator==(const TDeque& _deque) noexcept { return deque_ == _deque; }
-    NODISCARD FORCEINLINE Bool operator!=(const TDeque& _deque) noexcept { return deque_ != _deque; }
+    NODISCARD FORCEINLINE Bool operator==(const TDeque& _deque) noexcept { return deque_ == _deque.deque_; }
+    NODISCARD FORCEINLINE Bool operator!=(const TDeque& _deque) noexcept { return deque_ != _deque.deque_; }
 
     NODISCARD FORCEINLINE _ObjectType& operator[](const SizeType _index) noexcept { return deque_[_index]; }
     NODISCARD FORCEINLINE const _ObjectType& operator[](const SizeType _index) const noexcept { return deque_[_index]; }
@@ -155,9 +156,7 @@ public:
     FORCEINLINE Void Resize(SizeType _size) noexcept { deque_.resize(_size); }
     FORCEINLINE Void Resize(SizeType _size, const _ObjectType& _val) noexcept { deque_.resize(_size, _val); }
 
-    FORCEINLINE Void Reverse(SizeType _capacity) noexcept { deque_.reverse(_capacity); }
-
-    FORCEINLINE Void Swap(TDeque& _deque) noexcept { deque_.swap(_deque); }
+    FORCEINLINE Void Swap(TDeque& _deque) noexcept { deque_.swap(_deque.deque_); }
 
 protected:
     using SuperType_ = ZObject;
@@ -167,5 +166,3 @@ private:
 };
 
 }//zengine
-
-#endif // !Z_CORE_T_DEQUE_H_

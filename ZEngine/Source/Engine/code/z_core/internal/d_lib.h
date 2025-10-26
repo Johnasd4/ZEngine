@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,29 +13,30 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_INTERNAL_D_LIB_H_
-#define Z_CORE_INTERNAL_D_LIB_H_
+#pragma once
 
 //Ignores the safety io function warning.
 #define _CRT_SECURE_NO_WARNINGS
+#define _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
 #define _CRT_NON_CONFORMING_SWPRINTFS
 
 //Removes the part that conflicts with Winsock.h and Winsock2.h.
 #define WIN32_LEAN_AND_MEAN
 
+#define NOMINMAX
+
 #include <iostream>
 #include <windows.h>
-#include <ctime>
-#include <stdarg.h>
-#include <process.h>
-#include <memory>
+#include <stdarg.h>     //va_list, va_start, va_end
 
 #include "d_macro.h"
 
 #pragma warning(disable: 4251)
+#pragma warning(disable: 4275)
+#pragma warning(disable: 6011)
 #pragma warning(disable: 26813)
 
 //Define if at the start of the z_core cpp file.
@@ -58,5 +59,3 @@
 #endif//_DEBUG
 #endif//_WIN64
 #endif//CORE_DLLFILE
-
-#endif // !Z_CORE_INTERNAL_D_LIB_H_

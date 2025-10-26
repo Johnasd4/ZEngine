@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,11 +13,10 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_T_FORWARD_LIST_H_
-#define Z_CORE_T_FORWARD_LIST_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
@@ -29,7 +28,7 @@
 namespace zengine {
 
 /*
-    Forward List caintainer.
+    Forward List container.
 */
 template<typename _ObjectType>
 class TForwardList : public ZObject {
@@ -41,9 +40,9 @@ public:
 
     FORCEINLINE TForwardList() noexcept : SuperType_(), forward_list_() {}
     FORCEINLINE TForwardList(const TForwardList& _forward_list) noexcept 
-        : SuperType_(), forward_list_(_forward_list.forward_list_) {}
+        : SuperType_(_forward_list), forward_list_(_forward_list.forward_list_) {}
     FORCEINLINE TForwardList(TForwardList&& _forward_list) noexcept 
-        : SuperType_(), forward_list_(std::move(_forward_list.forward_list_)) {}
+        : SuperType_(std::forward<TForwardList>(_forward_list)), forward_list_(std::move(_forward_list.forward_list_)) {}
 
     FORCEINLINE TForwardList(SizeType _size) noexcept : SuperType_(), forward_list_(_size) {}
     FORCEINLINE TForwardList(SizeType _size, const _ObjectType& _val) noexcept 
@@ -250,5 +249,3 @@ private:
 };
 
 }//zengine
-
-#endif // !Z_CORE_T_FORWARD_LIST_H_S

@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,11 +13,10 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_T_TUPLE_H_
-#define Z_CORE_T_TUPLE_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
@@ -34,17 +33,20 @@ public:
     template <IndexType kIndex>
     using TupleObjectType_ = std::tuple_element<kIndex, STDTuple_>::type;
 
-    FORCEINLINE constexpr TTuple(const TTuple& _tuple) noexcept : SuperType_(), tuple_(_tuple.tuple_) {}
-    FORCEINLINE constexpr TTuple(TTuple&& _tuple) noexcept : SuperType_(), tuple_(std::move(_tuple.tuple_)) {}
+    FORCEINLINE constexpr TTuple(const TTuple& _tuple) noexcept : SuperType_(_tuple), tuple_(_tuple.tuple_) {}
+    FORCEINLINE constexpr TTuple(TTuple&& _tuple) noexcept 
+        : SuperType_(std::forward<TTuple>(_tuple)), tuple_(std::move(_tuple.tuple_)) {}
     FORCEINLINE constexpr TTuple(_ArgsType&&... _args) noexcept 
         : SuperType_(), tuple_(std::forward<_ArgsType>(_args)...) {}
     FORCEINLINE constexpr ~TTuple() noexcept {}
 
     FORCEINLINE constexpr TTuple& operator=(const TTuple& _tuple) noexcept {
+        SuperType_::operator=(_tuple);
         tuple_ = _tuple.tuple_;
         return *this;
     }
     FORCEINLINE constexpr TTuple& operator=(TTuple&& _tuple) noexcept {
+        SuperType_::operator=(std::forward<TTuple>(_tuple));
         tuple_ = std::move(_tuple.tuple_);
         return *this;
     }
@@ -115,7 +117,7 @@ namespace tuple {
 
 template<typename... _ArgsType>
 NODISCARD FORCEINLINE constexpr TTuple<_ArgsType...> MakeTuple(_ArgsType&&... _args) noexcept {
-    return TTuple(std::forward<_ArgsType>(_args)...);
+    return TTuple<_ArgsType...>(std::forward<_ArgsType>(_args)...);
 }
 
 template<typename... _ArgsType>
@@ -178,5 +180,3 @@ NODISCARD FORCEINLINE constexpr decltype(auto) Apply(_Function&& _func, TTuple<_
 
 }//tuple
 }//zengine
-
-#endif //!Z_CORE_T_TUPLE_H_

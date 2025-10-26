@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,11 +13,10 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_T_FIXED_DEQUE_H_
-#define Z_CORE_T_FIXED_DEQUE_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
@@ -35,7 +34,7 @@ concept kIsFixedDequeInitFunction = requires(_FixedDequeType * _deque, _Function
 }//internal
 
 /*
-    Fixed deque caintainer, front points at the first object, back points at the last object.
+    Fixed deque container, front points at the first object, back points at the last object.
 */
 template<typename _ObjectType, IndexType kCapacity>
 class TFixedDeque : public ZObject {
@@ -49,18 +48,10 @@ public:
         , front_index_(0)
         , back_index_(kCapacity - 1)
         , size_(0) {}
-    FORCEINLINE constexpr TFixedDeque(const TFixedDeque& _deque) noexcept 
-        : SuperType_()
-        , deque_(_deque.deque_)
-        , front_index_(_deque.front_index_)
-        , back_index_(_deque.back_index_)
-        , size_(_deque.size_) {}
-    FORCEINLINE constexpr TFixedDeque(TFixedDeque&& _deque) noexcept 
-        : SuperType_()
-        , deque_(std::move(_deque.deque_))
-        , front_index_(_deque.front_index_)
-        , back_index_(_deque.back_index_)
-        , size_(_deque.size_) {}
+    FORCEINLINE constexpr TFixedDeque(const TFixedDeque& _deque) noexcept : SuperType_(_deque){ CopyP(_deque); }
+    FORCEINLINE constexpr TFixedDeque(TFixedDeque&& _deque) noexcept : SuperType_(std::forward<TFixedDeque>(_deque)) {
+        MoveP(std::forward<TFixedDeque>(_deque)); 
+    }
     FORCEINLINE TFixedDeque(InitializerList _init_list) noexcept 
         : SuperType_()
         , deque_(_init_list)
@@ -93,6 +84,17 @@ public:
     }
 
     FORCEINLINE constexpr ~TFixedDeque() noexcept {}
+
+    FORCEINLINE TFixedDeque& operator=(const TFixedDeque& _deque) noexcept {
+        SuperType_::operator=(_deque);
+        CopyP(_deque);
+        return *this;
+    }
+    FORCEINLINE TFixedDeque& operator=(TFixedDeque&& _deque) noexcept {
+        SuperType_::operator=(std::forward<TFixedDeque>(_deque));
+        MoveP(std::forward<TFixedDeque>(_deque));
+        return *this;
+    }
 
     NODISCARD FORCEINLINE constexpr Bool operator==(const TFixedDeque& _deque) noexcept { 
         return deque_ == _deque.deque_; 
@@ -188,6 +190,23 @@ protected:
     using SuperType_ = ZObject;
 
 private:
+    FORCEINLINE Void CopyP(const TFixedDeque& _deque) noexcept {
+        deque_ = _deque.deque_;
+        front_index_ = _deque.front_index_;
+        back_index_ = _deque.back_index_;
+        size_ = _deque.size_;
+    }
+
+    FORCEINLINE Void MoveP(TFixedDeque&& _deque) noexcept {
+        deque_ = std::move(_deque.deque_);
+        front_index_ = _deque.front_index_;
+        back_index_ = _deque.back_index_;
+        size_ = _deque.size_;
+        _deque.front_index_ = 0;
+        _deque.back_index_ = kCapacity - 1;
+        _deque.size_ = 0;
+    }
+
     STDArray deque_;
     IndexType front_index_;
     IndexType back_index_;
@@ -195,5 +214,3 @@ private:
 };
 
 }//zengine
-
-#endif // !Z_CORE_T_FIXED_DEQUE_H_

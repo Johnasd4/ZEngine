@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,11 +13,10 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_MEMORY_POOL_T_MEMORY_POOL_BASE_H_
-#define Z_CORE_MEMORY_POOL_T_MEMORY_POOL_BASE_H_
+#pragma once
 
 #include "internal/z_drive.h"
 
@@ -25,6 +24,7 @@
 #include "m_log.h"
 #include "z_file.h"
 #include "z_string.h"
+#include "z_system_time.h"
 
 #include "t_memory_pool_thread_safe_base.h"
 
@@ -32,8 +32,9 @@ namespace zengine {
 namespace memory_pool {
 
 enum MemoryPoolEnum : IndexType {
-    kTSmallMemoryListMemoryPool,
-    kTSmartPointerListMemoryPool
+    kMemoryPool_TSmallMemoryList,
+    kMemoryPool_TSmartPointerList,
+    kMemoryPool_TSystemMemory
 };
 
 /*
@@ -43,7 +44,7 @@ enum MemoryPoolEnum : IndexType {
     - kIsThreadSafe: thread safe or not.
 */
 template<Bool kIsThreadSafe>
-class TMemoryPoolBase :public TMemoryPoolThreadSafeBase<kIsThreadSafe> {
+class TMemoryPoolBase : public TMemoryPoolThreadSafeBase<kIsThreadSafe> {
 public:
     static constexpr IndexType kMaxLogLength = 4096;
 
@@ -59,7 +60,7 @@ protected:
 #ifdef USE_MEMORY_POOL_TEST
     inline static ZFile& log_file_ = []() -> ZFile& {
         static ZFile file;
-        TWFixedString<ZFile::kFileNameLength> file_dir;
+        TFixedWString<ZFile::kFileNameLength> file_dir;
         const ZSystemTime& system_time = ZSystemTime::StartTimeInstance();
         file_dir.SetString(
             L"%ls\\%04d%02d%02d%02d%02d%02d_memory.log", log::ZLog::CreateAndGetLogPath(),
@@ -67,7 +68,7 @@ protected:
             system_time.Hour(), system_time.Min(), system_time.Sec());
         ReturnType link_code = file.Open(file_dir.String(), ZFile::kOpenTypeAppend);
         if (link_code != kOK) {
-            Z_LOG_ERROR(error_code::kFMemoryPoolErrorCodeLinkError, link_code, L"ZFile::OpenSafe() link error!");
+            Z_LOG_ERROR(error_code::kFMemoryPoolErrorCode_LinkError, link_code, L"ZFile::OpenSafe() link error!");
         }
         return file;
     }();
@@ -85,5 +86,3 @@ private:
 
 }//memory_pool
 }//zengine
-
-#endif // !Z_CORE_MEMORY_POOL_T_MEMORY_POOL_BASE_H_

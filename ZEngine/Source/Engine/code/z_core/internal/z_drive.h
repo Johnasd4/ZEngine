@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,18 +13,17 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_INTERNAL_Z_DRIVE_H_
-#define Z_CORE_INTERNAL_Z_DRIVE_H_
+#pragma once
 
 #include "d_concept.h"
+#include "d_config.h"
 #include "d_constant.h"
 #include "d_error_code.h"
 #include "d_function.h"
+#include "d_initialize.h"
 #include "d_lib.h"
 #include "d_macro.h"
 #include "d_type.h"
-
-#endif // !Z_CORE_INTERNAL_Z_DRIVE_H_

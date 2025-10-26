@@ -1,5 +1,5 @@
 /*
-    Copyright (c) YuLin Zhu (÷Ï”Í¡÷)
+    Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
     Attribution-NonCommercial 4.0 International License.
@@ -13,12 +13,10 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author: YuLin Zhu (÷Ï”Í¡÷)
+    Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#ifndef Z_CORE_INTERNAL_D_MACRO_H_
-#define Z_CORE_INTERNAL_D_MACRO_H_
-
+#pragma once
 
 #ifndef DLLEXPORT
 #define DLLEXPORT __declspec(dllexport)
@@ -31,6 +29,10 @@
 #define NODISCARD [[nodiscard]]
 #endif
 
+#ifndef FORCEINLINE
+#define FORCEINLINE __forceinline
+#endif
+
 /*
     Checks if the state is in thes given states.
     use | to combine the check states.
@@ -38,5 +40,3 @@
 #ifndef IN_STATE
 #define IN_STATE(_state, _check_states) ((_state) & (_check_states))
 #endif //IN_STATE
-
-#endif // !Z_CORE_INTERNAL_D_MACRO_H_
