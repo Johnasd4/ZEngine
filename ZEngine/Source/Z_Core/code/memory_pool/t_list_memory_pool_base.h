@@ -18,7 +18,7 @@
 */
 #pragma once
 
-#include "internal/z_drive.h"
+#include "drive.h"
 
 #include "t_memory_pool_base.h"
 #include "t_heap_memory_pool.h"
@@ -41,14 +41,14 @@ private:
     //The multiple factor that container auto extends based on the origin size.
     static constexpr Float32 kAutoExtendMulFactor = 0.2F;
     //The min number the container auto extends at least.
-    static constexpr IndexType kAutoExtendMinNum = 1;
+    static constexpr SizeType kAutoExtendMinNum = 1;
     //The max size applied one time when extending.
-    static constexpr MemoryType kApplyHeapMemoryMaxSizePurTime = 4 * kMB;
+    static constexpr SizeType kApplyHeapMemoryMaxSizePurTime = 4 * kMB;
     //The unit size of the applied memory.
-    static constexpr MemoryType kApplyHeapMemoryUnitSize = 4 * kHeapMemoryUnitSize;
+    static constexpr SizeType kApplyHeapMemoryUnitSize = 4 * kHeapMemoryUnitSize;
 
 public:
-    NODISCARD FORCEINLINE MemoryType MemoryBlockMemorySize() const noexcept { return memory_block_memory_size_; }
+    NODISCARD FORCEINLINE SizeType MemoryBlockMemorySize() const noexcept { return memory_block_memory_size_; }
 
 protected:
     using SuperType_ = TMemoryPoolBase<kIsThreadSafe>;
@@ -64,9 +64,9 @@ protected:
 #pragma warning(default : 26495)
     Void InitializeP(
         MemoryPoolEnum _memory_pool_type,
-        MemoryType _memory_block_size,
-        MemoryType _memory_block_memory_size,
-        IndexType _capacity
+        SizeType _memory_block_size,
+        SizeType _memory_block_memory_size,
+        SizeType _capacity
     ) noexcept {
         SuperType_::InitializeP(_memory_pool_type);
         memory_block_size_ = _memory_block_size;
@@ -76,9 +76,9 @@ protected:
         ExtendCapacityP(_capacity);
     }
     
-    FORCEINLINE static constexpr MemoryType NodeHeadOffset() noexcept { return kNodeHeadOffset; }
-    NODISCARD FORCEINLINE MemoryType Capacity() const noexcept { return capacity_; }
-    NODISCARD FORCEINLINE MemoryType MemoryBlockSize() const noexcept { return memory_block_size_; }
+    FORCEINLINE static constexpr SizeType NodeHeadOffset() noexcept { return kNodeHeadOffset; }
+    NODISCARD FORCEINLINE SizeType Capacity() const noexcept { return capacity_; }
+    NODISCARD FORCEINLINE SizeType MemoryBlockSize() const noexcept { return memory_block_size_; }
 
     /*
         It returns the memory's pointer(not the memory block).It's inlined
@@ -121,7 +121,7 @@ private:
         Called when the memory pool runs out. It aoto extends the memory pool.
     */
     FORCEINLINE Void AutoExtendCapcityP() noexcept {
-        IndexType extend_num = static_cast<IndexType>(capacity_ * kAutoExtendMulFactor);
+        SizeType extend_num = static_cast<SizeType>(capacity_ * kAutoExtendMulFactor);
         if (extend_num < kAutoExtendMinNum) {
             extend_num = kAutoExtendMinNum;
         }
@@ -132,13 +132,13 @@ private:
         The function that extends the memory pool. It must be rewrited in the
         sub class. capacity_ and head_node_ptr_ will be changed in this function.
     */
-    Void ExtendCapacityP(IndexType _memory_block_added_num) noexcept {
+    Void ExtendCapacityP(SizeType _memory_block_added_num) noexcept {
         if (_memory_block_added_num == 0) {
             return;
         }
-        MemoryType memory_block_size = memory_block_size_;
+        SizeType memory_block_size = memory_block_size_;
         //Calculates the size that needs to apply. Rounds up to the unit size's multiple.
-        MemoryType apply_heap_memory_size = _memory_block_added_num * memory_block_size;
+        SizeType apply_heap_memory_size = _memory_block_added_num * memory_block_size;
         if (apply_heap_memory_size >= kApplyHeapMemoryMaxSizePurTime) {
             apply_heap_memory_size = kApplyHeapMemoryMaxSizePurTime;
         }
@@ -151,10 +151,10 @@ private:
         PointerType temp_memory_ptr = reinterpret_cast<PointerType>(apply_memory_ptr);
         SuperType_* this_memory_pool_ptr = static_cast<SuperType_*>(this);
         //Recaculate the real memory block num added. 
-        IndexType apply_memory_block_num = apply_heap_memory_size / memory_block_size;
+        SizeType apply_memory_block_num = apply_heap_memory_size / memory_block_size;
         capacity_ += apply_memory_block_num;
         //Initialize the memory block.
-        for (IndexType count = 1; count < apply_memory_block_num; count++) {
+        for (SizeType count = 1; count < apply_memory_block_num; count++) {
             //Initialize the memory block.
             reinterpret_cast<Node*>(temp_memory_ptr)->memory_block_.Initialize(reinterpret_cast<Void*>(this));
             //Links the blocks into a list.
@@ -171,11 +171,11 @@ private:
     }
 
     //The size of the memory block(include the usable memory size)
-    MemoryType memory_block_size_;
+    SizeType memory_block_size_;
     //The size of the useable memory.
-    MemoryType memory_block_memory_size_;
+    SizeType memory_block_memory_size_;
 
-    IndexType capacity_;
+    SizeType capacity_;
     Node* head_node_ptr_;
 };
 

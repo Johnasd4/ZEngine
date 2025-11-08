@@ -18,7 +18,7 @@
 */
 #pragma once
 
-#include "internal/z_drive.h"
+#include "drive.h"
 
 #include "t_list_memory_pool_base.h"
 #include "t_memory_block_base.h"
@@ -65,9 +65,9 @@ public:
     }
 
 #ifdef USE_MEMORY_POOL_TEST
-    NODISCARD static TPair<MemoryType, Int32*> MemoryBlockUsedNum() noexcept {
+    NODISCARD static TPair<SizeType, SizeType*> MemoryBlockUsedNum() noexcept {
         static TSmartPointerListMemoryPool<kIsThreadSafe>& memory_pool = InstanceP();
-        TPair<MemoryType, Int32*> used_memory;
+        TPair<SizeType, SizeType*> used_memory;
         used_memory.first_ = memory_pool.SuperType_::MemoryBlockMemorySize();
         used_memory.second_ = &memory_pool.memory_block_used_current_num_;
         return used_memory;
@@ -118,12 +118,12 @@ protected:
     using SuperType_ = TListMemoryPoolBase<TSmartPtrBlock, 0, kIsThreadSafe>;
 
 private:
-    static constexpr MemoryType kMemoryBlockHeadSize = SuperType_::NodeHeadOffset();
-    static constexpr MemoryType kMemoryBlockMemorySize = sizeof(internal::TControlBlockP);
-    static constexpr MemoryType kMemoryBlockSize = kMemoryBlockMemorySize + kMemoryBlockHeadSize;
+    static constexpr SizeType kMemoryBlockHeadSize = SuperType_::NodeHeadOffset();
+    static constexpr SizeType kMemoryBlockMemorySize = sizeof(internal::TControlBlockP);
+    static constexpr SizeType kMemoryBlockSize = kMemoryBlockMemorySize + kMemoryBlockHeadSize;
 
     //The number of the blocks that the memory pool contains when created.
-    static constexpr IndexType kMemoryBlockDefaultNum = 0;
+    static constexpr SizeType kMemoryBlockDefaultNum = 0;
 
     NODISCARD static TSmartPointerListMemoryPool<kIsThreadSafe>& InstanceP() noexcept {
         static TSmartPointerListMemoryPool<kIsThreadSafe> memory_pool_array;
@@ -137,9 +137,9 @@ private:
     TSmartPointerListMemoryPool& operator=(TSmartPointerListMemoryPool&&) = delete;
 
 #ifdef USE_MEMORY_POOL_TEST
-    IndexType memory_block_used_current_num_ = 0;
-    IndexType momory_block_applyed_num_ = 0;
-    IndexType momory_block_peak_num_ = 0;
+    SizeType memory_block_used_current_num_ = 0;
+    SizeType momory_block_applyed_num_ = 0;
+    SizeType momory_block_peak_num_ = 0;
 #endif //USE_MEMORY_POOL_TEST
 };
 

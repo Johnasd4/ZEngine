@@ -100,8 +100,8 @@ private:
 template<typename _NumberType, typename _RandFunction>
 class RandPool {
 public:
-    static constexpr IndexType kDefaultPoolSize = 1024;
-    static constexpr IndexType kVectorExtendMultFactor = 2;
+    static constexpr SizeType kDefaultPoolSize = 1024;
+    static constexpr SizeType kVectorExtendMultFactor = 2;
     static constexpr Float32 kVectorExtendLimitFactor = 0.5;
 
     NODISCARD static _NumberType Apply() noexcept {
@@ -116,11 +116,11 @@ public:
     NODISCARD static Void RefillTimerFunc() noexcept {
         RandPool& instance = Instance();
 
-        IndexType begin_index;
-        IndexType end_index;
+        SizeType begin_index;
+        SizeType end_index;
         Bool if_resize = false;
-        IndexType apply_num;
-        IndexType vector_size = instance.pool_vector_.Size();
+        SizeType apply_num;
+        SizeType vector_size = instance.pool_vector_.Size();
 
         {
             TLockGuard<ZMutex> lock_guard(instance.apply_mutex_);
@@ -167,13 +167,13 @@ private:
         , apply_mutex_()
     {
         pool_vector_.Resize(kDefaultPoolSize);
-        RefillP(&pool_vector_, 1, 0);
+        RefillP(&pool_vector_, 1ULL, 0ULL);
         RandManager::RegisterRefillFunc(RefillTimerFunc);
     }
 
-    static Void RefillP(TVector<_NumberType>* _rand_vector_ptr, Int32 _begin_index, Int32 _end_index) noexcept {
-        IndexType size = _rand_vector_ptr->Size();
-        IndexType index = _begin_index;
+    static Void RefillP(TVector<_NumberType>* _rand_vector_ptr, SizeType _begin_index, SizeType _end_index) noexcept {
+        SizeType size = _rand_vector_ptr->Size();
+        SizeType index = _begin_index;
         //refill size always > 0
         do {
             (*_rand_vector_ptr)[index] = _RandFunction::GenerateRandNum();
@@ -189,8 +189,8 @@ private:
         refill_index_ = 0;
     }
 
-    IndexType refill_index_;
-    IndexType current_index_;
+    SizeType refill_index_;
+    SizeType current_index_;
     Int32 apply_num_;
     TVector<_NumberType> pool_vector_;
     ZMutex apply_mutex_;

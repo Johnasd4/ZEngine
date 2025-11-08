@@ -18,7 +18,7 @@
 */
 #pragma once
 
-#include "internal/z_drive.h"
+#include "drive.h"
 
 #include "t_memory_pool_base.h"
 
@@ -49,9 +49,9 @@ public:
     using SuperType_ = TMemoryPoolBase<kIsThreadSafe>;
     using MutexType_ = TMemoryPoolThreadSafeBase<kIsThreadSafe>;
         
-    FORCEINLINE static constexpr MemoryType NodeHeadOffset() noexcept { return kNodeHeadOffset; }
+    FORCEINLINE static constexpr SizeType NodeHeadOffset() noexcept { return kNodeHeadOffset; }
 
-    NODISCARD static Void* ApplyMemory(const MemoryType _size) noexcept {
+    NODISCARD static Void* ApplyMemory(const SizeType _size) noexcept {
         static TSystemMemoryPool& memory_pool = InstanceP();
         SizeType size = _size + kNodeHeadOffset;
 #ifdef USE_MEMORY_POOL_TEST
@@ -75,7 +75,7 @@ public:
         return memory_ptr;
     }
 
-    NODISCARD static Void* RepplyMemory(Void* _memory_ptr, const MemoryType _size) noexcept {
+    NODISCARD static Void* RepplyMemory(Void* _memory_ptr, const SizeType _size) noexcept {
         static TSystemMemoryPool& memory_pool = InstanceP();
         SizeType size = _size + kNodeHeadOffset;
         Void* block_ptr = reinterpret_cast<Void*>(reinterpret_cast<PointerType>(_memory_ptr) - kNodeHeadOffset);
@@ -95,11 +95,11 @@ public:
         Checks if the memory can extend without moving to a new memory, If can
         then it will auto extend and return true.
     */
-    NODISCARD FORCEINLINE static Bool CheckMemory(MemoryType _size) noexcept {
+    NODISCARD FORCEINLINE static Bool CheckMemory(SizeType _size) noexcept {
         return false;
     }
 
-    NODISCARD FORCEINLINE static MemoryType CalculateMemory(MemoryType _size) noexcept {
+    NODISCARD FORCEINLINE static SizeType CalculateMemory(SizeType _size) noexcept {
         return _size;
     }
 

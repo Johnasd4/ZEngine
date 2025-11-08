@@ -101,7 +101,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code;$(SolutionDir)Source/Engine/code/z_math;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_math;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile />
       <PrecompiledHeaderOutputFile />
     </ClCompile>
@@ -111,8 +111,11 @@
       <AdditionalLibraryDirectories>$(SolutionDir)Binaries\output\$(Platform)_$(Configuration);$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>if not exist "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin" mkdir "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin"
+if exist "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).dll" copy /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).dll" "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin\$(ProjectName)_$(Platform)_$(Configuration).dll" 
+if exist "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).pdb" copy /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).pdb" "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin\$(ProjectName)_$(Platform)_$(Configuration).pdb" 
+if not exist "$(SolutionDir)Release\$(Platform)_$(Configuration)\lib" mkdir "$(SolutionDir)Release\$(Platform)_$(Configuration)\lib"
+if exist "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).lib" copy /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).lib" "$(SolutionDir)Release\$(Platform)_$(Configuration)\lib\$(ProjectName)_$(Platform)_$(Configuration).lib" </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -124,7 +127,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code;$(SolutionDir)Source/Engine/code/z_math;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_math;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile />
       <PrecompiledHeaderOutputFile />
     </ClCompile>
@@ -136,8 +139,11 @@
       <AdditionalLibraryDirectories>$(SolutionDir)Binaries\output\$(Platform)_$(Configuration);$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>if not exist "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin" mkdir "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin"
+if exist "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).dll" copy /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).dll" "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin\$(ProjectName)_$(Platform)_$(Configuration).dll" 
+if exist "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).pdb" copy /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).pdb" "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin\$(ProjectName)_$(Platform)_$(Configuration).pdb" 
+if not exist "$(SolutionDir)Release\$(Platform)_$(Configuration)\lib" mkdir "$(SolutionDir)Release\$(Platform)_$(Configuration)\lib"
+if exist "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).lib" copy /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).lib" "$(SolutionDir)Release\$(Platform)_$(Configuration)\lib\$(ProjectName)_$(Platform)_$(Configuration).lib" </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -147,7 +153,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code;$(SolutionDir)Source/Engine/code/z_math;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_math;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile />
       <PrecompiledHeaderOutputFile />
     </ClCompile>
@@ -157,8 +163,11 @@
       <AdditionalLibraryDirectories>$(SolutionDir)Binaries\output\$(Platform)_$(Configuration);$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>if not exist "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin" mkdir "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin"
+if exist "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).dll" copy /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).dll" "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin\$(ProjectName)_$(Platform)_$(Configuration).dll" 
+if exist "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).pdb" copy /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).pdb" "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin\$(ProjectName)_$(Platform)_$(Configuration).pdb" 
+if not exist "$(SolutionDir)Release\$(Platform)_$(Configuration)\lib" mkdir "$(SolutionDir)Release\$(Platform)_$(Configuration)\lib"
+if exist "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).lib" copy /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).lib" "$(SolutionDir)Release\$(Platform)_$(Configuration)\lib\$(ProjectName)_$(Platform)_$(Configuration).lib" </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -170,7 +179,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code;$(SolutionDir)Source/Engine/code/z_math;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_math;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile />
       <PrecompiledHeaderOutputFile />
     </ClCompile>
@@ -182,8 +191,11 @@
       <AdditionalLibraryDirectories>$(SolutionDir)Binaries\output\$(Platform)_$(Configuration);$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>if not exist "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin" mkdir "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin"
+if exist "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).dll" copy /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).dll" "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin\$(ProjectName)_$(Platform)_$(Configuration).dll" 
+if exist "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).pdb" copy /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).pdb" "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin\$(ProjectName)_$(Platform)_$(Configuration).pdb" 
+if not exist "$(SolutionDir)Release\$(Platform)_$(Configuration)\lib" mkdir "$(SolutionDir)Release\$(Platform)_$(Configuration)\lib"
+if exist "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).lib" copy /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).lib" "$(SolutionDir)Release\$(Platform)_$(Configuration)\lib\$(ProjectName)_$(Platform)_$(Configuration).lib" </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

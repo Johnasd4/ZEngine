@@ -18,7 +18,7 @@
 */
 #define GUI_DLLFILE
 
-#include "internal/d_function.h"
+#include "drive/d_function.h"
 
 namespace zengine {
 namespace gui {
@@ -27,6 +27,14 @@ GUI_DLLAPI NODISCARD GuiSize ScreenSize() noexcept {
     GLFWmonitor* screen = glfwGetPrimaryMonitor();
     const GLFWvidmode* mode = glfwGetVideoMode(screen);
     return GuiSize((Float32)mode->width, (Float32)mode->height);
+}
+
+GUI_DLLAPI NODISCARD GuiPos ScreenCenterPos(GuiSize _gui_obj_size) noexcept {
+    GuiSize screen_size = ScreenSize();
+    return GuiPos(
+        screen_size.width_ * 0.5f - _gui_obj_size.width_ * 0.5f, 
+        screen_size.height_ * 0.5f - _gui_obj_size.height_ * 0.5f
+    );
 }
 
 }//gui

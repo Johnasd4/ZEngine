@@ -18,7 +18,7 @@
 */
 #pragma once
 
-#include "internal/z_drive.h"
+#include "drive.h"
 
 #include "m_log.h"
 
@@ -39,7 +39,7 @@ namespace memory_pool {
 template<Bool kIsThreadSafe>
 class THeapMemoryPool : protected TMemoryPoolThreadSafeBase<kIsThreadSafe> {
 public:
-    NODISCARD static Void* ApplyMemory(MemoryType _size) noexcept;
+    NODISCARD static Void* ApplyMemory(SizeType _size) noexcept;
 
 protected:
     using MutexType_ = TMemoryPoolThreadSafeBase<kIsThreadSafe>;
@@ -79,7 +79,7 @@ private:
 };
 
 template<Bool kIsThreadSafe>
-NODISCARD Void* THeapMemoryPool<kIsThreadSafe>::ApplyMemory(MemoryType _size) noexcept {
+NODISCARD Void* THeapMemoryPool<kIsThreadSafe>::ApplyMemory(SizeType _size) noexcept {
     static THeapMemoryPool& memory_pool = InstanceP();
     Void* heap_memory_ptr = malloc(_size);
     if (heap_memory_ptr == nullptr) {
@@ -107,20 +107,20 @@ THeapMemoryPool<kIsThreadSafe>::~THeapMemoryPool() noexcept {
     //Delete the filled nodes.
     HeapMemoryPtrArrayNode_* head_node_ptr = head_node_ptr_;
     HeapMemoryPtrArrayNode_* current_node_ptr = current_node_ptr_;
-    IndexType current_node_heap_memory_ptr_num = current_node_heap_memory_ptr_num_;
+    SizeType current_node_heap_memory_ptr_num = current_node_heap_memory_ptr_num_;
 
     for (; head_node_ptr != current_node_ptr; ) {
         HeapMemoryPtrArrayNode_* delete_node = head_node_ptr;
         head_node_ptr = head_node_ptr->next_node_ptr_;
         //Delete the heap memory inside the node.
-        for (IndexType index = 0; index < HeapMemoryPtrArrayNode_::kHeapMemoryPtrNumPurNode; ++index) {
+        for (SizeType index = 0; index < HeapMemoryPtrArrayNode_::kHeapMemoryPtrNumPurNode; ++index) {
             free(delete_node->heap_memory_ptr_[index]);
         }
         //Delete the node itself.
         free(delete_node);
     }
     //Delete the unfilled node.
-    for (IndexType index = 0; index < current_node_heap_memory_ptr_num; ++index) {
+    for (SizeType index = 0; index < current_node_heap_memory_ptr_num; ++index) {
         free(head_node_ptr->heap_memory_ptr_[index]);
     }
     free(head_node_ptr);

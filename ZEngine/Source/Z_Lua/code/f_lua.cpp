@@ -340,7 +340,7 @@ LUA_DLLAPI NODISCARD ReturnType GetLuaTableFromLuaTable(
 
 LUA_DLLAPI NODISCARD ReturnType GetLuaTableFromLuaTable(
     const LuaTable& _table,
-    IndexType _index,
+    SizeType _index,
     LuaTable* _table_ptr) noexcept
 {
     ReturnType ret_val = kOK;
@@ -368,7 +368,7 @@ LUA_DLLAPI NODISCARD ReturnType GetLuaFunctionFormLuaTable(
 
 LUA_DLLAPI NODISCARD ReturnType GetLuaFunctionFormLuaTable(
     const LuaTable& _table,
-    IndexType _index,
+    SizeType _index,
     LuaFunction* _func_ptr) noexcept
 {
     ReturnType ret_val = kOK;
@@ -396,7 +396,7 @@ LUA_DLLAPI NODISCARD ReturnType GetLuaSafeFunctionFormLuaTable(
 
 LUA_DLLAPI NODISCARD ReturnType GetLuaSafeFunctionFormLuaTable(
     const LuaTable& _table,
-    IndexType _index,
+    SizeType _index,
     LuaSafeFunction* _func_ptr) noexcept
 {
     ReturnType ret_val = kOK;

@@ -23,8 +23,10 @@
 #include <fstream>
 #include <filesystem>
 #include <shobjidl.h>
+#include <regex>
 
 #include "m_log.h"
+#include "t_vector.h"
 
 namespace zengine {
 namespace file_system {
@@ -320,6 +322,68 @@ CORE_DLLAPI NODISCARD Bool PathExist(const WChar* _path_dir) noexcept {
     return std::filesystem::exists(_path_dir);
 }
 
+CORE_DLLAPI NODISCARD Bool PathValid(const WChar* _path_dir) noexcept {
+    //nullptr check
+    if (!_path_dir) {
+        return false;
+    }
+
+    ZWString path_dir(_path_dir);
+
+    //empty check
+    if (path_dir.Empty()) {
+        return false;
+    }
+
+    //long file dir length check
+    if (path_dir.Size() > 32767) {
+        return false;
+    }
+
+    //normal file dir length check
+    if (path_dir.Size() > 260 && path_dir.Find(L"\\\\?\\") != 0 && path_dir.Find(L"\\\\.\\") != 0) {
+        return false;
+    }
+
+    //illegal char check
+    static constexpr WChar illegal_chars[] = L"*?\"<>|";
+    for (SizeType index = 0; index < sizeof(illegal_chars) - 1; ++index) {
+        if (path_dir.Find(illegal_chars[index]) != ZWString::kFindEnd) {
+            return false;
+        }
+    }
+
+    //format check
+
+    //fullpath start
+    if (path_dir.Size() >= 2 && path_dir[1] == L':') {
+        if (
+            !((path_dir[0] >= L'A' && path_dir[0] <= L'Z') ||
+            (path_dir[0] >= L'a' && path_dir[0] <= L'z'))
+        ) {
+            return false;
+        }
+
+        if (path_dir.Size() > 2 && path_dir[2] != L'\\' && path_dir[2] != L'/') {
+            return false;
+        }
+    }
+
+    //path body
+    for (SizeType index = 1; index < path_dir.Size(); ++index) {
+        if (
+            (path_dir[index] == L'\\' && path_dir[index - 1] == L'\\') ||
+            (path_dir[index] == L'\\' && path_dir[index - 1] == L'/') ||
+            (path_dir[index] == L'/' && path_dir[index - 1] == L'\\') ||
+            (path_dir[index] == L'/' && path_dir[index - 1] == L'/')
+        ) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 CORE_DLLAPI NODISCARD ReturnType GetDirectoriesByPath(const WChar* _path_dir, TList<ZWString>* _file_list_ptr) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
@@ -473,7 +537,9 @@ CORE_DLLAPI NODISCARD ReturnType GetFileByFileSelector(
 
     //set filter
     file_open_dialog->SetFileTypes(
-        _file_filter_vector.Size(), reinterpret_cast<const COMDLG_FILTERSPEC*>(_file_filter_vector.DataPtr()));
+        static_cast<UInt32>(_file_filter_vector.Size()), 
+        reinterpret_cast<const COMDLG_FILTERSPEC*>(_file_filter_vector.DataPtr())
+    );
 
     //shows the file selector, returns neg value if no file selected
     link_code = file_open_dialog->Show(nullptr);
@@ -546,7 +612,9 @@ CORE_DLLAPI NODISCARD ReturnType GetFilesByFileSelector(
 
     //set filter
     file_open_dialog->SetFileTypes(
-        _file_filter_vector.Size(), reinterpret_cast<const COMDLG_FILTERSPEC*>(_file_filter_vector.DataPtr()));
+        static_cast<UInt32>(_file_filter_vector.Size()), 
+        reinterpret_cast<const COMDLG_FILTERSPEC*>(_file_filter_vector.DataPtr())
+    );
 
     //shows the file selector, returns neg value if no file selected
     link_code = file_open_dialog->Show(nullptr);

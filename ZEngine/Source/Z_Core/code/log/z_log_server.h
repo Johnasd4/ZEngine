@@ -18,7 +18,7 @@
 */
 #pragma once
 
-#include "internal/z_drive.h"
+#include "drive.h"
 
 #include "m_log.h"
 #include "t_array.h"
@@ -44,13 +44,13 @@ public:
     /*
         Calls the output functions.
     */
-    Void OutputLog(IndexType _port_id, const ZLog* _log_ptr) noexcept;
+    Void OutputLog(SizeType _port_id, const ZLog* _log_ptr) noexcept;
 
     /*
         Register the input function, the function will be called when log happens.
     */
     NODISCARD ReturnType RegisterInputFunction(
-        IndexType _port_id,
+        SizeType _port_id,
         Void(*_input_func)(const ZLog*, ZLog::OutputString_*)
     ) noexcept;
 
@@ -58,7 +58,7 @@ public:
         Removes the output function.
     */
     NODISCARD ReturnType UnregisterInputFunction(
-        IndexType _port_id,
+        SizeType _port_id,
         Void(*_input_func)(const ZLog*, ZLog::OutputString_*)
     ) noexcept;
 
@@ -66,7 +66,7 @@ public:
         Register the output function, the function will be called when log happens.
     */
     NODISCARD ReturnType RegisterOutputFunction(
-        IndexType _port_id,
+        SizeType _port_id,
         Void(*_output_func)(const ZLog*, const ZLog::OutputString_&)
     ) noexcept;
 

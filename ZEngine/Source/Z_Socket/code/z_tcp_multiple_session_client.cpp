@@ -29,7 +29,7 @@
 
 #include "z_io_context.h"
 
-#include "data/z_context_data.h"
+#include "data/z_io_context_data.h"
 #include "data/z_tcp_client_data.h"
 #include "data/z_tcp_socket_data.h"
 
@@ -44,7 +44,7 @@ ZTCPMultipleSessionClient::ZTCPMultipleSessionClient(ZIOContext* _context_ptr) n
 {
     if (_context_ptr == nullptr) {
         Z_LOG_ERROR(
-            error_code::kZSocketErrorCode_NullptrParam, 0,
+            error_code::kPSocketErrorCode_NullptrParam, 0,
             L"_io_context_ptr is nullptr!"
         );
         return;
@@ -61,7 +61,7 @@ ZTCPMultipleSessionClient::~ZTCPMultipleSessionClient() noexcept {
     link_code = Reset();
     if (link_code != kOK) {
         Z_LOG_ERROR(
-            error_code::kZSocketErrorCode_LinkError, link_code,
+            error_code::kPSocketErrorCode_LinkError, link_code,
             L"ZTCPMultipleSessionClient::Reset() link error!"
         );
         return;
@@ -74,7 +74,7 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::Close() noexcept {
 
     Z_CHECK(
         state_ == ZTCPMultipleSessionClientState_Idle,
-        error_code::kZSocketErrorCode_StateError,
+        error_code::kPSocketErrorCode_StateError,
         L"Server not open!"
     );
 
@@ -85,14 +85,14 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::Close() noexcept {
         link_code = socket_ptr->Close();
         if (link_code != kOK) {
             Z_LOG_ERROR(
-                error_code::kZSocketErrorCode_LinkError, link_code,
+                error_code::kPSocketErrorCode_LinkError, link_code,
                 L"ZTCPSocket::Close() link error!"
             );
             //reset and release socket
             link_code = socket_ptr->Reset();
             if (link_code != kOK) {
                 Z_LOG_ERROR(
-                    error_code::kZSocketErrorCode_LinkError, link_code,
+                    error_code::kPSocketErrorCode_LinkError, link_code,
                     L"ZTCPSocket::Reset() link error!"
                 );
             }
@@ -119,14 +119,14 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::Reset() noexcept {
         link_code = socket_ptr->Close();
         if (link_code != kOK) {
             Z_LOG_ERROR(
-                error_code::kZSocketErrorCode_LinkError, link_code,
+                error_code::kPSocketErrorCode_LinkError, link_code,
                 L"ZTCPSocket::Close() link error!"
             );
             //reset and release socket
             link_code = socket_ptr->Reset();
             if (link_code != kOK) {
                 Z_LOG_ERROR(
-                    error_code::kZSocketErrorCode_LinkError, link_code,
+                    error_code::kPSocketErrorCode_LinkError, link_code,
                     L"ZTCPSocket::Reset() link error!"
                 );
             }
@@ -150,7 +150,7 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncConnect(
 
     Z_CHECK(
         state_ != ZTCPMultipleSessionClientState_Idle,
-        error_code::kZSocketErrorCode_StateError,
+        error_code::kPSocketErrorCode_StateError,
         L"Server state error! state: %d expect state: %d",
         state_, ZTCPMultipleSessionClientState_Idle
     );
@@ -169,7 +169,7 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncConnect(
             }
 
             //success
-            socket_pool_list_.Push(socket_ptr);
+            socket_pool_list_.PushBack(socket_ptr);
             socket_ptr->SetAsyncErrorHandleFunction(
                 [address_str = std::move(address_str), port_str = std::move(port_str)]() {
                     //disconnect
@@ -191,7 +191,7 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncConnect(
     );
 
     if (link_code != kOK) {
-        ret_val = error_code::kZSocketErrorCode_LinkError;
+        ret_val = error_code::kPSocketErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
             L"ZTCPSocket::Connect() link error!"
@@ -212,7 +212,7 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncBroadcast(
 
     Z_CHECK(
         state_ != ZTCPMultipleSessionClientState_Idle,
-        error_code::kZSocketErrorCode_StateError,
+        error_code::kPSocketErrorCode_StateError,
         L"Server state error! state: %d expect state: %d",
         state_, ZTCPMultipleSessionClientState_Idle
     );
@@ -228,7 +228,7 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncBroadcast(
             }
             else {
                 Z_LOG_ERROR(
-                    error_code::kZSocketErrorCode_LinkError, link_code,
+                    error_code::kPSocketErrorCode_LinkError, link_code,
                     L"ZTCPSocket::AsyncWrite() link error!"
                 );
             }
@@ -236,7 +236,7 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncBroadcast(
             link_code = socket_ptr->Reset();
             if (link_code != kOK) {
                 Z_LOG_ERROR(
-                    error_code::kZSocketErrorCode_LinkError, link_code,
+                    error_code::kPSocketErrorCode_LinkError, link_code,
                     L"ZTCPSocket::Reset() link error!"
                 );
             }

@@ -20,15 +20,16 @@
 
 #include "f_tcp_log_output.h"
 
-#include "z_core/log/z_error_log.h"
-#include "z_core/log/z_trace_log.h"
-#include "z_core/log/z_info_log.h"
+#include "z_core/log/type/z_error_log.h"
+#include "z_core/log/type/z_trace_log.h"
+#include "z_core/log/type/z_info_log.h"
 #include "z_core/m_log.h"
 #include "z_core/t_atom.h"
 #include "z_core/t_fixed_memory.h"
 #include "z_core/t_queue.h"
 #include "z_core/z_mutex.h"
 #include "z_core/z_object.h"
+#include "z_core/z_sem_mutex.h"
 #include "z_core/z_thread.h"
 
 #include "z_io_context.h"
@@ -52,7 +53,7 @@ public:
         const zengine::log::ZErrorLog* error_log_ptr = static_cast<const zengine::log::ZErrorLog*>(_log_ptr);
         TCPLogOutputReplyLogData* log_data_ptr = new TCPLogOutputReplyLogData();
         log_data_ptr->log_type_ = zengine::log::kLogType_Error;
-        log_data_ptr->log_info_.error_log_info_.log_time_ = error_log_ptr->LogTime();
+        log_data_ptr->log_time_ = error_log_ptr->LogTime();
         log_data_ptr->log_string_ = _output_str;
         Instance().log_buffer_ptr_queue_.Push(log_data_ptr);
         Instance().LogServerBufferResetCheckP();
@@ -65,7 +66,7 @@ public:
         const zengine::log::ZTraceLog* trace_log_ptr = static_cast<const zengine::log::ZTraceLog*>(_log_ptr);
         TCPLogOutputReplyLogData* log_data_ptr = new TCPLogOutputReplyLogData();
         log_data_ptr->log_type_ = zengine::log::kLogType_Trace;
-        log_data_ptr->log_info_.trace_log_info_.log_time_ = trace_log_ptr->LogTime();
+        log_data_ptr->log_time_ = trace_log_ptr->LogTime();
         log_data_ptr->log_string_ = _output_str;
         Instance().log_buffer_ptr_queue_.Push(log_data_ptr);
         Instance().LogServerBufferResetCheckP();
@@ -77,8 +78,8 @@ public:
     ) noexcept {
         const zengine::log::ZInfoLog* info_log_ptr = static_cast<const zengine::log::ZInfoLog*>(_log_ptr);
         TCPLogOutputReplyLogData* log_data_ptr = new TCPLogOutputReplyLogData();
-        log_data_ptr->log_type_ = zengine::log::kLogType_Trace;
-        log_data_ptr->log_info_.info_log_info_.log_time_ = info_log_ptr->LogTime();
+        log_data_ptr->log_type_ = zengine::log::kLogType_Info;
+        log_data_ptr->log_time_ = info_log_ptr->LogTime();
         log_data_ptr->log_info_.info_log_info_.info_type_ = info_log_ptr->InfoType();
         log_data_ptr->log_string_ = _output_str;
         Instance().log_buffer_ptr_queue_.Push(log_data_ptr);
@@ -94,7 +95,7 @@ public:
 
         Z_CHECK(
             log_server_thread_state_ != LogServerState_Idle,
-            error_code::kZSocketErrorCode_StateError,
+            error_code::kPSocketErrorCode_StateError,
             L"Server state error! state: %d expect state: %d",
             log_server_thread_state_.Value(), LogServerState_Idle
         );
@@ -102,7 +103,7 @@ public:
         //set end point
         link_code = log_server_.BindEndpoint(_address_str, _port);
         if (link_code != kOK) {
-            ret_val = error_code::kZSocketErrorCode_LinkError;
+            ret_val = error_code::kPSocketErrorCode_LinkError;
             Z_LOG_ERROR(ret_val, link_code, L"ZTCPServer::SetEndpoint() link error!");
             return ret_val;
         }
@@ -164,7 +165,7 @@ public:
         //stop log server
         link_code = log_server_.Close();
         if (link_code != kOK) {
-            ret_val = error_code::kZSocketErrorCode_LinkError;
+            ret_val = error_code::kPSocketErrorCode_LinkError;
             Z_LOG_ERROR(ret_val, link_code, L"ZTCPServer::Close() link error!");
             return ret_val;
         }
@@ -178,7 +179,7 @@ public:
     }
 
 private:
-    enum LogServerThreadState_ {
+    enum LogServerThreadState_ : Int32 {
         LogServerState_Idle,
         LogServerState_Initialzing,
         LogServerState_WaitingForConnect,
@@ -203,9 +204,7 @@ private:
                     error_code::kFTCPLogOutputErrorCode_LinkError, link_code, 
                     L"ZTCPServer::Reset() link error!"
                 );
-                return;
             }
-            return;
         }
 
         while (Instance().log_server_.State() == ZTCPSingleSessionServer::ZTCPSingleSessionServerState_Listen) {
@@ -216,24 +215,24 @@ private:
             link_code = Instance().log_server_.Accept();
             if (link_code != kOK) {
                 Instance().log_server_thread_state_ = LogServerState_Idle;
-                Z_LOG_ERROR(error_code::kZSocketErrorCode_LinkError, link_code, L"ZTCPServer::Accept() link error!");
+                Z_LOG_ERROR(error_code::kPSocketErrorCode_LinkError, link_code, L"ZTCPServer::Accept() link error!");
                 link_code = Instance().log_server_.Reset();
                 if (link_code != kOK) {
                     Z_LOG_ERROR(
                         error_code::kFTCPLogOutputErrorCode_LinkError, link_code,
                         L"ZTCPServer::Reset() link error!"
                     );
-                    return;
+                    break;
                 }
-                return;
+                break;
             }
 
             Instance().log_server_thread_state_ = LogServerState_Logging;
      
             TFixedMemory<sizeof(TCPLogOutputCommand)> socket_command_buffer;
             TFixedMemory<sizeof(TCPLogOutputReply)> socket_reply_buffer;
-            TCPLogOutputCommand* command_ptr = socket_command_buffer.DataPtr<TCPLogOutputCommand>();
-            TCPLogOutputReply* reply_ptr = socket_reply_buffer.DataPtr<TCPLogOutputReply>();
+            TCPLogOutputCommand* command_ptr = socket_command_buffer.DataPtr<TCPLogOutputCommand*>();
+            TCPLogOutputReply* reply_ptr = socket_reply_buffer.DataPtr<TCPLogOutputReply*>();
             SizeType reply_size;
             TCPLogOutputReplyLogData* log_data_ptr;
             //send log until disconnent
@@ -309,14 +308,21 @@ private:
     }
 
     Void LogServerBufferResetCheckP() noexcept {
-        static TimeType log_wait_time_start = TimeMs();
         if (log_server_thread_state_ == LogServerState_Logging) {
             return;
         }
         else {
-            log_wait_time_start = TimeMs();
-            if (TimeMs() > log_wait_time_start + kLogServerResetTime) {
-                log_buffer_ptr_queue_.Clear();
+            TimeType time_filter = TimeSec() - kLogServerDisconnectLogWaitMaxTime;
+            while (log_buffer_ptr_queue_.Size() != 0ULL) {
+                auto log_data_ptr = log_buffer_ptr_queue_.Front();
+                if (
+                    log_data_ptr->log_time_ >= time_filter && 
+                    log_buffer_ptr_queue_.Size() < kLogServerDisconnectLogWaitMaxNum
+                ) {
+                    break;
+                }
+                delete log_data_ptr;
+                log_buffer_ptr_queue_.Pop();
             }
         }
     }
@@ -346,7 +352,7 @@ public:
 
         Z_CHECK(
             log_client_thread_state_ != LogClientState_Idle,
-            error_code::kZSocketErrorCode_StateError,
+            error_code::kPSocketErrorCode_StateError,
             L"Client state error! state: %d expect state: %d",
             log_client_thread_state_.Value(), LogClientState_Idle
         );
@@ -356,7 +362,10 @@ public:
 
         //start log client
         log_client_thread_state_ = LogClientState_Initialzing;
-        client_thread_ = ZThread(LogClientThreadFunc, _address_str, _port_str);
+        connect_sem_mutex_.Lock();
+        client_thread_ = ZThread(LogClientThreadFunc, ZString(_address_str), ZString(_port_str));
+        connect_sem_mutex_.Lock();
+        connect_sem_mutex_.Unlock();
 
         return ret_val;
     }
@@ -374,7 +383,7 @@ public:
         //stop log client
         link_code = log_client_.Close();
         if (link_code != kOK) {
-            ret_val = error_code::kZSocketErrorCode_LinkError;
+            ret_val = error_code::kPSocketErrorCode_LinkError;
             Z_LOG_ERROR(ret_val, link_code, L"ZTCPClient::Close() link error!");
             return ret_val;
         }
@@ -388,7 +397,7 @@ public:
     }
 
 private:
-    enum LogClientThreadState_ {
+    enum LogClientThreadState_ : Int32 {
         LogClientState_Idle,
         LogClientState_Initialzing,
         LogClientState_WaitingToConnect,
@@ -397,8 +406,8 @@ private:
     };
 
     static Void LogClientThreadFunc(
-        const Char* _address_str,
-        const Char* _port_str
+        ZString&& _address_str,
+        ZString&& _port_str
     ) noexcept {
         ReturnType link_code = kOK;
 
@@ -407,27 +416,28 @@ private:
             Instance().log_client_thread_state_ = LogClientState_WaitingToConnect;
 
             //wait for clinet connect
-            link_code = Instance().log_client_.Connect(_address_str, _port_str);
+            link_code = Instance().log_client_.Connect(_address_str.String(), _port_str.String());
+            Instance().connect_sem_mutex_.Unlock();
             if (link_code != kOK) {
                 Instance().log_client_thread_state_ = LogClientState_Idle;
-                Z_LOG_ERROR(error_code::kZSocketErrorCode_LinkError, link_code, L"ZTCPClient::Accept() link error!");
+                Z_LOG_ERROR(error_code::kPSocketErrorCode_LinkError, link_code, L"ZTCPClient::Accept() link error!");
                 link_code = Instance().log_client_.Reset();
                 if (link_code != kOK) {
                     Z_LOG_ERROR(
                         error_code::kFTCPLogOutputErrorCode_LinkError, link_code,
                         L"ZTCPClient::Reset() link error!"
                     );
-                    return;
+                    break;
                 }
-                return;
+                break;
             }
 
-            Instance().log_client_thread_state_ = LogClientState_GettingLogs;
+            Instance().log_client_thread_state_ = LogClientState_GettingLogs;        
 
             TFixedMemory<sizeof(TCPLogOutputCommand)> socket_command_buffer;
             TFixedMemory<sizeof(TCPLogOutputReply)> socket_reply_buffer;
-            TCPLogOutputCommand* command_ptr = socket_command_buffer.DataPtr<TCPLogOutputCommand>();
-            TCPLogOutputReply* reply_ptr = socket_reply_buffer.DataPtr<TCPLogOutputReply>();
+            TCPLogOutputCommand* command_ptr = socket_command_buffer.DataPtr<TCPLogOutputCommand*>();
+            TCPLogOutputReply* reply_ptr = socket_reply_buffer.DataPtr<TCPLogOutputReply*>();
             SizeType command_size;
             //get log until disconnent
             while (true) {
@@ -454,7 +464,7 @@ private:
                 }
 
                 //handle reply data
-                IndexType reply_id = reply_ptr->reply_id_;
+                Int32 reply_id = reply_ptr->reply_id_;
                 switch (reply_id) {
                 //log
                 case TCPLogOutputReplyID_Log:
@@ -503,6 +513,7 @@ private:
     ZTCPSingleSessionClient log_client_;
     ZThread client_thread_;
     TAtom<LogClientThreadState_> log_client_thread_state_;
+    ZSemMutex connect_sem_mutex_;
 };
 
 SOCKET_DLLAPI ReturnType StartLogOutputServer(

@@ -18,7 +18,7 @@
 */
 #define CORE_DLLFILE
 
-#include "internal/d_initialize.h"
+#include "drive/d_initialize.h"
 
 namespace zengine {
 

@@ -20,6 +20,8 @@
 
 #include "z_frame.h"
 
+#include "z_core/t_vector.h"
+
 namespace zengine {
 namespace gui {
 
@@ -78,40 +80,64 @@ Void ZFrame::Tick(Float32 _delta_sec) noexcept {
     //base frame update size and pos
     if (frame_level_ == kBaseFrameLevel) {
         //push background colour
-        ImGui::PushStyleColor(ImGuiCol_WindowBg, *reinterpret_cast<ImVec4*>(&frame_background_colour_));
+        if (Enabled()) {
+            ImGui::PushStyleColor(
+                ImGuiCol_WindowBg,
+                ImVec4(
+                    frame_background_colour_.red_,
+                    frame_background_colour_.green_,
+                    frame_background_colour_.blue_,
+                    frame_background_colour_.alpha_
+                )
+            );
+        }
+        else {
+            ImGui::PushStyleColor(
+                ImGuiCol_WindowBg,
+                ImVec4(
+                    frame_background_colour_.red_ * kDisableColourFactor,
+                    frame_background_colour_.green_ * kDisableColourFactor,
+                    frame_background_colour_.blue_ * kDisableColourFactor,
+                    frame_background_colour_.alpha_
+                )
+            );
+        }
         //begin base frame
         ImGui::Begin(Name(), nullptr, frame_flag_);
 
+        //font scale
+        ImGui::SetWindowFontScale(FontScale());
+
+        GuiSize cur_size = Size();
+        GuiPos cur_pos = Pos();
+        ImVec2 frame_size = ImGui::GetWindowSize();
+        ImVec2 frame_pos = ImGui::GetWindowPos();
+        GuiSize temp_size = { frame_size.x, frame_size.y };
+        GuiPos temp_pos = { frame_pos.x, frame_pos.y };
+
+        //update size
+        if (SizeSet() && SizeChanged()) {
+            ImGui::SetWindowSize(ImVec2(cur_size.width_, cur_size.height_));
+        }
+        else {
+            if (temp_size != cur_size) {
+                ZGuiObject::SetSize(temp_size);
+            }
+        }
+
+        //update pos
+        if (PosSet() && PosChanged()) {
+            ImGui::SetWindowPos(ImVec2(cur_pos.x_, cur_pos.y_));
+        }
+        else {
+            if (temp_pos != cur_pos) {
+                ZGuiObject::SetPos(temp_pos);
+            }
+        }
+
+        SuperType_::Tick(_delta_sec);
+
         if (Enabled()) {
-            GuiSize cur_size = Size();
-            GuiPos cur_pos = Pos();
-            ImVec2 frame_size = ImGui::GetWindowSize();
-            ImVec2 frame_pos = ImGui::GetWindowPos();
-            GuiSize temp_size = { frame_size.x, frame_size.y };
-            GuiPos temp_pos = { frame_pos.x, frame_pos.y };
-
-            //update size
-            if (SizeChanged()) {
-                ImGui::SetWindowSize(ImVec2(cur_size.width_, cur_size.height_));
-            }
-            else {
-                if (temp_size != cur_size) {
-                    SetSize(temp_size);
-                }
-            }
-
-            //update pos
-            if (PosChanged()) {
-                ImGui::SetWindowPos(ImVec2(cur_pos.x_, cur_pos.y_));
-            }
-            else {
-                if (temp_pos != cur_pos) {
-                    SetPos(temp_pos);
-                }
-            }
-
-            SuperType_::Tick(_delta_sec);
-
             //tick widgets
             for (auto widget_ptr_iter = widget_ptr_set_.Begin(); widget_ptr_iter != widget_ptr_set_.End(); ++widget_ptr_iter) {
                 ZWidgetObject* widget_ptr = *widget_ptr_iter;
@@ -124,6 +150,8 @@ Void ZFrame::Tick(Float32 _delta_sec) noexcept {
                 frame_ptr->Tick(_delta_sec);
             }
         }
+
+
 
         //end base frame
         ImGui::End();
@@ -132,24 +160,54 @@ Void ZFrame::Tick(Float32 _delta_sec) noexcept {
     }
     //sub frame update size and pos
     else {
-        GuiSize cur_size = Size();
-        GuiPos cur_pos = Pos();
-        GuiPos abs_pos = AbsPos();
-        //update size
-        ImGui::SetNextWindowSize(ImVec2(cur_size.width_, cur_size.height_), ImGuiCond_Always);
+        //update size, must be called every tick to work
+        if (SizeSet()) {
+            GuiSize cur_size = Size();
+            ImGui::SetNextWindowSize(ImVec2(cur_size.width_, cur_size.height_), ImGuiCond_Always);
+        }
 
-        //update pos
-        ImGui::SetNextWindowPos(ImVec2(abs_pos.x_, abs_pos.y_), ImGuiCond_Always);
-
-        if (Enabled()) {
-            SuperType_::Tick(_delta_sec);
+        //update pos, must be called every tick to work
+        if (PosSet()) {
+            GuiPos abs_pos = AbsPos();
+            ImGui::SetNextWindowPos(ImVec2(abs_pos.x_, abs_pos.y_), ImGuiCond_Always);
         }
 
         //push background colour
         GuiColour bg_colour = BackgruondColour();
         ImGui::PushStyleColor(ImGuiCol_ChildBg, *reinterpret_cast<ImVec4*>(&bg_colour));
+
         //sub frame begin
-        ImGui::BeginChild(Name(), ImVec2(Width(), Height()), true, FrameFlag());
+        if (SizeSet()) {
+            ImGui::BeginChild(Name(), ImVec2(Width(), Height()), true, frame_flag_);        
+        }
+        else {
+            ImGui::BeginChild(
+                Name(), 
+                ImVec2(0, 0), 
+                true, 
+                frame_flag_
+            );
+        }
+
+        //update size
+        if (!SizeSet()) {
+            ImVec2 frame_size = ImGui::GetWindowSize();
+            GuiSize temp_size = { frame_size.x, frame_size.y };
+            ZGuiObject::SetSize(temp_size);
+        }
+
+        //update pos
+        if (!PosSet()) {
+            ImVec2 frame_pos = ImGui::GetWindowPos();
+            GuiPos temp_pos = { frame_pos.x, frame_pos.y };
+            GuiPos abs_pos = AbsPos();
+            if (temp_pos != abs_pos) {
+                ZGuiObject::SetAbsPos(temp_pos);
+            }
+        }
+
+        SuperType_::Tick(_delta_sec);
+
         if (Enabled()) {
             //tick widgets
             for (auto widget_ptr_iter = widget_ptr_set_.Begin(); widget_ptr_iter != widget_ptr_set_.End(); ++widget_ptr_iter) {
@@ -162,6 +220,9 @@ Void ZFrame::Tick(Float32 _delta_sec) noexcept {
                 ZFrame* frame_ptr = *frame_ptr_iter;
                 frame_ptr->Tick(_delta_sec);
             }
+            
+            //tick widgets not added
+            TickWidget(_delta_sec);
         }
 
         //sub frame end
@@ -170,6 +231,8 @@ Void ZFrame::Tick(Float32 _delta_sec) noexcept {
         ImGui::PopStyleColor();
     }
 }
+
+Void ZFrame::TickWidget(Float32 _delta_sec) noexcept {}
 
 Void ZFrame::Reset() noexcept {
     SuperType_::Reset();
@@ -187,15 +250,60 @@ Void ZFrame::Reset() noexcept {
     }
 }
 
-Void ZFrame::Add(ZWidgetObject* _widget_obj) noexcept {
-    if (_widget_obj->WidgetType() == kWidgetType_Frame) {
-        frame_ptr_set_.Insert(static_cast<ZFrame*>(_widget_obj));
-        dynamic_cast<ZFrame*>(_widget_obj)->UpdateFrameLevelP(frame_level_);
+ReturnType ZFrame::Add(ZWidgetObject* _widget_obj_ptr) noexcept {
+    ReturnType ret_val = kOK;
+    Z_CHECK(
+        _widget_obj_ptr == nullptr,
+        error_code::kZFrameErrorCode_NullptrParam,
+        L"_widget_obj is nullptr!"
+    );
+
+    if (_widget_obj_ptr->WidgetType() == kWidgetType_Frame) {
+        frame_ptr_set_.Insert(static_cast<ZFrame*>(_widget_obj_ptr));
+        dynamic_cast<ZFrame*>(_widget_obj_ptr)->UpdateFrameLevelP(frame_level_);
     }
     else {
-        widget_ptr_set_.Insert(_widget_obj);
+        widget_ptr_set_.Insert(_widget_obj_ptr);
     }
-    _widget_obj->OnAdd(this);
+    _widget_obj_ptr->OnAdd(this);
+
+    return ret_val;
+}
+
+ReturnType ZFrame::Remove(ZWidgetObject* _widget_obj_ptr) noexcept {
+    ReturnType ret_val = kOK;
+    Z_CHECK(
+        _widget_obj_ptr == nullptr,
+        error_code::kZFrameErrorCode_NullptrParam,
+        L"_widget_obj is nullptr!"
+    );
+
+    if (_widget_obj_ptr->WidgetType() == kWidgetType_Frame) {
+        frame_ptr_set_.Erase(static_cast<ZFrame*>(_widget_obj_ptr));
+    }
+    else {
+        widget_ptr_set_.Erase(_widget_obj_ptr);
+    }
+    _widget_obj_ptr->OnRemove(this);
+
+    return ret_val;
+}
+
+Void ZFrame::RemoveAll() noexcept {
+    ReturnType ret_val = kOK;
+
+    TVector<ZWidgetObject*> remove_widget_ptr_vector;
+    for (auto iter = frame_ptr_set_.Begin(); iter != frame_ptr_set_.End(); ++iter) {
+        remove_widget_ptr_vector.PushBack(*iter);
+    }
+    for (auto iter = widget_ptr_set_.Begin(); iter != widget_ptr_set_.End(); ++iter) {
+        remove_widget_ptr_vector.PushBack(*iter);
+    }
+    frame_ptr_set_.Clear();
+    widget_ptr_set_.Clear();
+    for (auto iter = remove_widget_ptr_vector.Begin(); iter != remove_widget_ptr_vector.End(); ++iter) {
+        (*iter)->OnRemove(this);
+    }
 }
 
 Void ZFrame::SetBackgruondColour(GuiColour _colour) noexcept {

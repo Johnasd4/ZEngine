@@ -197,8 +197,8 @@ NODISCARD ReturnType ZLogicBoard::Fill(
     }
 
     //fill the board
-    for (IndexType x = 0; x < XLength(); ++x) {
-        for (IndexType y = 0; y < YLength(); ++y) {
+    for (Int32 x = 0; x < XLength(); ++x) {
+        for (Int32 y = 0; y < YLength(); ++y) {
             if ((*this)(x, y) != nullptr) {
                 (*this)(x, y)->Destroy();
                 delete (*this)(x, y);

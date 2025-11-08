@@ -23,6 +23,48 @@
 namespace zengine {
 namespace gui {
 
+Void ZWidgetObject::Tick(Float32 _delta_sec) noexcept {
+    SuperType_::Tick(_delta_sec);
+    if (SameLine()) {
+        if (same_line_pos_offset_ == kBasePos) {
+            ImGui::SameLine();
+        }
+        else {
+            ImGui::SameLine(same_line_pos_offset_.x_, same_line_pos_offset_.y_);
+        }
+    }
+}
+
+Void ZWidgetObject::ReleaseResource() noexcept {
+    name_.Clear();
+    name_.ShrinkToFit();
+}
+
+Void ZWidgetObject::SetWidth(Float32 _width) noexcept {
+    SuperType_::SetWidth(_width);
+    size_set_ = true;
+}
+Void ZWidgetObject::SetHeight(Float32 _height) noexcept {
+    SuperType_::SetHeight(_height);
+    size_set_ = true;
+}
+Void ZWidgetObject::SetSize(GuiSize _size) noexcept {
+    SuperType_::SetSize(_size);
+    size_set_ = true;
+}
+Void ZWidgetObject::SetXPos(Float32 _x_pos) noexcept {
+    SuperType_::SetXPos(_x_pos);
+    pos_set_ = true;
+}
+Void ZWidgetObject::SetYPos(Float32 _y_pos) noexcept {
+    SuperType_::SetYPos(_y_pos);
+    pos_set_ = true;
+}
+Void ZWidgetObject::SetPos(GuiPos _pos) noexcept {
+    SuperType_::SetPos(_pos);
+    pos_set_ = true;
+}
+
 Void ZWidgetObject::SetName(const Char* _name) noexcept { name_ = _name; }
 
 NODISCARD const Char* ZWidgetObject::Name() const noexcept { return name_.String(); }
@@ -39,7 +81,11 @@ Void ZWidgetObject::OnShow() noexcept {
 ZWidgetObject::ZWidgetObject() noexcept 
     : SuperType_()
     , priority_(kDefaultPriority)
-    , visiable_(false)
+    , visiable_(true)
+    , size_set_(false)
+    , pos_set_(false)
+    , same_line_(false)
+    , same_line_pos_offset_(kBasePos)
     , name_("")
 {}
 
@@ -54,6 +100,10 @@ ZWidgetObject::ZWidgetObject(
     : SuperType_(_size, _pos, _enabled)
     , priority_(_priority)
     , visiable_(_visiable)
+    , size_set_(_size != kBaseSize)
+    , pos_set_(_pos != kBasePos)
+    , same_line_(false)
+    , same_line_pos_offset_(kBasePos)
     , name_(_name)
 {}
 
@@ -72,9 +122,17 @@ ZWidgetObject& ZWidgetObject::operator=(ZWidgetObject&& _obj) noexcept {
 Void ZWidgetObject::MoveP(ZWidgetObject&& _obj) noexcept {
     priority_ = _obj.priority_;
     visiable_ = _obj.visiable_;
+    size_set_ = _obj.size_set_;
+    pos_set_ = _obj.pos_set_;
+    same_line_ = _obj.same_line_;
+    same_line_pos_offset_ = _obj.same_line_pos_offset_;
     name_ = std::move(_obj.name_);
     _obj.priority_ = kDefaultPriority;
     _obj.visiable_ = false;
+    _obj.size_set_ = false;
+    _obj.pos_set_ = false;
+    _obj.same_line_ = false;
+    _obj.same_line_pos_offset_ = kBasePos;
 }
 
 }//gui

@@ -72,7 +72,7 @@ static TimeType GetTimeOffset() noexcept {
 }
 
 ZSystemTime& ZSystemTime::Instance() noexcept {
-    static ZSystemTime system_time;
+    thread_local ZSystemTime system_time;
     return system_time;
 }
 

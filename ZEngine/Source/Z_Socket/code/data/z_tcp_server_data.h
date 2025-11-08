@@ -18,12 +18,11 @@
 */
 #pragma once
 
-#include "internal/z_drive.h"
+#include "drive.h"
 
 #include <boost/asio.hpp>
 
 #include "z_core/z_object.h"
-#include "z_core/z_thread.h"
 
 namespace zengine {
 namespace socket {

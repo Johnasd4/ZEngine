@@ -47,7 +47,7 @@ ZConfig::ZConfig(const WChar* _file_dir) noexcept
             if (link_code != kOK) {
                 Z_LOG_ERROR(
                     error_code::kZJsonErrorCode_LinkError, link_code,
-                    L"ZJsonDocument::CreateFileByPath() link error!"
+                    L"ZConfig::SaveConfigP() link error!"
                 );
                 return;
             }
@@ -61,7 +61,7 @@ ZConfig::ZConfig(const WChar* _file_dir) noexcept
         if (link_code != kOK) {
             Z_LOG_ERROR(
                 error_code::kZJsonErrorCode_LinkError, link_code,
-                L"ZJsonDocument::CreateFileByPath() link error!"
+                L"ZConfig::SaveConfigP() link error!"
             );
             return;
         }
@@ -74,29 +74,77 @@ ZConfig::~ZConfig() noexcept {
     }
 }
 
-NODISCARD Bool ZConfig::GetMemberValueBool(const Char* _key) noexcept {
-    return config_data_ptr_->HasMember(_key) ? (*config_data_ptr_)[_key].GetBool() : false;
+NODISCARD Bool ZConfig::GetMemberValueBool(const Char* _key) const noexcept {
+    if (config_data_ptr_->HasMember(_key)) {
+        const auto& value = (*config_data_ptr_)[_key];
+        if (value.IsBool()) {
+            return value.GetBool();
+        }
+    }
+    return false;
 }
-NODISCARD Int32 ZConfig::GetMemberValueInt32(const Char* _key) noexcept {
-    return config_data_ptr_->HasMember(_key) ? (*config_data_ptr_)[_key].GetInt32() : 0;
+NODISCARD Int32 ZConfig::GetMemberValueInt32(const Char* _key) const noexcept {
+    if (config_data_ptr_->HasMember(_key)) {
+        const auto& value = (*config_data_ptr_)[_key];
+        if (value.IsInt32()) {
+            return value.GetInt32();
+        }
+    }
+    return 0;
 }
-NODISCARD Int64 ZConfig::GetMemberValueInt64(const Char* _key) noexcept {
-    return config_data_ptr_->HasMember(_key) ? (*config_data_ptr_)[_key].GetInt64() : 0LL;
+NODISCARD Int64 ZConfig::GetMemberValueInt64(const Char* _key) const noexcept {
+    if (config_data_ptr_->HasMember(_key)) {
+        const auto& value = (*config_data_ptr_)[_key];
+        if (value.IsInt64()) {
+            return value.GetInt64();
+        }
+    }
+    return 0LL;
 }
-NODISCARD UInt32 ZConfig::GetMemberValueUInt32(const Char* _key) noexcept {
-    return config_data_ptr_->HasMember(_key) ? (*config_data_ptr_)[_key].GetUInt32() : 0U;
+NODISCARD UInt32 ZConfig::GetMemberValueUInt32(const Char* _key) const noexcept {
+    if (config_data_ptr_->HasMember(_key)) {
+        const auto& value = (*config_data_ptr_)[_key];
+        if (value.IsUInt32()) {
+            return value.GetUInt32();
+        }
+    }
+    return 0U;
 }
-NODISCARD UInt64 ZConfig::GetMemberValueUInt64(const Char* _key) noexcept {
-    return config_data_ptr_->HasMember(_key) ? (*config_data_ptr_)[_key].GetUInt64() : 0ULL;
+NODISCARD UInt64 ZConfig::GetMemberValueUInt64(const Char* _key) const noexcept {
+    if (config_data_ptr_->HasMember(_key)) {
+        const auto& value = (*config_data_ptr_)[_key];
+        if (value.IsUInt64()) {
+            return value.GetUInt64();
+        }
+    }
+    return 0ULL;
 }
-NODISCARD Float32 ZConfig::GetMemberValueFloat32(const Char* _key) noexcept {
-    return config_data_ptr_->HasMember(_key) ? (*config_data_ptr_)[_key].GetFloat32() : 0.0F;
+NODISCARD Float32 ZConfig::GetMemberValueFloat32(const Char* _key) const noexcept {
+    if (config_data_ptr_->HasMember(_key)) {
+        const auto& value = (*config_data_ptr_)[_key];
+        if (value.IsFloat32()) {
+            return value.GetFloat32();
+        }
+    }
+    return 0.0F;
 }
-NODISCARD Float64 ZConfig::GetMemberValueFloat64(const Char* _key) noexcept {
-    return config_data_ptr_->HasMember(_key) ? (*config_data_ptr_)[_key].GetFloat64() : 0.0;
+NODISCARD Float64 ZConfig::GetMemberValueFloat64(const Char* _key) const noexcept {
+    if (config_data_ptr_->HasMember(_key)) {
+        const auto& value = (*config_data_ptr_)[_key];
+        if (value.IsFloat64()) {
+            return value.GetFloat64();
+        }
+    }
+    return 0.0;
 }
-NODISCARD const Char* ZConfig::GetMemberValueString(const Char* _key) noexcept {
-    return config_data_ptr_->HasMember(_key) ? (*config_data_ptr_)[_key].GetString() : "";
+NODISCARD const Char* ZConfig::GetMemberValueString(const Char* _key) const noexcept {
+    if (config_data_ptr_->HasMember(_key)) {
+        const auto& value = (*config_data_ptr_)[_key];
+        if (value.IsString()) {
+            return value.GetString();
+        }
+    }
+    return "";
 }
 
 NODISCARD ReturnType ZConfig::SetMemberValue(const Char* _key, Bool _value) noexcept {

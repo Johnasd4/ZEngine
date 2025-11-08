@@ -217,15 +217,25 @@ NODISCARD ReturnType ZFile::Open(const WChar* _file_dir, const WChar* _open_type
     return ret_val;
 }
 
-NODISCARD ReturnType ZFile::OpenSafe(const WChar* _path_dir, const WChar* _file_dir, const WChar* _open_type) noexcept {
+NODISCARD ReturnType ZFile::OpenSafe(const WChar* _file_dir, const WChar* _open_type) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
 
-    link_code = file_system::CreateDirectoryByPath(_path_dir);
+    file_system::ZFileInfo file_info;
+    link_code = file_system::GetFileInfoByPath(_file_dir, &file_info);
     if (link_code != kOK) {
         ret_val = error_code::kZFileErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, L"ZFile::CreatePath() link error!");
+        Z_LOG_ERROR(ret_val, link_code, L"file_system::GetFileInfoByPath() link error!");
         return ret_val;
+    }
+
+    if (!file_system::PathExist(file_info.directory_.String())) {
+        link_code = file_system::CreateDirectoryByPath(file_info.directory_.String());
+        if (link_code != kOK) {
+            ret_val = error_code::kZFileErrorCode_LinkError;
+            Z_LOG_ERROR(ret_val, link_code, L"file_system::CreateDirectoryByPath() link error!");
+            return ret_val;
+        }
     }
 
     link_code = Open(_file_dir, _open_type);

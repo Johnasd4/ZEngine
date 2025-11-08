@@ -18,7 +18,7 @@
 */
 #define CORE_DLLFILE
 
-#include "log/z_info_log.h"
+#include "log/type/z_info_log.h"
 
 #include "f_console.h"
 #include "m_log.h"
@@ -33,7 +33,7 @@ ZInfoLog::ZInfoLog(TimeType _log_time, InfoLogTypeEnum _info_type, const WChar* 
     : SuperType_(kLogType_Info, _log_time, _format, _args), info_type_(_info_type) {}
 
 Void ZInfoLog::GenerateLogString(const ZLog* _log_ptr, ZLog::OutputString_* _output_str_ptr) noexcept {
-    static ZSystemTime system_time;
+    static ZSystemTime& system_time = ZSystemTime::Instance();
     const ZInfoLog& info_log = *reinterpret_cast<const ZInfoLog*>(_log_ptr);
     system_time.UpdateTimeFast(info_log.LogTime()); 
   

@@ -35,8 +35,11 @@ NODISCARD ZGuiObject*& ZGuiObject::CallbackGuiObjectPtr() noexcept {
 
 Void ZGuiObject::Begin() noexcept {}
 Void ZGuiObject::Tick(Float32 _delta_sec) noexcept {
-    pre_size_ = size_;
-    pre_pos_ = pos_;
+    if (if_first_tick_) {
+        if_first_tick_ = false;
+        Begin();
+    }
+
     if (size_changed_) {
         OnResize(pre_size_, size_);
         size_changed_ = false;
@@ -45,6 +48,8 @@ Void ZGuiObject::Tick(Float32 _delta_sec) noexcept {
         OnMove(pre_pos_, pos_);
         pos_changed_ = false;
     }
+    pre_size_ = size_;
+    pre_pos_ = pos_;
 }
 Void ZGuiObject::Hide() noexcept { 
     OnHide(); 
@@ -55,30 +60,39 @@ Void ZGuiObject::Show() noexcept {
 Void ZGuiObject::Reset() noexcept {}
 
 Void ZGuiObject::SetWidth(Float32 _width) noexcept {
+    size_changed_ = (pre_size_.width_ != _width);
     size_.width_ = _width;
-    size_changed_ = true;
 }
 Void ZGuiObject::SetHeight(Float32 _height) noexcept {
+    size_changed_ = (pre_size_.height_ != _height);
     size_.height_ = _height;
-    size_changed_ = true;
 }
 Void ZGuiObject::SetSize(GuiSize _size) noexcept {
+    size_changed_ = (pre_size_ != _size);
     size_ = _size;
-    size_changed_ = true;
 }
 Void ZGuiObject::SetXPos(Float32 _x_pos) noexcept {
+    pos_changed_ = (pre_pos_.x_ != _x_pos);
     pos_.x_ = _x_pos;
-    pos_changed_ = true;
 }
 Void ZGuiObject::SetYPos(Float32 _y_pos) noexcept {
+    pos_changed_ = (pre_pos_.y_ != _y_pos);
     pos_.y_ = _y_pos;
-    pos_changed_ = true;
 }
 Void ZGuiObject::SetPos(GuiPos _pos) noexcept {
+    pos_changed_ = (pre_pos_ != _pos);
     pos_ = _pos;
-    pos_changed_ = true;
+}
+Void ZGuiObject::SetAbsPos(GuiPos _pos) noexcept {
+    if (owner_ptr_ == nullptr) {
+        SetPos(_pos);
+    }
+    else {
+        SetPos(_pos - owner_ptr_->AbsPos());
+    }
 }
 Void ZGuiObject::SetName(const Char* _name) noexcept {}
+Void ZGuiObject::SetFontScale(Float32 _scale) noexcept { font_scale_ = _scale; }
 
 NODISCARD Float32 ZGuiObject::Width() const noexcept { return size_.width_; }
 NODISCARD Float32 ZGuiObject::Height() const noexcept { return size_.height_; }
@@ -88,6 +102,9 @@ NODISCARD Float32 ZGuiObject::YPos() const noexcept { return pos_.y_; }
 NODISCARD GuiPos ZGuiObject::Pos() const noexcept { return pos_; }
 NODISCARD GuiPos ZGuiObject::AbsPos() const noexcept { return pos_ + owner_ptr_->AbsPos(); }
 NODISCARD const Char* ZGuiObject::Name() const noexcept { return ""; }
+NODISCARD Float32 ZGuiObject::FontScale() const noexcept {
+    return owner_ptr_ == nullptr ? font_scale_ : font_scale_ * owner_ptr_->FontScale();
+}
 
 Void ZGuiObject::OnResize(GuiSize _pre_size, GuiSize _cur_size) noexcept {}
 Void ZGuiObject::OnMove(GuiPos _pre_pos, GuiPos _cur_pos) noexcept {}
@@ -95,6 +112,10 @@ Void ZGuiObject::OnHide() noexcept {}
 Void ZGuiObject::OnShow() noexcept {}
 Void ZGuiObject::OnAdd(ZGuiObject* _owner_ptr) noexcept {
     owner_ptr_ = _owner_ptr;
+    if_first_tick_ = true;
+}
+Void ZGuiObject::OnRemove(ZGuiObject* _owner_ptr) noexcept {
+    owner_ptr_ = nullptr;
 }
 
 Void ZGuiObject::OnKeyDown(KeyEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept {}
@@ -107,14 +128,16 @@ Void ZGuiObject::OnMouseMove(GuiPos _pre_pos, GuiPos _cur_pos) noexcept {}
 
 ZGuiObject::ZGuiObject() noexcept 
     : SuperType_()
-    , size_()
-    , pos_()
-    , pre_size_()
-    , pre_pos_()
+    , size_(kBaseSize)
+    , pos_(kBasePos)
+    , pre_size_(kBaseSize)
+    , pre_pos_(kBasePos)
     , size_changed_(false)
     , pos_changed_(false)
-    , owner_ptr_(nullptr)
-    , enabled_(false) {}
+    , enabled_(true)
+    , if_first_tick_(true)
+    , font_scale_(true)
+    , owner_ptr_(nullptr) {}
 
 ZGuiObject::ZGuiObject(ZGuiObject&& _obj) noexcept 
     : SuperType_(std::move(_obj)) 
@@ -130,12 +153,14 @@ ZGuiObject::ZGuiObject(
     : SuperType_()
     , size_(_size)
     , pos_(_pos)
-    , pre_size_()
-    , pre_pos_()
-    , size_changed_(true)
-    , pos_changed_(true)
-    , owner_ptr_(nullptr)
-    , enabled_(_enabled) {}
+    , pre_size_(kBaseSize)
+    , pre_pos_(kBasePos)
+    , size_changed_(_size != kBaseSize)
+    , pos_changed_(_pos != kBasePos)
+    , enabled_(_enabled)
+    , if_first_tick_(true)
+    , font_scale_(true)
+    , owner_ptr_(nullptr) {}
 
 ZGuiObject& ZGuiObject::operator=(ZGuiObject&& _obj) noexcept {
     SuperType_::operator=(std::move(_obj));
@@ -150,16 +175,20 @@ Void ZGuiObject::MoveP(ZGuiObject&& _obj) noexcept {
     pre_pos_ = _obj.pre_pos_;
     size_changed_ = _obj.size_changed_;
     pos_changed_ = _obj.pos_changed_;
-    owner_ptr_ = _obj.owner_ptr_;
     enabled_ = _obj.enabled_;
+    if_first_tick_ = _obj.if_first_tick_;
+    font_scale_ = _obj.font_scale_;
+    owner_ptr_ = _obj.owner_ptr_;
     _obj.size_ = { 0,0 };
     _obj.pos_ = { 0,0 };
     _obj.pre_size_ = { 0,0 };
     _obj.pre_pos_ = { 0,0 };
     _obj.size_changed_ = false;
     _obj.pos_changed_ = false;
-    _obj.owner_ptr_ = nullptr;
     _obj.enabled_ = false;
+    _obj.if_first_tick_ = true;
+    _obj.font_scale_ = kBaseFontScale;
+    _obj.owner_ptr_ = nullptr;
 }
 
 }//gui

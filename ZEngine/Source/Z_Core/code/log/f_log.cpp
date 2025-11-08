@@ -73,14 +73,14 @@ CORE_DLLAPI Void LogInfo(
 }
 
 CORE_DLLAPI NODISCARD ReturnType RegisterLogServerInputFunction(
-    IndexType _port_id, 
+    SizeType _port_id,
     Void(*_input_func)(const ZLog*, ZLog::OutputString_*)) noexcept 
 {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
 
     Z_CHECK(
-        _port_id < ZLogManager::kLogPortIDMin || _port_id >= ZLogManager::kLogPortIDMax, 
+        _port_id < ZLogManager::kLogPortIDMin || _port_id > ZLogManager::kLogPortIDMax, 
         error_code::kMLogErrorCode_PortIDOutOfRange,
         L"port_id %d out of range!", 
         _port_id);
@@ -96,14 +96,14 @@ CORE_DLLAPI NODISCARD ReturnType RegisterLogServerInputFunction(
 }
 
 CORE_DLLAPI NODISCARD ReturnType UnregisterLogServerInputFunction(
-    IndexType _port_id, 
+    SizeType _port_id,
     Void(*_input_func)(const ZLog*, ZLog::OutputString_*)
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
 
     Z_CHECK(
-        _port_id < ZLogManager::kLogPortIDMin || _port_id >= ZLogManager::kLogPortIDMax, 
+        _port_id < ZLogManager::kLogPortIDMin || _port_id > ZLogManager::kLogPortIDMax, 
         error_code::kMLogErrorCode_PortIDOutOfRange,
         L"port_id %d out of range!", 
         _port_id);
@@ -119,14 +119,14 @@ CORE_DLLAPI NODISCARD ReturnType UnregisterLogServerInputFunction(
 }
 
 CORE_DLLAPI NODISCARD ReturnType RegisterLogServerOutputFunction(
-    IndexType _port_id, 
+    SizeType _port_id,
     Void(*_output_func)(const ZLog*, const ZLog::OutputString_&)
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
 
     Z_CHECK(
-        _port_id < ZLogManager::kLogPortIDMin || _port_id >= ZLogManager::kLogPortIDMax, 
+        _port_id < ZLogManager::kLogPortIDMin || _port_id > ZLogManager::kLogPortIDMax, 
         error_code::kMLogErrorCode_PortIDOutOfRange,
         L"port_id %d out of range!", 
         _port_id);

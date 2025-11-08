@@ -18,9 +18,9 @@
 */
 #define CORE_DLLFILE
 
-#include <thread>
-
 #include "z_thread.h"
+
+#include <thread>
 
 namespace zengine {
 
@@ -58,14 +58,6 @@ Void ZThread::MoveP(ZThread&& _thread) noexcept {
     handle_ = _thread.handle_;
     _thread.id_ = NULL;
     _thread.handle_ = nullptr;
-}
-
-CORE_DLLAPI NODISCARD Void SleepSec(TimeType _time) noexcept {
-    std::this_thread::sleep_for(std::chrono::seconds(_time));
-}
-
-CORE_DLLAPI NODISCARD Void SleepMs(TimeType _time) noexcept {
-    std::this_thread::sleep_for(std::chrono::milliseconds(_time));
 }
 
 }//zengine

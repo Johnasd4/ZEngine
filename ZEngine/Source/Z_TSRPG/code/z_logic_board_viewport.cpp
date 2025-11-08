@@ -41,30 +41,10 @@ ZLogicBoardViewport::ZLogicBoardViewport() noexcept
 
 ZLogicBoardViewport::~ZLogicBoardViewport() noexcept {}
 
-NODISCARD ZLogicTile* ZLogicBoardViewport::operator()(IndexType _x, IndexType _y) noexcept {
-    IndexType x = base_index_.x_ + _x;
-    IndexType y = base_index_.y_ + _y;
-    if (logic_board_ptr_->IndexCheck(x, y)) {
-        return static_cast<ZLogicTile*>(logic_board_ptr_->At(x, y));
-    }
-    else {
-        return nullptr;
-    }
-}
-NODISCARD ZLogicTile* const ZLogicBoardViewport::operator()(IndexType _x, IndexType _y) const noexcept {
-    IndexType x = base_index_.x_ + _x;
-    IndexType y = base_index_.y_ + _y;
-    if (logic_board_ptr_->IndexCheck(x, y)) {
-        return static_cast<ZLogicTile*>(logic_board_ptr_->At(x, y));
-    }
-    else {
-        return nullptr;
-    }
-}
 NODISCARD ZLogicTile* ZLogicBoardViewport::operator()(LogicVector2D _index) noexcept {
-    IndexType x = base_index_.x_ + _index.x_;
-    IndexType y = base_index_.y_ + _index.y_;
-    if (logic_board_ptr_->IndexCheck(x, y)) {
+    Int32 x = base_index_.x_ + _index.x_;
+    Int32 y = base_index_.y_ + _index.y_;
+    if (logic_board_ptr_->IndexCheck(LogicVector2D(x, y))) {
         return static_cast<ZLogicTile*>(logic_board_ptr_->At(x, y));
     }
     else {
@@ -72,39 +52,20 @@ NODISCARD ZLogicTile* ZLogicBoardViewport::operator()(LogicVector2D _index) noex
     }
 }
 NODISCARD ZLogicTile* const ZLogicBoardViewport::operator()(LogicVector2D _index) const noexcept {
-    IndexType x = base_index_.x_ + _index.x_;
-    IndexType y = base_index_.y_ + _index.y_;
-    if (logic_board_ptr_->IndexCheck(x, y)) {
+    Int32 x = base_index_.x_ + _index.x_;
+    Int32 y = base_index_.y_ + _index.y_;
+    if (logic_board_ptr_->IndexCheck(LogicVector2D(x, y))) {
         return static_cast<ZLogicTile*>(logic_board_ptr_->At(x, y));
     }
     else {
         return nullptr;
     }
 }
-NODISCARD ZLogicTile* ZLogicBoardViewport::At(IndexType _x, IndexType _y) noexcept {
-    IndexType x = base_index_.x_ + _x;
-    IndexType y = base_index_.y_ + _y;
-    if (logic_board_ptr_->IndexCheck(x, y)) {
-        return static_cast<ZLogicTile*>(logic_board_ptr_->At(x, y));
-    }
-    else {
-        return nullptr;
-    }
-}
-NODISCARD ZLogicTile* const ZLogicBoardViewport::At(IndexType _x, IndexType _y) const noexcept {
-    IndexType x = base_index_.x_ + _x;
-    IndexType y = base_index_.y_ + _y;
-    if (logic_board_ptr_->IndexCheck(x, y)) {
-        return static_cast<ZLogicTile*>(logic_board_ptr_->At(x, y));
-    }
-    else {
-        return nullptr;
-    }
-}
+
 NODISCARD ZLogicTile* ZLogicBoardViewport::At(LogicVector2D _index) noexcept {
-    IndexType x = base_index_.x_ + _index.x_;
-    IndexType y = base_index_.y_ + _index.y_;
-    if (logic_board_ptr_->IndexCheck(x, y)) {
+    Int32 x = base_index_.x_ + _index.x_;
+    Int32 y = base_index_.y_ + _index.y_;
+    if (logic_board_ptr_->IndexCheck(LogicVector2D(x, y))) {
         return static_cast<ZLogicTile*>(logic_board_ptr_->At(x, y));
     }
     else {
@@ -112,9 +73,9 @@ NODISCARD ZLogicTile* ZLogicBoardViewport::At(LogicVector2D _index) noexcept {
     }
 }
 NODISCARD ZLogicTile* const ZLogicBoardViewport::At(LogicVector2D _index) const noexcept {
-    IndexType x = base_index_.x_ + _index.x_;
-    IndexType y = base_index_.y_ + _index.y_;
-    if (logic_board_ptr_->IndexCheck(x, y)) {
+    Int32 x = base_index_.x_ + _index.x_;
+    Int32 y = base_index_.y_ + _index.y_;
+    if (logic_board_ptr_->IndexCheck(LogicVector2D(x, y))) {
         return static_cast<ZLogicTile*>(logic_board_ptr_->At(x, y));
     }
     else {

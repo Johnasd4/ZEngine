@@ -48,7 +48,7 @@ ZThreadPool::ZThreadPool(Int32 _thread_num) noexcept
     , finished_(false) 
 {
     pool_idle_mutex_.Lock();
-    for (IndexType thread_index = 0; thread_index < _thread_num; ++thread_index) {
+    for (SizeType thread_index = 0; thread_index < _thread_num; ++thread_index) {
         thread_list_.EmplaceBack(SubThread, Ref(*this));
     }
 }
@@ -84,7 +84,7 @@ NODISCARD ReturnType ZThreadPool::AddThreadNum(Int32 _thread_num) noexcept {
         return ret_val;
     }
     max_thread_num_ += _thread_num;
-    for (IndexType thread_index = 0; thread_index < _thread_num; ++thread_index) {
+    for (SizeType thread_index = 0; thread_index < _thread_num; ++thread_index) {
         thread_list_.EmplaceBack(std::move(ZThread(SubThread, Ref(*this))));
     }
     return ret_val;
@@ -111,23 +111,6 @@ NODISCARD ReturnType ZThreadPool::AddTask(ZTask&& _task) noexcept {
         pool_idle_mutex_.TryLock();
     }
     task_queue_.Push(std::forward<ZTask>(_task));
-    cv_.NotifyOne();
-    return ret_val;
-}
-
-NODISCARD ReturnType ZThreadPool::AddTask(ZTaskSafe&& _task) noexcept {
-    ReturnType ret_val = kOK;
-    TUniqueLock<ZMutex> lock(pool_mutex_);
-    if (finished_) {
-        ret_val = error_code::kZThreadPoolErrorCode_PoolFinished;
-        Z_LOG_ERROR(ret_val, 0, L"Thread pool finished, can't add task!");
-        return ret_val;
-    }
-    //when idle.
-    if (max_thread_num_ == free_thread_num_) {
-        pool_idle_mutex_.TryLock();
-    }
-    task_queue_.Push(std::forward<ZTaskSafe>(_task));
     cv_.NotifyOne();
     return ret_val;
 }

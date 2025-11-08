@@ -24,6 +24,7 @@
 
 #include "t_array.h"
 #include "t_vector.h"
+#include "z_memory.h"
 
 namespace zengine {
 namespace string {
@@ -54,6 +55,28 @@ CORE_DLLAPI NODISCARD ZString WString2String(const WChar* _str) noexcept {
     temp_str.Reserve(str_len + 1);
     std::wcstombs(temp_str.DataPtr(), _str, str_len + 1);
     return ZString(temp_str.DataPtr());
+}
+
+CORE_DLLAPI NODISCARD ZString GenerateString(const Char* _format, ...) noexcept {
+    ArgListType args;
+    va_start(args, _format);
+    Int32 buffer_size = vsnprintf(nullptr, 0, _format, args) + 1;
+    ZMemory memory(buffer_size * sizeof(Char));
+    Int32 string_size = vsprintf(memory.DataPtr<Char*>(), _format, args);
+    ZString ans_str(memory.DataPtr<Char*>(), string_size);
+    va_end(args);
+    return ans_str;
+}
+
+CORE_DLLAPI NODISCARD ZWString GenerateWString(const WChar* _format, ...) noexcept {
+    ArgListType args;
+    va_start(args, _format);
+    Int32 buffer_size = vswprintf(nullptr, 0, _format, args) + 1;
+    ZMemory memory(buffer_size * sizeof(WChar));
+    Int32 string_size = vswprintf(memory.DataPtr<WChar*>(), _format, args);
+    ZWString ans_str(memory.DataPtr<WChar*>(), string_size);
+    va_end(args);
+    return ans_str;
 }
 
 }//string

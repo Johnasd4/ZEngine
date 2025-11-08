@@ -122,7 +122,7 @@ NODISCARD const ZLogicTileTexture* ZLogicTile::GetTopTexturePtr() const noexcept
 }
 
 NODISCARD const ZLogicTileTexture* ZLogicTile::GetTexturePtrByPosZ(Int32 _pos_z) const noexcept {
-    IndexType node_index = texture_node_vector_.Size() - 1;
+    SizeType node_index = texture_node_vector_.Size() - 1;
     if (_pos_z > Z()) {
         Z_LOG_ERROR(
             error_code::kZLogicTileErrorCode_TexturePosZOutOfRange, 0,
@@ -159,11 +159,11 @@ NODISCARD const ReturnType ZLogicTile::CalculateTexturePtrVectorByPosZAndLength(
         _texture_ptr_vector_ptr == nullptr, error_code::kZLogicTileErrorCode_NullptrParam, 
         L"_texture_ptr_vector_ptr is nullptr!"
     )
-    IndexType node_index = texture_node_vector_.Size() - 1;
-    IndexType start_pos_z = math::Min(_pos_z, Z());
+        Int32 node_index = static_cast<Int32>(texture_node_vector_.Size()) - 1;
+    Int32 start_pos_z = math::Min(_pos_z, Z());
     const ZLogicTileTexture* base_layer_texture_ptr = 
         static_cast<ZLogicBoard*>(owner_board_ptr_)->base_layer_texture_ptr_;
-    IndexType end_pos_z;
+    Int32 end_pos_z;
     if (base_layer_texture_ptr != nullptr) {
         end_pos_z = _pos_z - _length;
     }

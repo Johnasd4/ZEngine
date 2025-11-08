@@ -41,7 +41,7 @@ using SystemMemoryPool = TSystemMemoryPool<MEMORY_POOL_THREAD_SAFE>;
 
 }
 
-CORE_DLLAPI NODISCARD Void* ApplyMemory(MemoryType _size) noexcept {
+CORE_DLLAPI NODISCARD Void* ApplyMemory(SizeType _size) noexcept {
     //small memory block
     if (_size <= internal::SmallMemoryListMemoryPool::MemoryBlockMemoryMaxSize()) {
         return internal::SmallMemoryListMemoryPool::ApplyMemory(_size);
@@ -52,7 +52,7 @@ CORE_DLLAPI NODISCARD Void* ApplyMemory(MemoryType _size) noexcept {
     }
 }
 
-CORE_DLLAPI NODISCARD Void* ApplyMemory(MemoryType _size, MemoryType* _memory_size_ptr) noexcept {
+CORE_DLLAPI NODISCARD Void* ApplyMemory(SizeType _size, SizeType* _memory_size_ptr) noexcept {
     //small memory block
     if (_size <= internal::SmallMemoryListMemoryPool::MemoryBlockMemoryMaxSize()){
         return internal::SmallMemoryListMemoryPool::ApplyMemory(_size, _memory_size_ptr);
@@ -64,7 +64,7 @@ CORE_DLLAPI NODISCARD Void* ApplyMemory(MemoryType _size, MemoryType* _memory_si
     }
 }
 
-CORE_DLLAPI NODISCARD Void* ReapplyMemory(Void* _old_memory_ptr, MemoryType _size) noexcept {
+CORE_DLLAPI NODISCARD Void* ReapplyMemory(Void* _old_memory_ptr, SizeType _size) noexcept {
     if (_old_memory_ptr == nullptr) {
         return ApplyMemory(_size);
     }
@@ -82,10 +82,12 @@ CORE_DLLAPI NODISCARD Void* ReapplyMemory(Void* _old_memory_ptr, MemoryType _siz
         Void* new_memory_ptr = ApplyMemory(_size);
         Copy(
             new_memory_ptr, _old_memory_ptr, 
-            static_cast<internal::SmallMemoryListMemoryPool*>(owner_memory_pool_ptr)->MemoryBlockMemorySize());
+            static_cast<internal::SmallMemoryListMemoryPool*>(owner_memory_pool_ptr)->MemoryBlockMemorySize()
+        );
 
         internal::SmallMemoryListMemoryPool::ReleaseMemory(
-            static_cast<internal::SmallMemoryListMemoryPool*>(owner_memory_pool_ptr), _old_memory_ptr);
+            static_cast<internal::SmallMemoryListMemoryPool*>(owner_memory_pool_ptr), _old_memory_ptr
+        );
 
         return new_memory_ptr;
         break;
@@ -98,8 +100,8 @@ CORE_DLLAPI NODISCARD Void* ReapplyMemory(Void* _old_memory_ptr, MemoryType _siz
 
 CORE_DLLAPI NODISCARD Void* ReapplyMemory(
     Void* _old_memory_ptr,
-    MemoryType _size,
-    MemoryType* _memory_size_ptr
+    SizeType _size,
+    SizeType* _memory_size_ptr
 ) noexcept {
     //Gets the memory pool's pointer that owns the memory block.
     internal::MemoryPoolBase* owner_memory_pool_ptr =
@@ -131,7 +133,7 @@ CORE_DLLAPI NODISCARD Void* ReapplyMemory(
     }
 }
 
-CORE_DLLAPI NODISCARD Bool CheckMemory(Void* _memory_ptr, MemoryType _size) noexcept {
+CORE_DLLAPI NODISCARD Bool CheckMemory(Void* _memory_ptr, SizeType _size) noexcept {
     if (_memory_ptr == nullptr) {
         return false;
     }
@@ -150,7 +152,7 @@ CORE_DLLAPI NODISCARD Bool CheckMemory(Void* _memory_ptr, MemoryType _size) noex
     }
 }
 
-CORE_DLLAPI NODISCARD Bool CheckMemory(Void* _memory_ptr, MemoryType _size, MemoryType* _memory_size_ptr) noexcept {
+CORE_DLLAPI NODISCARD Bool CheckMemory(Void* _memory_ptr, SizeType _size, SizeType* _memory_size_ptr) noexcept {
     if (_memory_ptr == nullptr) {
         return false;
     }
@@ -170,7 +172,7 @@ CORE_DLLAPI NODISCARD Bool CheckMemory(Void* _memory_ptr, MemoryType _size, Memo
     }
 }
 
-CORE_DLLAPI NODISCARD MemoryType CalculateMemory(MemoryType _size) noexcept {
+CORE_DLLAPI NODISCARD SizeType CalculateMemory(SizeType _size) noexcept {
     //small memory block
     if (_size <= internal::SmallMemoryListMemoryPool::MemoryBlockMemoryMaxSize()) {
         return internal::SmallMemoryListMemoryPool::CalculateMemory(_size);

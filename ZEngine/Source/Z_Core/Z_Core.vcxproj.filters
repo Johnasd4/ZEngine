@@ -81,6 +81,9 @@
     <ClCompile Include="code\f_system.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="code\d_function.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\memory_pool\z_memory_pool_base.h">

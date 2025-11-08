@@ -15,33 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="code\z_tcp_single_session_server.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\z_tcp_single_session_client.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\f_tcp_log_output.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\z_tcp_multiple_session_server.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\z_tcp_socket.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\z_tcp_multiple_session_client.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\z_socket_context.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\z_udp_socket.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="code\data\z_tcp_socket_data.h">
+    <ClInclude Include="code\data\z_io_context_data.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\data\z_tcp_client_data.h">
@@ -50,11 +24,55 @@
     <ClInclude Include="code\data\z_tcp_server_data.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\data\z_context_data.h">
+    <ClInclude Include="code\data\z_tcp_socket_data.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\data\z_tls_context_data.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\data\z_tls_stream_data.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\data\z_udp_socket_data.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="code\z_socket_allocator.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="code\f_socket.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\f_tcp_log_output.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\z_io_context.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\z_tcp_multiple_session_client.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\z_tcp_multiple_session_server.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\z_tcp_single_session_client.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\z_tcp_single_session_server.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\z_tcp_socket.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\z_tls_context.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\z_tls_stream.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\z_udp_socket.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

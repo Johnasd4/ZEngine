@@ -18,7 +18,7 @@
 */
 #pragma once
 
-#include "internal/z_drive.h"
+#include "drive.h"
 
 #include "f_memory_pool.h"
 #include "m_log.h"
@@ -31,7 +31,7 @@
 namespace zengine {
 namespace memory_pool {
 
-enum MemoryPoolEnum : IndexType {
+enum MemoryPoolEnum : Int32 {
     kMemoryPool_TSmallMemoryList,
     kMemoryPool_TSmartPointerList,
     kMemoryPool_TSystemMemory
@@ -46,7 +46,7 @@ enum MemoryPoolEnum : IndexType {
 template<Bool kIsThreadSafe>
 class TMemoryPoolBase : public TMemoryPoolThreadSafeBase<kIsThreadSafe> {
 public:
-    static constexpr IndexType kMaxLogLength = 4096;
+    static constexpr SizeType kMaxLogLength = 4096;
 
     NODISCARD FORCEINLINE MemoryPoolEnum PoolType() const noexcept { return pool_type_; }
 

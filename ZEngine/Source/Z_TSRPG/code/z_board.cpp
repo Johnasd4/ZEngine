@@ -64,15 +64,15 @@ NODISCARD ReturnType ZBoard::GetSurroundTile(
         _tile_list_ptr->Clear();
         _tile_list_ptr->Reserve(_outer_radius * 12);
 
-        IndexType dx_start = -_outer_radius;
-        IndexType dx_end = _outer_radius;
-        for (IndexType dx = -_outer_radius; dx <= _outer_radius; ++dx) {
-            IndexType dy_start = math::Max(-_outer_radius, -dx - _outer_radius);
-            IndexType dy_end = math::Min(_outer_radius, -dx + _outer_radius);
-            for (IndexType dy = dy_start; dy <= dy_end; ++dy) {
+        Int32 dx_start = -_outer_radius;
+        Int32 dx_end = _outer_radius;
+        for (Int32 dx = -_outer_radius; dx <= _outer_radius; ++dx) {
+            Int32 dy_start = math::Max(-_outer_radius, -dx - _outer_radius);
+            Int32 dy_end = math::Min(_outer_radius, -dx + _outer_radius);
+            for (Int32 dy = dy_start; dy <= dy_end; ++dy) {
                 Int32 x = _center_index.x_ + dx;
                 Int32 y = _center_index.y_ + dy;
-                if (!IndexCheck(x, y)) {
+                if (!IndexCheck(LogicVector2D(x, y))) {
                     continue;
                 }
                 //outer of inner circle

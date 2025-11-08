@@ -18,11 +18,11 @@
 */
 #pragma once
 
-#include "internal/z_drive.h"
+#include "drive.h"
 
-#include "log/z_error_log.h"
-#include "log/z_info_log.h"
-#include "log/z_trace_log.h"
+#include "log/type/z_error_log.h"
+#include "log/type/z_info_log.h"
+#include "log/type/z_trace_log.h"
 #include "t_fixed_queue.h"
 #include "z_log_server.h"
 #include "z_thread.h"
@@ -37,10 +37,10 @@ namespace log {
 */
 class ZLogManager : public ZObject {
 public:
-    static constexpr IndexType kLogQueueSize = 1024;
+    static constexpr SizeType kLogQueueSize = 1024;
 
-    static constexpr IndexType kLogPortIDMin = - 3;
-    static constexpr IndexType kLogPortIDMax = kLogMaxPortNum - kLogPortIDMin;
+    static constexpr SizeType kLogPortIDMin = 0;
+    static constexpr SizeType kLogPortIDMax = kLogMaxPortNum - 1;
 
     static Void LogError(
         TimeType _raw_time,
@@ -74,7 +74,7 @@ public:
         Register the log server port input function, the function will be called when log happens.
     */
     NODISCARD static ReturnType RegisterLogServerInputFunction(
-        IndexType _port_id, 
+        SizeType _port_id, 
         Void(*_input_func)(const ZLog*, ZLog::OutputString_*)
     ) noexcept;
 
@@ -82,7 +82,7 @@ public:
         Removes the log server port output function.
     */
     NODISCARD static ReturnType UnregisterLogServerInputFunction(
-        IndexType _port_id, 
+        SizeType _port_id,
         Void(*_input_func)(const ZLog*, ZLog::OutputString_*)
     ) noexcept;
 
@@ -90,7 +90,7 @@ public:
         Register the log server port output function, the function will be called when log happens.
     */
     NODISCARD static ReturnType RegisterLogServerOutputFunction(
-        IndexType _port_id, 
+        SizeType _port_id,
         Void(*_output_func)(const ZLog*, const ZLog::OutputString_&)
     ) noexcept;
 
@@ -124,7 +124,7 @@ private:
     TFixedQueueSafe<ZErrorLog, kLogQueueSize> error_log_queue_;
     TFixedQueueSafe<ZTraceLog, kLogQueueSize> trace_log_queue_;
     TFixedQueueSafe<ZInfoLog, kLogQueueSize> info_log_queue_;
-    TArray<TFixedQueueSafe<ZErrorLog, kLogQueueSize>, kLogMaxPortNum - kLogPortIDMin> log_queue_array_;
+    TArray<TFixedQueueSafe<ZLog, kLogQueueSize>, kLogMaxPortNum> log_queue_array_;
     ZLogServer log_server_;
     Bool log_thread_finished_;
     ZThread log_thread_;

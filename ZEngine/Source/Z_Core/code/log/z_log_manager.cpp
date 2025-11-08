@@ -67,7 +67,7 @@ Void ZLogManager::LogInfo(
 }
 
 NODISCARD ReturnType ZLogManager::RegisterLogServerInputFunction(
-    IndexType _port_id, Void(*_input_func)(const ZLog*, ZLog::OutputString_*)
+    SizeType _port_id, Void(*_input_func)(const ZLog*, ZLog::OutputString_*)
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
@@ -83,7 +83,7 @@ NODISCARD ReturnType ZLogManager::RegisterLogServerInputFunction(
 }
 
 NODISCARD ReturnType ZLogManager::UnregisterLogServerInputFunction(
-    IndexType _port_id, Void(*_input_func)(const ZLog*, ZLog::OutputString_*)
+    SizeType _port_id, Void(*_input_func)(const ZLog*, ZLog::OutputString_*)
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
@@ -99,7 +99,7 @@ NODISCARD ReturnType ZLogManager::UnregisterLogServerInputFunction(
 }
 
 NODISCARD ReturnType ZLogManager::RegisterLogServerOutputFunction(
-    IndexType _port_id, Void(*_output_func)(const ZLog*, const ZLog::OutputString_&)
+    SizeType _port_id, Void(*_output_func)(const ZLog*, const ZLog::OutputString_&)
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
@@ -153,7 +153,7 @@ Void ZLogManager::LogThread() noexcept {
         }
 
         //log
-        for (IndexType port_id = 0; port_id < log_manager.log_queue_array_.Capacity(); ++port_id) {
+        for (SizeType port_id = 0; port_id < log_manager.log_queue_array_.Capacity(); ++port_id) {
             if (!log_manager.log_queue_array_[port_id].Empty()) {
                 log_manager.log_server_.OutputLog(port_id, &log_manager.log_queue_array_[port_id].Front());
                 log_manager.log_queue_array_[port_id].PopFront();
