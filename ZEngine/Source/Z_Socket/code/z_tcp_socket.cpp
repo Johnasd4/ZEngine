@@ -120,7 +120,7 @@ NODISCARD ReturnType ZTCPSocket::Initialize(ZIOContext* _io_context_ptr) noexcep
         state_ != ZTCPSocketState_Uninitialized,
         error_code::kPSocketErrorCode_StateError,
         L"Socket state error! state: %d expect state: %d",
-        state_, ZTCPSocketState_Uninitialized
+        state_.Value(), ZTCPSocketState_Uninitialized
     );
 
     Z_CHECK(
@@ -142,7 +142,7 @@ NODISCARD ReturnType ZTCPSocket::BindEndpoint(const Char* _address_str, Int32 _p
         state_ != ZTCPSocketState_Idle,
         error_code::kPSocketErrorCode_StateError,
         L"Socket state error! state: %d expect state: %d",
-        state_, ZTCPSocketState_Idle
+        state_.Value(), ZTCPSocketState_Idle
     );
     Z_CHECK(
         _port < 0 || _port > 65535,
@@ -174,10 +174,10 @@ NODISCARD ReturnType ZTCPSocket::SetOSWriteBufferSize(Int32 _size) noexcept {
     ReturnType ret_val = kOK;
 
     Z_CHECK(
-        state_ != ZTCPSocketState_Connect,
+        state_ != ZTCPSocketState_Connected,
         error_code::kPSocketErrorCode_StateError,
         L"Socket state error! state: %d expect state: %d",
-        state_, ZTCPSocketState_Connect
+        state_.Value(), ZTCPSocketState_Connected
     );
 
     boost::system::error_code error_code;
@@ -200,10 +200,10 @@ NODISCARD ReturnType ZTCPSocket::SetOSReadBufferSize(Int32 _size) noexcept {
     ReturnType ret_val = kOK;
 
     Z_CHECK(
-        state_ != ZTCPSocketState_Connect,
+        state_ != ZTCPSocketState_Connected,
         error_code::kPSocketErrorCode_StateError,
         L"Socket state error! state: %d expect state: %d",
-        state_, ZTCPSocketState_Connect
+        state_.Value(), ZTCPSocketState_Connected
     );
 
     boost::system::error_code error_code;
@@ -263,7 +263,7 @@ NODISCARD ReturnType ZTCPSocket::Close() noexcept {
         data_ptr_->if_endpoint_bind_ = false;
         data_ptr_->async_error_handle_func_ = nullptr;
         data_ptr_->socket_.cancel();
-        if (state_ == ZTCPSocketState_Connect) {
+        if (state_ == ZTCPSocketState_Connected) {
             data_ptr_->socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
         }
         data_ptr_->socket_.close();
@@ -297,7 +297,7 @@ NODISCARD ReturnType ZTCPSocket::Reset() noexcept {
         if (data_ptr_->socket_.is_open()) {
             data_ptr_->socket_.cancel();
         }
-        if (state_ == ZTCPSocketState_Connect) {
+        if (state_ == ZTCPSocketState_Connected) {
             data_ptr_->socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
         }
         data_ptr_->socket_.close();
@@ -322,13 +322,14 @@ NODISCARD ReturnType ZTCPSocket::Connect(
     Int32 _repeat_times
 ) noexcept {
     ReturnType ret_val = kOK;
+    ReturnType link_code = kOK;
     boost::system::error_code error_code;
 
     Z_CHECK(
         state_ != ZTCPSocketState_Idle,
         error_code::kPSocketErrorCode_StateError,
         L"Socket state error! state: %d expect state: %d",
-        state_, ZTCPSocketState_Idle
+        state_.Value(), ZTCPSocketState_Idle
     );
 
     //resolve endpoints
@@ -347,6 +348,8 @@ NODISCARD ReturnType ZTCPSocket::Connect(
         );
         return ret_val;
     }
+
+    state_ = ZTCPSocket::ZTCPSocketState_Connecting;
 
     //connect
     Z_LOG_START(
@@ -381,7 +384,11 @@ NODISCARD ReturnType ZTCPSocket::Connect(
 
         //connect failed
         if (error_code) {
-            if (error_code == boost::asio::error::connection_refused) {
+            if (state_ != ZTCPSocketState_Connecting) {
+                Z_LOG_PROCESS(L"Connect stopped!");
+				break;
+            }
+            else if (error_code == boost::asio::error::connection_refused) {
                 reconnect_times += 1;
                 Z_LOG_PROCESS(
                     L"Retry to connect server... repeat_times: %d server_address: %ls server_port: %ls",
@@ -408,7 +415,11 @@ NODISCARD ReturnType ZTCPSocket::Connect(
         break;
     } while (_repeat_times > reconnect_times);
 
-    if (state_ != ZTCPSocketState_Connect) {
+    if (state_ == ZTCPSocketState_Connecting) {
+        state_ = ZTCPSocketState_Idle;
+    }
+
+    if (state_ != ZTCPSocketState_Connected) {
         ret_val = error_code::kPSocketErrorCode_ConnectFailed;
         Z_LOG_FAILURE(
             L"Socket connect failed! server_address: %ls server_port: %ls",
@@ -433,7 +444,7 @@ NODISCARD ReturnType ZTCPSocket::AsyncConnect(
         state_ != ZTCPSocketState_Idle,
         error_code::kPSocketErrorCode_StateError,
         L"Socket state error! state: %d expect state: %d",
-        state_, ZTCPSocketState_Idle
+        state_.Value(), ZTCPSocketState_Idle
     );
 
     //resolve endpoints
@@ -470,6 +481,7 @@ NODISCARD ReturnType ZTCPSocket::AsyncConnect(
 
             ReturnType link_code = kOK;
             auto endpoint_iterator = _endpoints.begin();
+            state_ = ZTCPSocketState_Connecting;
             link_code = AsyncConnectExecuteP(
                 std::move(address_str), 
                 std::move(port_str), 
@@ -564,7 +576,10 @@ NODISCARD ReturnType ZTCPSocket::AsyncConnectExecuteP(
                     if (_error_code == boost::asio::error::connection_refused) {
                         Bool if_retry = false;
                         //retry
-                        if (endpoint_iterator != endpoints.end()) {
+                        if (state_ != ZTCPSocketState_Connecting) {
+                            Z_LOG_PROCESS(L"Connect stopped!");
+                        }
+                        else if (endpoint_iterator != endpoints.end()) {
                             ++endpoint_iterator;
                             if_retry = true;
                         }
@@ -621,13 +636,8 @@ NODISCARD ReturnType ZTCPSocket::AsyncConnectExecuteP(
                         );
                     }
 
-                    link_code = Reset();
-                    if (link_code != kOK) {
-                        Z_LOG_ERROR(
-                            error_code::kPSocketErrorCode_LinkError, link_code,
-                            L"ZTCPSocket::Reset() link error!"
-                        );
-                        return;
+                    if (state_ == ZTCPSocketState_Connecting) {
+                        state_ = ZTCPSocketState_Idle;
                     }
 
                     _handle_func(false);
@@ -644,6 +654,12 @@ NODISCARD ReturnType ZTCPSocket::AsyncConnectExecuteP(
     return ret_val;
 }
 
+NODISCARD Void ZTCPSocket::StopConnect() noexcept {
+    if (state_ == ZTCPSocketState_Connecting) {
+        state_ = ZTCPSocketState_Idle;
+    }
+}
+
 NODISCARD ReturnType ZTCPSocket::Read(
     Void* _buffer_ptr,
     SizeType _buffer_size,
@@ -653,7 +669,7 @@ NODISCARD ReturnType ZTCPSocket::Read(
     ReturnType link_code = kOK;
     boost::system::error_code error_code;
 
-    if (state_ != ZTCPSocketState_Connect) {
+    if (state_ != ZTCPSocketState_Connected) {
         ret_val = error_code::kPSocketErrorCode_StateError;
         return ret_val;
     }
@@ -702,7 +718,7 @@ NODISCARD ReturnType ZTCPSocket::AsyncRead(
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
 
-    if (state_ != ZTCPSocketState_Connect) {
+    if (state_ != ZTCPSocketState_Connected) {
         ret_val = error_code::kPSocketErrorCode_StateError;
         return ret_val;
     }
@@ -763,7 +779,7 @@ NODISCARD ReturnType ZTCPSocket::Write(
     ReturnType link_code = kOK;
     boost::system::error_code error_code;
 
-    if (state_ != ZTCPSocketState_Connect) {
+    if (state_ != ZTCPSocketState_Connected) {
         ret_val = error_code::kPSocketErrorCode_StateError;
         return ret_val;
     }
@@ -807,7 +823,7 @@ NODISCARD ReturnType ZTCPSocket::AsyncWrite(
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
 
-    if (state_ != ZTCPSocketState_Connect) {
+    if (state_ != ZTCPSocketState_Connected) {
         ret_val = error_code::kPSocketErrorCode_StateError;
         return ret_val;
     }
@@ -882,7 +898,7 @@ Void ZTCPSocket::OnConnectP() noexcept {
     data_ptr_->address_ = remote_endpoint.address().to_string().c_str();
     data_ptr_->port_ = static_cast<Int32>(remote_endpoint.port());
 
-    state_ = ZTCPSocket::ZTCPSocketState_Connect;
+    state_ = ZTCPSocketState_Connected;
 
     Z_LOG_SUCCESS(
         L"Socket connected! address: %ls port: %d",

@@ -142,7 +142,8 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncConnect(
     const Char* _address_str,
     const Char* _port_str,
     const TFunction<Void(ZTCPMultipleSessionClient*, ZTCPSocket*)>& _handle_func,
-    Int32 _repeat_times
+    Int32 _repeat_times,
+    ZTCPSocket** _tcp_socket_ptr_ptr
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
@@ -156,6 +157,9 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncConnect(
     );
 
     ZTCPSocket* socket_ptr = socket_pool_list_.Apply();
+    if (_tcp_socket_ptr_ptr != nullptr) {
+        *_tcp_socket_ptr_ptr = socket_ptr;
+    }
     ZString address_str = _address_str;
     ZString port_str = _port_str;
 
@@ -166,12 +170,25 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncConnect(
             //failed
             if (!_connect_success) {
                 socket_pool_list_.Release(socket_ptr);
+                return;
             }
 
             //success
             socket_pool_list_.PushBack(socket_ptr);
             socket_ptr->SetAsyncErrorHandleFunction(
-                [address_str = std::move(address_str), port_str = std::move(port_str)]() {
+                [address_str = std::move(address_str), port_str = std::move(port_str), this, socket_ptr]() {
+                    ReturnType link_code = kOK;
+                    //reset and release socket
+                    link_code = socket_ptr->Reset();
+                    if (link_code != kOK) {
+                        Z_LOG_ERROR(
+                            error_code::kPSocketErrorCode_LinkError, link_code,
+                            L"ZTCPSocket::Reset() link error!"
+                        );
+                    }
+                    socket_pool_list_.Erase(socket_ptr);
+                    socket_pool_list_.Release(socket_ptr);
+
                     //disconnect
                     Z_LOG_FINISH(
                         L"Server disconnected! server_address: %ls server_port: %ls",

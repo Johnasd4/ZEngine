@@ -56,7 +56,7 @@ public:
     enum State_ : Int32 {
         ZTCPSingleSessionClientState_Uninitialized,
         ZTCPSingleSessionClientState_Idle,
-        ZTCPSingleSessionClientState_Connect,
+        ZTCPSingleSessionClientState_Connected,
         ZTCPSingleSessionClientState_Error
     };
 
@@ -92,13 +92,18 @@ public:
     NODISCARD ReturnType Reset() noexcept;
 
     /*
-        Coonect to server. Will suspend the current thread.
+        Connect to server. Will suspend the current thread.
     */
     NODISCARD ReturnType Connect(
         const Char* _address_str, 
         const Char* _port_str, 
         Int32 _repeat_times = kConnectRetryForever
     ) noexcept;
+
+    /*
+        Stops connecting.
+    */
+    NODISCARD Void StopConnect() noexcept;
 
     /*
         Get socket ptr.
@@ -200,7 +205,7 @@ public:
     NODISCARD ReturnType Reset() noexcept;
 
     /*
-        Coonect to server. Will not suspend the current thread.
+        Connect to server. Will not suspend the current thread.
         _handle_func will be called after connected.
         _handle_func(ZTCPMultipleSessionClient* _server_ptr, ZTCPSocket* _socket_ptr)
     */
@@ -208,7 +213,8 @@ public:
         const Char* _address_str, 
         const Char* _port_str,
         const TFunction<Void(ZTCPMultipleSessionClient*, ZTCPSocket*)>& _handle_func,
-        Int32 _repeat_times = kConnectRetryForever
+        Int32 _repeat_times = kConnectRetryForever,
+        ZTCPSocket** _tcp_socket_ptr_ptr = nullptr
     ) noexcept;
 
     /*

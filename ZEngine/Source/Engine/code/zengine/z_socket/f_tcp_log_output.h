@@ -21,6 +21,9 @@
 #include "drive.h"
 
 #include "../z_core/t_fixed_string.h"
+#include "../z_core/t_function.h"
+
+#include "z_tcp_socket.h"
 
 /*
     This module allows logs over tcp. 
@@ -139,9 +142,12 @@ SOCKET_DLLAPI ReturnType StopLogOutputServer() noexcept;
     Start log handle client.
 */
 SOCKET_DLLAPI ReturnType StartLogOutputClient( 
-    Void (*_handle_func)(const TCPLogOutputReplyLogData*),
+    const TFunction<Void(const TCPLogOutputReplyLogData*)>& _data_handle_func,
+    const TFunction<Void()>& _connect_handle_func,
+    const TFunction<Void()>& _disconnect_handle_func,
     const Char* _address_str = kDefaultTCPLogAddressString,
-    const Char* _port_str = kDefaultTCPLogPortString
+    const Char* _port_str = kDefaultTCPLogPortString,
+    Int32 _repeat_times = ZTCPSocket::kConnectRetryForever
 ) noexcept;
 
 }//socket

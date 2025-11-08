@@ -214,6 +214,19 @@ NODISCARD ReturnType ZWindow::Execute() noexcept {
         Float32 delta_time = static_cast<Float32>(current_time - pre_time) * 0.001f;
         pre_time = current_time;
 
+        //call tasks
+        while (task_queue_.Size() > 0ULL) {
+            link_code = task_queue_.Front().Run();
+            if (link_code != kOK) {
+                Z_LOG_ERROR(
+                    error_code::kZWindowErrorCode_LinkError, 
+                    link_code, 
+                    L"ZTask::Run() link error!"
+                );
+            }
+            task_queue_.Pop();
+        }
+
         //ticks window
         Tick(delta_time);
 
@@ -372,7 +385,7 @@ Void ZWindow::Destroy() noexcept {
     }
 }
 
-ReturnType ZWindow::Add(ZFrame* _frame_ptr) noexcept {
+NODISCARD ReturnType ZWindow::Add(ZFrame* _frame_ptr) noexcept {
     ReturnType ret_val = kOK;
     Z_CHECK(
         _frame_ptr == nullptr,
@@ -384,6 +397,10 @@ ReturnType ZWindow::Add(ZFrame* _frame_ptr) noexcept {
     _frame_ptr->OnAdd(this);
 
     return ret_val;
+}
+
+Void ZWindow::AddTask(ZTask&& _task) noexcept {
+    task_queue_.Push(std::forward<ZTask>(_task));
 }
 
 ReturnType ZWindow::Remove(ZFrame* _frame_ptr) noexcept {

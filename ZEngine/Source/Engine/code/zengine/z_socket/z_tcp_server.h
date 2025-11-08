@@ -53,7 +53,7 @@ public:
         ZTCPSingleSessionServerState_Uninitialized,
         ZTCPSingleSessionServerState_Idle,
         ZTCPSingleSessionServerState_Listen,
-        ZTCPSingleSessionServerState_Connect,
+        ZTCPSingleSessionServerState_Connected,
         ZTCPSingleSessionServerState_Error
     };
 

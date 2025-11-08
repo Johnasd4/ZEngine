@@ -224,13 +224,36 @@ public:
     Void PopBack() noexcept {
         if (list_head_node_ptr_ != list_end_node_ptr_) {
             list_end_node_ptr_ = list_end_node_ptr_->previous_node_ptr_;
-            list_head_node_ptr_->next_node_ptr_ = nullptr;
+            list_end_node_ptr_->next_node_ptr_ = nullptr;
         }
         else if (list_head_node_ptr_ == nullptr) {
             return;
         }
         else {
             list_head_node_ptr_ = list_end_node_ptr_ = nullptr;
+        }
+        --list_size_;
+    }
+
+    /*
+        WARNING: Will not release to pool.
+    */
+    Void Erase(_ObjectType* _object_ptr) noexcept {
+        Node_* node_ptr = reinterpret_cast<Node_*>(_object_ptr);
+        if (list_head_node_ptr_ == list_end_node_ptr_) {
+            list_head_node_ptr_ = list_end_node_ptr_ = nullptr;
+        }
+        else if (node_ptr == list_head_node_ptr_) {
+            list_head_node_ptr_ = list_head_node_ptr_->next_node_ptr_;
+            list_head_node_ptr_->previous_node_ptr_ = nullptr;
+        }
+        else if (node_ptr == list_end_node_ptr_) {
+            list_end_node_ptr_ = list_end_node_ptr_->previous_node_ptr_;
+            list_end_node_ptr_->next_node_ptr_ = nullptr;
+        }
+        else {
+            node_ptr->previous_node_ptr_->next_node_ptr_ = node_ptr->next_node_ptr_;
+            node_ptr->next_node_ptr_->previous_node_ptr_ = node_ptr->previous_node_ptr_;
         }
         --list_size_;
     }
@@ -621,13 +644,37 @@ public:
         TLockGuard lock_guard(mutex_);
         if (list_head_node_ptr_ != list_end_node_ptr_) {
             list_end_node_ptr_ = list_end_node_ptr_->previous_node_ptr_;
-            list_head_node_ptr_->next_node_ptr_ = nullptr;
+            list_end_node_ptr_->next_node_ptr_ = nullptr;
         }
         else if (list_head_node_ptr_ == nullptr) {
             return;
         }
         else {
             list_head_node_ptr_ = list_end_node_ptr_ = nullptr;
+        }
+        --list_size_;
+    }
+
+    /*
+        WARNING: Will not release to pool.
+    */
+    Void Erase(_ObjectType* _object_ptr) noexcept {
+        TLockGuard lock_guard(mutex_);
+        Node_* node_ptr = reinterpret_cast<Node_*>(_object_ptr);
+        if (list_head_node_ptr_ == list_end_node_ptr_) {
+            list_head_node_ptr_ = list_end_node_ptr_ = nullptr;
+        }
+        else if (node_ptr == list_head_node_ptr_) {
+            list_head_node_ptr_ = list_head_node_ptr_->next_node_ptr_;
+            list_head_node_ptr_->previous_node_ptr_ = nullptr;
+        }
+        else if (node_ptr == list_end_node_ptr_) {
+            list_end_node_ptr_ = list_end_node_ptr_->previous_node_ptr_;
+            list_end_node_ptr_->next_node_ptr_ = nullptr;
+        }
+        else {
+            node_ptr->previous_node_ptr_->next_node_ptr_ = node_ptr->next_node_ptr_;
+            node_ptr->next_node_ptr_->previous_node_ptr_ = node_ptr->previous_node_ptr_;
         }
         --list_size_;
     }

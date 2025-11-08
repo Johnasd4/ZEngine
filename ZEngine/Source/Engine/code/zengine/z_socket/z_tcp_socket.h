@@ -20,6 +20,7 @@
 
 #include "drive.h"
 
+#include "../z_core/t_atom.h"
 #include "../z_core/t_function.h"
 #include "../z_core/t_smart_pointer.h"
 #include "../z_core/z_object.h"
@@ -49,7 +50,8 @@ public:
     enum State_ : Int32 {
         ZTCPSocketState_Uninitialized,
         ZTCPSocketState_Idle,
-        ZTCPSocketState_Connect,
+        ZTCPSocketState_Connecting,
+        ZTCPSocketState_Connected,
         ZTCPSocketState_Error
     };
 
@@ -63,7 +65,7 @@ public:
     ZTCPSocket& operator=(const ZTCPSocket& _socket) noexcept;
     ZTCPSocket& operator=(ZTCPSocket&& _socket) noexcept;
 
-    NODISCARD FORCEINLINE State_ State()const  noexcept { return state_; }
+    NODISCARD FORCEINLINE State_ State()const  noexcept { return state_.Value(); }
     NODISCARD FORCEINLINE ZIOContext* IOContextPtr() const noexcept { return io_context_ptr_; }
     template<typename _ObjectType>
     NODISCARD FORCEINLINE _ObjectType* LinkObjectPtr() const noexcept { return link_object_ptr_; }
@@ -129,6 +131,11 @@ public:
         const TFunction<Void(Bool)>& _handle_func,
         Int32 _repeat_times = kConnectRetryForever
     ) noexcept;
+
+    /*
+        Stops connecting.
+    */
+    NODISCARD Void StopConnect() noexcept;
 
     /*
         Read data. Will suspend the current thread until data read.
@@ -207,7 +214,7 @@ private:
     TUniquePointer<internal::ZTCPSocketData> data_ptr_;
     ZIOContext* io_context_ptr_;
     Void* link_object_ptr_;
-    State_ state_;
+    TAtom<State_> state_;
 };
 
 }//socket

@@ -151,7 +151,7 @@ public:
 
     FORCEINLINE TQueueSafe& operator=(const TQueueSafe& _queue) noexcept {
         TLockGuard lock_guard(mutex_);
-        TLockGuard lock_guard(const_cast<TQueueSafe*>(&_queue)->mutex_);
+        TLockGuard lock_guard(_queue.mutex_);
         SuperType_::operator=(_queue);
         queue_ = _queue.queue_;
         return *this;

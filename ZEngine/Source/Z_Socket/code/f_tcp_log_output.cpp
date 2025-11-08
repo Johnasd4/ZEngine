@@ -178,6 +178,9 @@ public:
         return ret_val;
     }
 
+protected:
+    using SuperType_ = ZObject;
+
 private:
     enum LogServerThreadState_ : Int32 {
         LogServerState_Idle,
@@ -294,7 +297,8 @@ private:
     }
 
     ZTCPLogServer() noexcept
-        : log_buffer_ptr_queue_()
+        : SuperType_()
+        , log_buffer_ptr_queue_()
         , socket_context_()
         , log_server_(&socket_context_)
         , server_thread_()
@@ -343,9 +347,12 @@ public:
     }
 
     NODISCARD ReturnType StartClient(
-        Void(*_handle_func)(const TCPLogOutputReplyLogData*),
+        const TFunction<Void(const TCPLogOutputReplyLogData*)>& _data_handle_func,
+        const TFunction<Void()>& _connect_handle_func,
+        const TFunction<Void()>& _disconnect_handle_func,
         const Char* _address_str,
-        const Char* _port_str
+        const Char* _port_str,
+        Int32 _repeat_times
     ) noexcept {
         ReturnType ret_val = kOK;
         ReturnType link_code = kOK;
@@ -358,14 +365,13 @@ public:
         );
 
         //set handle func
-        handle_func_ = _handle_func;
+        data_handle_func_ = _data_handle_func;
+        connect_handle_func_ = _connect_handle_func;		
+        disconnect_handle_func_ = _disconnect_handle_func;
 
         //start log client
         log_client_thread_state_ = LogClientState_Initialzing;
-        connect_sem_mutex_.Lock();
-        client_thread_ = ZThread(LogClientThreadFunc, ZString(_address_str), ZString(_port_str));
-        connect_sem_mutex_.Lock();
-        connect_sem_mutex_.Unlock();
+        client_thread_ = ZThread(LogClientThreadFunc, ZString(_address_str), ZString(_port_str), _repeat_times);
 
         return ret_val;
     }
@@ -396,6 +402,9 @@ public:
         return ret_val;
     }
 
+protected:
+    using SuperType_ = ZObject;
+
 private:
     enum LogClientThreadState_ : Int32 {
         LogClientState_Idle,
@@ -407,7 +416,8 @@ private:
 
     static Void LogClientThreadFunc(
         ZString&& _address_str,
-        ZString&& _port_str
+        ZString&& _port_str,
+        Int32 _repeat_times
     ) noexcept {
         ReturnType link_code = kOK;
 
@@ -416,8 +426,7 @@ private:
             Instance().log_client_thread_state_ = LogClientState_WaitingToConnect;
 
             //wait for clinet connect
-            link_code = Instance().log_client_.Connect(_address_str.String(), _port_str.String());
-            Instance().connect_sem_mutex_.Unlock();
+            link_code = Instance().log_client_.Connect(_address_str.String(), _port_str.String(), _repeat_times);
             if (link_code != kOK) {
                 Instance().log_client_thread_state_ = LogClientState_Idle;
                 Z_LOG_ERROR(error_code::kPSocketErrorCode_LinkError, link_code, L"ZTCPClient::Accept() link error!");
@@ -431,6 +440,9 @@ private:
                 }
                 break;
             }
+
+            //call handle func
+            Instance().connect_handle_func_();
 
             Instance().log_client_thread_state_ = LogClientState_GettingLogs;        
 
@@ -469,7 +481,7 @@ private:
                 //log
                 case TCPLogOutputReplyID_Log:
                     //handle log
-                    Instance().handle_func_(&reply_ptr->reply_data_.log_data_);
+                    Instance().data_handle_func_(&reply_ptr->reply_data_.log_data_);
                     break;
                 //CommandIDNotExist
                 case TCPLogOutputReplyID_CommandIDNotExist:
@@ -488,12 +500,18 @@ private:
             }
         }
 
+        //call handle func
+        Instance().disconnect_handle_func_();
+
         //shutdown
         Instance().log_client_thread_state_ = LogClientState_Idle;
     }
 
     ZTCPLogClient() noexcept
-        : handle_func_(nullptr)
+        : SuperType_()
+        , data_handle_func_()
+        , connect_handle_func_()
+        , disconnect_handle_func_()
         , socket_context_()
         , log_client_(&socket_context_)
         , client_thread_()
@@ -508,12 +526,13 @@ private:
     }
 
 private:
-    Void (*handle_func_)(const TCPLogOutputReplyLogData*);
+    TFunction<Void(const TCPLogOutputReplyLogData*)> data_handle_func_;
+    TFunction<Void()> connect_handle_func_;
+    TFunction<Void()> disconnect_handle_func_;
     ZIOContext socket_context_;
     ZTCPSingleSessionClient log_client_;
     ZThread client_thread_;
     TAtom<LogClientThreadState_> log_client_thread_state_;
-    ZSemMutex connect_sem_mutex_;
 };
 
 SOCKET_DLLAPI ReturnType StartLogOutputServer(
@@ -546,13 +565,23 @@ SOCKET_DLLAPI ReturnType StopLogOutputServer() noexcept {
 }
 
 SOCKET_DLLAPI ReturnType StartLogOutputClient(
-    Void(*_handle_func)(const TCPLogOutputReplyLogData*),
+    const TFunction<Void(const TCPLogOutputReplyLogData*)>& _data_handle_func,
+    const TFunction<Void()>& _connect_handle_func,
+    const TFunction<Void()>& _disconnect_handle_func,
     const Char* _address_str,
-    const Char* _port_str
+    const Char* _port_str,
+    Int32 _repeat_times
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
-    link_code = ZTCPLogClient::Instance().StartClient(_handle_func, _address_str, _port_str);
+    link_code = ZTCPLogClient::Instance().StartClient(
+        _data_handle_func,
+        _connect_handle_func,
+        _disconnect_handle_func,
+        _address_str,
+        _port_str, 
+        _repeat_times
+    );
     if (link_code != kOK) {
         Z_LOG_ERROR(
             error_code::kFTCPLogOutputErrorCode_LinkError, link_code,

@@ -22,6 +22,7 @@
 
 #include "../z_core/t_set.h"
 #include "../z_core/t_queue.h"
+#include "../z_core/z_task.h"
 
 #include "z_gui_object.h"
 #include "z_widget_object.h"
@@ -55,6 +56,7 @@ namespace gui {
 /*
     Window class. Only creates the window, before adding widgets, a ZFrame must be added first. 
     The window contain's the frames and the frame's contains the widgets.
+    Call AddTask() to operate gui, task will be called when window ticks.
 */
 class GUI_DLLAPI ZWindow : public ZGuiObject {
 public:
@@ -154,7 +156,12 @@ public:
     /*
         Adds a frame to the window.
     */
-    virtual ReturnType Add(ZFrame* _frame_ptr) noexcept;
+    NODISCARD virtual ReturnType Add(ZFrame* _frame_ptr) noexcept;
+
+    /*
+        Adds task to run. Task will only run once. Task will be called when ticks.
+    */
+    Void AddTask(ZTask&& _task) noexcept;
 
     /*
         Remove a frame from the window.
@@ -236,7 +243,7 @@ private:
     ImGuiContext* imgui_context_ptr_;
     ImGuiIO* imgui_io_ptr_;
     TMultiset<ZFrame*, ZWidgetObjectCompare> frame_ptr_set_;
-    //TQueue<ZTask>
+    TQueueSafe<ZTask> task_queue_;
     WindowStateEnum_ window_state_;
 };
 
