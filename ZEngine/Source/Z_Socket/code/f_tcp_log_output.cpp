@@ -151,7 +151,7 @@ public:
         ReturnType ret_val = kOK;
         ReturnType link_code = kOK;
 
-        if (log_server_thread_state_ == LogServerState_Idle) {
+        if (log_server_thread_state_ == LogServerState_Idle || log_server_thread_state_ == LogServerState_Closing) {
             return ret_val;
         }
 
@@ -168,11 +168,6 @@ public:
             ret_val = error_code::kPSocketErrorCode_LinkError;
             Z_LOG_ERROR(ret_val, link_code, L"ZTCPServer::Close() link error!");
             return ret_val;
-        }
-
-        //wait for thread finish
-        if (server_thread_.Joinable()) {
-            server_thread_.Join();
         }
 
         return ret_val;
@@ -348,8 +343,8 @@ public:
 
     NODISCARD ReturnType StartClient(
         const TFunction<Void(const TCPLogOutputReplyLogData*)>& _data_handle_func,
-        const TFunction<Void()>& _connect_handle_func,
-        const TFunction<Void()>& _disconnect_handle_func,
+        const TFunction<Void()>& _client_connect_handle_func,
+        const TFunction<Void()>& _client_finish_handle_func,
         const Char* _address_str,
         const Char* _port_str,
         Int32 _repeat_times
@@ -366,8 +361,8 @@ public:
 
         //set handle func
         data_handle_func_ = _data_handle_func;
-        connect_handle_func_ = _connect_handle_func;		
-        disconnect_handle_func_ = _disconnect_handle_func;
+        client_connect_handle_func_ = _client_connect_handle_func;		
+        client_finish_handle_func_ = _client_finish_handle_func;
 
         //start log client
         log_client_thread_state_ = LogClientState_Initialzing;
@@ -380,7 +375,7 @@ public:
         ReturnType ret_val = kOK;
         ReturnType link_code = kOK;
 
-        if (log_client_thread_state_ == LogClientState_Idle) {
+        if (log_client_thread_state_ == LogClientState_Idle || log_client_thread_state_ == LogClientState_Closing) {
             return ret_val;
         }
 
@@ -392,11 +387,6 @@ public:
             ret_val = error_code::kPSocketErrorCode_LinkError;
             Z_LOG_ERROR(ret_val, link_code, L"ZTCPClient::Close() link error!");
             return ret_val;
-        }
-
-        //wait for thread finish
-        if (client_thread_.Joinable()) {
-            client_thread_.Join();
         }
 
         return ret_val;
@@ -421,87 +411,87 @@ private:
     ) noexcept {
         ReturnType link_code = kOK;
 
-        while (Instance().log_client_.State() == ZTCPSingleSessionClient::ZTCPSingleSessionClientState_Idle) {
+        Instance().log_client_thread_state_ = LogClientState_WaitingToConnect;
 
-            Instance().log_client_thread_state_ = LogClientState_WaitingToConnect;
-
-            //wait for clinet connect
-            link_code = Instance().log_client_.Connect(_address_str.String(), _port_str.String(), _repeat_times);
+        //wait for clinet connect
+        link_code = Instance().log_client_.Connect(_address_str.String(), _port_str.String(), _repeat_times);
+        if (link_code != kOK) {
+            Instance().log_client_thread_state_ = LogClientState_Idle;
+            Z_LOG_ERROR(error_code::kPSocketErrorCode_LinkError, link_code, L"ZTCPClient::Accept() link error!");
+            link_code = Instance().log_client_.Reset();
             if (link_code != kOK) {
-                Instance().log_client_thread_state_ = LogClientState_Idle;
-                Z_LOG_ERROR(error_code::kPSocketErrorCode_LinkError, link_code, L"ZTCPClient::Accept() link error!");
-                link_code = Instance().log_client_.Reset();
-                if (link_code != kOK) {
-                    Z_LOG_ERROR(
-                        error_code::kFTCPLogOutputErrorCode_LinkError, link_code,
-                        L"ZTCPClient::Reset() link error!"
-                    );
-                    break;
-                }
+                Z_LOG_ERROR(
+                    error_code::kFTCPLogOutputErrorCode_LinkError, link_code,
+                    L"ZTCPClient::Reset() link error!"
+                );
+            }
+            //call handle func
+            Instance().client_finish_handle_func_();
+            //shutdown
+            Instance().log_client_thread_state_ = LogClientState_Idle;
+            return;
+        }
+
+        //call handle func
+        Instance().client_connect_handle_func_();
+
+        Instance().log_client_thread_state_ = LogClientState_GettingLogs;        
+
+        TFixedMemory<sizeof(TCPLogOutputCommand)> socket_command_buffer;
+        TFixedMemory<sizeof(TCPLogOutputReply)> socket_reply_buffer;
+        TCPLogOutputCommand* command_ptr = socket_command_buffer.DataPtr<TCPLogOutputCommand*>();
+        TCPLogOutputReply* reply_ptr = socket_reply_buffer.DataPtr<TCPLogOutputReply*>();
+        SizeType command_size;
+        //get log until disconnent
+        while (true) {
+            //command data
+            command_size = sizeof(TCPLogOutputCommandIDEnum);
+            command_ptr->command_id_ = TCPLogOutputCommandID_GetNextLog;
+
+            //send command
+            link_code = Instance().log_client_.Write(
+                socket_command_buffer.DataPtr<Void*>(),
+                command_size
+            );
+            if (link_code != kOK) {
                 break;
             }
 
-            //call handle func
-            Instance().connect_handle_func_();
+            //wait for reply
+            link_code = Instance().log_client_.Read(
+                socket_reply_buffer.DataPtr<Void*>(),
+                sizeof(TCPLogOutputReply)
+            );
+            if (link_code != kOK) {
+                break;
+            }
 
-            Instance().log_client_thread_state_ = LogClientState_GettingLogs;        
-
-            TFixedMemory<sizeof(TCPLogOutputCommand)> socket_command_buffer;
-            TFixedMemory<sizeof(TCPLogOutputReply)> socket_reply_buffer;
-            TCPLogOutputCommand* command_ptr = socket_command_buffer.DataPtr<TCPLogOutputCommand*>();
-            TCPLogOutputReply* reply_ptr = socket_reply_buffer.DataPtr<TCPLogOutputReply*>();
-            SizeType command_size;
-            //get log until disconnent
-            while (true) {
-                //command data
-                command_size = sizeof(TCPLogOutputCommandIDEnum);
-                command_ptr->command_id_ = TCPLogOutputCommandID_GetNextLog;
-
-                //send command
-                link_code = Instance().log_client_.Write(
-                    socket_command_buffer.DataPtr<Void*>(),
-                    command_size
+            //handle reply data
+            Int32 reply_id = reply_ptr->reply_id_;
+            switch (reply_id) {
+            //log
+            case TCPLogOutputReplyID_Log:
+                //handle log
+                Instance().data_handle_func_(&reply_ptr->reply_data_.log_data_);
+                break;
+            //CommandIDNotExist
+            case TCPLogOutputReplyID_CommandIDNotExist:
+                Z_LOG_ERROR(
+                    error_code::kFTCPLogOutputErrorCode_CommandIDNotExist, 0,
+                    L"Command ID not exist! ID: %d", reply_ptr->reply_data_.command_not_exist_data_.command_id_
                 );
-                if (link_code != kOK) {
-                    break;
-                }
-
-                //wait for reply
-                link_code = Instance().log_client_.Read(
-                    socket_reply_buffer.DataPtr<Void*>(),
-                    sizeof(TCPLogOutputReply)
+                break;
+            default:
+                Z_LOG_ERROR(
+                    error_code::kFTCPLogOutputErrorCode_ReplyIDNotExist, 0, 
+                    L"Reply ID not exist! ID: %d", reply_id
                 );
-                if (link_code != kOK) {
-                    break;
-                }
-
-                //handle reply data
-                Int32 reply_id = reply_ptr->reply_id_;
-                switch (reply_id) {
-                //log
-                case TCPLogOutputReplyID_Log:
-                    //handle log
-                    Instance().data_handle_func_(&reply_ptr->reply_data_.log_data_);
-                    break;
-                //CommandIDNotExist
-                case TCPLogOutputReplyID_CommandIDNotExist:
-                    Z_LOG_ERROR(
-                        error_code::kFTCPLogOutputErrorCode_CommandIDNotExist, 0,
-                        L"Command ID not exist! ID: %d", reply_ptr->reply_data_.command_not_exist_data_.command_id_
-                    );
-                    break;
-                default:
-                    Z_LOG_ERROR(
-                        error_code::kFTCPLogOutputErrorCode_ReplyIDNotExist, 0, 
-                        L"Reply ID not exist! ID: %d", reply_id
-                    );
-                    break;
-                }
+                break;
             }
         }
 
         //call handle func
-        Instance().disconnect_handle_func_();
+        Instance().client_finish_handle_func_();
 
         //shutdown
         Instance().log_client_thread_state_ = LogClientState_Idle;
@@ -510,8 +500,8 @@ private:
     ZTCPLogClient() noexcept
         : SuperType_()
         , data_handle_func_()
-        , connect_handle_func_()
-        , disconnect_handle_func_()
+        , client_connect_handle_func_()
+        , client_finish_handle_func_()
         , socket_context_()
         , log_client_(&socket_context_)
         , client_thread_()
@@ -527,8 +517,8 @@ private:
 
 private:
     TFunction<Void(const TCPLogOutputReplyLogData*)> data_handle_func_;
-    TFunction<Void()> connect_handle_func_;
-    TFunction<Void()> disconnect_handle_func_;
+    TFunction<Void()> client_connect_handle_func_;
+    TFunction<Void()> client_finish_handle_func_;
     ZIOContext socket_context_;
     ZTCPSingleSessionClient log_client_;
     ZThread client_thread_;
@@ -566,8 +556,8 @@ SOCKET_DLLAPI ReturnType StopLogOutputServer() noexcept {
 
 SOCKET_DLLAPI ReturnType StartLogOutputClient(
     const TFunction<Void(const TCPLogOutputReplyLogData*)>& _data_handle_func,
-    const TFunction<Void()>& _connect_handle_func,
-    const TFunction<Void()>& _disconnect_handle_func,
+    const TFunction<Void()>& _client_connect_handle_func,
+    const TFunction<Void()>& _client_finish_handle_func,
     const Char* _address_str,
     const Char* _port_str,
     Int32 _repeat_times
@@ -576,8 +566,8 @@ SOCKET_DLLAPI ReturnType StartLogOutputClient(
     ReturnType link_code = kOK;
     link_code = ZTCPLogClient::Instance().StartClient(
         _data_handle_func,
-        _connect_handle_func,
-        _disconnect_handle_func,
+        _client_connect_handle_func,
+        _client_finish_handle_func,
         _address_str,
         _port_str, 
         _repeat_times
@@ -586,6 +576,19 @@ SOCKET_DLLAPI ReturnType StartLogOutputClient(
         Z_LOG_ERROR(
             error_code::kFTCPLogOutputErrorCode_LinkError, link_code,
             L"ZTCPLogServer::StartServer() link error!"
+        );
+    }
+    return kOK;
+}
+
+SOCKET_DLLAPI ReturnType StopLogOutputClient() noexcept {
+    ReturnType ret_val = kOK;
+    ReturnType link_code = kOK;
+    link_code = ZTCPLogClient::Instance().StopClient();
+    if (link_code != kOK) {
+        Z_LOG_ERROR(
+            error_code::kFTCPLogOutputErrorCode_LinkError, link_code,
+            L"ZTCPLogClient::StopClient() link error!"
         );
     }
     return kOK;

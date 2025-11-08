@@ -133,22 +133,26 @@ SOCKET_DLLAPI ReturnType StartLogOutputServer(
 ) noexcept;
 
 /*
-* 
     Stop log server.
 */
 SOCKET_DLLAPI ReturnType StopLogOutputServer() noexcept;
 
 /*
-    Start log handle client.
+    Start log client.
 */
 SOCKET_DLLAPI ReturnType StartLogOutputClient( 
     const TFunction<Void(const TCPLogOutputReplyLogData*)>& _data_handle_func,
-    const TFunction<Void()>& _connect_handle_func,
-    const TFunction<Void()>& _disconnect_handle_func,
+    const TFunction<Void()>& _client_connect_handle_func,
+    const TFunction<Void()>& _client_finish_handle_func,
     const Char* _address_str = kDefaultTCPLogAddressString,
     const Char* _port_str = kDefaultTCPLogPortString,
     Int32 _repeat_times = ZTCPSocket::kConnectRetryForever
 ) noexcept;
+
+/*
+    Stop log client.
+*/
+SOCKET_DLLAPI ReturnType StopLogOutputClient() noexcept;
 
 }//socket
 }//zengine
