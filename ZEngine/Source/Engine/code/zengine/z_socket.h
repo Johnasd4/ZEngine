@@ -18,7 +18,10 @@
 */
 #pragma once
 
+#include "z_socket/f_socket.h"
 #include "z_socket/f_tcp_log_output.h"
+#include "z_socket/z_stream.h"
+#include "z_socket/z_buffer_stream.h"
 #include "z_socket/z_io_context.h"
 #include "z_socket/z_tcp_client.h"
 #include "z_socket/z_tcp_server.h"

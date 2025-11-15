@@ -52,12 +52,12 @@ Void ZWidgetObject::SetSize(GuiSize _size) noexcept {
     SuperType_::SetSize(_size);
     size_set_ = true;
 }
-Void ZWidgetObject::SetXPos(Float32 _x_pos) noexcept {
-    SuperType_::SetXPos(_x_pos);
+Void ZWidgetObject::SetPosX(Float32 _pos_x) noexcept {
+    SuperType_::SetPosX(_pos_x);
     pos_set_ = true;
 }
-Void ZWidgetObject::SetYPos(Float32 _y_pos) noexcept {
-    SuperType_::SetYPos(_y_pos);
+Void ZWidgetObject::SetPosY(Float32 _pos_y) noexcept {
+    SuperType_::SetPosY(_pos_y);
     pos_set_ = true;
 }
 Void ZWidgetObject::SetPos(GuiPos _pos) noexcept {

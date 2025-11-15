@@ -43,6 +43,7 @@ public:
 
     FORCEINLINE Void SetEnabled(Bool _enabled) noexcept { enabled_ = _enabled; }
     FORCEINLINE Void SetFirstTick(Bool _if_first_tick) noexcept { if_first_tick_ = _if_first_tick; }
+    FORCEINLINE Void SetOwnerPtr(ZGuiObject* _owner_ptr) noexcept { owner_ptr_ = _owner_ptr; }
 
     NODISCARD FORCEINLINE Bool Enabled() const noexcept { return enabled_; }
     NODISCARD FORCEINLINE Bool IfFirstTick() const noexcept { return if_first_tick_; }
@@ -80,8 +81,8 @@ public:
     virtual Void SetWidth(Float32 _width) noexcept;
     virtual Void SetHeight(Float32 _height) noexcept;
     virtual Void SetSize(GuiSize _size) noexcept;
-    virtual Void SetXPos(Float32 _x_pos) noexcept;
-    virtual Void SetYPos(Float32 _y_pos) noexcept;
+    virtual Void SetPosX(Float32 _pos_x) noexcept;
+    virtual Void SetPosY(Float32 _pos_y) noexcept;
     virtual Void SetPos(GuiPos _pos) noexcept;
     virtual Void SetAbsPos(GuiPos _pos) noexcept;
     virtual Void SetName(const Char* _name) noexcept;
@@ -90,8 +91,8 @@ public:
     NODISCARD virtual Float32 Width() const noexcept;
     NODISCARD virtual Float32 Height() const noexcept;
     NODISCARD virtual GuiSize Size() const noexcept;
-    NODISCARD virtual Float32 XPos() const noexcept;
-    NODISCARD virtual Float32 YPos() const noexcept;
+    NODISCARD virtual Float32 PosX() const noexcept;
+    NODISCARD virtual Float32 PosY() const noexcept;
     NODISCARD virtual GuiPos Pos() const noexcept;
     /*
         Returns the position that actually uses by the library.

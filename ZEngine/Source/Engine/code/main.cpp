@@ -96,9 +96,6 @@
 //    Z_LOG_FAILURE(L"Failure...");
 //    Z_LOG_SUCCESS(L"Success...");
 //
-//    zengine::socket::StartLogOutputClient([](const TCPLogOutputReplyLogData* _data_ptr) {
-//        Z_LOG_MESSAGE(L"%ls", _data_ptr->log_string_.String());
-//    });
 //
 //    ReturnType link_code = kOK;
 //

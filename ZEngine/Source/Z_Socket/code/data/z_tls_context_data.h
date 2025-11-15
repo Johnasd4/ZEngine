@@ -31,28 +31,7 @@ namespace internal {
 
 struct ZTLSContextData : public ZObject {
 public:
-    ZTLSContextData(TLSTypeEnum _tls_type) noexcept
-        : SuperType_()
-        , tls_context_(
-            _tls_type == kTLSType_Client ? boost::asio::ssl::context::tls_client : boost::asio::ssl::context::tls_server
-        )
-    {
-        switch (_tls_type) {
-        case kTLSType_Client:
-            tls_context_.load_verify_file("ca.pem");
-            tls_context_.set_verify_mode(boost::asio::ssl::verify_peer);
-            break;
-        case kTLSType_Server:
-            tls_context_.use_certificate_file("server.crt", boost::asio::ssl::context::pem);
-            tls_context_.use_private_key_file("server.key", boost::asio::ssl::context::pem);
-            break;
-        default:
-            Z_LOG_ERROR(
-                error_code::kPSocketErrorCode_TLSTypeNotValid, 0, 
-                L"_tls_type not valid! _tls_type: %d", _tls_type
-            );
-        }
-    }
+    ZTLSContextData(TLSTypeEnum _tls_type) noexcept;
 
 protected:
     using SuperType_ = ZObject;

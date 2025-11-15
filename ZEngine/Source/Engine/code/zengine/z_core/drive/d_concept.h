@@ -30,7 +30,14 @@ template<typename _LeftObjectType, typename _RightObjectType>
 concept kNotType = !std::is_same_v<std::decay_t<_LeftObjectType>, std::decay_t<_RightObjectType>>;
 
 template<typename _ObjectType>
-concept kIsClass = std::is_class_v<_ObjectType>;
+concept kIsClassType = std::is_class_v<_ObjectType>;
+
+template<typename _ObjectType>
+concept kIsBasicType = 
+    std::is_fundamental_v<_ObjectType> ||
+    std::is_pointer_v<_ObjectType> ||
+    std::is_enum_v<_ObjectType>;
+
 
 template<typename _CharType>
 concept kIsChar = kSameType<_CharType, Char> || kSameType<_CharType, WChar>;
@@ -57,23 +64,6 @@ concept kIsFloat = kSameType<_NumberType, Float32> || kSameType<_NumberType, Flo
 
 template<typename _NumberType>
 concept kIsNumber = kIsInt<_NumberType> || kIsFloat<_NumberType>;
-
-template<typename _ObjectType>
-concept kIsBasicType =
-    kSameType<_ObjectType, Int8> ||
-    kSameType<_ObjectType, Int16> ||
-    kSameType<_ObjectType, Int32> ||
-    kSameType<_ObjectType, Int64> ||
-    kSameType<_ObjectType, UInt8> ||
-    kSameType<_ObjectType, UInt16> ||
-    kSameType<_ObjectType, UInt32> ||
-    kSameType<_ObjectType, UInt64> ||
-    kSameType<_ObjectType, Float32> ||
-    kSameType<_ObjectType, Float64> ||
-    kSameType<_ObjectType, Char> ||
-    kSameType<_ObjectType, WChar> ||
-    kSameType<_ObjectType, Bool> ||
-    kSameType<_ObjectType, Void*>;
 
 template<auto kNumber>
 concept kIsZero = kNumber == 0;
@@ -105,5 +95,21 @@ template<typename _Function, typename _ObjectType>
 concept kIsPredicateFunction = requires(_Function _func, _ObjectType _obj) {
     { _func(_obj, _obj) } -> kSameType<Bool>;
 };
+
+namespace internal {
+template<typename _ObjectType>
+struct RemoveBasicTypeReferenceStruct {
+    using Type_ = _ObjectType;
+};
+
+template<typename _ObjectType> requires kIsBasicType<std::remove_reference_t<_ObjectType>>
+struct RemoveBasicTypeReferenceStruct<_ObjectType> {
+    using Type_ = std::remove_reference_t<_ObjectType>;
+};
+
+}//internal
+
+template<typename _ObjectType>
+using kRemoveBasicTypeReferenceType = internal::RemoveBasicTypeReferenceStruct<_ObjectType>::Type_;
 
 }//zengine

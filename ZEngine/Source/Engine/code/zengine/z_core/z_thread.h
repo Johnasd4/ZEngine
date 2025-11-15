@@ -29,6 +29,7 @@ namespace zengine {
 
 /*
     Thread class.
+    Basic type's reference will be removed. Basic type includes fundamntal types, pointer types and enum types.
 */
 class CORE_DLLAPI ZThread : public ZObject {
 public:
@@ -41,19 +42,22 @@ public:
 
     template <typename _Function, typename... _ArgsType>
     ZThread(_Function&& _func, _ArgsType&&... _args) noexcept : SuperType_() {
-        using ParamsType = TTuple<_Function, TTuple<_ArgsType...>>;
-        ParamsType* params_ptr = new ParamsType(
-            std::forward<_Function>(_func), tuple::MakeTuple(std::forward<_ArgsType>(_args)...));
-        auto thread_func = [](Void* _params_ptr) -> UInt32 {
-            tuple::Apply(((ParamsType*)_params_ptr)->Get<0>(), std::move(((ParamsType*)_params_ptr)->Get<1>()));
-            delete (ParamsType*)_params_ptr;
+        using ParamsTuple = TTuple<kRemoveBasicTypeReferenceType<_ArgsType>...>;
+        using TaskType = TTuple<_Function, ParamsTuple>;
+        TaskType* task_ptr = new TaskType(
+            std::forward<_Function>(_func), 
+            tuple::MakeTuple(NonBasicTypeForward(std::forward<_ArgsType>(_args))...)
+        );
+        auto thread_func = [](Void* _task_ptr) -> UInt32 {
+            tuple::Apply(((TaskType*)_task_ptr)->Get<0>(), std::move(((TaskType*)_task_ptr)->Get<1>()));
+            delete (TaskType*)_task_ptr;
             return 0;
         };
         handle_ = (Handle)_beginthreadex(
             NULL,
             0,
             thread_func,
-            (Void*)params_ptr,
+            (Void*)task_ptr,
             0,
             &id_
         );

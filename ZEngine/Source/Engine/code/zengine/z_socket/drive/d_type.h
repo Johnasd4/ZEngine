@@ -20,9 +20,6 @@
 
 #include "d_lib.h"
 
-#include "../../z_core/z_object.h"
-#include "../../z_core/z_string.h"
-
 namespace zengine {
 namespace socket {
 
@@ -31,6 +28,15 @@ enum TLSTypeEnum : Int32 {
     kTLSType_Server
 };
 
+enum TLSVerifyModeEnum : Int32 {
+    kTLSVerifyType_None,
+    kTLSVerifyType_Peer
+};
+
+enum CertificateFileFormatTypeEnum : Int32 {
+    kCertificateFileFormatTypeType_ASN_1,
+    kCertificateFileFormatTypeType_PEM
+};
 
 }//socket
 }//zengine
@@ -38,6 +44,10 @@ enum TLSTypeEnum : Int32 {
 namespace zengine {
 namespace socket {
 
+class ZBuffer;
+class ZConstBuffer;
+class ZBufferStream;
+class ZFixedBuffer;
 class ZIOContext;
 class ZTCPSocket;
 class ZUDPSocket;

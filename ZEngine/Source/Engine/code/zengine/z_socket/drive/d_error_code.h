@@ -24,11 +24,11 @@
 namespace zengine {
 namespace error_code {
 
-inline constexpr ReturnType kErrorCodeBase_PSocket = 0x4u * kErrorCodeProjcetMask + kErrorCodeBase_SZEngine;
+inline constexpr ReturnType kErrorCodeBase_PSocket = 0x4U * kErrorCodeProjcetMask + kErrorCodeBase_SZEngine;
 
-inline constexpr ReturnType kErrorCodeBase_ZSocket = 0x0u * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
-inline constexpr ReturnType kErrorCodeBase_FTCPLogOutput = 0x1u * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
-inline constexpr ReturnType kErrorCodeBase_FSocket = 0x2u * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
+inline constexpr ReturnType kErrorCodeBase_ZSocket = 0x0U * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
+inline constexpr ReturnType kErrorCodeBase_FTCPLogOutput = 0x1U * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
+inline constexpr ReturnType kErrorCodeBase_FSocket = 0x2U * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
 
 enum ZSocketErrorCode : ReturnType {
     kPSocketErrorCode_LinkError = kErrorCodeBase_PSocket,
@@ -43,7 +43,13 @@ enum ZSocketErrorCode : ReturnType {
     kPSocketErrorCode_EndpointNotBind,
     kPSocketErrorCode_UDPSocketNotConnected,
     kPSocketErrorCode_ConnectFailed,
+    kPSocketErrorCode_ReadUntilSymbolNotFound,
     kPSocketErrorCode_TLSTypeNotValid,
+    kPSocketErrorCode_TLSVerifyModeNotValid,
+    kPSocketErrorCode_CertificateFileFormatNotValid,
+    kPSocketErrorCode_ServerCertificateNotLoaded,
+    kPSocketErrorCode_ServerPrivateKeyNotLoaded,
+    
 
 };
 

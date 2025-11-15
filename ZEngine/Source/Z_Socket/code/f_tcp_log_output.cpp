@@ -194,13 +194,13 @@ private:
             Instance().log_server_thread_state_ = LogServerState_Idle;
             Z_LOG_ERROR(
                 error_code::kFTCPLogOutputErrorCode_LinkError, link_code, 
-                L"ZTCPServer::SetEndpoint() link error!"
+                L"ZTCPSingleSessionServer::SetEndpoint() link error!"
             );
-            link_code = Instance().log_server_.Reset();
+            link_code = Instance().log_server_.Close();
             if (link_code != kOK) {
                 Z_LOG_ERROR(
                     error_code::kFTCPLogOutputErrorCode_LinkError, link_code, 
-                    L"ZTCPServer::Reset() link error!"
+                    L"ZTCPSingleSessionServer::Close() link error!"
                 );
             }
         }
@@ -213,12 +213,15 @@ private:
             link_code = Instance().log_server_.Accept();
             if (link_code != kOK) {
                 Instance().log_server_thread_state_ = LogServerState_Idle;
-                Z_LOG_ERROR(error_code::kPSocketErrorCode_LinkError, link_code, L"ZTCPServer::Accept() link error!");
-                link_code = Instance().log_server_.Reset();
+                Z_LOG_ERROR(
+                    error_code::kPSocketErrorCode_LinkError, link_code, 
+                    L"ZTCPSingleSessionServer::Accept() link error!"
+                );
+                link_code = Instance().log_server_.Close();
                 if (link_code != kOK) {
                     Z_LOG_ERROR(
                         error_code::kFTCPLogOutputErrorCode_LinkError, link_code,
-                        L"ZTCPServer::Reset() link error!"
+                        L"ZTCPSingleSessionServer::Close() link error!"
                     );
                     break;
                 }
@@ -236,10 +239,10 @@ private:
             //send log until disconnent
             while (true) {
                 //wait for command
-                link_code = Instance().log_server_.Read(
+                link_code = Instance().log_server_.Read(ZBuffer(
                     socket_command_buffer.DataPtr<Void*>(),
                     sizeof(TCPLogOutputCommand)
-                );
+                ));
                 if (link_code != kOK) {
                     break;
                 }
@@ -280,7 +283,9 @@ private:
                 }
 
                 //reply
-                link_code = Instance().log_server_.Write(socket_reply_buffer.DataPtr<Void*>(), reply_size);
+                link_code = Instance().log_server_.Write(ZConstBuffer(
+                    socket_reply_buffer.DataPtr<Void*>(), reply_size
+                ));
                 if (link_code != kOK) {
                     break;
                 }
@@ -312,12 +317,9 @@ private:
         }
         else {
             TimeType time_filter = TimeSec() - kLogServerDisconnectLogWaitMaxTime;
-            while (log_buffer_ptr_queue_.Size() != 0ULL) {
+            while (log_buffer_ptr_queue_.Size() > kLogServerDisconnectLogWaitMaxNum) {
                 auto log_data_ptr = log_buffer_ptr_queue_.Front();
-                if (
-                    log_data_ptr->log_time_ >= time_filter && 
-                    log_buffer_ptr_queue_.Size() < kLogServerDisconnectLogWaitMaxNum
-                ) {
+                if (log_data_ptr->log_time_ >= time_filter) {
                     break;
                 }
                 delete log_data_ptr;
@@ -363,7 +365,6 @@ public:
         data_handle_func_ = _data_handle_func;
         client_connect_handle_func_ = _client_connect_handle_func;		
         client_finish_handle_func_ = _client_finish_handle_func;
-
         //start log client
         log_client_thread_state_ = LogClientState_Initialzing;
         client_thread_ = ZThread(LogClientThreadFunc, ZString(_address_str), ZString(_port_str), _repeat_times);
@@ -375,18 +376,22 @@ public:
         ReturnType ret_val = kOK;
         ReturnType link_code = kOK;
 
+        log_client_.StopConnect();
+
         if (log_client_thread_state_ == LogClientState_Idle || log_client_thread_state_ == LogClientState_Closing) {
             return ret_val;
         }
 
         log_client_thread_state_ = LogClientState_Closing;
 
-        //stop log client
-        link_code = log_client_.Close();
-        if (link_code != kOK) {
-            ret_val = error_code::kPSocketErrorCode_LinkError;
-            Z_LOG_ERROR(ret_val, link_code, L"ZTCPClient::Close() link error!");
-            return ret_val;
+        if (log_client_.GetSocket().State() != ZTCPSocket::ZTCPSocketState_Idle) {
+            //stop log client
+            link_code = log_client_.Close();
+            if (link_code != kOK) {
+                ret_val = error_code::kPSocketErrorCode_LinkError;
+                Z_LOG_ERROR(ret_val, link_code, L"ZTCPSingleSessionClient::Close() link error!");
+                return ret_val;
+            }
         }
 
         return ret_val;
@@ -416,13 +421,20 @@ private:
         //wait for clinet connect
         link_code = Instance().log_client_.Connect(_address_str.String(), _port_str.String(), _repeat_times);
         if (link_code != kOK) {
-            Instance().log_client_thread_state_ = LogClientState_Idle;
-            Z_LOG_ERROR(error_code::kPSocketErrorCode_LinkError, link_code, L"ZTCPClient::Accept() link error!");
-            link_code = Instance().log_client_.Reset();
+            if (link_code == error_code::kPSocketErrorCode_ConnectFailed) {
+                //Z_LOG_FAILURE(L"Log server connect failed!");
+            }
+            else {
+                Z_LOG_ERROR(
+                    error_code::kPSocketErrorCode_LinkError, link_code,
+                    L"ZTCPSingleSessionClient::Connect() link error!"
+                );
+            }
+            link_code = Instance().log_client_.Close();
             if (link_code != kOK) {
                 Z_LOG_ERROR(
                     error_code::kFTCPLogOutputErrorCode_LinkError, link_code,
-                    L"ZTCPClient::Reset() link error!"
+                    L"ZTCPSingleSessionClient::Close() link error!"
                 );
             }
             //call handle func
@@ -449,19 +461,19 @@ private:
             command_ptr->command_id_ = TCPLogOutputCommandID_GetNextLog;
 
             //send command
-            link_code = Instance().log_client_.Write(
+            link_code = Instance().log_client_.Write(ZConstBuffer(
                 socket_command_buffer.DataPtr<Void*>(),
                 command_size
-            );
+            ));
             if (link_code != kOK) {
                 break;
             }
 
             //wait for reply
-            link_code = Instance().log_client_.Read(
+            link_code = Instance().log_client_.Read(ZBuffer(
                 socket_reply_buffer.DataPtr<Void*>(),
                 sizeof(TCPLogOutputReply)
-            );
+            ));
             if (link_code != kOK) {
                 break;
             }

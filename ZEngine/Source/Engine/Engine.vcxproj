@@ -24,6 +24,7 @@
     <ClCompile Include="code\main_1.cpp" />
     <ClCompile Include="code\main_gui_test.cpp" />
     <ClCompile Include="code\main_log_output_server_test.cpp" />
+    <ClCompile Include="code\main_socket_test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\zengine\z_core.h" />
@@ -101,6 +102,7 @@
     <ClInclude Include="code\zengine\z_gui\drive\d_type.h" />
     <ClInclude Include="code\zengine\z_gui\test.h" />
     <ClInclude Include="code\zengine\z_gui\z_button.h" />
+    <ClInclude Include="code\zengine\z_gui\z_check_box.h" />
     <ClInclude Include="code\zengine\z_gui\z_frame.h" />
     <ClInclude Include="code\zengine\z_gui\z_gui_object.h" />
     <ClInclude Include="code\zengine\z_gui\z_input_text.h" />
@@ -268,6 +270,8 @@
     <ClInclude Include="code\zengine\z_socket\drive\d_lib.h" />
     <ClInclude Include="code\zengine\z_socket\drive\d_macro.h" />
     <ClInclude Include="code\zengine\z_socket\drive\d_type.h" />
+    <ClInclude Include="code\zengine\z_socket\z_buffer.h" />
+    <ClInclude Include="code\zengine\z_socket\z_buffer_stream.h" />
     <ClInclude Include="code\zengine\z_socket\z_io_context.h" />
     <ClInclude Include="code\zengine\z_socket\z_tcp_client.h" />
     <ClInclude Include="code\zengine\z_socket\z_tcp_server.h" />

@@ -35,7 +35,7 @@ namespace zengine {
 template<typename _ObjectType>
 class TVector : public ZObject {
 public:
-    using STDVector_ = std::vector<_ObjectType, TContainerAllocator<_ObjectType>>;
+    using STDVector_ = std::vector<_ObjectType, TAllocator<_ObjectType>>;
     using Iterator_ = STDVector_::iterator;
     using ConstIterator_ = STDVector_::const_iterator;
     using ReverseIterator_ = STDVector_::reverse_iterator;
@@ -170,7 +170,7 @@ private:
 template<typename _ObjectType>
 class TVectorSafe : public ZObject {
 public:
-    using STDVector_ = std::vector<_ObjectType, TContainerAllocator<_ObjectType>>;
+    using STDVector_ = std::vector<_ObjectType, TAllocator<_ObjectType>>;
     using Iterator_ = STDVector_::iterator;
     using ConstIterator_ = STDVector_::const_iterator;
     using ReverseIterator_ = STDVector_::reverse_iterator;

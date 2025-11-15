@@ -25,6 +25,8 @@
 #include "../z_core/t_smart_pointer.h"
 #include "../z_core/z_object.h"
 
+#include "z_buffer.h"
+
 namespace zengine {
 namespace socket {
 namespace internal {
@@ -108,11 +110,6 @@ public:
     NODISCARD ReturnType Close() noexcept;
 
     /*
-        Reset the socket.
-    */
-    NODISCARD ReturnType Reset() noexcept;
-
-    /*
         Conect to target socket. Will suspend the current thread.
     */
     NODISCARD ReturnType Connect(
@@ -128,7 +125,7 @@ public:
     NODISCARD ReturnType AsyncConnect(
         const Char* _address_str,
         const Char* _port_str,
-        const TFunction<Void(Bool)>& _handle_func,
+        const TFunction<Void(ZTCPSocket*, Bool)>& _handle_func,
         Int32 _repeat_times = kConnectRetryForever
     ) noexcept;
 
@@ -141,39 +138,75 @@ public:
         Read data. Will suspend the current thread until data read.
     */
     NODISCARD ReturnType Read(
-        Void* _buffer_ptr,
-        SizeType _buffer_size,
+        ZBuffer _buffer,
         SizeType* _data_size_ptr = nullptr
     ) noexcept;
 
     /*
         Read data. Will not suspend the current thread.
         _handle_func only needs to handle the read data.
-        _handle_func(ZTCPSocket* _socket_ptr, const Void* _buffer_ptr, SizeType _data_size)
+        _handle_func(ZTCPSocket* _socket_ptr, const ZConstBuffer _buffer)
     */
     NODISCARD ReturnType AsyncRead(
-        Void* _buffer_ptr,
-        SizeType _buffer_size,
-        const TFunction<Void(ZTCPSocket*, const Void*, SizeType)>& _handle_func
+        ZBuffer _buffer,
+        const TFunction<Void(ZTCPSocket*, const ZConstBuffer)>& _handle_func
+    ) noexcept;
+
+    /*
+        Read data until match char. Will suspend the current thread until data read.
+    */
+    NODISCARD ReturnType ReadUntil(
+        ZBufferStream* _buffer_ptr,
+        Char _match_char,
+        SizeType* _data_size_ptr = nullptr
+    ) noexcept;
+
+    /*
+        Read data until match string. Will suspend the current thread until data read.
+    */
+    NODISCARD ReturnType ReadUntil(
+        ZBufferStream* _buffer_ptr,
+        const Char* _match_str,
+        SizeType* _data_size_ptr = nullptr
+    ) noexcept;
+
+    /*
+        Read data until match char. Will not suspend the current thread.
+        _handle_func only needs to handle the read data.
+        _handle_func(ZTCPSocket* _socket_ptr, ZBufferStream* _buffer_stream_ptr)
+    */
+    NODISCARD ReturnType AsyncReadUntil(
+        ZBufferStream* _buffer_ptr,
+        Char _match_char,
+        const TFunction<Void(ZTCPSocket*, ZBufferStream*)>& _handle_func
+    ) noexcept;
+
+    /*
+        Read data until match string. Will not suspend the current thread.
+        _handle_func only needs to handle the read data.
+        _handle_func(ZTCPSocket* _socket_ptr, ZBufferStream* _buffer_stream_ptr)
+    */
+    NODISCARD ReturnType AsyncReadUntil(
+        ZBufferStream* _buffer_ptr,
+        const Char* _match_str,
+        const TFunction<Void(ZTCPSocket*, ZBufferStream*)>& _handle_func
     ) noexcept;
 
     /*
         Write data. Will suspend the current thread until data write.
     */
     NODISCARD ReturnType Write(
-        const Void* _data_ptr,
-        SizeType _data_size
+        ZConstBuffer _buffer
     ) noexcept;
 
     /*       
         Write data. Will not suspend the current thread.
         _handle_func will be called after the data send.
-        _handle_func(ZTCPSocket* _socket_ptr, const Void* _data_ptr, SizeType _data_size)
+        _handle_func(ZTCPSocket* _socket_ptr, const ZConstBuffer _buffer)
     */
     NODISCARD ReturnType AsyncWrite(
-        const Void* _data_ptr,
-        SizeType _data_size,
-        const TFunction<Void(ZTCPSocket*, const Void*, SizeType)>& _handle_func
+        ZConstBuffer _buffer,
+        const TFunction<Void(ZTCPSocket*, const ZConstBuffer)>& _handle_func
     ) noexcept;
 
     /*
@@ -205,7 +238,7 @@ private:
         ZString&& _port_str,
         Void* _endpoints_ptr,
         Void* _endpoint_iterator,
-        const TFunction<Void(Bool)>& _handle_func,
+        const TFunction<Void(ZTCPSocket*, Bool)>& _handle_func,
         Int32 _repeat_times,
         Int32 _reconnect_times
     ) noexcept;

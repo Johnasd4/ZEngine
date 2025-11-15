@@ -33,7 +33,7 @@ enum ZTaskErrorCode : ReturnType {
     kZTaskErrorCode_SystemError,
     kZTaskErrorCode_NullptrParam,
     kZTaskErrorCode_ParamOutOfRange,
-    kZTaskErrorCode_TaskStateError,
+    kZTaskErrorCode_StateError,
     kZTaskErrorCode_ReturnValAlreadyGet,
     kZTaskErrorCode_TaskAlreadyExist,
     kZTaskErrorCode_CanNotBindVoidReturn
@@ -174,7 +174,7 @@ private:
             }
             default:
                 Z_LOG_ERROR(
-                    error_code::kZTaskErrorCode_TaskStateError, 0, 
+                    error_code::kZTaskErrorCode_StateError, 0, 
                     L"Task state not expected! state_: %d", _task_ptr->state_
                 );
             }
@@ -237,7 +237,7 @@ private:
             }
             default:
                 Z_LOG_ERROR(
-                    error_code::kZTaskErrorCode_TaskStateError, 0, 
+                    error_code::kZTaskErrorCode_StateError, 0, 
                     L"Task state not expected! state_: %d", _task_ptr->state_
                 );
             }
@@ -380,7 +380,7 @@ private:
             }
             default:
                 Z_LOG_ERROR(
-                    error_code::kZTaskErrorCode_TaskStateError, 0, 
+                    error_code::kZTaskErrorCode_StateError, 0, 
                     L"Task state not expected! state_: %d", _task_ptr->state_
                 );
             }
@@ -443,7 +443,7 @@ private:
             }
             default:
                 Z_LOG_ERROR(
-                    error_code::kZTaskErrorCode_TaskStateError, 0, 
+                    error_code::kZTaskErrorCode_StateError, 0, 
                     L"Task state not expected! state_: %d", _task_ptr->state_
                 );
             }
@@ -562,7 +562,7 @@ private:
             }
             default:
                 Z_LOG_ERROR(
-                    error_code::kZTaskErrorCode_TaskStateError, 0, 
+                    error_code::kZTaskErrorCode_StateError, 0, 
                     L"Task state not expected! state_: %d", _task_ptr->state_
                 );
             }
@@ -610,7 +610,7 @@ private:
             }
             default:
                 Z_LOG_ERROR(
-                    error_code::kZTaskErrorCode_TaskStateError, 0, 
+                    error_code::kZTaskErrorCode_StateError, 0, 
                     L"Task state not expected! state_: %d", _task_ptr->state_
                 );
             }

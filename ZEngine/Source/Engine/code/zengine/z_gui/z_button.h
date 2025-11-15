@@ -89,7 +89,7 @@ public:
 
     NODISCARD FORCEINLINE Int32 ButtonFlag() const noexcept { return button_flag_; }
 
-    FORCEINLINE NODISCARD Void BindClickFunction(const TFunction<Void()>& _click_func) noexcept { 
+    FORCEINLINE Void BindClickFunction(const TFunction<Void()>& _click_func) noexcept { 
         click_func_ = _click_func; 
     }
 

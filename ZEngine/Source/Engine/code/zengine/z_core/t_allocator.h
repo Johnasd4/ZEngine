@@ -29,20 +29,20 @@ namespace zengine {
     The acllocator for stl containers.
 */
 template<typename _ObjectType>
-class TContainerAllocator : public ZObject {
+class TAllocator : public ZObject {
 public:
     using value_type = _ObjectType;
 
-    NODISCARD static TContainerAllocator& Instance() noexcept {
-        static TContainerAllocator allocator;
+    NODISCARD static TAllocator& Instance() noexcept {
+        static TAllocator allocator;
         return allocator;
     }
 
-    FORCEINLINE TContainerAllocator() noexcept : SuperType_() {}
+    FORCEINLINE TAllocator() noexcept : SuperType_() {}
     template<typename _OtherObjectType>
-    FORCEINLINE TContainerAllocator(const TContainerAllocator<_OtherObjectType>& _alocator) noexcept 
+    FORCEINLINE TAllocator(const TAllocator<_OtherObjectType>& _alocator) noexcept 
         : SuperType_(_alocator) {}
-    FORCEINLINE ~TContainerAllocator() {}
+    FORCEINLINE ~TAllocator() {}
 
     NODISCARD FORCEINLINE _ObjectType* allocate(SizeType _capacity) noexcept {
         return reinterpret_cast<_ObjectType*>(memory_pool::ApplyMemory((SizeType)(_capacity * sizeof(_ObjectType))));

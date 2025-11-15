@@ -22,6 +22,8 @@
 
 #include <boost/asio.hpp>
 
+#include "../z_core/z_string.h"
+
 #include "data/z_tls_context_data.h"
 
 namespace zengine {
@@ -30,10 +32,241 @@ namespace socket {
 ZTLSContext::ZTLSContext(TLSTypeEnum _tls_type) noexcept
     : SuperType_()
     , data_ptr_(MakeUnique<internal::ZTLSContextData>(_tls_type))
+    , state_(ZTLSContextState_Uninitialized)
     , tls_type_(_tls_type)
-{}
+{
+    if (tls_type_ != kTLSType_Client && tls_type_ != kTLSType_Server) {
+        Z_LOG_ERROR(
+            error_code::kPSocketErrorCode_TLSVerifyModeNotValid, 0,
+            L"TLS type not valid! _tls_type: %d", _tls_type
+        );
+        return;
+    }
+
+    state_ = ZTLSContextState_Initialized;
+}
 
 ZTLSContext::~ZTLSContext() noexcept {}
+
+NODISCARD ReturnType ZTLSContext::SetVerifyMode(TLSVerifyModeEnum _tls_verify_mode) noexcept {
+    ReturnType ret_val = kOK;
+    boost::system::error_code error_code;
+
+    Z_CHECK(
+        state_ != ZTLSContextState_Initialized,
+        error_code::kPSocketErrorCode_StateError,
+        L"TLS context state error! state: %d expect state: %d",
+        state_, ZTLSContextState_Initialized
+    );
+
+    Int32 verify_mode;
+
+    switch (_tls_verify_mode) {
+    case TLSVerifyModeEnum::kTLSVerifyType_None:
+        verify_mode = boost::asio::ssl::context::verify_none;
+        break;
+    case TLSVerifyModeEnum::kTLSVerifyType_Peer:
+        verify_mode = boost::asio::ssl::context::verify_peer;
+        if (tls_type_ == TLSTypeEnum::kTLSType_Server) {
+            verify_mode |= boost::asio::ssl::context::verify_fail_if_no_peer_cert;
+        }
+        break;
+    default:
+        ret_val = error_code::kPSocketErrorCode_TLSVerifyModeNotValid;
+        Z_LOG_ERROR(
+            ret_val, 0,
+            L"TLS verify mode not valid! _tls_verify_mode: %d", _tls_verify_mode
+        );
+    }
+
+    data_ptr_->tls_context_.set_verify_mode(verify_mode, error_code);
+    if (error_code) {
+        ret_val = error_code::kPSocketErrorCode_SystemError;
+        Z_LOG_ERROR(
+            ret_val, error_code.value(),
+            L"System error! error info: %ls",
+            string::String2WString(error_code.message().c_str()).String()
+        );
+        return ret_val;
+    }
+
+    return ret_val;
+}
+
+NODISCARD ReturnType ZTLSContext::LoadVerifyFile(const Char* _file_dir) noexcept {
+    ReturnType ret_val = kOK;
+    boost::system::error_code error_code;
+
+    Z_CHECK(
+        state_ != ZTLSContextState_Initialized,
+        error_code::kPSocketErrorCode_StateError,
+        L"TLS context state error! state: %d expect state: %d",
+        state_, ZTLSContextState_Initialized
+    );
+
+    data_ptr_->tls_context_.load_verify_file(_file_dir);
+    if (error_code) {
+        ret_val = error_code::kPSocketErrorCode_SystemError;
+        Z_LOG_ERROR(
+            ret_val, error_code.value(),
+            L"System error! error info: %ls",
+            string::String2WString(error_code.message().c_str()).String()
+        );
+        return ret_val;
+    }
+
+    return ret_val;
+}
+
+NODISCARD ReturnType ZTLSContext::LoadSystemVerifyFiles() noexcept {
+    ReturnType ret_val = kOK;
+    boost::system::error_code error_code;
+
+    Z_CHECK(
+        state_ != ZTLSContextState_Initialized,
+        error_code::kPSocketErrorCode_StateError,
+        L"TLS context state error! state: %d expect state: %d",
+        state_, ZTLSContextState_Initialized
+    );
+
+    data_ptr_->tls_context_.set_default_verify_paths(error_code);
+    if (error_code) {
+        ret_val = error_code::kPSocketErrorCode_SystemError;
+        Z_LOG_ERROR(
+            ret_val, error_code.value(),
+            L"System error! error info: %ls",
+            string::String2WString(error_code.message().c_str()).String()
+        );
+        return ret_val;
+    }
+
+    return ret_val;
+}
+
+NODISCARD ReturnType ZTLSContext::UseCertificateFile(
+    const Char* _file_dir,
+    CertificateFileFormatTypeEnum _file_format
+) noexcept {
+    ReturnType ret_val = kOK;
+    boost::system::error_code error_code;
+
+    Z_CHECK(
+        state_ != ZTLSContextState_Initialized,
+        error_code::kPSocketErrorCode_StateError,
+        L"TLS context state error! state: %d expect state: %d",
+        state_, ZTLSContextState_Initialized
+    );
+
+    boost::asio::ssl::context_base::file_format file_format;
+
+    switch (_file_format) {
+    case CertificateFileFormatTypeEnum::kCertificateFileFormatTypeType_ASN_1:
+        file_format = boost::asio::ssl::context::asn1;
+        break;
+    case CertificateFileFormatTypeEnum::kCertificateFileFormatTypeType_PEM:
+        file_format = boost::asio::ssl::context::pem;
+        break;
+    default:
+        ret_val = error_code::kPSocketErrorCode_CertificateFileFormatNotValid;
+        Z_LOG_ERROR(
+            ret_val, 0,
+            L"Certificate file format not valid! _file_format: %d", _file_format
+        );
+        return ret_val;
+    }
+
+    data_ptr_->tls_context_.use_certificate_file(_file_dir, file_format, error_code);
+    if (error_code) {
+        ret_val = error_code::kPSocketErrorCode_SystemError;
+        Z_LOG_ERROR(
+            ret_val, error_code.value(),
+            L"System error! error info: %ls",
+            string::String2WString(error_code.message().c_str()).String()
+        );
+        return ret_val;
+    }
+
+    certificate_loaded_ = true;
+
+    return ret_val;
+}
+
+NODISCARD ReturnType ZTLSContext::UseCertificateChainFile(
+    const Char* _file_dir
+) noexcept {
+    ReturnType ret_val = kOK;
+    boost::system::error_code error_code;
+
+    Z_CHECK(
+        state_ != ZTLSContextState_Initialized,
+        error_code::kPSocketErrorCode_StateError,
+        L"TLS context state error! state: %d expect state: %d",
+        state_, ZTLSContextState_Initialized
+    );
+
+    data_ptr_->tls_context_.use_certificate_chain_file(_file_dir, error_code);
+    if (error_code) {
+        ret_val = error_code::kPSocketErrorCode_SystemError;
+        Z_LOG_ERROR(
+            ret_val, error_code.value(),
+            L"System error! error info: %ls",
+            string::String2WString(error_code.message().c_str()).String()
+        );
+        return ret_val;
+    }
+
+    certificate_loaded_ = true;
+
+    return ret_val;
+}
+
+NODISCARD ReturnType ZTLSContext::UsePrivateKeyFile(
+    const Char* _file_dir,
+    CertificateFileFormatTypeEnum _file_format
+) noexcept {
+    ReturnType ret_val = kOK;
+    boost::system::error_code error_code;
+
+    Z_CHECK(
+        state_ != ZTLSContextState_Initialized,
+        error_code::kPSocketErrorCode_StateError,
+        L"TLS context state error! state: %d expect state: %d",
+        state_, ZTLSContextState_Initialized
+    );
+
+    boost::asio::ssl::context_base::file_format file_format;
+
+    switch (_file_format) {
+    case CertificateFileFormatTypeEnum::kCertificateFileFormatTypeType_ASN_1:
+        file_format = boost::asio::ssl::context::asn1;
+        break;
+    case CertificateFileFormatTypeEnum::kCertificateFileFormatTypeType_PEM:
+        file_format = boost::asio::ssl::context::pem;
+        break;
+    default:
+        ret_val = error_code::kPSocketErrorCode_CertificateFileFormatNotValid;
+        Z_LOG_ERROR(
+            ret_val, 0,
+            L"Certificate file format not valid! _file_format: %d", _file_format
+        );
+        return ret_val;
+    }
+
+    data_ptr_->tls_context_.use_private_key_file(_file_dir, file_format, error_code);
+    if (error_code) {
+        ret_val = error_code::kPSocketErrorCode_SystemError;
+        Z_LOG_ERROR(
+            ret_val, error_code.value(),
+            L"System error! error info: %ls",
+            string::String2WString(error_code.message().c_str()).String()
+        );
+        return ret_val;
+    }
+
+    private_key_loaded_ = true;
+
+    return ret_val;
+}
 
 }//socket
 }//zengine

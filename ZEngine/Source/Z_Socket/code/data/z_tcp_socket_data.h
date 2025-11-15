@@ -32,13 +32,7 @@ namespace internal {
 
 struct ZTCPSocketData : public ZObject {
 public:
-    FORCEINLINE ZTCPSocketData(boost::asio::io_context* _io_context_ptr) noexcept
-        : socket_(*_io_context_ptr)
-        , bind_endpoint_()
-        , address_()
-        , port_()
-        , if_endpoint_bind_(false)
-        , async_error_handle_func_() {}
+    ZTCPSocketData(boost::asio::io_context* _io_context_ptr) noexcept;
 
 protected:
     using SuperType_ = ZObject;

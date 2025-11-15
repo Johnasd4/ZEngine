@@ -27,6 +27,9 @@
     <ClCompile Include="code\main_log_output_server_test.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="code\main_socket_test.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\zengine\z_core\drive\d_concept.h">
@@ -855,6 +858,15 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\zengine\z_gui\z_separator.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\zengine\z_gui\z_check_box.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\zengine\z_socket\z_buffer_stream.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\zengine\z_socket\z_buffer.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

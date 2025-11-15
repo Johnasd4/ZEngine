@@ -24,15 +24,16 @@
 namespace zengine {
 namespace error_code {
 
-inline constexpr ReturnType kErrorCodeBase_PGui = 0x1u * kErrorCodeProjcetMask + kErrorCodeBase_SZEngine;
+inline constexpr ReturnType kErrorCodeBase_PGui = 0x1U * kErrorCodeProjcetMask + kErrorCodeBase_SZEngine;
 
-inline constexpr ReturnType kErrorCodeBase_ZApplication = 0x0u * kErrorCodeTypeMask + kErrorCodeBase_PGui;
-inline constexpr ReturnType kErrorCodeBase_ZWindow = 0x1u * kErrorCodeTypeMask + kErrorCodeBase_PGui;
-inline constexpr ReturnType kErrorCodeBase_ZFrame = 0x2u * kErrorCodeTypeMask + kErrorCodeBase_PGui;
-inline constexpr ReturnType kErrorCodeBase_ZText = 0x3u * kErrorCodeTypeMask + kErrorCodeBase_PGui;
-inline constexpr ReturnType kErrorCodeBase_ZInputText = 0x4u * kErrorCodeTypeMask + kErrorCodeBase_PGui;
-inline constexpr ReturnType kErrorCodeBase_ZButton = 0x5u * kErrorCodeTypeMask + kErrorCodeBase_PGui;
-inline constexpr ReturnType kErrorCodeBase_ZSeparator = 0x6u * kErrorCodeTypeMask + kErrorCodeBase_PGui;
+inline constexpr ReturnType kErrorCodeBase_ZApplication = 0x0U * kErrorCodeTypeMask + kErrorCodeBase_PGui;
+inline constexpr ReturnType kErrorCodeBase_ZWindow = 0x1U * kErrorCodeTypeMask + kErrorCodeBase_PGui;
+inline constexpr ReturnType kErrorCodeBase_ZFrame = 0x2U * kErrorCodeTypeMask + kErrorCodeBase_PGui;
+inline constexpr ReturnType kErrorCodeBase_ZText = 0x3U * kErrorCodeTypeMask + kErrorCodeBase_PGui;
+inline constexpr ReturnType kErrorCodeBase_ZInputText = 0x4U * kErrorCodeTypeMask + kErrorCodeBase_PGui;
+inline constexpr ReturnType kErrorCodeBase_ZButton = 0x5U * kErrorCodeTypeMask + kErrorCodeBase_PGui;
+inline constexpr ReturnType kErrorCodeBase_ZSeparator = 0x6U * kErrorCodeTypeMask + kErrorCodeBase_PGui;
+inline constexpr ReturnType kErrorCodeBase_ZCheckBox = 0x7U * kErrorCodeTypeMask + kErrorCodeBase_PGui;
 
 }//error_code
 }//zengine

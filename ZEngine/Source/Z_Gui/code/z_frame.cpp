@@ -30,6 +30,14 @@ ZFrame::ZFrame() noexcept
     , frame_flag_(kDefaultFrameFlag)
     , frame_level_(kBaseFrameLevel)
     , frame_background_colour_(kDefaultFrameBackgroundColour)
+    , scroll_pre_x_(0.0f)
+    , scroll_pre_y_(0.0f)
+    , scroll_x_(0.0f)
+    , scroll_y_(0.0f)
+    , scroll_max_x_(0.0f)
+    , scroll_max_y_(0.0f)
+    , scroll_x_set_(false)
+    , scroll_y_set_(false)
     , widget_ptr_set_()
     , frame_ptr_set_() {}
 
@@ -44,6 +52,14 @@ ZFrame::ZFrame(const Char* _name, GuiSize _size, GuiPos _pos) noexcept
     , frame_flag_(kDefaultFrameFlag)
     , frame_level_(kBaseFrameLevel)
     , frame_background_colour_(kDefaultFrameBackgroundColour)
+    , scroll_pre_x_(0.0f)
+    , scroll_pre_y_(0.0f)
+    , scroll_x_(0.0f)
+    , scroll_y_(0.0f)
+    , scroll_max_x_(0.0f)
+    , scroll_max_y_(0.0f)
+    , scroll_x_set_(false)
+    , scroll_y_set_(false)
     , widget_ptr_set_()
     , frame_ptr_set_() {}
 
@@ -103,7 +119,24 @@ Void ZFrame::Tick(Float32 _delta_sec) noexcept {
             );
         }
         //begin base frame
-        ImGui::Begin(Name(), nullptr, frame_flag_);
+        ImGui::Begin(Name(), nullptr, frame_flag_);        
+
+        if (Enabled()) {
+            //tick widgets
+            for (auto widget_ptr_iter = widget_ptr_set_.Begin(); widget_ptr_iter != widget_ptr_set_.End(); ++widget_ptr_iter) {
+                ZWidgetObject* widget_ptr = *widget_ptr_iter;
+                widget_ptr->Tick(_delta_sec);
+            }
+
+            //tick frame
+            for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
+                ZFrame* frame_ptr = *frame_ptr_iter;
+                frame_ptr->Tick(_delta_sec);
+            }
+
+            //tick widgets not added
+            TickWidget(_delta_sec);
+        }
 
         //font scale
         ImGui::SetWindowFontScale(FontScale());
@@ -137,21 +170,40 @@ Void ZFrame::Tick(Float32 _delta_sec) noexcept {
 
         SuperType_::Tick(_delta_sec);
 
-        if (Enabled()) {
-            //tick widgets
-            for (auto widget_ptr_iter = widget_ptr_set_.Begin(); widget_ptr_iter != widget_ptr_set_.End(); ++widget_ptr_iter) {
-                ZWidgetObject* widget_ptr = *widget_ptr_iter;
-                widget_ptr->Tick(_delta_sec);
-            }
+        scroll_x_ = scroll_x_ <= scroll_max_x_ ? scroll_x_ : scroll_max_x_;
+        scroll_y_ = scroll_y_ <= scroll_max_y_ ? scroll_y_ : scroll_max_y_;
+        scroll_x_ = scroll_x_ >= 0.0F ? scroll_x_ : 0.0F;
+        scroll_y_ = scroll_y_ >= 0.0F ? scroll_y_ : 0.0F;
 
-            //tick frame
-            for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
-                ZFrame* frame_ptr = *frame_ptr_iter;
-                frame_ptr->Tick(_delta_sec);
-            }
+
+        scroll_x_set_ &= scroll_pre_x_ != scroll_x_;
+        scroll_y_set_ &= scroll_pre_y_ != scroll_y_;
+
+        if (scroll_x_set_) {
+            scroll_x_set_ = false;
+            ImGui::SetScrollX(scroll_x_);
+        }
+        else {
+            scroll_x_ = ImGui::GetScrollX();
         }
 
+        if (scroll_y_set_) {
+            scroll_y_set_ = false;
+            ImGui::SetScrollY(scroll_y_);
+        }
+        else {
+            scroll_y_ = ImGui::GetScrollY();
+        }
 
+        if (scroll_pre_x_ != scroll_x_ || scroll_pre_y_ != scroll_y_) {
+            OnScrollChanged(scroll_pre_x_, scroll_pre_y_, scroll_x_, scroll_y_);
+        }
+
+        scroll_pre_x_ = scroll_x_;
+        scroll_pre_y_ = scroll_y_;
+
+        scroll_max_x_ = ImGui::GetScrollMaxX();
+        scroll_max_y_ = ImGui::GetScrollMaxY();
 
         //end base frame
         ImGui::End();
@@ -189,6 +241,23 @@ Void ZFrame::Tick(Float32 _delta_sec) noexcept {
             );
         }
 
+        if (Enabled()) {
+            //tick widgets
+            for (auto widget_ptr_iter = widget_ptr_set_.Begin(); widget_ptr_iter != widget_ptr_set_.End(); ++widget_ptr_iter) {
+                ZWidgetObject* widget_ptr = *widget_ptr_iter;
+                widget_ptr->Tick(_delta_sec);
+            }
+
+            //tick frame
+            for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
+                ZFrame* frame_ptr = *frame_ptr_iter;
+                frame_ptr->Tick(_delta_sec);
+            }
+
+            //tick widgets not added
+            TickWidget(_delta_sec);
+        }
+
         //update size
         if (!SizeSet()) {
             ImVec2 frame_size = ImGui::GetWindowSize();
@@ -208,22 +277,39 @@ Void ZFrame::Tick(Float32 _delta_sec) noexcept {
 
         SuperType_::Tick(_delta_sec);
 
-        if (Enabled()) {
-            //tick widgets
-            for (auto widget_ptr_iter = widget_ptr_set_.Begin(); widget_ptr_iter != widget_ptr_set_.End(); ++widget_ptr_iter) {
-                ZWidgetObject* widget_ptr = *widget_ptr_iter;
-                widget_ptr->Tick(_delta_sec);
-            }
+        scroll_x_ = scroll_x_ <= scroll_max_x_ ? scroll_x_ : scroll_max_x_;
+        scroll_y_ = scroll_y_ <= scroll_max_y_ ? scroll_y_ : scroll_max_y_;
+        scroll_x_ = scroll_x_ >= 0.0F ? scroll_x_ : 0.0F;
+        scroll_y_ = scroll_y_ >= 0.0F ? scroll_y_ : 0.0F;
 
-            //tick frame
-            for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
-                ZFrame* frame_ptr = *frame_ptr_iter;
-                frame_ptr->Tick(_delta_sec);
-            }
-            
-            //tick widgets not added
-            TickWidget(_delta_sec);
+        scroll_x_set_ &= scroll_pre_x_ != scroll_x_;
+        scroll_y_set_ &= scroll_pre_y_ != scroll_y_;
+
+        if (scroll_x_set_) {
+            scroll_x_set_ = false;
+            ImGui::SetScrollX(scroll_x_);
         }
+        else {
+            scroll_x_ = ImGui::GetScrollX();
+        }
+
+        if (scroll_y_set_) {
+            scroll_y_set_ = false;
+            ImGui::SetScrollY(scroll_y_);
+        }
+        else {
+            scroll_y_ = ImGui::GetScrollY();
+        }
+
+        if (scroll_pre_x_ != scroll_x_ || scroll_pre_y_ != scroll_y_) {
+            OnScrollChanged(scroll_pre_x_, scroll_pre_y_, scroll_x_, scroll_y_);
+        }
+
+        scroll_pre_x_ = scroll_x_;
+        scroll_pre_y_ = scroll_y_;
+
+        scroll_max_x_ = ImGui::GetScrollMaxX();
+        scroll_max_y_ = ImGui::GetScrollMaxY();
 
         //sub frame end
         ImGui::EndChild();
@@ -309,6 +395,14 @@ Void ZFrame::RemoveAll() noexcept {
 Void ZFrame::SetBackgruondColour(GuiColour _colour) noexcept {
     frame_background_colour_ = _colour;
 }
+Void ZFrame::SetScrollX(Float32 _scroll_x) noexcept {
+    scroll_x_ = _scroll_x;
+    scroll_x_set_ = true;
+}
+Void ZFrame::SetScrollY(Float32 _scroll_y) noexcept {
+    scroll_y_ = _scroll_y;
+    scroll_y_set_ = true;
+}
 
 NODISCARD ZFrame::WidgetTypeEnum_ ZFrame::WidgetType() const noexcept {
     return WidgetTypeEnum_::kWidgetType_Frame;
@@ -317,7 +411,18 @@ NODISCARD ZFrame::WidgetTypeEnum_ ZFrame::WidgetType() const noexcept {
 NODISCARD GuiColour ZFrame::BackgruondColour() const noexcept {
     return frame_background_colour_;
 }
-
+NODISCARD Float32 ZFrame::ScrollX() const noexcept {
+    return scroll_x_;
+}
+NODISCARD Float32 ZFrame::ScrollY() const noexcept {
+    return scroll_y_;
+}
+NODISCARD Float32 ZFrame::ScrollMaxX() const noexcept {
+    return scroll_max_x_;
+}
+NODISCARD Float32 ZFrame::ScrollMaxY() const noexcept {
+    return scroll_max_y_;
+}
 Void ZFrame::OnKeyDown(KeyEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept {
     SuperType_::OnKeyDown(_clicked_button, _shift, _ctrl, _alt);
     for (auto frame_ptr_iter = frame_ptr_set_.Begin(); frame_ptr_iter != frame_ptr_set_.End(); ++frame_ptr_iter) {
@@ -373,6 +478,14 @@ Void ZFrame::OnMouseMove(GuiPos _pre_pos, GuiPos _cur_pos) noexcept {
         frame_ptr->OnMouseMove(_pre_pos, _cur_pos);
     }
 }
+
+Void ZFrame::OnScrollChanged(
+    Float32 _pre_scroll_x,
+    Float32 _pre_scroll_y,
+    Float32 _cur_scroll_x,
+    Float32 _cur_scroll_y
+) noexcept 
+{}
 
 Void ZFrame::MoveP(ZFrame&& _obj) noexcept {
     frame_flag_ = _obj.frame_flag_;

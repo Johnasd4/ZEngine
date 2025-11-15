@@ -41,21 +41,25 @@ namespace socket {
 /*
     TLS stream.
     Initialize with a connected tcp socket.
+    Socket connected -> SetSNI(optional) -> Handshake -> Read/Write -> Shutdown -> Socket shutdown
 */
 class SOCKET_DLLAPI ZTLSStream : public ZObject {
 public:
     enum State_ : Int32 {
-        ZTLSStreamTCPClientState_Uninitialized,
-        ZTLSStreamTCPClientState_Idle,
-        ZTLSStreamTCPClientState_HandShaked,
-        ZTLSStreamTCPClientState_Shutdown,
-        ZTLSStreamTCPClientState_Error
+        ZTLSStreamState_Uninitialized,
+        ZTLSStreamState_Idle,
+        ZTLSStreamState_HandShaked,
+        ZTLSStreamState_Shutdown,
+        ZTLSStreamState_Error
     };
     
     /*
         Socket mush be connected.
     */
-    ZTLSStream(ZTCPSocket* _socket_ptr, ZTLSContext* _tls_context_ptr) noexcept;
+    ZTLSStream(
+        ZTCPSocket* _socket_ptr, 
+        ZTLSContext* _tls_context_ptr
+    ) noexcept;
     ZTLSStream(ZTLSStream&& _stream) noexcept;
 
     ~ZTLSStream() noexcept;
@@ -65,28 +69,27 @@ public:
     /*
        Initialize tls stream.
    */
-    NODISCARD ReturnType Initialize(ZTCPSocket* _socket_ptr, ZTLSContext* _tls_context_ptr) noexcept;
-
-    NODISCARD FORCEINLINE State_ State() const noexcept { return state_; }
-    NODISCARD FORCEINLINE ZTLSContext* TLSContextPtr() const noexcept { return tls_context_ptr_; }
-    NODISCARD FORCEINLINE TLSTypeEnum TLSType() const noexcept { return tls_type_; }
-
-    /*
-        Conect to target socket. Will suspend the current thread.
-    */
-    NODISCARD ReturnType Handshake(
-        const Char* _address_str,
-        const Char* _port_str
+    NODISCARD ReturnType Initialize(
+        ZTCPSocket* _socket_ptr, 
+        ZTLSContext* _tls_context_ptr
     ) noexcept;
 
+    NODISCARD FORCEINLINE State_ State() const noexcept { return state_.Value(); }
+    NODISCARD FORCEINLINE ZTLSContext* TLSContextPtr() const noexcept { return tls_context_ptr_; }
+
+    NODISCARD ReturnType SetDNI(const Char* host_name) noexcept;   
+
     /*
-        Conect to target socket. Will not suspend the current thread.
-        _handle_func(Bool _connect_success)
+        Handshake.
+    */
+    NODISCARD ReturnType Handshake() noexcept;
+
+    /*
+        Handshake. Will not suspend the current thread.
+        _handle_func(Bool _handshake_success)
     */
     NODISCARD ReturnType AsyncHandshake(
-        const Char* _address_str,
-        const Char* _port_str,
-        const TFunction<Void(Bool)>& _handle_func
+        const TFunction<Void(ZTLSStream*, Bool)>& _handle_func
     ) noexcept;
 
     /*
@@ -101,12 +104,12 @@ public:
     /*
         Read data. Will not suspend the current thread.
         _handle_func only needs to handle the read data.
-        _handle_func(ZTCPSocket* _socket_ptr, const Void* _buffer_ptr, SizeType _data_size)
+        _handle_func(ZTLSStream* _socket_ptr, const Void* _buffer_ptr, SizeType _data_size)
     */
     NODISCARD ReturnType AsyncRead(
         Void* _buffer_ptr,
         SizeType _buffer_size,
-        const TFunction<Void(ZTCPSocket*, const Void*, SizeType)>& _handle_func
+        const TFunction<Void(ZTLSStream*, const Void*, SizeType)>& _handle_func
     ) noexcept;
 
     /*
@@ -120,32 +123,18 @@ public:
     /*
         Write data. Will not suspend the current thread.
         _handle_func will be called after the data send.
-        _handle_func(ZTCPSocket* _socket_ptr, const Void* _data_ptr, SizeType _data_size)
+        _handle_func(ZTLSStream* _socket_ptr, const Void* _data_ptr, SizeType _data_size)
     */
     NODISCARD ReturnType AsyncWrite(
         const Void* _data_ptr,
         SizeType _data_size,
-        const TFunction<Void(ZTCPSocket*, const Void*, SizeType)>& _handle_func
+        const TFunction<Void(ZTLSStream*, const Void*, SizeType)>& _handle_func
     ) noexcept;
 
     /*
-        Write data. Will suspend the current thread until data write.
+        Shutdown stream. Will suspend the current thread until stream shutdown.
     */
-    NODISCARD ReturnType Shutdown(
-        const Void* _data_ptr,
-        SizeType _data_size
-    ) noexcept;
-
-    /*
-        Write data. Will not suspend the current thread.
-        _handle_func will be called after the data send.
-        _handle_func(ZTCPSocket* _socket_ptr, const Void* _data_ptr, SizeType _data_size)
-    */
-    NODISCARD ReturnType AsyncShutdown(
-        const Void* _data_ptr,
-        SizeType _data_size,
-        const TFunction<Void(ZTCPSocket*, const Void*, SizeType)>& _handle_func
-    ) noexcept;
+    NODISCARD ReturnType Shutdown() noexcept;
 
 protected:
     using SuperType_ = ZObject;
@@ -154,11 +143,16 @@ private:
     ZTLSStream(const ZTLSStream&) = delete;
     ZTLSStream& operator=(const ZTLSStream&) = delete;
 
+    /*
+        Called when handshake success.
+    */
+    Void OnHandshakeP() noexcept;
+
 private:
     TUniquePointer<internal::ZTLSStreamData> data_ptr_;
+    ZTCPSocket* tcp_socket_ptr_;
     ZTLSContext* tls_context_ptr_;
-    TLSTypeEnum tls_type_;
-    State_ state_;
+    TAtom<State_> state_;
 };
 
 }//socket

@@ -31,12 +31,7 @@ namespace internal {
 
 struct ZUDPSocketData : public ZObject {
 public:
-    FORCEINLINE ZUDPSocketData(boost::asio::io_context* _io_context_ptr) noexcept
-        : socket_(*_io_context_ptr)
-        , async_receive_endpoint_()
-        , if_endpoint_bind_(false)
-        , if_connected_(true)
-        , async_error_handle_func_() {}
+    ZUDPSocketData(boost::asio::io_context* _io_context_ptr) noexcept;
 
 protected:
     using SuperType_ = ZObject;

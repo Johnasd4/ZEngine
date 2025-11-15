@@ -74,8 +74,8 @@ public:
         return reinterpret_cast<_ObjectType>(data_ptr_);
     }
     template<typename _ObjectType>
-    NODISCARD FORCEINLINE const _ObjectType DataPtr() const noexcept {
-        return reinterpret_cast<const _ObjectType>(data_ptr_);
+    NODISCARD FORCEINLINE _ObjectType DataPtr() const noexcept {
+        return reinterpret_cast<_ObjectType>(data_ptr_);
     }
 
     NODISCARD FORCEINLINE SizeType Size() const noexcept { return size_; }

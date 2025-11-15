@@ -55,6 +55,24 @@ NODISCARD FORCEINLINE constexpr decltype(auto) Ref(std::reference_wrapper<_Objec
 }
 
 /*
+    Decays basic type.
+*/
+template<typename _ArgType>
+NODISCARD FORCEINLINE constexpr decltype(auto) NonBasicTypeForward(_ArgType&& arg) {
+    using DecayArgType = std::remove_reference_t<_ArgType>;
+    if constexpr (
+        std::is_fundamental_v<DecayArgType> ||
+        std::is_pointer_v<DecayArgType> ||
+        std::is_enum_v<DecayArgType>
+    ) {
+        return static_cast<DecayArgType>(arg);
+    }
+    else {
+        return std::forward<_ArgType>(arg);
+    }
+}
+
+/*
     The current thread suspends the given time(s)
 */
 CORE_DLLAPI NODISCARD Void SleepSec(TimeType _time) noexcept;

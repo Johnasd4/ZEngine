@@ -22,7 +22,6 @@
 
 #include <boost/asio.hpp>
 
-#include "z_core/t_pool.h"
 #include "z_core/z_object.h"
 #include "z_core/z_thread.h"
 
@@ -32,11 +31,7 @@ namespace internal {
 
 struct ZIOContextData : public ZObject {
 public:
-    ZIOContextData() noexcept
-        : io_context_()
-        , async_resolver_(io_context_)
-        , aysnc_thread_() 
-    {}
+    ZIOContextData() noexcept;
 
 protected:
     using SuperType_ = ZObject;

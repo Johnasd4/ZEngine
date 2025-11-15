@@ -48,7 +48,7 @@ namespace internal {
 template<typename _CharType>
 class TString : public ZObject {
 public:
-    using STDString_ = std::basic_string<_CharType, std::char_traits<_CharType>, TContainerAllocator<_CharType>>;;
+    using STDString_ = std::basic_string<_CharType, std::char_traits<_CharType>, TAllocator<_CharType>>;;
     using Iterator_ = STDString_::iterator;
     using ConstIterator_ = STDString_::const_iterator;
     using ReverseIterator_ = STDString_::reverse_iterator;
@@ -718,12 +718,12 @@ public:
             Char* err_str;
             *_ans_ptr = std::strtol(str, &err_str, 10);
             if (str == err_str) {
-                ret_val = error_code::kZStringErrorCode_LinkError;
-                Z_LOG_ERROR(ret_val, 0, L"std::strtol() link error! Wrong Parameter!");
+                ret_val = error_code::kZStringErrorCode_SystemError;
+                Z_LOG_ERROR(ret_val, 0, L"std::strtol() system error! Wrong Parameter!");
             }
             else if (err_ref == ERANGE) {
-                ret_val = error_code::kZStringErrorCode_LinkError;
-                Z_LOG_ERROR(ret_val, 0, L"std::strtol() link error! Number out of range!");
+                ret_val = error_code::kZStringErrorCode_SystemError;
+                Z_LOG_ERROR(ret_val, 0, L"std::strtol() system error! Number out of range!");
             }
         }
         else if constexpr (kSameType<_CharType, WChar>) {
@@ -733,12 +733,192 @@ public:
             WChar* err_str;
             *_ans_ptr = std::wcstol(str, &err_str, 10);
             if (str == err_str) {
-                ret_val = error_code::kZStringErrorCode_LinkError;
-                Z_LOG_ERROR(ret_val, 0, L"std::wcstol() link error! Wrong Parameter!");
+                ret_val = error_code::kZStringErrorCode_SystemError;
+                Z_LOG_ERROR(ret_val, 0, L"std::wcstol() system error! Wrong Parameter!");
             }
             else if (err_ref == ERANGE) {
-                ret_val = error_code::kZStringErrorCode_LinkError;
-                Z_LOG_ERROR(ret_val, 0, L"std::wcstol() link error! Number out of range!");
+                ret_val = error_code::kZStringErrorCode_SystemError;
+                Z_LOG_ERROR(ret_val, 0, L"std::wcstol() system error! Number out of range!");
+            }
+        }
+        return ret_val;
+    }
+
+    NODISCARD ReturnType ToUInt32(UInt32* _ans_ptr) noexcept {
+        Int32 ans = 0;
+        ReturnType ret_val = kOK;
+        if constexpr (kSameType<_CharType, Char>) {
+            Int32& err_ref = errno;
+            err_ref = 0;
+            const Char* str = str_.c_str();
+            Char* err_str;
+            *_ans_ptr = std::strtoul(str, &err_str, 10);
+            if (str == err_str) {
+                ret_val = error_code::kZStringErrorCode_SystemError;
+                Z_LOG_ERROR(ret_val, 0, L"std::strtol() system error! Wrong Parameter!");
+            }
+            else if (err_ref == ERANGE) {
+                ret_val = error_code::kZStringErrorCode_SystemError;
+                Z_LOG_ERROR(ret_val, 0, L"std::strtol() system error! Number out of range!");
+            }
+        }
+        else if constexpr (kSameType<_CharType, WChar>) {
+            Int32& err_ref = errno;
+            err_ref = 0;
+            const WChar* str = str_.c_str();
+            WChar* err_str;
+            *_ans_ptr = std::wcstoul(str, &err_str, 10);
+            if (str == err_str) {
+                ret_val = error_code::kZStringErrorCode_SystemError;
+                Z_LOG_ERROR(ret_val, 0, L"std::wcstol() system error! Wrong Parameter!");
+            }
+            else if (err_ref == ERANGE) {
+                ret_val = error_code::kZStringErrorCode_SystemError;
+                Z_LOG_ERROR(ret_val, 0, L"std::wcstol() system error! Number out of range!");
+            }
+        }
+        return ret_val;
+    }
+
+    NODISCARD ReturnType ToInt64(Int64* _ans_ptr) noexcept {
+        Int32 ans = 0;
+        ReturnType ret_val = kOK;
+        if constexpr (kSameType<_CharType, Char>) {
+            Int32& err_ref = errno;
+            err_ref = 0;
+            const Char* str = str_.c_str();
+            Char* err_str;
+            *_ans_ptr = std::strtoll(str, &err_str, 10);
+            if (str == err_str) {
+                ret_val = error_code::kZStringErrorCode_SystemError;
+                Z_LOG_ERROR(ret_val, 0, L"std::strtol() system error! Wrong Parameter!");
+            }
+            else if (err_ref == ERANGE) {
+                ret_val = error_code::kZStringErrorCode_SystemError;
+                Z_LOG_ERROR(ret_val, 0, L"std::strtol() system error! Number out of range!");
+            }
+        }
+        else if constexpr (kSameType<_CharType, WChar>) {
+            Int32& err_ref = errno;
+            err_ref = 0;
+            const WChar* str = str_.c_str();
+            WChar* err_str;
+            *_ans_ptr = std::wcstoll(str, &err_str, 10);
+            if (str == err_str) {
+                ret_val = error_code::kZStringErrorCode_SystemError;
+                Z_LOG_ERROR(ret_val, 0, L"std::wcstol() system error! Wrong Parameter!");
+            }
+            else if (err_ref == ERANGE) {
+                ret_val = error_code::kZStringErrorCode_SystemError;
+                Z_LOG_ERROR(ret_val, 0, L"std::wcstol() system error! Number out of range!");
+            }
+        }
+        return ret_val;
+    }
+
+    NODISCARD ReturnType ToUInt64(UInt64* _ans_ptr) noexcept {
+        Int32 ans = 0;
+        ReturnType ret_val = kOK;
+        if constexpr (kSameType<_CharType, Char>) {
+            Int32& err_ref = errno;
+            err_ref = 0;
+            const Char* str = str_.c_str();
+            Char* err_str;
+            *_ans_ptr = std::strtoull(str, &err_str, 10);
+            if (str == err_str) {
+                ret_val = error_code::kZStringErrorCode_SystemError;
+                Z_LOG_ERROR(ret_val, 0, L"std::strtoull() system error! Wrong Parameter!");
+            }
+            else if (err_ref == ERANGE) {
+                ret_val = error_code::kZStringErrorCode_SystemError;
+                Z_LOG_ERROR(ret_val, 0, L"std::strtoull() system error! Number out of range!");
+            }
+        }
+        else if constexpr (kSameType<_CharType, WChar>) {
+            Int32& err_ref = errno;
+            err_ref = 0;
+            const WChar* str = str_.c_str();
+            WChar* err_str;
+            *_ans_ptr = std::strtoull(str, &err_str, 10);
+            if (str == err_str) {
+                ret_val = error_code::kZStringErrorCode_SystemError;
+                Z_LOG_ERROR(ret_val, 0, L"std::strtoull() system error! Wrong Parameter!");
+            }
+            else if (err_ref == ERANGE) {
+                ret_val = error_code::kZStringErrorCode_SystemError;
+                Z_LOG_ERROR(ret_val, 0, L"std::strtoull() system error! Number out of range!");
+            }
+        }
+        return ret_val;
+    }
+
+    NODISCARD ReturnType ToFloat32(Float32* _ans_ptr) noexcept {
+        Int32 ans = 0;
+        ReturnType ret_val = kOK;
+        if constexpr (kSameType<_CharType, Char>) {
+            Int32& err_ref = errno;
+            err_ref = 0;
+            const Char* str = str_.c_str();
+            Char* err_str;
+            *_ans_ptr = std::strtof(str, &err_str, 10);
+            if (str == err_str) {
+                ret_val = error_code::kZStringErrorCode_SystemError;
+                Z_LOG_ERROR(ret_val, 0, L"std::strtoull() system error! Wrong Parameter!");
+            }
+            else if (err_ref == ERANGE) {
+                ret_val = error_code::kZStringErrorCode_SystemError;
+                Z_LOG_ERROR(ret_val, 0, L"std::strtoull() system error! Number out of range!");
+            }
+        }
+        else if constexpr (kSameType<_CharType, WChar>) {
+            Int32& err_ref = errno;
+            err_ref = 0;
+            const WChar* str = str_.c_str();
+            WChar* err_str;
+            *_ans_ptr = std::strtof(str, &err_str, 10);
+            if (str == err_str) {
+                ret_val = error_code::kZStringErrorCode_SystemError;
+                Z_LOG_ERROR(ret_val, 0, L"std::strtoull() system error! Wrong Parameter!");
+            }
+            else if (err_ref == ERANGE) {
+                ret_val = error_code::kZStringErrorCode_SystemError;
+                Z_LOG_ERROR(ret_val, 0, L"std::strtoull() system error! Number out of range!");
+            }
+        }
+        return ret_val;
+    }
+
+    NODISCARD ReturnType ToFloat64(Float64* _ans_ptr) noexcept {
+        Int32 ans = 0;
+        ReturnType ret_val = kOK;
+        if constexpr (kSameType<_CharType, Char>) {
+            Int32& err_ref = errno;
+            err_ref = 0;
+            const Char* str = str_.c_str();
+            Char* err_str;
+            *_ans_ptr = std::strtod(str, &err_str, 10);
+            if (str == err_str) {
+                ret_val = error_code::kZStringErrorCode_SystemError;
+                Z_LOG_ERROR(ret_val, 0, L"std::strtoull() system error! Wrong Parameter!");
+            }
+            else if (err_ref == ERANGE) {
+                ret_val = error_code::kZStringErrorCode_SystemError;
+                Z_LOG_ERROR(ret_val, 0, L"std::strtoull() system error! Number out of range!");
+            }
+        }
+        else if constexpr (kSameType<_CharType, WChar>) {
+            Int32& err_ref = errno;
+            err_ref = 0;
+            const WChar* str = str_.c_str();
+            WChar* err_str;
+            *_ans_ptr = std::strtod(str, &err_str, 10);
+            if (str == err_str) {
+                ret_val = error_code::kZStringErrorCode_SystemError;
+                Z_LOG_ERROR(ret_val, 0, L"std::strtoull() system error! Wrong Parameter!");
+            }
+            else if (err_ref == ERANGE) {
+                ret_val = error_code::kZStringErrorCode_SystemError;
+                Z_LOG_ERROR(ret_val, 0, L"std::strtoull() system error! Number out of range!");
             }
         }
         return ret_val;

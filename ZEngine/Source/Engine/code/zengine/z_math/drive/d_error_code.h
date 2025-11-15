@@ -24,9 +24,9 @@
 namespace zengine {
 namespace error_code {
 
-inline constexpr ReturnType kErrorCodeBase_PMath = 0x3u * kErrorCodeProjcetMask + kErrorCodeBase_SZEngine;
+inline constexpr ReturnType kErrorCodeBase_PMath = 0x3U * kErrorCodeProjcetMask + kErrorCodeBase_SZEngine;
 
-inline constexpr ReturnType kErrorCodeBase_FBasicMathRandom = 0x0u * kErrorCodeTypeMask + kErrorCodeBase_PMath;
+inline constexpr ReturnType kErrorCodeBase_FBasicMathRandom = 0x0U * kErrorCodeTypeMask + kErrorCodeBase_PMath;
 
 }//error_code
 }//zengine

@@ -27,8 +27,10 @@
 
 #include "z_io_context.h"
 
+#include "data/z_buffer_stream_data.h"
 #include "data/z_io_context_data.h"
 #include "data/z_tcp_socket_data.h"
+#include "z_buffer_stream.h"
 #include "z_socket_allocator.h"
 
 namespace zengine {
@@ -79,7 +81,7 @@ ZTCPSocket::ZTCPSocket(ZIOContext* _context_ptr) noexcept
 
 ZTCPSocket::~ZTCPSocket() noexcept {
     ReturnType link_code = kOK;
-    link_code = Reset();
+    link_code = Close();
     if (link_code != kOK) {
         Z_LOG_ERROR(
             error_code::kPSocketErrorCode_LinkError, link_code,
@@ -138,6 +140,8 @@ NODISCARD ReturnType ZTCPSocket::Initialize(ZIOContext* _io_context_ptr) noexcep
 
 NODISCARD ReturnType ZTCPSocket::BindEndpoint(const Char* _address_str, Int32 _port) noexcept {
     ReturnType ret_val = kOK;
+    boost::system::error_code error_code;
+
     Z_CHECK(
         state_ != ZTCPSocketState_Idle,
         error_code::kPSocketErrorCode_StateError,
@@ -151,7 +155,6 @@ NODISCARD ReturnType ZTCPSocket::BindEndpoint(const Char* _address_str, Int32 _p
         _port
     );
 
-    boost::system::error_code error_code;
     boost::asio::ip::address address = boost::asio::ip::make_address(_address_str, error_code);
     if (error_code) {
         ret_val = error_code::kPSocketErrorCode_AddressNotVaild;
@@ -172,6 +175,7 @@ NODISCARD ReturnType ZTCPSocket::BindEndpoint(const Char* _address_str, Int32 _p
 
 NODISCARD ReturnType ZTCPSocket::SetOSWriteBufferSize(Int32 _size) noexcept {
     ReturnType ret_val = kOK;
+    boost::system::error_code error_code;
 
     Z_CHECK(
         state_ != ZTCPSocketState_Connected,
@@ -180,16 +184,15 @@ NODISCARD ReturnType ZTCPSocket::SetOSWriteBufferSize(Int32 _size) noexcept {
         state_.Value(), ZTCPSocketState_Connected
     );
 
-    boost::system::error_code error_code;
     data_ptr_->socket_.set_option(boost::asio::socket_base::send_buffer_size(_size), error_code);
     if (error_code) {
+        state_ = ZTCPSocketState_Error;
         ret_val = error_code::kPSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             L"System error! error info: %ls",
             string::String2WString(error_code.message().c_str()).String()
         );
-        state_ = ZTCPSocketState_Error;
         return ret_val;
     }
 
@@ -198,6 +201,7 @@ NODISCARD ReturnType ZTCPSocket::SetOSWriteBufferSize(Int32 _size) noexcept {
 
 NODISCARD ReturnType ZTCPSocket::SetOSReadBufferSize(Int32 _size) noexcept {
     ReturnType ret_val = kOK;
+    boost::system::error_code error_code;
 
     Z_CHECK(
         state_ != ZTCPSocketState_Connected,
@@ -206,16 +210,15 @@ NODISCARD ReturnType ZTCPSocket::SetOSReadBufferSize(Int32 _size) noexcept {
         state_.Value(), ZTCPSocketState_Connected
     );
 
-    boost::system::error_code error_code;
     data_ptr_->socket_.set_option(boost::asio::socket_base::receive_buffer_size(_size), error_code);
     if (error_code) {
+        state_ = ZTCPSocketState_Error;
         ret_val = error_code::kPSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             L"System error! error info: %ls",
             string::String2WString(error_code.message().c_str()).String()
         );
-        state_ = ZTCPSocketState_Error;
         return ret_val;
     }
 
@@ -236,13 +239,13 @@ NODISCARD ReturnType ZTCPSocket::Cancel() noexcept {
         data_ptr_->socket_.cancel();
     }
     catch (const boost::system::system_error& error) {
+        state_ = ZTCPSocketState_Error;
         ret_val = error_code::kPSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error.code().value(),
             L"System error! error info: %ls",
             string::String2WString(error.code().message().c_str()).String()
         );
-        state_ = ZTCPSocketState_Error;
         return ret_val;
     }
 
@@ -250,40 +253,6 @@ NODISCARD ReturnType ZTCPSocket::Cancel() noexcept {
 }
 
 NODISCARD ReturnType ZTCPSocket::Close() noexcept {
-    ReturnType ret_val = kOK;
-    boost::system::error_code error_code;
-
-    Z_CHECK(
-        data_ptr_->socket_.is_open() == false,
-        error_code::kPSocketErrorCode_SocketNotOpen,
-        L"Socket not open!"
-    );
-
-    try {
-        data_ptr_->if_endpoint_bind_ = false;
-        data_ptr_->async_error_handle_func_ = nullptr;
-        data_ptr_->socket_.cancel();
-        if (state_ == ZTCPSocketState_Connected) {
-            data_ptr_->socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
-        }
-        data_ptr_->socket_.close();
-        state_ = ZTCPSocketState_Idle;
-    }
-    catch (const boost::system::system_error& error) {
-        ret_val = error_code::kPSocketErrorCode_SystemError;
-        Z_LOG_ERROR(
-            ret_val, error.code().value(),
-            L"System error! error info: %ls",
-            string::String2WString(error.code().message().c_str()).String()
-        );
-        state_ = ZTCPSocketState_Error;
-        return ret_val;
-    }
-
-    return ret_val;
-}
-
-NODISCARD ReturnType ZTCPSocket::Reset() noexcept {
     ReturnType ret_val = kOK;
     boost::system::error_code error_code;
 
@@ -296,20 +265,21 @@ NODISCARD ReturnType ZTCPSocket::Reset() noexcept {
         data_ptr_->async_error_handle_func_ = nullptr;
         if (data_ptr_->socket_.is_open()) {
             data_ptr_->socket_.cancel();
+            if (state_ == ZTCPSocketState_Connected) {
+                data_ptr_->socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
+            }
+            data_ptr_->socket_.close();
         }
-        if (state_ == ZTCPSocketState_Connected) {
-            data_ptr_->socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
-        }
-        data_ptr_->socket_.close();
+        state_ = ZTCPSocketState_Idle;
     }
     catch (const boost::system::system_error& error) {
+        state_ = ZTCPSocketState_Error;
         ret_val = error_code::kPSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error.code().value(),
             L"System error! error info: %ls",
             string::String2WString(error.code().message().c_str()).String()
         );
-        state_ = ZTCPSocketState_Error;
         return ret_val;
     }
 
@@ -353,7 +323,7 @@ NODISCARD ReturnType ZTCPSocket::Connect(
 
     //connect
     Z_LOG_START(
-        L"Try to connect server... server_address: %ls server_port: %ls",
+        L"Try to connect... address: %ls port: %ls",
         string::String2WString(_address_str).String(),
         string::String2WString(_port_str).String()
     );
@@ -366,6 +336,12 @@ NODISCARD ReturnType ZTCPSocket::Connect(
                 data_ptr_->socket_.close();
                 data_ptr_->socket_.open(boost::asio::ip::tcp::v4(), error_code);
                 if (error_code) {
+                    ret_val = error_code::kPSocketErrorCode_SystemError;
+                    Z_LOG_ERROR(
+                        ret_val, error_code.value(),
+                        L"System error! error info: %ls",
+                        string::String2WString(error_code.message().c_str()).String()
+                    );
                     break;
                 }
 
@@ -389,22 +365,25 @@ NODISCARD ReturnType ZTCPSocket::Connect(
 				break;
             }
             else if (error_code == boost::asio::error::connection_refused) {
+                if (_repeat_times <= reconnect_times) {
+                    break;
+                }
                 reconnect_times += 1;
                 Z_LOG_PROCESS(
-                    L"Retry to connect server... repeat_times: %d server_address: %ls server_port: %ls",
+                    L"Retry to connect... repeat_times: %d address: %ls port: %ls",
                     reconnect_times,
                     string::String2WString(_address_str).String(),
                     string::String2WString(_port_str).String()
                 );
             }
             else {
+                state_ = ZTCPSocketState_Error;
                 ret_val = error_code::kPSocketErrorCode_SystemError;
                 Z_LOG_ERROR(
                     ret_val, error_code.value(),
                     L"System error! error info: %ls",
                     string::String2WString(error_code.message().c_str()).String()
                 );
-                state_ = ZTCPSocketState_Error;
                 break;
             }
             continue;
@@ -413,7 +392,7 @@ NODISCARD ReturnType ZTCPSocket::Connect(
         //connect success
         OnConnectP();
         break;
-    } while (_repeat_times > reconnect_times);
+    } while (true);
 
     if (state_ == ZTCPSocketState_Connecting) {
         state_ = ZTCPSocketState_Idle;
@@ -422,7 +401,7 @@ NODISCARD ReturnType ZTCPSocket::Connect(
     if (state_ != ZTCPSocketState_Connected) {
         ret_val = error_code::kPSocketErrorCode_ConnectFailed;
         Z_LOG_FAILURE(
-            L"Socket connect failed! server_address: %ls server_port: %ls",
+            L"Socket connect failed! address: %ls port: %ls",
             string::String2WString(_address_str).String(),
             string::String2WString(_port_str).String()
         );
@@ -435,7 +414,7 @@ NODISCARD ReturnType ZTCPSocket::Connect(
 NODISCARD ReturnType ZTCPSocket::AsyncConnect(
     const Char* _address_str,
     const Char* _port_str,
-    const TFunction<Void(Bool)>& _handle_func,
+    const TFunction<Void(ZTCPSocket*, Bool)>& _handle_func,
     Int32 _repeat_times
 ) noexcept {
     ReturnType ret_val = kOK;
@@ -509,7 +488,7 @@ NODISCARD ReturnType ZTCPSocket::AsyncConnectExecuteP(
     ZString&& _port_str,
     Void* _endpoints_ptr,
     Void* _endpoint_iterator,
-    const TFunction<Void(Bool)>& _handle_func,
+    const TFunction<Void(ZTCPSocket*, Bool)>& _handle_func,
     Int32 _repeat_times,
     Int32 _reconnect_times
 ) noexcept {
@@ -528,26 +507,26 @@ NODISCARD ReturnType ZTCPSocket::AsyncConnectExecuteP(
         data_ptr_->socket_.close();
         data_ptr_->socket_.open(boost::asio::ip::tcp::v4(), error_code);
         if (error_code) {
+            state_ = ZTCPSocketState_Error;
             ret_val = error_code::kPSocketErrorCode_SystemError;
             Z_LOG_ERROR(
                 ret_val, error_code.value(),
                 L"System error! error info: %ls",
                 string::String2WString(error_code.message().c_str()).String()
             );
-            state_ = ZTCPSocketState_Error;
             return ret_val;
         }
 
         //bind endpoint
         data_ptr_->socket_.bind(data_ptr_->bind_endpoint_, error_code);
         if (error_code) {
+            state_ = ZTCPSocketState_Error;
             ret_val = error_code::kPSocketErrorCode_SystemError;
             Z_LOG_ERROR(
                 ret_val, error_code.value(),
                 L"System error! error info: %ls",
                 string::String2WString(error_code.message().c_str()).String()
             );
-            state_ = ZTCPSocketState_Error;
             return ret_val;
         }
     }
@@ -616,14 +595,14 @@ NODISCARD ReturnType ZTCPSocket::AsyncConnectExecuteP(
 
                         //timeout
                         Z_LOG_FAILURE(
-                            L"Connect server failed! server_address: %ls server_port: %ls",
+                            L"Connect failed! address: %ls port: %ls",
                             string::String2WString(address_str.String()).String(),
                             string::String2WString(port_str.String()).String()
                         );
                     }
                     else if (_error_code == boost::asio::error::operation_aborted) {
                         Z_LOG_FAILURE(
-                            L"Connect cancelled! server_address: %ls server_port: %ls",
+                            L"Connect cancelled! address: %ls port: %ls",
                             string::String2WString(address_str.String()).String(),
                             string::String2WString(port_str.String()).String()
                         );
@@ -640,14 +619,17 @@ NODISCARD ReturnType ZTCPSocket::AsyncConnectExecuteP(
                         state_ = ZTCPSocketState_Idle;
                     }
 
-                    _handle_func(false);
+                    if (_handle_func) {
+                        _handle_func(this, false);
+                    }
                     return;
                 }
 
                 //connect success
                 OnConnectP();
-
-                _handle_func(true);
+                if (_handle_func) {
+                    _handle_func(this, true);
+                }
         })
     );
 
@@ -657,12 +639,12 @@ NODISCARD ReturnType ZTCPSocket::AsyncConnectExecuteP(
 NODISCARD Void ZTCPSocket::StopConnect() noexcept {
     if (state_ == ZTCPSocketState_Connecting) {
         state_ = ZTCPSocketState_Idle;
+        Z_LOG_PROCESS(L"Stop connecting...");
     }
 }
 
 NODISCARD ReturnType ZTCPSocket::Read(
-    Void* _buffer_ptr,
-    SizeType _buffer_size,
+    ZBuffer _buffer,
     SizeType* _data_size_ptr
 ) noexcept {
     ReturnType ret_val = kOK;
@@ -674,31 +656,37 @@ NODISCARD ReturnType ZTCPSocket::Read(
         return ret_val;
     }
 
-    SizeType data_size = data_ptr_->socket_.read_some(boost::asio::buffer(_buffer_ptr, _buffer_size), error_code);
+    SizeType data_size = data_ptr_->socket_.read_some(
+        boost::asio::buffer(_buffer.BufferPtr<Void*>(), _buffer.Size()), error_code
+    );
 
     if (error_code) {
-        if (error_code == boost::asio::error::connection_reset || 
-            error_code == boost::asio::error::connection_aborted || 
-            error_code.value() == ERROR_FILE_NOT_FOUND
-        ) {
-            data_ptr_->socket_.close(error_code);
+        if (IS_DICONNECT_ERROR(error_code)) {
+            link_code = Close();
+            if (link_code != kOK) {
+                ret_val = error_code::kPSocketErrorCode_LinkError;
+                Z_LOG_ERROR(
+                    ret_val, link_code,
+                    L"ZTCPSocket::Close() link error!"
+                );
+                return ret_val;
+            }
             ret_val = error_code::kPSocketErrorCode_Disconnected;
             Z_LOG_FINISH(
                 L"Socket disconnected! address: %ls port: %d",
                 string::String2WString(data_ptr_->address_.String()).String(),
                 data_ptr_->port_
             );
-            state_ = ZTCPSocketState_Idle;
             return ret_val;
         } 
         else {
+            state_ = ZTCPSocketState_Error;
             ret_val = error_code::kPSocketErrorCode_SystemError;
             Z_LOG_ERROR(
                 ret_val, error_code.value(),
                 L"System error! error info: %ls",
                 string::String2WString(error_code.message().c_str()).String()
             );
-            state_ = ZTCPSocketState_Error;
             return ret_val;
         }
     }
@@ -711,9 +699,8 @@ NODISCARD ReturnType ZTCPSocket::Read(
 }
 
 NODISCARD ReturnType ZTCPSocket::AsyncRead(
-    Void* _buffer_ptr,
-    SizeType _buffer_size,
-    const TFunction<Void(ZTCPSocket*, const Void*, SizeType)>& _handle_func
+    ZBuffer _buffer,
+    const TFunction<Void(ZTCPSocket*, const ZConstBuffer)>& _handle_func
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
@@ -724,33 +711,35 @@ NODISCARD ReturnType ZTCPSocket::AsyncRead(
     }
 
     data_ptr_->socket_.async_read_some(
-        boost::asio::buffer(_buffer_ptr, _buffer_size), 
-        MakeSocketHandlerAllocator([this, _buffer_ptr, _handle_func](
+        boost::asio::buffer(_buffer.BufferPtr<Void*>(), _buffer.Size()),
+        MakeSocketHandlerAllocator([this, buffer_ptr = _buffer.BufferPtr<Void*>(), _handle_func](
             const boost::system::error_code& _error_code,
             SizeType _data_size
         ) {
             //handle error
             if (_error_code) {
-                if (_error_code == boost::asio::error::connection_reset ||
-                    _error_code == boost::asio::error::connection_aborted ||
-                    _error_code.value() == ERROR_FILE_NOT_FOUND
-                ) {
-                    boost::system::error_code error_code;
-                    data_ptr_->socket_.close(error_code);
+                if (IS_DICONNECT_ERROR(_error_code)) {
+                    ReturnType link_code = kOK;
+                    link_code = Close();
+                    if (link_code != kOK) {
+                        Z_LOG_ERROR(
+                            error_code::kPSocketErrorCode_LinkError, link_code,
+                            L"ZTCPSocket::Close() link error!"
+                        );
+                    }
                     Z_LOG_FINISH(
                         L"Socket disconnected! address: %ls port: %d",
                         string::String2WString(data_ptr_->address_.String()).String(),
                         data_ptr_->port_
                     );
-                    state_ = ZTCPSocketState_Idle;
                 }
                 else {
+                    state_ = ZTCPSocketState_Error;
                     Z_LOG_ERROR(
                         error_code::kPSocketErrorCode_SystemError, _error_code.value(),
                         L"System error! error info: %ls",
                         string::String2WString(_error_code.message().c_str()).String()
                     );
-                    state_ = ZTCPSocketState_Error;
                 }
 
                 //call hook error handle func
@@ -763,7 +752,7 @@ NODISCARD ReturnType ZTCPSocket::AsyncRead(
 
             //handle read message
             if (_handle_func) {
-                _handle_func(this, _buffer_ptr, _data_size);
+                _handle_func(this, ZConstBuffer(buffer_ptr, _data_size));
             }
         })
     );
@@ -771,9 +760,10 @@ NODISCARD ReturnType ZTCPSocket::AsyncRead(
     return ret_val;
 }
 
-NODISCARD ReturnType ZTCPSocket::Write(
-    const Void* _data_ptr, 
-    SizeType _data_size
+NODISCARD ReturnType ZTCPSocket::ReadUntil(
+    ZBufferStream* _buffer_ptr,
+    Char _match_char,
+    SizeType* _data_size_ptr
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
@@ -784,30 +774,301 @@ NODISCARD ReturnType ZTCPSocket::Write(
         return ret_val;
     }
 
-    SizeType length = data_ptr_->socket_.write_some(boost::asio::buffer(_data_ptr, _data_size), error_code);
+    SizeType data_size = boost::asio::read_until(
+        data_ptr_->socket_, _buffer_ptr->buffer_stream_data_ptr_->buffer_, _match_char, error_code
+    );
+
     if (error_code) {
-        if (error_code == boost::asio::error::connection_reset ||
-            error_code == boost::asio::error::connection_aborted ||
-            error_code.value() == ERROR_FILE_NOT_FOUND
-        ) {
-            data_ptr_->socket_.close(error_code);
+        if (IS_DICONNECT_ERROR(error_code)) {
+            link_code = Close();
+            if (link_code != kOK) {
+                ret_val = error_code::kPSocketErrorCode_LinkError;
+                Z_LOG_ERROR(
+                    ret_val, link_code,
+                    L"ZTCPSocket::Close() link error!"
+                );
+                return ret_val;
+            }
             ret_val = error_code::kPSocketErrorCode_Disconnected;
             Z_LOG_FINISH(
                 L"Socket disconnected! address: %ls port: %d",
                 string::String2WString(data_ptr_->address_.String()).String(),
                 data_ptr_->port_
             );
-            state_ = ZTCPSocketState_Idle;
+            return ret_val;
+        }
+        else if (error_code == boost::asio::error::not_found) {
+            ret_val = error_code::kPSocketErrorCode_ReadUntilSymbolNotFound;
+            Z_LOG_ERROR(
+                ret_val, error_code.value(),
+                L"Match char not found!"
+            );
             return ret_val;
         }
         else {
+            state_ = ZTCPSocketState_Error;
             ret_val = error_code::kPSocketErrorCode_SystemError;
             Z_LOG_ERROR(
                 ret_val, error_code.value(),
                 L"System error! error info: %ls",
                 string::String2WString(error_code.message().c_str()).String()
             );
+            return ret_val;
+        }
+    }
+
+    if (_data_size_ptr != nullptr) {
+        *_data_size_ptr = data_size;
+    }
+
+    return ret_val;
+}
+
+NODISCARD ReturnType ZTCPSocket::ReadUntil(
+    ZBufferStream* _buffer_ptr,
+    const Char* _match_str,
+    SizeType* _data_size_ptr
+) noexcept {
+    ReturnType ret_val = kOK;
+    ReturnType link_code = kOK;
+    boost::system::error_code error_code;
+
+    if (state_ != ZTCPSocketState_Connected) {
+        ret_val = error_code::kPSocketErrorCode_StateError;
+        return ret_val;
+    }
+
+    SizeType data_size = boost::asio::read_until(
+        data_ptr_->socket_, _buffer_ptr->buffer_stream_data_ptr_->buffer_, _match_str, error_code
+    );
+
+    if (error_code) {
+        if (IS_DICONNECT_ERROR(error_code)) {
+            link_code = Close();
+            if (link_code != kOK) {
+                ret_val = error_code::kPSocketErrorCode_LinkError;
+                Z_LOG_ERROR(
+                    ret_val, link_code,
+                    L"ZTCPSocket::Close() link error!"
+                );
+                return ret_val;
+            }
+            ret_val = error_code::kPSocketErrorCode_Disconnected;
+            Z_LOG_FINISH(
+                L"Socket disconnected! address: %ls port: %d",
+                string::String2WString(data_ptr_->address_.String()).String(),
+                data_ptr_->port_
+            );
+            return ret_val;
+        } 
+        else if (error_code == boost::asio::error::not_found) {
+            ret_val = error_code::kPSocketErrorCode_ReadUntilSymbolNotFound;
+            Z_LOG_ERROR(
+                ret_val, error_code.value(),
+                L"Match string not found!"
+            );
+            return ret_val;
+        }
+        else {
             state_ = ZTCPSocketState_Error;
+            ret_val = error_code::kPSocketErrorCode_SystemError;
+            Z_LOG_ERROR(
+                ret_val, error_code.value(),
+                L"System error! error info: %ls",
+                string::String2WString(error_code.message().c_str()).String()
+            );
+            return ret_val;
+        }
+    }
+
+    if (_data_size_ptr != nullptr) {
+        *_data_size_ptr = data_size;
+    }
+
+    return ret_val;
+}
+
+NODISCARD ReturnType ZTCPSocket::AsyncReadUntil(
+    ZBufferStream* _buffer_ptr,
+    Char _match_char,
+    const TFunction<Void(ZTCPSocket*, ZBufferStream*)>& _handle_func
+) noexcept {
+    ReturnType ret_val = kOK;
+    ReturnType link_code = kOK;
+
+    if (state_ != ZTCPSocketState_Connected) {
+        ret_val = error_code::kPSocketErrorCode_StateError;
+        return ret_val;
+    }
+
+    boost::asio::async_read_until(
+        data_ptr_->socket_, _buffer_ptr->buffer_stream_data_ptr_->buffer_, _match_char,
+        MakeSocketHandlerAllocator([this, _buffer_ptr, _handle_func](
+            const boost::system::error_code& _error_code,
+            SizeType _data_size
+        ) {
+            //handle error
+            if (_error_code) {
+                if (IS_DICONNECT_ERROR(_error_code)) {
+                    ReturnType link_code = kOK;
+                    link_code = Close();
+                    if (link_code != kOK) {
+                        Z_LOG_ERROR(
+                            error_code::kPSocketErrorCode_LinkError, link_code,
+                            L"ZTCPSocket::Close() link error!"
+                        );
+                    }
+                    Z_LOG_FINISH(
+                        L"Socket disconnected! address: %ls port: %d",
+                        string::String2WString(data_ptr_->address_.String()).String(),
+                        data_ptr_->port_
+                    );
+                }
+                else if (_error_code == boost::asio::error::not_found) {
+                    Z_LOG_ERROR(
+                        error_code::kPSocketErrorCode_ReadUntilSymbolNotFound, _error_code.value(),
+                        L"Match string not found!"
+                    );
+                }
+                else {
+                    state_ = ZTCPSocketState_Error;
+                    Z_LOG_ERROR(
+                        error_code::kPSocketErrorCode_SystemError, _error_code.value(),
+                        L"System error! error info: %ls",
+                        string::String2WString(_error_code.message().c_str()).String()
+                    );
+                }
+
+                //call hook error handle func
+                if (data_ptr_->async_error_handle_func_) {
+                    data_ptr_->async_error_handle_func_();
+                }
+
+                return;
+            }
+
+            //handle read message
+            if (_handle_func) {
+                _handle_func(this, _buffer_ptr);
+            }
+        })
+    );
+
+    return ret_val;
+}
+
+NODISCARD ReturnType ZTCPSocket::AsyncReadUntil(
+    ZBufferStream* _buffer_ptr,
+    const Char* _match_str,
+    const TFunction<Void(ZTCPSocket*, ZBufferStream*)>& _handle_func
+) noexcept {
+    ReturnType ret_val = kOK;
+    ReturnType link_code = kOK;
+
+    if (state_ != ZTCPSocketState_Connected) {
+        ret_val = error_code::kPSocketErrorCode_StateError;
+        return ret_val;
+    }
+
+    boost::asio::async_read_until(
+        data_ptr_->socket_, _buffer_ptr->buffer_stream_data_ptr_->buffer_, _match_str,
+        MakeSocketHandlerAllocator([this, _buffer_ptr, _handle_func](
+            const boost::system::error_code& _error_code,
+            SizeType _data_size
+        ) {
+            //handle error
+            if (_error_code) {
+                if (IS_DICONNECT_ERROR(_error_code)) {
+                    ReturnType link_code = kOK;
+                    link_code = Close();
+                    if (link_code != kOK) {
+                        Z_LOG_ERROR(
+                            error_code::kPSocketErrorCode_LinkError, link_code,
+                            L"ZTCPSocket::Close() link error!"
+                        );
+                    }
+                    Z_LOG_FINISH(
+                        L"Socket disconnected! address: %ls port: %d",
+                        string::String2WString(data_ptr_->address_.String()).String(),
+                        data_ptr_->port_
+                    );
+                }
+                else if (_error_code == boost::asio::error::not_found) {
+                    Z_LOG_ERROR(
+                        error_code::kPSocketErrorCode_ReadUntilSymbolNotFound, _error_code.value(),
+                        L"Match string not found!"
+                    );
+                }
+                else {
+                    state_ = ZTCPSocketState_Error;
+                    Z_LOG_ERROR(
+                        error_code::kPSocketErrorCode_SystemError, _error_code.value(),
+                        L"System error! error info: %ls",
+                        string::String2WString(_error_code.message().c_str()).String()
+                    );
+                }
+
+                //call hook error handle func
+                if (data_ptr_->async_error_handle_func_) {
+                    data_ptr_->async_error_handle_func_();
+                }
+
+                return;
+            }
+
+            //handle read message
+            if (_handle_func) {
+                _handle_func(this, _buffer_ptr);
+            }
+        })
+    );
+
+    return ret_val;
+}
+
+NODISCARD ReturnType ZTCPSocket::Write(
+    ZConstBuffer _buffer
+) noexcept {
+    ReturnType ret_val = kOK;
+    ReturnType link_code = kOK;
+    boost::system::error_code error_code;
+
+    if (state_ != ZTCPSocketState_Connected) {
+        ret_val = error_code::kPSocketErrorCode_StateError;
+        return ret_val;
+    }
+    
+    SizeType length = data_ptr_->socket_.write_some(
+        boost::asio::buffer(_buffer.BufferPtr<const Void*>(), _buffer.Size()),
+        error_code
+    );
+    if (error_code) {
+        if (IS_DICONNECT_ERROR(error_code)) {
+            link_code = Close();
+            if (link_code != kOK) {
+                ret_val = error_code::kPSocketErrorCode_LinkError;
+                Z_LOG_ERROR(
+                    ret_val, link_code,
+                    L"ZTCPSocket::Close() link error!"
+                );
+                return ret_val;
+            }
+            ret_val = error_code::kPSocketErrorCode_Disconnected;
+            Z_LOG_FINISH(
+                L"Socket disconnected! address: %ls port: %d",
+                string::String2WString(data_ptr_->address_.String()).String(),
+                data_ptr_->port_
+            );
+            return ret_val;
+        }
+        else {
+            state_ = ZTCPSocketState_Error;
+            ret_val = error_code::kPSocketErrorCode_SystemError;
+            Z_LOG_ERROR(
+                ret_val, error_code.value(),
+                L"System error! error info: %ls",
+                string::String2WString(error_code.message().c_str()).String()
+            );
             return ret_val;
         }
     }
@@ -816,9 +1077,8 @@ NODISCARD ReturnType ZTCPSocket::Write(
 }
 
 NODISCARD ReturnType ZTCPSocket::AsyncWrite(
-    const Void* _data_ptr,
-    SizeType _data_size,
-    const TFunction<Void(ZTCPSocket*, const Void*, SizeType)>& _handle_func
+    ZConstBuffer _buffer,
+    const TFunction<Void(ZTCPSocket*, const ZConstBuffer)>& _handle_func
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
@@ -829,33 +1089,35 @@ NODISCARD ReturnType ZTCPSocket::AsyncWrite(
     }
 
     data_ptr_->socket_.async_write_some(
-        boost::asio::buffer(_data_ptr, _data_size), 
-        MakeSocketHandlerAllocator([this, _data_ptr, _handle_func](
+        boost::asio::buffer(_buffer.BufferPtr<const Void*>(), _buffer.Size()),
+        MakeSocketHandlerAllocator([this, buffer_ptr = _buffer.BufferPtr<const Void*>(), _handle_func](
             const boost::system::error_code& _error_code,
             SizeType _data_size
         ) {
             //handle error
             if (_error_code) {
-                if (_error_code == boost::asio::error::connection_reset ||
-                    _error_code == boost::asio::error::connection_aborted ||
-                    _error_code.value() == ERROR_FILE_NOT_FOUND
-                ) {
-                    boost::system::error_code error_code;
-                    data_ptr_->socket_.close(error_code);
+                if (IS_DICONNECT_ERROR(_error_code)) {
+                    ReturnType link_code = kOK;
+                    link_code = Close();
+                    if (link_code != kOK) {
+                        Z_LOG_ERROR(
+                            error_code::kPSocketErrorCode_LinkError, link_code,
+                            L"ZTCPSocket::Close() link error!"
+                        );
+                    }
                     Z_LOG_FINISH(
                         L"Socket disconnected! address: %ls port: %d",
                         string::String2WString(data_ptr_->address_.String()).String(),
                         data_ptr_->port_
                     );
-                    state_ = ZTCPSocketState_Idle;
                 }
                 else {
+                    state_ = ZTCPSocketState_Error;
                     Z_LOG_ERROR(
                         error_code::kPSocketErrorCode_SystemError, _error_code.value(),
                         L"System error! error info: %ls",
                         string::String2WString(_error_code.message().c_str()).String()
                     );
-                    state_ = ZTCPSocketState_Error;
                 }
 
                 //call hook error handle func
@@ -868,7 +1130,7 @@ NODISCARD ReturnType ZTCPSocket::AsyncWrite(
 
             //handle write message
             if (_handle_func) {
-                _handle_func(this, _data_ptr, _data_size);
+                _handle_func(this, ZConstBuffer(buffer_ptr, _data_size));
             }
         })
     );
@@ -878,7 +1140,7 @@ NODISCARD ReturnType ZTCPSocket::AsyncWrite(
 
 NODISCARD SizeType ZTCPSocket::ReadableDataSize() noexcept {
     if (data_ptr_ == nullptr) {
-        return 0;
+        return 0ULL;
     }
     return data_ptr_->socket_.available();
 }

@@ -79,11 +79,11 @@ ZUDPSocket::ZUDPSocket(ZIOContext* _context_ptr) noexcept
 
 ZUDPSocket::~ZUDPSocket() noexcept {
     ReturnType link_code = kOK;
-    link_code = Reset();
+    link_code = Close();
     if (link_code != kOK) {
         Z_LOG_ERROR(
             error_code::kPSocketErrorCode_LinkError, link_code,
-            L"ZUDPSocket::Reset() link error!"
+            L"ZUDPSocket::Close() link error!"
         );
         return;
     }
@@ -273,38 +273,6 @@ NODISCARD ReturnType ZUDPSocket::Close() noexcept {
     ReturnType ret_val = kOK;
     boost::system::error_code error_code;
 
-    Z_CHECK(
-        data_ptr_->socket_.is_open() == false,
-        error_code::kPSocketErrorCode_SocketNotOpen,
-        L"Socket not open!"
-    );
-
-    try {
-        data_ptr_->if_endpoint_bind_ = false;
-        data_ptr_->if_connected_ = false;
-        data_ptr_->async_error_handle_func_ = nullptr;
-        data_ptr_->socket_.cancel();
-        data_ptr_->socket_.close();
-        state_ = ZUDPSocketState_Idle;
-    }
-    catch (const boost::system::system_error& error) {
-        ret_val = error_code::kPSocketErrorCode_SystemError;
-        Z_LOG_ERROR(
-            ret_val, error.code().value(),
-            L"System error! error info: %ls",
-            string::String2WString(error.code().message().c_str()).String()
-        );
-        state_ = ZUDPSocketState_Error;
-        return ret_val;
-    }
-
-    return ret_val;
-}
-
-NODISCARD ReturnType ZUDPSocket::Reset() noexcept {
-    ReturnType ret_val = kOK;
-    boost::system::error_code error_code;
-
     if (state_ == ZUDPSocketState_Uninitialized) {
         return ret_val;
     }
@@ -315,8 +283,8 @@ NODISCARD ReturnType ZUDPSocket::Reset() noexcept {
         data_ptr_->async_error_handle_func_ = nullptr;
         if (data_ptr_->socket_.is_open()) {
             data_ptr_->socket_.cancel();
+            data_ptr_->socket_.close();
         }
-        data_ptr_->socket_.close();
     }
     catch (const boost::system::system_error& error) {
         ret_val = error_code::kPSocketErrorCode_SystemError;
@@ -395,11 +363,10 @@ NODISCARD ReturnType ZUDPSocket::Connect(
 }
 
 NODISCARD ReturnType ZUDPSocket::ReceiveFrom(
-    Void* _buffer_ptr,
-    SizeType _buffer_size,
+    ZBuffer _buffer,
+    SizeType* _message_size_ptr,
     ZString* _address_str_ptr,
-    Int32* _port_ptr,
-    SizeType* _message_size_ptr
+    Int32* _port_ptr
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
@@ -434,7 +401,7 @@ NODISCARD ReturnType ZUDPSocket::ReceiveFrom(
     boost::asio::ip::udp::endpoint endpoint;
 
     SizeType data_size = data_ptr_->socket_.receive_from(
-        boost::asio::buffer(_buffer_ptr, _buffer_size), 
+        boost::asio::buffer(_buffer.BufferPtr<Void*>(), _buffer.Size()),
         endpoint,
         0,
         error_code
@@ -464,9 +431,8 @@ NODISCARD ReturnType ZUDPSocket::ReceiveFrom(
 }
 
 NODISCARD ReturnType ZUDPSocket::AsyncReceiveFrom(
-    Void* _buffer_ptr,
-    SizeType _buffer_size,
-    const TFunction<Void(ZUDPSocket*, const Void*, SizeType, const Char*, Int32)>& _handle_func
+    ZBuffer _buffer,
+    const TFunction<Void(ZUDPSocket*, const ZConstBuffer, const Char*, Int32)>& _handle_func
 ) noexcept {
     ReturnType ret_val = kOK;
     boost::system::error_code error_code;
@@ -498,8 +464,8 @@ NODISCARD ReturnType ZUDPSocket::AsyncReceiveFrom(
     }
 
     data_ptr_->socket_.async_receive_from(
-        boost::asio::buffer(_buffer_ptr, _buffer_size), data_ptr_->async_receive_endpoint_, 
-        MakeSocketHandlerAllocator([this, _buffer_ptr, _handle_func](
+        boost::asio::buffer(_buffer.BufferPtr<Void*>(), _buffer.Size()), data_ptr_->async_receive_endpoint_,
+        MakeSocketHandlerAllocator([this, buffer_ptr = _buffer.BufferPtr<const Void*>(), _handle_func](
             const boost::system::error_code& _error_code, 
             SizeType _message_size
         ) {
@@ -523,7 +489,7 @@ NODISCARD ReturnType ZUDPSocket::AsyncReceiveFrom(
             //handle write message
             if (_handle_func) {
                 _handle_func(
-                    this, _buffer_ptr, _message_size, 
+                    this, ZConstBuffer(buffer_ptr, _message_size),
                     data_ptr_->async_receive_endpoint_.address().to_string().c_str(),
                     static_cast<Int32>(data_ptr_->async_receive_endpoint_.port())
                 );
@@ -535,8 +501,7 @@ NODISCARD ReturnType ZUDPSocket::AsyncReceiveFrom(
 }
 
 NODISCARD ReturnType ZUDPSocket::Receive(
-    Void* _buffer_ptr,
-    SizeType _buffer_size,
+    ZBuffer _buffer,
     SizeType* _message_size_ptr
 ) noexcept {
     ReturnType ret_val = kOK;
@@ -575,7 +540,7 @@ NODISCARD ReturnType ZUDPSocket::Receive(
     }
 
     SizeType data_size = data_ptr_->socket_.receive(
-        boost::asio::buffer(_buffer_ptr, _buffer_size),
+        boost::asio::buffer(_buffer.BufferPtr<Void*>(), _buffer.Size()),
         0,
         error_code
     );
@@ -598,9 +563,8 @@ NODISCARD ReturnType ZUDPSocket::Receive(
 }
 
 NODISCARD ReturnType ZUDPSocket::AsyncReceive(
-    Void* _buffer_ptr,
-    SizeType _buffer_size,
-    const TFunction<Void(ZUDPSocket*, const Void*, SizeType)>& _handle_func
+    ZBuffer _buffer,
+    const TFunction<Void(ZUDPSocket*, const ZConstBuffer)>& _handle_func
 ) noexcept {
     ReturnType ret_val = kOK;
     boost::system::error_code error_code;
@@ -637,8 +601,8 @@ NODISCARD ReturnType ZUDPSocket::AsyncReceive(
     }
 
     data_ptr_->socket_.async_receive_from(
-        boost::asio::buffer(_buffer_ptr, _buffer_size), data_ptr_->async_receive_endpoint_, 
-        MakeSocketHandlerAllocator([this, _buffer_ptr, _handle_func](
+        boost::asio::buffer(_buffer.BufferPtr<Void*>(), _buffer.Size()), data_ptr_->async_receive_endpoint_,
+        MakeSocketHandlerAllocator([this, buffer_ptr = _buffer.BufferPtr<const Void*>(), _handle_func](
             const boost::system::error_code& _error_code,
             SizeType _message_size
         ) {
@@ -661,7 +625,7 @@ NODISCARD ReturnType ZUDPSocket::AsyncReceive(
 
             //handle write message
             if (_handle_func) {
-                _handle_func(this, _buffer_ptr, _message_size);
+                _handle_func(this, ZConstBuffer(buffer_ptr, _message_size));
             }
         })
     );
@@ -670,10 +634,9 @@ NODISCARD ReturnType ZUDPSocket::AsyncReceive(
 }
 
 NODISCARD ReturnType ZUDPSocket::SendTo(
-    const Void* _data_ptr,
-    SizeType _data_size,
     const Char* _address_str,
-    Int32 _port
+    Int32 _port,
+    ZConstBuffer _buffer
 ) noexcept {
     ReturnType ret_val = kOK;
     boost::system::error_code error_code;
@@ -713,7 +676,7 @@ NODISCARD ReturnType ZUDPSocket::SendTo(
     boost::asio::ip::udp::endpoint endpoint(address, _port);
 
     data_ptr_->socket_.send_to(
-        boost::asio::buffer(_data_ptr, _data_size),
+        boost::asio::buffer(_buffer.BufferPtr<const Void*>(), _buffer.Size()),
         endpoint,
         0,
         error_code
@@ -733,11 +696,10 @@ NODISCARD ReturnType ZUDPSocket::SendTo(
 }
 
 NODISCARD ReturnType ZUDPSocket::AsyncSendTo(
-    const Void* _data_ptr,
-    SizeType _data_size,
     const Char* _address_str,
     Int32 _port,
-    const TFunction<Void(ZUDPSocket*, const Void*, SizeType)>& _handle_func
+    ZConstBuffer _buffer,
+    const TFunction<Void(ZUDPSocket*, const ZConstBuffer)>& _handle_func
 ) noexcept {
     ReturnType ret_val = kOK;
     boost::system::error_code error_code;
@@ -775,9 +737,9 @@ NODISCARD ReturnType ZUDPSocket::AsyncSendTo(
     }
 
     data_ptr_->socket_.async_send_to(
-        boost::asio::buffer(_data_ptr, _data_size),
+        boost::asio::buffer(_buffer.BufferPtr<const Void*>(), _buffer.Size()),
         boost::asio::ip::udp::endpoint(address, _port), 
-        MakeSocketHandlerAllocator([this, _data_ptr, _handle_func](
+        MakeSocketHandlerAllocator([this, buffer_ptr = _buffer.BufferPtr<const Void*>(), _handle_func](
             const std::error_code& _error_code,
             SizeType _data_size
         ) {
@@ -800,7 +762,7 @@ NODISCARD ReturnType ZUDPSocket::AsyncSendTo(
 
             //handle write message
             if (_handle_func) {
-                _handle_func(this, _data_ptr, _data_size);
+                _handle_func(this, ZConstBuffer(buffer_ptr, _data_size));
             }
         })
     );
@@ -809,8 +771,7 @@ NODISCARD ReturnType ZUDPSocket::AsyncSendTo(
 }
 
 NODISCARD ReturnType ZUDPSocket::Send(
-    const Void* _data_ptr,
-    SizeType _data_size
+    ZConstBuffer _buffer
 ) noexcept {
     ReturnType ret_val = kOK;
     boost::system::error_code error_code;
@@ -842,7 +803,7 @@ NODISCARD ReturnType ZUDPSocket::Send(
     }
 
     data_ptr_->socket_.send(
-        boost::asio::buffer(_data_ptr, _data_size),
+        boost::asio::buffer(_buffer.BufferPtr<const Void*>(), _buffer.Size()),
         0,
         error_code
     );
@@ -861,9 +822,8 @@ NODISCARD ReturnType ZUDPSocket::Send(
 }
 
 NODISCARD ReturnType ZUDPSocket::AsyncSend(
-    const Void* _data_ptr,
-    SizeType _data_size,
-    const TFunction<Void(ZUDPSocket*, const Void*, SizeType)>& _handle_func
+    ZConstBuffer _buffer,
+    const TFunction<Void(ZUDPSocket*, const ZConstBuffer)>& _handle_func
 ) noexcept {
     ReturnType ret_val = kOK;
     boost::system::error_code error_code;
@@ -895,8 +855,8 @@ NODISCARD ReturnType ZUDPSocket::AsyncSend(
     }
 
     data_ptr_->socket_.async_send(
-        boost::asio::buffer(_data_ptr, _data_size), 
-        MakeSocketHandlerAllocator([this, _data_ptr, _handle_func](
+        boost::asio::buffer(_buffer.BufferPtr<const Void*>(), _buffer.Size()),
+        MakeSocketHandlerAllocator([this, buffer_ptr = _buffer.BufferPtr<const Void*>(), _handle_func](
             const std::error_code& _error_code,
             SizeType _data_size
         ) {
@@ -919,7 +879,7 @@ NODISCARD ReturnType ZUDPSocket::AsyncSend(
 
             //handle write message
             if (_handle_func) {
-                _handle_func(this, _data_ptr, _data_size);
+                _handle_func(this, ZConstBuffer(buffer_ptr, _data_size));
             }
         })
     );

@@ -25,7 +25,7 @@
 namespace zengine {
 namespace socket {
 
-using SocketAllocatorType = TContainerAllocator<Void>;
+using SocketAllocatorType = TAllocator<Void>;
 
 template <typename _HandleFunction>
 class ZSocketHandlerAllocator {

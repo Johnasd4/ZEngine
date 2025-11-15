@@ -71,13 +71,13 @@ Void ZGuiObject::SetSize(GuiSize _size) noexcept {
     size_changed_ = (pre_size_ != _size);
     size_ = _size;
 }
-Void ZGuiObject::SetXPos(Float32 _x_pos) noexcept {
-    pos_changed_ = (pre_pos_.x_ != _x_pos);
-    pos_.x_ = _x_pos;
+Void ZGuiObject::SetPosX(Float32 _pos_x) noexcept {
+    pos_changed_ = (pre_pos_.x_ != _pos_x);
+    pos_.x_ = _pos_x;
 }
-Void ZGuiObject::SetYPos(Float32 _y_pos) noexcept {
-    pos_changed_ = (pre_pos_.y_ != _y_pos);
-    pos_.y_ = _y_pos;
+Void ZGuiObject::SetPosY(Float32 _pos_y) noexcept {
+    pos_changed_ = (pre_pos_.y_ != _pos_y);
+    pos_.y_ = _pos_y;
 }
 Void ZGuiObject::SetPos(GuiPos _pos) noexcept {
     pos_changed_ = (pre_pos_ != _pos);
@@ -97,8 +97,8 @@ Void ZGuiObject::SetFontScale(Float32 _scale) noexcept { font_scale_ = _scale; }
 NODISCARD Float32 ZGuiObject::Width() const noexcept { return size_.width_; }
 NODISCARD Float32 ZGuiObject::Height() const noexcept { return size_.height_; }
 NODISCARD GuiSize ZGuiObject::Size() const noexcept { return size_; }
-NODISCARD Float32 ZGuiObject::XPos() const noexcept { return pos_.x_; }
-NODISCARD Float32 ZGuiObject::YPos() const noexcept { return pos_.y_; }
+NODISCARD Float32 ZGuiObject::PosX() const noexcept { return pos_.x_; }
+NODISCARD Float32 ZGuiObject::PosY() const noexcept { return pos_.y_; }
 NODISCARD GuiPos ZGuiObject::Pos() const noexcept { return pos_; }
 NODISCARD GuiPos ZGuiObject::AbsPos() const noexcept { return pos_ + owner_ptr_->AbsPos(); }
 NODISCARD const Char* ZGuiObject::Name() const noexcept { return ""; }

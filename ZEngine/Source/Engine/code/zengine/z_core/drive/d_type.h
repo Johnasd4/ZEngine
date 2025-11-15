@@ -103,7 +103,7 @@ class TFixedString;
 }//internal
 
 template<typename _ObjectType>
-class TContainerAllocator;
+class TAllocator;
 template<typename _ObjectType>
 class TSmartPointerAllocator;
 template<typename _ObjectType, SizeType kCapacity>

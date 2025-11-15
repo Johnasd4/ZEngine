@@ -32,11 +32,3 @@
 #ifndef FORCEINLINE
 #define FORCEINLINE __forceinline
 #endif
-
-/*
-    Checks if the state is in thes given states.
-    use | to combine the check states.
-*/
-#ifndef IN_STATE
-#define IN_STATE(_state, _check_states) ((_state) & (_check_states))
-#endif //IN_STATE

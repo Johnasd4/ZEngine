@@ -34,7 +34,7 @@ namespace zengine {
 template<typename _ObjectType, typename _CompareFunction = std::less<_ObjectType>>
 class TSet : public ZObject {
 public:
-    using STDSet_ = std::set<_ObjectType, _CompareFunction, TContainerAllocator<_ObjectType>>;
+    using STDSet_ = std::set<_ObjectType, _CompareFunction, TAllocator<_ObjectType>>;
     using Iterator_ = STDSet_::iterator;
     using ConstIterator_ = STDSet_::const_iterator;
     using ReverseIterator_ = STDSet_::reverse_iterator;
@@ -164,7 +164,7 @@ private:
 template<typename _ObjectType, typename _CompareFunction = std::less<_ObjectType>>
 class TMultiset : public ZObject {
 public:
-    using STDSet_ = std::multiset<_ObjectType, _CompareFunction, TContainerAllocator<_ObjectType>>;
+    using STDSet_ = std::multiset<_ObjectType, _CompareFunction, TAllocator<_ObjectType>>;
     using Iterator_ = STDSet_::iterator;
     using ConstIterator_ = STDSet_::const_iterator;
     using ReverseIterator_ = STDSet_::reverse_iterator;

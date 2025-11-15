@@ -105,9 +105,9 @@ public:
     /*
         Mouse position callback function.
     */
-    static Void MousePositionCallback(GLFWwindow* _window_handle, Float64 _x_pos, Float64 _y_pos) noexcept {
-        thread_local GuiPos pre_pos = { static_cast<Float32>(_x_pos), static_cast<Float32>(_y_pos) };
-        GuiPos cur_pos = { static_cast<Float32>(_x_pos), static_cast<Float32>(_y_pos) };
+    static Void MousePositionCallback(GLFWwindow* _window_handle, Float64 _pos_x, Float64 _pos_y) noexcept {
+        thread_local GuiPos pre_pos = { static_cast<Float32>(_pos_x), static_cast<Float32>(_pos_y) };
+        GuiPos cur_pos = { static_cast<Float32>(_pos_x), static_cast<Float32>(_pos_y) };
         ZWindow* window_ptr = InstanceP().active_window_ptr_;
         window_ptr->OnMouseMove(pre_pos, cur_pos);
         pre_pos = cur_pos;
@@ -227,6 +227,9 @@ NODISCARD ReturnType ZWindow::Execute() noexcept {
             task_queue_.Pop();
         }
 
+        //input events
+        glfwPollEvents();
+
         //ticks window
         Tick(delta_time);
 
@@ -237,7 +240,6 @@ NODISCARD ReturnType ZWindow::Execute() noexcept {
         //Imgui frame end
         glfwSwapBuffers(window_handle_);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glfwPollEvents();
     }
 
     //destroys window

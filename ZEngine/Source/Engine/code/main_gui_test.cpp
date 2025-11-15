@@ -47,19 +47,18 @@
 //
 //    ReturnType link_code = kOK;
 //
-//    //ZWindow window("Title", GuiSize(1000, 1000));
-//    //window.SetScreenCenter();
+//    ZWindow window("Title", GuiSize(1000, 1000));
+//    window.SetScreenCenter();
 //
-//    //ZFrame frame1("Frame1");
-//    //window.Add(&frame1);
-//    //ZFrame frame2("Frame2");
-//    //frame1.Add(&frame2);
-//    //frame2.SetHeight(180);
-//    //frame2.SetWidth(300);
-//    //frame1.SetPos(GuiPos(0,0));
-//    //frame2.SetPos(GuiPos(0,0));
+//    ZFrame frame1("Frame1");
+//    window.Add(&frame1);
+//    ZButton button("button");
+//    frame1.Add(&button);
+//    ZCheckBox check_box("check_box");
+//    frame1.Add(&check_box);
+//    frame1.SetPos(GuiPos(0,0));
 //
-//    //window.Execute();
+//    window.Execute();
 //
 //    //Test_ImguiDemo();
 //    Test_000();

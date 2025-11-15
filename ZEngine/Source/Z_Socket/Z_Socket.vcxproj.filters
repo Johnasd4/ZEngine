@@ -15,36 +15,37 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="code\data\z_io_context_data.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\data\z_tcp_client_data.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\data\z_tcp_server_data.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\data\z_tcp_socket_data.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\data\z_tls_context_data.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\data\z_tls_stream_data.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\data\z_udp_socket_data.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\z_socket_allocator.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
+    <ClCompile Include="code\data\z_buffer_stream_data.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\data\z_io_context_data.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\data\z_tcp_client_data.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\data\z_tcp_server_data.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\data\z_tcp_socket_data.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\data\z_tls_context_data.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\data\z_tls_stream_data.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\data\z_udp_socket_data.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
     <ClCompile Include="code\f_socket.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="code\f_tcp_log_output.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\z_buffer_stream.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="code\z_io_context.cpp">
@@ -74,5 +75,34 @@
     <ClCompile Include="code\z_udp_socket.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="code\data\z_buffer_stream_data.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\data\z_io_context_data.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\data\z_tcp_client_data.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\data\z_tcp_server_data.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\data\z_tcp_socket_data.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\data\z_tls_context_data.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\data\z_tls_stream_data.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\data\z_udp_socket_data.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_socket_allocator.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

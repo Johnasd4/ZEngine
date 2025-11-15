@@ -149,7 +149,9 @@ Void ZInputText::Tick(Float32 _delta_sec) noexcept {
     ImVec2 temp_pos = ImGui::GetItemRectMin();
     ImVec2 temp_size = ImGui::GetItemRectSize();
 
-    ZGuiObject::SetPos(GuiPos(temp_pos.x, temp_pos.y));
+    if (OwnerPtr() != nullptr) {
+        ZGuiObject::SetPos(GuiPos(temp_pos.x, temp_pos.y) - OwnerPtr()->AbsPos());
+    }
     ZGuiObject::SetSize(GuiSize(temp_size.x, temp_size.y));
 
     if (if_input_text_changed_) {

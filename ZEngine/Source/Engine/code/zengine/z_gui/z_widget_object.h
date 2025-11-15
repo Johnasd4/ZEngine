@@ -44,7 +44,8 @@ public:
         kWidgetType_Text,
         kWidgetType_InputText,
         kWidgetType_Button,
-        kWidgetType_Separator
+        kWidgetType_Separator,
+        kWidgetType_CheckBox,
     };
 
     FORCEINLINE Void SetPriority(Int32 _priority) noexcept { priority_ = _priority; }
@@ -72,8 +73,8 @@ public:
     virtual Void SetWidth(Float32 _width) noexcept;
     virtual Void SetHeight(Float32 _height) noexcept;
     virtual Void SetSize(GuiSize _size) noexcept;
-    virtual Void SetXPos(Float32 _x_pos) noexcept;
-    virtual Void SetYPos(Float32 _y_pos) noexcept;
+    virtual Void SetPosX(Float32 _pos_x) noexcept;
+    virtual Void SetPosY(Float32 _pos_y) noexcept;
     virtual Void SetPos(GuiPos _pos) noexcept;
     virtual Void SetName(const Char* _name) noexcept;
 

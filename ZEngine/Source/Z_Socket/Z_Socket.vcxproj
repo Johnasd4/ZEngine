@@ -20,18 +20,17 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="code\data\z_io_context_data.h" />
-    <ClInclude Include="code\data\z_tcp_client_data.h" />
-    <ClInclude Include="code\data\z_tcp_server_data.h" />
-    <ClInclude Include="code\data\z_tcp_socket_data.h" />
-    <ClInclude Include="code\data\z_tls_context_data.h" />
-    <ClInclude Include="code\data\z_tls_stream_data.h" />
-    <ClInclude Include="code\data\z_udp_socket_data.h" />
-    <ClInclude Include="code\z_socket_allocator.h" />
-  </ItemGroup>
-  <ItemGroup>
+    <ClCompile Include="code\data\z_buffer_stream_data.cpp" />
+    <ClCompile Include="code\data\z_io_context_data.cpp" />
+    <ClCompile Include="code\data\z_tcp_client_data.cpp" />
+    <ClCompile Include="code\data\z_tcp_server_data.cpp" />
+    <ClCompile Include="code\data\z_tcp_socket_data.cpp" />
+    <ClCompile Include="code\data\z_tls_context_data.cpp" />
+    <ClCompile Include="code\data\z_tls_stream_data.cpp" />
+    <ClCompile Include="code\data\z_udp_socket_data.cpp" />
     <ClCompile Include="code\f_socket.cpp" />
     <ClCompile Include="code\f_tcp_log_output.cpp" />
+    <ClCompile Include="code\z_buffer_stream.cpp" />
     <ClCompile Include="code\z_io_context.cpp" />
     <ClCompile Include="code\z_tcp_multiple_session_client.cpp" />
     <ClCompile Include="code\z_tcp_multiple_session_server.cpp" />
@@ -41,6 +40,17 @@
     <ClCompile Include="code\z_tls_context.cpp" />
     <ClCompile Include="code\z_tls_stream.cpp" />
     <ClCompile Include="code\z_udp_socket.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="code\data\z_buffer_stream_data.h" />
+    <ClInclude Include="code\data\z_io_context_data.h" />
+    <ClInclude Include="code\data\z_tcp_client_data.h" />
+    <ClInclude Include="code\data\z_tcp_server_data.h" />
+    <ClInclude Include="code\data\z_tcp_socket_data.h" />
+    <ClInclude Include="code\data\z_tls_context_data.h" />
+    <ClInclude Include="code\data\z_tls_stream_data.h" />
+    <ClInclude Include="code\data\z_udp_socket_data.h" />
+    <ClInclude Include="code\z_socket_allocator.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

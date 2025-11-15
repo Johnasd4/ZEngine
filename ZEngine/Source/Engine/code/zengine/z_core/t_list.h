@@ -33,7 +33,7 @@ namespace zengine {
 template<typename _ObjectType>
 class TList : public ZObject {
 public:
-    using STDList_ = std::list<_ObjectType, TContainerAllocator<_ObjectType>>;
+    using STDList_ = std::list<_ObjectType, TAllocator<_ObjectType>>;
     using Iterator_ = STDList_::iterator;
     using ConstIterator_ = STDList_::const_iterator;
     using ReverseIterator_ = STDList_::reverse_iterator;

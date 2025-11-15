@@ -37,5 +37,14 @@ GUI_DLLAPI NODISCARD GuiPos ScreenCenterPos(GuiSize _gui_obj_size) noexcept {
     );
 }
 
+GUI_DLLAPI NODISCARD Float32 TextLineHeight() noexcept {
+    return ImGui::GetTextLineHeight();
+}
+
+GUI_DLLAPI NODISCARD Float32 TextLineHeightWithSpacing() noexcept {
+    return ImGui::GetTextLineHeightWithSpacing();
+}
+
+
 }//gui
 }//zengine

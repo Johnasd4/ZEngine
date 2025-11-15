@@ -35,7 +35,7 @@ namespace zengine {
     WARNING: Before destructor function called, all objects must be released. Unreleased object's destructor will not
     be called, might cause memory leak.
 */
-template<typename _ObjectType, Bool kIfCallConstructorAndDestructor = kIsClass<_ObjectType>>
+template<typename _ObjectType, Bool kIfCallConstructorAndDestructor = kIsClassType<_ObjectType>>
 class TPool : public ZObject {
 private:
     static constexpr SizeType kDefaultPoolSize = 10ULL;
@@ -77,7 +77,7 @@ public:
 
     ~TPool() noexcept {
         if constexpr (kIfCallConstructorAndDestructor) {
-            if constexpr (kIsClass<_ObjectType>) {
+            if constexpr (kIsClassType<_ObjectType>) {
                 Node_* node_ptr = head_node_ptr_;
                 while (node_ptr != end_node_ptr_) {
                     node_ptr->object_.~_ObjectType();
@@ -169,7 +169,7 @@ private:
                 Node_* node_ptr = reinterpret_cast<Node_*>(mem_ptr) + index;
                 if constexpr (requires{ new(reinterpret_cast<Void*>(node_ptr)) _ObjectType(*model_obj_ptr_); }) {
                     if constexpr (kIfCallConstructorAndDestructor) {
-                        if constexpr (kIsClass<_ObjectType>) {
+                        if constexpr (kIsClassType<_ObjectType>) {
                             new(reinterpret_cast<Void*>(node_ptr)) _ObjectType(*model_obj_ptr_);
                         }
                         else {
@@ -184,7 +184,7 @@ private:
             for (SizeType index = 0; index < extend_num; ++index) {
                 Node_* node_ptr = reinterpret_cast<Node_*>(mem_ptr) + index;
                 if constexpr (kIfCallConstructorAndDestructor) {
-                    if constexpr (kIsClass<_ObjectType>) {
+                    if constexpr (kIsClassType<_ObjectType>) {
                         new(reinterpret_cast<Void*>(node_ptr)) _ObjectType();
                     }
                 }
@@ -228,7 +228,7 @@ private:
     WARNING: Before destructor function called, all objects must be released. Unreleased object's destructor will not
     be called, might cause memory leak.
 */
-template<typename _ObjectType, Bool kIfCallConstructorAndDestructor = kIsClass<_ObjectType>>
+template<typename _ObjectType, Bool kIfCallConstructorAndDestructor = kIsClassType<_ObjectType>>
 class TPoolSafe : public ZObject {
 private:
     static constexpr SizeType kDefaultPoolSize = 10ULL;
@@ -273,7 +273,7 @@ public:
 
     ~TPoolSafe() noexcept {
         if constexpr (kIfCallConstructorAndDestructor) {
-            if constexpr (kIsClass<_ObjectType>) {
+            if constexpr (kIsClassType<_ObjectType>) {
                 Node_* node_ptr = head_node_ptr_;
                 while (node_ptr != end_node_ptr_) {
                     node_ptr->object_.~_ObjectType();
@@ -386,7 +386,7 @@ private:
                 Node_* node_ptr = reinterpret_cast<Node_*>(mem_ptr) + index;
                 if constexpr (requires{ new(reinterpret_cast<Void*>(node_ptr)) _ObjectType(*model_obj_ptr_); }) {
                     if constexpr (kIfCallConstructorAndDestructor) {
-                        if constexpr (kIsClass<_ObjectType>) {
+                        if constexpr (kIsClassType<_ObjectType>) {
                             new(reinterpret_cast<Void*>(node_ptr)) _ObjectType(*model_obj_ptr_);
                         }
                         else {
@@ -401,7 +401,7 @@ private:
             for (SizeType index = 0; index < extend_num; ++index) {
                 Node_* node_ptr = reinterpret_cast<Node_*>(mem_ptr) + index;
                 if constexpr (kIfCallConstructorAndDestructor) {
-                    if constexpr (kIsClass<_ObjectType>) {
+                    if constexpr (kIsClassType<_ObjectType>) {
                         new(reinterpret_cast<Void*>(node_ptr)) _ObjectType();
                     }
                 }

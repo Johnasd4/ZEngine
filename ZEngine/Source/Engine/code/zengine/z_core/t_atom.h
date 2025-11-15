@@ -348,7 +348,7 @@ public:
 
     FORCEINLINE TAtom() noexcept : SuperType_(), obj_() {}
     FORCEINLINE TAtom(const TAtom& _atom) noexcept : SuperType_(_atom) {
-        obj_ = _atom.obj_;
+        obj_ = _atom.obj_.load();
     }
     FORCEINLINE TAtom(TAtom&& _atom) noexcept : SuperType_(std::forward<TAtom>(_atom)) {
         obj_ = std::move(_atom.obj_);
@@ -360,7 +360,7 @@ public:
 
     FORCEINLINE TAtom& operator=(const TAtom& _atom) noexcept {
         SuperType_::operator=(_atom);
-        obj_ = _atom.obj_;
+        obj_ = _atom.obj_.load();
         return *this;
     }
     FORCEINLINE TAtom& operator=(TAtom&& _atom) noexcept {

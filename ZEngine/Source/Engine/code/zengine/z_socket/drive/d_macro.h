@@ -17,3 +17,11 @@
     Contact: 1152325286@qq.com
 */
 #pragma once
+
+#ifdef SOCKET_DLLFILE
+#define IS_DICONNECT_ERROR(_error_code)\
+    (_error_code == boost::asio::error::connection_reset || \
+    _error_code == boost::asio::error::interrupted || \
+    _error_code == boost::asio::error::connection_aborted || \
+    _error_code.value() == ERROR_FILE_NOT_FOUND)
+#endif

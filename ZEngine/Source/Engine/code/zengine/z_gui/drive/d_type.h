@@ -71,10 +71,12 @@ struct GuiColour {
 };
 
 class ZButton;
+class ZCheckBox;
 class ZFrame;
 class ZInputText;
+class ZSeparator;
 class ZText;
 class ZWindow;
-class ZSeparator;
+
 }//gui
 }//zengine

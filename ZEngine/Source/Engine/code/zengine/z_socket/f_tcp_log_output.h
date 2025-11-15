@@ -56,7 +56,7 @@ constexpr Char kDefaultTCPLogAddressString[] = "127.0.0.1";
 constexpr Char kDefaultTCPLogPortString[] = "10000";
 constexpr Int32 kDefaultTCPLogPort = 10000;
 constexpr TimeType kLogServerDisconnectLogWaitMaxTime = 30;
-constexpr SizeType kLogServerDisconnectLogWaitMaxNum = 1000;
+constexpr SizeType kLogServerDisconnectLogWaitMaxNum = 300;
 
 enum TCPLogOutputCommandIDEnum : Int32 {
     TCPLogOutputCommandID_GetNextLog

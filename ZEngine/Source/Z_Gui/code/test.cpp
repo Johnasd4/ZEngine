@@ -51,57 +51,35 @@ public:
 
         ImGui::Begin("消息列表");
         ImGui::SetWindowFontScale(1);
-
+        std::cout << ImGui::GetScrollMaxY() << std::endl;
         // 显示滚动条和消息计数
+        static Bool check_box_bool = true;
+        static Int32 radio_buttion_int = true;
+        ImGui::Checkbox("勾选框", &check_box_bool);
+        ImGui::RadioButton("勾选框1", &radio_buttion_int, 1);
         ImGui::Text("消息总数: %f", ImGui::GetFrameHeightWithSpacing());
         //ImGui::SetWindowFontScale(2);
-        ImGui::Text("消息总数: %f", ImGui::GetFrameHeightWithSpacing());
-        ImGui::Text("消息总数: %f", ImGui::GetFrameHeightWithSpacing());
-        ImGui::Text("消息总数: %f", ImGui::GetFrameHeightWithSpacing());
-        ImGui::Text("消息总数: %f", ImGui::GetFrameHeightWithSpacing());
-        ImGui::Text("消息总数: %f", ImGui::GetFrameHeightWithSpacing());
-        ImGui::Text("消息总数: %f", ImGui::GetFrameHeightWithSpacing());
-        ImGui::Text("消息总数: %f", ImGui::GetFrameHeightWithSpacing());
-        ImGui::Text("消息总数: %f", ImGui::GetFrameHeightWithSpacing());
-        ImGui::Text("消息总数: %f", ImGui::GetFrameHeightWithSpacing());
-        ImGui::Text("消息总数: %f", ImGui::GetFrameHeightWithSpacing());
-        ImGui::Text("消息总数: %f", ImGui::GetFrameHeightWithSpacing());
-        ImGui::Text("消息总数: %f", ImGui::GetFrameHeightWithSpacing());
-        ImGui::Text("消息总数: %f", ImGui::GetFrameHeightWithSpacing());
-        ImGui::Text("消息总数: %f", ImGui::GetFrameHeightWithSpacing());
-        ImGui::Text("消息总数: %f", ImGui::GetFrameHeightWithSpacing());
-        ImGui::Text("消息总数: %f", ImGui::GetFrameHeightWithSpacing());
-        ImGui::Text("消息总数: %f", ImGui::GetFrameHeightWithSpacing());
-        ImGui::Text("消息总数: %f", ImGui::GetFrameHeightWithSpacing());
-        ImGui::Text("消息总数: %f", ImGui::GetFrameHeightWithSpacing());
-        ImGui::Text("消息总数: %f", ImGui::GetFrameHeightWithSpacing());
-        ImGui::Text("消息总数: %f", ImGui::GetFrameHeightWithSpacing());
-        ImGui::Text("消息总数: %f", ImGui::GetFrameHeightWithSpacing());
-        ImGui::Text("消息总数: %f", ImGui::GetFrameHeightWithSpacing());
-        ImGui::Text("消息总数: %f", ImGui::GetFrameHeightWithSpacing());
-        ImGui::Text("消息总数: %f", ImGui::GetFrameHeightWithSpacing());
-        ImGui::Text("消息总数: %f", ImGui::GetFrameHeightWithSpacing());
-        ImGui::Text("消息总数: %f", ImGui::GetFrameHeightWithSpacing());
-        ImGui::Text("消息总数: %f", ImGui::GetFrameHeightWithSpacing());
-        ImGui::Text("消息总数: %f", ImGui::GetFrameHeightWithSpacing());
+
+        std::cout << ImGui::GetScrollMaxY() << std::endl;
+        ImGui::SetScrollY(ImGui::GetScrollMaxY() + 100);
 
         ImGui::SetNextWindowSize(ImVec2(100, 100), ImGuiCond_Always);
 
         // 创建可滚动区域
-        ImGui::BeginChild("滚动区域", ImVec2(0, 0), false);
-        // 显示可见消息
-        int endIndex = std::min(visibleStart + visibleCount, totalMessages);
-        for (int i = visibleStart; i < endIndex; ++i) {
-            ImGui::Text("[%d] %s", i, messages[i].c_str());
-            ImGui::Button("Help");
+        //ImGui::BeginChild("滚动区域", ImVec2(0, 0), false);
+        //// 显示可见消息
+        //int endIndex = std::min(visibleStart + visibleCount, totalMessages);
+        //for (int i = visibleStart; i < endIndex; ++i) {
+        //    ImGui::Text("[%d] %s", i, messages[i].c_str());
+        //    ImGui::Button("Help");
 
-            // 添加分隔线（可选）
-            if (i < endIndex - 1) {
-                ImGui::Separator();
-            }
-        }
+        //    // 添加分隔线（可选）
+        //    if (i < endIndex - 1) {
+        //        ImGui::Separator();
+        //    }
+        //}
 
-        ImGui::EndChild();
+        //ImGui::EndChild();
 
         // 滚动控制
         if (ImGui::Button("上翻")) {

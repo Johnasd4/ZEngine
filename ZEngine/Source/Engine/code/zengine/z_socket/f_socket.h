@@ -18,9 +18,9 @@
 */
 #pragma once
 
-#include "internal/z_drive.h"
+#include "drive.h"
 
-#include "z_core/z_string.h"
+#include "../z_core/z_string.h"
 
 /*
     This module allows logs over tcp. 

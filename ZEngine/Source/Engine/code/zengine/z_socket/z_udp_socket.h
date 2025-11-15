@@ -24,6 +24,8 @@
 #include "../z_core/t_smart_pointer.h"
 #include "../z_core/z_object.h"
 
+#include "z_buffer.h"
+
 namespace zengine {
 namespace socket {
 namespace internal {
@@ -103,11 +105,6 @@ public:
     NODISCARD ReturnType Close() noexcept;
 
     /*
-        Reset the socket.
-    */
-    NODISCARD ReturnType Reset() noexcept;
-
-    /*
         Conect to target socket. Will suspend the current thread.
     */
     NODISCARD ReturnType Connect(
@@ -120,11 +117,10 @@ public:
         Receive message. Will suspend the current thread until a message received.
     */
     NODISCARD ReturnType ReceiveFrom(
-        Void* _buffer_ptr,
-        SizeType _buffer_size,
+        ZBuffer _buffer,
+        SizeType* _message_size_ptr = nullptr,
         ZString* _address_str_ptr = nullptr,
-        Int32* _port_ptr = nullptr,
-        SizeType* _message_size_ptr = nullptr
+        Int32* _port_ptr = nullptr
     ) noexcept;
 
     /*
@@ -132,16 +128,14 @@ public:
         _handle_func only needs to handle the message recieved.
         _handle_func(
             ZUDPSocket* _socket_ptr, 
-            const Void* _message_ptr, 
-            SizeType _message_size,
+            const ZConstBuffer _buffer,
             const Char* _address_str,
             Int32 _port
         )
     */
     NODISCARD ReturnType AsyncReceiveFrom(
-        Void* _buffer_ptr,
-        SizeType _buffer_size,
-        const TFunction<Void(ZUDPSocket*, const Void*, SizeType, const Char*, Int32)>& _handle_func
+        ZBuffer _buffer,
+        const TFunction<Void(ZUDPSocket*, const ZConstBuffer, const Char*, Int32)>& _handle_func
     ) noexcept;
 
     /*
@@ -149,8 +143,7 @@ public:
         Call Connect() before this function.
     */
     NODISCARD ReturnType Receive(
-        Void* _buffer_ptr,
-        SizeType _buffer_size,
+        ZBuffer _buffer,
         SizeType* _message_size_ptr = nullptr
     ) noexcept;
 
@@ -158,12 +151,11 @@ public:
         Receive message. Will not suspend the current thread.
         Call Connect() before this function.
         _handle_func only needs to handle the message recieved.
-        _handle_func(ZUDPSocket* _socket_ptr, const Void* _message_ptr, SizeType _message_size)
+        _handle_func(ZUDPSocket* _socket_ptr, const ZConstBuffer _buffer)
     */
     NODISCARD ReturnType AsyncReceive(
-        Void* _buffer_ptr,
-        SizeType _buffer_size,
-        const TFunction<Void(ZUDPSocket*, const Void*, SizeType)>& _handle_func
+        ZBuffer _buffer,
+        const TFunction<Void(ZUDPSocket*, const ZConstBuffer)>& _handle_func
     ) noexcept;
 
     /*
@@ -171,23 +163,21 @@ public:
         Call Connect() before this function.
     */
     NODISCARD ReturnType SendTo(
-        const Void* _data_ptr,
-        SizeType _data_size,
         const Char* _address_str,
-        Int32 _port
+        Int32 _port,
+        ZConstBuffer _buffer
     ) noexcept;
 
     /*
         Send message. Will not suspend the current thread.
         _handle_func will be called after the message send.
-        _handle_func(ZUDPSocket* _socket_ptr, const Void* _message_ptr, SizeType _message_size)
+        _handle_func(ZUDPSocket* _socket_ptr, const ZConstBuffer _buffer)
     */
     NODISCARD ReturnType AsyncSendTo(
-        const Void* _data_ptr,
-        SizeType _data_size,
         const Char* _address_str,
         Int32 _port,
-        const TFunction<Void(ZUDPSocket*, const Void*, SizeType)>& _handle_func
+        ZConstBuffer _buffer,
+        const TFunction<Void(ZUDPSocket*, const ZConstBuffer)>& _handle_func
     ) noexcept;
 
     /*
@@ -195,20 +185,18 @@ public:
         Call Connect() before this function.
     */
     NODISCARD ReturnType Send(
-        const Void* _data_ptr,
-        SizeType _data_size
+        ZConstBuffer _buffer
     ) noexcept;
 
     /*
         Send message. Will not suspend the current thread.
         Call Connect() before this function.
         _handle_func will be called after the message send.
-        _handle_func(ZUDPSocket* _socket_ptr, const Void* _message_ptr, SizeType _message_size)
+        _handle_func(ZUDPSocket* _socket_ptr, const ZConstBuffer _buffer)
     */
     NODISCARD ReturnType AsyncSend(
-        const Void* _data_ptr,
-        SizeType _data_size,
-        const TFunction<Void(ZUDPSocket*, const Void*, SizeType)>& _handle_func
+        ZConstBuffer _buffer,
+        const TFunction<Void(ZUDPSocket*, const ZConstBuffer)>& _handle_func
     ) noexcept;
 
     /*

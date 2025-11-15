@@ -23,6 +23,7 @@
     <ClCompile Include="code\d_function.cpp" />
     <ClCompile Include="code\test.cpp" />
     <ClCompile Include="code\z_button.cpp" />
+    <ClCompile Include="code\z_check_box.cpp" />
     <ClCompile Include="code\z_frame.cpp" />
     <ClCompile Include="code\z_gui_object.cpp" />
     <ClCompile Include="code\z_input_text.cpp" />

@@ -18,7 +18,7 @@
 */
 #pragma once
 
-#include "internal/z_drive.h"
+#include "drive.h"
 
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
@@ -31,9 +31,10 @@ namespace internal {
 
 struct ZTLSStreamData : public ZObject {
 public:
-    ZTLSStreamData(boost::asio::ip::tcp::socket* _socket_ptr, boost::asio::ssl::context* _tls_context_ptr) noexcept
-        : stream_(*_socket_ptr, *_tls_context_ptr)
-    {}
+    ZTLSStreamData(
+        boost::asio::ip::tcp::socket* _socket_ptr,
+        boost::asio::ssl::context* _tls_context_ptr
+    ) noexcept;
 
 protected:
     using SuperType_ = ZObject;

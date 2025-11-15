@@ -43,10 +43,44 @@ namespace socket {
 */
 class SOCKET_DLLAPI ZTLSContext : public ZObject {
 public:
+    enum State_ : Int32 {
+        ZTLSContextState_Uninitialized,
+        ZTLSContextState_Initialized
+    };
+
     ZTLSContext(TLSTypeEnum _tls_type) noexcept;
     ~ZTLSContext() noexcept;
 
+    NODISCARD FORCEINLINE State_ State() const noexcept { return state_; }
     NODISCARD FORCEINLINE TLSTypeEnum TLSType() const noexcept { return tls_type_; }
+    NODISCARD FORCEINLINE Bool CertificateLoaded() const noexcept { return certificate_loaded_; }
+    NODISCARD FORCEINLINE Bool PrivateKeyLoaded() const noexcept { return private_key_loaded_; }
+
+    NODISCARD ReturnType SetVerifyMode(TLSVerifyModeEnum _tls_verify_mode) noexcept;
+
+    /*
+        Load verify file by path, will not clear the current verify files.
+    */
+    NODISCARD ReturnType LoadVerifyFile(const Char* _file_dir) noexcept;
+
+    /*
+        Load verify files from system default path, will not clear the current verify files.
+    */
+    NODISCARD ReturnType LoadSystemVerifyFiles() noexcept;
+    
+    NODISCARD ReturnType UseCertificateFile(
+        const Char* _file_dir, 
+        CertificateFileFormatTypeEnum _file_format
+    ) noexcept;
+
+    NODISCARD ReturnType UseCertificateChainFile(
+        const Char* _file_dir
+    ) noexcept;
+
+    NODISCARD ReturnType UsePrivateKeyFile(
+        const Char* _file_dir, 
+        CertificateFileFormatTypeEnum _file_format
+    ) noexcept;
 
 protected:
     using SuperType_ = ZObject;
@@ -60,7 +94,10 @@ private:
 
 private:
     TUniquePointer<internal::ZTLSContextData> data_ptr_;
+    State_ state_;
     TLSTypeEnum tls_type_;
+    Bool certificate_loaded_;
+    Bool private_key_loaded_;
 };
 
 }//socket

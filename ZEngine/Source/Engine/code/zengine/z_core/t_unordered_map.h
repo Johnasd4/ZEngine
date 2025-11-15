@@ -37,7 +37,7 @@ public:
     using ObjectType_ = std::pair<const _KeyType, _ValueType>;
     using STDUnorderedMap_ = std::unordered_map<
         _KeyType, _ValueType, std::hash<_KeyType>, std::equal_to<_KeyType>, 
-        TContainerAllocator<ObjectType_>>;
+        TAllocator<ObjectType_>>;
     using Iterator_ = STDUnorderedMap_::iterator;
     using ConstIterator_ = STDUnorderedMap_::const_iterator;
     using InitializerList_ = std::initializer_list<std::pair<const _KeyType, _ValueType>>;

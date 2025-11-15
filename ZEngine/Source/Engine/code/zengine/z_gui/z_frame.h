@@ -140,6 +140,7 @@ public:
     virtual Void Tick(Float32 _delta_sec) noexcept;
     /*
         Ticks every frame, called after added widgets.
+        Do gui changes in this funcion to keep in sync.
         Override this funciton to tick widgets not added to the frame.
     */
     virtual Void TickWidget(Float32 _delta_sec) noexcept;
@@ -160,10 +161,16 @@ public:
     virtual Void RemoveAll() noexcept;
 
     virtual Void SetBackgruondColour(GuiColour _colour) noexcept;
+    virtual Void SetScrollX(Float32 _scroll_x) noexcept;
+    virtual Void SetScrollY(Float32 _scroll_y) noexcept;
 
     NODISCARD virtual WidgetTypeEnum_ WidgetType() const noexcept;
 
     NODISCARD virtual GuiColour BackgruondColour() const noexcept;
+    NODISCARD virtual Float32 ScrollX() const noexcept;
+    NODISCARD virtual Float32 ScrollY() const noexcept;
+    NODISCARD virtual Float32 ScrollMaxX() const noexcept;
+    NODISCARD virtual Float32 ScrollMaxY() const noexcept;
 
     virtual Void OnKeyDown(KeyEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept;
     virtual Void OnKeyUp(KeyEnum _clicked_button, Bool _shift, Bool _ctrl, Bool _alt) noexcept;
@@ -175,6 +182,16 @@ public:
     */
     virtual Void OnScrollMove(Float32 _x_offset, Float32 _y_offset) noexcept;
     virtual Void OnMouseMove(GuiPos _pre_pos, GuiPos _cur_pos) noexcept;
+
+    /*
+        Called when scroll changed.
+    */
+    virtual Void OnScrollChanged(
+        Float32 _pre_scroll_x,
+        Float32 _pre_scroll_y,
+        Float32 _cur_scroll_x,
+        Float32 _cur_scroll_y
+    ) noexcept;
 
 protected:
     using SuperType_ = ZWidgetObject;
@@ -190,6 +207,14 @@ private:
     Int32 frame_flag_;
     Int32 frame_level_;
     GuiColour frame_background_colour_;
+    Float32 scroll_pre_x_;
+    Float32 scroll_pre_y_;
+    Float32 scroll_x_;
+    Float32 scroll_y_;
+    Float32 scroll_max_x_;
+    Float32 scroll_max_y_;
+    Bool scroll_x_set_;
+    Bool scroll_y_set_;
     TMultiset<ZWidgetObject*, ZWidgetObjectCompare> widget_ptr_set_;
     TMultiset<ZFrame*, ZWidgetObjectCompare> frame_ptr_set_;
 };
