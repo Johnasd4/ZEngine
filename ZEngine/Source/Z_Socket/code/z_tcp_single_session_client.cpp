@@ -20,8 +20,6 @@
 
 #include "z_tcp_client.h"
 
-#include <boost/asio.hpp>
-
 #include "z_core/m_log.h"
 #include "z_core/t_list.h"
 #include "z_core/z_string.h"
@@ -191,7 +189,7 @@ NODISCARD ReturnType ZTCPSingleSessionClient::Connect(
     link_code = socket_.Connect(_address_str, _port_str, _repeat_times);
     if (link_code != kOK) {
         if (link_code == error_code::kPSocketErrorCode_ConnectFailed) {
-            Z_LOG_FAILURE(L"Server connect failed!");
+            Z_DEBUG_LOG_FAILURE(L"Server connect failed!");
             return link_code;
         }
         else {
@@ -211,7 +209,7 @@ NODISCARD ReturnType ZTCPSingleSessionClient::Connect(
     socket_.SetAsyncErrorHandleFunction(
         [address_str = std::move(address_str), port_str = std::move(port_str)]() {
             //disconnect
-            Z_LOG_FINISH(
+            Z_DEBUG_LOG_FINISH(
                 L"Server disconnected! server_address: %ls server_port: %ls",
                 string::String2WString(address_str.String()).String(),
                 string::String2WString(port_str.String()).String()
@@ -244,7 +242,7 @@ NODISCARD ReturnType ZTCPSingleSessionClient::Read(
     if (link_code != kOK) {
         if (link_code == error_code::kPSocketErrorCode_Disconnected) {
             state_ = ZTCPSingleSessionClientState_Idle;
-            Z_LOG_FINISH(L"Server disconnected!");
+            Z_DEBUG_LOG_FINISH(L"Server disconnected!");
             ret_val = error_code::kPSocketErrorCode_Disconnected;
             return ret_val;
         }
@@ -309,7 +307,7 @@ NODISCARD ReturnType ZTCPSingleSessionClient::ReadUntil(
     if (link_code != kOK) {
         if (link_code == error_code::kPSocketErrorCode_Disconnected) {
             state_ = ZTCPSingleSessionClientState_Idle;
-            Z_LOG_FINISH(L"Server disconnected!");
+            Z_DEBUG_LOG_FINISH(L"Server disconnected!");
             ret_val = error_code::kPSocketErrorCode_Disconnected;
             return ret_val;
         }
@@ -349,7 +347,7 @@ NODISCARD ReturnType ZTCPSingleSessionClient::ReadUntil(
     if (link_code != kOK) {
         if (link_code == error_code::kPSocketErrorCode_Disconnected) {
             state_ = ZTCPSingleSessionClientState_Idle;
-            Z_LOG_FINISH(L"Server disconnected!");
+            Z_DEBUG_LOG_FINISH(L"Server disconnected!");
             return link_code;
         }
         else if (link_code == error_code::kPSocketErrorCode_ReadUntilSymbolNotFound) {
@@ -427,6 +425,34 @@ NODISCARD ReturnType ZTCPSingleSessionClient::AsyncReadUntil(
     return ret_val;
 }
 
+NODISCARD ReturnType ZTCPSingleSessionClient::ReadUntilClose(
+    ZBufferStream* _buffer_ptr,
+    SizeType* _data_size_ptr
+) noexcept {
+    ReturnType ret_val = kOK;
+    ReturnType link_code = kOK;
+
+    Z_CHECK(
+        state_ != ZTCPSingleSessionClientState_Connected,
+        error_code::kPSocketErrorCode_StateError,
+        L"Client state error! state: %d expect state: %d",
+        state_, ZTCPSingleSessionClientState_Connected
+    );
+
+    link_code = socket_.ReadUntilClose(_buffer_ptr, _data_size_ptr);
+    if (link_code != kOK) {
+        state_ = ZTCPSingleSessionClientState_Error;
+        ret_val = error_code::kPSocketErrorCode_LinkError;
+        Z_LOG_ERROR(
+            ret_val, link_code,
+            L"ZTCPSocket::ReadUntilClose() link error!"
+        );
+        return ret_val;
+    }
+
+    return ret_val;
+}
+
 NODISCARD ReturnType ZTCPSingleSessionClient::Write(
     ZConstBuffer _buffer
 ) noexcept {
@@ -444,7 +470,7 @@ NODISCARD ReturnType ZTCPSingleSessionClient::Write(
     if (link_code != kOK) {
         if (link_code == error_code::kPSocketErrorCode_Disconnected) {
             state_ = ZTCPSingleSessionClientState_Idle;
-            Z_LOG_FINISH(L"Server disconnected!");
+            Z_DEBUG_LOG_FINISH(L"Server disconnected!");
             ret_val = error_code::kPSocketErrorCode_Disconnected;
             return ret_val;
         }

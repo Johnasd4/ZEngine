@@ -422,7 +422,6 @@ private:
         link_code = Instance().log_client_.Connect(_address_str.String(), _port_str.String(), _repeat_times);
         if (link_code != kOK) {
             if (link_code == error_code::kPSocketErrorCode_ConnectFailed) {
-                //Z_LOG_FAILURE(L"Log server connect failed!");
             }
             else {
                 Z_LOG_ERROR(
@@ -430,6 +429,7 @@ private:
                     L"ZTCPSingleSessionClient::Connect() link error!"
                 );
             }
+            Z_LOG_FAILURE(L"Log server connect failed!");
             link_code = Instance().log_client_.Close();
             if (link_code != kOK) {
                 Z_LOG_ERROR(

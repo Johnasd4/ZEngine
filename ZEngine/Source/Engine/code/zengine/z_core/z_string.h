@@ -34,7 +34,9 @@ enum ZStringErrorCode : ReturnType {
     kZStringErrorCode_SystemError,
     kZStringErrorCode_NullptrParam,
     kZStringErrorCode_ParamOutOfRange,
-    kZStringErrorCode_InvalidString
+    kZStringErrorCode_InvalidString,
+    kZStringErrorCode_StringToNumberCanNotTransform,
+    kZStringErrorCode_StringToNumberOutOfRange,
 };
 }//error_code
 }//zengine
@@ -59,11 +61,10 @@ public:
 
     FORCEINLINE constexpr TString() noexcept : SuperType_(), str_() {}
     FORCEINLINE constexpr TString(const TString& _str) noexcept : SuperType_(_str), str_(_str.str_) {}
-    FORCEINLINE constexpr TString(const TString& _str, SizeType _pos, SizeType _len = -1) noexcept
-        : SuperType_(), str_(_str.str_, _pos, _len) {}
     FORCEINLINE constexpr TString(TString&& _str) noexcept 
         : SuperType_(std::forward<TString>(_str)), str_(std::move(_str.str_)) {}
-
+    FORCEINLINE constexpr TString(const TString& _str, SizeType _pos, SizeType _len = -1) noexcept
+        : SuperType_(), str_(_str.str_, _pos, _len) {}
     FORCEINLINE constexpr TString(const _CharType* _str) noexcept : SuperType_(), str_(_str) {}
     FORCEINLINE constexpr TString(const _CharType* _str, SizeType _size) noexcept 
         : SuperType_(), str_(_str, _size) {}
@@ -98,6 +99,14 @@ public:
     }
     FORCEINLINE constexpr TString& operator=(InitializerList_ _init_list) noexcept {
         str_ = _init_list;
+        return *this;
+    }
+    FORCEINLINE constexpr TString& operator=(const STDString_& _std_string) noexcept {
+        str_ = _std_string;
+        return *this;
+    }
+    FORCEINLINE constexpr TString& operator=(STDString_&& _std_string) noexcept {
+        str_ = std::move(_std_string);
         return *this;
     }
 
@@ -265,7 +274,7 @@ public:
             str.Reserve(strlen(_left_str) + _right_str.Size());
         }
         else {
-            str.Reserve(wcsnlen(_left_str) + _right_str.Size());
+            str.Reserve(wcslen(_left_str) + _right_str.Size());
         }
         str.Append(_left_str);
         str.Append(_right_str);
@@ -288,7 +297,7 @@ public:
             str.Reserve(_left_str.Size() + strlen(_right_str));
         }
         else {
-            str.Reserve(_left_str.Size() + wcsnlen(_right_str));
+            str.Reserve(_left_str.Size() + wcslen(_right_str));
         }
         str.Append(_left_str);
         str.Append(_right_str);
@@ -335,8 +344,8 @@ public:
         return std::move(_left_str);
     }
 
-    NODISCARD FORCEINLINE constexpr _CharType& At(SizeType index) noexcept { return str_.at(index); }
-    NODISCARD FORCEINLINE constexpr const _CharType& At(SizeType index) const noexcept { return str_.at(index); }
+    NODISCARD FORCEINLINE constexpr _CharType& At(SizeType _index) noexcept { return str_.at(_index); }
+    NODISCARD FORCEINLINE constexpr const _CharType& At(SizeType _index) const noexcept { return str_.at(_index); }
 
     NODISCARD FORCEINLINE constexpr _CharType& Front() noexcept { return str_.front(); }
     NODISCARD FORCEINLINE constexpr const _CharType& Front() const noexcept { return str_.front(); }
@@ -345,6 +354,8 @@ public:
     NODISCARD FORCEINLINE constexpr _CharType* DataPtr() noexcept { return str_.data(); }
     NODISCARD FORCEINLINE constexpr const _CharType* DataPtr() const noexcept { return str_.data(); }
     NODISCARD FORCEINLINE constexpr const _CharType* String() const noexcept { return str_.data(); }
+    NODISCARD FORCEINLINE constexpr STDString_& STDString() noexcept { return str_; }
+    NODISCARD FORCEINLINE constexpr const STDString_& STDString() const noexcept { return str_; }
 
     NODISCARD FORCEINLINE constexpr SizeType Size() const noexcept { return static_cast<SizeType>(str_.size()); }
     NODISCARD FORCEINLINE constexpr SizeType Capacity() const noexcept { return kSizeTypeMax; }
@@ -511,18 +522,18 @@ public:
     FORCEINLINE constexpr SizeType Find(const _CharType _char, const SizeType _start_pos = 0) noexcept {
         return str_.find(_char, _start_pos);
     }
-    FORCEINLINE constexpr SizeType ReserveFind(const TString& _str, const SizeType _start_pos = -1) noexcept {
+    FORCEINLINE constexpr SizeType ReverseFind(const TString& _str, const SizeType _start_pos = -1) noexcept {
         return str_.rfind(_str.str_, _start_pos);
     }
-    FORCEINLINE constexpr SizeType ReserveFind(const _CharType* _str, const SizeType _start_pos = -1) noexcept {
+    FORCEINLINE constexpr SizeType ReverseFind(const _CharType* _str, const SizeType _start_pos = -1) noexcept {
         return str_.rfind(_str, _start_pos);
     }
-    FORCEINLINE constexpr SizeType ReserveFind(
+    FORCEINLINE constexpr SizeType ReverseFind(
         const _CharType* _str_start, const SizeType _str_len, const SizeType _start_pos = -1
     ) noexcept {
         return str_.rfind(_str_start, _start_pos, _str_len);
     }
-    FORCEINLINE constexpr SizeType ReserveFind(const _CharType _char, const SizeType _start_pos = -1) noexcept {
+    FORCEINLINE constexpr SizeType ReverseFind(const _CharType _char, const SizeType _start_pos = -1) noexcept {
         return str_.rfind(_char, _start_pos);
     }
     /*
@@ -709,7 +720,6 @@ public:
     }
 
     NODISCARD ReturnType ToInt32(Int32* _ans_ptr) noexcept {
-        Int32 ans = 0;
         ReturnType ret_val = kOK;
         if constexpr (kSameType<_CharType, Char>) {
             Int32& err_ref = errno;
@@ -718,12 +728,12 @@ public:
             Char* err_str;
             *_ans_ptr = std::strtol(str, &err_str, 10);
             if (str == err_str) {
-                ret_val = error_code::kZStringErrorCode_SystemError;
-                Z_LOG_ERROR(ret_val, 0, L"std::strtol() system error! Wrong Parameter!");
+                ret_val = error_code::kZStringErrorCode_StringToNumberCanNotTransform;
+                Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
             }
             else if (err_ref == ERANGE) {
-                ret_val = error_code::kZStringErrorCode_SystemError;
-                Z_LOG_ERROR(ret_val, 0, L"std::strtol() system error! Number out of range!");
+                ret_val = error_code::kZStringErrorCode_StringToNumberOutOfRange;
+                Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
             }
         }
         else if constexpr (kSameType<_CharType, WChar>) {
@@ -733,55 +743,18 @@ public:
             WChar* err_str;
             *_ans_ptr = std::wcstol(str, &err_str, 10);
             if (str == err_str) {
-                ret_val = error_code::kZStringErrorCode_SystemError;
-                Z_LOG_ERROR(ret_val, 0, L"std::wcstol() system error! Wrong Parameter!");
+                ret_val = error_code::kZStringErrorCode_StringToNumberCanNotTransform;
+                Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
             }
             else if (err_ref == ERANGE) {
-                ret_val = error_code::kZStringErrorCode_SystemError;
-                Z_LOG_ERROR(ret_val, 0, L"std::wcstol() system error! Number out of range!");
-            }
-        }
-        return ret_val;
-    }
-
-    NODISCARD ReturnType ToUInt32(UInt32* _ans_ptr) noexcept {
-        Int32 ans = 0;
-        ReturnType ret_val = kOK;
-        if constexpr (kSameType<_CharType, Char>) {
-            Int32& err_ref = errno;
-            err_ref = 0;
-            const Char* str = str_.c_str();
-            Char* err_str;
-            *_ans_ptr = std::strtoul(str, &err_str, 10);
-            if (str == err_str) {
-                ret_val = error_code::kZStringErrorCode_SystemError;
-                Z_LOG_ERROR(ret_val, 0, L"std::strtol() system error! Wrong Parameter!");
-            }
-            else if (err_ref == ERANGE) {
-                ret_val = error_code::kZStringErrorCode_SystemError;
-                Z_LOG_ERROR(ret_val, 0, L"std::strtol() system error! Number out of range!");
-            }
-        }
-        else if constexpr (kSameType<_CharType, WChar>) {
-            Int32& err_ref = errno;
-            err_ref = 0;
-            const WChar* str = str_.c_str();
-            WChar* err_str;
-            *_ans_ptr = std::wcstoul(str, &err_str, 10);
-            if (str == err_str) {
-                ret_val = error_code::kZStringErrorCode_SystemError;
-                Z_LOG_ERROR(ret_val, 0, L"std::wcstol() system error! Wrong Parameter!");
-            }
-            else if (err_ref == ERANGE) {
-                ret_val = error_code::kZStringErrorCode_SystemError;
-                Z_LOG_ERROR(ret_val, 0, L"std::wcstol() system error! Number out of range!");
+                ret_val = error_code::kZStringErrorCode_StringToNumberOutOfRange;
+                Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
             }
         }
         return ret_val;
     }
 
     NODISCARD ReturnType ToInt64(Int64* _ans_ptr) noexcept {
-        Int32 ans = 0;
         ReturnType ret_val = kOK;
         if constexpr (kSameType<_CharType, Char>) {
             Int32& err_ref = errno;
@@ -790,12 +763,12 @@ public:
             Char* err_str;
             *_ans_ptr = std::strtoll(str, &err_str, 10);
             if (str == err_str) {
-                ret_val = error_code::kZStringErrorCode_SystemError;
-                Z_LOG_ERROR(ret_val, 0, L"std::strtol() system error! Wrong Parameter!");
+                ret_val = error_code::kZStringErrorCode_StringToNumberCanNotTransform;
+                Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
             }
             else if (err_ref == ERANGE) {
-                ret_val = error_code::kZStringErrorCode_SystemError;
-                Z_LOG_ERROR(ret_val, 0, L"std::strtol() system error! Number out of range!");
+                ret_val = error_code::kZStringErrorCode_StringToNumberOutOfRange;
+                Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
             }
         }
         else if constexpr (kSameType<_CharType, WChar>) {
@@ -805,19 +778,53 @@ public:
             WChar* err_str;
             *_ans_ptr = std::wcstoll(str, &err_str, 10);
             if (str == err_str) {
-                ret_val = error_code::kZStringErrorCode_SystemError;
-                Z_LOG_ERROR(ret_val, 0, L"std::wcstol() system error! Wrong Parameter!");
+                ret_val = error_code::kZStringErrorCode_StringToNumberCanNotTransform;
+                Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
             }
             else if (err_ref == ERANGE) {
-                ret_val = error_code::kZStringErrorCode_SystemError;
-                Z_LOG_ERROR(ret_val, 0, L"std::wcstol() system error! Number out of range!");
+                ret_val = error_code::kZStringErrorCode_StringToNumberOutOfRange;
+                Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
+            }
+        }
+        return ret_val;
+    }
+
+    NODISCARD ReturnType ToUInt32(UInt32* _ans_ptr) noexcept {
+        ReturnType ret_val = kOK;
+        if constexpr (kSameType<_CharType, Char>) {
+            Int32& err_ref = errno;
+            err_ref = 0;
+            const Char* str = str_.c_str();
+            Char* err_str;
+            *_ans_ptr = std::strtoul(str, &err_str, 10);
+            if (str == err_str) {
+                ret_val = error_code::kZStringErrorCode_StringToNumberCanNotTransform;
+                Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
+            }
+            else if (err_ref == ERANGE) {
+                ret_val = error_code::kZStringErrorCode_StringToNumberOutOfRange;
+                Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
+            }
+        }
+        else if constexpr (kSameType<_CharType, WChar>) {
+            Int32& err_ref = errno;
+            err_ref = 0;
+            const WChar* str = str_.c_str();
+            WChar* err_str;
+            *_ans_ptr = std::wcstoul(str, &err_str, 10);
+            if (str == err_str) {
+                ret_val = error_code::kZStringErrorCode_StringToNumberCanNotTransform;
+                Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
+            }
+            else if (err_ref == ERANGE) {
+                ret_val = error_code::kZStringErrorCode_StringToNumberOutOfRange;
+                Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
             }
         }
         return ret_val;
     }
 
     NODISCARD ReturnType ToUInt64(UInt64* _ans_ptr) noexcept {
-        Int32 ans = 0;
         ReturnType ret_val = kOK;
         if constexpr (kSameType<_CharType, Char>) {
             Int32& err_ref = errno;
@@ -826,12 +833,12 @@ public:
             Char* err_str;
             *_ans_ptr = std::strtoull(str, &err_str, 10);
             if (str == err_str) {
-                ret_val = error_code::kZStringErrorCode_SystemError;
-                Z_LOG_ERROR(ret_val, 0, L"std::strtoull() system error! Wrong Parameter!");
+                ret_val = error_code::kZStringErrorCode_StringToNumberCanNotTransform;
+                Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
             }
             else if (err_ref == ERANGE) {
-                ret_val = error_code::kZStringErrorCode_SystemError;
-                Z_LOG_ERROR(ret_val, 0, L"std::strtoull() system error! Number out of range!");
+                ret_val = error_code::kZStringErrorCode_StringToNumberOutOfRange;
+                Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
             }
         }
         else if constexpr (kSameType<_CharType, WChar>) {
@@ -839,35 +846,34 @@ public:
             err_ref = 0;
             const WChar* str = str_.c_str();
             WChar* err_str;
-            *_ans_ptr = std::strtoull(str, &err_str, 10);
+            *_ans_ptr = std::wcstoull(str, &err_str, 10);
             if (str == err_str) {
-                ret_val = error_code::kZStringErrorCode_SystemError;
-                Z_LOG_ERROR(ret_val, 0, L"std::strtoull() system error! Wrong Parameter!");
+                ret_val = error_code::kZStringErrorCode_StringToNumberCanNotTransform;
+                Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
             }
             else if (err_ref == ERANGE) {
-                ret_val = error_code::kZStringErrorCode_SystemError;
-                Z_LOG_ERROR(ret_val, 0, L"std::strtoull() system error! Number out of range!");
+                ret_val = error_code::kZStringErrorCode_StringToNumberOutOfRange;
+                Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
             }
         }
         return ret_val;
     }
 
     NODISCARD ReturnType ToFloat32(Float32* _ans_ptr) noexcept {
-        Int32 ans = 0;
         ReturnType ret_val = kOK;
         if constexpr (kSameType<_CharType, Char>) {
             Int32& err_ref = errno;
             err_ref = 0;
             const Char* str = str_.c_str();
             Char* err_str;
-            *_ans_ptr = std::strtof(str, &err_str, 10);
+            *_ans_ptr = std::strtof(str, &err_str);
             if (str == err_str) {
-                ret_val = error_code::kZStringErrorCode_SystemError;
-                Z_LOG_ERROR(ret_val, 0, L"std::strtoull() system error! Wrong Parameter!");
+                ret_val = error_code::kZStringErrorCode_StringToNumberCanNotTransform;
+                Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
             }
             else if (err_ref == ERANGE) {
-                ret_val = error_code::kZStringErrorCode_SystemError;
-                Z_LOG_ERROR(ret_val, 0, L"std::strtoull() system error! Number out of range!");
+                ret_val = error_code::kZStringErrorCode_StringToNumberOutOfRange;
+                Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
             }
         }
         else if constexpr (kSameType<_CharType, WChar>) {
@@ -875,35 +881,34 @@ public:
             err_ref = 0;
             const WChar* str = str_.c_str();
             WChar* err_str;
-            *_ans_ptr = std::strtof(str, &err_str, 10);
+            *_ans_ptr = std::wcstof(str, &err_str);
             if (str == err_str) {
-                ret_val = error_code::kZStringErrorCode_SystemError;
-                Z_LOG_ERROR(ret_val, 0, L"std::strtoull() system error! Wrong Parameter!");
+                ret_val = error_code::kZStringErrorCode_StringToNumberCanNotTransform;
+                Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
             }
             else if (err_ref == ERANGE) {
-                ret_val = error_code::kZStringErrorCode_SystemError;
-                Z_LOG_ERROR(ret_val, 0, L"std::strtoull() system error! Number out of range!");
+                ret_val = error_code::kZStringErrorCode_StringToNumberOutOfRange;
+                Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
             }
         }
         return ret_val;
     }
 
     NODISCARD ReturnType ToFloat64(Float64* _ans_ptr) noexcept {
-        Int32 ans = 0;
         ReturnType ret_val = kOK;
         if constexpr (kSameType<_CharType, Char>) {
             Int32& err_ref = errno;
             err_ref = 0;
             const Char* str = str_.c_str();
             Char* err_str;
-            *_ans_ptr = std::strtod(str, &err_str, 10);
+            *_ans_ptr = std::strtod(str, &err_str);
             if (str == err_str) {
-                ret_val = error_code::kZStringErrorCode_SystemError;
-                Z_LOG_ERROR(ret_val, 0, L"std::strtoull() system error! Wrong Parameter!");
+                ret_val = error_code::kZStringErrorCode_StringToNumberCanNotTransform;
+                Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
             }
             else if (err_ref == ERANGE) {
-                ret_val = error_code::kZStringErrorCode_SystemError;
-                Z_LOG_ERROR(ret_val, 0, L"std::strtoull() system error! Number out of range!");
+                ret_val = error_code::kZStringErrorCode_StringToNumberOutOfRange;
+                Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
             }
         }
         else if constexpr (kSameType<_CharType, WChar>) {
@@ -911,14 +916,14 @@ public:
             err_ref = 0;
             const WChar* str = str_.c_str();
             WChar* err_str;
-            *_ans_ptr = std::strtod(str, &err_str, 10);
+            *_ans_ptr = std::wcstod(str, &err_str);
             if (str == err_str) {
-                ret_val = error_code::kZStringErrorCode_SystemError;
-                Z_LOG_ERROR(ret_val, 0, L"std::strtoull() system error! Wrong Parameter!");
+                ret_val = error_code::kZStringErrorCode_StringToNumberCanNotTransform;
+                Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
             }
             else if (err_ref == ERANGE) {
-                ret_val = error_code::kZStringErrorCode_SystemError;
-                Z_LOG_ERROR(ret_val, 0, L"std::strtoull() system error! Number out of range!");
+                ret_val = error_code::kZStringErrorCode_StringToNumberOutOfRange;
+                Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
             }
         }
         return ret_val;
@@ -949,14 +954,14 @@ public:
             else if constexpr (kSameType<_CharType, WChar>) {
                 str_[end_index] = L'\0';
             }
-            result_list.PushBack(TString<_CharType>(&str_[start_index]));
+            result_list.EmplaceBack(&str_, start_index, str_len);
             str_[end_index] = temp_char;
             ++end_index;
             start_index = end_index;
         };
         if (start_index != end_index) {
             str_len = end_index - start_index;
-            result_list.PushBack(TString<_CharType>(&str_[start_index]));
+            result_list.EmplaceBack(&str_, start_index, str_len);
         }
         return result_list;
     };
@@ -984,6 +989,56 @@ CORE_DLLAPI NODISCARD ZWString String2WString(const Char* _str) noexcept;
     Translate wide string to narrow string, if the string is invalid, will return "".
 */
 CORE_DLLAPI NODISCARD ZString WString2String(const WChar* _str) noexcept;
+
+/*
+    Translate narrow string to Int32, if the string is invalid, will return "".
+*/
+CORE_DLLAPI NODISCARD ReturnType String2Int32(Int32* _ans_ptr, const Char* _str) noexcept;
+/*
+    Translate narrow string to Int64, if the string is invalid, will return "".
+*/
+CORE_DLLAPI NODISCARD ReturnType String2Int64(Int64* _ans_ptr, const Char* _str) noexcept;
+/*
+    Translate narrow string to UInt32, if the string is invalid, will return "".
+*/
+CORE_DLLAPI NODISCARD ReturnType String2UInt32(UInt32* _ans_ptr, const Char* _str) noexcept;
+/*
+    Translate narrow string to UInt64, if the string is invalid, will return "".
+*/
+CORE_DLLAPI NODISCARD ReturnType String2UInt64(UInt64* _ans_ptr, const Char* _str) noexcept;
+/*
+    Translate narrow string to Float32, if the string is invalid, will return "".
+*/
+CORE_DLLAPI NODISCARD ReturnType String2Float32(Float32* _ans_ptr, const Char* _str) noexcept;
+/*
+    Translate narrow string to Float64, if the string is invalid, will return "".
+*/
+CORE_DLLAPI NODISCARD ReturnType String2Float64(Float64* _ans_ptr, const Char* _str) noexcept;
+
+/*
+    Translate wide string to Int32, if the string is invalid, will return "".
+*/
+CORE_DLLAPI NODISCARD ReturnType WString2Int32(Int32* _ans_ptr, const WChar* _str) noexcept;
+/*
+    Translate wide string to Int64, if the string is invalid, will return "".
+*/
+CORE_DLLAPI NODISCARD ReturnType WString2Int64(Int64* _ans_ptr, const WChar* _str) noexcept;
+/*
+    Translate wide string to UInt32, if the string is invalid, will return "".
+*/
+CORE_DLLAPI NODISCARD ReturnType WString2UInt32(UInt32* _ans_ptr, const WChar* _str) noexcept;
+/*
+    Translate wide string to UInt64, if the string is invalid, will return "".
+*/
+CORE_DLLAPI NODISCARD ReturnType WString2UInt64(UInt64* _ans_ptr, const WChar* _str) noexcept;
+/*
+    Translate wide string to Float32, if the string is invalid, will return "".
+*/
+CORE_DLLAPI NODISCARD ReturnType WString2Float32(Float32* _ans_ptr, const WChar* _str) noexcept;
+/*
+    Translate wide string to Float64, if the string is invalid, will return "".
+*/
+CORE_DLLAPI NODISCARD ReturnType WString2Float64(Float64* _ans_ptr, const WChar* _str) noexcept;
 
 /*
     Generate narrow string.

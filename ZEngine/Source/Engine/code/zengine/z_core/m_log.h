@@ -20,6 +20,7 @@
 
 #include "drive.h"
 
+#include "f_console.h"
 #include "t_fixed_string.h"
 #include "z_system_time.h"
 
@@ -129,3 +130,99 @@
 */
 #define Z_LOG_FAILURE(...)\
     zengine::log::LogInfo(zengine::TimeSec(), zengine::log::kInfoLogType_Failure, __VA_ARGS__);
+
+/*
+    Log trace.
+    2025/10/10-23:28:14 | <Include> main.cpp-main | Trace...
+*/
+#ifdef USE_DEBUG_LOG
+#define Z_DEBUG_LOG_TRACE(...)\
+    zengine::log::LogTrace(zengine::TimeSec(), PROJECT_NAME, __FILE__, __func__, __VA_ARGS__);
+#else
+#define Z_DEBUG_LOG_TRACE(...)\
+    ;
+#endif
+
+/*
+    Log message.
+    2025/10/10-23:28:14 | Message | Message...
+*/
+#ifdef USE_DEBUG_LOG
+#define Z_DEBUG_LOG_MESSAGE(...)\
+    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::kInfoLogType_Message, __VA_ARGS__);
+#else
+#define Z_DEBUG_LOG_MESSAGE(...)\
+    ;
+#endif
+
+
+/*
+    Log start.
+    2025/10/10-23:28:14 | Start | Start...
+*/
+#ifdef USE_DEBUG_LOG
+#define Z_DEBUG_LOG_START(...)\
+    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::kInfoLogType_Start, __VA_ARGS__);
+#else
+#define Z_DEBUG_LOG_START(...)\
+    ;
+#endif
+
+/*
+    Log process.
+    2025/10/10-23:28:14 | Process | Process 1...
+*/
+#ifdef USE_DEBUG_LOG
+#define Z_DEBUG_LOG_PROCESS(...)\
+    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::kInfoLogType_Process, __VA_ARGS__);
+#else
+#define Z_DEBUG_LOG_PROCESS(...)\
+    ;
+#endif
+
+/*
+    Log finish.
+    2025/10/10-23:28:14 | Finish | Finish...
+*/
+#ifdef USE_DEBUG_LOG
+#define Z_DEBUG_LOG_FINISH(...)\
+    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::kInfoLogType_Finish, __VA_ARGS__);
+#else
+#define Z_DEBUG_LOG_FINISH(...)\
+    ;
+#endif
+
+/*
+    Log success.
+    2025/10/10-23:28:14 | Failure | Failure...
+*/
+#ifdef USE_DEBUG_LOG
+#define Z_DEBUG_LOG_SUCCESS(...)\
+    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::kInfoLogType_Success, __VA_ARGS__);
+#else
+#define Z_DEBUG_LOG_SUCCESS(...)\
+    ;
+#endif
+
+/*
+    Log failure.
+    2025/10/10-23:28:14 | Success | Success...
+*/
+#ifdef USE_DEBUG_LOG
+#define Z_DEBUG_LOG_FAILURE(...)\
+    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::kInfoLogType_Failure, __VA_ARGS__);
+#else
+#define Z_DEBUG_LOG_FAILURE(...)\
+    ;
+#endif
+
+/*
+    Outputs the message to the console.
+*/
+#ifdef USE_CONSOLE_PRINT
+#define Z_PRINT(...)\
+    zengine::console::Print(__VA_ARGS__);
+#else
+#define Z_PRINT(...)\
+    ;
+#endif

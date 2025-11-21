@@ -57,6 +57,210 @@ CORE_DLLAPI NODISCARD ZString WString2String(const WChar* _str) noexcept {
     return ZString(temp_str.DataPtr());
 }
 
+CORE_DLLAPI NODISCARD ReturnType String2Int32(Int32* _ans_ptr, const Char* _str) noexcept {
+    ReturnType ret_val = kOK;
+    Int32& err_ref = errno;
+    err_ref = 0;
+    Char* err_str;
+    *_ans_ptr = std::strtol(_str, &err_str, 10);
+    if (_str == err_str) {
+        ret_val = error_code::kZStringErrorCode_StringToNumberCanNotTransform;
+        Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
+    }
+    else if (err_ref == ERANGE) {
+        ret_val = error_code::kZStringErrorCode_StringToNumberOutOfRange;
+        Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
+    }
+    return ret_val;
+}
+
+CORE_DLLAPI NODISCARD ReturnType String2Int64(Int64* _ans_ptr, const Char* _str) noexcept {
+    ReturnType ret_val = kOK;
+    Int32& err_ref = errno;
+    err_ref = 0;
+    Char* err_str;
+    *_ans_ptr = std::strtoll(_str, &err_str, 10);
+    if (_str == err_str) {
+        ret_val = error_code::kZStringErrorCode_StringToNumberCanNotTransform;
+        Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
+    }
+    else if (err_ref == ERANGE) {
+        ret_val = error_code::kZStringErrorCode_StringToNumberOutOfRange;
+        Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
+    }
+    return ret_val;
+}
+
+CORE_DLLAPI NODISCARD ReturnType String2UInt32(UInt32* _ans_ptr, const Char* _str) noexcept {
+    ReturnType ret_val = kOK;
+    Int32& err_ref = errno;
+    err_ref = 0;
+    Char* err_str;
+    *_ans_ptr = std::strtoul(_str, &err_str, 10);
+    if (_str == err_str) {
+        ret_val = error_code::kZStringErrorCode_StringToNumberCanNotTransform;
+        Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
+    }
+    else if (err_ref == ERANGE) {
+        ret_val = error_code::kZStringErrorCode_StringToNumberOutOfRange;
+        Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
+    }
+    return ret_val;
+}
+
+CORE_DLLAPI NODISCARD ReturnType String2UInt64(UInt64* _ans_ptr, const Char* _str) noexcept {
+    ReturnType ret_val = kOK;
+    Int32& err_ref = errno;
+    err_ref = 0;
+    Char* err_str;
+    *_ans_ptr = std::strtoull(_str, &err_str, 10);
+    if (_str == err_str) {
+        ret_val = error_code::kZStringErrorCode_StringToNumberCanNotTransform;
+        Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
+    }
+    else if (err_ref == ERANGE) {
+        ret_val = error_code::kZStringErrorCode_StringToNumberOutOfRange;
+        Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
+    }
+    return ret_val;
+}
+
+CORE_DLLAPI NODISCARD ReturnType String2Float32(Float32* _ans_ptr, const Char* _str) noexcept {
+    ReturnType ret_val = kOK;
+    Int32& err_ref = errno;
+    err_ref = 0;
+    Char* err_str;
+    *_ans_ptr = std::strtof(_str, &err_str);
+    if (_str == err_str) {
+        ret_val = error_code::kZStringErrorCode_StringToNumberCanNotTransform;
+        Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
+    }
+    else if (err_ref == ERANGE) {
+        ret_val = error_code::kZStringErrorCode_StringToNumberOutOfRange;
+        Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
+    }
+    return ret_val;
+}
+
+CORE_DLLAPI NODISCARD ReturnType String2Float64(Float64* _ans_ptr, const Char* _str) noexcept {
+    ReturnType ret_val = kOK;
+    Int32& err_ref = errno;
+    err_ref = 0;
+    Char* err_str;
+    *_ans_ptr = std::strtod(_str, &err_str);
+    if (_str == err_str) {
+        ret_val = error_code::kZStringErrorCode_StringToNumberCanNotTransform;
+        Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
+    }
+    else if (err_ref == ERANGE) {
+        ret_val = error_code::kZStringErrorCode_StringToNumberOutOfRange;
+        Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
+    }
+    return ret_val;
+}
+
+CORE_DLLAPI NODISCARD ReturnType WString2Int32(Int32* _ans_ptr, const WChar* _str) noexcept {
+    ReturnType ret_val = kOK;
+    Int32& err_ref = errno;
+    err_ref = 0;
+    WChar* err_str;
+    *_ans_ptr = std::wcstol(_str, &err_str, 10);
+    if (_str == err_str) {
+        ret_val = error_code::kZStringErrorCode_StringToNumberCanNotTransform;
+        Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
+    }
+    else if (err_ref == ERANGE) {
+        ret_val = error_code::kZStringErrorCode_StringToNumberOutOfRange;
+        Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
+    }
+    return ret_val;
+}
+
+CORE_DLLAPI NODISCARD ReturnType WString2Int64(Int64* _ans_ptr, const WChar* _str) noexcept {
+    ReturnType ret_val = kOK;
+    Int32& err_ref = errno;
+    err_ref = 0;
+    WChar* err_str;
+    *_ans_ptr = std::wcstoll(_str, &err_str, 10);
+    if (_str == err_str) {
+        ret_val = error_code::kZStringErrorCode_StringToNumberCanNotTransform;
+        Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
+    }
+    else if (err_ref == ERANGE) {
+        ret_val = error_code::kZStringErrorCode_StringToNumberOutOfRange;
+        Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
+    }
+    return ret_val;
+}
+
+CORE_DLLAPI NODISCARD ReturnType WString2UInt32(UInt32* _ans_ptr, const WChar* _str) noexcept {
+    ReturnType ret_val = kOK;
+    Int32& err_ref = errno;
+    err_ref = 0;
+    WChar* err_str;
+    *_ans_ptr = std::wcstoul(_str, &err_str, 10);
+    if (_str == err_str) {
+        ret_val = error_code::kZStringErrorCode_StringToNumberCanNotTransform;
+        Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
+    }
+    else if (err_ref == ERANGE) {
+        ret_val = error_code::kZStringErrorCode_StringToNumberOutOfRange;
+        Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
+    }
+    return ret_val;
+}
+
+CORE_DLLAPI NODISCARD ReturnType WString2UInt64(UInt64* _ans_ptr, const WChar* _str) noexcept {
+    ReturnType ret_val = kOK;
+    Int32& err_ref = errno;
+    err_ref = 0;
+    WChar* err_str;
+    *_ans_ptr = std::wcstoull(_str, &err_str, 10);
+    if (_str == err_str) {
+        ret_val = error_code::kZStringErrorCode_StringToNumberCanNotTransform;
+        Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
+    }
+    else if (err_ref == ERANGE) {
+        ret_val = error_code::kZStringErrorCode_StringToNumberOutOfRange;
+        Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
+    }
+    return ret_val;
+}
+
+CORE_DLLAPI NODISCARD ReturnType WString2Float32(Float32* _ans_ptr, const WChar* _str) noexcept {
+    ReturnType ret_val = kOK;
+    Int32& err_ref = errno;
+    err_ref = 0;
+    WChar* err_str;
+    *_ans_ptr = std::wcstof(_str, &err_str);
+    if (_str == err_str) {
+        ret_val = error_code::kZStringErrorCode_StringToNumberCanNotTransform;
+        Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
+    }
+    else if (err_ref == ERANGE) {
+        ret_val = error_code::kZStringErrorCode_StringToNumberOutOfRange;
+        Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
+    }
+    return ret_val;
+}
+
+CORE_DLLAPI NODISCARD ReturnType WString2Float64(Float64* _ans_ptr, const WChar* _str) noexcept {
+    ReturnType ret_val = kOK;
+    Int32& err_ref = errno;
+    err_ref = 0;
+    WChar* err_str;
+    *_ans_ptr = std::wcstod(_str, &err_str);
+    if (_str == err_str) {
+        ret_val = error_code::kZStringErrorCode_StringToNumberCanNotTransform;
+        Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
+    }
+    else if (err_ref == ERANGE) {
+        ret_val = error_code::kZStringErrorCode_StringToNumberOutOfRange;
+        Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
+    }
+    return ret_val;
+}
+
 CORE_DLLAPI NODISCARD ZString GenerateString(const Char* _format, ...) noexcept {
     ArgListType args;
     va_start(args, _format);

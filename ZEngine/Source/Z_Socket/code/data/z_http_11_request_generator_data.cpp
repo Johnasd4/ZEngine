@@ -16,14 +16,20 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#pragma once
+#define SOCKET_DLLFILE
 
-#ifdef SOCKET_DLLFILE
-#define IS_DICONNECT_ERROR(_error_code)\
-    ( \
-        _error_code == boost::asio::error::eof || \
-        _error_code == boost::asio::error::connection_aborted || \
-        _error_code == boost::asio::error::interrupted || \
-        _error_code == boost::asio::error::connection_reset \
-    )
-#endif
+#include "z_http_11_request_generator_data.h"
+
+namespace zengine {
+namespace socket {
+namespace internal {
+
+ZHTTP11GeneratorData::ZHTTP11GeneratorData() noexcept
+    : SuperType_()
+    , request_()
+    , string_stream_()
+{}
+
+}//internal
+}//socket
+}//zengine

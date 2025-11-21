@@ -20,8 +20,6 @@
 
 #include "z_tcp_client.h"
 
-#include <boost/asio.hpp>
-
 #include "z_core/m_log.h"
 #include "z_core/t_atom.h"
 #include "z_core/z_string.h"
@@ -148,7 +146,7 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncConnect(
                     socket_pool_list_.Release(_socket_ptr);
 
                     //disconnect
-                    Z_LOG_FINISH(
+                    Z_DEBUG_LOG_FINISH(
                         L"Server disconnected! server_address: %ls server_port: %ls",
                         string::String2WString(address_str.String()).String(),
                         string::String2WString(port_str.String()).String()
@@ -156,7 +154,7 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncConnect(
                 }
             );
 
-            Z_LOG_SUCCESS(L"Server connected!");
+            Z_DEBUG_LOG_SUCCESS(L"Server connected!");
 
             if (_handle_func) {
                 _handle_func(this, _socket_ptr);
@@ -198,7 +196,7 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncBroadcast(
         if (link_code != kOK) {
             //disconnect
             if (socket_ptr->State() == ZTCPSocket::ZTCPSocketState_Idle) {
-                Z_LOG_FINISH(L"Client disconnected!");
+                Z_DEBUG_LOG_FINISH(L"Client disconnected!");
             }
             else {
                 Z_LOG_ERROR(

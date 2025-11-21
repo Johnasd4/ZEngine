@@ -61,6 +61,34 @@ static Void LuaLogFailure(const Char* _str) noexcept {
     Z_LOG_FAILURE(string::String2WString(_str).String());
 }
 
+static Void LuaLogDebugTrace(const Char* _str) noexcept {
+    Z_DEBUG_LOG_TRACE(string::String2WString(_str).String());
+}
+
+static Void LuaLogDebugMessage(const Char* _str) noexcept {
+    Z_DEBUG_LOG_MESSAGE(string::String2WString(_str).String());
+}
+
+static Void LuaLogDebugStart(const Char* _str) noexcept {
+    Z_DEBUG_LOG_START(string::String2WString(_str).String());
+}
+
+static Void LuaLogDebugProcess(const Char* _str) noexcept {
+    Z_DEBUG_LOG_PROCESS(string::String2WString(_str).String());
+}
+
+static Void LuaLogDebugFinish(const Char* _str) noexcept {
+    Z_DEBUG_LOG_FINISH(string::String2WString(_str).String());
+}
+
+static Void LuaLogDebugSuccess(const Char* _str) noexcept {
+    Z_DEBUG_LOG_SUCCESS(string::String2WString(_str).String());
+}
+
+static Void LuaLogDebugFailure(const Char* _str) noexcept {
+    Z_DEBUG_LOG_FAILURE(string::String2WString(_str).String());
+}
+
 }
 
 class ZLuaCore : public ZObject {
@@ -85,6 +113,14 @@ private:
         RegisterCFunction("LogFinish", log::LuaLogFinish);
         RegisterCFunction("LogSuccess", log::LuaLogSuccess);
         RegisterCFunction("LogFailure", log::LuaLogFailure);
+
+        RegisterCFunction("LogDebugTrace", log::LuaLogDebugTrace);
+        RegisterCFunction("LogDebugMessage", log::LuaLogDebugMessage);
+        RegisterCFunction("LogDebugStart", log::LuaLogDebugStart);
+        RegisterCFunction("LogDebugProcess", log::LuaLogDebugProcess);
+        RegisterCFunction("LogDebugFinish", log::LuaLogDebugFinish);
+        RegisterCFunction("LogDebugSuccess", log::LuaLogDebugSuccess);
+        RegisterCFunction("LogDebugFailure", log::LuaLogDebugFailure);
     }
 
     ZLuaCore(const ZLuaCore&) = delete;

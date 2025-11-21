@@ -18,12 +18,28 @@
 */
 #pragma once
 
-#ifdef SOCKET_DLLFILE
-#define IS_DICONNECT_ERROR(_error_code)\
-    ( \
-        _error_code == boost::asio::error::eof || \
-        _error_code == boost::asio::error::connection_aborted || \
-        _error_code == boost::asio::error::interrupted || \
-        _error_code == boost::asio::error::connection_reset \
-    )
-#endif
+#include "drive.h"
+
+#include <boost/url.hpp>
+
+#include "z_core/z_object.h"
+
+namespace zengine {
+namespace socket {
+namespace internal {
+
+struct ZURLResolverData : public ZObject {
+public:
+    ZURLResolverData() noexcept;
+
+protected:
+    using SuperType_ = ZObject;
+
+public:
+    boost::urls::result<boost::urls::url_view> url_result_;
+    boost::urls::url_view* url_ptr_;
+};
+
+}//internal
+}//socket
+}//zengine

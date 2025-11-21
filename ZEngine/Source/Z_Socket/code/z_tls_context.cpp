@@ -20,8 +20,6 @@
 
 #include "z_tls_context.h"
 
-#include <boost/asio.hpp>
-
 #include "../z_core/z_string.h"
 
 #include "data/z_tls_context_data.h"

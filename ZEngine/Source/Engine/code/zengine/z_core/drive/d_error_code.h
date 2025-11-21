@@ -47,6 +47,7 @@ inline constexpr ReturnType kErrorCodeBase_ZTimer = 0xAU * kErrorCodeTypeMask + 
 inline constexpr ReturnType kErrorCodeBase_ZConfig = 0xBU * kErrorCodeTypeMask + kErrorCodeBase_PCore;
 inline constexpr ReturnType kErrorCodeBase_FSystem = 0xCU * kErrorCodeTypeMask + kErrorCodeBase_PCore;
 inline constexpr ReturnType kErrorCodeBase_TFunction = 0xDU * kErrorCodeTypeMask + kErrorCodeBase_PCore;
+inline constexpr ReturnType kErrorCodeBase_ZStringView = 0xEU * kErrorCodeTypeMask + kErrorCodeBase_PCore;
 
 
 }//error_code

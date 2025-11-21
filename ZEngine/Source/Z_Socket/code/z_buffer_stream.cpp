@@ -29,82 +29,86 @@ namespace socket {
 
 ZBufferStream::ZBufferStream() noexcept
     : SuperType_()
-    , buffer_stream_data_ptr_(MakeUnique<internal::ZBufferStreamData>())
+    , data_ptr_(MakeUnique<internal::ZBufferStreamData>())
 {}
 
 ZBufferStream::ZBufferStream(SizeType _prepare_size) noexcept
     : SuperType_()
-    , buffer_stream_data_ptr_(MakeUnique<internal::ZBufferStreamData>(_prepare_size))
+    , data_ptr_(MakeUnique<internal::ZBufferStreamData>(_prepare_size))
 {}
 
 ZBufferStream::ZBufferStream(SizeType _prepare_size, SizeType _max_size) noexcept
     : SuperType_()
-    , buffer_stream_data_ptr_(MakeUnique<internal::ZBufferStreamData>(_prepare_size, _max_size))
+    , data_ptr_(MakeUnique<internal::ZBufferStreamData>(_prepare_size, _max_size))
 {}
 
 ZBufferStream::ZBufferStream(ZBufferStream&& _buffer) noexcept
     : SuperType_(std::forward<ZBufferStream>(_buffer))
-    , buffer_stream_data_ptr_(std::move(_buffer.buffer_stream_data_ptr_))
+    , data_ptr_(std::move(_buffer.data_ptr_))
 {}
 
 ZBufferStream::~ZBufferStream() noexcept {}
 
 ZBufferStream& ZBufferStream::operator=(ZBufferStream&& _buffer) noexcept {
-    buffer_stream_data_ptr_->buffer_.consume(10);
+    data_ptr_->buffer_.consume(10);
     SuperType_::operator=(std::forward<ZBufferStream>(_buffer));
-    buffer_stream_data_ptr_ = std::move(_buffer.buffer_stream_data_ptr_);
+    data_ptr_ = std::move(_buffer.data_ptr_);
     return *this;
 }
 
 NODISCARD SizeType ZBufferStream::Size() const noexcept {
-    return buffer_stream_data_ptr_->buffer_.data().size() - buffer_stream_data_ptr_->read_size_;
+    return data_ptr_->buffer_.data().size() - data_ptr_->read_size_;
 }
 
-NODISCARD const ZBuffer ZBufferStream::ReadData() noexcept {
-    ZBuffer buffer;
-    buffer.size_ = buffer_stream_data_ptr_->buffer_.data().size() - buffer_stream_data_ptr_->read_size_;
+NODISCARD const ZConstBuffer ZBufferStream::ReadData() noexcept {
+    ZConstBuffer buffer;
+    buffer.size_ = data_ptr_->buffer_.data().size() - data_ptr_->read_size_;
     buffer.data_ptr_ = const_cast<Void*>(reinterpret_cast<const Void*>(
-        reinterpret_cast<const Char*>(buffer_stream_data_ptr_->buffer_.data().data()) + 
-        buffer_stream_data_ptr_->read_size_
+        reinterpret_cast<const Char*>(data_ptr_->buffer_.data().data()) + 
+        data_ptr_->read_size_
     ));
-    buffer_stream_data_ptr_->read_size_ += buffer.size_;
+    data_ptr_->read_size_ += buffer.size_;
     return buffer;
 }
 
-NODISCARD const ZBuffer ZBufferStream::ReadData(SizeType _size) noexcept {
-    ZBuffer buffer;
-    buffer.size_ = buffer_stream_data_ptr_->buffer_.data().size() - buffer_stream_data_ptr_->read_size_;
-    if (buffer.size_ < _size) {
+NODISCARD const ZConstBuffer ZBufferStream::ReadData(SizeType _size) noexcept {
+    ZConstBuffer buffer;
+    buffer.size_ = data_ptr_->buffer_.data().size() - data_ptr_->read_size_;
+    if (buffer.size_ > _size) {
         buffer.size_ = _size;
     }
     buffer.data_ptr_ = const_cast<Void*>(reinterpret_cast<const Void*>(
-        reinterpret_cast<const Char*>(buffer_stream_data_ptr_->buffer_.data().data()) +
-        buffer_stream_data_ptr_->read_size_
+        reinterpret_cast<const Char*>(data_ptr_->buffer_.data().data()) +
+        data_ptr_->read_size_
     ));
-    buffer_stream_data_ptr_->read_size_ += buffer.size_;
+    data_ptr_->read_size_ += buffer.size_;
     return buffer;
 }
 
 SizeType ZBufferStream::DumpData() noexcept {
-    SizeType buffer_size = buffer_stream_data_ptr_->buffer_.data().size();
-    SizeType data_size = buffer_size - buffer_stream_data_ptr_->read_size_;
-    buffer_stream_data_ptr_->read_size_ = buffer_size;
+    SizeType buffer_size = data_ptr_->buffer_.data().size();
+    SizeType data_size = buffer_size - data_ptr_->read_size_;
+    data_ptr_->read_size_ = buffer_size;
     return data_size;
 }
 
 SizeType ZBufferStream::DumpData(SizeType _size) noexcept {
-    SizeType buffer_size = buffer_stream_data_ptr_->buffer_.data().size();
-    SizeType data_size = buffer_size - buffer_stream_data_ptr_->read_size_;
+    SizeType buffer_size = data_ptr_->buffer_.data().size();
+    SizeType data_size = buffer_size - data_ptr_->read_size_;
     if (_size > data_size) {
         _size = data_size;
     }
-    buffer_stream_data_ptr_->read_size_ += _size;
+    data_ptr_->read_size_ += _size;
     return _size;
 }
 
+Void ZBufferStream::Reserve(SizeType _size) noexcept {
+    data_ptr_->buffer_.prepare(_size);
+}
+
 Void ZBufferStream::Clear() noexcept {
-    buffer_stream_data_ptr_->buffer_.consume(buffer_stream_data_ptr_->buffer_.size());
-    buffer_stream_data_ptr_->read_size_ = 0ULL;
+    data_ptr_->buffer_.consume(data_ptr_->buffer_.size());
+    data_ptr_->read_size_ = 0ULL;
 }
 
 }//socket

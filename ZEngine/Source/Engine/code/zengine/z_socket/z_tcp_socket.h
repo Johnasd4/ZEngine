@@ -193,6 +193,14 @@ public:
     ) noexcept;
 
     /*
+        Read data until close. Will suspend the current thread until close.
+    */
+    NODISCARD ReturnType ReadUntilClose(
+        ZBufferStream* _buffer_ptr,
+        SizeType* _data_size_ptr = nullptr
+    ) noexcept;
+
+    /*
         Write data. Will suspend the current thread until data write.
     */
     NODISCARD ReturnType Write(

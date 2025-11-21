@@ -20,8 +20,6 @@
 
 #include "z_tcp_server.h"
 
-#include <boost/asio.hpp>
-
 #include "z_core/m_log.h"
 #include "z_core/t_atom.h"
 #include "z_core/z_string.h"
@@ -68,7 +66,7 @@ ZTCPSingleSessionServer::ZTCPSingleSessionServer(ZIOContext* _io_context_ptr) no
                 //connect->listen
                 if (state_ == ZTCPSingleSessionServerState_Connected) {
                     state_ = ZTCPSingleSessionServerState_Listen;
-                    Z_LOG_FINISH(L"Client disconnected!");
+                    Z_DEBUG_LOG_FINISH(L"Client disconnected!");
                 }
             }
         }
@@ -258,7 +256,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::Accept() noexcept {
         state_, ZTCPSingleSessionServerState_Listen
     );
 
-    Z_LOG_START(L"Wait for client connect...");
+    Z_DEBUG_LOG_START(L"Wait for client connect...");
 
     data_ptr_->acceptor_.accept(socket_.data_ptr_->socket_, error_code);
     if (error_code) {
@@ -273,7 +271,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::Accept() noexcept {
 
     socket_.OnConnectP();
     state_ = ZTCPSingleSessionServerState_Connected;
-    Z_LOG_SUCCESS(L"Client connected!");
+    Z_DEBUG_LOG_SUCCESS(L"Client connected!");
 
     return ret_val;
 }
@@ -296,7 +294,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::Read(
     if (link_code != kOK) {
         if (link_code == error_code::kPSocketErrorCode_Disconnected) {
             state_ = ZTCPSingleSessionServerState_Listen;
-            Z_LOG_FINISH(L"Client disconnected!");
+            Z_DEBUG_LOG_FINISH(L"Client disconnected!");
             ret_val = error_code::kPSocketErrorCode_Disconnected;
             return ret_val;
         }
@@ -361,7 +359,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::ReadUntil(
     if (link_code != kOK) {
         if (link_code == error_code::kPSocketErrorCode_Disconnected) {
             state_ = ZTCPSingleSessionServerState_Listen;
-            Z_LOG_FINISH(L"Client disconnected!");
+            Z_DEBUG_LOG_FINISH(L"Client disconnected!");
             ret_val = error_code::kPSocketErrorCode_Disconnected;
             return ret_val;
         }
@@ -398,7 +396,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::ReadUntil(
     if (link_code != kOK) {
         if (link_code == error_code::kPSocketErrorCode_Disconnected) {
             state_ = ZTCPSingleSessionServerState_Listen;
-            Z_LOG_FINISH(L"Client disconnected!");
+            Z_DEBUG_LOG_FINISH(L"Client disconnected!");
             ret_val = error_code::kPSocketErrorCode_Disconnected;
             return ret_val;
         }
@@ -474,6 +472,34 @@ NODISCARD ReturnType ZTCPSingleSessionServer::AsyncReadUntil(
     return ret_val;
 }
 
+NODISCARD ReturnType ZTCPSingleSessionServer::ReadUntilClose(
+    ZBufferStream* _buffer_ptr,
+    SizeType* _data_size_ptr
+) noexcept {
+    ReturnType ret_val = kOK;
+    ReturnType link_code = kOK;
+
+    Z_CHECK(
+        state_ != ZTCPSingleSessionServerState_Connected,
+        error_code::kPSocketErrorCode_StateError,
+        L"Client state error! state: %d expect state: %d",
+        state_, ZTCPSingleSessionServerState_Connected
+    );
+
+    link_code = socket_.ReadUntilClose(_buffer_ptr, _data_size_ptr);
+    if (link_code != kOK) {
+        state_ = ZTCPSingleSessionServerState_Error;
+        ret_val = error_code::kPSocketErrorCode_LinkError;
+        Z_LOG_ERROR(
+            ret_val, link_code,
+            L"ZTCPSocket::ReadUntilClose() link error!"
+        );
+        return ret_val;
+    }
+
+    return ret_val;
+}
+
 NODISCARD ReturnType ZTCPSingleSessionServer::Write(
     ZConstBuffer _buffer
 ) noexcept {
@@ -491,7 +517,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::Write(
     if (link_code != kOK) {
         if (link_code == error_code::kPSocketErrorCode_Disconnected) {
             state_ = ZTCPSingleSessionServerState_Listen;
-            Z_LOG_FINISH(L"Client disconnected!");
+            Z_DEBUG_LOG_FINISH(L"Client disconnected!");
             ret_val = error_code::kPSocketErrorCode_Disconnected;
             return ret_val;
         }

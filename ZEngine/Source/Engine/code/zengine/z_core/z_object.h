@@ -45,11 +45,6 @@ public:
     }
     NODISCARD FORCEINLINE static Void operator delete(Void* _delete_memory, Void* _memory_ptr) noexcept {}
 
-protected:
-    FORCEINLINE constexpr ZObject() noexcept {}
-    FORCEINLINE constexpr ZObject(const ZObject& _obj) noexcept {}
-    FORCEINLINE constexpr ZObject(ZObject&& _obj) noexcept {}
-
     FORCEINLINE constexpr const ZObject& operator=(const ZObject& _obj) noexcept { return *this; }
     FORCEINLINE constexpr const ZObject& operator=(ZObject&& _obj) noexcept { return *this; }
 
@@ -59,6 +54,11 @@ protected:
     NODISCARD FORCEINLINE Bool operator!=(const ZObject& _obj) noexcept {
         return this != &_obj;
     }
+
+protected:
+    FORCEINLINE constexpr ZObject() noexcept {}
+    FORCEINLINE constexpr ZObject(const ZObject& _obj) noexcept {}
+    FORCEINLINE constexpr ZObject(ZObject&& _obj) noexcept {}
 
     FORCEINLINE constexpr ~ZObject() noexcept {}
 

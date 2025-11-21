@@ -20,8 +20,6 @@
 
 #include "z_udp_socket.h"
 
-#include <boost/asio.hpp>
-
 #include "z_core/m_log.h"
 #include "z_core/z_string.h"
 

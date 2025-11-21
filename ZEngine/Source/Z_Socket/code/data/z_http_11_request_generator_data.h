@@ -20,36 +20,32 @@
 
 #include "drive.h"
 
-#include "../z_core/z_string.h"
+#include <boost/beast.hpp>
 
-namespace zengine {
-namespace error_code {
-
-enum FSocketErrorCode : ReturnType {
-    kFSocketErrorCode_LinkError = kErrorCodeBase_FSocket,
-    kFSocketErrorCode_SystemError,
-    kFSocketErrorCode_NullptrParam,
-    kFSocketErrorCode_ParamOutOfRange,
-    kFSocketErrorCode_LogServerStateError,
-    kFSocketErrorCode_CommandIDNotExist,
-    kFSocketErrorCode_ReplyIDNotExist,
-};
-
-}//zengine
-}//error_code
+#include "z_core/t_allocator.h"
+#include "z_core/z_object.h"
 
 namespace zengine {
 namespace socket {
+namespace internal {
 
-/*
-    Get current public ip.
-*/
-SOCKET_DLLAPI ReturnType GetPublicUDPIPAndPort(
-    const Char* _local_udp_address,
-    Int32 _local_udp_port,
-    ZString* _public_udp_address_ptr,
-    Int32* _public_udp_port_ptr
-) noexcept;
+using HTTP11Field = boost::beast::http::basic_fields<TAllocator<Char>>;
+using HTTP11Request = boost::beast::http::request<boost::beast::http::string_body, HTTP11Field>;
+using HTTP11StringStream = std::basic_ostringstream<Char, std::char_traits<Char>, TAllocator<Char>>;
 
+struct ZHTTP11GeneratorData : public ZObject {
+public:
+    ZHTTP11GeneratorData() noexcept;
+
+protected:
+    using SuperType_ = ZObject;
+
+public:
+    HTTP11Request request_;
+    HTTP11StringStream string_stream_;
+};
+
+}//internal
 }//socket
 }//zengine
+

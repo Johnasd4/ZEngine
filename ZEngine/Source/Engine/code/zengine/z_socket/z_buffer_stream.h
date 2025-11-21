@@ -40,6 +40,7 @@ namespace socket {
 
 /*
     Buffer type, initialize with a base buffer size.
+    Clear() can only and must be called when a http response is finished and prepared to receive another http response.
 */
 class SOCKET_DLLAPI ZBufferStream : public ZObject {
 public:
@@ -55,24 +56,27 @@ public:
 
     NODISCARD SizeType Size() const noexcept;
 
-    NODISCARD const ZBuffer ReadData() noexcept;
-    NODISCARD const ZBuffer ReadData(SizeType _size) noexcept;
+    NODISCARD const ZConstBuffer ReadData() noexcept;
+    NODISCARD const ZConstBuffer ReadData(SizeType _size) noexcept;
 
     SizeType DumpData() noexcept;
     SizeType DumpData(SizeType _size) noexcept;
+
+    Void Reserve(SizeType _size) noexcept;
 
     Void Clear() noexcept;
 
 protected:
     using SuperType_ = ZObject;
     friend class ZTCPSocket;
+    friend class ZTLSStream;
 
 private:
     ZBufferStream(const ZBufferStream&) = delete;
     ZBufferStream& operator=(const ZBufferStream&) = delete;
 
 private:
-    TUniquePointer<internal::ZBufferStreamData> buffer_stream_data_ptr_;
+    TUniquePointer<internal::ZBufferStreamData> data_ptr_;
 };
 
 }//socket

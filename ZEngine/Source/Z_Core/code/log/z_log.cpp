@@ -80,8 +80,7 @@ CORE_DLLAPI const WChar* ZLog::CreateAndGetLogPath() noexcept {
         //clear the expired log files.
         TList<ZWString> dir_list;
         file_system::GetDirectoriesByPath(kLogFileRootPathDir, &dir_list);
-        SizeType del_dir_num = dir_list.Size() - log::kLogFileMaxNum;
-        for (SizeType count = 0; count < del_dir_num; ++count) {
+        for (SizeType count = log::kLogFileMaxNum; count < dir_list.Size(); ++count) {
             file_system::DeleteDirectoryByPath(dir_list.Front().String());
             dir_list.PopFront();
         }

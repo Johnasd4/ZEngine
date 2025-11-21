@@ -34,10 +34,14 @@
 
 //Log type.
 #ifdef _DEBUG
+#define USE_DEBUG_LOG true
+#define USE_CONSOLE_PRINT true
 #define USE_CONSOLE_LOG true
 #define USE_FILE_LOG true
 #else
-#define USE_CONSOLE_LOG true
+#define USE_DEBUG_LOG false
+#define USE_CONSOLE_PRINT false
+#define USE_CONSOLE_LOG false
 #define USE_FILE_LOG true
 #endif//_DEBUG
 

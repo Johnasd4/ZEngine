@@ -1,4 +1,4 @@
-﻿///*
+///*
 //    Copyright (c) YuLin Zhu
 //
 //    This code file is licensed under the Creative Commons
@@ -48,13 +48,22 @@
 //
 //    ReturnType link_code = kOK;
 //
-//    ZWString string = L"asdad test testTSTSTSTST TSTTSTSSSSSfor test asda s";
-//    ZWStringView view = string;
+//    ZString request_str = GenerateHTTP11GetRequest(
+//        "ifconfig.me", 
+//        "/all"
+//    );
 //
-//    Z_LOG_MESSAGE(L"%ls %d", string.String(), string.Size());
-//    Z_LOG_MESSAGE(L"%d %d", string.Find(L"TSTASA"), view.Find(L"TSTASA"));
-//    Z_LOG_MESSAGE(L"%d %d", string.ReverseFind(L"TSTASA"), view.ReverseFind(L"TSTASA"));
-//    Z_LOG_MESSAGE(L"%d %d", string.ReverseFind(L't'), view.ReverseFind(L't'));
+//    Z_LOG_MESSAGE(L"\n%ls", 
+//        string::String2WString(request_str.String()).String()
+//    );
+//    //ZThread server_thread(SocketServer);
+//    //ZThread client_thread(SocketClient);
+//
+//    //ZThread server_thread(AysncSocketServer);
+//    //ZThread client_thread(AysncSocketClient);
+//
+//    //server_thread.Join();
+//    //client_thread.Join();
 //
 //    /**/
 //    SleepMs(kTimeBeforeProgramExit);

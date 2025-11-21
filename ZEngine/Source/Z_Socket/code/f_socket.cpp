@@ -20,22 +20,100 @@
 
 #include "f_socket.h"
 
-#include "../z_core/z_json.h"
-#include "../z_core/z_memory.h"
 #include "../z_core/z_string.h"
 
 #include "z_buffer.h"
 #include "z_buffer_stream.h"
+#include "z_http_request_generator.h"
+#include "z_http_response_resolver.h"
 #include "z_io_context.h"
 #include "z_tcp_client.h"
-
+#include "z_tls_context.h"
+#include "z_tls_stream.h"
+#include "z_url_resolver.h"
 
 #include <boost/asio.hpp>
+#include <boost/beast.hpp>
 
-#include <map>
+#include <boost/asio/ssl.hpp>
+
+using boost::asio::ip::tcp;
+namespace ssl = boost::asio::ssl;
+using ssl_socket = ssl::stream<tcp::socket>;
 
 namespace zengine {
 namespace socket {
+
+using boost::asio::ip::tcp;
+
+using boost::asio::ip::udp;
+using namespace std::chrono_literals;
+
+// 中国大陆最稳定的 STUN 服务器列表（2025 年实测）
+const std::vector<std::pair<std::string, uint16_t>> STUN_SERVERS = {
+    {"stun.12voip.com", 3478},
+    {"stun.aa.net.uk", 3478},
+    {"stun.acrobits.cz", 3478},
+    {"stun.actionvoip.com", 3478},
+    {"stun.annatel.net", 3478},
+    {"stun.antisip.com", 3478},
+};
+
+struct PublicEP { std::string ip; uint16_t port; };
+
+PublicEP get_public_ip_port() {
+    boost::asio::io_context io;
+    udp::socket sock(io);
+    sock.open(udp::v4());
+
+    for (const auto& [host, port] : STUN_SERVERS) {
+        try {
+            std::cout << "正在尝试 " << host << ":" << port << " ... ";
+
+            udp::resolver resolver(io);
+            udp::endpoint stun_ep = *resolver.resolve(host, std::to_string(port)).begin();
+
+            // 最简 Binding Request (20 字节，兼容所有服务器)
+            std::array<uint8_t, 20> req{ {
+                0x00, 0x01, 0x00, 0x00,
+                0x21, 0x12, 0xA4, 0x42,
+                0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00
+            } };
+
+            sock.send_to(boost::asio::buffer(req), stun_ep);
+
+            std::array<uint8_t, 512> buf{};
+            udp::endpoint from;
+            size_t len = sock.receive_from(boost::asio::buffer(buf), from);
+
+            if (len >= 28 && buf[0] == 0x01 && buf[1] == 0x01) {
+                size_t i = 20;
+                while (i + 8 < len) {
+                    uint16_t type = (buf[i] << 8) | buf[i + 1];
+                    uint16_t length = (buf[i + 2] << 8) | buf[i + 3];
+                    if (type == 0x0020 && length >= 8 && buf[i + 4] == 0 && buf[i + 5] == 1) {  // XOR-MAPPED-ADDRESS IPv4
+                        uint16_t xport = (buf[i + 6] << 8) | buf[i + 7];
+                        xport ^= 0x2112;
+                        uint32_t xip = (uint32_t(buf[i + 8]) << 24) | (uint32_t(buf[i + 9]) << 16) |
+                            (uint32_t(buf[i + 10]) << 8) | buf[i + 11];
+                        xip ^= 0x2112A442;
+
+                        boost::asio::ip::address_v4 ip(xip);
+                        std::cout << "成功！" << std::endl;
+                        return { ip.to_string(), xport };
+                    }
+                    i += 4 + ((length + 3) & ~3);
+                }
+            }
+        }
+        catch (const std::exception& e) {
+            std::cout << "失败 (" << e.what() << ")" << std::endl;
+        }
+    }
+    throw std::runtime_error("所有服务器都失败了（极小概率）");
+}
 
 ReturnType get_public_ip_and_port() {
     ReturnType ret_val = kOK;
@@ -43,11 +121,63 @@ ReturnType get_public_ip_and_port() {
 
     ZIOContext io_context;
     ZTCPClient client(&io_context);
+    ZTLSContext tls_context(TLSTypeEnum::kTLSType_Client);
+    link_code = tls_context.SetVerifyMode(kTLSVerifyType_Peer);
+    if (link_code != kOK) {
+        ret_val = error_code::kFSocketErrorCode_LinkError;
+        Z_LOG_ERROR(
+            ret_val, link_code,
+            L"ZTLSContext::LoadSystemVerifyFiles() link error!"
+        );
+        return ret_val;
+    }
+    link_code = tls_context.LoadSystemVerifyFiles();
+    if (link_code != kOK) {
+        ret_val = error_code::kFSocketErrorCode_LinkError;
+        Z_LOG_ERROR(
+            ret_val, link_code,
+            L"ZTLSContext::LoadSystemVerifyFiles() link error!"
+        );
+        return ret_val;
+    }
+
+    link_code = client.BindEndpoint("192.168.1.1",10000);
+    if (link_code != kOK) {
+        ret_val = error_code::kFSocketErrorCode_LinkError;
+        Z_LOG_ERROR(
+            ret_val, link_code,
+            L"ZTCPClient::BindEndpoint() link error!"
+        );
+        return ret_val;
+    }
+
+    //generate request
+    ZHTTP11RequestGenerator http_generator;
+    http_generator.SetRequestType(ZHTTP11RequestGenerator::RequestType_Get);
+    http_generator.SetTarget("/");
+    http_generator.SetHost("ifconfig.me");
+    http_generator.SetConnection("close");
+    http_generator.SetAccept("*/*");
+    http_generator.SetUserAgent("test_user");
+
+    //http_generator.SetRequestType(ZHTTP11RequestGenerator::RequestType_Get);
+    //http_generator.SetTarget("/");
+    //http_generator.SetHost("183.192.65.101");
+    //http_generator.SetConnection("close");
+    //http_generator.SetAccept("*/*");
+    //http_generator.SetUserAgent("test_user");
+
+    ZString request = http_generator.GenerateString();
+
+    Z_LOG_MESSAGE(
+        L"1\n%ls",
+        string::String2WString(request.String()).String()
+    );
 
     //connect
-    link_code = client.Connect("ifconfig.me", "80");
+    link_code = client.Connect("ifconfig.me", "https");
     if (link_code != kOK) {
-        ret_val = error_code::kPSocketErrorCode_LinkError;
+        ret_val = error_code::kFSocketErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
             L"ZTCPSocket::Connect() link error!"
@@ -55,15 +185,22 @@ ReturnType get_public_ip_and_port() {
         return ret_val;
     }
 
-    //send request
-    static constexpr Char request[] =
-        "GET /all.json HTTP/1.1\r\n"
-        "Host: ifconfig.me\r\n"
-        "Connection: close\r\n"
-        "\r\n";
-    link_code = client.Write(ZConstBuffer(request, sizeof(request)));
+    ZTLSStream tls_stream(&client.GetSocket(), &tls_context);
+    link_code = tls_stream.Handshake();
     if (link_code != kOK) {
-        ret_val = error_code::kPSocketErrorCode_LinkError;
+        ret_val = error_code::kFSocketErrorCode_LinkError;
+        Z_LOG_ERROR(
+            ret_val, link_code,
+            L"ZTCPSocket::Handshake() link error!"
+        );
+        return ret_val;
+    }
+
+
+    //send request
+    link_code = client.Write(ZConstBuffer(request.String(), request.Size()));
+    if (link_code != kOK) {
+        ret_val = error_code::kFSocketErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
             L"ZTCPSocket::Write() link error!"
@@ -71,13 +208,13 @@ ReturnType get_public_ip_and_port() {
         return ret_val;
     }
 
-    ZBufferStream buffer_stream(500);
+    ZBufferStream buffer_stream(5000);
 
     //read head
     SizeType size;
     link_code = client.ReadUntil(&buffer_stream, "\r\n\r\n", &size);
     if (link_code != kOK) {
-        ret_val = error_code::kPSocketErrorCode_LinkError;
+        ret_val = error_code::kFSocketErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
             L"ZTCPSocket::ReadUntil() link error!"
@@ -85,17 +222,158 @@ ReturnType get_public_ip_and_port() {
         return ret_val;
     }
 
-    Z_LOG_MESSAGE(
-        L"%d",
-        size
-    );
-    //dump head info
-    //buffer_stream.DumpData(size);
-
-    //read json string
-    link_code = client.ReadUntil(&buffer_stream, '}', &size);
+    //link_code = client.ReadUntilClose(&buffer_stream, &size);
     //if (link_code != kOK) {
-    //    ret_val = error_code::kPSocketErrorCode_LinkError;
+    //    ret_val = error_code::kFSocketErrorCode_LinkError;
+    //    Z_LOG_ERROR(
+    //        ret_val, link_code,
+    //        L"ZTCPSocket::ReadUntilClose() link error!"
+    //    );
+    //    return ret_val;
+    //}
+
+    //reslove head buffer
+    ZConstBuffer head_buffer = buffer_stream.ReadData(size);
+    ZHTTP11ResponseResolver http_resover;
+    link_code = http_resover.Resolve(head_buffer);
+    if (link_code != kOK) {
+        ret_val = error_code::kFSocketErrorCode_LinkError;
+        Z_LOG_ERROR(
+            ret_val, link_code,
+            L"ZHTTP11ResponseResolver::Resolve() link error!"
+        );
+        return ret_val;
+    }
+    ZString buffer_string(head_buffer.BufferPtr<const Char*>(), head_buffer.Size());
+    Z_PRINT(
+        "2\n%s",
+        buffer_string.String()
+    );
+
+    //dump head info
+    buffer_stream.DumpData(size);
+
+    //302 Found
+    if (http_resover.GetResult() == 302U) {
+        link_code = client.Close();
+        if (link_code != kOK) {
+            ret_val = error_code::kFSocketErrorCode_LinkError;
+            Z_LOG_ERROR(
+                ret_val, link_code,
+                L"ZTCPClient::Close() link error!"
+            );
+            return ret_val;
+        }
+
+        client.BindEndpoint("192.168.1.1", 10000);
+
+
+        ZStringView location_string_view;
+        link_code = http_resover.GetStringView(&location_string_view, "Location");
+        if (link_code != kOK) {
+            ret_val = error_code::kFSocketErrorCode_LinkError;
+            Z_LOG_ERROR(
+                ret_val, link_code,
+                L"ZHTTP11ResponseResolver::GetStringView() link error!"
+            );
+            return ret_val;
+        }
+        
+        ZURLResolver url_resolver;
+        link_code = url_resolver.Resolve(location_string_view);
+        if (link_code != kOK) {
+            ret_val = error_code::kFSocketErrorCode_LinkError;
+            Z_LOG_ERROR(
+                ret_val, link_code,
+                L"ZURLResolver::Resolve() link error!"
+            );
+            return ret_val;
+        }
+
+        ZString host_string = url_resolver.GetHost();
+        ZString port_string = url_resolver.GetPort();
+
+        Z_LOG_MESSAGE(
+            L"host %ls", 
+            string::String2WString(host_string.String()).String()
+        );
+        Z_LOG_MESSAGE(
+            L"port %ls",
+            string::String2WString(port_string.String()).String()
+        );
+
+        http_generator.SetTarget("/");
+        http_generator.SetHost("183.192.65.101");
+        //http_generator.SetHost(host_string.String());
+
+        ZString found_request = http_generator.GenerateString();
+
+        Z_LOG_MESSAGE(
+            L"3\n%ls",
+            string::String2WString(found_request.String()).String()
+        );
+
+        link_code = client.Connect(host_string.String(), port_string.String());
+        if (link_code != kOK) {
+            ret_val = error_code::kFSocketErrorCode_LinkError;
+            Z_LOG_ERROR(
+                ret_val, link_code,
+                L"ZClient::Connect() link error!"
+            );
+            return ret_val;
+        }
+
+        //send request
+        link_code = client.Write(ZConstBuffer(found_request.String(), found_request.Size()));
+        if (link_code != kOK) {
+            ret_val = error_code::kFSocketErrorCode_LinkError;
+            Z_LOG_ERROR(
+                ret_val, link_code,
+                L"ZTCPSocket::Write() link error!"
+            );
+            return ret_val;
+        }
+
+        buffer_stream.Clear();
+
+        //read head
+        SizeType size;
+        link_code = client.ReadUntil(&buffer_stream, "\r\n\r\n", &size);
+        if (link_code != kOK) {
+            ret_val = error_code::kFSocketErrorCode_LinkError;
+            Z_LOG_ERROR(
+                ret_val, link_code,
+                L"ZTCPSocket::ReadUntil() link error!"
+            );
+            return ret_val;
+        }
+
+        //reslove head buffer
+        ZConstBuffer head_buffer = buffer_stream.ReadData(buffer_stream.Size());
+        buffer_string.Assign(head_buffer.BufferPtr<const Char*>(), size);
+        Z_LOG_MESSAGE(
+            L"4 %d \n%ls",
+            buffer_stream.Size(),
+            string::String2WString(buffer_string.String()).String()
+        );
+
+        ZHTTP11ResponseResolver http_resover;
+        link_code = http_resover.Resolve(head_buffer);
+        if (link_code != kOK) {
+            ret_val = error_code::kFSocketErrorCode_LinkError;
+            Z_LOG_ERROR(
+                ret_val, link_code,
+                L"ZHTTP11ResponseResolver::http_resover() link error!"
+            );
+            return ret_val;
+        }
+
+    }
+
+    ////read json string
+    //link_code = client.ReadUntil(&buffer_stream, "\r\n\r\n", &size);
+    //if (link_code != kOK) {
+    //    ret_val = error_code::kFSocketErrorCode_LinkError;
     //    Z_LOG_ERROR(
     //        ret_val, link_code,
     //        L"ZTCPSocket::ReadUntil() link error!"
@@ -103,129 +381,59 @@ ReturnType get_public_ip_and_port() {
     //    return ret_val;
     //}
 
-    Z_LOG_MESSAGE(
-        L"%d",
-        size
-    );
+    ////disconnect
+    //link_code = client.Close();
+    //if (link_code != kOK) {
+    //    ret_val = error_code::kFSocketErrorCode_LinkError;
+    //    Z_LOG_ERROR(
+    //        ret_val, link_code,
+    //        L"ZTCPSocket::Close() link error!"
+    //    );
+    //    return ret_val;
+    //}
 
-    //disconnect
-    link_code = client.Close();
-    if (link_code != kOK) {
-        ret_val = error_code::kPSocketErrorCode_LinkError;
-        Z_LOG_ERROR(
-            ret_val, link_code,
-            L"ZTCPSocket::Close() link error!"
-        );
-        return ret_val;
-    }
+    //ZConstBuffer buffer = buffer_stream.ReadData(buffer_stream.Size());
 
-    ZBuffer buffer = buffer_stream.ReadData(buffer_stream.Size());
+    //http_resover.Resolve(buffer);
 
-    ZJsonDocument json_doc;
+
+    //ZJsonDocument json_doc;
     //json_doc.Parse(buffer.BufferPtr<Char*>());
 
-    Z_LOG_MESSAGE(
-        L"%ls %d",
-        string::String2WString(buffer.BufferPtr<const Char*>()).String(),
-        buffer.Size()
-    );
+    //Z_LOG_MESSAGE(
+    //    L"%ls %d",
+    //    string::String2WString(buffer.BufferPtr<const Char*>()).String(),
+    //    buffer.Size()
+    //);
 
     //clear stream
     buffer_stream.Clear();
-
-    //namespace asio = boost::asio;
-    //using asio::ip::tcp;
-
-    //std::map<std::string, std::string> result;
-    //asio::io_context io_ctx;
-
-    //try {
-    //    // 解析主机地址和端口
-    //    tcp::resolver resolver(io_ctx);
-    //    auto endpoints = resolver.resolve("ifconfig.me", "80"); // HTTP默认端口
-
-    //    // 建立连接
-    //    tcp::socket socket(io_ctx);
-    //    asio::connect(socket, endpoints);
-
-    //    // 构造HTTP请求
-    //    std::string request = 
-    //        "GET /all HTTP/1.1\r\n"
-    //        "Host: ifconfig.me\r\n"
-    //        "Connection: close\r\n\r\n"; // 请求后关闭连接
-
-    //    // 发送请求
-    //    asio::write(socket, asio::buffer(request));
-
-    //    // 读取响应
-    //    asio::streambuf response_buf;
-    //    boost::system::error_code error;
-
-    //    // 1. 先读取HTTP头部，直到遇到空行
-    //    asio::read_until(socket, response_buf, "\r\n\r\n", error);
-    //    if(error && error != asio::error::eof) {
-    //        std::cerr << "读取头部错误: " << error.message() << std::endl;
-    //        return result;
-    //    }
-
-    //    // 2. 继续读取剩余的响应体数据
-    //    while (asio::read(socket, response_buf, asio::transfer_at_least(1), error)) {}
-    //    if(error != asio::error::eof) {
-    //        std::cerr << "读取正文错误: " << error.message() << std::endl;
-    //    }
-
-    //    // 处理响应数据
-    //    std::istream response_stream(&response_buf);
-    //    std::string line;
-
-    //    // 3. 关键：跳过已读的HTTP头部 (空行之前的内容)
-    //    // 之前的 read_until 已经将流读到了头部结束的位置，所以我们直接开始读正文即可。
-    //    // 为了确保万无一失，也可以在这里再次读取并跳过直到遇到一个空行。
-    //    bool in_headers = true;
-    //    while (std::getline(response_stream, line) && in_headers) {
-    //        if (line == "\r" || line.empty()) {
-    //            in_headers = false; // 头部结束，接下来是正文
-    //        }
-    //    }
-    //    // 注意：上面的循环结束后，流指针已经位于正文开始处。
-
-    //    // 4. 解析正文（键值对）
-    //    do {
-    //        // 去除行尾的换行符（如\r）
-    //        if (!line.empty() && line.back() == '\r') {
-    //            line.pop_back();
-    //        }
-    //        // 查找分隔符 ':'
-    //        size_t separator_pos = line.find(':');
-    //        if (separator_pos != std::string::npos) {
-    //            std::string key = line.substr(0, separator_pos);
-    //            // 值从冒号后开始，并去除前面的空格
-    //            std::string value = line.substr(separator_pos + 1);
-    //            value.erase(0, value.find_first_not_of(" "));
-    //            // 存入map
-    //            result[key] = value;
-    //        }
-    //    } while (std::getline(response_stream, line));
-
-    //} catch (std::exception& e) {
-    //    std::cerr << "操作异常: " << e.what() << std::endl;
-    //}
 
     return ret_val;
 }
 
 /*
-    Get current public ip.
+    Get current udp public ip and port.
 */
-SOCKET_DLLAPI ReturnType GetPublicIP(
-    ZString* public_ip_str_ptr
+SOCKET_DLLAPI ReturnType GetPublicUDPIPAndPort(
+    const Char* _local_udp_address,
+    Int32 _local_udp_port,
+    ZString* _public_udp_address_ptr,
+    Int32* _public_udp_port_ptr
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
 
-    //std::cout << "正在从 ifconfig.me/all 获取公网IP和端口信息..." << std::endl;
-
-    auto network_info = get_public_ip_and_port();
+    try {
+        auto ep = get_public_ip_port();
+        std::cout << "公网 IP   : " << ep.ip << std::endl;
+        std::cout << "公网端口  : " << ep.port << std::endl;
+    }
+    catch (const std::exception& e) {
+        std::cerr << "最终失败: " << e.what() << std::endl;
+    }
+    get_public_ip_and_port();
+    //auto network_info = get_public_ip_and_port();
 
     //if (!network_info.empty()) {
     //    std::cout << "\n=== 网络信息解析结果 ===" << std::endl;

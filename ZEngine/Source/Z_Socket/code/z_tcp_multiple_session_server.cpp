@@ -20,8 +20,6 @@
 
 #include "z_tcp_server.h"
 
-#include <boost/asio.hpp>
-
 #include "z_core/m_log.h"
 #include "z_core/t_atom.h"
 #include "z_core/z_string.h"
@@ -215,7 +213,7 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncAccept(
 
                 //handle error
                 if (_error_code == boost::asio::error::operation_aborted) {
-                    Z_LOG_FAILURE(L"Server accept cancelled!");
+                    Z_DEBUG_LOG_FAILURE(L"Server accept cancelled!");
                 }
                 else {
                     Z_LOG_ERROR(
@@ -231,10 +229,10 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncAccept(
             socket_ptr->SetAsyncErrorHandleFunction(
                 []() {
                     //disconnect
-                    Z_LOG_FINISH(L"Client disconnected!");
+                    Z_DEBUG_LOG_FINISH(L"Client disconnected!");
                 }
             );
-            Z_LOG_SUCCESS(L"Client connected!");
+            Z_DEBUG_LOG_SUCCESS(L"Client connected!");
 
             if (_handle_func) {
                 _handle_func(this, socket_ptr);
@@ -266,7 +264,7 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncBroadcast(
         if (link_code != kOK) {
             //disconnect
             if (socket_ptr->State() == ZTCPSocket::ZTCPSocketState_Idle) {
-                Z_LOG_FINISH(L"Client disconnected!");
+                Z_DEBUG_LOG_FINISH(L"Client disconnected!");
             }
             else {
                 Z_LOG_ERROR(

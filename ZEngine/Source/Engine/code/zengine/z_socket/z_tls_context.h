@@ -39,7 +39,13 @@ namespace zengine {
 namespace socket {
 
 /*
-    TLS client context. 
+    TLS context. 
+    Client initialize steps:
+    1.Call SetVerifyMode() to set verify mode.
+    2.Load verify file.  
+    Server initialize steps:
+    1.Call UseCertificateFile() or UseCertificateChainFile() to set certificate file.
+    2.Call UsePrivateKeyFile() to set key.
 */
 class SOCKET_DLLAPI ZTLSContext : public ZObject {
 public:
