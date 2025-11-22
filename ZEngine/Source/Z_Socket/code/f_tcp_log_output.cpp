@@ -347,8 +347,8 @@ public:
         const TFunction<Void(const TCPLogOutputReplyLogData*)>& _data_handle_func,
         const TFunction<Void()>& _client_connect_handle_func,
         const TFunction<Void()>& _client_finish_handle_func,
-        const Char* _address_str,
-        const Char* _port_str,
+        ZStringView _address_str,
+        ZStringView _port_str,
         Int32 _repeat_times
     ) noexcept {
         ReturnType ret_val = kOK;
@@ -570,8 +570,8 @@ SOCKET_DLLAPI ReturnType StartLogOutputClient(
     const TFunction<Void(const TCPLogOutputReplyLogData*)>& _data_handle_func,
     const TFunction<Void()>& _client_connect_handle_func,
     const TFunction<Void()>& _client_finish_handle_func,
-    const Char* _address_str,
-    const Char* _port_str,
+    ZStringView _address_str,
+    ZStringView _port_str,
     Int32 _repeat_times
 ) noexcept {
     ReturnType ret_val = kOK;

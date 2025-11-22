@@ -38,7 +38,7 @@ ZButton::ZButton(ZButton&& _button) noexcept
     MoveP(std::forward<ZButton>(_button));
 }
 
-ZButton::ZButton(const Char* _name, GuiSize _size, GuiPos _pos) noexcept
+ZButton::ZButton(ZStringView _name, GuiSize _size, GuiPos _pos) noexcept
     : SuperType_(_name, _size, _pos)
     , text_colour_(kDefaultTextColour)
     , button_colour_(kDefaultButtonColour)
@@ -131,7 +131,7 @@ Void ZButton::Tick(Float32 _delta_sec) noexcept {
     }
 
     GuiSize size = Size();
-    if (SizeSet() ? ImGui::Button(Name(), ImVec2(size.width_, size.height_)) : ImGui::Button(Name())) {
+    if (SizeSet() ? ImGui::Button(Name().String(), ImVec2(size.width_, size.height_)) : ImGui::Button(Name().String())) {
         if (Enabled()) {
             OnButtonClicked();
         }

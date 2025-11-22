@@ -41,7 +41,7 @@ ZCheckBox::ZCheckBox(ZCheckBox&& _button) noexcept
     MoveP(std::forward<ZCheckBox>(_button));
 }
 
-ZCheckBox::ZCheckBox(const Char* _name, GuiPos _pos) noexcept
+ZCheckBox::ZCheckBox(ZStringView _name, GuiPos _pos) noexcept
     : SuperType_(_name, kBaseSize, _pos)
     , text_colour_(kDefaultTextColour)
     , check_mark_colour_(kDefaultCheckMarkColour)
@@ -172,7 +172,7 @@ Void ZCheckBox::Tick(Float32 _delta_sec) noexcept {
         );
     }
 
-    ImGui::Checkbox(Name(), &if_checked_);
+    ImGui::Checkbox(Name().String(), &if_checked_);
     if (if_checked_ != pre_if_checked_) {
         OnCheckBoxClicked(if_checked_);
         pre_if_checked_ = if_checked_;

@@ -94,8 +94,8 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::Close() noexcept {
 }
 
 NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncConnect(
-    const Char* _address_str,
-    const Char* _port_str,
+    ZStringView _address_str,
+    ZStringView _port_str,
     const TFunction<Void(ZTCPMultipleSessionClient*, ZTCPSocket*)>& _handle_func,
     Int32 _repeat_times,
     ZTCPSocket** _tcp_socket_ptr_ptr

@@ -171,8 +171,8 @@ NODISCARD ReturnType ZTCPSingleSessionClient::Close() noexcept {
 }
 
 NODISCARD ReturnType ZTCPSingleSessionClient::Connect(
-    const Char* _address_str,
-    const Char* _port_str,
+    ZStringView _address_str,
+    ZStringView _port_str,
     Int32 _repeat_times
 ) noexcept {
     ReturnType ret_val = kOK;

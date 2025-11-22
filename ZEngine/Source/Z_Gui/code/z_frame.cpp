@@ -47,7 +47,7 @@ ZFrame::ZFrame(ZFrame&& _frame) noexcept
     MoveP(std::forward<ZFrame>(_frame));
 }
 
-ZFrame::ZFrame(const Char* _name, GuiSize _size, GuiPos _pos) noexcept
+ZFrame::ZFrame(ZStringView _name, GuiSize _size, GuiPos _pos) noexcept
     : SuperType_(_name, _size, _pos)
     , frame_flag_(kDefaultFrameFlag)
     , frame_level_(kBaseFrameLevel)
@@ -119,7 +119,7 @@ Void ZFrame::Tick(Float32 _delta_sec) noexcept {
             );
         }
         //begin base frame
-        ImGui::Begin(Name(), nullptr, frame_flag_);        
+        ImGui::Begin(Name().String(), nullptr, frame_flag_);
 
         if (Enabled()) {
             //tick widgets
@@ -230,11 +230,11 @@ Void ZFrame::Tick(Float32 _delta_sec) noexcept {
 
         //sub frame begin
         if (SizeSet()) {
-            ImGui::BeginChild(Name(), ImVec2(Width(), Height()), true, frame_flag_);        
+            ImGui::BeginChild(Name().String(), ImVec2(Width(), Height()), true, frame_flag_);
         }
         else {
             ImGui::BeginChild(
-                Name(), 
+                Name().String(),
                 ImVec2(0, 0), 
                 true, 
                 frame_flag_

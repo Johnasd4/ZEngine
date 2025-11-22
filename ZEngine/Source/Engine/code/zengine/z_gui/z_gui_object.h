@@ -22,6 +22,7 @@
 
 #include "../z_core/z_mutex.h"
 #include "../z_core/z_object.h"
+#include "../z_core/z_string_view.h"
 
 namespace zengine {
 namespace gui {
@@ -85,7 +86,6 @@ public:
     virtual Void SetPosY(Float32 _pos_y) noexcept;
     virtual Void SetPos(GuiPos _pos) noexcept;
     virtual Void SetAbsPos(GuiPos _pos) noexcept;
-    virtual Void SetName(const Char* _name) noexcept;
     virtual Void SetFontScale(Float32 _scale) noexcept;
 
     NODISCARD virtual Float32 Width() const noexcept;
@@ -98,7 +98,6 @@ public:
         Returns the position that actually uses by the library.
     */
     NODISCARD virtual GuiPos AbsPos() const noexcept;
-    NODISCARD virtual const Char* Name() const noexcept;
     NODISCARD virtual Float32 FontScale() const noexcept;
 
     //Base trigger functions.

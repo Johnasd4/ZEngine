@@ -76,10 +76,9 @@ public:
     virtual Void SetPosX(Float32 _pos_x) noexcept;
     virtual Void SetPosY(Float32 _pos_y) noexcept;
     virtual Void SetPos(GuiPos _pos) noexcept;
-    virtual Void SetName(const Char* _name) noexcept;
+    virtual Void SetName(ZStringView _name) noexcept;
 
-    NODISCARD virtual const Char* Name() const noexcept;
-
+    NODISCARD virtual const ZString& Name() const noexcept;
 
     NODISCARD virtual WidgetTypeEnum_ WidgetType() const noexcept = 0;
 
@@ -94,7 +93,7 @@ protected:
     ZWidgetObject() noexcept;
     ZWidgetObject(ZWidgetObject&& _obj) noexcept;
     ZWidgetObject(
-        const Char* _name, 
+        ZStringView _name,
         GuiSize _size = kBaseSize,
         GuiPos _pos = kBasePos, 
         Int32 _priority = kDefaultPriority,

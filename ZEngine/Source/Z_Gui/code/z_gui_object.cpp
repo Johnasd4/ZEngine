@@ -91,7 +91,6 @@ Void ZGuiObject::SetAbsPos(GuiPos _pos) noexcept {
         SetPos(_pos - owner_ptr_->AbsPos());
     }
 }
-Void ZGuiObject::SetName(const Char* _name) noexcept {}
 Void ZGuiObject::SetFontScale(Float32 _scale) noexcept { font_scale_ = _scale; }
 
 NODISCARD Float32 ZGuiObject::Width() const noexcept { return size_.width_; }
@@ -101,7 +100,6 @@ NODISCARD Float32 ZGuiObject::PosX() const noexcept { return pos_.x_; }
 NODISCARD Float32 ZGuiObject::PosY() const noexcept { return pos_.y_; }
 NODISCARD GuiPos ZGuiObject::Pos() const noexcept { return pos_; }
 NODISCARD GuiPos ZGuiObject::AbsPos() const noexcept { return pos_ + owner_ptr_->AbsPos(); }
-NODISCARD const Char* ZGuiObject::Name() const noexcept { return ""; }
 NODISCARD Float32 ZGuiObject::FontScale() const noexcept {
     return owner_ptr_ == nullptr ? font_scale_ : font_scale_ * owner_ptr_->FontScale();
 }

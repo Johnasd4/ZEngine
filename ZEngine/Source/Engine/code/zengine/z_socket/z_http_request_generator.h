@@ -23,6 +23,7 @@
 #include "../z_core/t_smart_pointer.h"
 #include "../z_core/z_object.h"
 #include "../z_core/z_string.h"
+#include "../z_core/z_string_view.h"
 
 namespace zengine {
 namespace socket {
@@ -50,12 +51,12 @@ public:
     ~ZHTTP11RequestGenerator() noexcept;
 
     Void SetRequestType(RequestType_ _request_type) noexcept;
-    Void SetTarget(const Char* _target_str) noexcept;
+    Void SetTarget(ZStringView _target_str) noexcept;
 
-    Void SetHost(const Char* _host_str) noexcept;   
-    Void SetAccept(const Char* _accept_str) noexcept;
-    Void SetConnection(const Char* _connection_str) noexcept;
-    Void SetUserAgent(const Char* _user_agent_str) noexcept;
+    Void SetHost(ZStringView _host_str) noexcept;
+    Void SetAccept(ZStringView _accept_str) noexcept;
+    Void SetConnection(ZStringView _connection_str) noexcept;
+    Void SetUserAgent(ZStringView _user_agent_str) noexcept;
 
     Void Clear() noexcept;
 

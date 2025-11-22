@@ -65,9 +65,9 @@ Void ZWidgetObject::SetPos(GuiPos _pos) noexcept {
     pos_set_ = true;
 }
 
-Void ZWidgetObject::SetName(const Char* _name) noexcept { name_ = _name; }
+Void ZWidgetObject::SetName(ZStringView _name) noexcept { name_ = _name; }
 
-NODISCARD const Char* ZWidgetObject::Name() const noexcept { return name_.String(); }
+NODISCARD const ZString& ZWidgetObject::Name() const noexcept { return name_; }
 
 Void ZWidgetObject::OnHide() noexcept {
     SuperType_::OnHide();
@@ -90,7 +90,7 @@ ZWidgetObject::ZWidgetObject() noexcept
 {}
 
 ZWidgetObject::ZWidgetObject(
-    const Char* _name,
+    ZStringView _name,
     GuiSize _size,
     GuiPos _pos,
     Int32 _priority,

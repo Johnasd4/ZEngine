@@ -26,6 +26,7 @@
 #include "../z_core/t_unordered_map.h"
 #include "../z_core/z_object.h"
 #include "../z_core/z_string.h"
+#include "../z_core/z_string_view.h"
 
 #include "z_buffer.h"
 #include "z_tcp_socket.h"
@@ -91,8 +92,8 @@ public:
         Connect to server. Will suspend the current thread.
     */
     NODISCARD ReturnType Connect(
-        const Char* _address_str, 
-        const Char* _port_str, 
+        ZStringView _address_str,
+        ZStringView _port_str,
         Int32 _repeat_times = kConnectRetryForever
     ) noexcept;
 
@@ -245,8 +246,8 @@ public:
         _handle_func(ZTCPMultipleSessionClient* _server_ptr, ZTCPSocket* _socket_ptr)
     */
     NODISCARD ReturnType AsyncConnect(
-        const Char* _address_str, 
-        const Char* _port_str,
+        ZStringView _address_str,
+        ZStringView _port_str,
         const TFunction<Void(ZTCPMultipleSessionClient*, ZTCPSocket*)>& _handle_func,
         Int32 _repeat_times = kConnectRetryForever,
         ZTCPSocket** _tcp_socket_ptr_ptr = nullptr

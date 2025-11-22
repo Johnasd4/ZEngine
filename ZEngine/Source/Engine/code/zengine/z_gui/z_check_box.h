@@ -21,6 +21,7 @@
 #include "drive.h"
 
 #include "../z_core/t_function.h"
+#include "../z_core/z_string_view.h"
 
 #include "z_widget_object.h"
 
@@ -55,7 +56,7 @@ public:
     /*
         Add ## at the start of the name if you want an empty input text.
     */
-    ZCheckBox(const Char* _name, GuiPos _pos = kBasePos) noexcept;
+    ZCheckBox(ZStringView _name, GuiPos _pos = kBasePos) noexcept;
 
     ~ZCheckBox() noexcept;
 

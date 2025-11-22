@@ -41,7 +41,7 @@ ZInputText::ZInputText(ZInputText&& _input_text) noexcept
     MoveP(std::forward<ZInputText>(_input_text));
 }
 
-ZInputText::ZInputText(const Char* _name, GuiPos _pos) noexcept
+ZInputText::ZInputText(ZStringView _name, GuiPos _pos) noexcept
     : SuperType_(_name, kBaseSize, _pos)
     , text_colour_(kDefaultTextColour)
     , background_colour_(kDefaultBackgroundColour)
@@ -117,7 +117,7 @@ Void ZInputText::Tick(Float32 _delta_sec) noexcept {
     if (if_multiline_) {
         GuiSize size = Size();
         ImGui::InputTextMultiline(
-            Name(), 
+            Name().String(),
             input_text_.DataPtr<Char*>(),
             input_text_.Size(), 
             ImVec2(size.width_, size.height_),
@@ -137,7 +137,7 @@ Void ZInputText::Tick(Float32 _delta_sec) noexcept {
             flag = kInputTextFlag_ReadOnly;
         }
         ImGui::InputText(
-            Name(), input_text_.DataPtr<Char*>(), input_text_.Size(), flag,
+            Name().String(), input_text_.DataPtr<Char*>(), input_text_.Size(), flag,
             [](ImGuiInputTextCallbackData* _data) {
                 (dynamic_cast<ZInputText*>(ZGuiObject::CallbackGuiObjectPtr()))->InputTextChangedCallbackP();
                 return 0;
@@ -187,8 +187,12 @@ Void ZInputText::SetInputTextBufferSize(UInt32 _buffer_size) noexcept {
     input_text_.Resize(_buffer_size);
 }
 
-Void ZInputText::SetInputText(const Char* _input_text) noexcept {
-    strcpy(input_text_.DataPtr<Char*>(), _input_text);
+Void ZInputText::SetInputText(ZStringView _input_text) noexcept {
+    if (input_text_.Size() <= _input_text.Size()) {
+        input_text_.Resize(_input_text.Size() + 1ULL);
+    }
+    memcpy(input_text_.DataPtr<Char*>(), _input_text.DataPtr(), _input_text.Size());
+    input_text_.At<Char>(_input_text.Size()) = '\0';
 }
 
 NODISCARD ZInputText::WidgetTypeEnum_ ZInputText::WidgetType() const noexcept {

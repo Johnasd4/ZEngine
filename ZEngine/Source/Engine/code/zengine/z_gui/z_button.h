@@ -21,6 +21,7 @@
 #include "drive.h"
 
 #include "../z_core/t_function.h"
+#include "../z_core/z_string_view.h"
 
 #include "z_widget_object.h"
 
@@ -70,7 +71,7 @@ public:
     /*
         Add ## at the start of the name if you want an empty input text.
     */
-    ZButton(const Char* _name, GuiSize _size = kBaseSize, GuiPos _pos = kBasePos) noexcept;
+    ZButton(ZStringView _name, GuiSize _size = kBaseSize, GuiPos _pos = kBasePos) noexcept;
 
     ~ZButton() noexcept;
 

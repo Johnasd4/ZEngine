@@ -35,7 +35,6 @@ namespace zengine {
 namespace console {
 
 using PrintColourType = UInt16;
-using LanguageType = const Char*;
 
 enum PrintTextColourEnum : PrintColourType {
     kPrintTextColour_Min = 0x00U,

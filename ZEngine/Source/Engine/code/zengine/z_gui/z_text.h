@@ -20,6 +20,8 @@
 
 #include "drive.h"
 
+#include "../z_core/z_string_view.h"
+
 #include "z_widget_object.h"
 
 namespace zengine {
@@ -45,7 +47,7 @@ public:
 
     ZText() noexcept;
     ZText(ZText&& _text) noexcept;
-    ZText(const Char* _text, GuiPos _pos = kBasePos) noexcept;
+    ZText(ZStringView _text, GuiPos _pos = kBasePos) noexcept;
 
     ~ZText() noexcept;
 
@@ -68,12 +70,12 @@ public:
     */
     virtual Void Reset() noexcept;
 
-    virtual Void SetText(const Char* _text) noexcept;
+    virtual Void SetText(ZStringView _text) noexcept;
     virtual Void SetTextColour(GuiColour _colour) noexcept;
 
     NODISCARD virtual WidgetTypeEnum_ WidgetType() const noexcept;
 
-    NODISCARD virtual const Char* Text() const noexcept;
+    NODISCARD virtual const ZString& Text() const noexcept;
     NODISCARD virtual GuiColour TextColour() const noexcept;
 
 protected:

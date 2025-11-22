@@ -52,16 +52,16 @@ public:
 
     NODISCARD UInt32 GetVersion() noexcept;
     NODISCARD UInt32 GetResult() noexcept;
-    NODISCARD const Char* GetReason() noexcept;
+    NODISCARD ZStringView GetReason() noexcept;
 
-    NODISCARD ReturnType GetInt32(Int32* _value_ptr, const Char* _name) noexcept;
-    NODISCARD ReturnType GetInt64(Int64* _value_ptr, const Char* _name) noexcept;
-    NODISCARD ReturnType GetUInt32(UInt32* _value_ptr, const Char* _name) noexcept;
-    NODISCARD ReturnType GetUInt64(UInt64* _value_ptr, const Char* _name) noexcept;
-    NODISCARD ReturnType GetFloat32(Float32* _value_ptr, const Char* _name) noexcept;
-    NODISCARD ReturnType GetFloat64(Float64* _value_ptr, const Char* _name) noexcept;
-    NODISCARD ReturnType GetStringView(ZStringView* _value_ptr, const Char* _name) noexcept;
-    NODISCARD ReturnType GetString(ZString* _value_ptr, const Char* _name) noexcept;
+    NODISCARD ReturnType GetInt32(Int32* _value_ptr, ZStringView _name) noexcept;
+    NODISCARD ReturnType GetInt64(Int64* _value_ptr, ZStringView _name) noexcept;
+    NODISCARD ReturnType GetUInt32(UInt32* _value_ptr, ZStringView _name) noexcept;
+    NODISCARD ReturnType GetUInt64(UInt64* _value_ptr, ZStringView _name) noexcept;
+    NODISCARD ReturnType GetFloat32(Float32* _value_ptr, ZStringView _name) noexcept;
+    NODISCARD ReturnType GetFloat64(Float64* _value_ptr, ZStringView _name) noexcept;
+    NODISCARD ReturnType GetStringView(ZStringView* _value_ptr, ZStringView _name) noexcept;
+    NODISCARD ReturnType GetString(ZString* _value_ptr, ZStringView _name) noexcept;
 
 protected:
     using SuperType_ = ZObject;

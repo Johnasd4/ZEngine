@@ -46,21 +46,35 @@ Void ZHTTP11RequestGenerator::SetRequestType(RequestType_ _request_type) noexcep
         break;
     }
 }
-Void ZHTTP11RequestGenerator::SetTarget(const Char* _target_str) noexcept {
-    data_ptr_->request_.target(_target_str);
+Void ZHTTP11RequestGenerator::SetTarget(ZStringView _target_str) noexcept {
+    data_ptr_->request_.target(
+        boost::core::string_view(_target_str.DataPtr(), _target_str.Size())
+    );
 }
 
-Void ZHTTP11RequestGenerator::SetHost(const Char* _host_str) noexcept {
-    data_ptr_->request_.set(boost::beast::http::field::host, _host_str);
+Void ZHTTP11RequestGenerator::SetHost(ZStringView _host_str) noexcept {
+    data_ptr_->request_.set(
+        boost::beast::http::field::host, 
+        boost::core::string_view(_host_str.DataPtr(), _host_str.Size())
+    );
 }
-Void ZHTTP11RequestGenerator::SetAccept(const Char* _accept_str) noexcept {
-    data_ptr_->request_.set(boost::beast::http::field::accept, _accept_str);
+Void ZHTTP11RequestGenerator::SetAccept(ZStringView _accept_str) noexcept {
+    data_ptr_->request_.set(
+        boost::beast::http::field::accept, 
+        boost::core::string_view(_accept_str.DataPtr(), _accept_str.Size())      
+    );
 }
-Void ZHTTP11RequestGenerator::SetConnection(const Char* _connection_str) noexcept {
-    data_ptr_->request_.set(boost::beast::http::field::connection, _connection_str);
+Void ZHTTP11RequestGenerator::SetConnection(ZStringView _connection_str) noexcept {
+    data_ptr_->request_.set(
+        boost::beast::http::field::connection,
+        boost::core::string_view(_connection_str.DataPtr(), _connection_str.Size())
+    );
 }
-Void ZHTTP11RequestGenerator::SetUserAgent(const Char* _user_agent_str) noexcept {
-    data_ptr_->request_.set(boost::beast::http::field::user_agent, _user_agent_str);
+Void ZHTTP11RequestGenerator::SetUserAgent(ZStringView _user_agent_str) noexcept {
+    data_ptr_->request_.set(
+        boost::beast::http::field::user_agent,
+        boost::core::string_view(_user_agent_str.DataPtr(), _user_agent_str.Size())
+    );
 }
 
 Void ZHTTP11RequestGenerator::Clear() noexcept {

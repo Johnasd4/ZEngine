@@ -294,7 +294,7 @@ Int32 main() {
 
     ReturnType link_code = kOK;
 
-    GetPublicIP(nullptr);
+    //GetPublicIP(nullptr);
     ZWString test_str(nullptr, 0);
 
 

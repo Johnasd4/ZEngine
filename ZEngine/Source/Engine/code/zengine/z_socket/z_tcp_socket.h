@@ -24,6 +24,7 @@
 #include "../z_core/t_function.h"
 #include "../z_core/t_smart_pointer.h"
 #include "../z_core/z_object.h"
+#include "../z_core/z_string_view.h"
 
 #include "z_buffer.h"
 
@@ -113,8 +114,8 @@ public:
         Conect to target socket. Will suspend the current thread.
     */
     NODISCARD ReturnType Connect(
-        const Char* _address_str,
-        const Char* _port_str,
+        ZStringView _address_str,
+        ZStringView _port_str,
         Int32 _repeat_times = kConnectRetryForever
     ) noexcept;
 
@@ -123,8 +124,8 @@ public:
         _handle_func(Bool _connect_success)
     */
     NODISCARD ReturnType AsyncConnect(
-        const Char* _address_str,
-        const Char* _port_str,
+        ZStringView _address_str,
+        ZStringView _port_str,
         const TFunction<Void(ZTCPSocket*, Bool)>& _handle_func,
         Int32 _repeat_times = kConnectRetryForever
     ) noexcept;

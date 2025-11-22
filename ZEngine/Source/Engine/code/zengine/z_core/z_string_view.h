@@ -172,8 +172,12 @@ public:
         return *this;
     }
 
-    NODISCARD FORCEINLINE constexpr const _CharType& operator[](const SizeType _index) const noexcept { 
-        return str_[_index]; 
+    NODISCARD FORCEINLINE constexpr operator TString<_CharType>() const noexcept {
+        return TString<_CharType>(str_, size_);
+    }
+
+    NODISCARD FORCEINLINE constexpr const _CharType& operator[](const SizeType _index) const noexcept {
+        return str_[_index];
     }
 
     NODISCARD FORCEINLINE constexpr const _CharType& At(SizeType _index) const noexcept { return str_[_index]; }

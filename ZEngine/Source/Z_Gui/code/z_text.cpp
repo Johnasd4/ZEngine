@@ -34,7 +34,7 @@ ZText::ZText(ZText&& _text) noexcept
     MoveP(std::forward<ZText>(_text));
 }
 
-ZText::ZText(const Char* _text, GuiPos _pos) noexcept
+ZText::ZText(ZStringView _text, GuiPos _pos) noexcept
     : SuperType_(_text, kBaseSize, _pos)
     , text_colour_(kDefaultTextColour)
     , if_wrap_(true) {}
@@ -88,10 +88,10 @@ Void ZText::Tick(Float32 _delta_sec) noexcept {
 
     ImGui::SetWindowFontScale(FontScale());
     if (if_wrap_) {
-        ImGui::TextWrapped(Name());
+        ImGui::TextWrapped(Name().String());
     }
     else {
-        ImGui::Text(Name());
+        ImGui::Text(Name().String());
     }
 
     ImVec2 temp_pos = ImGui::GetItemRectMin();
@@ -112,7 +112,7 @@ Void ZText::Reset() noexcept {
 /*
     Text does't need a name, so puts the text string info the name obj.
 */
-Void ZText::SetText(const Char* _text) noexcept {
+Void ZText::SetText(ZStringView _text) noexcept {
     SuperType_::SetName(_text);
 }
 
@@ -127,7 +127,7 @@ NODISCARD ZText::WidgetTypeEnum_ ZText::WidgetType() const noexcept {
 /*
     Text does't need a name, so puts the text string info the name obj.
 */
-NODISCARD const Char* ZText::Text() const noexcept {
+NODISCARD const ZString& ZText::Text() const noexcept {
     return SuperType_::Name();
 }
 

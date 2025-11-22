@@ -67,11 +67,11 @@ NODISCARD UInt32 ZHTTP11ResponseResolver::GetVersion() noexcept {
 NODISCARD UInt32 ZHTTP11ResponseResolver::GetResult() noexcept {
     return data_ptr_->response_.result_int();
 }
-NODISCARD const Char* ZHTTP11ResponseResolver::GetReason() noexcept {
-    return data_ptr_->response_.reason().data();
+NODISCARD ZStringView ZHTTP11ResponseResolver::GetReason() noexcept {
+    return ZStringView(data_ptr_->response_.reason().data(), data_ptr_->response_.reason().size());
 }
 
-NODISCARD ReturnType ZHTTP11ResponseResolver::GetInt32(Int32* _value_ptr, const Char* _name) noexcept {
+NODISCARD ReturnType ZHTTP11ResponseResolver::GetInt32(Int32* _value_ptr, ZStringView _name) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
     Z_CHECK(
@@ -80,7 +80,9 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetInt32(Int32* _value_ptr, const 
         L"_io_context_ptr is nullptr!"
     );
     try {
-        auto string_view = data_ptr_->response_.at(_name);
+        auto string_view = data_ptr_->response_.at(
+            boost::core::string_view(_name.DataPtr(), _name.Size())
+        );
         ZString string(string_view.data(), string_view.size());
         link_code = string.ToInt32(_value_ptr);
         if (link_code != kOK) {
@@ -102,7 +104,7 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetInt32(Int32* _value_ptr, const 
     }
     return ret_val;
 }
-NODISCARD ReturnType ZHTTP11ResponseResolver::GetInt64(Int64* _value_ptr, const Char* _name) noexcept {
+NODISCARD ReturnType ZHTTP11ResponseResolver::GetInt64(Int64* _value_ptr, ZStringView _name) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
     Z_CHECK(
@@ -111,7 +113,9 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetInt64(Int64* _value_ptr, const 
         L"_io_context_ptr is nullptr!"
     );
     try {
-        auto string_view = data_ptr_->response_.at(_name);
+        auto string_view = data_ptr_->response_.at(
+            boost::core::string_view(_name.DataPtr(), _name.Size())
+        );
         ZString string(string_view.data(), string_view.size());
         link_code = string.ToInt64(_value_ptr);
         if (link_code != kOK) {
@@ -133,7 +137,7 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetInt64(Int64* _value_ptr, const 
     }
     return ret_val;
 }
-NODISCARD ReturnType ZHTTP11ResponseResolver::GetUInt32(UInt32* _value_ptr, const Char* _name) noexcept {
+NODISCARD ReturnType ZHTTP11ResponseResolver::GetUInt32(UInt32* _value_ptr, ZStringView _name) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
     Z_CHECK(
@@ -142,7 +146,9 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetUInt32(UInt32* _value_ptr, cons
         L"_io_context_ptr is nullptr!"
     );
     try {
-        auto string_view = data_ptr_->response_.at(_name);
+        auto string_view = data_ptr_->response_.at(
+            boost::core::string_view(_name.DataPtr(), _name.Size())
+        );
         ZString string(string_view.data(), string_view.size());
         link_code = string.ToUInt32(_value_ptr);
         if (link_code != kOK) {
@@ -164,7 +170,7 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetUInt32(UInt32* _value_ptr, cons
     }
     return ret_val;
 }
-NODISCARD ReturnType ZHTTP11ResponseResolver::GetUInt64(UInt64* _value_ptr, const Char* _name) noexcept {
+NODISCARD ReturnType ZHTTP11ResponseResolver::GetUInt64(UInt64* _value_ptr, ZStringView _name) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
     Z_CHECK(
@@ -173,7 +179,9 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetUInt64(UInt64* _value_ptr, cons
         L"_io_context_ptr is nullptr!"
     );
     try {
-        auto string_view = data_ptr_->response_.at(_name);
+        auto string_view = data_ptr_->response_.at(
+            boost::core::string_view(_name.DataPtr(), _name.Size())
+        );
         ZString string(string_view.data(), string_view.size());
         link_code = string.ToUInt64(_value_ptr);
         if (link_code != kOK) {
@@ -195,7 +203,7 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetUInt64(UInt64* _value_ptr, cons
     }
     return ret_val;
 }
-NODISCARD ReturnType ZHTTP11ResponseResolver::GetFloat32(Float32* _value_ptr, const Char* _name) noexcept {
+NODISCARD ReturnType ZHTTP11ResponseResolver::GetFloat32(Float32* _value_ptr, ZStringView _name) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
     Z_CHECK(
@@ -204,7 +212,9 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetFloat32(Float32* _value_ptr, co
         L"_io_context_ptr is nullptr!"
     );
     try {
-        auto string_view = data_ptr_->response_.at(_name);
+        auto string_view = data_ptr_->response_.at(
+            boost::core::string_view(_name.DataPtr(), _name.Size())
+        );
         ZString string(string_view.data(), string_view.size());
         link_code = string.ToFloat32(_value_ptr);
         if (link_code != kOK) {
@@ -226,7 +236,7 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetFloat32(Float32* _value_ptr, co
     }
     return ret_val;
 }
-NODISCARD ReturnType ZHTTP11ResponseResolver::GetFloat64(Float64* _value_ptr, const Char* _name) noexcept {
+NODISCARD ReturnType ZHTTP11ResponseResolver::GetFloat64(Float64* _value_ptr, ZStringView _name) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
     Z_CHECK(
@@ -235,7 +245,9 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetFloat64(Float64* _value_ptr, co
         L"_io_context_ptr is nullptr!"
     );
     try {
-        auto string_view = data_ptr_->response_.at(_name);
+        auto string_view = data_ptr_->response_.at(
+            boost::core::string_view(_name.DataPtr(), _name.Size())
+        );
         ZString string(string_view.data(), string_view.size());
         link_code = string.ToFloat64(_value_ptr);
         if (link_code != kOK) {
@@ -257,7 +269,7 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetFloat64(Float64* _value_ptr, co
     }
     return ret_val;
 }
-NODISCARD ReturnType ZHTTP11ResponseResolver::GetStringView(ZStringView* _value_ptr, const Char* _name) noexcept{
+NODISCARD ReturnType ZHTTP11ResponseResolver::GetStringView(ZStringView* _value_ptr, ZStringView _name) noexcept{
     ReturnType ret_val = kOK;
     Z_CHECK(
         _value_ptr == nullptr,
@@ -265,7 +277,9 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetStringView(ZStringView* _value_
         L"_io_context_ptr is nullptr!"
     );
     try {
-        auto string_view_raw = data_ptr_->response_.at(_name);
+        auto string_view_raw = data_ptr_->response_.at(
+            boost::core::string_view(_name.DataPtr(), _name.Size())
+        );
         _value_ptr->SetViewString(string_view_raw.data(), string_view_raw.size());
     }
     catch (const std::exception& error_code) {
@@ -278,7 +292,7 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetStringView(ZStringView* _value_
     }
     return ret_val;
 }
-NODISCARD ReturnType ZHTTP11ResponseResolver::GetString(ZString* _value_ptr, const Char* _name) noexcept {
+NODISCARD ReturnType ZHTTP11ResponseResolver::GetString(ZString* _value_ptr, ZStringView _name) noexcept {
     ReturnType ret_val = kOK;
     Z_CHECK(
         _value_ptr == nullptr,
@@ -286,7 +300,9 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetString(ZString* _value_ptr, con
         L"_io_context_ptr is nullptr!"
     );
     try {
-        auto string_view_raw = data_ptr_->response_.at(_name);
+        auto string_view_raw = data_ptr_->response_.at(
+            boost::core::string_view(_name.DataPtr(), _name.Size())
+        );
         _value_ptr->Assign(string_view_raw.data(), string_view_raw.size());
     }
     catch (const std::exception& error_code) {

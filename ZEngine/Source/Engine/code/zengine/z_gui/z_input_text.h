@@ -21,6 +21,7 @@
 #include "drive.h"
 
 #include "../z_core/z_memory.h"
+#include "../z_core/z_string_view.h"
 
 #include "z_widget_object.h"
 
@@ -123,7 +124,7 @@ public:
     /*
         Add ## at the start of the name if you want an empty input text.
     */
-    ZInputText(const Char* _name, GuiPos _pos = kBasePos) noexcept;
+    ZInputText(ZStringView _name, GuiPos _pos = kBasePos) noexcept;
 
     ~ZInputText() noexcept;
 
@@ -160,7 +161,7 @@ public:
     virtual Void SetTextColour(GuiColour _colour) noexcept;
     virtual Void SetBackgroundColour(GuiColour _colour) noexcept;
     virtual Void SetInputTextBufferSize(UInt32 _buffer_size) noexcept;
-    virtual Void SetInputText(const Char* _input_text) noexcept;
+    virtual Void SetInputText(ZStringView _input_text) noexcept;
 
     NODISCARD virtual WidgetTypeEnum_ WidgetType() const noexcept;
 
