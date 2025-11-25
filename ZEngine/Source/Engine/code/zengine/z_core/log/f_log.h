@@ -113,5 +113,10 @@ CORE_DLLAPI Void UnregisterLogServerOutputFunction(
     Void(*_output_func)(const ZLog*, const ZLog::OutputString_&)
 ) noexcept;
 
+/*
+    Call at the end of the program or when exiting the program.
+*/
+CORE_DLLAPI Void FinishFlush(TimeType _max_wait_time_ms = kLogFinishFlushMaxTime) noexcept;
+
 }//log
 }//zengine

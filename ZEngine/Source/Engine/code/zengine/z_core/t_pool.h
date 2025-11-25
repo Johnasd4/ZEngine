@@ -238,7 +238,6 @@ private:
     using MemoryPtrList_ = TList<Void*>;
 
 public:
-
     TPoolSafe() noexcept
         : SuperType_()
         , mem_ptr_list_(kMemoryPtrListSize)

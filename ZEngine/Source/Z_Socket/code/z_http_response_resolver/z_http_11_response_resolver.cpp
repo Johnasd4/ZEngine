@@ -20,8 +20,9 @@
 
 #include "z_http_response_resolver.h"
 
-#include "../z_core/t_allocator.h"
-#include "../z_core/z_string.h"
+#include "z_core/f_string.h"
+#include "z_core/t_allocator.h"
+#include "z_core/z_string.h"
 
 #include "data/z_http_11_response_resolver_data.h"
 

@@ -174,7 +174,7 @@ copy /Y "$(SolutionDir)Library\OpenGL2_vc2022\bin\glfw3.dll" "$(SolutionDir)Bina
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeaderFile />
       <PrecompiledHeaderOutputFile />
-      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_gui;$(SolutionDir)/Library/OpenGL2_vc2022/include;$(SolutionDir)/Library/ImGui_1_90_9/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_gui;$(SolutionDir)Source/Z_Gui/code;$(SolutionDir)/Library/OpenGL2_vc2022/include;$(SolutionDir)/Library/ImGui_1_90_9/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

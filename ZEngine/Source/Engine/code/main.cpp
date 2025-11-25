@@ -49,15 +49,16 @@
 //    ReturnType link_code = kOK;
 //
 //    ZWString string = L"asdad test testTSTSTSTST TSTTSTSSSSSfor test asda s";
-//    ZWStringView view = string;
-//
+//    ZWStringView view(L"1231231233");
+//    view = L"12334234";
+//    string = view;
 //    Z_LOG_MESSAGE(L"%ls %d", string.String(), string.Size());
 //    Z_LOG_MESSAGE(L"%d %d", string.Find(L"TSTASA"), view.Find(L"TSTASA"));
 //    Z_LOG_MESSAGE(L"%d %d", string.ReverseFind(L"TSTASA"), view.ReverseFind(L"TSTASA"));
 //    Z_LOG_MESSAGE(L"%d %d", string.ReverseFind(L't'), view.ReverseFind(L't'));
 //
 //    /**/
-//    SleepMs(kTimeBeforeProgramExit);
+//    log::FinishFlush();
 //    return 0;
 //}
 //  

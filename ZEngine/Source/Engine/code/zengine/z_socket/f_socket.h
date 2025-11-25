@@ -44,7 +44,7 @@ namespace socket {
 /*
     Get current public ip.
 */
-SOCKET_DLLAPI ReturnType GetPublicUDPIPAndPort(
+SOCKET_DLLAPI ReturnType GetUDPPublicAddressAndPort(
     const Char* _local_udp_address,
     Int32 _local_udp_port,
     ZString* _public_udp_address_ptr,

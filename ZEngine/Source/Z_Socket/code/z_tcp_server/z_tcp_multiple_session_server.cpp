@@ -20,6 +20,7 @@
 
 #include "z_tcp_server.h"
 
+#include "z_core/f_string.h"
 #include "z_core/m_log.h"
 #include "z_core/t_atom.h"
 #include "z_core/z_string.h"

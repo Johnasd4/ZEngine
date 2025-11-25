@@ -301,6 +301,8 @@ Int32 main() {
     std::string a = "123";
     ZStringView view = a;
 
+    GetUDPPublicAddressAndPort("", 1, nullptr, nullptr);
+
     //ZThread server_thread(SocketServer);
     //ZThread client_thread(SocketClient);
 
@@ -311,7 +313,7 @@ Int32 main() {
     //client_thread.Join();
 
     /**/
-    SleepMs(kTimeBeforeProgramExit);
+    log::FinishFlush();
     return 0;
 }
   

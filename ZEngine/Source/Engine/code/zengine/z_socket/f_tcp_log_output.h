@@ -52,7 +52,7 @@ enum FTCPLogOutputErrorCode : ReturnType {
 namespace zengine {
 namespace socket {
 
-constexpr Char kDefaultTCPLogAddressString[] = "192.168.1.1";
+constexpr Char kDefaultTCPLogAddressString[] = "127.0.0.1";
 constexpr Char kDefaultTCPLogPortString[] = "10000";
 constexpr Int32 kDefaultTCPLogPort = 10000;
 constexpr TimeType kLogServerDisconnectLogWaitMaxTime = 30;

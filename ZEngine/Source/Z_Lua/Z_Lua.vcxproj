@@ -170,7 +170,7 @@ if exist "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectNa
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeaderFile />
       <PrecompiledHeaderOutputFile />
-      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_lua;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_lua;$(SolutionDir)Source/Z_Lua/code;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

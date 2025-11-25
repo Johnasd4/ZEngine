@@ -23,6 +23,7 @@
 #include "log/type/z_error_log.h"
 #include "log/type/z_info_log.h"
 #include "log/type/z_trace_log.h"
+#include "t_atom.h"
 #include "t_fixed_queue.h"
 #include "z_log_server.h"
 #include "z_thread.h"
@@ -101,32 +102,40 @@ public:
         Void(*_output_func)(const ZLog*, const ZLog::OutputString_&)
     ) noexcept;
 
+    /*
+        Called at the end of the program or when exiting the program.
+    */
+    static Void FinishFlush(TimeType _max_wait_time_ms) noexcept;
+
 protected:
     using SuperType_ = ZObject;
 
 private:
     static ZLogManager& InstanceP() noexcept;
 
-    static Void LogThread() noexcept;
+    static Void LogThread(ZLogManager* _log_manager_ptr) noexcept;
 
     ZLogManager(const ZLogManager&) = delete;
     ZLogManager(ZLogManager&&) = delete;
     ZLogManager& operator=(const ZLogManager&) = delete;
     ZLogManager& operator=(ZLogManager&&) = delete;
 
-    /*
-        the last port is error log and the second last port is trace log.
-    */
     ZLogManager() noexcept;
 
     ~ZLogManager() noexcept;
+
+    /*
+        Flush the remaining logs and the destructors logs.
+        WARNING: Might not work.
+    */
+    Void FlushLogsP() noexcept;
 
     TFixedQueueSafe<ZErrorLog, kLogQueueSize> error_log_queue_;
     TFixedQueueSafe<ZTraceLog, kLogQueueSize> trace_log_queue_;
     TFixedQueueSafe<ZInfoLog, kLogQueueSize> info_log_queue_;
     TArray<TFixedQueueSafe<ZLog, kLogQueueSize>, kLogMaxPortNum> log_queue_array_;
     ZLogServer log_server_;
-    Bool log_thread_finished_;
+    TAtom<Bool> log_thread_finished_;
     ZThread log_thread_;
 };
 

@@ -37,7 +37,7 @@ CORE_DLLAPI NODISCARD Void SleepMs(TimeType _time) noexcept {
 
 CORE_DLLAPI NODISCARD Void Exit(ReturnType _ret_val) noexcept {
     Z_LOG_FINISH(L"Program exited with code %d", _ret_val);
-    SleepMs(kTimeBeforeProgramExit);
+    log::FinishFlush();
     exit(_ret_val);
 }
 

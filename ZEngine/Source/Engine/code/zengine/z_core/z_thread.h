@@ -90,6 +90,10 @@ public:
     NODISCARD FORCEINLINE Bool Joinable() noexcept { return WaitForSingleObject(handle_, 0) == WAIT_TIMEOUT; }
 
     FORCEINLINE Void Join() noexcept { WaitForSingleObject(handle_, INFINITE); }
+    FORCEINLINE Void Join(TimeType _max_join_time_ms) noexcept { 
+        WaitForSingleObject(handle_, static_cast<DWORD>(_max_join_time_ms)); 
+    }
+
     Void Detach() noexcept;
     Void Swap(ZThread& _thread) noexcept;
 

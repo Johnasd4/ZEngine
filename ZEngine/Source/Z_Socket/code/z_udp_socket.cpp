@@ -20,6 +20,7 @@
 
 #include "z_udp_socket.h"
 
+#include "z_core/f_string.h"
 #include "z_core/m_log.h"
 #include "z_core/z_string.h"
 

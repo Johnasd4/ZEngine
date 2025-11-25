@@ -20,7 +20,8 @@
 
 #include "z_tls_context.h"
 
-#include "../z_core/z_string.h"
+#include "z_core/f_string.h"
+#include "z_core/z_string.h"
 
 #include "data/z_tls_context_data.h"
 

@@ -89,8 +89,10 @@ public:
     NODISCARD FORCEINLINE constexpr Bool Empty() noexcept { return size_ == 0ULL; }
 
     constexpr Void PopFront() noexcept { 
-        --size_;
-        front_index_ = (front_index_ + 1ULL) % kCapacity;
+        if (size_ > 0ULL) {
+            --size_;
+            front_index_ = (front_index_ + 1ULL) % kCapacity;
+        }
     }  
     constexpr Void PushBack(const _ObjectType& _obj) noexcept {
         back_index_ = (back_index_ + 1ULL) % kCapacity;
@@ -251,8 +253,10 @@ public:
 
     constexpr Void PopFront() noexcept { 
         TLockGuard lock_guard(mutex_);
-        --size_;
-        front_index_ = (front_index_ + 1ULL) % kCapacity;
+        if (size_ > 0ULL) {
+            --size_;
+            front_index_ = (front_index_ + 1ULL) % kCapacity;
+        }
     }  
     constexpr Void PushBack(const _ObjectType& _obj) noexcept {
         TLockGuard lock_guard(mutex_);

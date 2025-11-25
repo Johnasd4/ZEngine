@@ -20,6 +20,7 @@
 
 #include "f_lua.h"
 
+#include "z_core/f_string.h"
 #include "z_core/z_string.h"
 
 namespace zengine {

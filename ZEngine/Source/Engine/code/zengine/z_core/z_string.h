@@ -929,43 +929,6 @@ public:
         return ret_val;
     }
 
-    NODISCARD TList<TString<_CharType>> Split(const _CharType _token) noexcept {
-        ReturnType ret_val = kOK;
-        SizeType start_index = 0;
-        SizeType end_index = 0;
-        SizeType str_len = 0;
-        _CharType temp_char = '\0';
-        TList<TString<_CharType>> result_list;
-        while (end_index != str_.size()) {
-            if (str_[end_index] != _token) {
-                ++end_index;
-                continue;
-            }
-            else if (start_index == end_index) {
-                ++end_index;
-                start_index = end_index;
-                continue;
-            }
-            str_len = end_index - start_index;
-            temp_char = str_[end_index];
-            if constexpr (kSameType<_CharType, Char>) {
-                str_[end_index] = '\0';
-            }
-            else if constexpr (kSameType<_CharType, WChar>) {
-                str_[end_index] = L'\0';
-            }
-            result_list.EmplaceBack(&str_, start_index, str_len);
-            str_[end_index] = temp_char;
-            ++end_index;
-            start_index = end_index;
-        };
-        if (start_index != end_index) {
-            str_len = end_index - start_index;
-            result_list.EmplaceBack(&str_, start_index, str_len);
-        }
-        return result_list;
-    };
-
 protected:
     using SuperType_ = ZObject;
 
@@ -977,81 +940,6 @@ private:
 
 using ZString = internal::TString<Char>;
 using ZWString = internal::TString<WChar>;
-
-namespace string {
-
-/*
-    Translate narrow string to wide string, if the string is invalid, will return "".
-*/
-CORE_DLLAPI NODISCARD ZWString String2WString(const Char* _str) noexcept;
-
-/*
-    Translate wide string to narrow string, if the string is invalid, will return "".
-*/
-CORE_DLLAPI NODISCARD ZString WString2String(const WChar* _str) noexcept;
-
-/*
-    Translate narrow string to Int32, if the string is invalid, will return "".
-*/
-CORE_DLLAPI NODISCARD ReturnType String2Int32(Int32* _ans_ptr, const Char* _str) noexcept;
-/*
-    Translate narrow string to Int64, if the string is invalid, will return "".
-*/
-CORE_DLLAPI NODISCARD ReturnType String2Int64(Int64* _ans_ptr, const Char* _str) noexcept;
-/*
-    Translate narrow string to UInt32, if the string is invalid, will return "".
-*/
-CORE_DLLAPI NODISCARD ReturnType String2UInt32(UInt32* _ans_ptr, const Char* _str) noexcept;
-/*
-    Translate narrow string to UInt64, if the string is invalid, will return "".
-*/
-CORE_DLLAPI NODISCARD ReturnType String2UInt64(UInt64* _ans_ptr, const Char* _str) noexcept;
-/*
-    Translate narrow string to Float32, if the string is invalid, will return "".
-*/
-CORE_DLLAPI NODISCARD ReturnType String2Float32(Float32* _ans_ptr, const Char* _str) noexcept;
-/*
-    Translate narrow string to Float64, if the string is invalid, will return "".
-*/
-CORE_DLLAPI NODISCARD ReturnType String2Float64(Float64* _ans_ptr, const Char* _str) noexcept;
-
-/*
-    Translate wide string to Int32, if the string is invalid, will return "".
-*/
-CORE_DLLAPI NODISCARD ReturnType WString2Int32(Int32* _ans_ptr, const WChar* _str) noexcept;
-/*
-    Translate wide string to Int64, if the string is invalid, will return "".
-*/
-CORE_DLLAPI NODISCARD ReturnType WString2Int64(Int64* _ans_ptr, const WChar* _str) noexcept;
-/*
-    Translate wide string to UInt32, if the string is invalid, will return "".
-*/
-CORE_DLLAPI NODISCARD ReturnType WString2UInt32(UInt32* _ans_ptr, const WChar* _str) noexcept;
-/*
-    Translate wide string to UInt64, if the string is invalid, will return "".
-*/
-CORE_DLLAPI NODISCARD ReturnType WString2UInt64(UInt64* _ans_ptr, const WChar* _str) noexcept;
-/*
-    Translate wide string to Float32, if the string is invalid, will return "".
-*/
-CORE_DLLAPI NODISCARD ReturnType WString2Float32(Float32* _ans_ptr, const WChar* _str) noexcept;
-/*
-    Translate wide string to Float64, if the string is invalid, will return "".
-*/
-CORE_DLLAPI NODISCARD ReturnType WString2Float64(Float64* _ans_ptr, const WChar* _str) noexcept;
-
-/*
-    Generate narrow string.
-*/
-CORE_DLLAPI NODISCARD ZString GenerateString(const Char* _format, ...) noexcept;
-
-
-/*
-    Generate wide string.
-*/
-CORE_DLLAPI NODISCARD ZWString GenerateWString(const WChar* _format, ...) noexcept;
-
-}//string
 
 }//zengine
 

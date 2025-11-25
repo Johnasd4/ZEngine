@@ -71,14 +71,21 @@ public:
     }
     FORCEINLINE constexpr TStringView(const _CharType* _str, SizeType _size) noexcept 
         : SuperType_(), str_(_str), size_(_size) {}
-    FORCEINLINE constexpr TStringView(const _CharType* _str) noexcept
+    template<typename _PointerType>
+    requires kSameType<kDecayType<_PointerType>, const _CharType*>
+    FORCEINLINE constexpr TStringView(_PointerType&& _str) noexcept
         : SuperType_(), str_(_str) 
     {
-        if constexpr (kSameType<_CharType, Char>) {
-            size_ = strlen(str_);
+        if constexpr (std::is_array_v<std::remove_reference_t<_PointerType>>) {
+            size_ = sizeof(_str) / sizeof(_CharType) - 1ULL;
         }
         else {
-            size_ = wcslen(str_);
+            if constexpr (kSameType<_CharType, Char>) {
+                size_ = strlen(str_);
+            }
+            else {
+                size_ = wcslen(str_);
+            }
         }
     }
     FORCEINLINE constexpr TStringView(const TString<_CharType>& _str) noexcept 
@@ -102,13 +109,20 @@ public:
         _str.size_ = 0ULL;
         return *this;
     }
-    FORCEINLINE constexpr TStringView& operator=(const _CharType* _str) noexcept {
+    template<typename _PointerType>
+    requires kSameType<kDecayType<_PointerType>, const _CharType*>
+    FORCEINLINE constexpr TStringView& operator=(_PointerType&& _str) noexcept {
         str_ = _str;
-        if constexpr (kSameType<_CharType, Char>) {
-            size_ = strlen(str_);
+        if constexpr (std::is_array_v<std::remove_reference_t<_PointerType>>) {
+            size_ = sizeof(_str) / sizeof(_CharType) - 1ULL;
         }
         else {
-            size_ = wcslen(str_);
+            if constexpr (kSameType<_CharType, Char>) {
+                size_ = strlen(str_);
+            }
+            else {
+                size_ = wcslen(str_);
+            }
         }
         return *this;
     }
@@ -150,13 +164,20 @@ public:
         size_ = _size;
         return *this;
     }
-    FORCEINLINE constexpr TStringView& SetViewString(const _CharType* _str) noexcept {
+    template<typename _PointerType>
+    requires kSameType<kDecayType<_PointerType>, const _CharType*>
+    FORCEINLINE constexpr TStringView& SetViewString(_PointerType&& _str) noexcept {
         str_ = _str;
-        if constexpr (kSameType<_CharType, Char>) {
-            size_ = strlen(str_);
+        if constexpr (std::is_array_v<std::remove_reference_t<_PointerType>>) {
+            size_ = sizeof(_str) / sizeof(_CharType) - 1ULL;
         }
         else {
-            size_ = wcslen(str_);
+            if constexpr (kSameType<_CharType, Char>) {
+                size_ = strlen(str_);
+            }
+            else {
+                size_ = wcslen(str_);
+            }
         }
         return *this;
     }
@@ -459,35 +480,6 @@ public:
         }
         return ret_val;
     }
-
-    NODISCARD TList<TString<_CharType>> Split(const _CharType _token) noexcept {
-        ReturnType ret_val = kOK;
-        SizeType start_index = 0;
-        SizeType end_index = 0;
-        SizeType str_len = 0;
-        _CharType temp_char = '\0';
-        TList<TString<_CharType>> result_list;
-        while (end_index != size_) {
-            if (str_[end_index] != _token) {
-                ++end_index;
-                continue;
-            }
-            else if (start_index == end_index) {
-                ++end_index;
-                start_index = end_index;
-                continue;
-            }
-            str_len = end_index - start_index;
-            result_list.EmplaceBack(&str_[start_index], str_len);
-            ++end_index;
-            start_index = end_index;
-        };
-        if (start_index != end_index) {
-            str_len = end_index - start_index;
-            result_list.EmplaceBack(&str_[start_index], str_len);
-        }
-        return result_list;
-    };
 
 protected:
     using SuperType_ = ZObject;

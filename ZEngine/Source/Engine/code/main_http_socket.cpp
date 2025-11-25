@@ -66,7 +66,7 @@
 //    //client_thread.Join();
 //
 //    /**/
-//    SleepMs(kTimeBeforeProgramExit);
+//    log::FinishFlush();
 //    return 0;
 //}
 //  

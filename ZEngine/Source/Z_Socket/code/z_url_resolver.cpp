@@ -20,6 +20,8 @@
 
 #include "z_url_resolver.h"
 
+#include "z_core/f_string.h"
+
 #include "data/z_url_resolver_data.h"
 
 namespace zengine {

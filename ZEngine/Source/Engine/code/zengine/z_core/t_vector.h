@@ -178,12 +178,17 @@ public:
     using InitializerList_ = std::initializer_list<_ObjectType>;
 
     FORCEINLINE TVectorSafe() noexcept : SuperType_(), vec_(), mutex_() {}
-    FORCEINLINE TVectorSafe(const TVectorSafe& _vec) noexcept : SuperType_(_vec), vec_(_vec.vec_), mutex_() {}
-    FORCEINLINE TVectorSafe(TVectorSafe&& _vec) noexcept 
-        : SuperType_(std::forward<TVectorSafe>(_vec)) 
+    FORCEINLINE TVectorSafe(const TVectorSafe& _vec) noexcept 
+        : SuperType_(_vec), mutex_() 
     {
+        TLockGuard lock_guard(_vec.mutex_);
+        vec_ = _vec.vec_;
+    }
+    FORCEINLINE TVectorSafe(TVectorSafe&& _vec) noexcept 
+        : SuperType_(std::forward<TVectorSafe>(_vec)), mutex_()
+    {
+        TLockGuard lock_guard(_vec.mutex_);
         vec_ = std::move(_vec.vec_);
-        mutex_ = std::move(_vec.mutex_);
     }
 
     FORCEINLINE TVectorSafe(SizeType _size) noexcept : SuperType_(), vec_(_size), mutex_() {}

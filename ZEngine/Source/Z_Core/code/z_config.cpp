@@ -21,6 +21,7 @@
 #include "z_config.h"
 
 #include "f_file_system.h"
+#include "f_string.h"
 #include "m_log.h"
 #include "z_json.h"
 #include "z_system_time.h"

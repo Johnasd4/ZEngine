@@ -23,24 +23,24 @@
     <ClCompile Include="code\d_initialize.cpp" />
     <ClCompile Include="code\f_console.cpp" />
     <ClCompile Include="code\f_file_system.cpp" />
+    <ClCompile Include="code\f_memory_pool.cpp" />
     <ClCompile Include="code\f_system.cpp" />
     <ClCompile Include="code\log\f_log.cpp" />
     <ClCompile Include="code\log\type\z_error_log.cpp" />
     <ClCompile Include="code\log\type\z_info_log.cpp" />
-    <ClCompile Include="code\log\z_log_manager.cpp" />
-    <ClCompile Include="code\log\z_log_server.cpp" />
     <ClCompile Include="code\log\type\z_trace_log.cpp" />
     <ClCompile Include="code\log\z_log.cpp" />
-    <ClCompile Include="code\f_memory_pool.cpp" />
+    <ClCompile Include="code\log\z_log_manager.cpp" />
+    <ClCompile Include="code\log\z_log_server.cpp" />
     <ClCompile Include="code\z_condition_variable.cpp" />
     <ClCompile Include="code\z_config.cpp" />
     <ClCompile Include="code\z_file.cpp" />
     <ClCompile Include="code\z_json.cpp" />
-    <ClCompile Include="code\z_string.cpp" />
+    <ClCompile Include="code\f_string.cpp" />
     <ClCompile Include="code\z_system_time.cpp" />
+    <ClCompile Include="code\z_task.cpp" />
     <ClCompile Include="code\z_thread.cpp" />
     <ClCompile Include="code\z_thread_pool.cpp" />
-    <ClCompile Include="code\z_task.cpp" />
     <ClCompile Include="code\z_timer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -54,12 +54,6 @@
     <ClInclude Include="code\memory_pool\t_small_memory_list_memory_pool.h" />
     <ClInclude Include="code\memory_pool\t_smart_pointer_list_memory_pool.h" />
     <ClInclude Include="code\memory_pool\t_system_memory_pool.h" />
-    <ClInclude Include="code\memory_pool\z_heap_memory_pool.h" />
-    <ClInclude Include="code\memory_pool\z_list_memory_pool_base.h" />
-    <ClInclude Include="code\memory_pool\z_memory_block_base.h" />
-    <ClInclude Include="code\memory_pool\z_memory_pool_base.h" />
-    <ClInclude Include="code\memory_pool\z_small_memory_block_list_memory_pool.h" />
-    <ClInclude Include="code\memory_pool\z_memory_pool_thread_safe_base.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -204,7 +198,7 @@ if exist "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectNa
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile />
-      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_core;$(SolutionDir)/Library/Rapidjson_1_1_0/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_core;$(SolutionDir)Source/Z_Core/code;$(SolutionDir)/Library/Rapidjson_1_1_0/include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>

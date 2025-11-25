@@ -18,11 +18,9 @@
 */
 #define CORE_DLLFILE
 
-#include "z_string.h"
+#include "f_string.h"
 
-#include <codecvt>
-
-#include "t_array.h"
+#include "m_log.h"
 #include "t_vector.h"
 #include "z_memory.h"
 
@@ -64,11 +62,11 @@ CORE_DLLAPI NODISCARD ReturnType String2Int32(Int32* _ans_ptr, const Char* _str)
     Char* err_str;
     *_ans_ptr = std::strtol(_str, &err_str, 10);
     if (_str == err_str) {
-        ret_val = error_code::kZStringErrorCode_StringToNumberCanNotTransform;
+        ret_val = error_code::kFStringErrorCode_StringToNumberCanNotTransform;
         Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
     }
     else if (err_ref == ERANGE) {
-        ret_val = error_code::kZStringErrorCode_StringToNumberOutOfRange;
+        ret_val = error_code::kFStringErrorCode_StringToNumberOutOfRange;
         Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
     }
     return ret_val;
@@ -81,11 +79,11 @@ CORE_DLLAPI NODISCARD ReturnType String2Int64(Int64* _ans_ptr, const Char* _str)
     Char* err_str;
     *_ans_ptr = std::strtoll(_str, &err_str, 10);
     if (_str == err_str) {
-        ret_val = error_code::kZStringErrorCode_StringToNumberCanNotTransform;
+        ret_val = error_code::kFStringErrorCode_StringToNumberCanNotTransform;
         Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
     }
     else if (err_ref == ERANGE) {
-        ret_val = error_code::kZStringErrorCode_StringToNumberOutOfRange;
+        ret_val = error_code::kFStringErrorCode_StringToNumberOutOfRange;
         Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
     }
     return ret_val;
@@ -98,11 +96,11 @@ CORE_DLLAPI NODISCARD ReturnType String2UInt32(UInt32* _ans_ptr, const Char* _st
     Char* err_str;
     *_ans_ptr = std::strtoul(_str, &err_str, 10);
     if (_str == err_str) {
-        ret_val = error_code::kZStringErrorCode_StringToNumberCanNotTransform;
+        ret_val = error_code::kFStringErrorCode_StringToNumberCanNotTransform;
         Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
     }
     else if (err_ref == ERANGE) {
-        ret_val = error_code::kZStringErrorCode_StringToNumberOutOfRange;
+        ret_val = error_code::kFStringErrorCode_StringToNumberOutOfRange;
         Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
     }
     return ret_val;
@@ -115,11 +113,11 @@ CORE_DLLAPI NODISCARD ReturnType String2UInt64(UInt64* _ans_ptr, const Char* _st
     Char* err_str;
     *_ans_ptr = std::strtoull(_str, &err_str, 10);
     if (_str == err_str) {
-        ret_val = error_code::kZStringErrorCode_StringToNumberCanNotTransform;
+        ret_val = error_code::kFStringErrorCode_StringToNumberCanNotTransform;
         Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
     }
     else if (err_ref == ERANGE) {
-        ret_val = error_code::kZStringErrorCode_StringToNumberOutOfRange;
+        ret_val = error_code::kFStringErrorCode_StringToNumberOutOfRange;
         Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
     }
     return ret_val;
@@ -132,11 +130,11 @@ CORE_DLLAPI NODISCARD ReturnType String2Float32(Float32* _ans_ptr, const Char* _
     Char* err_str;
     *_ans_ptr = std::strtof(_str, &err_str);
     if (_str == err_str) {
-        ret_val = error_code::kZStringErrorCode_StringToNumberCanNotTransform;
+        ret_val = error_code::kFStringErrorCode_StringToNumberCanNotTransform;
         Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
     }
     else if (err_ref == ERANGE) {
-        ret_val = error_code::kZStringErrorCode_StringToNumberOutOfRange;
+        ret_val = error_code::kFStringErrorCode_StringToNumberOutOfRange;
         Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
     }
     return ret_val;
@@ -149,11 +147,11 @@ CORE_DLLAPI NODISCARD ReturnType String2Float64(Float64* _ans_ptr, const Char* _
     Char* err_str;
     *_ans_ptr = std::strtod(_str, &err_str);
     if (_str == err_str) {
-        ret_val = error_code::kZStringErrorCode_StringToNumberCanNotTransform;
+        ret_val = error_code::kFStringErrorCode_StringToNumberCanNotTransform;
         Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
     }
     else if (err_ref == ERANGE) {
-        ret_val = error_code::kZStringErrorCode_StringToNumberOutOfRange;
+        ret_val = error_code::kFStringErrorCode_StringToNumberOutOfRange;
         Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
     }
     return ret_val;
@@ -166,11 +164,11 @@ CORE_DLLAPI NODISCARD ReturnType WString2Int32(Int32* _ans_ptr, const WChar* _st
     WChar* err_str;
     *_ans_ptr = std::wcstol(_str, &err_str, 10);
     if (_str == err_str) {
-        ret_val = error_code::kZStringErrorCode_StringToNumberCanNotTransform;
+        ret_val = error_code::kFStringErrorCode_StringToNumberCanNotTransform;
         Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
     }
     else if (err_ref == ERANGE) {
-        ret_val = error_code::kZStringErrorCode_StringToNumberOutOfRange;
+        ret_val = error_code::kFStringErrorCode_StringToNumberOutOfRange;
         Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
     }
     return ret_val;
@@ -183,11 +181,11 @@ CORE_DLLAPI NODISCARD ReturnType WString2Int64(Int64* _ans_ptr, const WChar* _st
     WChar* err_str;
     *_ans_ptr = std::wcstoll(_str, &err_str, 10);
     if (_str == err_str) {
-        ret_val = error_code::kZStringErrorCode_StringToNumberCanNotTransform;
+        ret_val = error_code::kFStringErrorCode_StringToNumberCanNotTransform;
         Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
     }
     else if (err_ref == ERANGE) {
-        ret_val = error_code::kZStringErrorCode_StringToNumberOutOfRange;
+        ret_val = error_code::kFStringErrorCode_StringToNumberOutOfRange;
         Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
     }
     return ret_val;
@@ -200,11 +198,11 @@ CORE_DLLAPI NODISCARD ReturnType WString2UInt32(UInt32* _ans_ptr, const WChar* _
     WChar* err_str;
     *_ans_ptr = std::wcstoul(_str, &err_str, 10);
     if (_str == err_str) {
-        ret_val = error_code::kZStringErrorCode_StringToNumberCanNotTransform;
+        ret_val = error_code::kFStringErrorCode_StringToNumberCanNotTransform;
         Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
     }
     else if (err_ref == ERANGE) {
-        ret_val = error_code::kZStringErrorCode_StringToNumberOutOfRange;
+        ret_val = error_code::kFStringErrorCode_StringToNumberOutOfRange;
         Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
     }
     return ret_val;
@@ -217,11 +215,11 @@ CORE_DLLAPI NODISCARD ReturnType WString2UInt64(UInt64* _ans_ptr, const WChar* _
     WChar* err_str;
     *_ans_ptr = std::wcstoull(_str, &err_str, 10);
     if (_str == err_str) {
-        ret_val = error_code::kZStringErrorCode_StringToNumberCanNotTransform;
+        ret_val = error_code::kFStringErrorCode_StringToNumberCanNotTransform;
         Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
     }
     else if (err_ref == ERANGE) {
-        ret_val = error_code::kZStringErrorCode_StringToNumberOutOfRange;
+        ret_val = error_code::kFStringErrorCode_StringToNumberOutOfRange;
         Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
     }
     return ret_val;
@@ -234,11 +232,11 @@ CORE_DLLAPI NODISCARD ReturnType WString2Float32(Float32* _ans_ptr, const WChar*
     WChar* err_str;
     *_ans_ptr = std::wcstof(_str, &err_str);
     if (_str == err_str) {
-        ret_val = error_code::kZStringErrorCode_StringToNumberCanNotTransform;
+        ret_val = error_code::kFStringErrorCode_StringToNumberCanNotTransform;
         Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
     }
     else if (err_ref == ERANGE) {
-        ret_val = error_code::kZStringErrorCode_StringToNumberOutOfRange;
+        ret_val = error_code::kFStringErrorCode_StringToNumberOutOfRange;
         Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
     }
     return ret_val;
@@ -251,11 +249,11 @@ CORE_DLLAPI NODISCARD ReturnType WString2Float64(Float64* _ans_ptr, const WChar*
     WChar* err_str;
     *_ans_ptr = std::wcstod(_str, &err_str);
     if (_str == err_str) {
-        ret_val = error_code::kZStringErrorCode_StringToNumberCanNotTransform;
+        ret_val = error_code::kFStringErrorCode_StringToNumberCanNotTransform;
         Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
     }
     else if (err_ref == ERANGE) {
-        ret_val = error_code::kZStringErrorCode_StringToNumberOutOfRange;
+        ret_val = error_code::kFStringErrorCode_StringToNumberOutOfRange;
         Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
     }
     return ret_val;
@@ -282,6 +280,118 @@ CORE_DLLAPI NODISCARD ZWString GenerateWString(const WChar* _format, ...) noexce
     va_end(args);
     return ans_str;
 }
+
+CORE_DLLAPI NODISCARD TList<ZString> SplitToString(ZStringView _str, const Char _token) noexcept {
+    ReturnType ret_val = kOK;
+    SizeType start_index = 0;
+    SizeType end_index = 0;
+    SizeType str_len = 0;
+    TList<ZString> result_list;
+    while (end_index != _str.Size()) {
+        if (_str[end_index] != _token) {
+            ++end_index;
+            continue;
+        }
+        else if (start_index == end_index) {
+            ++end_index;
+            start_index = end_index;
+            continue;
+        }
+        str_len = end_index - start_index;
+        result_list.EmplaceBack(_str, start_index, str_len);
+        ++end_index;
+        start_index = end_index;
+    };
+    if (start_index != end_index) {
+        str_len = end_index - start_index;
+        result_list.EmplaceBack(_str, start_index, str_len);
+    }
+    return result_list;
+};
+
+CORE_DLLAPI NODISCARD TList<ZWString> SplitToString(ZWStringView _str, const WChar _token) noexcept {
+    ReturnType ret_val = kOK;
+    SizeType start_index = 0;
+    SizeType end_index = 0;
+    SizeType str_len = 0;
+    TList<ZWString> result_list;
+    while (end_index != _str.Size()) {
+        if (_str[end_index] != _token) {
+            ++end_index;
+            continue;
+        }
+        else if (start_index == end_index) {
+            ++end_index;
+            start_index = end_index;
+            continue;
+        }
+        str_len = end_index - start_index;
+        result_list.EmplaceBack(_str, start_index, str_len);
+        ++end_index;
+        start_index = end_index;
+    };
+    if (start_index != end_index) {
+        str_len = end_index - start_index;
+        result_list.EmplaceBack(_str, start_index, str_len);
+    }
+    return result_list;
+};
+
+CORE_DLLAPI NODISCARD TList<ZStringView> SplitToStringView(ZStringView _str, const Char _token) noexcept {
+    ReturnType ret_val = kOK;
+    SizeType start_index = 0;
+    SizeType end_index = 0;
+    SizeType str_len = 0;
+    TList<ZStringView> result_list;
+    while (end_index != _str.Size()) {
+        if (_str[end_index] != _token) {
+            ++end_index;
+            continue;
+        }
+        else if (start_index == end_index) {
+            ++end_index;
+            start_index = end_index;
+            continue;
+        }
+        str_len = end_index - start_index;
+        result_list.EmplaceBack(_str, start_index, str_len);
+        ++end_index;
+        start_index = end_index;
+    };
+    if (start_index != end_index) {
+        str_len = end_index - start_index;
+        result_list.EmplaceBack(_str, start_index, str_len);
+    }
+    return result_list;
+};
+
+CORE_DLLAPI NODISCARD TList<ZWStringView> SplitToStringView(ZWStringView _str, const WChar _token) noexcept {
+    ReturnType ret_val = kOK;
+    SizeType start_index = 0;
+    SizeType end_index = 0;
+    SizeType str_len = 0;
+    TList<ZWStringView> result_list;
+    while (end_index != _str.Size()) {
+        if (_str[end_index] != _token) {
+            ++end_index;
+            continue;
+        }
+        else if (start_index == end_index) {
+            ++end_index;
+            start_index = end_index;
+            continue;
+        }
+        str_len = end_index - start_index;
+        result_list.EmplaceBack(_str, start_index, str_len);
+        ++end_index;
+        start_index = end_index;
+    };
+    if (start_index != end_index) {
+        str_len = end_index - start_index;
+        result_list.EmplaceBack(_str, start_index, str_len);
+    }
+    return result_list;
+};
 
 }//string
 }//zengine

@@ -54,6 +54,6 @@ inline constexpr SizeType kHeapMemoryUnitSize = 4 * kKB;
 inline constexpr WChar kLogFileRootPathDir[] = L".\\Log";
 
 //the time before program exiting.
-inline constexpr UInt32 kTimeBeforeProgramExit = 500U;
+inline constexpr TimeType kLogFinishFlushMaxTime = 5000LL;
 
 }//zengine

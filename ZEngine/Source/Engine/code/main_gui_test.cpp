@@ -65,7 +65,7 @@
 //  
 //
 //    /**/
-//    SleepMs(kTimeBeforeProgramExit);
+//    log::FinishFlush();
 //    return 0;
 //}
 //  

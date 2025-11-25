@@ -96,6 +96,9 @@ concept kIsPredicateFunction = requires(_Function _func, _ObjectType _obj) {
     { _func(_obj, _obj) } -> kSameType<Bool>;
 };
 
+template<typename _ObjectType>
+using kDecayType = std::decay_t<_ObjectType>;
+
 namespace internal {
 template<typename _ObjectType>
 struct RemoveBasicTypeReferenceStruct {

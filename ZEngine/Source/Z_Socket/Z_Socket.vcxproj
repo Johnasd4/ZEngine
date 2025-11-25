@@ -20,7 +20,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="code\data\z_http_11_response_resolver_data.cpp" />
     <ClCompile Include="code\data\z_buffer_stream_data.cpp" />
+    <ClCompile Include="code\data\z_http_11_request_generator_data.cpp" />
     <ClCompile Include="code\data\z_io_context_data.cpp" />
     <ClCompile Include="code\data\z_tcp_client_data.cpp" />
     <ClCompile Include="code\data\z_tcp_server_data.cpp" />
@@ -28,21 +30,27 @@
     <ClCompile Include="code\data\z_tls_context_data.cpp" />
     <ClCompile Include="code\data\z_tls_stream_data.cpp" />
     <ClCompile Include="code\data\z_udp_socket_data.cpp" />
-    <ClCompile Include="code\f_socket.cpp" />
+    <ClCompile Include="code\data\z_url_resolver_data.cpp" />
+    <ClCompile Include="code\f_socket\get_udp_public_address_and_port.cpp" />
     <ClCompile Include="code\f_tcp_log_output.cpp" />
     <ClCompile Include="code\z_buffer_stream.cpp" />
+    <ClCompile Include="code\z_http_request_generator\z_http_11_request_generator.cpp" />
+    <ClCompile Include="code\z_http_response_resolver\z_http_11_response_resolver.cpp" />
     <ClCompile Include="code\z_io_context.cpp" />
-    <ClCompile Include="code\z_tcp_multiple_session_client.cpp" />
-    <ClCompile Include="code\z_tcp_multiple_session_server.cpp" />
-    <ClCompile Include="code\z_tcp_single_session_client.cpp" />
-    <ClCompile Include="code\z_tcp_single_session_server.cpp" />
+    <ClCompile Include="code\z_tcp_client\z_tcp_multiple_session_client.cpp" />
+    <ClCompile Include="code\z_tcp_server\z_tcp_multiple_session_server.cpp" />
+    <ClCompile Include="code\z_tcp_client\z_tcp_single_session_client.cpp" />
+    <ClCompile Include="code\z_tcp_server\z_tcp_single_session_server.cpp" />
     <ClCompile Include="code\z_tcp_socket.cpp" />
     <ClCompile Include="code\z_tls_context.cpp" />
     <ClCompile Include="code\z_tls_stream.cpp" />
     <ClCompile Include="code\z_udp_socket.cpp" />
+    <ClCompile Include="code\z_url_resolver.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="code\data\z_http_11_response_resolver_data.h" />
     <ClInclude Include="code\data\z_buffer_stream_data.h" />
+    <ClInclude Include="code\data\z_http_11_request_generator_data.h" />
     <ClInclude Include="code\data\z_io_context_data.h" />
     <ClInclude Include="code\data\z_tcp_client_data.h" />
     <ClInclude Include="code\data\z_tcp_server_data.h" />
@@ -50,6 +58,8 @@
     <ClInclude Include="code\data\z_tls_context_data.h" />
     <ClInclude Include="code\data\z_tls_stream_data.h" />
     <ClInclude Include="code\data\z_udp_socket_data.h" />
+    <ClInclude Include="code\data\z_url_resolver_data.h" />
+    <ClInclude Include="code\z_http11_resolver.h" />
     <ClInclude Include="code\z_socket_allocator.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -194,23 +204,25 @@ if exist "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectNa
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeaderFile />
       <PrecompiledHeaderOutputFile />
-      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_socket;$(SolutionDir)/Library/Boost_1_88_0/include;$(SolutionDir)/Library/OpenSSL_3_6_0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_socket;$(SolutionDir)Source/Z_Socket/code;$(SolutionDir)/Library/Boost_1_88_0/include;$(SolutionDir)/Library/OpenSSL_3_6_0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)Binaries\output\$(Platform)_$(Configuration);$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration);$(SolutionDir)Library\ImGui_1_90_9\lib;$(SolutionDir)Library\OpenGL2_vc2022\lib;$(SolutionDir)Library\OpenSSL_3_6_0\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Binaries\output\$(Platform)_$(Configuration);$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration);$(SolutionDir)Library\ImGui_1_90_9\lib;$(SolutionDir)Library\Boost_1_88_0\lib;$(SolutionDir)Library\OpenSSL_3_6_0\lib</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>if not exist "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)" mkdir "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)"
 xcopy /S /Y "$(SolutionDir)Library\OpenSSL_3_6_0\bin\*.dll*" "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)" 
 xcopy /S /Y "$(SolutionDir)Library\OpenSSL_3_6_0\bin\*.pdb*" "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)" 
 
+
 if not exist "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin" mkdir "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin"
 if exist "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).dll" copy /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).dll" "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin\$(ProjectName)_$(Platform)_$(Configuration).dll" 
 if exist "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).pdb" copy /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).pdb" "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin\$(ProjectName)_$(Platform)_$(Configuration).pdb" 
 if not exist "$(SolutionDir)Release\$(Platform)_$(Configuration)\lib" mkdir "$(SolutionDir)Release\$(Platform)_$(Configuration)\lib"
-if exist "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).lib" copy /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).lib" "$(SolutionDir)Release\$(Platform)_$(Configuration)\lib\$(ProjectName)_$(Platform)_$(Configuration).lib" </Command>
+if exist "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).lib" copy /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).lib" "$(SolutionDir)Release\$(Platform)_$(Configuration)\lib\$(ProjectName)_$(Platform)_$(Configuration).lib" 
+</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>

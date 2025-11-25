@@ -119,7 +119,7 @@ public:
     FORCEINLINE TQueueSafe() noexcept : SuperType_(), queue_() {}
     FORCEINLINE TQueueSafe(const TQueueSafe& _queue) noexcept : SuperType_(_queue)
     {
-        TLockGuard lock_guard(const_cast<TQueueSafe*>(&_queue)->mutex_);
+        TLockGuard lock_guard(_queue.mutex_);
         queue_ = _queue.queue_;
     }
     FORCEINLINE TQueueSafe(TQueueSafe&& _queue) noexcept

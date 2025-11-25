@@ -147,5 +147,9 @@ CORE_DLLAPI Void UnregisterLogServerOutputFunction(
     ZLogManager::UnregisterLogServerOutputFunction(_output_func);
 }
 
+CORE_DLLAPI Void FinishFlush(TimeType _max_wait_time_ms) noexcept {
+    ZLogManager::FinishFlush(_max_wait_time_ms);
+}
+
 }//log
 }//zengine

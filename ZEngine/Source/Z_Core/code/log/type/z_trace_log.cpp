@@ -21,6 +21,7 @@
 #include "log/type/z_trace_log.h"
 
 #include "f_console.h"
+#include "f_string.h"
 #include "z_file.h"
 #include "z_string.h"
 #include "z_system_time.h"
@@ -65,7 +66,7 @@ Void ZTraceLog::FileOutputLog(const ZLog* _log_ptr, const ZLog::OutputString_& _
         TFixedWString<ZFile::kFileNameLength> file_dir;
         const ZSystemTime& system_time = ZSystemTime::StartTimeInstance();
         file_dir.SetString(
-            L"%ls\\%04d%02d%02d%02d%02d%02d_trace.log", ZLog::CreateAndGetLogPath(),
+            L"%ls\\%04d%02d%02d%02d%02d%02d_Trace.log", ZLog::CreateAndGetLogPath(),
             system_time.Year(), system_time.Month(), system_time.Day(),
             system_time.Hour(), system_time.Min(), system_time.Sec()
         );

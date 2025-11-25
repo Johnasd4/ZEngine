@@ -20,8 +20,8 @@
 
 #include "z_http_request_generator.h"
 
-#include "../z_core/t_allocator.h"
-#include "../z_core/z_string.h"
+#include "z_core/t_allocator.h"
+#include "z_core/z_string.h"
 
 #include "data/z_http_11_request_generator_data.h"
 
