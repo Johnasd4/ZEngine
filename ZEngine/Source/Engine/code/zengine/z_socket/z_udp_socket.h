@@ -23,6 +23,7 @@
 #include "../z_core/t_function.h"
 #include "../z_core/t_smart_pointer.h"
 #include "../z_core/z_object.h"
+#include "../z_core/z_string_view.h"
 
 #include "z_buffer.h"
 
@@ -108,9 +109,8 @@ public:
         Conect to target socket. Will suspend the current thread.
     */
     NODISCARD ReturnType Connect(
-        const Char* _address_str,
-        Int32 _port,
-        Int32 _repeat_times = kConnectRetryForever
+        ZStringView _address_str,
+        ZStringView _port_str
     ) noexcept;
 
     /*
@@ -163,7 +163,7 @@ public:
         Call Connect() before this function.
     */
     NODISCARD ReturnType SendTo(
-        const Char* _address_str,
+        ZStringView _address_str,
         Int32 _port,
         ZConstBuffer _buffer
     ) noexcept;
@@ -174,7 +174,7 @@ public:
         _handle_func(ZUDPSocket* _socket_ptr, const ZConstBuffer _buffer)
     */
     NODISCARD ReturnType AsyncSendTo(
-        const Char* _address_str,
+        ZStringView _address_str,
         Int32 _port,
         ZConstBuffer _buffer,
         const TFunction<Void(ZUDPSocket*, const ZConstBuffer)>& _handle_func

@@ -36,7 +36,6 @@ protected:
     using SuperType_ = ZObject;
 
 public:
-    boost::asio::ip::tcp::resolver resolver_;
 };
 
 struct ZTCPMultipleSessionClientData : public ZObject {

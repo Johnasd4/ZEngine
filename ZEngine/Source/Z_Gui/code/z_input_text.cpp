@@ -191,7 +191,7 @@ Void ZInputText::SetInputText(ZStringView _input_text) noexcept {
     if (input_text_.Size() <= _input_text.Size()) {
         input_text_.Resize(_input_text.Size() + 1ULL);
     }
-    memcpy(input_text_.DataPtr<Char*>(), _input_text.DataPtr(), _input_text.Size());
+    Copy(input_text_.DataPtr<Char*>(), _input_text.DataPtr(), _input_text.Size());
     input_text_.At<Char>(_input_text.Size()) = '\0';
 }
 

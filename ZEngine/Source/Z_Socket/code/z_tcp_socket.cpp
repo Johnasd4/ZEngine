@@ -108,11 +108,8 @@ ZTCPSocket& ZTCPSocket::operator=(ZTCPSocket&& _socket) noexcept {
     return *this;
 }
 
-NODISCARD const ZString& ZTCPSocket::RemoteAddress() noexcept {
-    return data_ptr_->address_;
-}
-NODISCARD const Int32 ZTCPSocket::RemotePort() noexcept {
-    return data_ptr_->port_;
+NODISCARD const ZTCPEndpoint& ZTCPSocket::RemoteEndpoint() const noexcept {
+    return *reinterpret_cast<const ZTCPEndpoint*>(&data_ptr_->remote_endpoint_);
 }
 
 NODISCARD ReturnType ZTCPSocket::Initialize(ZIOContext* _io_context_ptr) noexcept {
@@ -137,7 +134,7 @@ NODISCARD ReturnType ZTCPSocket::Initialize(ZIOContext* _io_context_ptr) noexcep
     return ret_val;
 }
 
-NODISCARD ReturnType ZTCPSocket::BindEndpoint(const Char* _address_str, Int32 _port) noexcept {
+NODISCARD ReturnType ZTCPSocket::BindEndpoint(const ZTCPEndpoint& _tcp_endpoint) noexcept {
     ReturnType ret_val = kOK;
     boost::system::error_code error_code;
 
@@ -147,26 +144,8 @@ NODISCARD ReturnType ZTCPSocket::BindEndpoint(const Char* _address_str, Int32 _p
         L"Socket state error! state: %d expect state: %d",
         state_.Value(), ZTCPSocketState_Idle
     );
-    Z_CHECK(
-        _port < 0 || _port > 65535,
-        error_code::kPSocketErrorCode_PortNotVaild,
-        L"Expect port 0 ~ 65535! port: %d",
-        _port
-    );
 
-    boost::asio::ip::address address = boost::asio::ip::make_address(_address_str, error_code);
-    if (error_code) {
-        ret_val = error_code::kPSocketErrorCode_AddressNotVaild;
-        Z_LOG_ERROR(
-            ret_val, 0,
-            L"Address not vaild! address: %ls",
-            string::String2WString(_address_str).String()
-        );
-        return ret_val;
-    }
-
-    data_ptr_->bind_endpoint_.address(address);
-    data_ptr_->bind_endpoint_.port(_port);
+    data_ptr_->bind_endpoint_ = *_tcp_endpoint.endpoint_data_.DataPtr<const boost::asio::ip::tcp::endpoint*>();
     data_ptr_->if_endpoint_bind_ = true;
 
     return ret_val;
@@ -279,7 +258,7 @@ NODISCARD ReturnType ZTCPSocket::Close() noexcept {
             }
         }
         data_ptr_->socket_.close(error_code);
-        if (error_code) {
+        if (error_code && error_code != boost::asio::error::not_socket) {
             state_ = ZTCPSocketState_Error;
             ret_val = error_code::kPSocketErrorCode_SystemError;
             Z_LOG_ERROR(
@@ -296,8 +275,7 @@ NODISCARD ReturnType ZTCPSocket::Close() noexcept {
 }
 
 NODISCARD ReturnType ZTCPSocket::Connect(
-    ZStringView _address_str,
-    ZStringView _port_str,
+    const ZTCPEndpoint& _tcp_endpoint,
     Int32 _repeat_times
 ) noexcept {
     ReturnType ret_val = kOK;
@@ -311,68 +289,44 @@ NODISCARD ReturnType ZTCPSocket::Connect(
         state_.Value(), ZTCPSocketState_Idle
     );
 
-    ZString address_str(_address_str);
-    ZString port_str(_port_str);
-
-    //resolve endpoints
-    boost::asio::ip::tcp::resolver::results_type endpoints;
-    boost::asio::ip::tcp::resolver resolver(io_context_ptr_->data_ptr_->io_context_);
-    endpoints = std::move(resolver.resolve(
-        boost::asio::string_view(_address_str.DataPtr(), _address_str.Size()),
-        boost::asio::string_view(_port_str.DataPtr(), _port_str.Size()),
-        error_code
-    ));
-
-    if (error_code) {
-        ret_val = error_code::kPSocketErrorCode_AddressNotVaild;
-        Z_LOG_ERROR(
-            ret_val, error_code.value(),
-            L"System error! error info: %ls address: %ls port: ls",
-            string::String2WString(error_code.message().c_str()).String(),
-            string::String2WString(address_str.String()).String(),
-            string::String2WString(port_str.String()).String()
-        );
-        return ret_val;
-    }
+#if USE_DEBUG_LOG
+    ZString ip_str = _tcp_endpoint.IPString();
+    UInt16 port = _tcp_endpoint.Port();
+#endif
 
     state_ = ZTCPSocket::ZTCPSocketState_Connecting;
 
     //connect
     Z_DEBUG_LOG_START(
-        L"Try to connect... address: %ls port: %ls",
-        string::String2WString(address_str.String()).String(),
-        string::String2WString(port_str.String()).String()
+        L"Try to connect... ip: %ls port: %d",
+        string::String2WString(ip_str.String()).String(),
+        port
     );
 
     Int32 reconnect_times = 0;
     do {
-        for (auto endpoint_iterator = endpoints.begin(); endpoint_iterator != endpoints.end(); ++endpoint_iterator) {
-            if (data_ptr_->if_endpoint_bind_) {
-                //open
-                data_ptr_->socket_.close();
-                data_ptr_->socket_.open(boost::asio::ip::tcp::v4(), error_code);
-                if (error_code) {
-                    ret_val = error_code::kPSocketErrorCode_SystemError;
-                    Z_LOG_ERROR(
-                        ret_val, error_code.value(),
-                        L"System error! error info: %ls",
-                        string::String2WString(error_code.message().c_str()).String()
-                    );
-                    break;
-                }
-
-                //bind endpoint
-                data_ptr_->socket_.bind(data_ptr_->bind_endpoint_ , error_code);
-            }
-
-            //connect
-            data_ptr_->socket_.connect(*endpoint_iterator, error_code);
-
-            //connect success
-            if (!error_code) {
+        if (data_ptr_->if_endpoint_bind_) {
+            //open
+            data_ptr_->socket_.close();
+            data_ptr_->socket_.open(boost::asio::ip::tcp::v4(), error_code);
+            if (error_code) {
+                ret_val = error_code::kPSocketErrorCode_SystemError;
+                Z_LOG_ERROR(
+                    ret_val, error_code.value(),
+                    L"System error! error info: %ls",
+                    string::String2WString(error_code.message().c_str()).String()
+                );
                 break;
             }
+
+            //bind endpoint
+            data_ptr_->socket_.bind(data_ptr_->bind_endpoint_, error_code);
         }
+
+        //connect
+        data_ptr_->socket_.connect(
+            *_tcp_endpoint.endpoint_data_.DataPtr<const boost::asio::ip::tcp::endpoint*>(), error_code
+        );
 
         //connect failed
         if (error_code) {
@@ -386,10 +340,10 @@ NODISCARD ReturnType ZTCPSocket::Connect(
                 }
                 reconnect_times += 1;
                 Z_DEBUG_LOG_PROCESS(
-                    L"Retry to connect... repeat_times: %d address: %ls port: %ls",
+                    L"Retry to connect... repeat_times: %d ip: %ls port: %d",
                     reconnect_times,
-                    string::String2WString(address_str.String()).String(),
-                    string::String2WString(port_str.String()).String()
+                    string::String2WString(ip_str.String()).String(),
+                    port
                 );
             }
             else {
@@ -400,7 +354,7 @@ NODISCARD ReturnType ZTCPSocket::Connect(
                     L"System error! error info: %ls",
                     string::String2WString(error_code.message().c_str()).String()
                 );
-                break;
+                return ret_val;
             }
             continue;
         }
@@ -417,9 +371,9 @@ NODISCARD ReturnType ZTCPSocket::Connect(
     if (state_ != ZTCPSocketState_Connected) {
         ret_val = error_code::kPSocketErrorCode_ConnectFailed;
         Z_DEBUG_LOG_FAILURE(
-            L"Socket connect failed! address: %ls port: %ls",
-            string::String2WString(address_str.String()).String(),
-            string::String2WString(port_str.String()).String()
+            L"Socket connect failed! ip: %ls port: %d",
+            string::String2WString(ip_str.String()).String(),
+            port
         );
         return ret_val;
     }
@@ -428,8 +382,7 @@ NODISCARD ReturnType ZTCPSocket::Connect(
 }
 
 NODISCARD ReturnType ZTCPSocket::AsyncConnect(
-    ZStringView _address_str,
-    ZStringView _port_str,
+    const ZTCPEndpoint& _tcp_endpoint,
     const TFunction<Void(ZTCPSocket*, Bool)>& _handle_func,
     Int32 _repeat_times
 ) noexcept {
@@ -442,69 +395,35 @@ NODISCARD ReturnType ZTCPSocket::AsyncConnect(
         state_.Value(), ZTCPSocketState_Idle
     );
 
-    //resolve endpoints
-    ZString address_str(_address_str);
-    ZString port_str(_port_str);
-    SocketAllocatorType alloc;
-
-    io_context_ptr_->data_ptr_->async_resolver_.async_resolve(
-        boost::asio::string_view(_address_str.DataPtr(), _address_str.Size()), 
-        boost::asio::string_view(_port_str.DataPtr(), _port_str.Size()),
-        MakeSocketHandlerAllocator([
-            this, address_str = std::move(address_str), port_str = std::move(port_str), 
-            _handle_func, _repeat_times
-        ](
-            const boost::system::error_code& _error_code, 
-            boost::asio::ip::tcp::resolver::results_type _endpoints
-        ) mutable {
-            if (_error_code) {
-                Z_LOG_ERROR(
-                    error_code::kPSocketErrorCode_AddressNotVaild, _error_code.value(),
-                    L"System error! error info: %ls address: %ls port: ls",
-                    string::String2WString(_error_code.message().c_str()).String(),
-                    string::String2WString(address_str.String()).String(),
-                    string::String2WString(port_str.String()).String()
-                );
-                return;
-            }
-
-            //connect
-            Z_DEBUG_LOG_START(
-                L"Try to connect... address: %ls port: %ls",
-                string::String2WString(address_str.String()).String(),
-                string::String2WString(port_str.String()).String()
-            );
-
-            ReturnType link_code = kOK;
-            auto endpoint_iterator = _endpoints.begin();
-            state_ = ZTCPSocketState_Connecting;
-            link_code = AsyncConnectExecuteP(
-                std::move(address_str), 
-                std::move(port_str), 
-                &_endpoints,
-                &endpoint_iterator,
-                _handle_func, 
-                _repeat_times, 
-                0
-            );
-            if (link_code != kOK) {
-                Z_LOG_ERROR(
-                    error_code::kPSocketErrorCode_LinkError, link_code,
-                    L"ZTCPSocket::AsyncConnectExecuteP() link error!"
-                );
-                return;
-            }
-        })
+    //connect
+    Z_DEBUG_LOG_START(
+        L"Try to connect... ip: %ls port: %d",
+        string::String2WString(_tcp_endpoint.IPString().String()).String(),
+        _tcp_endpoint.Port()
     );
+
+    ReturnType link_code = kOK;
+    state_ = ZTCPSocketState_Connecting;
+    link_code = AsyncConnectExecuteP(
+        _tcp_endpoint,
+        _handle_func,
+        _repeat_times,
+        0
+    );
+    if (link_code != kOK) {
+        ret_val = error_code::kPSocketErrorCode_LinkError;
+        Z_LOG_ERROR(
+            ret_val, link_code,
+            L"ZTCPSocket::AsyncConnectExecuteP() link error!"
+        );
+        return ret_val;
+    }
 
     return ret_val;
 }
 
 NODISCARD ReturnType ZTCPSocket::AsyncConnectExecuteP(
-    ZString&& _address_str,
-    ZString&& _port_str,
-    Void* _endpoints_ptr,
-    Void* _endpoint_iterator,
+    const ZTCPEndpoint& _tcp_endpoint,
     const TFunction<Void(ZTCPSocket*, Bool)>& _handle_func,
     Int32 _repeat_times,
     Int32 _reconnect_times
@@ -512,12 +431,6 @@ NODISCARD ReturnType ZTCPSocket::AsyncConnectExecuteP(
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
     boost::system::error_code error_code;
-
-    boost::asio::ip::tcp::resolver::results_type* endpoints_ptr =
-        reinterpret_cast<boost::asio::ip::tcp::resolver::results_type*>(_endpoints_ptr);
-    boost::asio::ip::basic_resolver_iterator<boost::asio::ip::tcp>* _endpoint_iterator_ptr =
-        reinterpret_cast<boost::asio::ip::basic_resolver_iterator<boost::asio::ip::tcp>*>(_endpoints_ptr);
-
 
     if (data_ptr_->if_endpoint_bind_) {
         //open
@@ -548,20 +461,17 @@ NODISCARD ReturnType ZTCPSocket::AsyncConnectExecuteP(
         }
     }
 
-    auto endpoint = (*_endpoint_iterator_ptr)->endpoint();
-
     Z_DEBUG_LOG_PROCESS(
-        L"Connecting... address: %ls port: %d",
-        string::String2WString(endpoint.address().to_string().c_str()).String(),
-        endpoint.port()
+        L"Connecting... ip: %ls port: %d",
+        string::String2WString(_tcp_endpoint.IPString().String()).String(),
+        _tcp_endpoint.Port()
     );
 
     //start connect
-    data_ptr_->socket_.async_connect(endpoint, 
+    data_ptr_->socket_.async_connect(
+        *_tcp_endpoint.endpoint_data_.DataPtr<const boost::asio::ip::tcp::endpoint*>(),
         MakeSocketHandlerAllocator([
-            this, address_str = std::move(_address_str), port_str = std::move(_port_str),
-            endpoints = std::move(*endpoints_ptr), endpoint_iterator = std::move(*_endpoint_iterator_ptr), 
-            _handle_func, _repeat_times, _reconnect_times
+            this, _tcp_endpoint, _handle_func, _repeat_times, _reconnect_times
         ](
             const boost::system::error_code& _error_code
         ) mutable {
@@ -575,27 +485,19 @@ NODISCARD ReturnType ZTCPSocket::AsyncConnectExecuteP(
                         if (state_ != ZTCPSocketState_Connecting) {
                             Z_DEBUG_LOG_PROCESS(L"Connect stopped!");
                         }
-                        else if (endpoint_iterator != endpoints.end()) {
-                            ++endpoint_iterator;
-                            if_retry = true;
-                        }
                         else if (_reconnect_times < _repeat_times) {
                             _reconnect_times += 1;
-                            endpoint_iterator = endpoints.begin();
                             if_retry = true;
                             Z_DEBUG_LOG_PROCESS(
-                                L"Retry to connect... repeat_times: %d address: %ls port: %ls",
+                                L"Retry to connect... repeat_times: %d ip: %ls port: %d",
                                 _reconnect_times,
-                                string::String2WString(address_str.String()).String(),
-                                string::String2WString(port_str.String()).String()
+                                string::String2WString(_tcp_endpoint.IPString().String()).String(),
+                                _tcp_endpoint.Port()
                             );
                         }
                         if (if_retry) {
                             link_code = AsyncConnectExecuteP(
-                                std::move(address_str),
-                                std::move(port_str),
-                                &endpoints,
-                                &endpoint_iterator,
+                                _tcp_endpoint,
                                 _handle_func,
                                 _repeat_times,
                                 _reconnect_times
@@ -612,16 +514,16 @@ NODISCARD ReturnType ZTCPSocket::AsyncConnectExecuteP(
 
                         //timeout
                         Z_DEBUG_LOG_FAILURE(
-                            L"Connect failed! address: %ls port: %ls",
-                            string::String2WString(address_str.String()).String(),
-                            string::String2WString(port_str.String()).String()
+                            L"Connect failed! ip: %ls port: %ls",
+                            string::String2WString(_tcp_endpoint.IPString().String()).String(),
+                            _tcp_endpoint.Port()
                         );
                     }
                     else if (_error_code == boost::asio::error::operation_aborted) {
                         Z_DEBUG_LOG_FAILURE(
-                            L"Connect cancelled! address: %ls port: %ls",
-                            string::String2WString(address_str.String()).String(),
-                            string::String2WString(port_str.String()).String()
+                            L"Connect cancelled! ip: %ls port: %ls",
+                            string::String2WString(_tcp_endpoint.IPString().String()).String(),
+                            _tcp_endpoint.Port()
                         );
                     }
                     else {
@@ -690,9 +592,9 @@ NODISCARD ReturnType ZTCPSocket::Read(
             }
             ret_val = error_code::kPSocketErrorCode_Disconnected;
             Z_DEBUG_LOG_FINISH(
-                L"Socket disconnected! address: %ls port: %d",
-                string::String2WString(data_ptr_->address_.String()).String(),
-                data_ptr_->port_
+                L"Socket disconnected! ip: %ls port: %d",
+                string::String2WString(RemoteEndpoint().IPString().String()).String(),
+                RemoteEndpoint().Port()
             );
             return ret_val;
         } 
@@ -745,9 +647,9 @@ NODISCARD ReturnType ZTCPSocket::AsyncRead(
                         );
                     }
                     Z_DEBUG_LOG_FINISH(
-                        L"Socket disconnected! address: %ls port: %d",
-                        string::String2WString(data_ptr_->address_.String()).String(),
-                        data_ptr_->port_
+                        L"Socket disconnected! ip: %ls port: %d",
+                        string::String2WString(RemoteEndpoint().IPString().String()).String(),
+                        RemoteEndpoint().Port()
                     );
                 }
                 else {
@@ -808,9 +710,9 @@ NODISCARD ReturnType ZTCPSocket::ReadUntil(
             }
             ret_val = error_code::kPSocketErrorCode_Disconnected;
             Z_DEBUG_LOG_FINISH(
-                L"Socket disconnected! address: %ls port: %d",
-                string::String2WString(data_ptr_->address_.String()).String(),
-                data_ptr_->port_
+                L"Socket disconnected! ip: %ls port: %d",
+                string::String2WString(RemoteEndpoint().IPString().String()).String(),
+                RemoteEndpoint().Port()
             );
             return ret_val;
         }
@@ -872,9 +774,9 @@ NODISCARD ReturnType ZTCPSocket::ReadUntil(
             }
             ret_val = error_code::kPSocketErrorCode_Disconnected;
             Z_DEBUG_LOG_FINISH(
-                L"Socket disconnected! address: %ls port: %d",
-                string::String2WString(data_ptr_->address_.String()).String(),
-                data_ptr_->port_
+                L"Socket disconnected! ip: %ls port: %d",
+                string::String2WString(RemoteEndpoint().IPString().String()).String(),
+                RemoteEndpoint().Port()
             );
             return ret_val;
         } 
@@ -936,9 +838,9 @@ NODISCARD ReturnType ZTCPSocket::AsyncReadUntil(
                         );
                     }
                     Z_DEBUG_LOG_FINISH(
-                        L"Socket disconnected! address: %ls port: %d",
-                        string::String2WString(data_ptr_->address_.String()).String(),
-                        data_ptr_->port_
+                        L"Socket disconnected! ip: %ls port: %d",
+                        string::String2WString(RemoteEndpoint().IPString().String()).String(),
+                        RemoteEndpoint().Port()
                     );
                 }
                 else if (_error_code == boost::asio::error::not_found) {
@@ -1005,9 +907,9 @@ NODISCARD ReturnType ZTCPSocket::AsyncReadUntil(
                         );
                     }
                     Z_DEBUG_LOG_FINISH(
-                        L"Socket disconnected! address: %ls port: %d",
-                        string::String2WString(data_ptr_->address_.String()).String(),
-                        data_ptr_->port_
+                        L"Socket disconnected! ip: %ls port: %d",
+                        string::String2WString(RemoteEndpoint().IPString().String()).String(),
+                        RemoteEndpoint().Port()
                     );
                 }
                 else if (_error_code == boost::asio::error::not_found) {
@@ -1077,9 +979,9 @@ NODISCARD ReturnType ZTCPSocket::ReadUntilClose(
             return ret_val;
         }
         Z_DEBUG_LOG_FINISH(
-            L"Socket disconnected! address: %ls port: %d",
-            string::String2WString(data_ptr_->address_.String()).String(),
-            data_ptr_->port_
+            L"Socket disconnected! ip: %ls port: %d",
+            string::String2WString(RemoteEndpoint().IPString().String()).String(),
+            RemoteEndpoint().Port()
         );
         return ret_val;
     }
@@ -1130,9 +1032,9 @@ NODISCARD ReturnType ZTCPSocket::Write(
             }
             ret_val = error_code::kPSocketErrorCode_Disconnected;
             Z_DEBUG_LOG_FINISH(
-                L"Socket disconnected! address: %ls port: %d",
-                string::String2WString(data_ptr_->address_.String()).String(),
-                data_ptr_->port_
+                L"Socket disconnected! ip: %ls port: %d",
+                string::String2WString(RemoteEndpoint().IPString().String()).String(),
+                RemoteEndpoint().Port()
             );
             return ret_val;
         }
@@ -1181,9 +1083,9 @@ NODISCARD ReturnType ZTCPSocket::AsyncWrite(
                         );
                     }
                     Z_DEBUG_LOG_FINISH(
-                        L"Socket disconnected! address: %ls port: %d",
-                        string::String2WString(data_ptr_->address_.String()).String(),
-                        data_ptr_->port_
+                        L"Socket disconnected! ip: %ls port: %d",
+                        string::String2WString(RemoteEndpoint().IPString().String()).String(),
+                        RemoteEndpoint().Port()
                     );
                 }
                 else {
@@ -1231,16 +1133,14 @@ Void ZTCPSocket::MoveP(ZTCPSocket&& _socket) noexcept {
 }
 
 Void ZTCPSocket::OnConnectP() noexcept {
-    auto remote_endpoint = data_ptr_->socket_.remote_endpoint();
-    data_ptr_->address_ = remote_endpoint.address().to_string().c_str();
-    data_ptr_->port_ = static_cast<Int32>(remote_endpoint.port());
+    data_ptr_->remote_endpoint_ = data_ptr_->socket_.remote_endpoint();
 
     state_ = ZTCPSocketState_Connected;
 
     Z_DEBUG_LOG_SUCCESS(
-        L"Socket connected! address: %ls port: %d",
-        string::String2WString(data_ptr_->address_.String()).String(),
-        data_ptr_->port_
+        L"Socket connected! ip: %ls port: %d",
+        string::String2WString(RemoteEndpoint().IPString().String()).String(),
+        RemoteEndpoint().Port()
     );
 }
 

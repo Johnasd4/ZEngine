@@ -38,7 +38,6 @@ protected:
 
 public:
     boost::asio::io_context io_context_;
-    boost::asio::ip::tcp::resolver async_resolver_;
     ZThread aysnc_thread_;
 };
 

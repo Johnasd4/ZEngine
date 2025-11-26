@@ -27,7 +27,6 @@ namespace internal {
 ZIOContextData::ZIOContextData() noexcept
     : SuperType_()
     , io_context_()
-    , async_resolver_(io_context_)
     , aysnc_thread_()
 {}
 

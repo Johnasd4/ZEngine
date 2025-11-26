@@ -67,7 +67,7 @@ ZTCPMultipleSessionServer::~ZTCPMultipleSessionServer() noexcept {
     }
 }
 
-NODISCARD ReturnType ZTCPMultipleSessionServer::BindEndpoint(const Char* _address_str, Int32 _port) noexcept {
+NODISCARD ReturnType ZTCPMultipleSessionServer::BindEndpoint(const ZTCPEndpoint& _tcp_endpoint) noexcept {
     ReturnType ret_val = kOK;
 
     Z_CHECK(
@@ -76,27 +76,8 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::BindEndpoint(const Char* _addres
         L"Server state error! state: %d expect state: %d",
         state_, ZTCPMultipleSessionServerState_Idle
     );
-    Z_CHECK(
-        _port < 0 || _port > 65535,
-        error_code::kPSocketErrorCode_PortNotVaild,
-        L"Expect port 0 ~ 65535! port: %d",
-        _port
-    );
 
-    boost::system::error_code error_code;
-    boost::asio::ip::address address = boost::asio::ip::make_address(_address_str, error_code);
-    if (error_code) {
-        ret_val = error_code::kPSocketErrorCode_AddressNotVaild;
-        Z_LOG_ERROR(
-            ret_val, 0, 
-            L"Address not vaild! address: %ls", 
-            string::String2WString(_address_str).String()
-        );
-        return ret_val;
-    }
-    data_ptr_->server_endpoint_.address(address);
-    data_ptr_->server_endpoint_.port(_port);
-
+    data_ptr_->server_endpoint_ = *_tcp_endpoint.endpoint_data_.DataPtr<const boost::asio::ip::tcp::endpoint*>();
     data_ptr_->if_endpoint_bind_ = true;
 
     return ret_val;

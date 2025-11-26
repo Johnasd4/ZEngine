@@ -18,11 +18,24 @@
 */
 #pragma once
 
+#include "d_error_code.h"
 #include "d_lib.h"
 #include "d_type.h"
 
+#include "../../z_core/z_string.h"
+
 namespace zengine {
 namespace socket {
+
+/*
+    Change UInt32 ip to string ip.
+*/
+SOCKET_DLLAPI ZString IP4ToString(UInt32 _ip4) noexcept;
+
+/*
+    Change string ip to UInt32 ip.
+*/
+SOCKET_DLLAPI ReturnType StringToIP4(const Char* _ip_string, UInt32* _ip4_ptr) noexcept;
 
 }//socket
 }//zengine

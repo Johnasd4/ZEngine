@@ -300,9 +300,8 @@ NODISCARD ReturnType ZUDPSocket::Close() noexcept {
 }
 
 NODISCARD ReturnType ZUDPSocket::Connect(
-    const Char* _address_str,
-    Int32 _port,
-    Int32 _repeat_times
+    ZStringView _address_str,
+    ZStringView _port_str
 ) noexcept {
     ReturnType ret_val = kOK;
     boost::system::error_code error_code;
@@ -313,20 +312,27 @@ NODISCARD ReturnType ZUDPSocket::Connect(
         L"Socket state error! state: %d expect state: %d",
         state_, ZUDPSocketState_Idle
     );
-    Z_CHECK(
-        _port < 0 || _port > 65535,
-        error_code::kPSocketErrorCode_PortNotVaild,
-        L"Expect port 0 ~ 65535! port: %d",
-        _port
-    );
 
-    boost::asio::ip::address address = boost::asio::ip::make_address(_address_str, error_code);
+    ZString address_str(_address_str);
+    ZString port_str(_port_str);
+
+    //resolve endpoints
+    boost::asio::ip::udp::resolver::results_type endpoints;
+    boost::asio::ip::udp::resolver resolver(io_context_ptr_->data_ptr_->io_context_);
+    endpoints = std::move(resolver.resolve(
+        boost::asio::string_view(_address_str.DataPtr(), _address_str.Size()),
+        boost::asio::string_view(_port_str.DataPtr(), _port_str.Size()),
+        error_code
+    ));
+
     if (error_code) {
         ret_val = error_code::kPSocketErrorCode_AddressNotVaild;
         Z_LOG_ERROR(
-            ret_val, 0,
-            L"Address not vaild! address: %ls",
-            string::String2WString(_address_str).String()
+            ret_val, error_code.value(),
+            L"System error! error info: %ls address: %ls port: &ls",
+            string::String2WString(error_code.message().c_str()).String(),
+            string::String2WString(address_str.String()).String(),
+            string::String2WString(port_str.String()).String()
         );
         return ret_val;
     }
@@ -344,7 +350,18 @@ NODISCARD ReturnType ZUDPSocket::Connect(
             return ret_val;
         }
     }
-    data_ptr_->socket_.connect(boost::asio::ip::udp::endpoint(address, _port), error_code);
+
+    for (auto endpoint_iterator = endpoints.begin(); endpoint_iterator != endpoints.end(); ++endpoint_iterator) {
+        data_ptr_->socket_.connect(*endpoint_iterator, error_code);
+        if (!error_code) {
+            data_ptr_->if_connected_ = true;
+            return ret_val;
+        }
+        else {
+            continue;
+        }
+    }
+
     if (error_code) {
         ret_val = error_code::kPSocketErrorCode_SystemError;
         Z_LOG_ERROR(
@@ -355,8 +372,6 @@ NODISCARD ReturnType ZUDPSocket::Connect(
         state_ = ZUDPSocketState_Error;
         return ret_val;
     }
-
-    data_ptr_->if_connected_ = true;
 
     return ret_val;
 }
@@ -633,7 +648,7 @@ NODISCARD ReturnType ZUDPSocket::AsyncReceive(
 }
 
 NODISCARD ReturnType ZUDPSocket::SendTo(
-    const Char* _address_str,
+    ZStringView _address_str,
     Int32 _port,
     ZConstBuffer _buffer
 ) noexcept {
@@ -661,13 +676,18 @@ NODISCARD ReturnType ZUDPSocket::SendTo(
         }
     }
 
-    boost::asio::ip::address address = boost::asio::ip::make_address(_address_str, error_code);
+    ZString address_str(_address_str);
+
+    boost::asio::ip::address address = boost::asio::ip::make_address(
+        boost::asio::string_view(_address_str.DataPtr(), _address_str.Size()),
+        error_code
+    );
     if (error_code) {
         ret_val = error_code::kPSocketErrorCode_AddressNotVaild;
         Z_LOG_ERROR(
             ret_val, 0,
             L"Address not vaild! address: %ls",
-            string::String2WString(_address_str).String()
+            string::String2WString(address_str.String()).String()
         );
         return ret_val;
     }
@@ -695,7 +715,7 @@ NODISCARD ReturnType ZUDPSocket::SendTo(
 }
 
 NODISCARD ReturnType ZUDPSocket::AsyncSendTo(
-    const Char* _address_str,
+    ZStringView _address_str,
     Int32 _port,
     ZConstBuffer _buffer,
     const TFunction<Void(ZUDPSocket*, const ZConstBuffer)>& _handle_func
@@ -724,13 +744,18 @@ NODISCARD ReturnType ZUDPSocket::AsyncSendTo(
         }
     }
 
-    boost::asio::ip::address address = boost::asio::ip::make_address(_address_str, error_code);
+    ZString address_str(_address_str);
+
+    boost::asio::ip::address address = boost::asio::ip::make_address(
+        boost::asio::string_view(_address_str.DataPtr(), _address_str.Size()),
+        error_code
+    );
     if (error_code) {
         ret_val = error_code::kPSocketErrorCode_AddressNotVaild;
         Z_LOG_ERROR(
             ret_val, 0,
             L"Address not vaild! address: %ls",
-            string::String2WString(_address_str).String()
+            string::String2WString(address_str.String()).String()
         );
         return ret_val;
     }

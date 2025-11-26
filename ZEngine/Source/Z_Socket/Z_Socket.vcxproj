@@ -31,6 +31,7 @@
     <ClCompile Include="code\data\z_tls_stream_data.cpp" />
     <ClCompile Include="code\data\z_udp_socket_data.cpp" />
     <ClCompile Include="code\data\z_url_resolver_data.cpp" />
+    <ClCompile Include="code\d_function.cpp" />
     <ClCompile Include="code\f_socket\get_udp_public_address_and_port.cpp" />
     <ClCompile Include="code\f_tcp_log_output.cpp" />
     <ClCompile Include="code\z_buffer_stream.cpp" />
@@ -38,6 +39,7 @@
     <ClCompile Include="code\z_http_response_resolver\z_http_11_response_resolver.cpp" />
     <ClCompile Include="code\z_io_context.cpp" />
     <ClCompile Include="code\z_tcp_client\z_tcp_multiple_session_client.cpp" />
+    <ClCompile Include="code\z_tcp_endpoint.cpp" />
     <ClCompile Include="code\z_tcp_server\z_tcp_multiple_session_server.cpp" />
     <ClCompile Include="code\z_tcp_client\z_tcp_single_session_client.cpp" />
     <ClCompile Include="code\z_tcp_server\z_tcp_single_session_server.cpp" />

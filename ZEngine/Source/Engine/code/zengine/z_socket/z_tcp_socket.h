@@ -27,6 +27,7 @@
 #include "../z_core/z_string_view.h"
 
 #include "z_buffer.h"
+#include "z_tcp_endpoint.h"
 
 namespace zengine {
 namespace socket {
@@ -73,8 +74,7 @@ public:
     template<typename _ObjectType>
     NODISCARD FORCEINLINE _ObjectType* LinkObjectPtr() const noexcept { return link_object_ptr_; }
 
-    NODISCARD const ZString& RemoteAddress() noexcept;
-    NODISCARD const Int32 RemotePort() noexcept;
+    NODISCARD const ZTCPEndpoint& RemoteEndpoint() const noexcept;
 
     /*
         Initialize socket.
@@ -82,9 +82,9 @@ public:
     NODISCARD ReturnType Initialize(ZIOContext* _io_context_ptr) noexcept;
 
     /*
-        Bind endpoint by address and port. Call before connected.
+        Bind endpoint. Call before connected.
     */
-    NODISCARD ReturnType BindEndpoint(const Char* _address_str, Int32 _port) noexcept;
+    NODISCARD ReturnType BindEndpoint(const ZTCPEndpoint& _tcp_endpoint) noexcept;
 
     /*
         Sets os write buffer size. Call after connected.
@@ -114,8 +114,7 @@ public:
         Conect to target socket. Will suspend the current thread.
     */
     NODISCARD ReturnType Connect(
-        ZStringView _address_str,
-        ZStringView _port_str,
+        const ZTCPEndpoint& _tcp_endpoint,
         Int32 _repeat_times = kConnectRetryForever
     ) noexcept;
 
@@ -124,8 +123,7 @@ public:
         _handle_func(Bool _connect_success)
     */
     NODISCARD ReturnType AsyncConnect(
-        ZStringView _address_str,
-        ZStringView _port_str,
+        const ZTCPEndpoint& _tcp_endpoint,
         const TFunction<Void(ZTCPSocket*, Bool)>& _handle_func,
         Int32 _repeat_times = kConnectRetryForever
     ) noexcept;
@@ -243,10 +241,7 @@ private:
         Async connect execute func.
     */
     NODISCARD ReturnType AsyncConnectExecuteP(
-        ZString&& _address_str,
-        ZString&& _port_str,
-        Void* _endpoints_ptr,
-        Void* _endpoint_iterator,
+        const ZTCPEndpoint& _tcp_endpoint,
         const TFunction<Void(ZTCPSocket*, Bool)>& _handle_func,
         Int32 _repeat_times,
         Int32 _reconnect_times

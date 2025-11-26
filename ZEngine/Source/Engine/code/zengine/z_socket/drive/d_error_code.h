@@ -41,6 +41,7 @@ enum ZSocketErrorCode : ReturnType {
     kPSocketErrorCode_StateError,
     kPSocketErrorCode_SocketNotOpen,
     kPSocketErrorCode_AddressNotVaild,
+    kPSocketErrorCode_IPNotVaild,
     kPSocketErrorCode_PortNotVaild,
     kPSocketErrorCode_Disconnected,
     kPSocketErrorCode_EndpointNotBind,

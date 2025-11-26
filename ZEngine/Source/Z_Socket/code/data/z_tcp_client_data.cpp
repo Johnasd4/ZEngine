@@ -26,7 +26,6 @@ namespace internal {
 
 ZTCPSingleSessionClientData::ZTCPSingleSessionClientData(boost::asio::io_context* _io_context_ptr) noexcept
     : SuperType_()
-    , resolver_(*_io_context_ptr)
 {}
 
 ZTCPMultipleSessionClientData::ZTCPMultipleSessionClientData(boost::asio::io_context* _io_context_ptr) noexcept

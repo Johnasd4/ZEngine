@@ -49,6 +49,8 @@ class ZConstBuffer;
 class ZBufferStream;
 class ZFixedBuffer;
 class ZIOContext;
+class ZTCPEndpoint;
+class ZUDPEndpoint;
 class ZTCPSocket;
 class ZUDPSocket;
 class ZTCPSingleSessionClient;

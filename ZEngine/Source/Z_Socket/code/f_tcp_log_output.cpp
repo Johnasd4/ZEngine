@@ -87,8 +87,7 @@ public:
     }
 
     NODISCARD ReturnType StartServer(
-        const Char* _address_str,
-        Int32 _port
+        const ZTCPEndpoint& _tcp_endpoint
     ) noexcept {
         ReturnType ret_val = kOK;
         ReturnType link_code = kOK;
@@ -101,7 +100,7 @@ public:
         );
 
         //set end point
-        link_code = log_server_.BindEndpoint(_address_str, _port);
+        link_code = log_server_.BindEndpoint(_tcp_endpoint);
         if (link_code != kOK) {
             ret_val = error_code::kPSocketErrorCode_LinkError;
             Z_LOG_ERROR(ret_val, link_code, L"ZTCPServer::SetEndpoint() link error!");
@@ -347,8 +346,7 @@ public:
         const TFunction<Void(const TCPLogOutputReplyLogData*)>& _data_handle_func,
         const TFunction<Void()>& _client_connect_handle_func,
         const TFunction<Void()>& _client_finish_handle_func,
-        ZStringView _address_str,
-        ZStringView _port_str,
+        const ZTCPEndpoint& _tcp_endpoint,
         Int32 _repeat_times
     ) noexcept {
         ReturnType ret_val = kOK;
@@ -367,7 +365,7 @@ public:
         client_finish_handle_func_ = _client_finish_handle_func;
         //start log client
         log_client_thread_state_ = LogClientState_Initialzing;
-        client_thread_ = ZThread(LogClientThreadFunc, ZString(_address_str), ZString(_port_str), _repeat_times);
+        client_thread_ = ZThread(LogClientThreadFunc, ZTCPEndpoint(_tcp_endpoint), _repeat_times);
 
         return ret_val;
     }
@@ -394,6 +392,11 @@ public:
             }
         }
 
+        //wait for thread finish
+        if (client_thread_.Joinable()) {
+            client_thread_.Join();
+        }
+
         return ret_val;
     }
 
@@ -410,8 +413,7 @@ private:
     };
 
     static Void LogClientThreadFunc(
-        ZString&& _address_str,
-        ZString&& _port_str,
+        ZTCPEndpoint&& _tcp_endpoint,
         Int32 _repeat_times
     ) noexcept {
         ReturnType link_code = kOK;
@@ -419,7 +421,7 @@ private:
         Instance().log_client_thread_state_ = LogClientState_WaitingToConnect;
 
         //wait for clinet connect
-        link_code = Instance().log_client_.Connect(_address_str.String(), _port_str.String(), _repeat_times);
+        link_code = Instance().log_client_.Connect(_tcp_endpoint, _repeat_times);
         if (link_code != kOK) {
             if (link_code == error_code::kPSocketErrorCode_ConnectFailed) {
             }
@@ -538,12 +540,11 @@ private:
 };
 
 SOCKET_DLLAPI ReturnType StartLogOutputServer(
-    const Char* _address_str,
-    Int32 _port
+    const ZTCPEndpoint& _tcp_endpoint
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
-    link_code = ZTCPLogServer::Instance().StartServer(_address_str, _port);
+    link_code = ZTCPLogServer::Instance().StartServer(_tcp_endpoint);
     if (link_code != kOK) {
         Z_LOG_ERROR(
             error_code::kFTCPLogOutputErrorCode_LinkError, link_code,
@@ -570,8 +571,7 @@ SOCKET_DLLAPI ReturnType StartLogOutputClient(
     const TFunction<Void(const TCPLogOutputReplyLogData*)>& _data_handle_func,
     const TFunction<Void()>& _client_connect_handle_func,
     const TFunction<Void()>& _client_finish_handle_func,
-    ZStringView _address_str,
-    ZStringView _port_str,
+    const ZTCPEndpoint& _tcp_endpoint,
     Int32 _repeat_times
 ) noexcept {
     ReturnType ret_val = kOK;
@@ -580,8 +580,7 @@ SOCKET_DLLAPI ReturnType StartLogOutputClient(
         _data_handle_func,
         _client_connect_handle_func,
         _client_finish_handle_func,
-        _address_str,
-        _port_str, 
+        _tcp_endpoint,
         _repeat_times
     );
     if (link_code != kOK) {

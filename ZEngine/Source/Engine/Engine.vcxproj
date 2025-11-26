@@ -273,6 +273,7 @@
     <ClInclude Include="code\zengine\z_socket\drive\d_type.h" />
     <ClInclude Include="code\zengine\z_socket\z_buffer.h" />
     <ClInclude Include="code\zengine\z_socket\z_buffer_stream.h" />
+    <ClInclude Include="code\zengine\z_socket\z_tcp_endpoint.h" />
     <ClInclude Include="code\zengine\z_socket\z_udp_client.h" />
     <ClInclude Include="code\zengine\z_socket\z_udp_server.h" />
     <ClInclude Include="code\zengine\z_socket\z_url_resolver.h" />

@@ -26,6 +26,7 @@
 #include "z_socket/z_http_response_resolver.h"
 #include "z_socket/z_io_context.h"
 #include "z_socket/z_tcp_client.h"
+#include "z_socket/z_tcp_endpoint.h"
 #include "z_socket/z_tcp_server.h"
 #include "z_socket/z_tcp_socket.h"
 #include "z_socket/z_tls_context.h"

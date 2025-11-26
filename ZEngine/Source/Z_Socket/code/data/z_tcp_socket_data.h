@@ -40,8 +40,7 @@ protected:
 public:
     boost::asio::ip::tcp::socket socket_;
     boost::asio::ip::tcp::endpoint bind_endpoint_;
-    ZString address_;
-    Int32 port_;
+    boost::asio::ip::tcp::endpoint remote_endpoint_;
     Bool if_endpoint_bind_;
     TFunction<Void()> async_error_handle_func_;
 };

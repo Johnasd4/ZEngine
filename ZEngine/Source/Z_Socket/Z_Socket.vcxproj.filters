@@ -93,6 +93,12 @@
     <ClCompile Include="code\f_socket\get_udp_public_address_and_port.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="code\d_function.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\z_tcp_endpoint.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\data\z_buffer_stream_data.h">

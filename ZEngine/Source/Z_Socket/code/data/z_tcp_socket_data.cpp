@@ -28,8 +28,7 @@ ZTCPSocketData::ZTCPSocketData(boost::asio::io_context* _io_context_ptr) noexcep
     : SuperType_()
     , socket_(*_io_context_ptr)
     , bind_endpoint_()
-    , address_()
-    , port_()
+    , remote_endpoint_()
     , if_endpoint_bind_(false)
     , async_error_handle_func_()
 {}

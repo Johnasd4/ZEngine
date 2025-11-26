@@ -95,8 +95,7 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::Close() noexcept {
 }
 
 NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncConnect(
-    ZStringView _address_str,
-    ZStringView _port_str,
+    const ZTCPEndpoint& _tcp_endpoint,
     const TFunction<Void(ZTCPMultipleSessionClient*, ZTCPSocket*)>& _handle_func,
     Int32 _repeat_times,
     ZTCPSocket** _tcp_socket_ptr_ptr
@@ -116,11 +115,10 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncConnect(
     if (_tcp_socket_ptr_ptr != nullptr) {
         *_tcp_socket_ptr_ptr = socket_ptr;
     }
-    ZString address_str = _address_str;
-    ZString port_str = _port_str;
 
-    link_code = socket_ptr->AsyncConnect(_address_str, _port_str,
-        [this, address_str = std::move(address_str), port_str = std::move(port_str), _handle_func](
+    link_code = socket_ptr->AsyncConnect(
+        _tcp_endpoint,
+        [this, _handle_func](
             ZTCPSocket* _socket_ptr,
             Bool _connect_success
         ) {
@@ -133,7 +131,7 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncConnect(
             //success
             socket_pool_list_.PushBack(_socket_ptr);
             _socket_ptr->SetAsyncErrorHandleFunction(
-                [address_str = std::move(address_str), port_str = std::move(port_str), this, _socket_ptr]() {
+                [this, _socket_ptr]() {
                     ReturnType link_code = kOK;
                     //close and release socket
                     link_code = _socket_ptr->Close();
@@ -149,8 +147,8 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncConnect(
                     //disconnect
                     Z_DEBUG_LOG_FINISH(
                         L"Server disconnected! server_address: %ls server_port: %ls",
-                        string::String2WString(address_str.String()).String(),
-                        string::String2WString(port_str.String()).String()
+                        string::String2WString(_socket_ptr->RemoteEndpoint().IPString().String()).String(),
+                        _socket_ptr->RemoteEndpoint().Port()
                     );
                 }
             );

@@ -52,9 +52,8 @@ enum FTCPLogOutputErrorCode : ReturnType {
 namespace zengine {
 namespace socket {
 
-constexpr Char kDefaultTCPLogAddressString[] = "127.0.0.1";
-constexpr Char kDefaultTCPLogPortString[] = "10000";
-constexpr Int32 kDefaultTCPLogPort = 10000;
+constexpr UInt32 kDefaultTCPLogIP = 0x7F000001U;
+constexpr UInt16 kDefaultTCPLogPort = 10000;
 constexpr TimeType kLogServerDisconnectLogWaitMaxTime = 30;
 constexpr SizeType kLogServerDisconnectLogWaitMaxNum = 300;
 
@@ -128,8 +127,7 @@ struct TCPLogOutputReply {
     Start log server.
 */
 SOCKET_DLLAPI ReturnType StartLogOutputServer(
-    const Char* _address_str = kDefaultTCPLogAddressString,
-    Int32 _port = kDefaultTCPLogPort
+    const ZTCPEndpoint& _tcp_endpoint = ZTCPEndpoint(kDefaultTCPLogIP, kDefaultTCPLogPort)
 ) noexcept;
 
 /*
@@ -144,8 +142,7 @@ SOCKET_DLLAPI ReturnType StartLogOutputClient(
     const TFunction<Void(const TCPLogOutputReplyLogData*)>& _data_handle_func,
     const TFunction<Void()>& _client_connect_handle_func,
     const TFunction<Void()>& _client_finish_handle_func,
-    ZStringView _address_str = kDefaultTCPLogAddressString,
-    ZStringView _port_str = kDefaultTCPLogPortString,
+    const ZTCPEndpoint& _tcp_endpoint = ZTCPEndpoint(kDefaultTCPLogIP, kDefaultTCPLogPort),
     Int32 _repeat_times = ZTCPSocket::kConnectRetryForever
 ) noexcept;
 

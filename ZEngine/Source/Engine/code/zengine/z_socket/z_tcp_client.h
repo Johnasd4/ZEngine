@@ -29,6 +29,7 @@
 #include "../z_core/z_string_view.h"
 
 #include "z_buffer.h"
+#include "z_tcp_endpoint.h"
 #include "z_tcp_socket.h"
 
 namespace zengine {
@@ -70,9 +71,9 @@ public:
     NODISCARD FORCEINLINE ZIOContext* IOContextPtr() const noexcept { return io_context_ptr_; }
 
     /*
-        Bind endpoint by address and port. Call before connected.
+        Bind endpoint. Call before connected.
     */
-    NODISCARD ReturnType BindEndpoint(const Char* _address_str, Int32 _port) noexcept;
+    NODISCARD ReturnType BindEndpoint(const ZTCPEndpoint& _tcp_endpoint) noexcept;
 
     /*
         Sets os write buffer size. Call after connected.
@@ -92,8 +93,7 @@ public:
         Connect to server. Will suspend the current thread.
     */
     NODISCARD ReturnType Connect(
-        ZStringView _address_str,
-        ZStringView _port_str,
+        const ZTCPEndpoint& _tcp_endpoint,
         Int32 _repeat_times = kConnectRetryForever
     ) noexcept;
 
@@ -246,8 +246,7 @@ public:
         _handle_func(ZTCPMultipleSessionClient* _server_ptr, ZTCPSocket* _socket_ptr)
     */
     NODISCARD ReturnType AsyncConnect(
-        ZStringView _address_str,
-        ZStringView _port_str,
+        const ZTCPEndpoint& _tcp_endpoint,
         const TFunction<Void(ZTCPMultipleSessionClient*, ZTCPSocket*)>& _handle_func,
         Int32 _repeat_times = kConnectRetryForever,
         ZTCPSocket** _tcp_socket_ptr_ptr = nullptr

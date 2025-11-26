@@ -20,10 +20,10 @@
 
 #include "drive.h"
 
-#include "../z_core/t_function.h"
-#include "../z_core/t_pool_list.h"
+#include "../z_core/t_vector.h"
 #include "../z_core/t_smart_pointer.h"
 #include "../z_core/z_object.h"
+#include "../z_core/z_string_view.h"
 
 namespace zengine {
 namespace socket {
@@ -52,6 +52,15 @@ public:
     ~ZIOContext() noexcept;
 
     NODISCARD FORCEINLINE State_ State() const noexcept { return state_; }
+
+    /*
+        Resolve the given address.
+    */
+    NODISCARD ReturnType ResolveTCPAddress(
+        ZStringView _address_str,
+        ZStringView _port_str,
+        TVector<ZTCPEndpoint>* _endpoint_vector_ptr
+    ) noexcept;
 
     /*
         Stop all sockets.

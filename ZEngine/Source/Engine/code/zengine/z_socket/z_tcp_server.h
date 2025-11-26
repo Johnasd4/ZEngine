@@ -25,6 +25,7 @@
 #include "../z_core/t_smart_pointer.h"
 #include "../z_core/z_object.h"
 
+#include "z_tcp_endpoint.h"
 #include "z_tcp_socket.h"
 
 namespace zengine {
@@ -65,9 +66,9 @@ public:
     NODISCARD FORCEINLINE ZIOContext* IOContextPtr() const noexcept { return io_context_ptr_; }
 
     /*
-        Bind endpoint by address and port. Call before Listen() or after Close().
+        Bind endpoint by endpoint. Call before Listen() or after Close().
     */
-    NODISCARD ReturnType BindEndpoint(const Char* _address_str, Int32 _port) noexcept;
+    NODISCARD ReturnType BindEndpoint(const ZTCPEndpoint& _tcp_endpoint) noexcept;
 
     /*
         Sets the socket buffer size. Call after a client is connected.
@@ -226,9 +227,9 @@ public:
     NODISCARD FORCEINLINE ZIOContext* IOContextPtr() const noexcept { return io_context_ptr_; }
 
     /*
-        Bind endpoint by address and port. Call before Listen() or after Close().
+        Bind endpoint. Call before Listen() or after Close().
     */
-    NODISCARD ReturnType BindEndpoint(const Char* _address_str, Int32 _port) noexcept;
+    NODISCARD ReturnType BindEndpoint(const ZTCPEndpoint& _tcp_endpoint) noexcept;
 
     /*
         Starts the server.

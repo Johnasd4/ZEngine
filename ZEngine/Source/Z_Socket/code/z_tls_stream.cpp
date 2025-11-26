@@ -201,9 +201,9 @@ NODISCARD ReturnType ZTLSStream::Handshake() noexcept {
     );
 
     Z_DEBUG_LOG_START(
-        L"Start handshake... address: %ls port: %d",
-        string::String2WString(tcp_socket_ptr_->data_ptr_->address_.String()).String(),
-        tcp_socket_ptr_->data_ptr_->port_
+        L"Start handshake... ip: %ls port: %d",
+        string::String2WString(tcp_socket_ptr_->RemoteEndpoint().IPString().String()).String(),
+        tcp_socket_ptr_->RemoteEndpoint().Port()
     );
 
     boost::asio::ssl::stream_base::handshake_type tls_type;
@@ -216,9 +216,9 @@ NODISCARD ReturnType ZTLSStream::Handshake() noexcept {
         break;
     default:
         Z_DEBUG_LOG_FAILURE(
-            L"Handshake failed! address: %ls port: %d",
-            string::String2WString(tcp_socket_ptr_->data_ptr_->address_.String()).String(),
-            tcp_socket_ptr_->data_ptr_->port_
+            L"Handshake failed! ip: %ls port: %d",
+            string::String2WString(tcp_socket_ptr_->RemoteEndpoint().IPString().String()).String(),
+            tcp_socket_ptr_->RemoteEndpoint().Port()
         );
         ret_val = error_code::kPSocketErrorCode_TLSTypeNotValid;
         Z_LOG_ERROR(ret_val, 0, L"TLS Type not valid! tls_type: %d", tls_context_ptr_->TLSType());
@@ -229,9 +229,9 @@ NODISCARD ReturnType ZTLSStream::Handshake() noexcept {
     if (error_code) {
 
         Z_DEBUG_LOG_FAILURE(
-            L"Handshake failed! address: %ls port: %d",
-            string::String2WString(tcp_socket_ptr_->data_ptr_->address_.String()).String(),
-            tcp_socket_ptr_->data_ptr_->port_
+            L"Handshake failed! ip: %ls port: %d",
+            string::String2WString(tcp_socket_ptr_->RemoteEndpoint().IPString().String()).String(),
+            tcp_socket_ptr_->RemoteEndpoint().Port()
         );
 
         if (IS_DICONNECT_ERROR(error_code)) {
@@ -255,9 +255,9 @@ NODISCARD ReturnType ZTLSStream::Handshake() noexcept {
             }
             ret_val = error_code::kPSocketErrorCode_Disconnected;
             Z_DEBUG_LOG_FINISH(
-                L"Socket disconnected! address: %ls port: %d",
-                string::String2WString(tcp_socket_ptr_->data_ptr_->address_.String()).String(),
-                tcp_socket_ptr_->data_ptr_->port_
+                L"Socket disconnected! ip: %ls port: %d",
+                string::String2WString(tcp_socket_ptr_->RemoteEndpoint().IPString().String()).String(),
+                tcp_socket_ptr_->RemoteEndpoint().Port()
             );
             return ret_val;
         } 
@@ -292,9 +292,9 @@ NODISCARD ReturnType ZTLSStream::AsyncHandshake(
     );
 
     Z_DEBUG_LOG_START(
-        L"Start handshake... address: %ls port: %d",
-        string::String2WString(tcp_socket_ptr_->data_ptr_->address_.String()).String(),
-        tcp_socket_ptr_->data_ptr_->port_
+        L"Start handshake... ip: %ls port: %d",
+        string::String2WString(tcp_socket_ptr_->RemoteEndpoint().IPString().String()).String(),
+        tcp_socket_ptr_->RemoteEndpoint().Port()
     );
 
     boost::asio::ssl::stream_base::handshake_type tls_type;
@@ -307,9 +307,9 @@ NODISCARD ReturnType ZTLSStream::AsyncHandshake(
         break;
     default:
         Z_DEBUG_LOG_FAILURE(
-            L"Handshake failed! address: %ls port: %d",
-            string::String2WString(tcp_socket_ptr_->data_ptr_->address_.String()).String(),
-            tcp_socket_ptr_->data_ptr_->port_
+            L"Handshake failed! ip: %ls port: %d",
+            string::String2WString(tcp_socket_ptr_->RemoteEndpoint().IPString().String()).String(),
+            tcp_socket_ptr_->RemoteEndpoint().Port()
         );
         ret_val = error_code::kPSocketErrorCode_TLSTypeNotValid;
         Z_LOG_ERROR(ret_val, 0, L"TLS Type not valid! tls_type: %d", tls_context_ptr_->TLSType());
@@ -324,9 +324,9 @@ NODISCARD ReturnType ZTLSStream::AsyncHandshake(
             if (_error_code) {
 
                 Z_DEBUG_LOG_FAILURE(
-                    L"Handshake failed! address: %ls port: %d",
-                    string::String2WString(tcp_socket_ptr_->data_ptr_->address_.String()).String(),
-                    tcp_socket_ptr_->data_ptr_->port_
+                    L"Handshake failed! ip: %ls port: %d",
+                    string::String2WString(tcp_socket_ptr_->RemoteEndpoint().IPString().String()).String(),
+                    tcp_socket_ptr_->RemoteEndpoint().Port()
                 );
 
                 if (IS_DICONNECT_ERROR(_error_code)) {
@@ -345,9 +345,9 @@ NODISCARD ReturnType ZTLSStream::AsyncHandshake(
                         );
                     }
                     Z_DEBUG_LOG_FINISH(
-                        L"Socket disconnected! address: %ls port: %d",
-                        string::String2WString(tcp_socket_ptr_->data_ptr_->address_.String()).String(),
-                        tcp_socket_ptr_->data_ptr_->port_
+                        L"Socket disconnected! ip: %ls port: %d",
+                        string::String2WString(tcp_socket_ptr_->RemoteEndpoint().IPString().String()).String(),
+                        tcp_socket_ptr_->RemoteEndpoint().Port()
                     );
                 }
                 else {
@@ -415,9 +415,9 @@ NODISCARD ReturnType ZTLSStream::Read(
             }
             ret_val = error_code::kPSocketErrorCode_Disconnected;
             Z_DEBUG_LOG_FINISH(
-                L"Socket disconnected! address: %ls port: %d",
-                string::String2WString(tcp_socket_ptr_->data_ptr_->address_.String()).String(),
-                tcp_socket_ptr_->data_ptr_->port_
+                L"Socket disconnected! ip: %ls port: %d",
+                string::String2WString(tcp_socket_ptr_->RemoteEndpoint().IPString().String()).String(),
+                tcp_socket_ptr_->RemoteEndpoint().Port()
             );
             return ret_val;
         }
@@ -476,9 +476,9 @@ NODISCARD ReturnType ZTLSStream::AsyncRead(
                         );
                     }
                     Z_DEBUG_LOG_FINISH(
-                        L"Socket disconnected! address: %ls port: %d",
-                        string::String2WString(tcp_socket_ptr_->data_ptr_->address_.String()).String(),
-                        tcp_socket_ptr_->data_ptr_->port_
+                        L"Socket disconnected! ip: %ls port: %d",
+                        string::String2WString(tcp_socket_ptr_->RemoteEndpoint().IPString().String()).String(),
+                        tcp_socket_ptr_->RemoteEndpoint().Port()
                     );
                 }
                 else {
@@ -548,9 +548,9 @@ NODISCARD ReturnType ZTLSStream::ReadUntil(
             }
             ret_val = error_code::kPSocketErrorCode_Disconnected;
             Z_DEBUG_LOG_FINISH(
-                L"Socket disconnected! address: %ls port: %d",
-                string::String2WString(tcp_socket_ptr_->data_ptr_->address_.String()).String(),
-                tcp_socket_ptr_->data_ptr_->port_
+                L"Socket disconnected! ip: %ls port: %d",
+                string::String2WString(tcp_socket_ptr_->RemoteEndpoint().IPString().String()).String(),
+                tcp_socket_ptr_->RemoteEndpoint().Port()
             );
             return ret_val;
         }
@@ -613,9 +613,9 @@ NODISCARD ReturnType ZTLSStream::ReadUntil(
             }
             ret_val = error_code::kPSocketErrorCode_Disconnected;
             Z_DEBUG_LOG_FINISH(
-                L"Socket disconnected! address: %ls port: %d",
-                string::String2WString(tcp_socket_ptr_->data_ptr_->address_.String()).String(),
-                tcp_socket_ptr_->data_ptr_->port_
+                L"Socket disconnected! ip: %ls port: %d",
+                string::String2WString(tcp_socket_ptr_->RemoteEndpoint().IPString().String()).String(),
+                tcp_socket_ptr_->RemoteEndpoint().Port()
             );
             return ret_val;
         }
@@ -676,9 +676,9 @@ NODISCARD ReturnType ZTLSStream::AsyncReadUntil(
                             );
                         }
                         Z_DEBUG_LOG_FINISH(
-                            L"Socket disconnected! address: %ls port: %d",
-                            string::String2WString(tcp_socket_ptr_->data_ptr_->address_.String()).String(),
-                            tcp_socket_ptr_->data_ptr_->port_
+                            L"Socket disconnected! ip: %ls port: %d",
+                            string::String2WString(tcp_socket_ptr_->RemoteEndpoint().IPString().String()).String(),
+                            tcp_socket_ptr_->RemoteEndpoint().Port()
                         );
                     }
                     else if (_error_code == boost::asio::error::not_found) {
@@ -752,9 +752,9 @@ NODISCARD ReturnType ZTLSStream::AsyncReadUntil(
                             );
                         }
                         Z_DEBUG_LOG_FINISH(
-                            L"Socket disconnected! address: %ls port: %d",
-                            string::String2WString(tcp_socket_ptr_->data_ptr_->address_.String()).String(),
-                            tcp_socket_ptr_->data_ptr_->port_
+                            L"Socket disconnected! ip: %ls port: %d",
+                            string::String2WString(tcp_socket_ptr_->RemoteEndpoint().IPString().String()).String(),
+                            tcp_socket_ptr_->RemoteEndpoint().Port()
                         );
                     }
                     else if (_error_code == boost::asio::error::not_found) {
@@ -834,9 +834,9 @@ NODISCARD ReturnType ZTLSStream::ReadUntilClose(
         }
         ret_val = error_code::kPSocketErrorCode_Disconnected;
         Z_DEBUG_LOG_FINISH(
-            L"Socket disconnected! address: %ls port: %d",
-            string::String2WString(tcp_socket_ptr_->data_ptr_->address_.String()).String(),
-            tcp_socket_ptr_->data_ptr_->port_
+            L"Socket disconnected! ip: %ls port: %d",
+            string::String2WString(tcp_socket_ptr_->RemoteEndpoint().IPString().String()).String(),
+            tcp_socket_ptr_->RemoteEndpoint().Port()
         );
         return ret_val;
     }
@@ -896,9 +896,9 @@ NODISCARD ReturnType ZTLSStream::Write(
             }
             ret_val = error_code::kPSocketErrorCode_Disconnected;
             Z_DEBUG_LOG_FINISH(
-                L"Socket disconnected! address: %ls port: %d",
-                string::String2WString(tcp_socket_ptr_->data_ptr_->address_.String()).String(),
-                tcp_socket_ptr_->data_ptr_->port_
+                L"Socket disconnected! ip: %ls port: %d",
+                string::String2WString(tcp_socket_ptr_->RemoteEndpoint().IPString().String()).String(),
+                tcp_socket_ptr_->RemoteEndpoint().Port()
             );
             return ret_val;
         }
@@ -953,9 +953,9 @@ NODISCARD ReturnType ZTLSStream::AsyncWrite(
                         );
                     }
                     Z_DEBUG_LOG_FINISH(
-                        L"Socket disconnected! address: %ls port: %d",
-                        string::String2WString(tcp_socket_ptr_->data_ptr_->address_.String()).String(),
-                        tcp_socket_ptr_->data_ptr_->port_
+                        L"Socket disconnected! ip: %ls port: %d",
+                        string::String2WString(tcp_socket_ptr_->RemoteEndpoint().IPString().String()).String(),
+                        tcp_socket_ptr_->RemoteEndpoint().Port()
                     );
                 }
                 else {
@@ -1015,9 +1015,9 @@ Void ZTLSStream::OnHandshakeP() noexcept {
     state_ = ZTLSStreamState_HandShaked;
 
     Z_DEBUG_LOG_SUCCESS(
-        L"Handshake success! address: %ls port: %d",
-        string::String2WString(tcp_socket_ptr_->data_ptr_->address_.String()).String(),
-        tcp_socket_ptr_->data_ptr_->port_
+        L"Handshake success! ip: %ls port: %d",
+        string::String2WString(tcp_socket_ptr_->RemoteEndpoint().IPString().String()).String(),
+        tcp_socket_ptr_->RemoteEndpoint().Port()
     );
 }
 

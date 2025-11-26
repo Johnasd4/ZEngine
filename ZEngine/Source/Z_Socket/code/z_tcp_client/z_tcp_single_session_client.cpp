@@ -75,7 +75,7 @@ ZTCPSingleSessionClient::~ZTCPSingleSessionClient() noexcept {
     }
 }
 
-NODISCARD ReturnType ZTCPSingleSessionClient::BindEndpoint(const Char* _address_str, Int32 _port) noexcept {
+NODISCARD ReturnType ZTCPSingleSessionClient::BindEndpoint(const ZTCPEndpoint& _tcp_endpoint) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
 
@@ -86,7 +86,7 @@ NODISCARD ReturnType ZTCPSingleSessionClient::BindEndpoint(const Char* _address_
         state_, ZTCPSingleSessionClientState_Idle
     );
 
-    link_code = socket_.BindEndpoint(_address_str, _port);
+    link_code = socket_.BindEndpoint(_tcp_endpoint);
     if (link_code != kOK) {
         ret_val = error_code::kPSocketErrorCode_LinkError;
         Z_LOG_ERROR(
@@ -172,8 +172,7 @@ NODISCARD ReturnType ZTCPSingleSessionClient::Close() noexcept {
 }
 
 NODISCARD ReturnType ZTCPSingleSessionClient::Connect(
-    ZStringView _address_str,
-    ZStringView _port_str,
+    const ZTCPEndpoint& _tcp_endpoint,
     Int32 _repeat_times
 ) noexcept {
     ReturnType ret_val = kOK;
@@ -187,7 +186,7 @@ NODISCARD ReturnType ZTCPSingleSessionClient::Connect(
     );
 
     //connect
-    link_code = socket_.Connect(_address_str, _port_str, _repeat_times);
+    link_code = socket_.Connect(_tcp_endpoint, _repeat_times);
     if (link_code != kOK) {
         if (link_code == error_code::kPSocketErrorCode_ConnectFailed) {
             Z_DEBUG_LOG_FAILURE(L"Server connect failed!");
@@ -205,15 +204,13 @@ NODISCARD ReturnType ZTCPSingleSessionClient::Connect(
 
     state_ = ZTCPSingleSessionClientState_Connected;
 
-    ZString address_str = _address_str;
-    ZString port_str = _port_str;
     socket_.SetAsyncErrorHandleFunction(
-        [address_str = std::move(address_str), port_str = std::move(port_str)]() {
+        [this]() {
             //disconnect
             Z_DEBUG_LOG_FINISH(
-                L"Server disconnected! server_address: %ls server_port: %ls",
-                string::String2WString(address_str.String()).String(),
-                string::String2WString(port_str.String()).String()
+                L"Server disconnected! server_ip: %ls server_port: %d",
+                string::String2WString(socket_.RemoteEndpoint().IPString().String()).String(),
+                socket_.RemoteEndpoint().Port()
             );
         }
     );

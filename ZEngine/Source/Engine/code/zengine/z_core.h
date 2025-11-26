@@ -21,6 +21,7 @@
 #include "z_core/f_console.h"
 #include "z_core/f_file_system.h"
 #include "z_core/f_memory_pool.h"
+#include "z_core/f_string.h"
 #include "z_core/f_system.h"
 #include "z_core/m_log.h"
 #include "z_core/t_allocator.h"

@@ -32,13 +32,13 @@ class TFixedMemory : public ZObject {
 public:
     FORCEINLINE TFixedMemory() noexcept : SuperType_(), data_ptr_() {}
     FORCEINLINE TFixedMemory(const TFixedMemory& _mem) noexcept : SuperType_(_mem) { 
-        Copy(data_ptr_, _mem.data_ptr_);
+        Copy(data_ptr_, _mem.data_ptr_, _size);
     }
 
     FORCEINLINE ~TFixedMemory() noexcept {}
 
     FORCEINLINE TFixedMemory& operator=(const TFixedMemory& _mem) noexcept {
-        Copy(data_ptr_, _mem.data_ptr_);
+        Copy(data_ptr_, _mem.data_ptr_, _size);
         return *this;
     }
 

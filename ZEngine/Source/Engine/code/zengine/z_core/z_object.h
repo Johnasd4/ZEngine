@@ -28,6 +28,7 @@ namespace zengine {
     The base class of almost everything.
     Inheriting from this class allows the instance to apply memory from the memorypool,
     instead of applying memory directly from the system.
+    WARNING: Adding any member will cause fatal error!!!!!!!
 */
 class ZObject {
 public:
