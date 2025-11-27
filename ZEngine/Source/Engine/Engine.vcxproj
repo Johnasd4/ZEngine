@@ -21,12 +21,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\main.cpp" />
-    <ClCompile Include="code\main_gui_test.cpp" />
-    <ClCompile Include="code\main_log_output_server_test.cpp" />
-    <ClCompile Include="code\main_socket_test.cpp" />
-    <ClCompile Include="code\main_http_socket.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="code\test.h" />
+    <ClInclude Include="code\test\gui_test.h" />
+    <ClInclude Include="code\test\log_ouput_server_test.h" />
+    <ClInclude Include="code\test\socket_test.h" />
     <ClInclude Include="code\zengine\z_core.h" />
     <ClInclude Include="code\zengine\z_core\f_console.h" />
     <ClInclude Include="code\zengine\z_core\f_file_system.h" />
@@ -275,6 +275,7 @@
     <ClInclude Include="code\zengine\z_socket\z_buffer_stream.h" />
     <ClInclude Include="code\zengine\z_socket\z_tcp_endpoint.h" />
     <ClInclude Include="code\zengine\z_socket\z_udp_client.h" />
+    <ClInclude Include="code\zengine\z_socket\z_udp_endpoint.h" />
     <ClInclude Include="code\zengine\z_socket\z_udp_server.h" />
     <ClInclude Include="code\zengine\z_socket\z_url_resolver.h" />
     <ClInclude Include="code\zengine\z_socket\z_http_request_generator.h" />

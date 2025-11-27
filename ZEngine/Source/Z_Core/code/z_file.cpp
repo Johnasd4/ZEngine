@@ -251,7 +251,9 @@ NODISCARD ReturnType ZFile::OpenSafe(const WChar* _file_dir, const WChar* _open_
 NODISCARD ReturnType ZFile::Close() noexcept {
     ReturnType ret_val = kOK;
 
-    Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCode_NoFileOpened, L"No file opened!");
+    if (file_ptr_ == nullptr) {
+        return ret_val;
+    }
     
     if (fclose(file_ptr_) != 0) {
         ret_val = error_code::kZFileErrorCode_CloseFileFailed;

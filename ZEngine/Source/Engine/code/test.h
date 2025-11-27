@@ -16,26 +16,8 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#define CORE_DLLFILE
+#pragma once
 
-#include "drive/d_initialize.h"
-
-#include "m_log.h"
-
-namespace zengine {
-
-CORE_DLLAPI Void Initialize() noexcept { 
-    setlocale(LC_ALL, "");
-    Z_LOG_ERROR(0, 0, L"Error...");
-    Z_LOG_TRACE(L"Trace...");
-    Z_LOG_MESSAGE(L"Message...");
-    Z_LOG_START(L"Start...");
-    Z_LOG_PROCESS(L"Process...");
-    Z_LOG_FINISH(L"Finish...");
-    Z_LOG_FAILURE(L"Failure...");
-    Z_LOG_SUCCESS(L"Success...");
-    Z_LOG_SUCCESS(L"ZEngine initialize success!");
-
-}
-
-}//zengine
+#include "test/gui_test.h"
+#include "test/log_ouput_server_test.h"
+#include "test/socket_test.h"

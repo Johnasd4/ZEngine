@@ -99,6 +99,9 @@
     <ClCompile Include="code\z_tcp_endpoint.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="code\z_udp_endpoint.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\data\z_buffer_stream_data.h">

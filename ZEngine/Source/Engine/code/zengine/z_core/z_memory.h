@@ -42,7 +42,11 @@ public:
     FORCEINLINE ZMemory(SizeType _size) noexcept
         : SuperType_(), data_ptr_(static_cast<Byte*>(memory_pool::ApplyMemory(_size))), size_(_size) {}
 
-    FORCEINLINE ~ZMemory() noexcept {}
+    FORCEINLINE ~ZMemory() noexcept {
+        if (data_ptr_ != nullptr) {
+            memory_pool::ReleaseMemory(data_ptr_);
+        }
+    }
 
     FORCEINLINE ZMemory& operator=(const ZMemory& _mem) noexcept {
         Copy(data_ptr_, _mem.data_ptr_, size_);

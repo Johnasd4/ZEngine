@@ -16,10 +16,10 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#define PROJECT_NAME L"Include"
+#pragma once
 
 #include "zengine/z_engine.h"
-//#include "zengine/z_gui/test.h"
+#include "zengine/z_gui/test.h"
 
 using namespace zengine;
 using namespace zengine::gui;
@@ -28,7 +28,8 @@ using namespace zengine::file_system;
 using namespace zengine::console;
 using namespace zengine::tsrpg;
 using namespace zengine::socket;
-using namespace std;
+
+namespace test {
 
 //Void SocketServer() noexcept {
 //    ZIOContext context;
@@ -276,44 +277,53 @@ using namespace std;
 //    }
 //}
 
-//Int32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
-Int32 main() { 
-    zengine::Initialize();
-
-    Z_LOG_ERROR(1, 2, L"Error...");
-    Z_LOG_TRACE(L"Trace...");
-    Z_LOG_MESSAGE(L"Message...");
-    Z_LOG_START(L"Start...");
-    Z_LOG_PROCESS(L"Process 1...");
-    Z_LOG_PROCESS(L"Process 2...");
-    Z_LOG_PROCESS(L"Process 3...");
-    Z_LOG_FINISH(L"Finish...");
-    Z_LOG_FAILURE(L"Failure...");
-    Z_LOG_SUCCESS(L"Success...");
-
-
+ReturnType SocketTest() {    
+    ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
-
+    
     //GetPublicIP(nullptr);
     ZWString test_str(nullptr, 0);
-
-
+    
+    
     std::string a = "123";
     ZStringView view = a;
+    
+    UInt32 public_udp_ip;
+    UInt16 public_udp_port;
+    
+    UInt32 ip4;
+    UInt16 port = 10000U;
+    StringToIP4("0.0.0.0", &ip4);
+    socket::ZUDPEndpoint endpoint(ip4, port);
+    
+    
+    link_code = GetUDPPublicIP4AndPort(endpoint, &public_udp_ip, &public_udp_port);
+    if (link_code != kOK) {
+        Z_LOG_ERROR(
+            0, link_code,
+            L"socket::GetUDPPublicIP4AndPort() link error!"
+        );
+        return link_code;
+    }
 
-    GetUDPPublicAddressAndPort("", 1, nullptr, nullptr);
-
+    Z_LOG_MESSAGE(
+        L"%ls %d",
+        zengine::string::String2WString(IP4ToString(public_udp_ip).String()).String(),
+        public_udp_port
+    );
+    
+    
     //ZThread server_thread(SocketServer);
     //ZThread client_thread(SocketClient);
-
+    
     //ZThread server_thread(AysncSocketServer);
     //ZThread client_thread(AysncSocketClient);
-
+    
     //server_thread.Join();
     //client_thread.Join();
-
+    
     /**/
-    log::FinishFlush();
     return 0;
 }
   
+}//test

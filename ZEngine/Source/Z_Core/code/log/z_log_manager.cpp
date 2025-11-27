@@ -137,7 +137,7 @@ ZLogManager& ZLogManager::InstanceP() noexcept {
 Void ZLogManager::LogThread(ZLogManager* _log_manager_ptr) noexcept {
     Bool if_log = true;
 
-    while (_log_manager_ptr->log_thread_finished_ == false || if_log) {
+    while (_log_manager_ptr->log_thread_finished_ == false) {
         if_log = false;
 
         //err log
@@ -175,6 +175,38 @@ Void ZLogManager::LogThread(ZLogManager* _log_manager_ptr) noexcept {
             SleepMs(100);
         }
     }
+
+    //flush remaining logs
+    //err log
+    while (!_log_manager_ptr->error_log_queue_.Empty()) {
+        _log_manager_ptr->log_server_.OutputLog(kErrorLogPortID, &_log_manager_ptr->error_log_queue_.Front());
+        _log_manager_ptr->error_log_queue_.PopFront();
+        if_log = true;
+    }
+
+    //trace log
+    while (!_log_manager_ptr->trace_log_queue_.Empty()) {
+        _log_manager_ptr->log_server_.OutputLog(kTraceLogPortID, &_log_manager_ptr->trace_log_queue_.Front());
+        _log_manager_ptr->trace_log_queue_.PopFront();
+        if_log = true;
+    }
+
+    //info log
+    while (!_log_manager_ptr->info_log_queue_.Empty()) {
+        _log_manager_ptr->log_server_.OutputLog(kInfoLogPortID, &_log_manager_ptr->info_log_queue_.Front());
+        _log_manager_ptr->info_log_queue_.PopFront();
+        if_log = true;
+    }
+
+    //log
+    for (SizeType port_id = 0; port_id < _log_manager_ptr->log_queue_array_.Capacity(); ++port_id) {
+        while (!_log_manager_ptr->log_queue_array_[port_id].Empty()) {
+            _log_manager_ptr->log_server_.OutputLog(port_id, &_log_manager_ptr->log_queue_array_[port_id].Front());
+            _log_manager_ptr->log_queue_array_[port_id].PopFront();
+            if_log = true;
+        }
+    }
+
 }
 
 ZLogManager::ZLogManager() noexcept 
@@ -257,37 +289,7 @@ ZLogManager::ZLogManager() noexcept
 #endif
 }
 
-ZLogManager::~ZLogManager() noexcept {
-    FlushLogsP();
-}
-
-Void ZLogManager::FlushLogsP() noexcept {
-    //err log
-    while (!error_log_queue_.Empty()) {
-        log_server_.OutputLog(kErrorLogPortID, &error_log_queue_.Front());
-        error_log_queue_.PopFront();
-    }
-
-    //trace log
-    while (!trace_log_queue_.Empty()) {
-        log_server_.OutputLog(kTraceLogPortID, &trace_log_queue_.Front());
-        trace_log_queue_.PopFront();
-    }
-
-    //info log
-    while (!info_log_queue_.Empty()) {
-        log_server_.OutputLog(kInfoLogPortID, &info_log_queue_.Front());
-        info_log_queue_.PopFront();
-    }
-
-    //log
-    for (SizeType port_id = 0; port_id < log_queue_array_.Capacity(); ++port_id) {
-        while (!log_queue_array_[port_id].Empty()) {
-            log_server_.OutputLog(port_id, &log_queue_array_[port_id].Front());
-            log_queue_array_[port_id].PopFront();
-        }
-    }
-}
+ZLogManager::~ZLogManager() noexcept {}
 
 }//log
 }//zengine

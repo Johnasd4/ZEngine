@@ -26,6 +26,7 @@
 
 #include "data/z_io_context_data.h"
 #include "z_tcp_endpoint.h"
+#include "z_udp_endpoint.h"
 
 namespace zengine {
 namespace socket {
@@ -78,6 +79,50 @@ NODISCARD ReturnType ZIOContext::ResolveTCPAddress(
         ++endpoint_iterator, ++vector_index
     ) {
         *(*_endpoint_vector_ptr)[vector_index].endpoint_data_.DataPtr<boost::asio::ip::tcp::endpoint*>() = 
+            *endpoint_iterator;
+    }
+    return ret_val;
+}
+
+NODISCARD ReturnType ZIOContext::ResolveUDPAddress(
+    ZStringView _address_str,
+    ZStringView _port_str,
+    TVector<ZUDPEndpoint>* _endpoint_vector_ptr
+) noexcept {
+    ReturnType ret_val = kOK;
+    ReturnType link_code = kOK;
+    boost::system::error_code error_code;
+
+    //resolve endpoints
+    boost::asio::ip::udp::resolver resolver(data_ptr_->io_context_);
+    boost::asio::ip::udp::resolver::results_type endpoints = std::move(resolver.resolve(
+        boost::asio::string_view(_address_str.DataPtr(), _address_str.Size()),
+        boost::asio::string_view(_port_str.DataPtr(), _port_str.Size()),
+        error_code
+    ));
+
+    if (error_code) {
+        ret_val = error_code::kPSocketErrorCode_AddressNotVaild;
+        ZString address_str(_address_str);
+        ZString port_str(_port_str);
+        Z_LOG_ERROR(
+            ret_val, error_code.value(),
+            L"System error! error info: %ls address(%d): %ls port(%d): %ls",
+            string::String2WString(error_code.message().c_str()).String(),
+            _address_str.Size(), string::String2WString(address_str.String()).String(),
+            _port_str.Size(), string::String2WString(port_str.String()).String()
+        );
+        return ret_val;
+    }
+
+    _endpoint_vector_ptr->Resize(endpoints.size());
+    SizeType vector_index = 0ULL;
+    for (
+        auto endpoint_iterator = endpoints.begin();
+        endpoint_iterator != endpoints.end();
+        ++endpoint_iterator, ++vector_index
+        ) {
+        *(*_endpoint_vector_ptr)[vector_index].endpoint_data_.DataPtr<boost::asio::ip::udp::endpoint*>() =
             *endpoint_iterator;
     }
     return ret_val;
@@ -143,6 +188,12 @@ NODISCARD ReturnType ZIOContext::AsyncRun() noexcept {
     );
 
     return ret_val;
+}
+
+NODISCARD Void ZIOContext::Join() noexcept {
+    if (data_ptr_->aysnc_thread_.Joinable()) {
+        data_ptr_->aysnc_thread_.Join();
+    }
 }
 
 }//socket

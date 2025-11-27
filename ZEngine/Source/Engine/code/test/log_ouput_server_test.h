@@ -1,4 +1,4 @@
-﻿/*
+/*
     Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
@@ -16,10 +16,10 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#define PROJECT_NAME L"Include"
+#pragma once
 
 #include "zengine/z_engine.h"
-#include "test.h"
+#include "zengine/z_gui/test.h"
 
 using namespace zengine;
 using namespace zengine::gui;
@@ -29,19 +29,31 @@ using namespace zengine::console;
 using namespace zengine::tsrpg;
 using namespace zengine::socket;
 
+namespace test {
 
-//Int32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
-Int32 main() { 
+Int32 LogOutputServerTest() { 
     zengine::Initialize();
+    zengine::socket::StartLogOutputServer();
 
+    ReturnType link_code = kOK;
 
-
-    //test::GuiTest();
-    //test::LogOutputServerTest();
-    test::SocketTest();
+    SizeType count = 0;
+    while (true) {
+        Z_LOG_ERROR(1, 2, L"Error... %d", count);
+        Z_LOG_TRACE(L"Trace... %d", count);
+        Z_LOG_MESSAGE(L"Message... %d", count);
+        Z_LOG_START(L"Start... %d", count);
+        Z_LOG_PROCESS(L"Process %d", count);
+        Z_LOG_FINISH(L"Finish... %d", count);
+        Z_LOG_FAILURE(L"Failure... %d", count);
+        Z_LOG_SUCCESS(L"Success... %d", count);
+        ++count;
+        SleepMs(1000);
+    }
 
     /**/
-    log::FinishFlush();
     return 0;
 }
+
+}//test
   

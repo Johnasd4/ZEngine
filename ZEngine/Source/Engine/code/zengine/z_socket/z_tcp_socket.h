@@ -120,11 +120,11 @@ public:
 
     /*
         Conect to target socket. Will not suspend the current thread.
-        _handle_func(Bool _connect_success)
+        _handle_func(ReturnType _error_code, ZTCPSocket* _socket_ptr)
     */
     NODISCARD ReturnType AsyncConnect(
         const ZTCPEndpoint& _tcp_endpoint,
-        const TFunction<Void(ZTCPSocket*, Bool)>& _handle_func,
+        const TFunction<Void(ReturnType, ZTCPSocket*)>& _handle_func,
         Int32 _repeat_times = kConnectRetryForever
     ) noexcept;
 
@@ -144,11 +144,11 @@ public:
     /*
         Read data. Will not suspend the current thread.
         _handle_func only needs to handle the read data.
-        _handle_func(ZTCPSocket* _socket_ptr, const ZConstBuffer _buffer)
+        _handle_func(ReturnType _error_code, ZTCPSocket* _socket_ptr, const ZConstBuffer _buffer)
     */
     NODISCARD ReturnType AsyncRead(
         ZBuffer _buffer,
-        const TFunction<Void(ZTCPSocket*, const ZConstBuffer)>& _handle_func
+        const TFunction<Void(ReturnType, ZTCPSocket*, const ZConstBuffer)>& _handle_func
     ) noexcept;
 
     /*
@@ -172,23 +172,23 @@ public:
     /*
         Read data until match char. Will not suspend the current thread.
         _handle_func only needs to handle the read data.
-        _handle_func(ZTCPSocket* _socket_ptr, ZBufferStream* _buffer_stream_ptr)
+        _handle_func(ReturnType _error_code, ZTCPSocket* _socket_ptr, ZBufferStream* _buffer_stream_ptr)
     */
     NODISCARD ReturnType AsyncReadUntil(
         ZBufferStream* _buffer_ptr,
         Char _match_char,
-        const TFunction<Void(ZTCPSocket*, ZBufferStream*)>& _handle_func
+        const TFunction<Void(ReturnType, ZTCPSocket*, ZBufferStream*)>& _handle_func
     ) noexcept;
 
     /*
         Read data until match string. Will not suspend the current thread.
         _handle_func only needs to handle the read data.
-        _handle_func(ZTCPSocket* _socket_ptr, ZBufferStream* _buffer_stream_ptr)
+        _handle_func(ReturnType _error_code, ZTCPSocket* _socket_ptr, ZBufferStream* _buffer_stream_ptr)
     */
     NODISCARD ReturnType AsyncReadUntil(
         ZBufferStream* _buffer_ptr,
         const Char* _match_str,
-        const TFunction<Void(ZTCPSocket*, ZBufferStream*)>& _handle_func
+        const TFunction<Void(ReturnType, ZTCPSocket*, ZBufferStream*)>& _handle_func
     ) noexcept;
 
     /*
@@ -209,11 +209,11 @@ public:
     /*       
         Write data. Will not suspend the current thread.
         _handle_func will be called after the data send.
-        _handle_func(ZTCPSocket* _socket_ptr, const ZConstBuffer _buffer)
+        _handle_func(ReturnType _error_code, ZTCPSocket* _socket_ptr, const ZConstBuffer _buffer)
     */
     NODISCARD ReturnType AsyncWrite(
         ZConstBuffer _buffer,
-        const TFunction<Void(ZTCPSocket*, const ZConstBuffer)>& _handle_func
+        const TFunction<Void(ReturnType, ZTCPSocket*, const ZConstBuffer)>& _handle_func
     ) noexcept;
 
     /*
@@ -242,7 +242,7 @@ private:
     */
     NODISCARD ReturnType AsyncConnectExecuteP(
         const ZTCPEndpoint& _tcp_endpoint,
-        const TFunction<Void(ZTCPSocket*, Bool)>& _handle_func,
+        const TFunction<Void(ReturnType, ZTCPSocket*)>& _handle_func,
         Int32 _repeat_times,
         Int32 _reconnect_times
     ) noexcept;

@@ -31,5 +31,8 @@
 #include "z_socket/z_tcp_socket.h"
 #include "z_socket/z_tls_context.h"
 #include "z_socket/z_tls_stream.h"
+#include "z_socket/z_udp_client.h"
+#include "z_socket/z_udp_endpoint.h"
 #include "z_socket/z_udp_socket.h"
+#include "z_socket/z_udp_server.h"
 #include "z_socket/z_url_resolver.h"

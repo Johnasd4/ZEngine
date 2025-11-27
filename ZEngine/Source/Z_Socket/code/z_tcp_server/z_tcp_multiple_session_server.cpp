@@ -163,7 +163,7 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::Close() noexcept {
 }
 
 NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncAccept(
-    const TFunction<Void(ZTCPMultipleSessionServer*, ZTCPSocket*)>& _handle_func
+    const TFunction<Void(ReturnType, ZTCPMultipleSessionServer*, ZTCPSocket*)>& _handle_func
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
@@ -181,6 +181,8 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncAccept(
         [this, socket_ptr, _handle_func](
             const boost::system::error_code& _error_code
         ) {
+            ReturnType ret_val = kOK;
+
             if (_error_code) {
                 //close and release socket
                 ReturnType link_code = socket_ptr->Close();
@@ -191,33 +193,35 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncAccept(
                     );
                 }
                 socket_pool_list_.Release(socket_ptr);
-                return;
 
                 //handle error
                 if (_error_code == boost::asio::error::operation_aborted) {
+                    ret_val = error_code::kPSocketErrorCode_OperationCanceled;
                     Z_DEBUG_LOG_FAILURE(L"Server accept cancelled!");
                 }
                 else {
+                    ret_val = error_code::kPSocketErrorCode_SystemError;
                     Z_LOG_ERROR(
-                        error_code::kPSocketErrorCode_SystemError, _error_code.value(),
+                        ret_val, _error_code.value(),
                         L"System error! error info: %ls",
                         string::String2WString(_error_code.message().c_str()).String()
                     );
                 }
             }
-
-            socket_pool_list_.PushBack(socket_ptr);
-            socket_ptr->OnConnectP();
-            socket_ptr->SetAsyncErrorHandleFunction(
-                []() {
-                    //disconnect
-                    Z_DEBUG_LOG_FINISH(L"Client disconnected!");
-                }
-            );
-            Z_DEBUG_LOG_SUCCESS(L"Client connected!");
+            else {
+                socket_pool_list_.PushBack(socket_ptr);
+                socket_ptr->OnConnectP();
+                socket_ptr->SetAsyncErrorHandleFunction(
+                    []() {
+                        //disconnect
+                        Z_DEBUG_LOG_FINISH(L"Client disconnected!");
+                    }
+                );
+                Z_DEBUG_LOG_SUCCESS(L"Client connected!");
+            }
 
             if (_handle_func) {
-                _handle_func(this, socket_ptr);
+                _handle_func(ret_val, this, socket_ptr);
             }
         }
     );
@@ -227,7 +231,7 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncAccept(
 
 NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncBroadcast(
     ZConstBuffer _buffer,
-    const TFunction<Void(ZTCPSocket*, const ZConstBuffer)>& _handle_func
+    const TFunction<Void(ReturnType, ZTCPSocket*, const ZConstBuffer)>& _handle_func
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;

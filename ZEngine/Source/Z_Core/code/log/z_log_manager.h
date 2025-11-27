@@ -124,12 +124,6 @@ private:
 
     ~ZLogManager() noexcept;
 
-    /*
-        Flush the remaining logs and the destructors logs.
-        WARNING: Might not work.
-    */
-    Void FlushLogsP() noexcept;
-
     TFixedQueueSafe<ZErrorLog, kLogQueueSize> error_log_queue_;
     TFixedQueueSafe<ZTraceLog, kLogQueueSize> trace_log_queue_;
     TFixedQueueSafe<ZInfoLog, kLogQueueSize> info_log_queue_;

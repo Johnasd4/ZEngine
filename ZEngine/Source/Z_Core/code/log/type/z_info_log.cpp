@@ -70,10 +70,17 @@ Void ZInfoLog::FileOutputLog(const ZLog* _log_ptr, const ZLog::OutputString_& _o
     }();
     ReturnType link_code = kOK;
 
-    link_code = file.Print(L"%ls\n", _output_str.DataPtr());
-    file.Flush();
-    if (link_code != kOK) {
-        Z_LOG_ERROR(error_code::kMLogErrorCode_LinkError, link_code, L"ZFile::Print() link error!");
+    if (file.IfOpen()) {
+        link_code = file.Print(L"%ls\n", _output_str.DataPtr());
+        if (link_code != kOK) {
+            Z_LOG_ERROR(error_code::kMLogErrorCode_LinkError, link_code, L"ZFile::Print() link error!");
+            link_code = file.Close();
+            if (link_code != kOK) {
+                Z_LOG_ERROR(error_code::kMLogErrorCode_LinkError, link_code, L"ZFile::Close() link error!");
+            }
+            return;
+        }
+        file.Flush();
     }
 }
 

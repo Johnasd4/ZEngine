@@ -30,16 +30,16 @@ namespace socket {
 /*
     IO context.
 */
-class SOCKET_DLLAPI ZTCPEndpoint : public ZObject {
+class SOCKET_DLLAPI ZUDPEndpoint : public ZObject {
 public:
     static constexpr SizeType KEndpointSize = 32;
     static constexpr SizeType KIP6Size = 16;
 
-    ZTCPEndpoint() noexcept;
-    ZTCPEndpoint(const ZTCPEndpoint& _endpoint) noexcept;
-    ZTCPEndpoint(ZTCPEndpoint&& _endpoint) noexcept;
-    ZTCPEndpoint(const Char* _ip_str, UInt16 _port) noexcept;
-    ZTCPEndpoint(UInt32 _ip, UInt16 _port) noexcept;
+    ZUDPEndpoint() noexcept;
+    ZUDPEndpoint(const ZUDPEndpoint& _endpoint) noexcept;
+    ZUDPEndpoint(ZUDPEndpoint&& _endpoint) noexcept;
+    ZUDPEndpoint(const Char* _ip_str, UInt16 _port) noexcept;
+    ZUDPEndpoint(UInt32 _ip, UInt16 _port) noexcept;
 
     NODISCARD ReturnType SetEndpoint(const Char* _ip_str, UInt16 _port) noexcept;
     Void SetEndpoint(UInt32 _ip, UInt16 _port) noexcept;
@@ -49,16 +49,16 @@ public:
     NODISCARD TFixedMemory<KIP6Size> IP6() const noexcept;
     NODISCARD UInt16 Port() const noexcept;
 
-    ~ZTCPEndpoint() noexcept;
+    ~ZUDPEndpoint() noexcept;
 
 protected:
     using SuperType_ = ZObject;
-    friend class ZTCPSocket;
+    friend class ZUDPSocket;
     friend class ZIOContext;
-    friend class ZTCPSingleSessionClient;
-    friend class ZTCPMultipleSessionClient;
-    friend class ZTCPSingleSessionServer;
-    friend class ZTCPMultipleSessionServer;
+    friend class ZUDPSingleSessionClient;
+    friend class ZUDPMultipleSessionClient;
+    friend class ZUDPSingleSessionServer;
+    friend class ZUDPMultipleSessionServer;
 
 private:
     TFixedMemory<KEndpointSize> endpoint_data_;

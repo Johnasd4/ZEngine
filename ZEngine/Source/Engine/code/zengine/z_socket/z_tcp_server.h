@@ -111,11 +111,11 @@ public:
     /*
         Read data. Will not suspend the current thread.
         _handle_func only needs to handle the read data.
-        _handle_func(ZTCPSocket* _socket_ptr, const ZConstBuffer _buffer)
+        _handle_func(ReturnType _error_code, ZTCPSocket* _socket_ptr, const ZConstBuffer _buffer)
     */
     NODISCARD ReturnType AsyncRead(
         ZBuffer _buffer,
-        const TFunction<Void(ZTCPSocket*, const ZConstBuffer)>& _handle_func
+        const TFunction<Void(ReturnType, ZTCPSocket*, const ZConstBuffer)>& _handle_func
     ) noexcept;
 
     /*
@@ -139,23 +139,23 @@ public:
     /*
         Read data until match char. Will not suspend the current thread.
         _handle_func only needs to handle the read data.
-        _handle_func(ZTCPSocket* _socket_ptr, ZBufferStream* _buffer_stream_ptr)
+        _handle_func(ReturnType _error_code, ZTCPSocket* _socket_ptr, ZBufferStream* _buffer_stream_ptr)
     */
     NODISCARD ReturnType AsyncReadUntil(
         ZBufferStream* _buffer_ptr,
         Char _match_char,
-        const TFunction<Void(ZTCPSocket*, ZBufferStream*)>& _handle_func
+        const TFunction<Void(ReturnType, ZTCPSocket*, ZBufferStream*)>& _handle_func
     ) noexcept;
 
     /*
         Read data until match string. Will not suspend the current thread.
         _handle_func only needs to handle the read data.
-        _handle_func(ZTCPSocket* _socket_ptr, ZBufferStream* _buffer_stream_ptr)
+        _handle_func(ReturnType _error_code, ZTCPSocket* _socket_ptr, ZBufferStream* _buffer_stream_ptr)
     */
     NODISCARD ReturnType AsyncReadUntil(
         ZBufferStream* _buffer_ptr,
         const Char* _match_str,
-        const TFunction<Void(ZTCPSocket*, ZBufferStream*)>& _handle_func
+        const TFunction<Void(ReturnType, ZTCPSocket*, ZBufferStream*)>& _handle_func
     ) noexcept;
 
     /*
@@ -176,11 +176,11 @@ public:
     /*
         Write data. Will not suspend the current thread.
         _handle_func will be called after the data send.
-        _handle_func(ZTCPSocket* _socket_ptr, const ZConstBuffer _buffer)
+        _handle_func(ReturnType _error_code, ZTCPSocket* _socket_ptr, const ZConstBuffer _buffer)
     */
     NODISCARD ReturnType AsyncWrite(
         ZConstBuffer _buffer,
-        const TFunction<Void(ZTCPSocket*, const ZConstBuffer)>& _handle_func
+        const TFunction<Void(ReturnType, ZTCPSocket*, const ZConstBuffer)>& _handle_func
     ) noexcept;
 
     /*
@@ -244,10 +244,10 @@ public:
     /*
         Wait for a client to connected. Will not suspend the current thread.
         _handle_func will be called after a client is connected.
-        _handle_func(ZTCPMultipleSessionServer* _server_ptr, ZTCPSocket* _socket_ptr)
+        _handle_func(ReturnType _error_code, ZTCPMultipleSessionServer* _server_ptr, ZTCPSocket* _socket_ptr)
     */
     NODISCARD ReturnType AsyncAccept(
-        const TFunction<Void(ZTCPMultipleSessionServer*, ZTCPSocket*)>& _handle_func
+        const TFunction<Void(ReturnType, ZTCPMultipleSessionServer*, ZTCPSocket*)>& _handle_func
     ) noexcept;
 
     /*
@@ -259,11 +259,11 @@ public:
     /*
         Write data to all server. Will not suspend the current thread.
         _handle_func will be called after the data send.
-        _handle_func(ZTCPSocket* _socket_ptr, const ZConstBuffer _buffer_ptr)
+        _handle_func(ReturnType _error_code, ZTCPSocket* _socket_ptr, const ZConstBuffer _buffer)
     */
     NODISCARD ReturnType AsyncBroadcast(
         ZConstBuffer _buffer,
-        const TFunction<Void(ZTCPSocket*, const ZConstBuffer)>& _handle_func
+        const TFunction<Void(ReturnType, ZTCPSocket*, const ZConstBuffer)>& _handle_func
     ) noexcept;
 
 protected:

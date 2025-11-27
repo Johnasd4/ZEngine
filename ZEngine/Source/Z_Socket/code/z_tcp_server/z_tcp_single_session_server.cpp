@@ -296,7 +296,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::Read(
 
 NODISCARD ReturnType ZTCPSingleSessionServer::AsyncRead(
     ZBuffer _buffer,
-    const TFunction<Void(ZTCPSocket*, const ZConstBuffer)>& _handle_func
+    const TFunction<Void(ReturnType, ZTCPSocket*, const ZConstBuffer)>& _handle_func
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
@@ -399,7 +399,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::ReadUntil(
 NODISCARD ReturnType ZTCPSingleSessionServer::AsyncReadUntil(
     ZBufferStream* _buffer_ptr,
     Char _match_char,
-    const TFunction<Void(ZTCPSocket*, ZBufferStream*)>& _handle_func
+    const TFunction<Void(ReturnType, ZTCPSocket*, ZBufferStream*)>& _handle_func
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
@@ -428,7 +428,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::AsyncReadUntil(
 NODISCARD ReturnType ZTCPSingleSessionServer::AsyncReadUntil(
     ZBufferStream* _buffer_ptr,
     const Char* _match_str,
-    const TFunction<Void(ZTCPSocket*, ZBufferStream*)>& _handle_func
+    const TFunction<Void(ReturnType, ZTCPSocket*, ZBufferStream*)>& _handle_func
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
@@ -519,7 +519,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::Write(
 
 NODISCARD ReturnType ZTCPSingleSessionServer::AsyncWrite(
     ZConstBuffer _buffer,
-    const TFunction<Void(ZTCPSocket*, const ZConstBuffer)>& _handle_func
+    const TFunction<Void(ReturnType, ZTCPSocket*, const ZConstBuffer)>& _handle_func
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;

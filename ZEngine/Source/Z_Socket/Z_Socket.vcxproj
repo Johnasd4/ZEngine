@@ -48,6 +48,7 @@
     <ClCompile Include="code\z_tls_stream.cpp" />
     <ClCompile Include="code\z_udp_socket.cpp" />
     <ClCompile Include="code\z_url_resolver.cpp" />
+    <ClCompile Include="code\z_udp_endpoint.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\data\z_http_11_response_resolver_data.h" />

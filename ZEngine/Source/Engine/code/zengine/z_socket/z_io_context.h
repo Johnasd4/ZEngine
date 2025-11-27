@@ -63,6 +63,15 @@ public:
     ) noexcept;
 
     /*
+        Resolve the given address.
+    */
+    NODISCARD ReturnType ResolveUDPAddress(
+        ZStringView _address_str,
+        ZStringView _port_str,
+        TVector<ZUDPEndpoint>* _endpoint_vector_ptr
+    ) noexcept;
+
+    /*
         Stop all sockets.
     */
     NODISCARD ReturnType Stop() noexcept;
@@ -83,6 +92,11 @@ public:
         If dealing with async operation.
     */
     NODISCARD FORCEINLINE Bool IsRunning() noexcept { return state_ == ZIOContextState_Run; }
+
+    /*
+        Suspend until async operation thread finish.
+    */
+    NODISCARD Void Join() noexcept;
 
 protected:
     using SuperType_ = ZObject;

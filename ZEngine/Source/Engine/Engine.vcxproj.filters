@@ -18,18 +18,6 @@
     <ClCompile Include="code\main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="code\main_gui_test.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\main_log_output_server_test.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\main_socket_test.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\main_http_socket.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\zengine\z_core\drive\d_concept.h">
@@ -891,6 +879,21 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\zengine\z_socket\z_tcp_endpoint.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\zengine\z_socket\z_udp_endpoint.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\test\gui_test.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\test\log_ouput_server_test.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\test\socket_test.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\test.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

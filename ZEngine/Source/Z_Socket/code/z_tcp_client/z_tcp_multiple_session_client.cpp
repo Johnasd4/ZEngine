@@ -96,7 +96,7 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::Close() noexcept {
 
 NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncConnect(
     const ZTCPEndpoint& _tcp_endpoint,
-    const TFunction<Void(ZTCPMultipleSessionClient*, ZTCPSocket*)>& _handle_func,
+    const TFunction<Void(ReturnType, ZTCPMultipleSessionClient*, ZTCPSocket*)>& _handle_func,
     Int32 _repeat_times,
     ZTCPSocket** _tcp_socket_ptr_ptr
 ) noexcept {
@@ -119,44 +119,44 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncConnect(
     link_code = socket_ptr->AsyncConnect(
         _tcp_endpoint,
         [this, _handle_func](
-            ZTCPSocket* _socket_ptr,
-            Bool _connect_success
+            ReturnType _error_code,
+            ZTCPSocket* _socket_ptr
         ) {
             //failed
-            if (!_connect_success) {
+            if (_error_code != kOK) {
                 socket_pool_list_.Release(_socket_ptr);
-                return;
             }
+            else {
+                //success
+                socket_pool_list_.PushBack(_socket_ptr);
+                _socket_ptr->SetAsyncErrorHandleFunction(
+                    [this, _socket_ptr]() {
+                        ReturnType link_code = kOK;
+                        //close and release socket
+                        link_code = _socket_ptr->Close();
+                        if (link_code != kOK) {
+                            Z_LOG_ERROR(
+                                error_code::kPSocketErrorCode_LinkError, link_code,
+                                L"ZTCPSocket::Close() link error!"
+                            );
+                        }
+                        socket_pool_list_.Erase(_socket_ptr);
+                        socket_pool_list_.Release(_socket_ptr);
 
-            //success
-            socket_pool_list_.PushBack(_socket_ptr);
-            _socket_ptr->SetAsyncErrorHandleFunction(
-                [this, _socket_ptr]() {
-                    ReturnType link_code = kOK;
-                    //close and release socket
-                    link_code = _socket_ptr->Close();
-                    if (link_code != kOK) {
-                        Z_LOG_ERROR(
-                            error_code::kPSocketErrorCode_LinkError, link_code,
-                            L"ZTCPSocket::Close() link error!"
+                        //disconnect
+                        Z_DEBUG_LOG_FINISH(
+                            L"Server disconnected! server_address: %ls server_port: %ls",
+                            string::String2WString(_socket_ptr->RemoteEndpoint().IPString().String()).String(),
+                            _socket_ptr->RemoteEndpoint().Port()
                         );
                     }
-                    socket_pool_list_.Erase(_socket_ptr);
-                    socket_pool_list_.Release(_socket_ptr);
+                );
 
-                    //disconnect
-                    Z_DEBUG_LOG_FINISH(
-                        L"Server disconnected! server_address: %ls server_port: %ls",
-                        string::String2WString(_socket_ptr->RemoteEndpoint().IPString().String()).String(),
-                        _socket_ptr->RemoteEndpoint().Port()
-                    );
-                }
-            );
-
-            Z_DEBUG_LOG_SUCCESS(L"Server connected!");
+                Z_DEBUG_LOG_SUCCESS(L"Server connected!");
+            }
 
             if (_handle_func) {
-                _handle_func(this, _socket_ptr);
+                _handle_func(_error_code, this, _socket_ptr);
             }
         },
         _repeat_times
@@ -176,7 +176,7 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncConnect(
 
 NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncBroadcast(
     ZConstBuffer _buffer,
-    const TFunction<Void(ZTCPSocket*, const ZConstBuffer)>& _handle_func
+    const TFunction<Void(ReturnType, ZTCPSocket*, const ZConstBuffer)>& _handle_func
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;

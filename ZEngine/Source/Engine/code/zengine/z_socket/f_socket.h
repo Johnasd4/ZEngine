@@ -22,6 +22,8 @@
 
 #include "../z_core/z_string.h"
 
+#include "z_udp_endpoint.h"
+
 namespace zengine {
 namespace error_code {
 
@@ -44,11 +46,10 @@ namespace socket {
 /*
     Get current public ip.
 */
-SOCKET_DLLAPI ReturnType GetUDPPublicAddressAndPort(
-    const Char* _local_udp_address,
-    Int32 _local_udp_port,
-    ZString* _public_udp_address_ptr,
-    Int32* _public_udp_port_ptr
+SOCKET_DLLAPI ReturnType GetUDPPublicIP4AndPort(
+    const ZUDPEndpoint& _local_udp_endpoint,
+    UInt32* _public_udp_ip_ptr,
+    UInt16* _public_udp_port_ptr
 ) noexcept;
 
 }//socket
