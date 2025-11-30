@@ -87,7 +87,8 @@ Void ZUDPEndpoint::SetEndpoint(UInt32 _ip, UInt16 _port) noexcept {
 }
 
 NODISCARD IPTypeEnum ZUDPEndpoint::IPType() const noexcept {
-    Bool is_ip6 = endpoint_data_.DataPtr<const boost::asio::ip::udp::endpoint>()->address().is_v6();
+    Bool is_ip6 = 
+        endpoint_data_.DataPtr<const boost::asio::ip::udp::endpoint>()->protocol() == boost::asio::ip::udp::v6();
     return is_ip6 ? IPTypeEnum::IP6 : IPTypeEnum::IP4;
 }
 NODISCARD ZString ZUDPEndpoint::IPString() const noexcept {

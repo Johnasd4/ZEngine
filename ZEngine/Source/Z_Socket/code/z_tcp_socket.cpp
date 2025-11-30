@@ -395,9 +395,17 @@ NODISCARD ReturnType ZTCPSocket::Connect(
     Int32 reconnect_times = 0;
     do {
         if (data_ptr_->if_endpoint_bind_) {
-            //open          //TODO
             data_ptr_->socket_.close();
-            data_ptr_->socket_.open(boost::asio::ip::tcp::v4(), error_code);
+            IPTypeEnum ip_type = 
+                data_ptr_->bind_endpoint_.protocol() == boost::asio::ip::tcp::v6() ? IPTypeEnum::IP6 : IPTypeEnum::IP4;
+            switch (ip_type) {
+            case IPTypeEnum::IP4:
+                data_ptr_->socket_.open(boost::asio::ip::tcp::v4(), error_code);
+                break;
+            case IPTypeEnum::IP6:
+                data_ptr_->socket_.open(boost::asio::ip::tcp::v6(), error_code);
+                break;
+            }
             if (error_code) {
                 ret_val = error_code::kPSocketErrorCode_SystemError;
                 Z_LOG_ERROR(
