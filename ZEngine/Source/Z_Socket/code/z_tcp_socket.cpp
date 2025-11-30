@@ -168,6 +168,11 @@ NODISCARD ReturnType ZTCPSocket::Open(IPTypeEnum _ip_type) noexcept {
         return ret_val;
     }
 
+    data_ptr_->socket_.set_option(
+        boost::asio::ip::tcp::socket::reuse_address(data_ptr_->if_reuse_address_), 
+        error_code
+    );
+
     if (error_code) {
         state_ = StateEnum_::kError;
         ret_val = error_code::kPSocketErrorCode_SystemError;
@@ -258,36 +263,13 @@ NODISCARD ReturnType ZTCPSocket::SetIfReuseAddress(Bool _if_reuse) noexcept {
     boost::system::error_code error_code;
 
     Z_CHECK(
-        state_ != StateEnum_::kOpened,
+        state_ != StateEnum_::kClosed,
         error_code::kPSocketErrorCode_StateError,
         L"Socket state error! state: %d expect state: %d",
-        state_, StateEnum_::kOpened
+        state_, StateEnum_::kClosed
     );
 
-    if (!data_ptr_->socket_.is_open()) {
-        data_ptr_->socket_.open(boost::asio::ip::tcp::v4(), error_code);
-        if (error_code) {
-            ret_val = error_code::kPSocketErrorCode_SystemError;
-            Z_LOG_ERROR(
-                ret_val, error_code.value(),
-                L"System error! error info: %ls",
-                string::String2WString(error_code.message().c_str()).String()
-            );
-            state_ = StateEnum_::kError;
-            return ret_val;
-        }
-    }
-    data_ptr_->socket_.set_option(boost::asio::ip::tcp::socket::reuse_address(_if_reuse), error_code);
-    if (error_code) {
-        ret_val = error_code::kPSocketErrorCode_SystemError;
-        Z_LOG_ERROR(
-            ret_val, error_code.value(),
-            L"System error! error info: %ls",
-            string::String2WString(error_code.message().c_str()).String()
-        );
-        state_ = StateEnum_::kError;
-        return ret_val;
-    }
+    data_ptr_->if_reuse_address_ = _if_reuse;
 
     return ret_val;
 }

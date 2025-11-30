@@ -38,7 +38,7 @@ Int32 LogOutputServerTest() {
 
     SizeType count = 0;
     while (true) {
-        Z_LOG_ERROR(count, count, L"Error... %d", count);
+        Z_LOG_ERROR(0, 0, L"Error... %d", count);
         Z_LOG_TRACE(L"Trace... %d", count);
         Z_LOG_MESSAGE(L"Message... %d", count);
         Z_LOG_START(L"Start... %d", count);

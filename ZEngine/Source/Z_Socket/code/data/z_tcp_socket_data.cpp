@@ -31,6 +31,7 @@ ZTCPSocketData::ZTCPSocketData(boost::asio::io_context* _io_context_ptr) noexcep
     , bind_endpoint_()
     , remote_endpoint_()
     , if_endpoint_bind_(false)
+    , if_reuse_address_(true)
     , async_error_handle_func_()
 {}
 

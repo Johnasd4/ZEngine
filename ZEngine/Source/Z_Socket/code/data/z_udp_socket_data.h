@@ -33,6 +33,7 @@ public:
     boost::asio::ip::udp::socket socket_;
     boost::asio::ip::udp::endpoint async_receive_endpoint_;
     Bool if_connected_;
+    Bool if_reuse_address_;
     TFunction<Void(ReturnType)> async_error_handle_func_;
 };
 

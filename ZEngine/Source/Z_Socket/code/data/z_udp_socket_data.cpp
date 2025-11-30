@@ -29,7 +29,8 @@ ZUDPSocketData::ZUDPSocketData(boost::asio::io_context* _io_context_ptr) noexcep
     : SuperType_()
     , socket_(*_io_context_ptr)
     , async_receive_endpoint_()
-    , if_connected_(true)
+    , if_connected_(false)
+    , if_reuse_address_(true)
     , async_error_handle_func_()
 {}
 

@@ -35,6 +35,7 @@ public:
     //WTF??? Getting remote endpoint after socket disconnect will throw exception??? 
     boost::asio::ip::tcp::endpoint remote_endpoint_;
     Bool if_endpoint_bind_;
+    Bool if_reuse_address_;
     TFunction<Void(ReturnType)> async_error_handle_func_;
 };
 

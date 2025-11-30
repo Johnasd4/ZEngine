@@ -104,7 +104,8 @@ public:
     NODISCARD ReturnType SetOSReadBufferSize(Int32 _size) noexcept;
     /*
         Set if address is reuseable. If true, can bind multiple sockets to the same address. 
-        Call before binding endpoint. Must be called on all sockets that bind to the same address.
+        Call before open. Must be called on all sockets that bind to the same address.
+        Default is true.
     */
     NODISCARD ReturnType SetIfReuseAddress(Bool _if_reuse) noexcept;
 

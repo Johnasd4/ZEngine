@@ -38,7 +38,6 @@ SOCKET_DLLAPI ReturnType StringToIP4(const Char* _ip_string, UInt32* _ip4_ptr) n
     UInt32 result = 0U;
     Int32 segment = 0;
     Int32 value = 0;
-    //TODO:bug
     Z_CHECK(
         _ip4_ptr == nullptr,
         error_code::kPSocketErrorCode_NullptrParam,
