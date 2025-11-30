@@ -33,7 +33,7 @@ inline constexpr ReturnType kErrorCodeBase_ZURL = 0x2U * kErrorCodeTypeMask + kE
 inline constexpr ReturnType kErrorCodeBase_FTCPLogOutput = 0x10U * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
 inline constexpr ReturnType kErrorCodeBase_FSocket = 0x11U * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
 
-enum ZSocketErrorCode : ReturnType {
+enum ZSocketErrorCodeEnum : ReturnType {
     kPSocketErrorCode_LinkError = kErrorCodeBase_PSocket,
     kPSocketErrorCode_SystemError,
     kPSocketErrorCode_NullptrParam,
@@ -56,7 +56,7 @@ enum ZSocketErrorCode : ReturnType {
     kPSocketErrorCode_ServerPrivateKeyNotLoaded,
 };
 
-enum ZHTTPErrorCode : ReturnType {
+enum ZHTTPErrorCodeEnum : ReturnType {
     kPHTTPErrorCode_LinkError = kErrorCodeBase_PSocket,
     kPHTTPErrorCode_SystemError,
     kPHTTPErrorCode_NullptrParam,
@@ -64,7 +64,7 @@ enum ZHTTPErrorCode : ReturnType {
     kPHTTPErrorCode_HTTP11ResponseResolverAlreadyUsed,
 };
 
-enum ZURLErrorCode : ReturnType {
+enum ZURLErrorCodeEnum : ReturnType {
     kPURLErrorCode_LinkError = kErrorCodeBase_PSocket,
     kPURLErrorCode_SystemError,
     kPURLErrorCode_NullptrParam,

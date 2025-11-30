@@ -17,6 +17,7 @@
     Contact: 1152325286@qq.com
 */
 #define CORE_DLLFILE
+#include "drive/d_pch.h"
 
 #include "f_memory_pool.h"
 
@@ -74,7 +75,7 @@ CORE_DLLAPI NODISCARD Void* ReapplyMemory(Void* _old_memory_ptr, SizeType _size)
     switch (owner_memory_pool_ptr->PoolType())
     {
     //small memory block
-    case MemoryPoolEnum::kMemoryPool_TSmallMemoryList:
+    case MemoryPoolEnum::kTSmallMemoryList:
     {
         if (CheckMemory(_old_memory_ptr, _size)) {
             return _old_memory_ptr;
@@ -109,7 +110,7 @@ CORE_DLLAPI NODISCARD Void* ReapplyMemory(
     switch (owner_memory_pool_ptr->PoolType())
     {
     //small memory block
-    case MemoryPoolEnum::kMemoryPool_TSmallMemoryList:
+    case MemoryPoolEnum::kTSmallMemoryList:
     {
         if (CheckMemory(_old_memory_ptr, _size, _memory_size_ptr)) {
             return _old_memory_ptr;
@@ -142,7 +143,7 @@ CORE_DLLAPI NODISCARD Bool CheckMemory(Void* _memory_ptr, SizeType _size) noexce
     switch (owner_memory_pool_ptr->PoolType())
     {
     //small memory block
-    case MemoryPoolEnum::kMemoryPool_TSmallMemoryList:
+    case MemoryPoolEnum::kTSmallMemoryList:
         return internal::SmallMemoryListMemoryPool::CheckMemory(
             static_cast<internal::SmallMemoryListMemoryPool*>(owner_memory_pool_ptr), _size);
         break;
@@ -161,7 +162,7 @@ CORE_DLLAPI NODISCARD Bool CheckMemory(Void* _memory_ptr, SizeType _size, SizeTy
     switch (owner_memory_pool_ptr->PoolType())
     {
     //small memory block
-    case MemoryPoolEnum::kMemoryPool_TSmallMemoryList:
+    case MemoryPoolEnum::kTSmallMemoryList:
         return internal::SmallMemoryListMemoryPool::CheckMemory(
             static_cast<internal::SmallMemoryListMemoryPool*>(owner_memory_pool_ptr), _size, _memory_size_ptr);
         break;
@@ -193,7 +194,7 @@ CORE_DLLAPI Void ReleaseMemory(Void* _memory_ptr) noexcept {
     switch (owner_memory_pool_ptr->PoolType())
     {
     //small memory block
-    case MemoryPoolEnum::kMemoryPool_TSmallMemoryList:
+    case MemoryPoolEnum::kTSmallMemoryList:
         internal::SmallMemoryListMemoryPool::ReleaseMemory(
             static_cast<internal::SmallMemoryListMemoryPool*>(owner_memory_pool_ptr), _memory_ptr);
         break;

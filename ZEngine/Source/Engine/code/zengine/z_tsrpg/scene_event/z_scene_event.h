@@ -25,7 +25,7 @@
 
 namespace zengine {
 namespace error_code {
-enum ZSceneEventErrorCode : ReturnType {
+enum ZSceneEventErrorCodeEnum : ReturnType {
     kZSceneEventErrorCode_LinkError = kErrorCodeBase_ZSceneEvent,
     kZSceneEventErrorCode_TileNotExist,
     kZSceneEventErrorCode_DisplayBoardNotExist
@@ -41,7 +41,7 @@ namespace tsrpg {
 */
 class TSRPG_DLLAPI ZSceneEvent : public ZObject {
 public:
-    static constexpr Float32 ExecuteFinishPercent = 1.0f;
+    static inline constexpr Float32 ExecuteFinishPercent = 1.0f;
 
     ZSceneEvent() noexcept;
 

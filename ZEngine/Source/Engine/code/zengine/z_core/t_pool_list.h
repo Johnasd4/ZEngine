@@ -22,6 +22,7 @@
 
 #include "t_list.h"
 #include "t_lock_guard.h"
+#include "t_smart_pointer.h"
 #include "z_object.h"
 
 namespace zengine {
@@ -40,9 +41,9 @@ namespace zengine {
 template<typename _ObjectType, Bool kIfCallConstructorAndDestructor = kIsClassType<_ObjectType>>
 class TPoolList : public ZObject {
 private:
-    static constexpr SizeType kDefaultPoolSize = 10ULL;
-    static constexpr SizeType kMemoryPtrListSize = 10ULL;
-    static constexpr Float32 kAutoExtendMultFactor = 0.2f;
+    static inline constexpr SizeType kDefaultPoolSize = 10ULL;
+    static inline constexpr SizeType kMemoryPtrListSize = 10ULL;
+    static inline constexpr Float32 kAutoExtendMultFactor = 0.2f;
     using MemoryPtrList_ = TList<Void*>;
 
 public:
@@ -99,7 +100,7 @@ public:
         , mem_ptr_list_(kMemoryPtrListSize)
         , head_node_ptr_(nullptr)
         , end_node_ptr_(nullptr)
-        , model_obj_ptr_(nullptr)
+        , model_obj_ptr_()
         , pool_size_(0ULL)
         , list_head_node_ptr_(nullptr)
         , list_end_node_ptr_(nullptr)
@@ -116,16 +117,14 @@ public:
         , mem_ptr_list_(kMemoryPtrListSize)
         , head_node_ptr_(nullptr)
         , end_node_ptr_(nullptr)
+        , model_obj_ptr_()
         , pool_size_(0ULL)
         , list_head_node_ptr_(nullptr)
         , list_end_node_ptr_(nullptr)
         , list_size_(0ULL)
     {
         if constexpr (kIfCallConstructorAndDestructor) {
-            model_obj_ptr_ = new _ObjectType(std::forward<_ArgsType>(args)...);
-        }
-        else {
-            model_obj_ptr_ = nullptr;
+            model_obj_ptr_ = MakeUnique<_ObjectType>(std::forward<_ArgsType>(args)...);
         }
     }
 
@@ -142,9 +141,6 @@ public:
                     node_ptr->object_.~_ObjectType();
                     node_ptr = node_ptr->next_node_ptr_;
                 }
-            }
-            if (model_obj_ptr_ != nullptr) {
-                delete model_obj_ptr_;
             }
         }
         for (auto mem_ptr = mem_ptr_list_.Begin(); mem_ptr != mem_ptr_list_.End(); ++mem_ptr) {
@@ -268,10 +264,7 @@ public:
     template<typename... _ArgsType>
     Void SetModel(_ArgsType&&... args) noexcept {
         if constexpr (kIfCallConstructorAndDestructor) {
-            if (model_obj_ptr_ != nullptr) {
-                delete model_obj_ptr_;
-            }
-            model_obj_ptr_ = new _ObjectType(std::forward<_ArgsType>(args)...);
+            model_obj_ptr_ = MakeUnique<_ObjectType>(std::forward<_ArgsType>(args)...);
         }
     }
 
@@ -351,7 +344,7 @@ private:
         Void* mem_ptr = memory_pool::ApplyMemory(mem_size, &mem_size);
         mem_ptr_list_.PushBack(mem_ptr);
         extend_num = mem_size / sizeof(Node_);
-        if (model_obj_ptr_ != nullptr) {
+        if (model_obj_ptr_) {
             for (SizeType index = 0ULL; index < extend_num; ++index) {
                 Node_* node_ptr = reinterpret_cast<Node_*>(mem_ptr) + index;
                 if constexpr (kIfCallConstructorAndDestructor) {
@@ -390,16 +383,15 @@ private:
 
     Void MoveP(TPoolList&& _pool) noexcept {
         mem_ptr_list_ = std::move(_pool.mem_ptr_list_);
+        model_obj_ptr_ = std::move(_pool.model_obj_ptr_);
         head_node_ptr_ = _pool.head_node_ptr_;
         end_node_ptr_ = _pool.end_node_ptr_;
-        model_obj_ptr_ = _pool.model_obj_ptr_;
         pool_size_ = _pool.pool_size_;
         list_head_node_ptr_ = _pool.list_head_node_ptr_;
         list_end_node_ptr_ = _pool.list_end_node_ptr_;
         list_size_ = _pool.list_size_;
         _pool.head_node_ptr_ = nullptr;
         _pool.end_node_ptr_ = nullptr;
-        _pool.model_obj_ptr_ = nullptr;
         _pool.pool_size_ = 0ULL;
         _pool.list_head_node_ptr_ = nullptr;
         _pool.list_end_node_ptr_ = nullptr;
@@ -409,7 +401,7 @@ private:
     MemoryPtrList_ mem_ptr_list_;
     Node_* head_node_ptr_;
     Node_* end_node_ptr_;
-    _ObjectType* model_obj_ptr_;
+    TUniquePointer<_ObjectType> model_obj_ptr_;
     SizeType pool_size_;
     Node_* list_head_node_ptr_;
     Node_* list_end_node_ptr_;
@@ -490,7 +482,7 @@ public:
         , mem_ptr_list_(kMemoryPtrListSize)
         , head_node_ptr_(nullptr)
         , end_node_ptr_(nullptr)
-        , model_obj_ptr_(nullptr)
+        , model_obj_ptr_()
         , pool_size_(0ULL)
         , list_head_node_ptr_(nullptr)
         , list_end_node_ptr_(nullptr)
@@ -509,6 +501,7 @@ public:
         , mem_ptr_list_(kMemoryPtrListSize)
         , head_node_ptr_(nullptr)
         , end_node_ptr_(nullptr)
+        , model_obj_ptr_()
         , pool_size_(0ULL)
         , list_head_node_ptr_(nullptr)
         , list_end_node_ptr_(nullptr)
@@ -516,10 +509,7 @@ public:
         , mutex_()
     {
         if constexpr (kIfCallConstructorAndDestructor) {
-            model_obj_ptr_ = new _ObjectType(std::forward<_ArgsType>(args)...);
-        }
-        else {
-            model_obj_ptr_ = nullptr;
+            model_obj_ptr_ = MakeUnique<_ObjectType>(std::forward<_ArgsType>(args)...);
         }
     }
 
@@ -536,9 +526,6 @@ public:
                     node_ptr->object_.~_ObjectType();
                     node_ptr = node_ptr->next_node_ptr_;
                 }
-            }
-            if (model_obj_ptr_ != nullptr) {
-                delete model_obj_ptr_;
             }
         }
         for (auto mem_ptr = mem_ptr_list_.Begin(); mem_ptr != mem_ptr_list_.End(); ++mem_ptr) {
@@ -691,10 +678,7 @@ public:
     Void SetModel(_ArgsType&&... args) noexcept {
         TLockGuard lock_guard(mutex_);
         if constexpr (kIfCallConstructorAndDestructor) {
-            if (model_obj_ptr_ != nullptr) {
-                delete model_obj_ptr_;
-            }
-            model_obj_ptr_ = new _ObjectType(std::forward<_ArgsType>(args)...);
+            model_obj_ptr_ = MakeUnique<_ObjectType>(std::forward<_ArgsType>(args)...);
         }
     }
 
@@ -792,7 +776,7 @@ private:
         Void* mem_ptr = memory_pool::ApplyMemory(mem_size, &mem_size);
         mem_ptr_list_.PushBack(mem_ptr);
         extend_num = mem_size / sizeof(Node_);
-        if (model_obj_ptr_ != nullptr) {
+        if (model_obj_ptr_) {
             for (SizeType index = 0ULL; index < extend_num; ++index) {
                 Node_* node_ptr = reinterpret_cast<Node_*>(mem_ptr) + index;
                 if constexpr (requires{ new(reinterpret_cast<Void*>(node_ptr)) _ObjectType(*model_obj_ptr_); }) {
@@ -831,16 +815,15 @@ private:
 
     Void MoveP(TPoolListSafe&& _pool) noexcept {
         mem_ptr_list_ = std::move(_pool.mem_ptr_list_);
+        model_obj_ptr_ = std::move(_pool.model_obj_ptr_);
         head_node_ptr_ = _pool.head_node_ptr_;
         end_node_ptr_ = _pool.end_node_ptr_;
-        model_obj_ptr_ = _pool.model_obj_ptr_;
         pool_size_ = _pool.pool_size_;
         list_head_node_ptr_ = _pool.list_head_node_ptr_;
         list_end_node_ptr_ = _pool.list_end_node_ptr_;
         list_size_ = _pool.list_size_;
         _pool.head_node_ptr_ = nullptr;
         _pool.end_node_ptr_ = nullptr;
-        _pool.model_obj_ptr_ = nullptr;
         _pool.pool_size_ = 0ULL;
         _pool.list_head_node_ptr_ = nullptr;
         _pool.list_end_node_ptr_ = nullptr;
@@ -850,7 +833,7 @@ private:
     MemoryPtrList_ mem_ptr_list_;
     Node_* head_node_ptr_;
     Node_* end_node_ptr_;
-    _ObjectType* model_obj_ptr_;
+    TUniquePointer<_ObjectType> model_obj_ptr_;
     SizeType pool_size_;
     Node_* list_head_node_ptr_;
     Node_* list_end_node_ptr_;

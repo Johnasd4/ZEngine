@@ -26,7 +26,7 @@
 
 namespace zengine {
 namespace error_code {
-enum FSceneControlErrorCode : ReturnType {
+enum FSceneControlErrorCodeEnum : ReturnType {
     kFSceneControlErrorCode_LinkError = kErrorCodeBase_FSceneControl,
     kFSceneControlErrorCode_SystemError,
     kFSceneControlErrorCode_NullptrParam,
@@ -40,8 +40,8 @@ enum FSceneControlErrorCode : ReturnType {
 namespace zengine {
 namespace tsrpg {
 
-enum ZSceneEventEnum : SizeType {
-    kZSceneEventEnum_MoveTile       = 0,
+enum class ZSceneEventEnum : SizeType {
+    kZSceneEventEnum_MoveTile,
 };
 
 TSRPG_DLLAPI Void AddSceneEvent(

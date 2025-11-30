@@ -32,14 +32,13 @@ using namespace zengine::socket;
 namespace test {
 
 Int32 LogOutputServerTest() { 
-    zengine::Initialize();
     zengine::socket::StartLogOutputServer();
 
     ReturnType link_code = kOK;
 
     SizeType count = 0;
     while (true) {
-        Z_LOG_ERROR(1, 2, L"Error... %d", count);
+        Z_LOG_ERROR(count, count, L"Error... %d", count);
         Z_LOG_TRACE(L"Trace... %d", count);
         Z_LOG_MESSAGE(L"Message... %d", count);
         Z_LOG_START(L"Start... %d", count);

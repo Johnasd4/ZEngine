@@ -17,6 +17,7 @@
     Contact: 1152325286@qq.com
 */
 #define GUI_DLLFILE
+#include "drive/d_pch.h"
 
 #include "z_input_text.h"
 
@@ -118,7 +119,7 @@ Void ZInputText::Tick(Float32 _delta_sec) noexcept {
         GuiSize size = Size();
         ImGui::InputTextMultiline(
             Name().String(),
-            input_text_.DataPtr<Char*>(),
+            input_text_.DataPtr<Char>(),
             input_text_.Size(), 
             ImVec2(size.width_, size.height_),
             input_text_flag_,
@@ -137,7 +138,7 @@ Void ZInputText::Tick(Float32 _delta_sec) noexcept {
             flag = kInputTextFlag_ReadOnly;
         }
         ImGui::InputText(
-            Name().String(), input_text_.DataPtr<Char*>(), input_text_.Size(), flag,
+            Name().String(), input_text_.DataPtr<Char>(), input_text_.Size(), flag,
             [](ImGuiInputTextCallbackData* _data) {
                 (dynamic_cast<ZInputText*>(ZGuiObject::CallbackGuiObjectPtr()))->InputTextChangedCallbackP();
                 return 0;
@@ -191,16 +192,16 @@ Void ZInputText::SetInputText(ZStringView _input_text) noexcept {
     if (input_text_.Size() <= _input_text.Size()) {
         input_text_.Resize(_input_text.Size() + 1ULL);
     }
-    Copy(input_text_.DataPtr<Char*>(), _input_text.DataPtr(), _input_text.Size());
+    Copy(input_text_.DataPtr<Char>(), _input_text.DataPtr(), _input_text.Size());
     input_text_.At<Char>(_input_text.Size()) = '\0';
 }
 
 NODISCARD ZInputText::WidgetTypeEnum_ ZInputText::WidgetType() const noexcept {
-    return WidgetTypeEnum_::kWidgetType_InputText;
+    return WidgetTypeEnum_::kInputText;
 }
 
 NODISCARD const Char* ZInputText::InputText() const noexcept {
-    return input_text_.DataPtr<const Char*>();
+    return input_text_.DataPtr<const Char>();
 }
 
 NODISCARD GuiColour ZInputText::TextColour() const noexcept {

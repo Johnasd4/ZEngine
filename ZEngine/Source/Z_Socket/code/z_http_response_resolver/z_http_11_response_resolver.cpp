@@ -17,12 +17,9 @@
     Contact: 1152325286@qq.com
 */
 #define SOCKET_DLLFILE
+#include "drive/d_pch.h"
 
 #include "z_http_response_resolver.h"
-
-#include "z_core/f_string.h"
-#include "z_core/t_allocator.h"
-#include "z_core/z_string.h"
 
 #include "data/z_http_11_response_resolver_data.h"
 
@@ -45,7 +42,7 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::Resolve(ZConstBuffer _buffer) noex
         data_ptr_ = MakeUnique<internal::ZHTTP11ResponseResolverData>();
     }
     SizeType bytes_used = data_ptr_->response_parser_.put(
-        boost::asio::buffer(_buffer.BufferPtr<const Void*>(), _buffer.Size()), error_code
+        boost::asio::buffer(_buffer.DataPtr<const Void>(), _buffer.Size()), error_code
     );
     if (error_code) {
         ret_val = error_code::kPHTTPErrorCode_SystemError;

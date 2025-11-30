@@ -25,7 +25,7 @@
 
 namespace zengine {
 namespace error_code {
-enum TUniqueLockErrorCode : ReturnType {
+enum TUniqueLockErrorCodeEnum : ReturnType {
     kTUniqueLockErrorCode_LinkError = kErrorCodeBase_TUniqueLock,
     kTUniqueLockErrorCode_SystemError,
     kTUniqueLockErrorCode_NullptrParam,
@@ -51,10 +51,10 @@ private:
     struct TryLockUntilType_ { Int32 value_; };
 
 public:
-    static constexpr NoLockType_ kNoLock = { 0 };
-    static constexpr TryLockType_ kTryLock = { 0 };
-    static constexpr TryLockForType_ kTryLockFor = { 0 };
-    static constexpr TryLockUntilType_ kTryLockUntil = { 0 };
+    static inline constexpr NoLockType_ kNoLock = { 0 };
+    static inline constexpr TryLockType_ kTryLock = { 0 };
+    static inline constexpr TryLockForType_ kTryLockFor = { 0 };
+    static inline constexpr TryLockUntilType_ kTryLockUntil = { 0 };
 
     TUniqueLock() noexcept : SuperType_(), mutex_ptr_(nullptr), owns_lock_(false) {}
     TUniqueLock(TUniqueLock&& _unique_lock) noexcept : SuperType_(std::forward<TUniqueLock>(_unique_lock)) {

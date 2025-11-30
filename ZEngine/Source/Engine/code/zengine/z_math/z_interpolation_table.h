@@ -20,13 +20,13 @@
 
 #include "drive.h"
 
-#include "../z_core/t_array.h"
+#include "../z_core/t_fixed_array.h"
 
 namespace zengine {
 namespace math {
 
 template<typename NumberType, SizeType kTableSize> 
-class ZInterpolationTable :public TArray<NumberType, kTableSize> {
+class ZInterpolationTable :public TFixedArray<NumberType, kTableSize> {
 public:
     /*
         The work is done at compile time.
@@ -41,12 +41,12 @@ public:
         - init_function: The function to initial the array.
         - ArgsType...: The parameters of the function except for the fisrt.
         Example:
-        constexpr auto init_function = [](ZInterpolationTable<Float32, 10>* table_ptr) {
+        inline constexpr auto init_function = [](ZInterpolationTable<Float32, 10>* table_ptr) {
             for (SizeType index = 0; index < table_ptr->size(); ++index) {
                 (*table_ptr)(index) = 1.0F;
             }
         };
-        constexpr ZInterpolationTable<Int32, 10> test(10.0F,10.0F,init_function);
+        inline constexpr ZInterpolationTable<Int32, 10> test(10.0F,10.0F,init_function);
     */
     template<typename InitFunction, typename... ArgsType>
     FORCEINLINE constexpr ZInterpolationTable(const NumberType _index_offset, const NumberType _step_distance,
@@ -76,7 +76,7 @@ public:
     NODISCARD FORCEINLINE constexpr const NumberType LoopLinearSearchTable(const NumberType _index) const;
 
 protected:
-    using SuperType = TArray<NumberType, kTableSize>;
+    using SuperType = TFixedArray<NumberType, kTableSize>;
 
 private:
     //The offset of the index.

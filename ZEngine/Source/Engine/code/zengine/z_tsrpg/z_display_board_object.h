@@ -24,7 +24,7 @@
 
 namespace zengine {
 namespace error_code {
-enum ZDisplayBoardObjectErrorCode : ReturnType {
+enum ZDisplayBoardObjectErrorCodeEnum : ReturnType {
     kZDisplayBoardObjectErrorCode_LinkError = kErrorCodeBase_ZDisplayBoardObject,
     kZDisplayBoardObjectErrorCode_SystemError,
     kZDisplayBoardObjectErrorCode_NullptrParam,

@@ -43,14 +43,14 @@ namespace socket {
 */
 class SOCKET_DLLAPI ZHTTP11RequestGenerator : public ZObject {
 public:
-    enum RequestType_ : Int32 {
-        RequestType_Get
+    enum class RequestTypeEnum_ : Int32 {
+        kGet
     };
 
     ZHTTP11RequestGenerator() noexcept;
     ~ZHTTP11RequestGenerator() noexcept;
 
-    Void SetRequestType(RequestType_ _request_type) noexcept;
+    Void SetRequestType(RequestTypeEnum_ _request_type) noexcept;
     Void SetTarget(ZStringView _target_str) noexcept;
 
     Void SetHost(ZStringView _host_str) noexcept;

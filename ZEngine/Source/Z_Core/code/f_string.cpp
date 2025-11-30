@@ -17,11 +17,12 @@
     Contact: 1152325286@qq.com
 */
 #define CORE_DLLFILE
+#include "drive/d_pch.h"
 
 #include "f_string.h"
 
 #include "m_log.h"
-#include "t_vector.h"
+#include "t_array.h"
 #include "z_memory.h"
 
 namespace zengine {
@@ -29,7 +30,7 @@ namespace string {
 
 CORE_DLLAPI NODISCARD ZWString String2WString(const Char* _str) noexcept {
     ReturnType ret_val = kOK;
-    TVector<WChar> temp_str;
+    TArray<WChar> temp_str;
     //calculate length
     SizeType str_len = std::mbstowcs(nullptr, _str, 0);
     //invalid input string returns empty string
@@ -43,7 +44,7 @@ CORE_DLLAPI NODISCARD ZWString String2WString(const Char* _str) noexcept {
 
 CORE_DLLAPI NODISCARD ZString WString2String(const WChar* _str) noexcept {
     ReturnType ret_val = kOK;
-    TVector<Char> temp_str;
+    TArray<Char> temp_str;
     //calculate length
     SizeType str_len = std::wcstombs(nullptr, _str, 0);
     //invalid input string returns empty string
@@ -264,8 +265,8 @@ CORE_DLLAPI NODISCARD ZString GenerateString(const Char* _format, ...) noexcept 
     va_start(args, _format);
     Int32 buffer_size = vsnprintf(nullptr, 0, _format, args) + 1;
     ZMemory memory(buffer_size * sizeof(Char));
-    Int32 string_size = vsprintf(memory.DataPtr<Char*>(), _format, args);
-    ZString ans_str(memory.DataPtr<Char*>(), string_size);
+    Int32 string_size = vsprintf(memory.DataPtr<Char>(), _format, args);
+    ZString ans_str(memory.DataPtr<Char>(), string_size);
     va_end(args);
     return ans_str;
 }
@@ -275,8 +276,8 @@ CORE_DLLAPI NODISCARD ZWString GenerateWString(const WChar* _format, ...) noexce
     va_start(args, _format);
     Int32 buffer_size = vswprintf(nullptr, 0, _format, args) + 1;
     ZMemory memory(buffer_size * sizeof(WChar));
-    Int32 string_size = vswprintf(memory.DataPtr<WChar*>(), _format, args);
-    ZWString ans_str(memory.DataPtr<WChar*>(), string_size);
+    Int32 string_size = vswprintf(memory.DataPtr<WChar>(), _format, args);
+    ZWString ans_str(memory.DataPtr<WChar>(), string_size);
     va_end(args);
     return ans_str;
 }

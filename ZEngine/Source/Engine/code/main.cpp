@@ -29,16 +29,15 @@ using namespace zengine::console;
 using namespace zengine::tsrpg;
 using namespace zengine::socket;
 
-
 //Int32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 Int32 main() { 
     zengine::Initialize();
 
-
+    ZJsonDocument doc;
 
     //test::GuiTest();
-    //test::LogOutputServerTest();
-    test::SocketTest();
+    test::LogOutputServerTest();
+    //test::SocketTest();
 
     /**/
     log::FinishFlush();

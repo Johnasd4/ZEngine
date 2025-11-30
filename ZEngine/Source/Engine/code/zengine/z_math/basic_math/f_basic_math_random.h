@@ -22,7 +22,7 @@
 
 namespace zengine {
 namespace error_code {
-enum FBasicMath : ReturnType {
+enum FBasicMathEnum : ReturnType {
     kFBasicMathRandom_LinkError = kErrorCodeBase_FBasicMathRandom
 };
 }//error_code

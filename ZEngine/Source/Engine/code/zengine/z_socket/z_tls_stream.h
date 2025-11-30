@@ -45,12 +45,12 @@ namespace socket {
 */
 class SOCKET_DLLAPI ZTLSStream : public ZObject {
 public:
-    enum State_ : Int32 {
-        ZTLSStreamState_Uninitialized,
-        ZTLSStreamState_Idle,
-        ZTLSStreamState_HandShaked,
-        ZTLSStreamState_Shutdown,
-        ZTLSStreamState_Error
+    enum class StateEnum_ : Int32 {
+        kUninitialized,
+        kWaitForHandShake,
+        kHandShaked,
+        kShutdown,
+        kError
     };
     
     /*
@@ -74,7 +74,7 @@ public:
         ZTLSContext* _tls_context_ptr
     ) noexcept;
 
-    NODISCARD FORCEINLINE State_ State() const noexcept { return state_.Value(); }
+    NODISCARD FORCEINLINE StateEnum_ State() const noexcept { return state_.Value(); }
     NODISCARD FORCEINLINE ZTLSContext* TLSContextPtr() const noexcept { return tls_context_ptr_; }
 
     NODISCARD ReturnType SetDNI(const Char* host_name) noexcept;   
@@ -86,10 +86,10 @@ public:
 
     /*
         Handshake. Will not suspend the current thread.
-        _handle_func(Bool _handshake_success)
+        _handle_func(ReturnType _error_code)
     */
     NODISCARD ReturnType AsyncHandshake(
-        const TFunction<Void(ZTLSStream*, Bool)>& _handle_func
+        const TFunction<Void(ReturnType, ZTLSStream*)>& _handle_func
     ) noexcept;
 
     /*
@@ -103,18 +103,18 @@ public:
     /*
         Read data. Will not suspend the current thread.
         _handle_func only needs to handle the read data.
-        _handle_func(ZTLSStream* _socket_ptr, const ZConstBuffer _buffer)
+        _handle_func(ReturnType _error_code, ZTLSStream* _socket_ptr, const ZConstBuffer _buffer)
     */
     NODISCARD ReturnType AsyncRead(
         ZBuffer _buffer,
-        const TFunction<Void(ZTLSStream*, const ZConstBuffer)>& _handle_func
+        const TFunction<Void(ReturnType, ZTLSStream*, const ZConstBuffer)>& _handle_func
     ) noexcept;
 
     /*
         Read data until match char. Will suspend the current thread until data read.
     */
     NODISCARD ReturnType ReadUntil(
-        ZBufferStream* _buffer_ptr,
+        ZSocketBufferStream* _buffer_ptr,
         Char _match_char,
         SizeType* _data_size_ptr = nullptr
     ) noexcept;
@@ -123,7 +123,7 @@ public:
         Read data until match string. Will suspend the current thread until data read.
     */
     NODISCARD ReturnType ReadUntil(
-        ZBufferStream* _buffer_ptr,
+        ZSocketBufferStream* _buffer_ptr,
         const Char* _match_str,
         SizeType* _data_size_ptr = nullptr
     ) noexcept;
@@ -131,30 +131,30 @@ public:
     /*
         Read data until match char. Will not suspend the current thread.
         _handle_func only needs to handle the read data.
-        _handle_func(ZTLSStream* _socket_ptr, ZBufferStream* _buffer_stream_ptr)
+        _handle_func(ReturnType _error_code, ZTLSStream* _socket_ptr, ZSocketBufferStream* _buffer_stream_ptr)
     */
     NODISCARD ReturnType AsyncReadUntil(
-        ZBufferStream* _buffer_ptr,
+        ZSocketBufferStream* _buffer_ptr,
         Char _match_char,
-        const TFunction<Void(ZTLSStream*, ZBufferStream*)>& _handle_func
+        const TFunction<Void(ReturnType, ZTLSStream*, ZSocketBufferStream*)>& _handle_func
     ) noexcept;
 
     /*
         Read data until match string. Will not suspend the current thread.
         _handle_func only needs to handle the read data.
-        _handle_func(ZTLSStream* _socket_ptr, ZBufferStream* _buffer_stream_ptr)
+        _handle_func(ReturnType _error_code, ZTLSStream* _socket_ptr, ZSocketBufferStream* _buffer_stream_ptr)
     */
     NODISCARD ReturnType AsyncReadUntil(
-        ZBufferStream* _buffer_ptr,
+        ZSocketBufferStream* _buffer_ptr,
         const Char* _match_str,
-        const TFunction<Void(ZTLSStream*, ZBufferStream*)>& _handle_func
+        const TFunction<Void(ReturnType, ZTLSStream*, ZSocketBufferStream*)>& _handle_func
     ) noexcept;
 
     /*
         Read data until close. Will suspend the current thread until close.
     */
     NODISCARD ReturnType ReadUntilClose(
-        ZBufferStream* _buffer_ptr,
+        ZSocketBufferStream* _buffer_ptr,
         SizeType* _data_size_ptr = nullptr
     ) noexcept;
 
@@ -168,11 +168,11 @@ public:
     /*
         Write data. Will not suspend the current thread.
         _handle_func will be called after the data send.
-        _handle_func(ZTLSStream* _socket_ptr, const ZConstBuffer _buffer)
+        _handle_func(ReturnType _error_code, ZTLSStream* _socket_ptr, const ZConstBuffer _buffer)
     */
     NODISCARD ReturnType AsyncWrite(
         ZConstBuffer _buffer,
-        const TFunction<Void(ZTLSStream*, const ZConstBuffer)>& _handle_func
+        const TFunction<Void(ReturnType, ZTLSStream*, const ZConstBuffer)>& _handle_func
     ) noexcept;
 
     /*
@@ -196,7 +196,7 @@ private:
     TUniquePointer<internal::ZTLSStreamData> data_ptr_;
     ZTCPSocket* tcp_socket_ptr_;
     ZTLSContext* tls_context_ptr_;
-    TAtom<State_> state_;
+    TAtom<StateEnum_> state_;
 };
 
 }//socket

@@ -17,38 +17,36 @@
     Contact: 1152325286@qq.com
 */
 #define SOCKET_DLLFILE
+#include "drive/d_pch.h"
 
 #include "z_udp_socket.h"
 
-#include "z_core/f_string.h"
-#include "z_core/m_log.h"
-#include "z_core/z_string.h"
-
 #include "z_io_context.h"
+#include "z_socket_allocator.h"
 
 #include "data/z_io_context_data.h"
 #include "data/z_udp_socket_data.h"
-#include "z_socket_allocator.h"
+
 
 namespace zengine {
 namespace socket {
 
 ZUDPSocket::ZUDPSocket() noexcept
     : SuperType_()
-    , data_ptr_(nullptr)
-    , state_(ZUDPSocketState_Uninitialized)
+    , data_ptr_()
+    , state_(StateEnum_::kUninitialized)
     , io_context_ptr_(nullptr)
 {}
 
 ZUDPSocket::ZUDPSocket(const ZUDPSocket& _socket) noexcept
     : SuperType_()
-    , data_ptr_(nullptr)
-    , state_(ZUDPSocketState_Uninitialized)
+    , data_ptr_()
+    , state_(StateEnum_::kUninitialized)
     , io_context_ptr_(_socket.io_context_ptr_)
 {
     if (_socket.io_context_ptr_ != nullptr) {
-        data_ptr_.Reset(new internal::ZUDPSocketData(&io_context_ptr_->data_ptr_->io_context_));
-        state_ = ZUDPSocketState_Idle;
+        data_ptr_= MakeUnique<internal::ZUDPSocketData>(&io_context_ptr_->data_ptr_->io_context_);
+        state_ = StateEnum_::kClosed;
     }
 }
 
@@ -60,8 +58,8 @@ ZUDPSocket::ZUDPSocket(ZUDPSocket&& _socket) noexcept
 
 ZUDPSocket::ZUDPSocket(ZIOContext* _context_ptr) noexcept
     : SuperType_()
-    , data_ptr_(nullptr)
-    , state_(ZUDPSocketState_Uninitialized)
+    , data_ptr_()
+    , state_(StateEnum_::kUninitialized)
     , io_context_ptr_(_context_ptr)
 {
     if (_context_ptr == nullptr) {
@@ -73,7 +71,7 @@ ZUDPSocket::ZUDPSocket(ZIOContext* _context_ptr) noexcept
     }
 
     data_ptr_ = MakeUnique<internal::ZUDPSocketData>(&_context_ptr->data_ptr_->io_context_);
-    state_ = ZUDPSocketState_Idle;
+    state_ = StateEnum_::kClosed;
 }
 
 ZUDPSocket::~ZUDPSocket() noexcept {
@@ -90,12 +88,12 @@ ZUDPSocket::~ZUDPSocket() noexcept {
 
 ZUDPSocket& ZUDPSocket::operator=(const ZUDPSocket& _socket) noexcept {
     if (_socket.io_context_ptr_ != nullptr) {
-        data_ptr_.Reset(new internal::ZUDPSocketData(&io_context_ptr_->data_ptr_->io_context_));
-        state_ = ZUDPSocketState_Idle;
+        data_ptr_ = MakeUnique<internal::ZUDPSocketData>(&io_context_ptr_->data_ptr_->io_context_);
+        state_ = StateEnum_::kClosed;
     }
     else {
         data_ptr_.Reset();
-        state_ = ZUDPSocketState_Uninitialized;
+        state_ = StateEnum_::kUninitialized;
     }
     return *this;
 }
@@ -106,13 +104,20 @@ ZUDPSocket& ZUDPSocket::operator=(ZUDPSocket&& _socket) noexcept {
     return *this;
 }
 
+NODISCARD ZUDPEndpoint ZUDPSocket::LocalEndpoint() const noexcept {
+    ZUDPEndpoint endpoint;
+    *endpoint.endpoint_data_.DataPtr<boost::asio::ip::udp::endpoint>() = data_ptr_->socket_.local_endpoint();
+    return endpoint;
+}
+
 NODISCARD ReturnType ZUDPSocket::Initialize(ZIOContext* _io_context_ptr) noexcept {
     ReturnType ret_val = kOK;
+
     Z_CHECK(
-        state_ != ZUDPSocketState_Uninitialized,
+        state_ != StateEnum_::kUninitialized,
         error_code::kPSocketErrorCode_StateError,
         L"Socket state error! state: %d expect state: %d",
-        state_, ZUDPSocketState_Uninitialized
+        state_, StateEnum_::kUninitialized
     );
 
     Z_CHECK(
@@ -123,37 +128,68 @@ NODISCARD ReturnType ZUDPSocket::Initialize(ZIOContext* _io_context_ptr) noexcep
 
     data_ptr_ = MakeUnique<internal::ZUDPSocketData>(&_io_context_ptr->data_ptr_->io_context_);
     io_context_ptr_ = _io_context_ptr;
-    state_ = ZUDPSocketState_Idle;
+    state_ = StateEnum_::kClosed;
+
+    return ret_val;
+}
+
+NODISCARD ReturnType ZUDPSocket::Open(IPTypeEnum _ip_type) noexcept {
+    ReturnType ret_val = kOK;
+    boost::system::error_code error_code;
+
+    Z_CHECK(
+        state_ != StateEnum_::kClosed,
+        error_code::kPSocketErrorCode_StateError,
+        L"Socket state error! state: %d expect state: %d",
+        state_, StateEnum_::kClosed
+    );
+
+    switch (_ip_type) {
+    case IPTypeEnum::IP4:
+        data_ptr_->socket_.open(boost::asio::ip::udp::v4(), error_code);
+        break;
+    case IPTypeEnum::IP6:
+        data_ptr_->socket_.open(boost::asio::ip::udp::v6(), error_code);
+        break;
+    default:
+        ret_val = error_code::kPSocketErrorCode_ParamOutOfRange;
+        Z_LOG_ERROR(
+            ret_val, 0,
+            L"Enum out of range! _ip_type: %d",
+            _ip_type
+        );
+        return ret_val;
+    }
+
+    if (error_code) {
+        state_ = StateEnum_::kError;
+        ret_val = error_code::kPSocketErrorCode_SystemError;
+        Z_LOG_ERROR(
+            ret_val, error_code.value(),
+            L"System error! error info: %ls",
+            string::String2WString(error_code.message().c_str()).String()
+        );
+        return ret_val;
+    }
+
+    state_ = StateEnum_::kOpened;
 
     return ret_val;
 }
 
 NODISCARD ReturnType ZUDPSocket::BindEndpoint(const ZUDPEndpoint& _udp_endpoint) noexcept {
     ReturnType ret_val = kOK;
-    Z_CHECK(
-        state_ != ZUDPSocketState_Idle,
-        error_code::kPSocketErrorCode_StateError,
-        L"Socket state error! state: %d expect state: %d",
-        state_, ZUDPSocketState_Idle
-    );
-
     boost::system::error_code error_code;
 
-    if (!data_ptr_->socket_.is_open()) {
-        data_ptr_->socket_.open(boost::asio::ip::udp::v4(), error_code);
-        if (error_code) {
-            ret_val = error_code::kPSocketErrorCode_SystemError;
-            Z_LOG_ERROR(
-                ret_val, error_code.value(),
-                L"System error! error info: %ls",
-                string::String2WString(error_code.message().c_str()).String()
-            );
-            state_ = ZUDPSocketState_Error;
-            return ret_val;
-        }
-    }
+    Z_CHECK(
+        state_ != StateEnum_::kOpened,
+        error_code::kPSocketErrorCode_StateError,
+        L"Socket state error! state: %d expect state: %d",
+        state_, StateEnum_::kOpened
+    );
+
     data_ptr_->socket_.bind(
-        *_udp_endpoint.endpoint_data_.DataPtr<const boost::asio::ip::udp::endpoint*>(), error_code
+        *_udp_endpoint.endpoint_data_.DataPtr<const boost::asio::ip::udp::endpoint>(), error_code
     );
     if (error_code) {
         ret_val = error_code::kPSocketErrorCode_SystemError;
@@ -162,26 +198,24 @@ NODISCARD ReturnType ZUDPSocket::BindEndpoint(const ZUDPEndpoint& _udp_endpoint)
             L"System error! error info: %ls",
             string::String2WString(error_code.message().c_str()).String()
         );
-        state_ = ZUDPSocketState_Error;
+        state_ = StateEnum_::kError;
         return ret_val;
     }
-
-    data_ptr_->if_endpoint_bind_ = true;
 
     return ret_val;
 }
 
 NODISCARD ReturnType ZUDPSocket::SetOSWriteBufferSize(Int32 _size) noexcept {
     ReturnType ret_val = kOK;
+    boost::system::error_code error_code;
 
     Z_CHECK(
-        state_ != ZUDPSocketState_Idle,
+        state_ != StateEnum_::kOpened,
         error_code::kPSocketErrorCode_StateError,
         L"Socket state error! state: %d expect state: %d",
-        state_, ZUDPSocketState_Idle
+        state_, StateEnum_::kOpened
     );
 
-    boost::system::error_code error_code;
     data_ptr_->socket_.set_option(boost::asio::socket_base::send_buffer_size(_size), error_code);
     if (error_code) {
         ret_val = error_code::kPSocketErrorCode_SystemError;
@@ -190,7 +224,7 @@ NODISCARD ReturnType ZUDPSocket::SetOSWriteBufferSize(Int32 _size) noexcept {
             L"System error! error info: %ls",
             string::String2WString(error_code.message().c_str()).String()
         );
-        state_ = ZUDPSocketState_Error;
+        state_ = StateEnum_::kError;
         return ret_val;
     }
 
@@ -199,15 +233,15 @@ NODISCARD ReturnType ZUDPSocket::SetOSWriteBufferSize(Int32 _size) noexcept {
 
 NODISCARD ReturnType ZUDPSocket::SetOSReadBufferSize(Int32 _size) noexcept {
     ReturnType ret_val = kOK;
+    boost::system::error_code error_code;
 
     Z_CHECK(
-        state_ != ZUDPSocketState_Idle,
+        state_ != StateEnum_::kOpened,
         error_code::kPSocketErrorCode_StateError,
         L"Socket state error! state: %d expect state: %d",
-        state_, ZUDPSocketState_Idle
+        state_, StateEnum_::kOpened
     );
 
-    boost::system::error_code error_code;
     data_ptr_->socket_.set_option(boost::asio::socket_base::receive_buffer_size(_size), error_code);
     if (error_code) {
         ret_val = error_code::kPSocketErrorCode_SystemError;
@@ -216,20 +250,47 @@ NODISCARD ReturnType ZUDPSocket::SetOSReadBufferSize(Int32 _size) noexcept {
             L"System error! error info: %ls",
             string::String2WString(error_code.message().c_str()).String()
         );
-        state_ = ZUDPSocketState_Error;
+        state_ = StateEnum_::kError;
         return ret_val;
     }
 
     return ret_val;
 }
 
-NODISCARD Void ZUDPSocket::SetAsyncErrorHandleFunction(TFunction<Void()>&& _handle_func) noexcept {
-    data_ptr_->async_error_handle_func_ = std::forward<TFunction<Void()>>(_handle_func);
+NODISCARD ReturnType ZUDPSocket::SetIfReuseAddress(Bool _if_reuse) noexcept {
+    ReturnType ret_val = kOK;
+    boost::system::error_code error_code;
+
+    Z_CHECK(
+        state_ != StateEnum_::kOpened,
+        error_code::kPSocketErrorCode_StateError,
+        L"Socket state error! state: %d expect state: %d",
+        state_, StateEnum_::kOpened
+    );
+
+    data_ptr_->socket_.set_option(boost::asio::ip::udp::socket::reuse_address(_if_reuse), error_code);
+    if (error_code) {
+        ret_val = error_code::kPSocketErrorCode_SystemError;
+        Z_LOG_ERROR(
+            ret_val, error_code.value(),
+            L"System error! error info: %ls",
+            string::String2WString(error_code.message().c_str()).String()
+        );
+        state_ = StateEnum_::kError;
+        return ret_val;
+    }
+
+    return ret_val;
+}
+
+NODISCARD Void ZUDPSocket::SetAsyncErrorHandleFunction(TFunction<Void(ReturnType)>&& _handle_func) noexcept {
+    data_ptr_->async_error_handle_func_ = std::forward<TFunction<Void(ReturnType)>>(_handle_func);
 }
 
 NODISCARD ReturnType ZUDPSocket::Cancel() noexcept {
     ReturnType ret_val = kOK;
     boost::system::error_code error_code;
+
 
     Z_CHECK(
         data_ptr_->socket_.is_open() == false,
@@ -247,7 +308,7 @@ NODISCARD ReturnType ZUDPSocket::Cancel() noexcept {
             L"System error! error info: %ls",
             string::String2WString(error.code().message().c_str()).String()
         );
-        state_ = ZUDPSocketState_Error;
+        state_ = StateEnum_::kError;
         return ret_val;
     }
 
@@ -258,18 +319,15 @@ NODISCARD ReturnType ZUDPSocket::Close() noexcept {
     ReturnType ret_val = kOK;
     boost::system::error_code error_code;
 
-    if (state_ == ZUDPSocketState_Uninitialized) {
+    if (state_ == StateEnum_::kUninitialized || state_ == StateEnum_::kClosed) {
         return ret_val;
     }
 
     try {
-        data_ptr_->if_endpoint_bind_ = false;
         data_ptr_->if_connected_ = false;
         data_ptr_->async_error_handle_func_ = nullptr;
-        if (data_ptr_->socket_.is_open()) {
-            data_ptr_->socket_.cancel();
-            data_ptr_->socket_.close();
-        }
+        data_ptr_->socket_.cancel();
+        data_ptr_->socket_.close();
     }
     catch (const boost::system::system_error& error) {
         ret_val = error_code::kPSocketErrorCode_SystemError;
@@ -278,9 +336,11 @@ NODISCARD ReturnType ZUDPSocket::Close() noexcept {
             L"System error! error info: %ls",
             string::String2WString(error.code().message().c_str()).String()
         );
-        state_ = ZUDPSocketState_Error;
+        state_ = StateEnum_::kError;
         return ret_val;
     }
+
+    state_ = StateEnum_::kClosed;
 
     return ret_val;
 }
@@ -290,28 +350,14 @@ NODISCARD ReturnType ZUDPSocket::Connect(const ZUDPEndpoint& _udp_endpoint) noex
     boost::system::error_code error_code;
 
     Z_CHECK(
-        state_ != ZUDPSocketState_Idle,
+        state_ != StateEnum_::kOpened,
         error_code::kPSocketErrorCode_StateError,
         L"Socket state error! state: %d expect state: %d",
-        state_, ZUDPSocketState_Idle
+        state_, StateEnum_::kOpened
     );
 
-    if (!data_ptr_->socket_.is_open()) {
-        data_ptr_->socket_.open(boost::asio::ip::udp::v4(), error_code);
-        if (error_code) {
-            ret_val = error_code::kPSocketErrorCode_SystemError;
-            Z_LOG_ERROR(
-                ret_val, error_code.value(),
-                L"System error! error info: %ls",
-                string::String2WString(error_code.message().c_str()).String()
-            );
-            state_ = ZUDPSocketState_Error;
-            return ret_val;
-        }
-    }
-
     data_ptr_->socket_.connect(
-        *_udp_endpoint.endpoint_data_.DataPtr<const boost::asio::ip::udp::endpoint*>(), error_code
+        *_udp_endpoint.endpoint_data_.DataPtr<const boost::asio::ip::udp::endpoint>(), error_code
     );
 
     if (error_code) {
@@ -321,7 +367,7 @@ NODISCARD ReturnType ZUDPSocket::Connect(const ZUDPEndpoint& _udp_endpoint) noex
             L"System error! error info: %ls",
             string::String2WString(error_code.message().c_str()).String()
         );
-        state_ = ZUDPSocketState_Error;
+        state_ = StateEnum_::kError;
         return ret_val;
     }
 
@@ -338,35 +384,16 @@ NODISCARD ReturnType ZUDPSocket::ReceiveFrom(
     boost::system::error_code error_code;
 
     Z_CHECK(
-        state_ != ZUDPSocketState_Idle,
+        state_ != StateEnum_::kOpened,
         error_code::kPSocketErrorCode_StateError,
         L"Socket state error! state: %d expect state: %d",
-        state_, ZUDPSocketState_Idle
+        state_, StateEnum_::kOpened
     );
-    Z_CHECK(
-        data_ptr_->if_endpoint_bind_ == false,
-        error_code::kPSocketErrorCode_EndpointNotBind,
-        L"Socket endpoint not bind!"
-    );
-
-    if (!data_ptr_->socket_.is_open()) {
-        data_ptr_->socket_.open(boost::asio::ip::udp::v4(), error_code);
-        if (error_code) {
-            ret_val = error_code::kPSocketErrorCode_SystemError;
-            Z_LOG_ERROR(
-                ret_val, error_code.value(),
-                L"System error! error info: %ls",
-                string::String2WString(error_code.message().c_str()).String()
-            );
-            state_ = ZUDPSocketState_Error;
-            return ret_val;
-        }
-    }
 
     boost::asio::ip::udp::endpoint endpoint;
 
     SizeType data_size = data_ptr_->socket_.receive_from(
-        boost::asio::buffer(_buffer.BufferPtr<Void*>(), _buffer.Size()),
+        boost::asio::buffer(_buffer.DataPtr<Void>(), _buffer.Size()),
         endpoint,
         0,
         error_code
@@ -378,7 +405,7 @@ NODISCARD ReturnType ZUDPSocket::ReceiveFrom(
             L"System error! error info: %ls",
             string::String2WString(error_code.message().c_str()).String()
         );
-        state_ = ZUDPSocketState_Error;
+        state_ = StateEnum_::kError;
         return ret_val;
     }
 
@@ -387,7 +414,7 @@ NODISCARD ReturnType ZUDPSocket::ReceiveFrom(
     }
 
     if (_udp_endpoint_ptr != nullptr) {
-        *_udp_endpoint_ptr->endpoint_data_.DataPtr<boost::asio::ip::udp::endpoint*>() =
+        *_udp_endpoint_ptr->endpoint_data_.DataPtr<boost::asio::ip::udp::endpoint>() =
             endpoint;
     }
 
@@ -402,35 +429,16 @@ NODISCARD ReturnType ZUDPSocket::AsyncReceiveFrom(
     boost::system::error_code error_code;
 
     Z_CHECK(
-        state_ != ZUDPSocketState_Idle,
+        state_ != StateEnum_::kOpened,
         error_code::kPSocketErrorCode_StateError,
         L"Socket state error! state: %d expect state: %d",
-        state_, ZUDPSocketState_Idle
+        state_, StateEnum_::kOpened
     );
-    Z_CHECK(
-        data_ptr_->if_endpoint_bind_ == false,
-        error_code::kPSocketErrorCode_EndpointNotBind,
-        L"Socket endpoint not bind!"
-    );
-
-    if (!data_ptr_->socket_.is_open()) {
-        data_ptr_->socket_.open(boost::asio::ip::udp::v4(), error_code);
-        if (error_code) {
-            ret_val = error_code::kPSocketErrorCode_SystemError;
-            Z_LOG_ERROR(
-                ret_val, error_code.value(),
-                L"System error! error info: %ls",
-                string::String2WString(error_code.message().c_str()).String()
-            );
-            state_ = ZUDPSocketState_Error;
-            return ret_val;
-        }
-    }
 
     data_ptr_->socket_.async_receive_from(
-        boost::asio::buffer(_buffer.BufferPtr<Void*>(), _buffer.Size()), 
+        boost::asio::buffer(_buffer.DataPtr<Void>(), _buffer.Size()), 
         data_ptr_->async_receive_endpoint_,
-        MakeSocketHandlerAllocator([this, buffer_ptr = _buffer.BufferPtr<const Void*>(), _handle_func](
+        MakeSocketHandlerAllocator([this, buffer_ptr = _buffer.DataPtr<const Void>(), _handle_func](
             const boost::system::error_code& _error_code, 
             SizeType _message_size
         ) {
@@ -448,12 +456,12 @@ NODISCARD ReturnType ZUDPSocket::AsyncReceiveFrom(
                         L"System error! error info: %ls",
                         string::String2WString(_error_code.message().c_str()).String()
                     );
-                    state_ = ZUDPSocketState_Error;
+                    state_ = StateEnum_::kError;
                 }
 
                 //call hook error handle func
                 if (data_ptr_->async_error_handle_func_) {
-                    data_ptr_->async_error_handle_func_();
+                    data_ptr_->async_error_handle_func_(ret_val);
                 }
             }
 
@@ -479,15 +487,10 @@ NODISCARD ReturnType ZUDPSocket::Receive(
     boost::system::error_code error_code;
 
     Z_CHECK(
-        state_ != ZUDPSocketState_Idle,
+        state_ != StateEnum_::kOpened,
         error_code::kPSocketErrorCode_StateError,
         L"Socket state error! state: %d expect state: %d",
-        state_, ZUDPSocketState_Idle
-    );
-    Z_CHECK(
-        data_ptr_->if_endpoint_bind_ == false,
-        error_code::kPSocketErrorCode_EndpointNotBind,
-        L"Socket endpoint not bind!"
+        state_, StateEnum_::kOpened
     );
     Z_CHECK(
         data_ptr_->if_connected_ == false,
@@ -495,22 +498,8 @@ NODISCARD ReturnType ZUDPSocket::Receive(
         L"Socket not connected!"
     );
 
-    if (!data_ptr_->socket_.is_open()) {
-        data_ptr_->socket_.open(boost::asio::ip::udp::v4(), error_code);
-        if (error_code) {
-            ret_val = error_code::kPSocketErrorCode_SystemError;
-            Z_LOG_ERROR(
-                ret_val, error_code.value(),
-                L"System error! error info: %ls",
-                string::String2WString(error_code.message().c_str()).String()
-            );
-            state_ = ZUDPSocketState_Error;
-            return ret_val;
-        }
-    }
-
     SizeType data_size = data_ptr_->socket_.receive(
-        boost::asio::buffer(_buffer.BufferPtr<Void*>(), _buffer.Size()),
+        boost::asio::buffer(_buffer.DataPtr<Void>(), _buffer.Size()),
         0,
         error_code
     );
@@ -521,7 +510,7 @@ NODISCARD ReturnType ZUDPSocket::Receive(
             L"System error! error info: %ls",
             string::String2WString(error_code.message().c_str()).String()
         );
-        state_ = ZUDPSocketState_Error;
+        state_ = StateEnum_::kError;
         return ret_val;
     }
 
@@ -540,15 +529,10 @@ NODISCARD ReturnType ZUDPSocket::AsyncReceive(
     boost::system::error_code error_code;
 
     Z_CHECK(
-        state_ != ZUDPSocketState_Idle,
+        state_ != StateEnum_::kOpened,
         error_code::kPSocketErrorCode_StateError,
         L"Socket state error! state: %d expect state: %d",
-        state_, ZUDPSocketState_Idle
-    );
-    Z_CHECK(
-        data_ptr_->if_endpoint_bind_ == false,
-        error_code::kPSocketErrorCode_EndpointNotBind,
-        L"Socket endpoint not bind!"
+        state_, StateEnum_::kOpened
     );
     Z_CHECK(
         data_ptr_->if_connected_ == false,
@@ -556,23 +540,9 @@ NODISCARD ReturnType ZUDPSocket::AsyncReceive(
         L"Socket not connected!"
     );
 
-    if (!data_ptr_->socket_.is_open()) {
-        data_ptr_->socket_.open(boost::asio::ip::udp::v4(), error_code);
-        if (error_code) {
-            ret_val = error_code::kPSocketErrorCode_SystemError;
-            Z_LOG_ERROR(
-                ret_val, error_code.value(),
-                L"System error! error info: %ls",
-                string::String2WString(error_code.message().c_str()).String()
-            );
-            state_ = ZUDPSocketState_Error;
-            return ret_val;
-        }
-    }
-
     data_ptr_->socket_.async_receive_from(
-        boost::asio::buffer(_buffer.BufferPtr<Void*>(), _buffer.Size()), data_ptr_->async_receive_endpoint_,
-        MakeSocketHandlerAllocator([this, buffer_ptr = _buffer.BufferPtr<const Void*>(), _handle_func](
+        boost::asio::buffer(_buffer.DataPtr<Void>(), _buffer.Size()), data_ptr_->async_receive_endpoint_,
+        MakeSocketHandlerAllocator([this, buffer_ptr = _buffer.DataPtr<const Void>(), _handle_func](
             const boost::system::error_code& _error_code,
             SizeType _message_size
         ) {
@@ -590,12 +560,12 @@ NODISCARD ReturnType ZUDPSocket::AsyncReceive(
                         L"System error! error info: %ls",
                         string::String2WString(_error_code.message().c_str()).String()
                     );
-                    state_ = ZUDPSocketState_Error;
+                    state_ = StateEnum_::kError;
                 }
 
                 //call hook error handle func
                 if (data_ptr_->async_error_handle_func_) {
-                    data_ptr_->async_error_handle_func_();
+                    data_ptr_->async_error_handle_func_(ret_val);
                 }
             }
 
@@ -617,29 +587,15 @@ NODISCARD ReturnType ZUDPSocket::SendTo(
     boost::system::error_code error_code;
 
     Z_CHECK(
-        state_ != ZUDPSocketState_Idle,
+        state_ != StateEnum_::kOpened,
         error_code::kPSocketErrorCode_StateError,
         L"Socket state error! state: %d expect state: %d",
-        state_, ZUDPSocketState_Idle
+        state_, StateEnum_::kOpened
     );
 
-    if (!data_ptr_->socket_.is_open()) {
-        data_ptr_->socket_.open(boost::asio::ip::udp::v4(), error_code);
-        if (error_code) {
-            ret_val = error_code::kPSocketErrorCode_SystemError;
-            Z_LOG_ERROR(
-                ret_val, error_code.value(),
-                L"System error! error info: %ls",
-                string::String2WString(error_code.message().c_str()).String()
-            );
-            state_ = ZUDPSocketState_Error;
-            return ret_val;
-        }
-    }
-
     data_ptr_->socket_.send_to(
-        boost::asio::buffer(_buffer.BufferPtr<const Void*>(), _buffer.Size()),
-        *_udp_endpoint.endpoint_data_.DataPtr<const boost::asio::ip::udp::endpoint*>(),
+        boost::asio::buffer(_buffer.DataPtr<const Void>(), _buffer.Size()),
+        *_udp_endpoint.endpoint_data_.DataPtr<const boost::asio::ip::udp::endpoint>(),
         0,
         error_code
     );
@@ -650,7 +606,7 @@ NODISCARD ReturnType ZUDPSocket::SendTo(
             L"System error! error info: %ls",
             string::String2WString(error_code.message().c_str()).String()
         );
-        state_ = ZUDPSocketState_Error;
+        state_ = StateEnum_::kError;
         return ret_val;
     }
 
@@ -666,30 +622,16 @@ NODISCARD ReturnType ZUDPSocket::AsyncSendTo(
     boost::system::error_code error_code;
 
     Z_CHECK(
-        state_ != ZUDPSocketState_Idle,
+        state_ != StateEnum_::kOpened,
         error_code::kPSocketErrorCode_StateError,
         L"Socket state error! state: %d expect state: %d",
-        state_, ZUDPSocketState_Idle
+        state_, StateEnum_::kOpened
     );
 
-    if (!data_ptr_->socket_.is_open()) {
-        data_ptr_->socket_.open(boost::asio::ip::udp::v4(), error_code);
-        if (error_code) {
-            ret_val = error_code::kPSocketErrorCode_SystemError;
-            Z_LOG_ERROR(
-                ret_val, error_code.value(),
-                L"System error! error info: %ls",
-                string::String2WString(error_code.message().c_str()).String()
-            );
-            state_ = ZUDPSocketState_Error;
-            return ret_val;
-        }
-    }
-
     data_ptr_->socket_.async_send_to(
-        boost::asio::buffer(_buffer.BufferPtr<const Void*>(), _buffer.Size()),
-        *_udp_endpoint.endpoint_data_.DataPtr<const boost::asio::ip::udp::endpoint*>(),
-        MakeSocketHandlerAllocator([this, buffer_ptr = _buffer.BufferPtr<const Void*>(), _handle_func](
+        boost::asio::buffer(_buffer.DataPtr<const Void>(), _buffer.Size()),
+        *_udp_endpoint.endpoint_data_.DataPtr<const boost::asio::ip::udp::endpoint>(),
+        MakeSocketHandlerAllocator([this, buffer_ptr = _buffer.DataPtr<const Void>(), _handle_func](
             const boost::system::error_code& _error_code,
             SizeType _data_size
         ) {
@@ -707,12 +649,12 @@ NODISCARD ReturnType ZUDPSocket::AsyncSendTo(
                         L"System error! error info: %ls",
                         string::String2WString(_error_code.message().c_str()).String()
                     );
-                    state_ = ZUDPSocketState_Error;
+                    state_ = StateEnum_::kError;
                 }
 
                 //call hook error handle func
                 if (data_ptr_->async_error_handle_func_) {
-                    data_ptr_->async_error_handle_func_();
+                    data_ptr_->async_error_handle_func_(ret_val);
                 }
             }
 
@@ -733,10 +675,10 @@ NODISCARD ReturnType ZUDPSocket::Send(
     boost::system::error_code error_code;
 
     Z_CHECK(
-        state_ != ZUDPSocketState_Idle,
+        state_ != StateEnum_::kOpened,
         error_code::kPSocketErrorCode_StateError,
         L"Socket state error! state: %d expect state: %d",
-        state_, ZUDPSocketState_Idle
+        state_, StateEnum_::kOpened
     );
     Z_CHECK(
         data_ptr_->if_connected_ == false,
@@ -744,22 +686,8 @@ NODISCARD ReturnType ZUDPSocket::Send(
         L"Socket not connected!"
     );
 
-    if (!data_ptr_->socket_.is_open()) {
-        data_ptr_->socket_.open(boost::asio::ip::udp::v4(), error_code);
-        if (error_code) {
-            ret_val = error_code::kPSocketErrorCode_SystemError;
-            Z_LOG_ERROR(
-                ret_val, error_code.value(),
-                L"System error! error info: %ls",
-                string::String2WString(error_code.message().c_str()).String()
-            );
-            state_ = ZUDPSocketState_Error;
-            return ret_val;
-        }
-    }
-
     data_ptr_->socket_.send(
-        boost::asio::buffer(_buffer.BufferPtr<const Void*>(), _buffer.Size()),
+        boost::asio::buffer(_buffer.DataPtr<const Void>(), _buffer.Size()),
         0,
         error_code
     );
@@ -770,7 +698,7 @@ NODISCARD ReturnType ZUDPSocket::Send(
             L"System error! error info: %ls",
             string::String2WString(error_code.message().c_str()).String()
         );
-        state_ = ZUDPSocketState_Error;
+        state_ = StateEnum_::kError;
         return ret_val;
     }
 
@@ -785,10 +713,10 @@ NODISCARD ReturnType ZUDPSocket::AsyncSend(
     boost::system::error_code error_code;
 
     Z_CHECK(
-        state_ != ZUDPSocketState_Idle,
+        state_ != StateEnum_::kOpened,
         error_code::kPSocketErrorCode_StateError,
         L"Socket state error! state: %d expect state: %d",
-        state_, ZUDPSocketState_Idle
+        state_, StateEnum_::kOpened
     );
     Z_CHECK(
         data_ptr_->if_connected_ == false,
@@ -796,23 +724,9 @@ NODISCARD ReturnType ZUDPSocket::AsyncSend(
         L"Socket not connected!"
     );
 
-    if (!data_ptr_->socket_.is_open()) {
-        data_ptr_->socket_.open(boost::asio::ip::udp::v4(), error_code);
-        if (error_code) {
-            ret_val = error_code::kPSocketErrorCode_SystemError;
-            Z_LOG_ERROR(
-                ret_val, error_code.value(),
-                L"System error! error info: %ls",
-                string::String2WString(error_code.message().c_str()).String()
-            );
-            state_ = ZUDPSocketState_Error;
-            return ret_val;
-        }
-    }
-
     data_ptr_->socket_.async_send(
-        boost::asio::buffer(_buffer.BufferPtr<const Void*>(), _buffer.Size()),
-        MakeSocketHandlerAllocator([this, buffer_ptr = _buffer.BufferPtr<const Void*>(), _handle_func](
+        boost::asio::buffer(_buffer.DataPtr<const Void>(), _buffer.Size()),
+        MakeSocketHandlerAllocator([this, buffer_ptr = _buffer.DataPtr<const Void>(), _handle_func](
             const boost::system::error_code& _error_code,
             SizeType _data_size
         ) {
@@ -830,12 +744,12 @@ NODISCARD ReturnType ZUDPSocket::AsyncSend(
                         L"System error! error info: %ls",
                         string::String2WString(_error_code.message().c_str()).String()
                     );
-                    state_ = ZUDPSocketState_Error;
+                    state_ = StateEnum_::kError;
                 }
 
                 //call hook error handle func
                 if (data_ptr_->async_error_handle_func_) {
-                    data_ptr_->async_error_handle_func_();
+                    data_ptr_->async_error_handle_func_(ret_val);
                 }
             }
 
@@ -858,7 +772,7 @@ Void ZUDPSocket::MoveP(ZUDPSocket&& _socket) noexcept {
     state_ = _socket.state_;
     io_context_ptr_ = _socket.io_context_ptr_;
     link_object_ptr_ = _socket.link_object_ptr_;
-    _socket.state_ = ZUDPSocketState_Uninitialized;
+    _socket.state_ = StateEnum_::kUninitialized;
     _socket.io_context_ptr_ = nullptr;
     _socket.link_object_ptr_ = nullptr;
 }

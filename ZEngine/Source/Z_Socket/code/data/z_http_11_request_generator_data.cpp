@@ -17,6 +17,7 @@
     Contact: 1152325286@qq.com
 */
 #define SOCKET_DLLFILE
+#include "drive/d_pch.h"
 
 #include "z_http_11_request_generator_data.h"
 

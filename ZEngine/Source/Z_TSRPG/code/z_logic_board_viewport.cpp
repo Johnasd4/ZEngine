@@ -17,14 +17,13 @@
     Contact: 1152325286@qq.com
 */
 #define TSRPG_DLLFILE
+#include "drive/d_pch.h"
 
 #include "z_logic_board_viewport.h"
 
 #include "z_logic_board.h"
 #include "z_logic_tile.h"
 #include "z_display_board.h"
-
-#include "z_core/m_log.h"
 
 namespace zengine {
 namespace tsrpg {
@@ -189,7 +188,7 @@ NODISCARD ReturnType ZLogicBoardViewport::SetViewSize(const LogicVector2D& _view
     Includes the inner circle and outer circle.
 */
 NODISCARD ReturnType ZLogicBoardViewport::GetSurroundTile(
-    TVector<ZTile*>* _tile_list_ptr,
+    TArray<ZTile*>* _tile_list_ptr,
     const LogicVector2D& _center_index,
     Int32 _inner_radius,
     Int32 _outer_radius

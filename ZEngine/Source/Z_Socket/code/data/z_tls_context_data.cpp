@@ -17,6 +17,7 @@
     Contact: 1152325286@qq.com
 */
 #define SOCKET_DLLFILE
+#include "drive/d_pch.h"
 
 #include "z_tls_context_data.h"
 
@@ -27,7 +28,7 @@ namespace internal {
 ZTLSContextData::ZTLSContextData(TLSTypeEnum _tls_type) noexcept
     : SuperType_()
     , tls_context_(
-        _tls_type == kTLSType_Client ? boost::asio::ssl::context::tls_client : boost::asio::ssl::context::tls_server
+        _tls_type == TLSTypeEnum::kClient ? boost::asio::ssl::context::tls_client : boost::asio::ssl::context::tls_server
     )
 {}
 

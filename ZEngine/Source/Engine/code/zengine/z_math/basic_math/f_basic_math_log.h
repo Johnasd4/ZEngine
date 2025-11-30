@@ -25,19 +25,19 @@ namespace math {
 
 namespace internal {
 
-constexpr Float64 kLogFactorLn2High = 6.93147180369123816490E-01;
-constexpr Float64 kLogFactorLn2Low = 1.90821492927058770002E-10;
-constexpr Float64 kLogFactorSqrt2 = 1.4142135623730951F;
-constexpr Float64 kLogFactorLg1 = 6.666666666666735130E-01;
-constexpr Float64 kLogFactorLg2 = 3.999999999940941908E-01;
-constexpr Float64 kLogFactorLg3 = 2.857142874366239149E-01;
-constexpr Float64 kLogFactorLg4 = 2.222219843214978396E-01;
-constexpr Float64 kLogFactorLg5 = 1.818357216161805012E-01;
-constexpr Float64 kLogFactorLg6 = 1.531383769920937332E-01;
-constexpr Float64 kLogFactorLg7 = 1.479819860511658591E-01;
+inline constexpr Float64 kLogFactorLn2High = 6.93147180369123816490E-01;
+inline constexpr Float64 kLogFactorLn2Low = 1.90821492927058770002E-10;
+inline constexpr Float64 kLogFactorSqrt2 = 1.4142135623730951F;
+inline constexpr Float64 kLogFactorLg1 = 6.666666666666735130E-01;
+inline constexpr Float64 kLogFactorLg2 = 3.999999999940941908E-01;
+inline constexpr Float64 kLogFactorLg3 = 2.857142874366239149E-01;
+inline constexpr Float64 kLogFactorLg4 = 2.222219843214978396E-01;
+inline constexpr Float64 kLogFactorLg5 = 1.818357216161805012E-01;
+inline constexpr Float64 kLogFactorLg6 = 1.531383769920937332E-01;
+inline constexpr Float64 kLogFactorLg7 = 1.479819860511658591E-01;
 
-constexpr Float64 kLogFactorLn2Reciprocal = 1.4426950408889634074;
-constexpr Float64 kLogFactorLn10Reciprocal = 4.3429448190325182765E-01;
+inline constexpr Float64 kLogFactorLn2Reciprocal = 1.4426950408889634074;
+inline constexpr Float64 kLogFactorLn10Reciprocal = 4.3429448190325182765E-01;
 
 /*
     Ln(x) = Ln2(2^k * (1 + f))

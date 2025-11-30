@@ -17,10 +17,10 @@
     <ClCompile Include="code\log\type\z_trace_log.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="code\d_function.cpp">
+    <ClCompile Include="code\drive\d_function.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="code\d_initialize.cpp">
+    <ClCompile Include="code\drive\d_initialize.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="code\f_console.cpp">
@@ -83,6 +83,8 @@
     <ClCompile Include="code\z_timer.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="code\drive\d_pch.cpp" />
+    <ClCompile Include="code\z_memory.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\log\z_log_manager.h">
@@ -113,6 +115,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\memory_pool\t_system_memory_pool.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\drive\d_pch.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -24,15 +24,21 @@
     <ClCompile Include="code\data\z_buffer_stream_data.cpp" />
     <ClCompile Include="code\data\z_http_11_request_generator_data.cpp" />
     <ClCompile Include="code\data\z_io_context_data.cpp" />
-    <ClCompile Include="code\data\z_tcp_client_data.cpp" />
     <ClCompile Include="code\data\z_tcp_server_data.cpp" />
     <ClCompile Include="code\data\z_tcp_socket_data.cpp" />
     <ClCompile Include="code\data\z_tls_context_data.cpp" />
     <ClCompile Include="code\data\z_tls_stream_data.cpp" />
     <ClCompile Include="code\data\z_udp_socket_data.cpp" />
     <ClCompile Include="code\data\z_url_resolver_data.cpp" />
-    <ClCompile Include="code\d_function.cpp" />
+    <ClCompile Include="code\drive\d_function.cpp" />
+    <ClCompile Include="code\drive\d_pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="code\f_socket\get_udp_public_address_and_port.cpp" />
+    <ClCompile Include="code\f_socket\udp_connect_p2p.cpp" />
     <ClCompile Include="code\f_tcp_log_output.cpp" />
     <ClCompile Include="code\z_buffer_stream.cpp" />
     <ClCompile Include="code\z_http_request_generator\z_http_11_request_generator.cpp" />
@@ -55,7 +61,6 @@
     <ClInclude Include="code\data\z_buffer_stream_data.h" />
     <ClInclude Include="code\data\z_http_11_request_generator_data.h" />
     <ClInclude Include="code\data\z_io_context_data.h" />
-    <ClInclude Include="code\data\z_tcp_client_data.h" />
     <ClInclude Include="code\data\z_tcp_server_data.h" />
     <ClInclude Include="code\data\z_tcp_socket_data.h" />
     <ClInclude Include="code\data\z_tls_context_data.h" />
@@ -64,6 +69,7 @@
     <ClInclude Include="code\data\z_url_resolver_data.h" />
     <ClInclude Include="code\z_http11_resolver.h" />
     <ClInclude Include="code\z_socket_allocator.h" />
+    <ClInclude Include="code\drive\d_pch.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -145,9 +151,10 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_socket;$(SolutionDir)/Library/Boost_1_88_0/include;$(SolutionDir)/Library/OpenSSL_3_6_0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PrecompiledHeaderFile />
-      <PrecompiledHeaderOutputFile />
+      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_socket;$(SolutionDir)Source/Z_Socket/code;$(SolutionDir)/Library/Boost_1_88_0/include;$(SolutionDir)/Library/OpenSSL_3_6_0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile>drive/d_pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(SolutionDir)Binaries\intermediate\$(ProjectName)\$(Platform)\$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -175,9 +182,10 @@ if exist "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectNa
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_socket;$(SolutionDir)/Library/Boost_1_88_0/include;$(SolutionDir)/Library/OpenSSL_3_6_0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PrecompiledHeaderFile />
-      <PrecompiledHeaderOutputFile />
+      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_socket;$(SolutionDir)Source/Z_Socket/code;$(SolutionDir)/Library/Boost_1_88_0/include;$(SolutionDir)/Library/OpenSSL_3_6_0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile>drive/d_pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(SolutionDir)Binaries\intermediate\$(ProjectName)\$(Platform)\$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -205,9 +213,10 @@ if exist "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectNa
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <PrecompiledHeaderFile />
-      <PrecompiledHeaderOutputFile />
+      <PrecompiledHeaderFile>drive/d_pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(SolutionDir)Binaries\intermediate\$(ProjectName)\$(Platform)\$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).pch</PrecompiledHeaderOutputFile>
       <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_socket;$(SolutionDir)Source/Z_Socket/code;$(SolutionDir)/Library/Boost_1_88_0/include;$(SolutionDir)/Library/OpenSSL_3_6_0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -241,9 +250,10 @@ if exist "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectNa
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <PrecompiledHeaderFile />
-      <PrecompiledHeaderOutputFile />
-      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_socket;$(SolutionDir)/Library/Boost_1_88_0/include;$(SolutionDir)/Library/OpenSSL_3_6_0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile>drive/d_pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(SolutionDir)Binaries\intermediate\$(ProjectName)\$(Platform)\$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).pch</PrecompiledHeaderOutputFile>
+      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_socket;$(SolutionDir)Source/Z_Socket/code;$(SolutionDir)/Library/Boost_1_88_0/include;$(SolutionDir)/Library/OpenSSL_3_6_0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

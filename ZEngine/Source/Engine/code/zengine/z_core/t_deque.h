@@ -42,7 +42,10 @@ public:
 
     FORCEINLINE TDeque() noexcept : SuperType_(), deque_() {}
     FORCEINLINE TDeque(const TDeque& _deque) noexcept : SuperType_(_deque), deque_(_deque.deque_) {}
-    FORCEINLINE TDeque(TDeque&& _deque) noexcept : SuperType_(std::forward<TDeque>(_deque)), deque_(std::move(_deque.deque_)) {}
+    FORCEINLINE TDeque(TDeque&& _deque) noexcept 
+        : SuperType_(std::forward<TDeque>(_deque))
+        , deque_(std::move(_deque.deque_)) 
+    {}
 
     FORCEINLINE TDeque(SizeType _size) noexcept : SuperType_(), deque_(_size) {}
     FORCEINLINE TDeque(SizeType _size, const _ObjectType& _value) noexcept : SuperType_(), deque_(_size, _value) {}

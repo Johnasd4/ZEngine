@@ -24,8 +24,6 @@
 #pragma warning(disable: 26495)
 #pragma warning(disable: 26800)
 
-#include "sol/sol.hpp"
-
 #ifdef _WIN64
 #ifdef _DEBUG
 #pragma comment(lib,"L_Lua_5_4_7_x64_Debug.lib")

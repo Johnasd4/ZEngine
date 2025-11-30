@@ -18,8 +18,6 @@
 */
 #pragma once
 
-#include "drive.h"
-
 #include "log/type/z_error_log.h"
 #include "log/type/z_info_log.h"
 #include "log/type/z_trace_log.h"
@@ -38,10 +36,10 @@ namespace log {
 */
 class ZLogManager : public ZObject {
 public:
-    static constexpr SizeType kLogQueueSize = 1024;
+    static inline constexpr SizeType kLogQueueSize = 1024;
 
-    static constexpr SizeType kLogPortIDMin = 0;
-    static constexpr SizeType kLogPortIDMax = kLogMaxPortNum - 1;
+    static inline constexpr SizeType kLogPortIDMin = 0;
+    static inline constexpr SizeType kLogPortIDMax = kLogMaxPortNum - 1;
 
     static Void LogError(
         TimeType _raw_time,
@@ -127,7 +125,7 @@ private:
     TFixedQueueSafe<ZErrorLog, kLogQueueSize> error_log_queue_;
     TFixedQueueSafe<ZTraceLog, kLogQueueSize> trace_log_queue_;
     TFixedQueueSafe<ZInfoLog, kLogQueueSize> info_log_queue_;
-    TArray<TFixedQueueSafe<ZLog, kLogQueueSize>, kLogMaxPortNum> log_queue_array_;
+    TFixedArray<TFixedQueueSafe<ZLog, kLogQueueSize>, kLogMaxPortNum> log_queue_array_;
     ZLogServer log_server_;
     TAtom<Bool> log_thread_finished_;
     ZThread log_thread_;

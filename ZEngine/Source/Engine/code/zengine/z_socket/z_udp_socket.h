@@ -22,10 +22,10 @@
 
 #include "../z_core/t_function.h"
 #include "../z_core/t_smart_pointer.h"
+#include "../z_core/z_buffer.h"
 #include "../z_core/z_object.h"
 #include "../z_core/z_string_view.h"
 
-#include "z_buffer.h"
 #include "z_udp_endpoint.h"
 
 namespace zengine {
@@ -44,16 +44,18 @@ namespace socket {
 /*
     UDP socket type.
     Contains a extra ptr that can be linked to any object. Call LinkObjectPtr<_ObjectType>() to get the object ptr.
+    Open -> Bind/Connect(Optional) -> Send/Receive -> Close
 */
 class SOCKET_DLLAPI ZUDPSocket : public ZObject {
 public:
-    static constexpr Int32 kConnectRetryForever = kInt32Max;
+    static inline constexpr Int32 kConnectRetryForever = kInt32Max;
 
 public:
-    enum State_ : Int32 {
-        ZUDPSocketState_Uninitialized,
-        ZUDPSocketState_Idle,
-        ZUDPSocketState_Error
+    enum class StateEnum_ : Int32 {
+        kUninitialized,
+        kClosed,
+        kOpened,
+        kError
     };
 
     ZUDPSocket() noexcept;
@@ -67,15 +69,22 @@ public:
     ZUDPSocket& operator=(ZUDPSocket&& _socket) noexcept;
 
 
-    NODISCARD FORCEINLINE State_ State() const noexcept { return state_; }
+    NODISCARD FORCEINLINE StateEnum_ State() const noexcept { return state_; }
     NODISCARD FORCEINLINE ZIOContext* IOContextPtr() const noexcept { return io_context_ptr_; }
     template<typename _ObjectType>
     NODISCARD FORCEINLINE _ObjectType* LinkObjectPtr() const noexcept { return link_object_ptr_; }
+
+    NODISCARD ZUDPEndpoint LocalEndpoint() const noexcept;
 
     /*
         Initialize socket.
     */
     NODISCARD ReturnType Initialize(ZIOContext* _context_ptr) noexcept;
+
+    /*
+        Open the socket.
+    */
+    NODISCARD ReturnType Open(IPTypeEnum _ip_type) noexcept;
 
     /*
         Bind endpoint. Call before connected.
@@ -90,11 +99,16 @@ public:
         Sets os read buffer size. Call after connected.
     */
     NODISCARD ReturnType SetOSReadBufferSize(Int32 _size) noexcept;
+    /*
+        Set if address is reuseable. If true, can bind multiple sockets to the same address.
+        Call before binding endpoint. Must be called on all sockets that bind to the same address.
+    */
+    NODISCARD ReturnType SetIfReuseAddress(Bool _if_reuse) noexcept;
 
     /*
         Sets the aysnc error handle func, called when aysnc error happens.
     */
-    NODISCARD Void SetAsyncErrorHandleFunction(TFunction<Void()>&& _handle_func) noexcept;
+    NODISCARD Void SetAsyncErrorHandleFunction(TFunction<Void(ReturnType)>&& _handle_func) noexcept;
 
     /*
         Cancel async operation.
@@ -107,9 +121,14 @@ public:
     NODISCARD ReturnType Close() noexcept;
 
     /*
-        Conect to target socket. Will suspend the current thread.
+        Set a target endpoint, can only receive from the given endpoint.
     */
     NODISCARD ReturnType Connect(const ZUDPEndpoint& _udp_endpoint) noexcept;
+
+    /*
+        Set a target endpoint, can only receive from the given endpoint.
+    */
+    NODISCARD ReturnType ConnectP2P(const ZUDPEndpoint& _udp_endpoint) noexcept;
 
     /*
         Receive message. Will suspend the current thread until a message received.
@@ -213,7 +232,7 @@ private:
     TUniquePointer<internal::ZUDPSocketData> data_ptr_;
     ZIOContext* io_context_ptr_;
     Void* link_object_ptr_;
-    State_ state_;
+    StateEnum_ state_;
 };
 
 }//socket

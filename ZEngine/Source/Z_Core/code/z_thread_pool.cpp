@@ -17,6 +17,7 @@
     Contact: 1152325286@qq.com
 */
 #define CORE_DLLFILE
+#include "drive/d_pch.h"
 
 #include "z_thread_pool.h"
 
@@ -49,7 +50,7 @@ ZThreadPool::ZThreadPool(Int32 _thread_num) noexcept
 {
     pool_idle_mutex_.Lock();
     for (SizeType thread_index = 0; thread_index < _thread_num; ++thread_index) {
-        thread_list_.EmplaceBack(SubThread, Ref(*this));
+        thread_list_.EmplaceBack(SubThread, std::ref(*this));
     }
 }
 
@@ -85,7 +86,7 @@ NODISCARD ReturnType ZThreadPool::AddThreadNum(Int32 _thread_num) noexcept {
     }
     max_thread_num_ += _thread_num;
     for (SizeType thread_index = 0; thread_index < _thread_num; ++thread_index) {
-        thread_list_.EmplaceBack(std::move(ZThread(SubThread, Ref(*this))));
+        thread_list_.EmplaceBack(std::move(ZThread(SubThread, std::ref(*this))));
     }
     return ret_val;
 }

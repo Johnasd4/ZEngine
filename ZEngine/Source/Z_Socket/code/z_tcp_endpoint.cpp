@@ -17,12 +17,9 @@
     Contact: 1152325286@qq.com
 */
 #define SOCKET_DLLFILE
+#include "drive/d_pch.h"
 
 #include "z_tcp_endpoint.h"
-
-#include <boost/asio.hpp>
-
-#include "z_core/f_string.h"
 
 namespace zengine {
 namespace socket {
@@ -53,13 +50,13 @@ ZTCPEndpoint::ZTCPEndpoint(const Char* _ip_str, UInt16 _port) noexcept {
         );
         return;
     }
-    *endpoint_data_.DataPtr<boost::asio::ip::tcp::endpoint*>() = boost::asio::ip::tcp::endpoint(
+    *endpoint_data_.DataPtr<boost::asio::ip::tcp::endpoint>() = boost::asio::ip::tcp::endpoint(
         boost::asio::ip::make_address(_ip_str), _port
     );
 }
 
 ZTCPEndpoint::ZTCPEndpoint(UInt32 _ip, UInt16 _port) noexcept {
-    *endpoint_data_.DataPtr<boost::asio::ip::tcp::endpoint*>() = boost::asio::ip::tcp::endpoint(
+    *endpoint_data_.DataPtr<boost::asio::ip::tcp::endpoint>() = boost::asio::ip::tcp::endpoint(
         boost::asio::ip::address_v4(_ip), _port
     );
 }
@@ -77,35 +74,39 @@ NODISCARD ReturnType ZTCPEndpoint::SetEndpoint(const Char* _ip_str, UInt16 _port
         );
         return ret_val;
     }
-    *endpoint_data_.DataPtr<boost::asio::ip::tcp::endpoint*>() = boost::asio::ip::tcp::endpoint(
+    *endpoint_data_.DataPtr<boost::asio::ip::tcp::endpoint>() = boost::asio::ip::tcp::endpoint(
         boost::asio::ip::make_address(_ip_str), _port
     );
     return ret_val;
 }
 
 Void ZTCPEndpoint::SetEndpoint(UInt32 _ip, UInt16 _port) noexcept {
-    *endpoint_data_.DataPtr<boost::asio::ip::tcp::endpoint*>() = boost::asio::ip::tcp::endpoint(
+    *endpoint_data_.DataPtr<boost::asio::ip::tcp::endpoint>() = boost::asio::ip::tcp::endpoint(
         boost::asio::ip::address_v4(_ip), _port
     );
 }
 
+NODISCARD IPTypeEnum ZTCPEndpoint::IPType() const noexcept {
+    Bool is_ip6 = endpoint_data_.DataPtr<const boost::asio::ip::tcp::endpoint>()->address().is_v6();
+    return is_ip6 ? IPTypeEnum::IP6 : IPTypeEnum::IP4;
+}
 NODISCARD ZString ZTCPEndpoint::IPString() const noexcept {
-    return endpoint_data_.DataPtr<const boost::asio::ip::tcp::endpoint*>()->address().to_string().c_str();
+    return endpoint_data_.DataPtr<const boost::asio::ip::tcp::endpoint>()->address().to_string().c_str();
 }
 NODISCARD UInt32 ZTCPEndpoint::IP4() const noexcept {
-    return endpoint_data_.DataPtr<const boost::asio::ip::tcp::endpoint*>()->address().to_v4().to_uint();
+    return endpoint_data_.DataPtr<const boost::asio::ip::tcp::endpoint>()->address().to_v4().to_uint();
 }
 NODISCARD TFixedMemory<ZTCPEndpoint::KIP6Size> ZTCPEndpoint::IP6() const noexcept {
     TFixedMemory<KIP6Size> data;
     Copy(
-        data.DataPtr<Void*>(),
-        endpoint_data_.DataPtr<const boost::asio::ip::tcp::endpoint*>()->address().to_v6().to_bytes().data(),
+        data.DataPtr<Void>(),
+        endpoint_data_.DataPtr<const boost::asio::ip::tcp::endpoint>()->address().to_v6().to_bytes().data(),
         KIP6Size
     );
     return data;
 }
 NODISCARD UInt16 ZTCPEndpoint::Port() const noexcept {
-    return endpoint_data_.DataPtr<const boost::asio::ip::tcp::endpoint*>()->port();
+    return endpoint_data_.DataPtr<const boost::asio::ip::tcp::endpoint>()->port();
 }
 
 ZTCPEndpoint::~ZTCPEndpoint() noexcept {}

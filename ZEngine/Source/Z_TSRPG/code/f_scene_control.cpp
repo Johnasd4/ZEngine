@@ -17,6 +17,7 @@
     Contact: 1152325286@qq.com
 */
 #define TSRPG_DLLFILE
+#include "drive/d_pch.h"
 
 #include "f_scene_control.h"
 
@@ -35,7 +36,7 @@ TSRPG_DLLAPI Void AddSceneEvent(
     ReturnType link_code = kOK;
     ZSceneEvent* scene_event_ptr = nullptr;
     switch (_event_id) {
-    case kZSceneEventEnum_MoveTile:
+    case ZSceneEventEnum::kZSceneEventEnum_MoveTile:
         scene_event_ptr = new ZMoveTileSceneEvent();
         break;
     default:

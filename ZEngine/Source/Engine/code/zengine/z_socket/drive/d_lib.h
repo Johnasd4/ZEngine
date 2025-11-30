@@ -18,10 +18,12 @@
 */
 #pragma once
 
-#include "../../z_core/drive.h"
-
 #pragma warning(disable: 26495)
 #pragma warning(disable: 4624)
+
+#include "../../z_core/drive.h"
+
+#include "d_macro.h"
 
 //Define if at the start of the z_socket cpp file.
 #ifdef SOCKET_DLLFILE

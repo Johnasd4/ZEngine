@@ -21,13 +21,13 @@
 #include "drive.h"
 
 #include "m_log.h"
-#include "t_vector.h"
+#include "t_array.h"
 #include "z_string.h"
 #include "z_object.h"
 
 namespace zengine {
 namespace error_code {
-enum ZStringViewErrorCode : ReturnType {
+enum ZStringViewErrorCodeEnum : ReturnType {
     kZStringViewErrorCode_LinkError = kErrorCodeBase_ZStringView,
     kZStringViewErrorCode_SystemError,
     kZStringViewErrorCode_NullptrParam,
@@ -54,7 +54,7 @@ public:
     template<typename _AllocatorType>
     using STDString_ = std::basic_string<_CharType, std::char_traits<_CharType>, _AllocatorType>;
 
-    static constexpr SizeType kFindEnd = std::string::npos;
+    static inline constexpr SizeType kFindEnd = std::string::npos;
 
     FORCEINLINE constexpr TStringView() noexcept 
         : SuperType_(), str_(nullptr), size_(0ULL) {}
@@ -493,24 +493,24 @@ private:
             return 0ULL;
         }
 
-        //build next vector
-        TVector<SizeType> next_vector(_pattern_size, 0ULL);
+        //build next array
+        TArray<SizeType> next_array(_pattern_size, 0ULL);
         SizeType same_char_count = 0ULL;
         for (SizeType pattern_index = 1ULL; pattern_index < _pattern_size - 1; ++pattern_index) {
             while (same_char_count > 0ULL && _pattern[pattern_index] != _pattern[same_char_count]) {
-                same_char_count = next_vector[same_char_count - 1ULL];
+                same_char_count = next_array[same_char_count - 1ULL];
             }
             if (_pattern[pattern_index] == _pattern[same_char_count]) {
                 ++same_char_count;
             }
-            next_vector[pattern_index] = same_char_count;
+            next_array[pattern_index] = same_char_count;
         }
 
         //matching
         same_char_count = 0ULL;
         for (SizeType str_index = _start_pos; str_index < size_; ++str_index) {
             while (same_char_count > 0ULL && str_[str_index] != _pattern[same_char_count]) {
-                same_char_count = next_vector[same_char_count - 1ULL];
+                same_char_count = next_array[same_char_count - 1ULL];
             }
             if (str_[str_index] == _pattern[same_char_count]) {
                 ++same_char_count;
@@ -532,19 +532,19 @@ private:
             return size_ - 1ULL;
         }
 
-        //build next vector
-        TVector<SizeType> next_vector(_pattern_size, 0ULL);
+        //build next array
+        TArray<SizeType> next_array(_pattern_size, 0ULL);
         SizeType same_char_count = 0ULL;
 
         //second char
         for (SizeType pattern_index = _pattern_size - 3ULL; pattern_index < _pattern_size; --pattern_index) {
             while (same_char_count > 0ULL && _pattern[pattern_index] != _pattern[_pattern_size - 1 - same_char_count]) {
-                same_char_count = next_vector[same_char_count - 1ULL];
+                same_char_count = next_array[same_char_count - 1ULL];
             }
             if (_pattern[pattern_index] == _pattern[_pattern_size - 1 - same_char_count]) {
                 ++same_char_count;
             }
-            next_vector[_pattern_size - 1 - pattern_index] = same_char_count;
+            next_array[_pattern_size - 1 - pattern_index] = same_char_count;
         }
 
         //matching
@@ -555,7 +555,7 @@ private:
         }
         for (SizeType str_index = start_index; str_index < size_; --str_index) {
             while (same_char_count > 0ULL && str_[str_index] != _pattern[_pattern_size - 1 - same_char_count]) {
-                same_char_count = next_vector[same_char_count - 1ULL];
+                same_char_count = next_array[same_char_count - 1ULL];
             }
             if (str_[str_index] == _pattern[_pattern_size - 1 - same_char_count]) {
                 ++same_char_count;

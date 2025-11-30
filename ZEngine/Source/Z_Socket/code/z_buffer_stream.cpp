@@ -17,82 +17,80 @@
     Contact: 1152325286@qq.com
 */
 #define SOCKET_DLLFILE
+#include "drive/d_pch.h"
 
 #include "z_buffer_stream.h"
-
-#include "z_core/m_log.h"
 
 #include "data/z_buffer_stream_data.h"
 
 namespace zengine {
 namespace socket {
 
-ZBufferStream::ZBufferStream() noexcept
+ZSocketBufferStream::ZSocketBufferStream() noexcept
     : SuperType_()
-    , data_ptr_(MakeUnique<internal::ZBufferStreamData>())
+    , data_ptr_(MakeUnique<internal::ZSocketBufferStreamData>())
 {}
 
-ZBufferStream::ZBufferStream(SizeType _prepare_size) noexcept
+ZSocketBufferStream::ZSocketBufferStream(SizeType _prepare_size) noexcept
     : SuperType_()
-    , data_ptr_(MakeUnique<internal::ZBufferStreamData>(_prepare_size))
+    , data_ptr_(MakeUnique<internal::ZSocketBufferStreamData>(_prepare_size))
 {}
 
-ZBufferStream::ZBufferStream(SizeType _prepare_size, SizeType _max_size) noexcept
+ZSocketBufferStream::ZSocketBufferStream(SizeType _prepare_size, SizeType _max_size) noexcept
     : SuperType_()
-    , data_ptr_(MakeUnique<internal::ZBufferStreamData>(_prepare_size, _max_size))
+    , data_ptr_(MakeUnique<internal::ZSocketBufferStreamData>(_prepare_size, _max_size))
 {}
 
-ZBufferStream::ZBufferStream(ZBufferStream&& _buffer) noexcept
-    : SuperType_(std::forward<ZBufferStream>(_buffer))
+ZSocketBufferStream::ZSocketBufferStream(ZSocketBufferStream&& _buffer) noexcept
+    : SuperType_(std::forward<ZSocketBufferStream>(_buffer))
     , data_ptr_(std::move(_buffer.data_ptr_))
 {}
 
-ZBufferStream::~ZBufferStream() noexcept {}
+ZSocketBufferStream::~ZSocketBufferStream() noexcept {}
 
-ZBufferStream& ZBufferStream::operator=(ZBufferStream&& _buffer) noexcept {
+ZSocketBufferStream& ZSocketBufferStream::operator=(ZSocketBufferStream&& _buffer) noexcept {
     data_ptr_->buffer_.consume(10);
-    SuperType_::operator=(std::forward<ZBufferStream>(_buffer));
+    SuperType_::operator=(std::forward<ZSocketBufferStream>(_buffer));
     data_ptr_ = std::move(_buffer.data_ptr_);
     return *this;
 }
 
-NODISCARD SizeType ZBufferStream::Size() const noexcept {
+NODISCARD SizeType ZSocketBufferStream::Size() const noexcept {
     return data_ptr_->buffer_.data().size() - data_ptr_->read_size_;
 }
 
-NODISCARD const ZConstBuffer ZBufferStream::ReadData() noexcept {
-    ZConstBuffer buffer;
-    buffer.size_ = data_ptr_->buffer_.data().size() - data_ptr_->read_size_;
-    buffer.data_ptr_ = const_cast<Void*>(reinterpret_cast<const Void*>(
+NODISCARD const ZConstBuffer ZSocketBufferStream::ReadData() noexcept {
+    SizeType buffer_size = data_ptr_->buffer_.data().size() - data_ptr_->read_size_;
+    Void* buffer_data_ptr = const_cast<Void*>(reinterpret_cast<const Void*>(
         reinterpret_cast<const Char*>(data_ptr_->buffer_.data().data()) + 
         data_ptr_->read_size_
     ));
-    data_ptr_->read_size_ += buffer.size_;
-    return buffer;
+    data_ptr_->read_size_ += buffer_size;
+    return ZConstBuffer(buffer_data_ptr, buffer_size);
 }
 
-NODISCARD const ZConstBuffer ZBufferStream::ReadData(SizeType _size) noexcept {
+NODISCARD const ZConstBuffer ZSocketBufferStream::ReadData(SizeType _size) noexcept {
     ZConstBuffer buffer;
-    buffer.size_ = data_ptr_->buffer_.data().size() - data_ptr_->read_size_;
-    if (buffer.size_ > _size) {
-        buffer.size_ = _size;
+    SizeType buffer_size = data_ptr_->buffer_.data().size() - data_ptr_->read_size_;
+    if (buffer_size > _size) {
+        buffer_size = _size;
     }
-    buffer.data_ptr_ = const_cast<Void*>(reinterpret_cast<const Void*>(
+    Void* buffer_data_ptr = const_cast<Void*>(reinterpret_cast<const Void*>(
         reinterpret_cast<const Char*>(data_ptr_->buffer_.data().data()) +
         data_ptr_->read_size_
     ));
-    data_ptr_->read_size_ += buffer.size_;
-    return buffer;
+    data_ptr_->read_size_ += buffer_size;
+    return ZConstBuffer(buffer_data_ptr, buffer_size);
 }
 
-SizeType ZBufferStream::DumpData() noexcept {
+SizeType ZSocketBufferStream::DumpData() noexcept {
     SizeType buffer_size = data_ptr_->buffer_.data().size();
     SizeType data_size = buffer_size - data_ptr_->read_size_;
     data_ptr_->read_size_ = buffer_size;
     return data_size;
 }
 
-SizeType ZBufferStream::DumpData(SizeType _size) noexcept {
+SizeType ZSocketBufferStream::DumpData(SizeType _size) noexcept {
     SizeType buffer_size = data_ptr_->buffer_.data().size();
     SizeType data_size = buffer_size - data_ptr_->read_size_;
     if (_size > data_size) {
@@ -102,11 +100,11 @@ SizeType ZBufferStream::DumpData(SizeType _size) noexcept {
     return _size;
 }
 
-Void ZBufferStream::Reserve(SizeType _size) noexcept {
+Void ZSocketBufferStream::Reserve(SizeType _size) noexcept {
     data_ptr_->buffer_.prepare(_size);
 }
 
-Void ZBufferStream::Clear() noexcept {
+Void ZSocketBufferStream::Clear() noexcept {
     data_ptr_->buffer_.consume(data_ptr_->buffer_.size());
     data_ptr_->read_size_ = 0ULL;
 }

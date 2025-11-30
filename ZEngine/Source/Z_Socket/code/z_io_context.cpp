@@ -17,24 +17,26 @@
     Contact: 1152325286@qq.com
 */
 #define SOCKET_DLLFILE
+#include "drive/d_pch.h"
 
 #include "z_io_context.h"
-
-#include "z_core/f_string.h"
-#include "z_core/m_log.h"
-#include "z_core/z_string.h"
-
-#include "data/z_io_context_data.h"
 #include "z_tcp_endpoint.h"
 #include "z_udp_endpoint.h"
+
+#include "data/z_io_context_data.h"
 
 namespace zengine {
 namespace socket {
 
+NODISCARD ZIOContext& ZIOContext::Instance() noexcept {
+    static ZIOContext io_context;
+    return io_context;
+}
+
 ZIOContext::ZIOContext() noexcept
     : SuperType_()
     , data_ptr_(MakeUnique<internal::ZIOContextData>())
-    , state_(ZIOContextState_Idle)
+    , state_(StateEnum_::kClosed)
 {}
 
 ZIOContext::~ZIOContext() noexcept {}
@@ -42,20 +44,19 @@ ZIOContext::~ZIOContext() noexcept {}
 NODISCARD ReturnType ZIOContext::ResolveTCPAddress(
     ZStringView _address_str,
     ZStringView _port_str,
-    TVector<ZTCPEndpoint>* _endpoint_vector_ptr
+    TArray<ZTCPEndpoint>* _endpoint_array_ptr
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
     boost::system::error_code error_code;
 
     //resolve endpoints
-    boost::asio::ip::tcp::resolver::results_type endpoints;
     boost::asio::ip::tcp::resolver resolver(data_ptr_->io_context_);
-    endpoints = std::move(resolver.resolve(
+    boost::asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(
         boost::asio::string_view(_address_str.DataPtr(), _address_str.Size()),
         boost::asio::string_view(_port_str.DataPtr(), _port_str.Size()),
         error_code
-    ));
+    );
 
     if (error_code) {
         ret_val = error_code::kPSocketErrorCode_AddressNotVaild;
@@ -71,14 +72,14 @@ NODISCARD ReturnType ZIOContext::ResolveTCPAddress(
         return ret_val;
     }
 
-    _endpoint_vector_ptr->Resize(endpoints.size());
-    SizeType vector_index = 0ULL;
+    _endpoint_array_ptr->Resize(endpoints.size());
+    SizeType array_index = 0ULL;
     for (
         auto endpoint_iterator = endpoints.begin(); 
         endpoint_iterator != endpoints.end(); 
-        ++endpoint_iterator, ++vector_index
+        ++endpoint_iterator, ++array_index
     ) {
-        *(*_endpoint_vector_ptr)[vector_index].endpoint_data_.DataPtr<boost::asio::ip::tcp::endpoint*>() = 
+        *(*_endpoint_array_ptr)[array_index].endpoint_data_.DataPtr<boost::asio::ip::tcp::endpoint>() = 
             *endpoint_iterator;
     }
     return ret_val;
@@ -87,7 +88,7 @@ NODISCARD ReturnType ZIOContext::ResolveTCPAddress(
 NODISCARD ReturnType ZIOContext::ResolveUDPAddress(
     ZStringView _address_str,
     ZStringView _port_str,
-    TVector<ZUDPEndpoint>* _endpoint_vector_ptr
+    TArray<ZUDPEndpoint>* _endpoint_array_ptr
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
@@ -95,11 +96,11 @@ NODISCARD ReturnType ZIOContext::ResolveUDPAddress(
 
     //resolve endpoints
     boost::asio::ip::udp::resolver resolver(data_ptr_->io_context_);
-    boost::asio::ip::udp::resolver::results_type endpoints = std::move(resolver.resolve(
+    boost::asio::ip::udp::resolver::results_type endpoints = resolver.resolve(
         boost::asio::string_view(_address_str.DataPtr(), _address_str.Size()),
         boost::asio::string_view(_port_str.DataPtr(), _port_str.Size()),
         error_code
-    ));
+    );
 
     if (error_code) {
         ret_val = error_code::kPSocketErrorCode_AddressNotVaild;
@@ -115,14 +116,14 @@ NODISCARD ReturnType ZIOContext::ResolveUDPAddress(
         return ret_val;
     }
 
-    _endpoint_vector_ptr->Resize(endpoints.size());
-    SizeType vector_index = 0ULL;
+    _endpoint_array_ptr->Resize(endpoints.size());
+    SizeType array_index = 0ULL;
     for (
         auto endpoint_iterator = endpoints.begin();
         endpoint_iterator != endpoints.end();
-        ++endpoint_iterator, ++vector_index
+        ++endpoint_iterator, ++array_index
         ) {
-        *(*_endpoint_vector_ptr)[vector_index].endpoint_data_.DataPtr<boost::asio::ip::udp::endpoint*>() =
+        *(*_endpoint_array_ptr)[array_index].endpoint_data_.DataPtr<boost::asio::ip::udp::endpoint>() =
             *endpoint_iterator;
     }
     return ret_val;
@@ -132,10 +133,10 @@ NODISCARD ReturnType ZIOContext::Stop() noexcept {
     ReturnType ret_val = kOK;
 
     Z_CHECK(
-        state_ != ZIOContextState_Run,
+        state_ != StateEnum_::kRun,
         error_code::kPSocketErrorCode_StateError,
         L"Context state error! state: %d expect state: %d",
-        state_, ZIOContextState_Run
+        state_, StateEnum_::kRun
     );
 
     data_ptr_->io_context_.stop();
@@ -148,18 +149,18 @@ NODISCARD ReturnType ZIOContext::Run() noexcept {
     ReturnType link_code = kOK;
 
     Z_CHECK(
-        state_ != ZIOContextState_Idle,
+        state_ != StateEnum_::kClosed,
         error_code::kPSocketErrorCode_StateError,
         L"Context state error! state: %d expect state: %d",
-        state_, ZIOContextState_Idle
+        state_, StateEnum_::kClosed
     );
 
-    state_ = ZIOContextState_Run;
+    state_ = StateEnum_::kRun;
 
     data_ptr_->io_context_.run();
     data_ptr_->io_context_.restart();
 
-    state_ = ZIOContextState_Idle;
+    state_ = StateEnum_::kClosed;
 
     return ret_val;
 }
@@ -169,13 +170,13 @@ NODISCARD ReturnType ZIOContext::AsyncRun() noexcept {
     ReturnType link_code = kOK;
 
     Z_CHECK(
-        state_ != ZIOContextState_Idle,
+        state_ != StateEnum_::kClosed,
         error_code::kPSocketErrorCode_StateError,
         L"Context state error! state: %d expect state: %d",
-        state_, ZIOContextState_Idle
+        state_, StateEnum_::kClosed
     );
 
-    state_ = ZIOContextState_Run;
+    state_ = StateEnum_::kRun;
 
     data_ptr_->aysnc_thread_ = ZThread(
         [this]() {
@@ -183,7 +184,7 @@ NODISCARD ReturnType ZIOContext::AsyncRun() noexcept {
             data_ptr_->io_context_.run();
             data_ptr_->io_context_.restart();
 
-            state_ = ZIOContextState_Idle;
+            state_ = StateEnum_::kClosed;
         }
     );
 

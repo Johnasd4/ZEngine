@@ -18,8 +18,6 @@
 */
 #pragma once
 
-#include "drive.h"
-
 #include "t_memory_pool_base.h"
 #include "t_heap_memory_pool.h"
 
@@ -39,13 +37,13 @@ template<typename _MemoryBlockType, PointerType kMemoryBlockHeadOffset, Bool kIs
 class TListMemoryPoolBase : public TMemoryPoolBase<kIsThreadSafe> {
 private:
     //The multiple factor that container auto extends based on the origin size.
-    static constexpr Float32 kAutoExtendMulFactor = 0.2F;
+    static inline constexpr Float32 kAutoExtendMulFactor = 0.2F;
     //The min number the container auto extends at least.
-    static constexpr SizeType kAutoExtendMinNum = 1;
+    static inline constexpr SizeType kAutoExtendMinNum = 1;
     //The max size applied one time when extending.
-    static constexpr SizeType kApplyHeapMemoryMaxSizePurTime = 4 * kMB;
+    static inline constexpr SizeType kApplyHeapMemoryMaxSizePurTime = 4 * kMB;
     //The unit size of the applied memory.
-    static constexpr SizeType kApplyHeapMemoryUnitSize = 4 * kHeapMemoryUnitSize;
+    static inline constexpr SizeType kApplyHeapMemoryUnitSize = 4 * kHeapMemoryUnitSize;
 
 public:
     NODISCARD FORCEINLINE SizeType MemoryBlockMemorySize() const noexcept { return memory_block_memory_size_; }
@@ -109,7 +107,7 @@ protected:
 
 private:
     //The total offset of the memory block.
-    static constexpr PointerType kNodeHeadOffset = sizeof(Node*) + kMemoryBlockHeadOffset;
+    static inline constexpr PointerType kNodeHeadOffset = sizeof(Node*) + kMemoryBlockHeadOffset;
 
     TListMemoryPoolBase(const TListMemoryPoolBase&) = delete;
     TListMemoryPoolBase(TListMemoryPoolBase&&) = delete;

@@ -17,13 +17,9 @@
     Contact: 1152325286@qq.com
 */
 #define GUI_DLLFILE
+#include "drive/d_pch.h"
 
 #include "z_window.h"
-
-#include "z_core/f_string.h"
-#include "z_core/f_file_system.h"
-#include "z_core/m_log.h"
-#include "z_core/z_object.h"
 
 #include "z_frame.h"
 
@@ -140,7 +136,7 @@ ZWindow::ZWindow() noexcept
     , window_handle_(nullptr) 
     , imgui_context_ptr_(nullptr)
     , imgui_io_ptr_(nullptr)
-    , window_state_(kWindowState_Terminated)
+    , window_state_(WindowStateEnum_::kTerminated)
     , frame_ptr_set_(){}
 
 ZWindow::ZWindow(ZWindow&& _window) noexcept 
@@ -154,7 +150,7 @@ ZWindow::ZWindow(const Char* _name, GuiSize _size, GuiPos _pos, WindowScreenMode
     , window_handle_(nullptr) 
     , imgui_context_ptr_(nullptr)
     , imgui_io_ptr_(nullptr)
-    , window_state_(kWindowState_Terminated)
+    , window_state_(WindowStateEnum_::kTerminated)
     , frame_ptr_set_()
 {
     ReturnType link_code = kOK;
@@ -188,13 +184,13 @@ NODISCARD ReturnType ZWindow::Execute() noexcept {
     ReturnType link_code = kOK;
 
     Z_CHECK(
-        window_state_ != kWindowState_Initialized,
+        window_state_ != WindowStateEnum_::kInitialized,
         error_code::kZWindowErrorCode_StateError,
         L"Window state error! state: %d expect state: %d",
-        window_state_, kWindowState_Initialized
+        window_state_, WindowStateEnum_::kInitialized
     );
 
-    window_state_ = kWindowState_Opened;
+    window_state_ = WindowStateEnum_::kOpened;
 
     UInt32 pre_time = clock();
 
@@ -254,7 +250,7 @@ Void ZWindow::Begin() noexcept {
 }
 
 Void ZWindow::Tick(Float32 _delta_sec) noexcept {
-    if (!Enabled() || window_state_ != ZWindow::kWindowState_Opened) {
+    if (!Enabled() || window_state_ != ZWindow::WindowStateEnum_::kOpened) {
         Sleep(1);
         return;
     }
@@ -305,20 +301,20 @@ Void ZWindow::Tick(Float32 _delta_sec) noexcept {
 }
 
 Void ZWindow::Hide() noexcept {
-    if (window_state_ != kWindowState_Opened) {
+    if (window_state_ != WindowStateEnum_::kOpened) {
         return;
     }
     SuperType_::Hide();
     glfwHideWindow(window_handle_);
-    window_state_ = kWindowState_Hidden;
+    window_state_ = WindowStateEnum_::kHidden;
 }
 
 Void ZWindow::Show() noexcept {
-    if (window_state_ != kWindowState_Hidden) {
+    if (window_state_ != WindowStateEnum_::kHidden) {
         return;
     }
     glfwShowWindow(window_handle_);
-    window_state_ = kWindowState_Opened;
+    window_state_ = WindowStateEnum_::kOpened;
 }
 
 Void ZWindow::Reset() noexcept {
@@ -377,7 +373,7 @@ Void ZWindow::Destroy() noexcept {
     imgui_context_ptr_ = nullptr;
     imgui_io_ptr_ = nullptr;
     frame_ptr_set_.Clear();
-    window_state_ = kWindowState_Terminated;
+    window_state_ = WindowStateEnum_::kTerminated;
 
     {
         TLockGuard lock_guard(OpenGLMutex());
@@ -423,12 +419,12 @@ ReturnType ZWindow::Remove(ZFrame* _frame_ptr) noexcept {
 Void ZWindow::RemoveAll() noexcept {
     ReturnType ret_val = kOK;
 
-    TVector<ZFrame*> remove_frame_ptr_vector;
+    TArray<ZFrame*> remove_frame_ptr_array;
     for (auto iter = frame_ptr_set_.Begin(); iter != frame_ptr_set_.End(); ++iter) {
-        remove_frame_ptr_vector.PushBack(*iter);
+        remove_frame_ptr_array.PushBack(*iter);
     }
     frame_ptr_set_.Clear();
-    for (auto iter = remove_frame_ptr_vector.Begin(); iter != remove_frame_ptr_vector.End(); ++iter) {
+    for (auto iter = remove_frame_ptr_array.Begin(); iter != remove_frame_ptr_array.End(); ++iter) {
         (*iter)->OnRemove(this);
     }
 }
@@ -460,15 +456,15 @@ Void ZWindow::SetScreenMode(WindowScreenModeEnum_ _screen_mode) noexcept {
     }
 
     switch (_screen_mode) {
-    case kWindowScreenMode_Window:
+    case WindowScreenModeEnum_::kWindow:
         glfwSetWindowMonitor(
             window_handle_, nullptr, pos_x, pos_y, width, height, 0);
         break;
-    case kWindowScreenMode_FullScreenCustomSize:
+    case WindowScreenModeEnum_::kFullScreenCustomSize:
         glfwSetWindowMonitor(
             window_handle_, main_monitor, 0, 0, width, height, 0);
         break;
-    case kWindowScreenMode_FullScreenDefaultSize:
+    case WindowScreenModeEnum_::kFullScreenDefaultSize:
         glfwSetWindowMonitor(
             window_handle_, main_monitor, 0, 0, video_mode->width, video_mode->height, 0);
         break;
@@ -513,7 +509,7 @@ NODISCARD ReturnType ZWindow::LoadFontFromFileTTF(
     ImFont* font_ptr = nullptr;
 
     switch (_font_language) {
-    case kFontLanguage_SimplifiedChineseCommon:
+    case FontLanguageEnum_::kSimplifiedChineseCommon:
         font_ptr = imgui_io_ptr_->Fonts->AddFontFromFileTTF(
             _file_dir, 
             _font_size,
@@ -521,7 +517,7 @@ NODISCARD ReturnType ZWindow::LoadFontFromFileTTF(
             imgui_io_ptr_->Fonts->GetGlyphRangesChineseSimplifiedCommon()
         );
         break;
-    case kFontLanguage_SimplifiedChineseAll:
+    case FontLanguageEnum_::kSimplifiedChineseAll:
         font_ptr = imgui_io_ptr_->Fonts->AddFontFromFileTTF(
             _file_dir,
             _font_size,
@@ -659,7 +655,7 @@ Void ZWindow::MoveP(ZWindow&& _window) noexcept {
     window_state_ = _window.window_state_;
     _window.window_handle_ = nullptr;
     _window.imgui_context_ptr_ = nullptr;
-    _window.window_state_ = kWindowState_Terminated;
+    _window.window_state_ = WindowStateEnum_::kTerminated;
     internal::ZWindowCallback::SetActiveWindowPtr(this);
 }
 
@@ -671,10 +667,10 @@ NODISCARD ReturnType ZWindow::CreateWindowP(
     static ZMutex create_window_mutex;
 
     Z_CHECK(
-        window_state_ != kWindowState_Terminated,
+        window_state_ != WindowStateEnum_::kTerminated,
         error_code::kZWindowErrorCode_StateError,
         L"Window state error! state: %d expect state: %d",
-        window_state_, kWindowState_Terminated
+        window_state_, WindowStateEnum_::kTerminated
     );
 
     if (imgui_context_ptr_ == nullptr) {
@@ -688,7 +684,7 @@ NODISCARD ReturnType ZWindow::CreateWindowP(
 
     //create a window
     switch (_screen_mode) {
-    case kWindowScreenMode_Window:
+    case WindowScreenModeEnum_::kWindow:
     {
         TLockGuard<ZMutex> lock_guard(OpenGLMutex());
         //create window
@@ -706,7 +702,7 @@ NODISCARD ReturnType ZWindow::CreateWindowP(
         }
         break;
     }
-    case kWindowScreenMode_FullScreenCustomSize:
+    case WindowScreenModeEnum_::kFullScreenCustomSize:
     {
         TLockGuard<ZMutex> lock_guard(OpenGLMutex());
         //create window
@@ -724,7 +720,7 @@ NODISCARD ReturnType ZWindow::CreateWindowP(
         }
         break;
     }
-    case kWindowScreenMode_FullScreenDefaultSize:
+    case WindowScreenModeEnum_::kFullScreenDefaultSize:
     {
         TLockGuard<ZMutex> lock_guard(OpenGLMutex());
         //get the main monitor
@@ -768,7 +764,7 @@ NODISCARD ReturnType ZWindow::CreateWindowP(
     ImGui_ImplGlfw_InitForOpenGL(window_handle_, true);
     ImGui_ImplOpenGL3_Init("#version 130");
 
-    window_state_ = kWindowState_Initialized;
+    window_state_ = WindowStateEnum_::kInitialized;
     internal::ZWindowCallback::SetActiveWindowPtr(this);
 
     return ret_val;

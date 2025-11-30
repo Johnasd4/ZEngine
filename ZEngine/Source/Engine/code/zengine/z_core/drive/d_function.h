@@ -39,21 +39,6 @@ FORCEINLINE constexpr Void Swap(_ObjectType* _obj_1, _ObjectType* _obj_2) {
     *_obj_2 = std::move(temp_obj);
 }
 
-template<typename _ObjectType>
-NODISCARD FORCEINLINE constexpr decltype(auto) Ref(_ObjectType& _obj) {
-    return std::ref(_obj);
-}
-
-template<typename _ObjectType>
-NODISCARD FORCEINLINE constexpr decltype(auto) Ref(const _ObjectType& _obj) {
-    return std::ref(_obj);
-}
-
-template<typename _ObjectType>
-NODISCARD FORCEINLINE constexpr decltype(auto) Ref(std::reference_wrapper<_ObjectType> _obj) {
-    return std::ref(_obj);
-}
-
 /*
     Decays basic type.
 */

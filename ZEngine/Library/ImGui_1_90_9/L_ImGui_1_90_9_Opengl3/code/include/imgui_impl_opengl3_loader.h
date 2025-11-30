@@ -502,7 +502,7 @@ union ImGL3WProcs {
         PFNGLDRAWELEMENTSBASEVERTEXPROC   DrawElementsBaseVertex;
         PFNGLENABLEPROC                   Enable;
         PFNGLENABLEVERTEXATTRIBARRAYPROC  EnableVertexAttribArray;
-        PFNGLFLUSHPROC                    Flush;
+        PFNGLFLUSHPROC                    FinishFlush;
         PFNGLGENBUFFERSPROC               GenBuffers;
         PFNGLGENTEXTURESPROC              GenTextures;
         PFNGLGENVERTEXARRAYSPROC          GenVertexArrays;
@@ -567,7 +567,7 @@ GL3W_API extern union ImGL3WProcs imgl3wProcs;
 #define glDrawElementsBaseVertex          imgl3wProcs.gl.DrawElementsBaseVertex
 #define glEnable                          imgl3wProcs.gl.Enable
 #define glEnableVertexAttribArray         imgl3wProcs.gl.EnableVertexAttribArray
-#define glFlush                           imgl3wProcs.gl.Flush
+#define glFlush                           imgl3wProcs.gl.FinishFlush
 #define glGenBuffers                      imgl3wProcs.gl.GenBuffers
 #define glGenTextures                     imgl3wProcs.gl.GenTextures
 #define glGenVertexArrays                 imgl3wProcs.gl.GenVertexArrays

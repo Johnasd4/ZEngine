@@ -17,17 +17,13 @@
     Contact: 1152325286@qq.com
 */
 #define CORE_DLLFILE
+#include "drive/d_pch.h"
 
 #include "f_file_system.h"
 
-#include <fstream>
-#include <filesystem>
-#include <shobjidl.h>
-#include <regex>
-
 #include "f_string.h"
 #include "m_log.h"
-#include "t_vector.h"
+#include "t_array.h"
 
 namespace zengine {
 namespace file_system {
@@ -513,7 +509,7 @@ CORE_DLLAPI NODISCARD ReturnType GetFileInfoListByPathList(
 }
   
 CORE_DLLAPI NODISCARD ReturnType GetFileByFileSelector(
-    const TVector<ZFileFilter>& _file_filter_vector, ZWString* _file_ptr
+    const TArray<ZFileFilter>& _file_filter_array, ZWString* _file_ptr
 ) noexcept {
     ReturnType ret_val = kOK;
 
@@ -538,8 +534,8 @@ CORE_DLLAPI NODISCARD ReturnType GetFileByFileSelector(
 
     //set filter
     file_open_dialog->SetFileTypes(
-        static_cast<UInt32>(_file_filter_vector.Size()), 
-        reinterpret_cast<const COMDLG_FILTERSPEC*>(_file_filter_vector.DataPtr())
+        static_cast<UInt32>(_file_filter_array.Size()), 
+        reinterpret_cast<const COMDLG_FILTERSPEC*>(_file_filter_array.DataPtr())
     );
 
     //shows the file selector, returns neg value if no file selected
@@ -585,7 +581,7 @@ CORE_DLLAPI NODISCARD ReturnType GetFileByFileSelector(
 }
 
 CORE_DLLAPI NODISCARD ReturnType GetFilesByFileSelector(
-    const TVector<ZFileFilter>& _file_filter_vector, TList<ZWString>* _file_list_ptr
+    const TArray<ZFileFilter>& _file_filter_array, TList<ZWString>* _file_list_ptr
 ) noexcept {
     ReturnType ret_val = kOK;
 
@@ -613,8 +609,8 @@ CORE_DLLAPI NODISCARD ReturnType GetFilesByFileSelector(
 
     //set filter
     file_open_dialog->SetFileTypes(
-        static_cast<UInt32>(_file_filter_vector.Size()), 
-        reinterpret_cast<const COMDLG_FILTERSPEC*>(_file_filter_vector.DataPtr())
+        static_cast<UInt32>(_file_filter_array.Size()), 
+        reinterpret_cast<const COMDLG_FILTERSPEC*>(_file_filter_array.DataPtr())
     );
 
     //shows the file selector, returns neg value if no file selected

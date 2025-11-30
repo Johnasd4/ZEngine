@@ -17,6 +17,7 @@
     Contact: 1152325286@qq.com
 */
 #define GUI_DLLFILE
+#include "drive/d_pch.h"
 
 #include "z_check_box.h"
 
@@ -214,7 +215,7 @@ Void ZCheckBox::SetActiveColour(GuiColour _colour) noexcept {
 }
 
 NODISCARD ZCheckBox::WidgetTypeEnum_ ZCheckBox::WidgetType() const noexcept {
-    return WidgetTypeEnum_::kWidgetType_CheckBox;
+    return WidgetTypeEnum_::kCheckBox;
 }
 
 NODISCARD GuiColour ZCheckBox::TextColour() const noexcept {

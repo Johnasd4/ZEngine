@@ -24,9 +24,11 @@
 #include "../z_core/m_log.h"
 #include "../z_core/z_string.h"
 
+#include "internal/sol/sol.hpp"
+
 namespace zengine {
 namespace error_code {
-enum FLuaErrorCode : ReturnType {
+enum FLuaErrorCodeEnum : ReturnType {
     kFLuaErrorCode_LinkError = kErrorCodeBase_FLua,
     kFLuaErrorCode_SystemError,
     kFLuaErrorCode_NullptrParam,
@@ -52,7 +54,7 @@ using LuaSafeFunction = sol::safe_function;
 using LuaObject = sol::object;
 using LuaTable = sol::table;
 
-constexpr sol::lua_nil_t kLuaNull = sol::nil;
+inline constexpr sol::lua_nil_t kLuaNull = sol::nil;
 
 /*
     Gets the lua state, each thread gets a different state.

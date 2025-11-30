@@ -17,6 +17,7 @@
     Contact: 1152325286@qq.com
 */
 #define GUI_DLLFILE
+#include "drive/d_pch.h"
 
 #include "z_gui_object.h"
 
@@ -159,6 +160,8 @@ ZGuiObject::ZGuiObject(
     , if_first_tick_(true)
     , font_scale_(true)
     , owner_ptr_(nullptr) {}
+
+ZGuiObject::~ZGuiObject() noexcept {}
 
 ZGuiObject& ZGuiObject::operator=(ZGuiObject&& _obj) noexcept {
     SuperType_::operator=(std::move(_obj));

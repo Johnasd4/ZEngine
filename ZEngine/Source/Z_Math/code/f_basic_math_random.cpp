@@ -17,15 +17,9 @@
     Contact: 1152325286@qq.com
 */
 #define MATH_DLLFILE
+#include "drive/d_pch.h"
 
 #include "basic_math/f_basic_math_random.h"
-
-#include <random>
-
-#include "z_core/m_log.h"
-#include "z_core/t_lock_guard.h"
-#include "z_core/t_vector.h"
-#include "z_core/z_timer.h"
 
 namespace zengine {
 namespace math {
@@ -35,8 +29,8 @@ class RandManager {
 public:
     static Void RegisterRefillFunc(Void(*_refill_func)()) {
         static RandManager& instance = Instance();
-        TLockGuard<ZMutex> lock_guard(instance.refill_func_vector_mutex_);
-        instance.refill_func_vector_.PushBack(_refill_func);
+        TLockGuard<ZMutex> lock_guard(instance.refill_func_array_mutex_);
+        instance.refill_func_array_.PushBack(_refill_func);
     }
 
 private:
@@ -51,8 +45,8 @@ private:
     }
 
     RandManager() noexcept
-        : refill_func_vector_()
-        , refill_func_vector_mutex_()
+        : refill_func_array_()
+        , refill_func_array_mutex_()
         , refill_timer_() 
     {
         ReturnType link_code = kOK;
@@ -68,49 +62,49 @@ private:
     ~RandManager() noexcept {}
 
     NODISCARD static Void RefillTimerTickFunc() noexcept {
-        static TVector<Void(*)()>& manager_refill_func_vector = RandManager::Instance().refill_func_vector_;
-        static ZMutex& manager_refill_func_vector_mutex = RandManager::Instance().refill_func_vector_mutex_;
-        static TVector<Void(*)()> refill_func_vector;
+        static TArray<Void(*)()>& manager_refill_func_array = RandManager::Instance().refill_func_array_;
+        static ZMutex& manager_refill_func_array_mutex = RandManager::Instance().refill_func_array_mutex_;
+        static TArray<Void(*)()> refill_func_array;
 
         //add the new refill func
-        if (!manager_refill_func_vector.Empty()) {
-            manager_refill_func_vector_mutex.Lock();
+        if (!manager_refill_func_array.Empty()) {
+            manager_refill_func_array_mutex.Lock();
             for (
-                auto refill_func = manager_refill_func_vector.Begin()
-                ; refill_func != manager_refill_func_vector.End()
+                auto refill_func = manager_refill_func_array.Begin()
+                ; refill_func != manager_refill_func_array.End()
                 ; ++refill_func
             ) {
-                refill_func_vector.PushBack(*refill_func);
+                refill_func_array.PushBack(*refill_func);
             }
-            manager_refill_func_vector.Clear();
-            manager_refill_func_vector_mutex.Unlock();
+            manager_refill_func_array.Clear();
+            manager_refill_func_array_mutex.Unlock();
         }
 
         //refill the rand pool
-        for (auto refill_func = refill_func_vector.Begin(); refill_func != refill_func_vector.End(); ++refill_func) {
+        for (auto refill_func = refill_func_array.Begin(); refill_func != refill_func_array.End(); ++refill_func) {
             (*refill_func)();
         }
     }
 
-    TVector<Void(*)()> refill_func_vector_;
-    ZMutex refill_func_vector_mutex_;
+    TArray<Void(*)()> refill_func_array_;
+    ZMutex refill_func_array_mutex_;
     ZTimer refill_timer_;
 };
 
 template<typename _NumberType, typename _RandFunction>
 class RandPool {
 public:
-    static constexpr SizeType kDefaultPoolSize = 1024;
-    static constexpr SizeType kVectorExtendMultFactor = 2;
-    static constexpr Float32 kVectorExtendLimitFactor = 0.5;
+    static inline constexpr SizeType kDefaultPoolSize = 1024;
+    static inline constexpr SizeType kArrayExtendMultFactor = 2;
+    static inline constexpr Float32 kArrayExtendLimitFactor = 0.5;
 
     NODISCARD static _NumberType Apply() noexcept {
         static RandPool& instance = Instance();
         TLockGuard<ZMutex> lock_guard(instance.apply_mutex_);
-        if (++instance.apply_num_ >= instance.pool_vector_.Size()) {
+        if (++instance.apply_num_ >= instance.pool_array_.Size()) {
             instance.ExtendP();
         }
-        return instance.pool_vector_[instance.current_index_++ % instance.pool_vector_.Size()];
+        return instance.pool_array_[instance.current_index_++ % instance.pool_array_.Size()];
     }
 
     NODISCARD static Void RefillTimerFunc() noexcept {
@@ -120,7 +114,7 @@ public:
         SizeType end_index;
         Bool if_resize = false;
         SizeType apply_num;
-        SizeType vector_size = instance.pool_vector_.Size();
+        SizeType array_size = instance.pool_array_.Size();
 
         {
             TLockGuard<ZMutex> lock_guard(instance.apply_mutex_);
@@ -133,15 +127,15 @@ public:
             return;
         }
 
-        if (apply_num >= vector_size * kVectorExtendLimitFactor) {
+        if (apply_num >= array_size * kArrayExtendLimitFactor) {
             if_resize = true;
-            TVector<_NumberType> new_pool_vector;
-            new_pool_vector.Resize(vector_size * 2);
-            RefillP(&new_pool_vector, 1, 0);
+            TArray<_NumberType> new_pool_array;
+            new_pool_array.Resize(array_size * 2);
+            RefillP(&new_pool_array, 1, 0);
             //reset the pool
             {
                 TLockGuard<ZMutex> lock_guard(instance.apply_mutex_);
-                instance.pool_vector_ = std::move(new_pool_vector);
+                instance.pool_array_ = std::move(new_pool_array);
                 instance.current_index_ = 0;
             }
                 instance.refill_index_ = 0;
@@ -149,7 +143,7 @@ public:
         else {
             begin_index = instance.refill_index_;
             instance.refill_index_ = end_index;
-            RefillP(&instance.pool_vector_, begin_index, end_index);
+            RefillP(&instance.pool_array_, begin_index, end_index);
         }
     }
 
@@ -163,28 +157,28 @@ private:
         : refill_index_(0)
         , current_index_(0)
         , apply_num_(0)
-        , pool_vector_()
+        , pool_array_()
         , apply_mutex_()
     {
-        pool_vector_.Resize(kDefaultPoolSize);
-        RefillP(&pool_vector_, 1ULL, 0ULL);
+        pool_array_.Resize(kDefaultPoolSize);
+        RefillP(&pool_array_, 1ULL, 0ULL);
         RandManager::RegisterRefillFunc(RefillTimerFunc);
     }
 
-    static Void RefillP(TVector<_NumberType>* _rand_vector_ptr, SizeType _begin_index, SizeType _end_index) noexcept {
-        SizeType size = _rand_vector_ptr->Size();
+    static Void RefillP(TArray<_NumberType>* _rand_array_ptr, SizeType _begin_index, SizeType _end_index) noexcept {
+        SizeType size = _rand_array_ptr->Size();
         SizeType index = _begin_index;
         //refill size always > 0
         do {
-            (*_rand_vector_ptr)[index] = _RandFunction::GenerateRandNum();
+            (*_rand_array_ptr)[index] = _RandFunction::GenerateRandNum();
             index = ++index % size;
         } while (index != _end_index);
-        (*_rand_vector_ptr)[index] = _RandFunction::GenerateRandNum();
+        (*_rand_array_ptr)[index] = _RandFunction::GenerateRandNum();
     }
 
     Void ExtendP() noexcept {
-        pool_vector_.Resize(pool_vector_.Size() * 2);
-        RefillP(&pool_vector_, 1, 0);
+        pool_array_.Resize(pool_array_.Size() * 2);
+        RefillP(&pool_array_, 1, 0);
         current_index_ = 0;
         refill_index_ = 0;
     }
@@ -192,15 +186,15 @@ private:
     SizeType refill_index_;
     SizeType current_index_;
     Int32 apply_num_;
-    TVector<_NumberType> pool_vector_;
+    TArray<_NumberType> pool_array_;
     ZMutex apply_mutex_;
 };
 
 NODISCARD static const std::random_device::result_type GetRandSeed() noexcept {
-    static std::random_device::result_type rand_seed = []() {
+    static std::random_device::result_type rand_seed = std::invoke([]() {
         std::random_device rand_seed_generator;
         return rand_seed_generator();
-    }();
+    });
     return rand_seed;
 }
 

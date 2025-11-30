@@ -17,16 +17,11 @@
     Contact: 1152325286@qq.com
 */
 #define GUI_DLLFILE
+#include "drive/d_pch.h"
 
 #include "test.h"
 
-#include <thread>
-#include <mutex>
-#include <vector>
-#include <string>
-#include "../z_core/m_log.h"
-#include "../z_core/z_thread.h"
-
+#include "z_window.h"
 
 namespace zengine {
 namespace gui {

@@ -26,7 +26,7 @@
 
 namespace zengine {
 namespace error_code {
-enum ZBoardErrorCode : ReturnType {
+enum ZBoardErrorCodeEnum : ReturnType {
     kZBoardErrorCode_LinkError = kErrorCodeBase_ZBoard,
     kZBoardErrorCode_SystemError,
     kZBoardErrorCode_NullptrParam,
@@ -101,7 +101,7 @@ public:
         Includes the inner circle and outer circle.
     */
     NODISCARD virtual ReturnType GetSurroundTile(
-        TVector<ZTile*>* _tile_list_ptr,
+        TArray<ZTile*>* _tile_list_ptr,
         const LogicVector2D& _center_index,
         Int32 _inner_radius = 1,
         Int32 _outer_radius = 1

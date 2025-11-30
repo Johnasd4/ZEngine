@@ -22,7 +22,7 @@
 
 namespace zengine {
 namespace error_code {
-enum FMemoryPoolErrorCode : ReturnType {
+enum FMemoryPoolErrorCodeEnum : ReturnType {
     kFMemoryPoolErrorCode_LinkError = kErrorCodeBase_FMemoryPool,
     kFMemoryPoolErrorCode_SystemError,
     kFMemoryPoolErrorCode_NullptrParam,

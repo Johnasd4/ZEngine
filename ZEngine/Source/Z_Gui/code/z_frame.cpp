@@ -17,10 +17,9 @@
     Contact: 1152325286@qq.com
 */
 #define GUI_DLLFILE
+#include "drive/d_pch.h"
 
 #include "z_frame.h"
-
-#include "z_core/t_vector.h"
 
 namespace zengine {
 namespace gui {
@@ -344,7 +343,7 @@ ReturnType ZFrame::Add(ZWidgetObject* _widget_obj_ptr) noexcept {
         L"_widget_obj is nullptr!"
     );
 
-    if (_widget_obj_ptr->WidgetType() == kWidgetType_Frame) {
+    if (_widget_obj_ptr->WidgetType() == ZWidgetObject::WidgetTypeEnum_::kFrame) {
         frame_ptr_set_.Insert(static_cast<ZFrame*>(_widget_obj_ptr));
         dynamic_cast<ZFrame*>(_widget_obj_ptr)->UpdateFrameLevelP(frame_level_);
     }
@@ -364,7 +363,7 @@ ReturnType ZFrame::Remove(ZWidgetObject* _widget_obj_ptr) noexcept {
         L"_widget_obj is nullptr!"
     );
 
-    if (_widget_obj_ptr->WidgetType() == kWidgetType_Frame) {
+    if (_widget_obj_ptr->WidgetType() == ZWidgetObject::WidgetTypeEnum_::kFrame) {
         frame_ptr_set_.Erase(static_cast<ZFrame*>(_widget_obj_ptr));
     }
     else {
@@ -378,16 +377,16 @@ ReturnType ZFrame::Remove(ZWidgetObject* _widget_obj_ptr) noexcept {
 Void ZFrame::RemoveAll() noexcept {
     ReturnType ret_val = kOK;
 
-    TVector<ZWidgetObject*> remove_widget_ptr_vector;
+    TArray<ZWidgetObject*> remove_widget_ptr_array;
     for (auto iter = frame_ptr_set_.Begin(); iter != frame_ptr_set_.End(); ++iter) {
-        remove_widget_ptr_vector.PushBack(*iter);
+        remove_widget_ptr_array.PushBack(*iter);
     }
     for (auto iter = widget_ptr_set_.Begin(); iter != widget_ptr_set_.End(); ++iter) {
-        remove_widget_ptr_vector.PushBack(*iter);
+        remove_widget_ptr_array.PushBack(*iter);
     }
     frame_ptr_set_.Clear();
     widget_ptr_set_.Clear();
-    for (auto iter = remove_widget_ptr_vector.Begin(); iter != remove_widget_ptr_vector.End(); ++iter) {
+    for (auto iter = remove_widget_ptr_array.Begin(); iter != remove_widget_ptr_array.End(); ++iter) {
         (*iter)->OnRemove(this);
     }
 }
@@ -405,7 +404,7 @@ Void ZFrame::SetScrollY(Float32 _scroll_y) noexcept {
 }
 
 NODISCARD ZFrame::WidgetTypeEnum_ ZFrame::WidgetType() const noexcept {
-    return WidgetTypeEnum_::kWidgetType_Frame;
+    return WidgetTypeEnum_::kFrame;
 }
 
 NODISCARD GuiColour ZFrame::BackgruondColour() const noexcept {

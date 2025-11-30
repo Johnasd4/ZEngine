@@ -18,13 +18,6 @@
 */
 #pragma once
 
-#include "drive.h"
-
-#include <boost/beast.hpp>
-
-#include "z_core/t_allocator.h"
-#include "z_core/z_object.h"
-
 namespace zengine {
 namespace socket {
 namespace internal {

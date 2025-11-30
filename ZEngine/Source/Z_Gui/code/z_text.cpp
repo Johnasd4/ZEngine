@@ -17,6 +17,7 @@
     Contact: 1152325286@qq.com
 */
 #define GUI_DLLFILE
+#include "drive/d_pch.h"
 
 #include "z_text.h"
 
@@ -121,7 +122,7 @@ Void ZText::SetTextColour(GuiColour _colour) noexcept {
 }
 
 NODISCARD ZText::WidgetTypeEnum_ ZText::WidgetType() const noexcept {
-    return WidgetTypeEnum_::kWidgetType_Text;
+    return WidgetTypeEnum_::kText;
 }
 
 /*

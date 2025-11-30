@@ -37,15 +37,15 @@ namespace gui {
 */
 class GUI_DLLAPI ZWidgetObject : public ZGuiObject {
 public:
-    static constexpr Int32 kDefaultPriority = 0;
+    static inline constexpr Int32 kDefaultPriority = 0;
 
-    enum WidgetTypeEnum_ : Int32 {
-        kWidgetType_Frame,
-        kWidgetType_Text,
-        kWidgetType_InputText,
-        kWidgetType_Button,
-        kWidgetType_Separator,
-        kWidgetType_CheckBox,
+    enum class WidgetTypeEnum_ : Int32 {
+        kFrame,
+        kText,
+        kInputText,
+        kButton,
+        kSeparator,
+        kCheckBox,
     };
 
     FORCEINLINE Void SetPriority(Int32 _priority) noexcept { priority_ = _priority; }
@@ -101,9 +101,9 @@ protected:
         Bool _enabled = true
     ) noexcept;
 
-    ZWidgetObject& operator=(ZWidgetObject&& _obj) noexcept;
+    virtual ~ZWidgetObject() noexcept;
 
-    FORCEINLINE ~ZWidgetObject() {}
+    ZWidgetObject& operator=(ZWidgetObject&& _obj) noexcept;
 
 private:
     ZWidgetObject(const ZWidgetObject&) = delete;

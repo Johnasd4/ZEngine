@@ -17,6 +17,7 @@
     Contact: 1152325286@qq.com
 */
 #define GUI_DLLFILE
+#include "drive/d_pch.h"
 
 #include "z_button.h"
 
@@ -169,7 +170,7 @@ Void ZButton::SetActiveColour(GuiColour _colour) noexcept {
 }
 
 NODISCARD ZButton::WidgetTypeEnum_ ZButton::WidgetType() const noexcept {
-    return WidgetTypeEnum_::kWidgetType_Button;
+    return WidgetTypeEnum_::kButton;
 }
 
 NODISCARD GuiColour ZButton::TextColour() const noexcept {

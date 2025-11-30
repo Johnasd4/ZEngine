@@ -17,11 +17,9 @@
     Contact: 1152325286@qq.com
 */
 #define SOCKET_DLLFILE
+#include "drive/d_pch.h"
 
 #include "z_http_request_generator.h"
-
-#include "z_core/t_allocator.h"
-#include "z_core/z_string.h"
 
 #include "data/z_http_11_request_generator_data.h"
 
@@ -37,9 +35,9 @@ ZHTTP11RequestGenerator::ZHTTP11RequestGenerator() noexcept
 
 ZHTTP11RequestGenerator::~ZHTTP11RequestGenerator() noexcept {}
 
-Void ZHTTP11RequestGenerator::SetRequestType(RequestType_ _request_type) noexcept {
+Void ZHTTP11RequestGenerator::SetRequestType(RequestTypeEnum_ _request_type) noexcept {
     switch (_request_type) {
-    case RequestType_Get:
+    case ZHTTP11RequestGenerator::RequestTypeEnum_::kGet:
         data_ptr_->request_.method(boost::beast::http::verb::get);
         break;
     default:

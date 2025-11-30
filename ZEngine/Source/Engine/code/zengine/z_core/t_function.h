@@ -26,7 +26,7 @@
 
 namespace zengine {
 namespace error_code {
-enum TFunctionErrorCode : ReturnType {
+enum TFunctionErrorCodeEnum : ReturnType {
     kTFunctionErrorCode_LinkError = kErrorCodeBase_TFunction,
     kTFunctionErrorCode_SystemError,
     kTFunctionErrorCode_NullptrParam,
@@ -133,9 +133,7 @@ public:
     }
     template<typename _OriginFunc, typename = std::enable_if<kNotType<TFunction, _OriginFunc>>::type>
     TFunction& operator=(_OriginFunc&& _origin_func) noexcept {
-        func_ = std::move(
-            MakeUnique<FunctionImplP_<std::decay_t<_OriginFunc>>>(std::forward<_OriginFunc>(_origin_func))
-        );
+        func_ = MakeUnique<FunctionImplP_<std::decay_t<_OriginFunc>>>(std::forward<_OriginFunc>(_origin_func));
         return *this;
     }
 

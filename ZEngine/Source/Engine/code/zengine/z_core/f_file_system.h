@@ -20,13 +20,13 @@
 
 #include "drive.h"
 
+#include "t_array.h"
 #include "t_list.h"
-#include "t_vector.h"
 #include "z_string.h"
 
 namespace zengine {
 namespace error_code {
-enum FFileSystemErrorCode : ReturnType {
+enum FFileSystemErrorCodeEnum : ReturnType {
     kFFileSystemErrorCode_LinkError = kErrorCodeBase_FFileSystem,
     kFFileSystemErrorCode_SystemError,
     kFFileSystemErrorCode_NullptrParam,
@@ -169,14 +169,14 @@ CORE_DLLAPI NODISCARD ReturnType GetFileInfoListByPathList(
     Get file path by the file selector.
 */
 CORE_DLLAPI NODISCARD ReturnType GetFileByFileSelector(
-    const TVector<ZFileFilter>& _file_filter_vector, ZWString* _file_ptr
+    const TArray<ZFileFilter>& _file_filter_array, ZWString* _file_ptr
 ) noexcept;
 
 /*
     Get mutiple file path by the file selector.
 */
 CORE_DLLAPI NODISCARD ReturnType GetFilesByFileSelector(
-    const TVector<ZFileFilter>& _file_filter_vector, TList<ZWString>* _file_list_ptr
+    const TArray<ZFileFilter>& _file_filter_array, TList<ZWString>* _file_list_ptr
 ) noexcept;
 
 /*

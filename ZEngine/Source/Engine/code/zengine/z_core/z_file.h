@@ -24,7 +24,7 @@
 
 namespace zengine {
 namespace error_code {
-enum ZFileErrorCode : ReturnType {
+enum ZFileErrorCodeEnum : ReturnType {
     kZFileErrorCode_LinkError = kErrorCodeBase_ZFile,
     kZFileErrorCode_SystemError,
     kZFileErrorCode_NullptrParam,
@@ -48,38 +48,38 @@ namespace zengine {
 class CORE_DLLAPI ZFile : public ZObject {
 public:
 
-    enum SeekType_ : Int32 {
-        kZFileSeekType_FileHead = SEEK_SET,
-        kZFileSeekType_CurrntPtr = SEEK_CUR,
-        kZFileSeekType_FileEnd = SEEK_END
+    enum class SeekType_ : Int32 {
+        kFileHead = SEEK_SET,
+        kCurrntPtr = SEEK_CUR,
+        kFileEnd = SEEK_END
     };
 
     /*Read only.*/
-    static constexpr WChar kOpenTypeRead[] = L"r";
+    static inline constexpr WChar kOpenTypeRead[] = L"r";
     /*Write only, will clear the file.*/
-    static constexpr WChar kOpenTypeWrite[] = L"w";
+    static inline constexpr WChar kOpenTypeWrite[] = L"w";
     /*Append at the end of the file.*/
-    static constexpr WChar kOpenTypeAppend[] = L"a";
+    static inline constexpr WChar kOpenTypeAppend[] = L"a";
     /*Read and write.*/
-    static constexpr WChar kOpenTypeReadPlus[] = L"r+";
+    static inline constexpr WChar kOpenTypeReadPlus[] = L"r+";
     /*Read and write, will clear the file.*/
-    static constexpr WChar kOpenTypeWritePlus[] = L"w+";
+    static inline constexpr WChar kOpenTypeWritePlus[] = L"w+";
     /*Read and write, starts at the end of the file.*/
-    static constexpr WChar kOpenTypeAppendPlus[] = L"a+";
+    static inline constexpr WChar kOpenTypeAppendPlus[] = L"a+";
     /*Read only.(binary file)*/
-    static constexpr WChar kOpenTypeReadBin[] = L"rb";
+    static inline constexpr WChar kOpenTypeReadBin[] = L"rb";
     /*Write only, will clear the file.(binary file)*/
-    static constexpr WChar kOpenTypeWriteBin[] = L"wb";
+    static inline constexpr WChar kOpenTypeWriteBin[] = L"wb";
     /*Append at the end of the file.(binary file)*/
-    static constexpr WChar kOpenTypeAppendBin[] = L"ab";
+    static inline constexpr WChar kOpenTypeAppendBin[] = L"ab";
     /*Read and write.(binary file)*/
-    static constexpr WChar kOpenTypeReadPlusBin[] = L"rb+";
+    static inline constexpr WChar kOpenTypeReadPlusBin[] = L"rb+";
     /*Read and write, will clear the file.(binary file)*/
-    static constexpr WChar kOpenTypeWritePlusBin[] = L"wb+";
+    static inline constexpr WChar kOpenTypeWritePlusBin[] = L"wb+";
     /*Read and write, starts at the end of the file.(binary file)*/
-    static constexpr WChar kOpenTypeAppendPlusBin[] = L"ab+";
+    static inline constexpr WChar kOpenTypeAppendPlusBin[] = L"ab+";
     /*The max length of the file name.*/
-    static constexpr SizeType kFileNameLength = MAX_PATH;
+    static inline constexpr SizeType kFileNameLength = MAX_PATH;
 
     ZFile() noexcept;
     ZFile(ZFile&& _file) noexcept;

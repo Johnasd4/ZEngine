@@ -141,7 +141,7 @@ struct ImGui_ImplGlfw_Data
     GLFWcursorenterfun      PrevUserCallbackCursorEnter;
     GLFWmousebuttonfun      PrevUserCallbackMousebutton;
     GLFWscrollfun           PrevUserCallbackScroll;
-    GLFWkeyfun              PrevUserCallbackKey_;
+    GLFWkeyfun              PrevUserCallback;
     GLFWcharfun             PrevUserCallbackChar;
     GLFWmonitorfun          PrevUserCallbackMonitor;
 #ifdef _WIN32
@@ -380,8 +380,8 @@ static int ImGui_ImplGlfw_TranslateUntranslatedKey(int key, int scancode)
 void ImGui_ImplGlfw_KeyCallback(GLFWwindow* window, int keycode, int scancode, int action, int mods)
 {
     ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData();
-    if (bd->PrevUserCallbackKey_ != nullptr && ImGui_ImplGlfw_ShouldChainCallback(window))
-        bd->PrevUserCallbackKey_(window, keycode, scancode, action, mods);
+    if (bd->PrevUserCallback != nullptr && ImGui_ImplGlfw_ShouldChainCallback(window))
+        bd->PrevUserCallback(window, keycode, scancode, action, mods);
 
     if (action != GLFW_PRESS && action != GLFW_RELEASE)
         return;
@@ -512,7 +512,7 @@ void ImGui_ImplGlfw_InstallCallbacks(GLFWwindow* window)
     bd->PrevUserCallbackCursorPos = glfwSetCursorPosCallback(window, ImGui_ImplGlfw_CursorPosCallback);
     bd->PrevUserCallbackMousebutton = glfwSetMouseButtonCallback(window, ImGui_ImplGlfw_MouseButtonCallback);
     bd->PrevUserCallbackScroll = glfwSetScrollCallback(window, ImGui_ImplGlfw_ScrollCallback);
-    bd->PrevUserCallbackKey_ = glfwSetKeyCallback(window, ImGui_ImplGlfw_KeyCallback);
+    bd->PrevUserCallback = glfwSetKeyCallback(window, ImGui_ImplGlfw_KeyCallback);
     bd->PrevUserCallbackChar = glfwSetCharCallback(window, ImGui_ImplGlfw_CharCallback);
     bd->PrevUserCallbackMonitor = glfwSetMonitorCallback(ImGui_ImplGlfw_MonitorCallback);
     bd->InstalledCallbacks = true;
@@ -529,7 +529,7 @@ void ImGui_ImplGlfw_RestoreCallbacks(GLFWwindow* window)
     glfwSetCursorPosCallback(window, bd->PrevUserCallbackCursorPos);
     glfwSetMouseButtonCallback(window, bd->PrevUserCallbackMousebutton);
     glfwSetScrollCallback(window, bd->PrevUserCallbackScroll);
-    glfwSetKeyCallback(window, bd->PrevUserCallbackKey_);
+    glfwSetKeyCallback(window, bd->PrevUserCallback);
     glfwSetCharCallback(window, bd->PrevUserCallbackChar);
     glfwSetMonitorCallback(bd->PrevUserCallbackMonitor);
     bd->InstalledCallbacks = false;
@@ -538,7 +538,7 @@ void ImGui_ImplGlfw_RestoreCallbacks(GLFWwindow* window)
     bd->PrevUserCallbackCursorPos = nullptr;
     bd->PrevUserCallbackMousebutton = nullptr;
     bd->PrevUserCallbackScroll = nullptr;
-    bd->PrevUserCallbackKey_ = nullptr;
+    bd->PrevUserCallback = nullptr;
     bd->PrevUserCallbackChar = nullptr;
     bd->PrevUserCallbackMonitor = nullptr;
 }

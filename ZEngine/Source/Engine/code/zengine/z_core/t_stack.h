@@ -20,7 +20,7 @@
 
 #include "drive.h"
 
-#include "t_vector.h"
+#include "t_array.h"
 #include "z_object.h"
 
 namespace zengine {
@@ -28,7 +28,7 @@ namespace zengine {
 /*
     Stack container.
 */
-template<typename _ObjectType, typename _ContainerType = TVector<_ObjectType>>
+template<typename _ObjectType, typename _ContainerType = TArray<_ObjectType>>
 class TStack : public ZObject {
 public:
     using InitializerList_ = std::initializer_list<_ObjectType>;

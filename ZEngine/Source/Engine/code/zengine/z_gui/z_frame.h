@@ -27,7 +27,7 @@
 
 namespace zengine {
 namespace error_code {
-enum ZFrameErrorCode : ReturnType {
+enum ZFrameErrorCodeEnum : ReturnType {
     kZFrameErrorCode_LinkError = kErrorCodeBase_ZFrame,
     kZFrameErrorCode_SystemError,
     kZFrameErrorCode_NullptrParam,
@@ -101,10 +101,10 @@ public:
         kFrameFlag_NoInputs = kFrameFlag_NoMouseInputs | kFrameFlag_NoNavInputs | kFrameFlag_NoNavFocus,
     };
 
-    static constexpr Int32 kBaseFrameLevel = 0;
+    static inline constexpr Int32 kBaseFrameLevel = 0;
 
-    static constexpr Int32 kDefaultFrameFlag = kFrameFlag_None;
-    static constexpr GuiColour kDefaultFrameBackgroundColour = { 0.2f, 0.2f, 0.2f, 1.0f };
+    static inline constexpr Int32 kDefaultFrameFlag = kFrameFlag_None;
+    static inline constexpr GuiColour kDefaultFrameBackgroundColour = { 0.2f, 0.2f, 0.2f, 1.0f };
 
     ZFrame() noexcept;
     ZFrame(ZFrame&& _frame) noexcept;
@@ -113,7 +113,7 @@ public:
     */
     ZFrame(ZStringView _name, GuiSize _size = kBaseSize, GuiPos _pos = kBasePos) noexcept;
 
-    ~ZFrame() noexcept;
+    virtual ~ZFrame() noexcept;
 
     ZFrame& operator=(ZFrame&& _frame) noexcept;
 
@@ -216,8 +216,8 @@ private:
     Float32 scroll_max_y_;
     Bool scroll_x_set_;
     Bool scroll_y_set_;
-    TMultiset<ZWidgetObject*, ZWidgetObjectCompare> widget_ptr_set_;
-    TMultiset<ZFrame*, ZWidgetObjectCompare> frame_ptr_set_;
+    TMultipleSet<ZWidgetObject*, ZWidgetObjectCompare> widget_ptr_set_;
+    TMultipleSet<ZFrame*, ZWidgetObjectCompare> frame_ptr_set_;
 };
 
 }//gui

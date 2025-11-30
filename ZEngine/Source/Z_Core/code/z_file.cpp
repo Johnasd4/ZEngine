@@ -17,6 +17,7 @@
     Contact: 1152325286@qq.com
 */
 #define CORE_DLLFILE
+#include "drive/d_pch.h"
 
 #include "z_file.h"
 
@@ -271,7 +272,7 @@ NODISCARD ReturnType ZFile::Seek(Int32 _offset, SeekType_ _seek_type) noexcept {
 
     Z_CHECK(file_ptr_ == nullptr, error_code::kZFileErrorCode_NoFileOpened, L"No file opened!");
 
-    if (fseek(file_ptr_, _offset, _seek_type) != 0) {
+    if (fseek(file_ptr_, _offset, static_cast<Int32>(_seek_type)) != 0) {
         ret_val = error_code::kZFileErrorCode_CreatePathFailed;
         Z_LOG_ERROR(ret_val, 0, L"Failed to seek! offset: %d, seek_type: %d", _offset, _seek_type);
         return ret_val;
@@ -295,9 +296,9 @@ NODISCARD Int32 ZFile::Size() noexcept {
         return 0;
     }
     Int32 pre_index = ftell(file_ptr_);
-    fseek(file_ptr_, 0, kZFileSeekType_FileEnd);
+    fseek(file_ptr_, 0, static_cast<Int32>(SeekType_::kFileEnd));
     Int32 size = ftell(file_ptr_);
-    fseek(file_ptr_, pre_index, kZFileSeekType_FileHead);
+    fseek(file_ptr_, pre_index, static_cast<Int32>(SeekType_::kFileHead));
     return size;
 }
 

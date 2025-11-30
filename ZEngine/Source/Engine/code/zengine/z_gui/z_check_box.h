@@ -28,7 +28,7 @@
 
 namespace zengine {
 namespace error_code {
-enum ZCheckBoxErrorCode : ReturnType {
+enum ZCheckBoxErrorCodeEnum : ReturnType {
     kZCheckBoxErrorCode_LinkError = kErrorCodeBase_ZCheckBox,
     kZCheckBoxErrorCode_SystemError,
     kZCheckBoxErrorCode_NullptrParam,
@@ -45,11 +45,11 @@ namespace gui {
 */
 class GUI_DLLAPI ZCheckBox : public ZWidgetObject {
 public:
-    static constexpr GuiColour kDefaultTextColour = { 1.0f, 1.0f, 1.0f, 1.0f };
-    static constexpr GuiColour kDefaultCheckMarkColour = { 1.0f, 1.0f, 1.0f, 1.0f };
-    static constexpr GuiColour kDefaultCheckBoxColour = { 0.3f, 0.3f, 0.3f, 1.0f };
-    static constexpr GuiColour kDefaultHoveredColour = { 0.5f, 0.5f, 0.5f, 1.0f };
-    static constexpr GuiColour kDefaultActiveColour = { 0.4f, 0.4f, 0.4f, 1.0f };
+    static inline constexpr GuiColour kDefaultTextColour = { 1.0f, 1.0f, 1.0f, 1.0f };
+    static inline constexpr GuiColour kDefaultCheckMarkColour = { 1.0f, 1.0f, 1.0f, 1.0f };
+    static inline constexpr GuiColour kDefaultCheckBoxColour = { 0.3f, 0.3f, 0.3f, 1.0f };
+    static inline constexpr GuiColour kDefaultHoveredColour = { 0.5f, 0.5f, 0.5f, 1.0f };
+    static inline constexpr GuiColour kDefaultActiveColour = { 0.4f, 0.4f, 0.4f, 1.0f };
 
     ZCheckBox() noexcept;
     ZCheckBox(ZCheckBox&& _check_box) noexcept;
@@ -58,7 +58,7 @@ public:
     */
     ZCheckBox(ZStringView _name, GuiPos _pos = kBasePos) noexcept;
 
-    ~ZCheckBox() noexcept;
+    virtual ~ZCheckBox() noexcept;
 
     ZCheckBox& operator=(ZCheckBox&& _check_box) noexcept;
 

@@ -17,6 +17,7 @@
     Contact: 1152325286@qq.com
 */
 #define CORE_DLLFILE
+#include "drive/d_pch.h"
 
 #include "z_task.h"
 
@@ -30,7 +31,7 @@ ZTaskSafe::ZTaskSafe() noexcept
     , task_func_ptr_(nullptr)
     , params_ptr_(nullptr)
     , ret_val_ptr_(nullptr)
-    , state_(kZTaskState_NoTask)
+    , state_(ZTaskStateEnum::kNoTask)
     , mutex_() {}
 
 ZTaskSafe::ZTaskSafe(ZTaskSafe&& _task) noexcept : SuperType_(std::forward<ZTaskSafe>(_task)) , mutex_() {
@@ -50,10 +51,10 @@ ZTaskSafe& ZTaskSafe::operator=(ZTaskSafe&& _task) noexcept {
 NODISCARD ReturnType ZTaskSafe::operator()() noexcept {
     ReturnType ret_val = kOK;
     Z_CHECK(
-        state_ != kZTaskState_TaskSet,
+        state_ != ZTaskStateEnum::kTaskSet,
         error_code::kZTaskErrorCode_StateError,
         L"Task state error! state: %d expect state: %d",
-        state_, kZTaskState_TaskSet
+        state_, ZTaskStateEnum::kTaskSet
     );
 
     operate_func_ptr_(this);
@@ -62,13 +63,13 @@ NODISCARD ReturnType ZTaskSafe::operator()() noexcept {
 
 NODISCARD ReturnType ZTaskSafe::BindReturn(Void* _ret_val_ptr) noexcept {
     ReturnType ret_val = kOK;
-    if (state_ == kZTaskState_TaskRunning) {
+    if (state_ == ZTaskStateEnum::kTaskRunning) {
         ret_val = error_code::kZTaskErrorCode_StateError;
         Z_LOG_ERROR(ret_val, 0, L"Task Running, can not bind return! state_: %d", state_);
         return ret_val;
     }
     mutex_.Lock();
-    if (state_ == kZTaskState_Finished) {
+    if (state_ == ZTaskStateEnum::kFinished) {
         operate_func_ptr_(this);
     }
     ret_val_ptr_ = _ret_val_ptr;
@@ -78,13 +79,13 @@ NODISCARD ReturnType ZTaskSafe::BindReturn(Void* _ret_val_ptr) noexcept {
 
 Void ZTaskSafe::Clear() noexcept {
     TLockGuard<ZMutex> lock_guard(mutex_);
-    if (state_ == kZTaskState_TaskSet) {
-        state_ = kZTaskState_Finished;
+    if (state_ == ZTaskStateEnum::kTaskSet) {
+        state_ = ZTaskStateEnum::kFinished;
     }
-    if (state_ == kZTaskState_Finished) {
+    if (state_ == ZTaskStateEnum::kFinished) {
         operate_func_ptr_(this);
     }
-    state_ = kZTaskState_NoTask;
+    state_ = ZTaskStateEnum::kNoTask;
     mutex_.Unlock();
 }
 
@@ -92,10 +93,10 @@ NODISCARD ReturnType ZTaskSafe::Run() noexcept {
     ReturnType ret_val = kOK;
     TLockGuard<ZMutex> lock_guard(mutex_);
     Z_CHECK(
-        state_ != kZTaskState_TaskSet,
+        state_ != ZTaskStateEnum::kTaskSet,
         error_code::kZTaskErrorCode_StateError,
         L"Task state error! state: %d expect state: %d",
-        state_, kZTaskState_TaskSet
+        state_, ZTaskStateEnum::kTaskSet
     );
 
     operate_func_ptr_(this);
@@ -110,7 +111,7 @@ Void ZTaskSafe::MoveP(ZTaskSafe&& _task) noexcept {
     ret_val_ptr_ = _task.ret_val_ptr_;
     state_ = _task.state_;
     _task.params_ptr_ = nullptr;
-    _task.state_ = kZTaskState_NoTask;
+    _task.state_ = ZTaskStateEnum::kNoTask;
     _task.mutex_.Unlock();
 }
 
@@ -120,7 +121,7 @@ ZTask::ZTask() noexcept
         , task_func_ptr_(nullptr)
         , params_ptr_(nullptr)
         , ret_val_ptr_(nullptr)
-        , state_(kZTaskState_NoTask) {}
+        , state_(ZTaskStateEnum::kNoTask) {}
 
 ZTask::ZTask(ZTask&& _task) noexcept : SuperType_(std::forward<ZTask>(_task)) {
     MoveP(std::forward<ZTask>(_task));
@@ -137,10 +138,10 @@ ZTask& ZTask::operator=(ZTask&& _task) noexcept {
 NODISCARD ReturnType ZTask::operator()() noexcept {
     ReturnType ret_val = kOK;
     Z_CHECK(
-        state_ != kZTaskState_TaskSet,
+        state_ != ZTaskStateEnum::kTaskSet,
         error_code::kZTaskErrorCode_StateError,
         L"Task state error! state: %d expect state: %d",
-        state_, kZTaskState_TaskSet
+        state_, ZTaskStateEnum::kTaskSet
     );
 
     operate_func_ptr_(this);
@@ -149,12 +150,12 @@ NODISCARD ReturnType ZTask::operator()() noexcept {
 
 NODISCARD ReturnType ZTask::BindReturn(Void* _ret_val_ptr) noexcept {
     ReturnType ret_val = kOK;
-    if (state_ == kZTaskState_TaskRunning) {
+    if (state_ == ZTaskStateEnum::kTaskRunning) {
         ret_val = error_code::kZTaskErrorCode_StateError;
         Z_LOG_ERROR(ret_val, 0, L"Task Running, can not bind return! state_: %d", state_);
         return ret_val;
     }
-    if (state_ == kZTaskState_Finished) {
+    if (state_ == ZTaskStateEnum::kFinished) {
         operate_func_ptr_(this);
     }
     ret_val_ptr_ = _ret_val_ptr;
@@ -162,22 +163,22 @@ NODISCARD ReturnType ZTask::BindReturn(Void* _ret_val_ptr) noexcept {
 }
 
 Void ZTask::Clear() noexcept {
-    if (state_ == kZTaskState_TaskSet) {
-        state_ = kZTaskState_Finished;
+    if (state_ == ZTaskStateEnum::kTaskSet) {
+        state_ = ZTaskStateEnum::kFinished;
     }
-    if (state_ == kZTaskState_Finished) {
+    if (state_ == ZTaskStateEnum::kFinished) {
         operate_func_ptr_(this);
     }
-    state_ = kZTaskState_NoTask;
+    state_ = ZTaskStateEnum::kNoTask;
 }
 
 NODISCARD ReturnType ZTask::Run() noexcept {
     ReturnType ret_val = kOK;
     Z_CHECK(
-        state_ != kZTaskState_TaskSet,
+        state_ != ZTaskStateEnum::kTaskSet,
         error_code::kZTaskErrorCode_StateError,
         L"Task state error! state: %d expect state: %d",
-        state_, kZTaskState_TaskSet
+        state_, ZTaskStateEnum::kTaskSet
     );
 
     operate_func_ptr_(this);
@@ -190,7 +191,7 @@ Void ZTask::MoveP(ZTask&& _task) noexcept {
     params_ptr_ = _task.params_ptr_;
     state_ = _task.state_;
     _task.params_ptr_ = nullptr;
-    _task.state_ = kZTaskState_NoTask;
+    _task.state_ = ZTaskStateEnum::kNoTask;
 }
 
 ZRepeatTask::ZRepeatTask() noexcept
@@ -198,7 +199,7 @@ ZRepeatTask::ZRepeatTask() noexcept
     , operate_func_ptr_(nullptr)
     , task_func_ptr_(nullptr)
     , params_ptr_(nullptr)
-    , state_(kZTaskState_NoTask) {
+    , state_(ZTaskStateEnum::kNoTask) {
 }
 
 ZRepeatTask::ZRepeatTask(ZRepeatTask&& _task) noexcept : SuperType_(std::forward<ZRepeatTask>(_task)) {
@@ -216,10 +217,10 @@ ZRepeatTask& ZRepeatTask::operator=(ZRepeatTask&& _task) noexcept {
 NODISCARD ReturnType ZRepeatTask::operator()() noexcept {
     ReturnType ret_val = kOK;
     Z_CHECK(
-        state_ != kZTaskState_TaskSet,
+        state_ != ZTaskStateEnum::kTaskSet,
         error_code::kZTaskErrorCode_StateError,
         L"Task state error! state: %d expect state: %d",
-        state_, kZTaskState_TaskSet
+        state_, ZTaskStateEnum::kTaskSet
     );
 
     operate_func_ptr_(this);
@@ -227,22 +228,22 @@ NODISCARD ReturnType ZRepeatTask::operator()() noexcept {
 }
 
 Void ZRepeatTask::Clear() noexcept {
-    if (state_ == kZTaskState_TaskSet) {
-        state_ = kZTaskState_Finished;
+    if (state_ == ZTaskStateEnum::kTaskSet) {
+        state_ = ZTaskStateEnum::kFinished;
     }
-    if (state_ == kZTaskState_Finished) {
+    if (state_ == ZTaskStateEnum::kFinished) {
         operate_func_ptr_(this);
     }
-    state_ = kZTaskState_NoTask;
+    state_ = ZTaskStateEnum::kNoTask;
 }
 
 NODISCARD ReturnType ZRepeatTask::Run() noexcept {
     ReturnType ret_val = kOK;
     Z_CHECK(
-        state_ != kZTaskState_TaskSet,
+        state_ != ZTaskStateEnum::kTaskSet,
         error_code::kZTaskErrorCode_StateError,
         L"Task state error! state: %d expect state: %d",
-        state_, kZTaskState_TaskSet
+        state_, ZTaskStateEnum::kTaskSet
     );
 
     operate_func_ptr_(this);
@@ -255,7 +256,7 @@ Void ZRepeatTask::MoveP(ZRepeatTask&& _task) noexcept {
     params_ptr_ = _task.params_ptr_;
     state_ = _task.state_;
     _task.params_ptr_ = nullptr;
-    _task.state_ = kZTaskState_NoTask;
+    _task.state_ = ZTaskStateEnum::kNoTask;
 }
 
 }//zengine

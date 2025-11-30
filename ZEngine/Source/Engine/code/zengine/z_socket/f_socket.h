@@ -27,7 +27,7 @@
 namespace zengine {
 namespace error_code {
 
-enum FSocketErrorCode : ReturnType {
+enum FSocketErrorCodeEnum : ReturnType {
     kFSocketErrorCode_LinkError = kErrorCodeBase_FSocket,
     kFSocketErrorCode_SystemError,
     kFSocketErrorCode_NullptrParam,
@@ -50,6 +50,15 @@ SOCKET_DLLAPI ReturnType GetUDPPublicIP4AndPort(
     const ZUDPEndpoint& _local_udp_endpoint,
     UInt32* _public_udp_ip_ptr,
     UInt16* _public_udp_port_ptr
+) noexcept;
+
+/*
+    UDP P2P connect.
+*/
+SOCKET_DLLAPI ReturnType UDPConnectP2P(
+    const ZUDPEndpoint& _local_udp_endpoint,
+    const ZUDPEndpoint& _target_udp_endpoint,
+    TimeType _max_connect_time
 ) noexcept;
 
 }//socket

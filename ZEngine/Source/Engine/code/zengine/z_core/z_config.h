@@ -20,12 +20,13 @@
 
 #include "drive.h"
 
+#include "t_smart_pointer.h"
 #include "z_object.h"
 #include "z_string.h"
 
 namespace zengine {
 namespace error_code {
-enum ZConfigErrorCode : ReturnType {
+enum ZConfigErrorCodeEnum : ReturnType {
     kZConfigErrorCode_LinkError = kErrorCodeBase_ZConfig,
     kZConfigErrorCode_SystemError,
     kZConfigErrorCode_NullptrParam,
@@ -128,12 +129,12 @@ private:
     Void UpdateSaveTimeP() noexcept;
 
 private:
-    static constexpr SizeType kUpdateTimeStringLength = 32;
-    static constexpr Char kVersionKey[] = "VERSION";
-    static constexpr Char kSaveTimeKey[] = "SAVE_TIME";
-    static constexpr WChar kBackUpExtension[] = L".bak";
+    static inline constexpr SizeType kUpdateTimeStringLength = 32;
+    static inline constexpr Char kVersionKey[] = "VERSION";
+    static inline constexpr Char kSaveTimeKey[] = "SAVE_TIME";
+    static inline constexpr WChar kBackUpExtension[] = L".bak";
 
-    ZJsonDocument* config_data_ptr_;
+    TUniquePointer<ZJsonDocument> config_data_ptr_;
     ZWString file_dir_;
 };
 

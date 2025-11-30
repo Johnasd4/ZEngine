@@ -17,6 +17,7 @@
     Contact: 1152325286@qq.com
 */
 #define GUI_DLLFILE
+#include "drive/d_pch.h"
 
 #include "z_widget_object.h"
 
@@ -112,6 +113,8 @@ ZWidgetObject::ZWidgetObject(ZWidgetObject&& _obj) noexcept
 { 
     MoveP(std::forward<ZWidgetObject>(_obj)); 
 }
+
+ZWidgetObject::~ZWidgetObject() noexcept {}
 
 ZWidgetObject& ZWidgetObject::operator=(ZWidgetObject&& _obj) noexcept {
     SuperType_::operator=(std::move(_obj));

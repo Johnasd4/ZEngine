@@ -17,27 +17,25 @@
     Contact: 1152325286@qq.com
 */
 #define CORE_DLLFILE
+#include "drive/d_pch.h"
 
 #include "z_system_time.h"
 
-#include <chrono>
-#include <thread>
-
 namespace zengine {
 
-static constexpr TimeType kSecPurMin = 60;
-static constexpr TimeType kSecPurHour = 3600;
-static constexpr TimeType kMinPurHour = 60;
-static constexpr TimeType kHourPurDay = 24;
-static constexpr TimeType kDayPurYear1 = 365;
-static constexpr TimeType kDayPurYear4 = 1461;
-static constexpr TimeType kDayPurYear100 = 36524;
-static constexpr TimeType kDayPurYear400 = 146097;
+inline constexpr TimeType kSecPurMin = 60;
+inline constexpr TimeType kSecPurHour = 3600;
+inline constexpr TimeType kMinPurHour = 60;
+inline constexpr TimeType kHourPurDay = 24;
+inline constexpr TimeType kDayPurYear1 = 365;
+inline constexpr TimeType kDayPurYear4 = 1461;
+inline constexpr TimeType kDayPurYear100 = 36524;
+inline constexpr TimeType kDayPurYear400 = 146097;
 
-static constexpr Int32 kNormalMonthDay[12] = { 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-static constexpr Int32 kSwissMonthDay[12] = { 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+inline constexpr Int32 kNormalMonthDay[12] = { 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+inline constexpr Int32 kSwissMonthDay[12] = { 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
-static constexpr TimeType kStartTimeOffset = 62167219200LL;  //start at year 0 instead of 1970
+inline constexpr TimeType kStartTimeOffset = 62167219200LL;  //start at year 0 instead of 1970
 
 namespace internal {
 

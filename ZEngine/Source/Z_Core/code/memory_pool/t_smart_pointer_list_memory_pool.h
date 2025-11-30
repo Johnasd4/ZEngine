@@ -18,8 +18,6 @@
 */
 #pragma once
 
-#include "drive.h"
-
 #include "t_list_memory_pool_base.h"
 #include "t_memory_block_base.h"
 #include "t_smart_pointer.h"
@@ -76,7 +74,7 @@ public:
 
     FORCEINLINE TSmartPointerListMemoryPool() : SuperType_() {
         SuperType_::InitializeP(
-            MemoryPoolEnum::kMemoryPool_TSmartPointerList,
+            MemoryPoolEnum::kTSmartPointerList,
             kMemoryBlockSize,
             kMemoryBlockMemorySize,
             kMemoryBlockDefaultNum);
@@ -118,12 +116,12 @@ protected:
     using SuperType_ = TListMemoryPoolBase<TSmartPtrBlock, 0, kIsThreadSafe>;
 
 private:
-    static constexpr SizeType kMemoryBlockHeadSize = SuperType_::NodeHeadOffset();
-    static constexpr SizeType kMemoryBlockMemorySize = sizeof(internal::TControlBlockP);
-    static constexpr SizeType kMemoryBlockSize = kMemoryBlockMemorySize + kMemoryBlockHeadSize;
+    static inline constexpr SizeType kMemoryBlockHeadSize = SuperType_::NodeHeadOffset();
+    static inline constexpr SizeType kMemoryBlockMemorySize = sizeof(internal::TControlBlockP);
+    static inline constexpr SizeType kMemoryBlockSize = kMemoryBlockMemorySize + kMemoryBlockHeadSize;
 
     //The number of the blocks that the memory pool contains when created.
-    static constexpr SizeType kMemoryBlockDefaultNum = 0;
+    static inline constexpr SizeType kMemoryBlockDefaultNum = 0;
 
     NODISCARD static TSmartPointerListMemoryPool<kIsThreadSafe>& InstanceP() noexcept {
         static TSmartPointerListMemoryPool<kIsThreadSafe> memory_pool_array;

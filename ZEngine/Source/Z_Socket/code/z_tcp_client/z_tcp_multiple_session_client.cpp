@@ -17,29 +17,22 @@
     Contact: 1152325286@qq.com
 */
 #define SOCKET_DLLFILE
+#include "drive/d_pch.h"
 
 #include "z_tcp_client.h"
-
-#include "z_core/f_string.h"
-#include "z_core/m_log.h"
-#include "z_core/t_atom.h"
-#include "z_core/z_string.h"
-#include "z_core/z_thread.h"
 
 #include "z_io_context.h"
 
 #include "data/z_io_context_data.h"
-#include "data/z_tcp_client_data.h"
 #include "data/z_tcp_socket_data.h"
 
 namespace zengine {
 namespace socket {
 
 ZTCPMultipleSessionClient::ZTCPMultipleSessionClient(ZIOContext* _context_ptr) noexcept
-    : data_ptr_()
+    : SuperType_()
     , socket_pool_list_()
     , io_context_ptr_(_context_ptr)
-    , state_(ZTCPMultipleSessionClientState_Uninitialized)
 {
     if (_context_ptr == nullptr) {
         Z_LOG_ERROR(
@@ -49,10 +42,7 @@ ZTCPMultipleSessionClient::ZTCPMultipleSessionClient(ZIOContext* _context_ptr) n
         return;
     }
 
-    data_ptr_ = MakeUnique<internal::ZTCPMultipleSessionClientData>(&_context_ptr->data_ptr_->io_context_);
     socket_pool_list_.SetModel(_context_ptr);
-
-    state_ = ZTCPMultipleSessionClientState_Idle;
 }
 
 ZTCPMultipleSessionClient::~ZTCPMultipleSessionClient() noexcept {
@@ -70,10 +60,6 @@ ZTCPMultipleSessionClient::~ZTCPMultipleSessionClient() noexcept {
 NODISCARD ReturnType ZTCPMultipleSessionClient::Close() noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
-
-    if (state_ == ZTCPMultipleSessionClientState_Idle) {
-        return ret_val;
-    }
 
     //close socket
     socket_pool_list_.Lock();
@@ -104,16 +90,17 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncConnect(
     ReturnType link_code = kOK;
     boost::system::error_code error_code;
 
-    Z_CHECK(
-        state_ != ZTCPMultipleSessionClientState_Idle,
-        error_code::kPSocketErrorCode_StateError,
-        L"Server state error! state: %d expect state: %d",
-        state_, ZTCPMultipleSessionClientState_Idle
-    );
-
     ZTCPSocket* socket_ptr = socket_pool_list_.Apply();
     if (_tcp_socket_ptr_ptr != nullptr) {
         *_tcp_socket_ptr_ptr = socket_ptr;
+    }
+
+    link_code = socket_ptr->Open(_tcp_endpoint.IPType());
+    if (link_code != kOK) {
+        Z_LOG_ERROR(
+            error_code::kPSocketErrorCode_LinkError, link_code,
+            L"ZTCPSocket::Close() link error!"
+        );
     }
 
     link_code = socket_ptr->AsyncConnect(
@@ -130,25 +117,26 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncConnect(
                 //success
                 socket_pool_list_.PushBack(_socket_ptr);
                 _socket_ptr->SetAsyncErrorHandleFunction(
-                    [this, _socket_ptr]() {
+                    [this, _socket_ptr](ReturnType _error_code) {
                         ReturnType link_code = kOK;
                         //close and release socket
-                        link_code = _socket_ptr->Close();
-                        if (link_code != kOK) {
-                            Z_LOG_ERROR(
-                                error_code::kPSocketErrorCode_LinkError, link_code,
-                                L"ZTCPSocket::Close() link error!"
+                        if (_socket_ptr->State() == ZTCPSocket::StateEnum_::kError) {
+                            link_code = _socket_ptr->Close();
+                            if (link_code != kOK) {
+                                Z_LOG_ERROR(
+                                    error_code::kPSocketErrorCode_LinkError, link_code,
+                                    L"ZTCPSocket::Close() link error!"
+                                );
+                            }
+                            socket_pool_list_.Release(_socket_ptr);
+
+                            //disconnect
+                            Z_DEBUG_LOG_FINISH(
+                                L"Server disconnected! server_address: %ls server_port: %ls",
+                                string::String2WString(_socket_ptr->RemoteEndpoint().IPString().String()).String(),
+                                _socket_ptr->RemoteEndpoint().Port()
                             );
                         }
-                        socket_pool_list_.Erase(_socket_ptr);
-                        socket_pool_list_.Release(_socket_ptr);
-
-                        //disconnect
-                        Z_DEBUG_LOG_FINISH(
-                            L"Server disconnected! server_address: %ls server_port: %ls",
-                            string::String2WString(_socket_ptr->RemoteEndpoint().IPString().String()).String(),
-                            _socket_ptr->RemoteEndpoint().Port()
-                        );
                     }
                 );
 
@@ -180,13 +168,6 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncBroadcast(
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
-
-    Z_CHECK(
-        state_ != ZTCPMultipleSessionClientState_Idle,
-        error_code::kPSocketErrorCode_StateError,
-        L"Server state error! state: %d expect state: %d",
-        state_, ZTCPMultipleSessionClientState_Idle
-    );
     
     socket_pool_list_.Lock();
     auto socket_ptr = socket_pool_list_.Begin();
@@ -194,7 +175,7 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncBroadcast(
         link_code = socket_ptr->AsyncWrite(_buffer, _handle_func);
         if (link_code != kOK) {
             //disconnect
-            if (socket_ptr->State() == ZTCPSocket::ZTCPSocketState_Idle) {
+            if (socket_ptr->State() == ZTCPSocket::StateEnum_::kClosed) {
                 Z_DEBUG_LOG_FINISH(L"Client disconnected!");
             }
             else {
@@ -202,14 +183,14 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncBroadcast(
                     error_code::kPSocketErrorCode_LinkError, link_code,
                     L"ZTCPSocket::AsyncWrite() link error!"
                 );
-            }
-            //close and release socket
-            link_code = socket_ptr->Close();
-            if (link_code != kOK) {
-                Z_LOG_ERROR(
-                    error_code::kPSocketErrorCode_LinkError, link_code,
-                    L"ZTCPSocket::Close() link error!"
-                );
+                //close and release socket
+                link_code = socket_ptr->Close();
+                if (link_code != kOK) {
+                    Z_LOG_ERROR(
+                        error_code::kPSocketErrorCode_LinkError, link_code,
+                        L"ZTCPSocket::Close() link error!"
+                    );
+                }
             }
             socket_ptr = socket_pool_list_.Release(socket_ptr);
         }

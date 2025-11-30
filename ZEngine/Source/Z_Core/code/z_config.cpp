@@ -17,6 +17,7 @@
     Contact: 1152325286@qq.com
 */
 #define CORE_DLLFILE
+#include "drive/d_pch.h"
 
 #include "z_config.h"
 
@@ -29,7 +30,7 @@
 namespace zengine {
 
 ZConfig::ZConfig(const WChar* _file_dir) noexcept 
-    : config_data_ptr_(new ZJsonDocument())
+    : config_data_ptr_(MakeUnique<ZJsonDocument>())
     , file_dir_(_file_dir)
 {
     ReturnType link_code = kOK;
@@ -69,11 +70,7 @@ ZConfig::ZConfig(const WChar* _file_dir) noexcept
     }
 }
 
-ZConfig::~ZConfig() noexcept {
-    if (config_data_ptr_ != nullptr) {
-        delete config_data_ptr_;
-    }
-}
+ZConfig::~ZConfig() noexcept {}
 
 NODISCARD Bool ZConfig::GetMemberValueBool(const Char* _key) const noexcept {
     if (config_data_ptr_->HasMember(_key)) {

@@ -46,24 +46,33 @@ using ZTCPServer = ZTCPSingleSessionServer;
 
 /*
     Single session tcp server. Only one client is allowed to connect at a time.
-    SetEndpoint -> Listen -> Accept -> Read/Write -> Close
+    Open -> BindEndpoint -> Listen -> Accept -> Read/Write -> Close
 */
 class SOCKET_DLLAPI ZTCPSingleSessionServer : public ZObject {
 public:
-    enum State_ : Int32 {
-        ZTCPSingleSessionServerState_Uninitialized,
-        ZTCPSingleSessionServerState_Idle,
-        ZTCPSingleSessionServerState_Listen,
-        ZTCPSingleSessionServerState_Connected,
-        ZTCPSingleSessionServerState_Error
+    enum class StateEnum_ : Int32 {
+        kUninitialized,
+        kClosed,
+        kOpened,
+        kEndpointBind,
+        kListen,
+        kConnected,
+        kError
     };
+
+    static constexpr SizeType kDefaultMaxWaitConnectClientNum = 128ULL;
 
     ZTCPSingleSessionServer(ZIOContext* _io_context_ptr) noexcept;
 
     ~ZTCPSingleSessionServer() noexcept;
 
-    NODISCARD FORCEINLINE State_ State() const noexcept { return state_; }
+    NODISCARD FORCEINLINE StateEnum_ State() const noexcept { return state_; }
     NODISCARD FORCEINLINE ZIOContext* IOContextPtr() const noexcept { return io_context_ptr_; }
+
+    /*
+        Open the server.
+    */
+    NODISCARD ReturnType Open(IPTypeEnum _ip_type) noexcept;
 
     /*
         Bind endpoint by endpoint. Call before Listen() or after Close().
@@ -78,11 +87,16 @@ public:
         Sets os read buffer size. Call after connected.
     */
     NODISCARD ReturnType SetOSReadBufferSize(Int32 _size) noexcept;
+    /*
+        Set if address is reuseable. If true, can bind multiple sockets to the same address.
+        Call before binding endpoint. Must be called on all sockets that bind to the same address.
+    */
+    NODISCARD ReturnType SetIfReuseAddress(Bool _if_reuse) noexcept;
 
     /*
-        Starts the server.
+        Starts listening, client can connect.
     */
-    NODISCARD ReturnType Listen() noexcept;
+    NODISCARD ReturnType Listen(Int32 _max_wait_connect_client_num = kDefaultMaxWaitConnectClientNum) noexcept;
 
     /*
         Close the server.
@@ -122,7 +136,7 @@ public:
         Read data until match char. Will suspend the current thread until data read.
     */
     NODISCARD ReturnType ReadUntil(
-        ZBufferStream* _buffer_ptr,
+        ZSocketBufferStream* _buffer_ptr,
         Char _match_char,
         SizeType* _data_size_ptr = nullptr
     ) noexcept;
@@ -131,7 +145,7 @@ public:
         Read data until match string. Will suspend the current thread until data read.
     */
     NODISCARD ReturnType ReadUntil(
-        ZBufferStream* _buffer_ptr,
+        ZSocketBufferStream* _buffer_ptr,
         const Char* _match_str,
         SizeType* _data_size_ptr = nullptr
     ) noexcept;
@@ -139,30 +153,30 @@ public:
     /*
         Read data until match char. Will not suspend the current thread.
         _handle_func only needs to handle the read data.
-        _handle_func(ReturnType _error_code, ZTCPSocket* _socket_ptr, ZBufferStream* _buffer_stream_ptr)
+        _handle_func(ReturnType _error_code, ZTCPSocket* _socket_ptr, ZSocketBufferStream* _buffer_stream_ptr)
     */
     NODISCARD ReturnType AsyncReadUntil(
-        ZBufferStream* _buffer_ptr,
+        ZSocketBufferStream* _buffer_ptr,
         Char _match_char,
-        const TFunction<Void(ReturnType, ZTCPSocket*, ZBufferStream*)>& _handle_func
+        const TFunction<Void(ReturnType, ZTCPSocket*, ZSocketBufferStream*)>& _handle_func
     ) noexcept;
 
     /*
         Read data until match string. Will not suspend the current thread.
         _handle_func only needs to handle the read data.
-        _handle_func(ReturnType _error_code, ZTCPSocket* _socket_ptr, ZBufferStream* _buffer_stream_ptr)
+        _handle_func(ReturnType _error_code, ZTCPSocket* _socket_ptr, ZSocketBufferStream* _buffer_stream_ptr)
     */
     NODISCARD ReturnType AsyncReadUntil(
-        ZBufferStream* _buffer_ptr,
+        ZSocketBufferStream* _buffer_ptr,
         const Char* _match_str,
-        const TFunction<Void(ReturnType, ZTCPSocket*, ZBufferStream*)>& _handle_func
+        const TFunction<Void(ReturnType, ZTCPSocket*, ZSocketBufferStream*)>& _handle_func
     ) noexcept;
 
     /*
         Read data until close. Will suspend the current thread until close.
     */
     NODISCARD ReturnType ReadUntilClose(
-        ZBufferStream* _buffer_ptr,
+        ZSocketBufferStream* _buffer_ptr,
         SizeType* _data_size_ptr = nullptr
     ) noexcept;
 
@@ -203,7 +217,7 @@ private:
     TUniquePointer<internal::ZTCPSingleSessionServerData> data_ptr_;
     ZTCPSocket socket_;
     ZIOContext* io_context_ptr_;
-    State_ state_;
+    StateEnum_ state_;
 };
 
 /*
@@ -212,19 +226,28 @@ private:
 */
 class SOCKET_DLLAPI ZTCPMultipleSessionServer : public ZObject {
 public:
-    enum State_ : Int32 {
-        ZTCPMultipleSessionServerState_Uninitialized,
-        ZTCPMultipleSessionServerState_Idle,
-        ZTCPMultipleSessionServerState_Listen,
-        ZTCPMultipleSessionServerState_Error
+    enum class StateEnum_ : Int32 {
+        kUninitialized,
+        kClosed,
+        kOpened,
+        kEndpointBind,
+        kListen,
+        kError
     };
+
+    static constexpr SizeType kDefaultMaxWaitConnectClientNum = 128ULL;
 
     ZTCPMultipleSessionServer(ZIOContext* _io_context_ptr) noexcept;
 
     ~ZTCPMultipleSessionServer() noexcept;
 
-    NODISCARD FORCEINLINE State_ State() const noexcept { return state_; }
+    NODISCARD FORCEINLINE StateEnum_ State() const noexcept { return state_; }
     NODISCARD FORCEINLINE ZIOContext* IOContextPtr() const noexcept { return io_context_ptr_; }
+
+    /*
+        Open the server.
+    */
+    NODISCARD ReturnType Open(IPTypeEnum _ip_type) noexcept;
 
     /*
         Bind endpoint. Call before Listen() or after Close().
@@ -232,9 +255,15 @@ public:
     NODISCARD ReturnType BindEndpoint(const ZTCPEndpoint& _tcp_endpoint) noexcept;
 
     /*
+        Set if address is reuseable. If true, can bind multiple sockets to the same address.
+        Call before binding endpoint. Must be called on all sockets that bind to the same address.
+    */
+    NODISCARD ReturnType SetIfReuseAddress(Bool _if_reuse) noexcept;
+
+    /*
         Starts the server.
     */
-    NODISCARD ReturnType Listen() noexcept;
+    NODISCARD ReturnType Listen(Int32 _max_wait_connect_client_num = kDefaultMaxWaitConnectClientNum) noexcept;
 
     /*
         Close the server.
@@ -279,7 +308,7 @@ private:
     TUniquePointer<internal::ZTCPMultipleSessionServerData> data_ptr_;
     TPoolListSafe<ZTCPSocket> socket_pool_list_;
     ZIOContext* io_context_ptr_;
-    State_ state_;
+    StateEnum_ state_;
 
 };
 

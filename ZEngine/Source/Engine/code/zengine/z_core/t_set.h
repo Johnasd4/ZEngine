@@ -162,7 +162,7 @@ private:
     Multiple Set container.
 */
 template<typename _ObjectType, typename _CompareFunction = std::less<_ObjectType>>
-class TMultiset : public ZObject {
+class TMultipleSet : public ZObject {
 public:
     using STDSet_ = std::multiset<_ObjectType, _CompareFunction, TAllocator<_ObjectType>>;
     using Iterator_ = STDSet_::iterator;
@@ -171,34 +171,34 @@ public:
     using ConstReverseIterator_ = STDSet_::const_reverse_iterator;
     using InitializerList_ = std::initializer_list<_ObjectType>;
 
-    FORCEINLINE TMultiset() noexcept : SuperType_(), set_() {}
-    FORCEINLINE TMultiset(const TMultiset& _set) noexcept : SuperType_(_set), set_(_set.set_) {}
-    FORCEINLINE TMultiset(TMultiset&& _set) noexcept 
-        : SuperType_(std::forward<TMultiset>(_set)), set_(std::move(_set.set_)) {}
+    FORCEINLINE TMultipleSet() noexcept : SuperType_(), set_() {}
+    FORCEINLINE TMultipleSet(const TMultipleSet& _set) noexcept : SuperType_(_set), set_(_set.set_) {}
+    FORCEINLINE TMultipleSet(TMultipleSet&& _set) noexcept 
+        : SuperType_(std::forward<TMultipleSet>(_set)), set_(std::move(_set.set_)) {}
 
     template <typename _InputIterator>
-    FORCEINLINE TMultiset(_InputIterator _first, _InputIterator _last) noexcept : SuperType_(), set_(_first, _last) {}
-    FORCEINLINE TMultiset(InitializerList_ _init_list) noexcept : SuperType_(), set_(_init_list) {}
+    FORCEINLINE TMultipleSet(_InputIterator _first, _InputIterator _last) noexcept : SuperType_(), set_(_first, _last) {}
+    FORCEINLINE TMultipleSet(InitializerList_ _init_list) noexcept : SuperType_(), set_(_init_list) {}
  
-    FORCEINLINE ~TMultiset() noexcept {}
+    FORCEINLINE ~TMultipleSet() noexcept {}
 
-    FORCEINLINE TMultiset& operator=(const TMultiset& _set) noexcept { 
+    FORCEINLINE TMultipleSet& operator=(const TMultipleSet& _set) noexcept { 
         SuperType_::operator=(_set);
         set_ = _set.set_;
         return *this;
     }
-    FORCEINLINE TMultiset& operator=(TMultiset&& _set) noexcept { 
-        SuperType_::operator=(std::forward<TMultiset>(_set));
+    FORCEINLINE TMultipleSet& operator=(TMultipleSet&& _set) noexcept { 
+        SuperType_::operator=(std::forward<TMultipleSet>(_set));
         set_ = std::move(_set.set_);
         return *this;
     }
-    FORCEINLINE TMultiset& operator=(InitializerList_ _init_list) noexcept {
+    FORCEINLINE TMultipleSet& operator=(InitializerList_ _init_list) noexcept {
         set_ = _init_list;
         return *this;
     }
 
-    NODISCARD FORCEINLINE Bool operator==(const TMultiset& _set) noexcept { return set_ == _set; }
-    NODISCARD FORCEINLINE Bool operator!=(const TMultiset& _set) noexcept { return set_ != _set; }
+    NODISCARD FORCEINLINE Bool operator==(const TMultipleSet& _set) noexcept { return set_ == _set; }
+    NODISCARD FORCEINLINE Bool operator!=(const TMultipleSet& _set) noexcept { return set_ != _set; }
 
     NODISCARD FORCEINLINE _ObjectType& Front() noexcept { return set_.front(); }
     NODISCARD FORCEINLINE const _ObjectType& Front() const noexcept { return set_.front(); }
@@ -280,7 +280,7 @@ public:
     }
     FORCEINLINE Void Clear() noexcept { set_.clear(); }
 
-    FORCEINLINE Void Swap(TMultiset& _set) noexcept { set_.swap(_set); }
+    FORCEINLINE Void Swap(TMultipleSet& _set) noexcept { set_.swap(_set); }
 
 protected:
     using SuperType_ = ZObject;

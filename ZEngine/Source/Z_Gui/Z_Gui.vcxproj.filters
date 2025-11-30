@@ -39,7 +39,7 @@
     <ClCompile Include="code\z_button.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="code\d_function.cpp">
+    <ClCompile Include="code\drive\d_function.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="code\z_separator.cpp">
@@ -48,5 +48,13 @@
     <ClCompile Include="code\z_check_box.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="code\drive\d_pch.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="code\drive\d_pch.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

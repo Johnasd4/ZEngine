@@ -17,6 +17,7 @@
     Contact: 1152325286@qq.com
 */
 #define CORE_DLLFILE
+#include "drive/d_pch.h"
 
 #include "z_log_manager.h"
 
@@ -181,21 +182,18 @@ Void ZLogManager::LogThread(ZLogManager* _log_manager_ptr) noexcept {
     while (!_log_manager_ptr->error_log_queue_.Empty()) {
         _log_manager_ptr->log_server_.OutputLog(kErrorLogPortID, &_log_manager_ptr->error_log_queue_.Front());
         _log_manager_ptr->error_log_queue_.PopFront();
-        if_log = true;
     }
 
     //trace log
     while (!_log_manager_ptr->trace_log_queue_.Empty()) {
         _log_manager_ptr->log_server_.OutputLog(kTraceLogPortID, &_log_manager_ptr->trace_log_queue_.Front());
         _log_manager_ptr->trace_log_queue_.PopFront();
-        if_log = true;
     }
 
     //info log
     while (!_log_manager_ptr->info_log_queue_.Empty()) {
         _log_manager_ptr->log_server_.OutputLog(kInfoLogPortID, &_log_manager_ptr->info_log_queue_.Front());
         _log_manager_ptr->info_log_queue_.PopFront();
-        if_log = true;
     }
 
     //log
@@ -203,7 +201,6 @@ Void ZLogManager::LogThread(ZLogManager* _log_manager_ptr) noexcept {
         while (!_log_manager_ptr->log_queue_array_[port_id].Empty()) {
             _log_manager_ptr->log_server_.OutputLog(port_id, &_log_manager_ptr->log_queue_array_[port_id].Front());
             _log_manager_ptr->log_queue_array_[port_id].PopFront();
-            if_log = true;
         }
     }
 

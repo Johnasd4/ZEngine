@@ -27,22 +27,22 @@ namespace math {
 
 namespace internal {
 
-constexpr Int32 kSin64TaylorSeriesFactor = 13;
-constexpr Int32 kSin32TaylorSeriesFactor = 5;
-constexpr Int32 kCos64TaylorSeriesFactor = 13;
-constexpr Int32 kCos32TaylorSeriesFactor = 5;
+inline constexpr Int32 kSin64TaylorSeriesFactor = 13;
+inline constexpr Int32 kSin32TaylorSeriesFactor = 5;
+inline constexpr Int32 kCos64TaylorSeriesFactor = 13;
+inline constexpr Int32 kCos32TaylorSeriesFactor = 5;
 
-constexpr Float64 kSinCosFactorTaylorSeries1 = 1;
-constexpr Float64 kSinCosFactorTaylorSeries2 = 0.16666666666666665741;
-constexpr Float64 kSinCosFactorTaylorSeries3 = 0.0083333333333333332177;
-constexpr Float64 kSinCosFactorTaylorSeries4 = 0.00019841269841269838542;
-constexpr Float64 kSinCosFactorTaylorSeries5 = 2.7557319223985888276E-06;
-constexpr Float64 kSinCosFactorTaylorSeries6 = 2.5052108385441720224E-08;
-constexpr Float64 kSinCosFactorTaylorSeries7 = 1.6059043836821618511E-10;
-constexpr Float64 kSinCosFactorTaylorSeries8 = 7.6471637318198153958E-13;
-constexpr Float64 kSinCosFactorTaylorSeries9 = 2.8114572543455198092E-15;
-constexpr Float64 kSinCosFactorTaylorSeries10 = 8.2206352466243294955E-18;
-constexpr Float64 kSinCosFactorTaylorSeries11 = 1.9572941063391259586E-20;
+inline constexpr Float64 kSinCosFactorTaylorSeries1 = 1;
+inline constexpr Float64 kSinCosFactorTaylorSeries2 = 0.16666666666666665741;
+inline constexpr Float64 kSinCosFactorTaylorSeries3 = 0.0083333333333333332177;
+inline constexpr Float64 kSinCosFactorTaylorSeries4 = 0.00019841269841269838542;
+inline constexpr Float64 kSinCosFactorTaylorSeries5 = 2.7557319223985888276E-06;
+inline constexpr Float64 kSinCosFactorTaylorSeries6 = 2.5052108385441720224E-08;
+inline constexpr Float64 kSinCosFactorTaylorSeries7 = 1.6059043836821618511E-10;
+inline constexpr Float64 kSinCosFactorTaylorSeries8 = 7.6471637318198153958E-13;
+inline constexpr Float64 kSinCosFactorTaylorSeries9 = 2.8114572543455198092E-15;
+inline constexpr Float64 kSinCosFactorTaylorSeries10 = 8.2206352466243294955E-18;
+inline constexpr Float64 kSinCosFactorTaylorSeries11 = 1.9572941063391259586E-20;
 
 }//internal
 
@@ -114,14 +114,14 @@ NODISCARD FORCEINLINE constexpr const NumberType CosA(const NumberType _radian) 
 
 namespace internal {
 
-constexpr SizeType kSinCosTableSize = 1024;
-constexpr Float64 kSinCosTableRadianStepDistance = k2PI64 / static_cast<Float64>(kSinCosTableSize);
-constexpr Float64 kSinCosTableOffset = 0.0;
+inline constexpr SizeType kSinCosTableSize = 1024;
+inline constexpr Float64 kSinCosTableRadianStepDistance = k2PI64 / static_cast<Float64>(kSinCosTableSize);
+inline constexpr Float64 kSinCosTableOffset = 0.0;
 
 /*
     Contains the value of sin.
 */
-constexpr ZInterpolationTable<Float64, kSinCosTableSize> kSinCosTable = ZInterpolationTable<Float64, kSinCosTableSize>(
+inline constexpr ZInterpolationTable<Float64, kSinCosTableSize> kSinCosTable = ZInterpolationTable<Float64, kSinCosTableSize>(
     kSinCosTableOffset, kSinCosTableRadianStepDistance,
     [](ZInterpolationTable<Float64, kSinCosTableSize>* _table_ptr) {
         for (SizeType index = 0; index < _table_ptr->Capacity(); ++index) {
@@ -130,8 +130,8 @@ constexpr ZInterpolationTable<Float64, kSinCosTableSize> kSinCosTable = ZInterpo
         }
     });
 
-constexpr Float64 kSinSearchOffset = 0.0;
-constexpr Float64 kCosSearchOffset = kHalfPI64;
+inline constexpr Float64 kSinSearchOffset = 0.0;
+inline constexpr Float64 kCosSearchOffset = kHalfPI64;
 
 }//internal
 

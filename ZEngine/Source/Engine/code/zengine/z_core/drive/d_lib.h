@@ -18,6 +18,12 @@
 */
 #pragma once
 
+#pragma warning(disable: 4251)
+#pragma warning(disable: 4275)
+#pragma warning(disable: 6011)
+#pragma warning(disable: 26813)
+#pragma warning(disable : 26800)
+
 //Ignores the safety io function warning.
 #define _CRT_SECURE_NO_WARNINGS
 #define _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
@@ -30,14 +36,8 @@
 
 #include <iostream>
 #include <windows.h>
-#include <stdarg.h>     //va_list, va_start, va_end
 
 #include "d_macro.h"
-
-#pragma warning(disable: 4251)
-#pragma warning(disable: 4275)
-#pragma warning(disable: 6011)
-#pragma warning(disable: 26813)
 
 //Define if at the start of the z_core cpp file.
 #ifdef CORE_DLLFILE

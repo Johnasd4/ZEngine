@@ -51,15 +51,15 @@ namespace test {
 //        return;
 //    }
 //
-//    ZTLSContext tls_context(TLSTypeEnum::kTLSType_Server);
-//    link_code = tls_context.SetVerifyMode(TLSVerifyModeEnum::kTLSVerifyType_None);
+//    ZTLSContext tls_context(TLSTypeEnum::kServer);
+//    link_code = tls_context.SetVerifyMode(TLSVerifyModeEnum::kNone);
 //    if (link_code != kOK) {
 //        Z_LOG_ERROR(0, link_code, L"ZTLSStream::SetVerifyMode link error!");
 //        return;
 //    }
 //    link_code = tls_context.UseCertificateFile(
 //        "H:\\HTTPS\\server.crt", 
-//        CertificateFileFormatTypeEnum::kCertificateFileFormatTypeType_PEM 
+//        CertificateFileFormatTypeEnum::kPEM 
 //    );
 //    if (link_code != kOK) {
 //        Z_LOG_ERROR(0, link_code, L"ZTLSStream::UseCertificateFile link error!");
@@ -67,7 +67,7 @@ namespace test {
 //    }
 //    link_code = tls_context.UsePrivateKeyFile(
 //        "H:\\HTTPS\\server.key",
-//        CertificateFileFormatTypeEnum::kCertificateFileFormatTypeType_PEM
+//        CertificateFileFormatTypeEnum::kPEM
 //    );
 //    if (link_code != kOK) {
 //        Z_LOG_ERROR(0, link_code, L"ZTLSStream::UsePrivateKeyFile link error!");
@@ -83,7 +83,7 @@ namespace test {
 //    while (true) {      
 //        TFixedMemory<1024> data;
 //        SizeType length;
-//        link_code = stream.Read(data.DataPtr<Void*>(), 1024, &length);
+//        link_code = stream.Read(data.DataPtr<Void>(), 1024, &length);
 //        if (link_code != kOK) {
 //            Z_LOG_ERROR(0, link_code, L"ZTLSStream::Read link error!");
 //            break;
@@ -100,8 +100,8 @@ namespace test {
 //        Z_LOG_ERROR(0, link_code, L"ZTCPClient::Connect link error!");
 //        return;
 //    }
-//    ZTLSContext tls_context(TLSTypeEnum::kTLSType_Client);
-//    link_code = tls_context.SetVerifyMode(TLSVerifyModeEnum::kTLSVerifyType_None);
+//    ZTLSContext tls_context(TLSTypeEnum::kClient);
+//    link_code = tls_context.SetVerifyMode(TLSVerifyModeEnum::kNone);
 //    if (link_code != kOK) {
 //        Z_LOG_ERROR(0, link_code, L"ZTLSStream::SetVerifyMode link error!");
 //        return;
@@ -159,15 +159,15 @@ namespace test {
 //        return;
 //    }
 //
-//    ZTLSContext tls_context(TLSTypeEnum::kTLSType_Server);
-//    link_code = tls_context.SetVerifyMode(TLSVerifyModeEnum::kTLSVerifyType_None);
+//    ZTLSContext tls_context(TLSTypeEnum::kServer);
+//    link_code = tls_context.SetVerifyMode(TLSVerifyModeEnum::kNone);
 //    if (link_code != kOK) {
 //        Z_LOG_ERROR(0, link_code, L"ZTLSStream::SetVerifyMode link error!");
 //        return;
 //    }
 //    link_code = tls_context.UseCertificateFile(
 //        "H:\\HTTPS\\server.crt",
-//        CertificateFileFormatTypeEnum::kCertificateFileFormatTypeType_PEM
+//        CertificateFileFormatTypeEnum::kPEM
 //    );
 //    if (link_code != kOK) {
 //        Z_LOG_ERROR(0, link_code, L"ZTLSStream::UseCertificateFile link error!");
@@ -175,7 +175,7 @@ namespace test {
 //    }
 //    link_code = tls_context.UsePrivateKeyFile(
 //        "H:\\HTTPS\\server.key",
-//        CertificateFileFormatTypeEnum::kCertificateFileFormatTypeType_PEM
+//        CertificateFileFormatTypeEnum::kPEM
 //    );
 //    if (link_code != kOK) {
 //        Z_LOG_ERROR(0, link_code, L"ZTLSStream::UsePrivateKeyFile link error!");
@@ -188,7 +188,7 @@ namespace test {
 //        [&data, &read_handle_func](ZTLSStream* _stream_ptr, const Void* _buffer_ptr, SizeType _size) {
 //            ReturnType link_code = kOK;
 //            Z_LOG_MESSAGE(L"Server(%d): %ls", _size, static_cast<const WChar*>(_buffer_ptr));
-//            link_code = _stream_ptr->AsyncRead(data.DataPtr<Void*>(), 1024, read_handle_func);
+//            link_code = _stream_ptr->AsyncRead(data.DataPtr<Void>(), 1024, read_handle_func);
 //            if (link_code != kOK) {
 //                Z_LOG_ERROR(0, link_code, L"ZTLSStream::AsyncRead link error!");
 //                return;
@@ -204,7 +204,7 @@ namespace test {
 //            }
 //
 //            ReturnType link_code = kOK;
-//            link_code = _stream_ptr->AsyncRead(data.DataPtr<Void*>(), 1024, read_handle_func);
+//            link_code = _stream_ptr->AsyncRead(data.DataPtr<Void>(), 1024, read_handle_func);
 //            if (link_code != kOK) {
 //                Z_LOG_ERROR(0, link_code, L"ZTLSStream::Read link error!");
 //                return;
@@ -227,8 +227,8 @@ namespace test {
 //        Z_LOG_ERROR(0, link_code, L"ZTCPClient::Connect link error!");
 //        return;
 //    }
-//    ZTLSContext tls_context(TLSTypeEnum::kTLSType_Client);
-//    link_code = tls_context.SetVerifyMode(TLSVerifyModeEnum::kTLSVerifyType_None);
+//    ZTLSContext tls_context(TLSTypeEnum::kClient);
+//    link_code = tls_context.SetVerifyMode(TLSVerifyModeEnum::kNone);
 //    if (link_code != kOK) {
 //        Z_LOG_ERROR(0, link_code, L"ZTLSStream::SetVerifyMode link error!");
 //        return;

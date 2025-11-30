@@ -18,9 +18,7 @@
 */
 #pragma once
 
-#include "drive.h"
-
-#include "t_array.h"
+#include "t_fixed_array.h"
 #include "t_lookup_table.h"
 #include "t_pair.h"
 
@@ -51,13 +49,13 @@ template<Bool kIsThreadSafe>
 class TSmallMemoryListMemoryPool : public TListMemoryPoolBase<TSmallMemoryBlock<kIsThreadSafe>, sizeof(TSmallMemoryBlock<kIsThreadSafe>), kIsThreadSafe> {
 private:
     //The sizes of the memory blocks(includes the memory size).
-    static constexpr SizeType kMemoryBlockTypeNum = 16;
-    static constexpr SizeType kMemoryBlockMinSize = 32;
-    static constexpr SizeType kMemoryBlockSizeMultGrowFactor = 2;
+    static inline constexpr SizeType kMemoryBlockTypeNum = 16;
+    static inline constexpr SizeType kMemoryBlockMinSize = 32;
+    static inline constexpr SizeType kMemoryBlockSizeMultGrowFactor = 2;
 
 public:
     NODISCARD static Void* ApplyMemory(const SizeType _size) noexcept {
-        static TArray<TSmallMemoryListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>& memory_pool_array = InstanceP();
+        static TFixedArray<TSmallMemoryListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>& memory_pool_array = InstanceP();
         SizeType size_index = (_size + SuperType_::NodeHeadOffset() - 1) / kMemoryBlockMinSize;
         SizeType memory_pool_index = kMemorySize2MemoryPoolTable.At(size_index);
 #ifdef USE_MEMORY_POOL_TEST
@@ -73,7 +71,7 @@ public:
     }
 
     NODISCARD static Void* ApplyMemory(const SizeType _size, SizeType* _memory_size_ptr) noexcept {
-        static TArray<TSmallMemoryListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>& memory_pool_array = InstanceP();
+        static TFixedArray<TSmallMemoryListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>& memory_pool_array = InstanceP();
         SizeType size_index = (_size + SuperType_::NodeHeadOffset() - 1) / kMemoryBlockMinSize;
         SizeType memory_pool_index = kMemorySize2MemoryPoolTable.At(size_index);
 #ifdef USE_MEMORY_POOL_TEST
@@ -108,7 +106,7 @@ public:
     }
 
     NODISCARD FORCEINLINE static SizeType CalculateMemory(SizeType _size) noexcept {
-        static TArray<TSmallMemoryListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>& memory_pool_array = InstanceP();
+        static TFixedArray<TSmallMemoryListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>& memory_pool_array = InstanceP();
         SizeType size_index = (_size + SuperType_::NodeHeadOffset() - 1) / kMemoryBlockMinSize;
         return memory_pool_array[kMemorySize2MemoryPoolTable.At(size_index)].SuperType_::MemoryBlockMemorySize();
     }
@@ -124,9 +122,9 @@ public:
     NODISCARD static constexpr SizeType MemoryBlockTypeNum() noexcept { return kMemoryBlockTypeNum; }
 
 #ifdef USE_MEMORY_POOL_TEST
-    NODISCARD static TArray<TPair<SizeType, SizeType*>, kMemoryBlockTypeNum>& MemoryBlockUsedNum() noexcept {
-        static TArray<TSmallMemoryListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>& memory_pool_array = InstanceP();
-        static TArray<TPair<SizeType, SizeType*>, kMemoryBlockTypeNum> used_memory_array;
+    NODISCARD static TFixedArray<TPair<SizeType, SizeType*>, kMemoryBlockTypeNum>& MemoryBlockUsedNum() noexcept {
+        static TFixedArray<TSmallMemoryListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>& memory_pool_array = InstanceP();
+        static TFixedArray<TPair<SizeType, SizeType*>, kMemoryBlockTypeNum> used_memory_array;
         for (SizeType index = 0; index < memory_pool_array.Capacity(); ++index) {
             used_memory_array[index].first_ = memory_pool_array[index - 1].SuperType_::MemoryBlockMemorySize();
             used_memory_array[index].second_ = &memory_pool_array[index - 1].memory_block_used_current_num_;
@@ -176,30 +174,30 @@ protected:
     using SuperType_ = TListMemoryPoolBase<TSmallMemoryBlock<kIsThreadSafe>, sizeof(TSmallMemoryBlock<kIsThreadSafe>), kIsThreadSafe>;
 
 private:
-    static constexpr SizeType kMemoryBlockHeadSize = SuperType_::NodeHeadOffset();
-    static constexpr TArray<SizeType, kMemoryBlockTypeNum> kMemoryBlockSizeArray =
-        TArray<SizeType, kMemoryBlockTypeNum>([](TArray<SizeType, kMemoryBlockTypeNum>* _array_ptr) {
+    static inline constexpr SizeType kMemoryBlockHeadSize = SuperType_::NodeHeadOffset();
+    static inline constexpr TFixedArray<SizeType, kMemoryBlockTypeNum> kMemoryBlockSizeArray =
+        TFixedArray<SizeType, kMemoryBlockTypeNum>([](TFixedArray<SizeType, kMemoryBlockTypeNum>* _array_ptr) {
         (*_array_ptr)[0] = kMemoryBlockMinSize;
             for (SizeType index = 1; index < _array_ptr->Capacity(); ++index) {
                 (*_array_ptr)[index] = (*_array_ptr)[index - 1] * kMemoryBlockSizeMultGrowFactor;
             }
         });
-    static constexpr SizeType kMemoryBlockMaxSize = kMemoryBlockSizeArray[kMemoryBlockTypeNum - 1];
-    static constexpr SizeType kMemoryBlockMemoryMaxSize = kMemoryBlockSizeArray[kMemoryBlockTypeNum - 1]
+    static inline constexpr SizeType kMemoryBlockMaxSize = kMemoryBlockSizeArray[kMemoryBlockTypeNum - 1];
+    static inline constexpr SizeType kMemoryBlockMemoryMaxSize = kMemoryBlockSizeArray[kMemoryBlockTypeNum - 1]
         - kMemoryBlockHeadSize;
 
     //The sizes of the memorys that can be uesd.
-    static constexpr TArray<SizeType, kMemoryBlockTypeNum> kMemoryBlockMemorySizeArray =
-        TArray<SizeType, kMemoryBlockTypeNum>([](TArray<SizeType, kMemoryBlockTypeNum>* _array_ptr) {
+    static inline constexpr TFixedArray<SizeType, kMemoryBlockTypeNum> kMemoryBlockMemorySizeArray =
+        TFixedArray<SizeType, kMemoryBlockTypeNum>([](TFixedArray<SizeType, kMemoryBlockTypeNum>* _array_ptr) {
             for (SizeType index = 0; index < _array_ptr->Capacity(); ++index) {
                 (*_array_ptr)[index] = kMemoryBlockSizeArray[index] - SuperType_::NodeHeadOffset();
             }
         });
 
     //The number of the blocks that the memory pool contains when created.
-    static constexpr SizeType kMemoryBlockDefaultNum = 0;
-    static constexpr TArray<SizeType, kMemoryBlockTypeNum> kMemoryBlockDefaultNumArray =
-        TArray<SizeType, kMemoryBlockTypeNum>([](TArray<SizeType, kMemoryBlockTypeNum>* _array_ptr) {
+    static inline constexpr SizeType kMemoryBlockDefaultNum = 0;
+    static inline constexpr TFixedArray<SizeType, kMemoryBlockTypeNum> kMemoryBlockDefaultNumArray =
+        TFixedArray<SizeType, kMemoryBlockTypeNum>([](TFixedArray<SizeType, kMemoryBlockTypeNum>* _array_ptr) {
             for (SizeType index = 0; index < _array_ptr->Capacity(); ++index) {
                 (*_array_ptr)[index] = kMemoryBlockDefaultNum;
             }
@@ -207,8 +205,8 @@ private:
 
     //The lookup table that links the memory size to the memory pool index.
     //mamory alignment
-    static constexpr SizeType kMemorySize2MemoryPoolTableSize = kMemoryBlockMaxSize / kMemoryBlockMinSize;
-    static constexpr TLookupTable<UInt8, kMemorySize2MemoryPoolTableSize> kMemorySize2MemoryPoolTable =
+    static inline constexpr SizeType kMemorySize2MemoryPoolTableSize = kMemoryBlockMaxSize / kMemoryBlockMinSize;
+    static inline constexpr TLookupTable<UInt8, kMemorySize2MemoryPoolTableSize> kMemorySize2MemoryPoolTable =
         TLookupTable<UInt8, kMemorySize2MemoryPoolTableSize>(
             [](TLookupTable<UInt8, kMemorySize2MemoryPoolTableSize>* _table_ptr) {
                 UInt8 current_pool_index = 0;
@@ -225,9 +223,9 @@ private:
                 }
             });
 
-    NODISCARD static TArray<TSmallMemoryListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>& InstanceP() noexcept {
-        static TArray<TSmallMemoryListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum> memory_pool_array(
-            [](TArray<TSmallMemoryListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>* _array_ptr) {
+    NODISCARD static TFixedArray<TSmallMemoryListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>& InstanceP() noexcept {
+        static TFixedArray<TSmallMemoryListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum> memory_pool_array(
+            [](TFixedArray<TSmallMemoryListMemoryPool<kIsThreadSafe>, kMemoryBlockTypeNum>* _array_ptr) {
                 for (SizeType index = 0; index < _array_ptr->Capacity(); ++index) {
                     (*_array_ptr)[index].InitializeP(kMemoryBlockSizeArray[index], kMemoryBlockMemorySizeArray[index],
                         kMemoryBlockDefaultNumArray[index]);
@@ -248,7 +246,7 @@ private:
         SizeType _capacity
     ) noexcept {
         SuperType_::InitializeP(
-            MemoryPoolEnum::kMemoryPool_TSmallMemoryList, 
+            MemoryPoolEnum::kTSmallMemoryList, 
             _memory_block_size,
             _memory_block_memory_size, 
             _capacity);

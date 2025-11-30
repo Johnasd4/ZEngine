@@ -20,7 +20,7 @@
 
 #include "z_scene_event.h"
 
-#include "../../z_core/t_vector.h"
+#include "../../z_core/t_array.h"
 
 namespace zengine {
 namespace tsrpg {
@@ -61,7 +61,7 @@ private:
 
     Void MoveP(ZMoveTileSceneEvent&& _event) noexcept;
 
-    TVector<MoveParams_> move_params_vector_;
+    TArray<MoveParams_> move_params_array_;
 };
 
 }//tsrpg

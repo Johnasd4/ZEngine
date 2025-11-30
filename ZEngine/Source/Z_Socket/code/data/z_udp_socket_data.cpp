@@ -17,6 +17,7 @@
     Contact: 1152325286@qq.com
 */
 #define SOCKET_DLLFILE
+#include "drive/d_pch.h"
 
 #include "z_udp_socket_data.h"
 
@@ -28,7 +29,6 @@ ZUDPSocketData::ZUDPSocketData(boost::asio::io_context* _io_context_ptr) noexcep
     : SuperType_()
     , socket_(*_io_context_ptr)
     , async_receive_endpoint_()
-    , if_endpoint_bind_(false)
     , if_connected_(true)
     , async_error_handle_func_()
 {}

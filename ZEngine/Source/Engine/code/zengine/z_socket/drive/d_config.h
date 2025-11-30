@@ -25,8 +25,8 @@
 namespace zengine {
 namespace socket {
 
-static constexpr Char kHTTPDefaultPortString[] = "80";
-static constexpr Char kHTTPSDefaultPortString[] = "443";
+inline constexpr Char kHTTPDefaultPortString[] = "80";
+inline constexpr Char kHTTPSDefaultPortString[] = "443";
 
 }//socket
 }//zengine

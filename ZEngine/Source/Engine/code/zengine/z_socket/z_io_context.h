@@ -20,7 +20,7 @@
 
 #include "drive.h"
 
-#include "../z_core/t_vector.h"
+#include "../z_core/t_array.h"
 #include "../z_core/t_smart_pointer.h"
 #include "../z_core/z_object.h"
 #include "../z_core/z_string_view.h"
@@ -43,15 +43,20 @@ namespace socket {
 */
 class SOCKET_DLLAPI ZIOContext : public ZObject {
 public:
-    enum State_ : Int32 {
-        ZIOContextState_Idle,
-        ZIOContextState_Run
+    enum class StateEnum_ : Int32 {
+        kClosed,
+        kRun
     };
+
+    /*
+        Used for non async only.
+    */
+    NODISCARD static ZIOContext& Instance() noexcept;
 
     ZIOContext() noexcept;
     ~ZIOContext() noexcept;
 
-    NODISCARD FORCEINLINE State_ State() const noexcept { return state_; }
+    NODISCARD FORCEINLINE StateEnum_ State() const noexcept { return state_; }
 
     /*
         Resolve the given address.
@@ -59,7 +64,7 @@ public:
     NODISCARD ReturnType ResolveTCPAddress(
         ZStringView _address_str,
         ZStringView _port_str,
-        TVector<ZTCPEndpoint>* _endpoint_vector_ptr
+        TArray<ZTCPEndpoint>* _endpoint_array_ptr
     ) noexcept;
 
     /*
@@ -68,7 +73,7 @@ public:
     NODISCARD ReturnType ResolveUDPAddress(
         ZStringView _address_str,
         ZStringView _port_str,
-        TVector<ZUDPEndpoint>* _endpoint_vector_ptr
+        TArray<ZUDPEndpoint>* _endpoint_array_ptr
     ) noexcept;
 
     /*
@@ -91,7 +96,7 @@ public:
     /*
         If dealing with async operation.
     */
-    NODISCARD FORCEINLINE Bool IsRunning() noexcept { return state_ == ZIOContextState_Run; }
+    NODISCARD FORCEINLINE Bool IsRunning() noexcept { return state_ == StateEnum_::kRun; }
 
     /*
         Suspend until async operation thread finish.
@@ -115,7 +120,7 @@ private:
 
 private:
     TUniquePointer<internal::ZIOContextData> data_ptr_;
-    State_ state_;
+    StateEnum_ state_;
 };
 
 }//socket

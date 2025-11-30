@@ -21,15 +21,14 @@
 #include "drive.h"
 
 #include "../z_core/t_smart_pointer.h"
+#include "../z_core/z_buffer.h"
 #include "../z_core/z_object.h"
-
-#include "z_buffer.h"
 
 namespace zengine {
 namespace socket {
 namespace internal {
 
-struct ZBufferStreamData;
+struct ZSocketBufferStreamData;
 
 }//internal
 }//socket
@@ -42,17 +41,17 @@ namespace socket {
     Buffer type, initialize with a base buffer size.
     Clear() can only and must be called when a http response is finished and prepared to receive another http response.
 */
-class SOCKET_DLLAPI ZBufferStream : public ZObject {
+class SOCKET_DLLAPI ZSocketBufferStream : public ZObject {
 public:
-    ZBufferStream() noexcept;
-    ZBufferStream(SizeType _prepare_size) noexcept;
-    ZBufferStream(SizeType _prepare_size, SizeType _max_size) noexcept;
+    ZSocketBufferStream() noexcept;
+    ZSocketBufferStream(SizeType _prepare_size) noexcept;
+    ZSocketBufferStream(SizeType _prepare_size, SizeType _max_size) noexcept;
 
-    ZBufferStream(ZBufferStream&& _buffer) noexcept;
+    ZSocketBufferStream(ZSocketBufferStream&& _buffer) noexcept;
 
-    ~ZBufferStream() noexcept;
+    ~ZSocketBufferStream() noexcept;
 
-    ZBufferStream& operator=(ZBufferStream&& _buffer) noexcept;
+    ZSocketBufferStream& operator=(ZSocketBufferStream&& _buffer) noexcept;
 
     NODISCARD SizeType Size() const noexcept;
 
@@ -72,11 +71,11 @@ protected:
     friend class ZTLSStream;
 
 private:
-    ZBufferStream(const ZBufferStream&) = delete;
-    ZBufferStream& operator=(const ZBufferStream&) = delete;
+    ZSocketBufferStream(const ZSocketBufferStream&) = delete;
+    ZSocketBufferStream& operator=(const ZSocketBufferStream&) = delete;
 
 private:
-    TUniquePointer<internal::ZBufferStreamData> data_ptr_;
+    TUniquePointer<internal::ZSocketBufferStreamData> data_ptr_;
 };
 
 }//socket

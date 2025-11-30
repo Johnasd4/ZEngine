@@ -18,8 +18,6 @@
 */
 #pragma once
 
-#include "drive.h"
-
 #include "t_memory_pool_base.h"
 
 namespace zengine {
@@ -43,7 +41,7 @@ template<Bool kIsThreadSafe>
 class TSystemMemoryPool : public TMemoryPoolBase<kIsThreadSafe> {
 private:
     //The multiple factor that container auto extends based on the origin size.
-    static constexpr PointerType kNodeHeadOffset = 8ULL;
+    static inline constexpr PointerType kNodeHeadOffset = 8ULL;
 
 public:
     using SuperType_ = TMemoryPoolBase<kIsThreadSafe>;
@@ -154,7 +152,7 @@ private:
     }
 
     FORCEINLINE Void InitializeP() noexcept {
-        SuperType_::InitializeP(MemoryPoolEnum::kMemoryPool_TSystemMemory);
+        SuperType_::InitializeP(MemoryPoolEnum::kTSystemMemory);
     }
 
     TSystemMemoryPool(const TSystemMemoryPool&) = delete;

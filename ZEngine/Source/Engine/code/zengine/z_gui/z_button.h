@@ -28,7 +28,7 @@
 
 namespace zengine {
 namespace error_code {
-enum ZButtonErrorCode : ReturnType {
+enum ZButtonErrorCodeEnum : ReturnType {
     kZButtonErrorCode_LinkError = kErrorCodeBase_ZButton,
     kZButtonErrorCode_SystemError,
     kZButtonErrorCode_NullptrParam,
@@ -60,11 +60,11 @@ public:
         kButtonFlag_All = kButtonFlag_Left | kButtonFlag_Right | kButtonFlag_Middle
     };
 
-    static constexpr GuiColour kDefaultTextColour = { 1.0f, 1.0f, 1.0f, 1.0f };
-    static constexpr GuiColour kDefaultButtonColour = { 0.3f, 0.3f, 0.3f, 1.0f };
-    static constexpr GuiColour kDefaultHoveredColour = { 0.5f, 0.5f, 0.5f, 1.0f };
-    static constexpr GuiColour kDefaultActiveColour = { 0.4f, 0.4f, 0.4f, 1.0f };
-    static constexpr Int32 kDefaultButtonFlag = kButtonFlag_Left;
+    static inline constexpr GuiColour kDefaultTextColour = { 1.0f, 1.0f, 1.0f, 1.0f };
+    static inline constexpr GuiColour kDefaultButtonColour = { 0.3f, 0.3f, 0.3f, 1.0f };
+    static inline constexpr GuiColour kDefaultHoveredColour = { 0.5f, 0.5f, 0.5f, 1.0f };
+    static inline constexpr GuiColour kDefaultActiveColour = { 0.4f, 0.4f, 0.4f, 1.0f };
+    static inline constexpr Int32 kDefaultButtonFlag = kButtonFlag_Left;
 
     ZButton() noexcept;
     ZButton(ZButton&& _button) noexcept;
@@ -73,7 +73,7 @@ public:
     */
     ZButton(ZStringView _name, GuiSize _size = kBaseSize, GuiPos _pos = kBasePos) noexcept;
 
-    ~ZButton() noexcept;
+    virtual ~ZButton() noexcept;
 
     ZButton& operator=(ZButton&& _button) noexcept;
 

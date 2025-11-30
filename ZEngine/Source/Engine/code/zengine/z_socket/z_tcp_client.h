@@ -21,27 +21,16 @@
 #include "drive.h"
 
 #include "../z_core/t_function.h"
+#include "../z_core/t_hash_map.h"
 #include "../z_core/t_pool_list.h"
 #include "../z_core/t_smart_pointer.h"
-#include "../z_core/t_unordered_map.h"
+#include "../z_core/z_buffer.h"
 #include "../z_core/z_object.h"
 #include "../z_core/z_string.h"
 #include "../z_core/z_string_view.h"
 
-#include "z_buffer.h"
 #include "z_tcp_endpoint.h"
 #include "z_tcp_socket.h"
-
-namespace zengine {
-namespace socket {
-namespace internal {
-
-struct ZTCPSingleSessionClientData;
-struct ZTCPMultipleSessionClientData;
-
-}//internal
-}//socket
-}//zengine
 
 namespace zengine {
 namespace socket {
@@ -50,25 +39,25 @@ using ZTCPClient = ZTCPSingleSessionClient;
 
 /*
     Single session tcp client. Can connect one server at a time.
-    Connect -> Read/Write -> Close
+    Open -> Connect -> Read/Write -> Close
 */
 class SOCKET_DLLAPI ZTCPSingleSessionClient : public ZObject {
 public:
-    static constexpr Int32 kConnectRetryForever = kInt32Max;
+    using StateEnum_ = ZTCPSocket::StateEnum_;
 
-    enum State_ : Int32 {
-        ZTCPSingleSessionClientState_Uninitialized,
-        ZTCPSingleSessionClientState_Idle,
-        ZTCPSingleSessionClientState_Connected,
-        ZTCPSingleSessionClientState_Error
-    };
-
+    static inline constexpr Int32 kConnectRetryForever = kInt32Max;
+    
     ZTCPSingleSessionClient(ZIOContext* _io_context_ptr) noexcept;
 
     ~ZTCPSingleSessionClient() noexcept;
 
-    NODISCARD FORCEINLINE State_ State() const noexcept { return state_; }
+    NODISCARD FORCEINLINE StateEnum_ State() const noexcept { return socket_.State(); }
     NODISCARD FORCEINLINE ZIOContext* IOContextPtr() const noexcept { return io_context_ptr_; }
+
+    /*
+        Open the client.
+    */
+    NODISCARD ReturnType Open(IPTypeEnum _ip_type) noexcept;
 
     /*
         Bind endpoint. Call before connected.
@@ -83,6 +72,11 @@ public:
         Sets os read buffer size. Call after connected.
     */
     NODISCARD ReturnType SetOSReadBufferSize(Int32 _size) noexcept;
+    /*
+        Set if address is reuseable. If true, can bind multiple sockets to the same address.
+        Call before binding endpoint. Must be called on all sockets that bind to the same address.
+    */
+    NODISCARD ReturnType SetIfReuseAddress(Bool _if_reuse) noexcept;
 
     /*
         Close the connection.
@@ -130,7 +124,7 @@ public:
         Read data until match char. Will suspend the current thread until data read.
     */
     NODISCARD ReturnType ReadUntil(
-        ZBufferStream* _buffer_ptr,
+        ZSocketBufferStream* _buffer_ptr,
         Char _match_char,
         SizeType* _data_size_ptr = nullptr
     ) noexcept;
@@ -139,7 +133,7 @@ public:
         Read data until match string. Will suspend the current thread until data read.
     */
     NODISCARD ReturnType ReadUntil(
-        ZBufferStream* _buffer_ptr,
+        ZSocketBufferStream* _buffer_ptr,
         const Char* _match_str,
         SizeType* _data_size_ptr = nullptr
     ) noexcept;
@@ -147,30 +141,30 @@ public:
     /*
         Read data until match char. Will not suspend the current thread.
         _handle_func only needs to handle the read data.
-        _handle_func(ReturnType _error_code, ZTCPSocket* _socket_ptr, ZBufferStream* _buffer_stream_ptr)
+        _handle_func(ReturnType _error_code, ZTCPSocket* _socket_ptr, ZSocketBufferStream* _buffer_stream_ptr)
     */
     NODISCARD ReturnType AsyncReadUntil(
-        ZBufferStream* _buffer_ptr,
+        ZSocketBufferStream* _buffer_ptr,
         Char _match_char,
-        const TFunction<Void(ReturnType, ZTCPSocket*, ZBufferStream*)>& _handle_func
+        const TFunction<Void(ReturnType, ZTCPSocket*, ZSocketBufferStream*)>& _handle_func
     ) noexcept;
 
     /*
         Read data until match string. Will not suspend the current thread.
         _handle_func only needs to handle the read data.
-        _handle_func(ReturnType _error_code, ZTCPSocket* _socket_ptr, ZBufferStream* _buffer_stream_ptr)
+        _handle_func(ReturnType _error_code, ZTCPSocket* _socket_ptr, ZSocketBufferStream* _buffer_stream_ptr)
     */
     NODISCARD ReturnType AsyncReadUntil(
-        ZBufferStream* _buffer_ptr,
+        ZSocketBufferStream* _buffer_ptr,
         const Char* _match_str,
-        const TFunction<Void(ReturnType, ZTCPSocket*, ZBufferStream*)>& _handle_func
+        const TFunction<Void(ReturnType, ZTCPSocket*, ZSocketBufferStream*)>& _handle_func
     ) noexcept;
 
     /*
         Read data until close. Will suspend the current thread until close.
     */
     NODISCARD ReturnType ReadUntilClose(
-        ZBufferStream* _buffer_ptr,
+        ZSocketBufferStream* _buffer_ptr,
         SizeType* _data_size_ptr = nullptr
     ) noexcept;
 
@@ -208,10 +202,8 @@ private:
     ZTCPSingleSessionClient& operator=(ZTCPSingleSessionClient&&) = delete;
 
 private:
-    TUniquePointer<internal::ZTCPSingleSessionClientData> data_ptr_;
     ZTCPSocket socket_;
     ZIOContext* io_context_ptr_;
-    State_ state_;
 };
 
 /*
@@ -220,23 +212,16 @@ private:
 */
 class SOCKET_DLLAPI ZTCPMultipleSessionClient : public ZObject {
 public:
-    static constexpr Int32 kConnectRetryForever = kInt32Max;
-
-    enum State_ : Int32 {
-        ZTCPMultipleSessionClientState_Uninitialized,
-        ZTCPMultipleSessionClientState_Idle,
-        ZTCPMultipleSessionClientState_Error
-    };
+    static inline constexpr Int32 kConnectRetryForever = kInt32Max;
 
     ZTCPMultipleSessionClient(ZIOContext* _context_ptr) noexcept;
 
     ~ZTCPMultipleSessionClient() noexcept;
 
-    NODISCARD FORCEINLINE State_ State() const noexcept { return state_; }
     NODISCARD FORCEINLINE ZIOContext* IOContextPtr() const noexcept { return io_context_ptr_; }
 
     /*
-        Close the connection.
+        Close all connections.
     */
     NODISCARD ReturnType Close() noexcept;
 
@@ -278,10 +263,8 @@ private:
     ZTCPMultipleSessionClient& operator=(ZTCPMultipleSessionClient&&) = delete;
 
 private:
-    TUniquePointer<internal::ZTCPMultipleSessionClientData> data_ptr_;
     TPoolListSafe<ZTCPSocket> socket_pool_list_;
     ZIOContext* io_context_ptr_;
-    State_ state_;
 };
 
 }//socket

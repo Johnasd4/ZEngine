@@ -17,6 +17,7 @@
     Contact: 1152325286@qq.com
 */
 #define CORE_DLLFILE
+#include "drive/d_pch.h"
 
 #include "f_console.h"
 
@@ -100,8 +101,8 @@ protected:
     using SuperType_ = ZObject;
 
 private:
-    static constexpr PrintTextColourEnum kDefaultTextColour = kPrintTextColour_LightWhite;
-    static constexpr PrintBackgroundColourEnum kDefaultBackgroundColour = kPrintBackgroundColour_DarkBlack;
+    static inline constexpr PrintTextColourEnum kDefaultTextColour = PrintTextColourEnum::kLightWhite;
+    static inline constexpr PrintBackgroundColourEnum kDefaultBackgroundColour = PrintBackgroundColourEnum::kDarkBlack;
 
     NODISCARD static ZPrintManager& InstanceP() {
         static ZPrintManager instance;

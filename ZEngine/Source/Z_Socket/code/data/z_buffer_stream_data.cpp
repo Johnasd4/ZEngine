@@ -17,6 +17,7 @@
     Contact: 1152325286@qq.com
 */
 #define SOCKET_DLLFILE
+#include "drive/d_pch.h"
 
 #include "z_buffer_stream_data.h"
 
@@ -24,13 +25,13 @@ namespace zengine {
 namespace socket {
 namespace internal {
 
-ZBufferStreamData::ZBufferStreamData() noexcept
+ZSocketBufferStreamData::ZSocketBufferStreamData() noexcept
     : SuperType_()
     , buffer_()
     , read_size_(0ULL)
 {}
 
-ZBufferStreamData::ZBufferStreamData(SizeType _prepare_size) noexcept
+ZSocketBufferStreamData::ZSocketBufferStreamData(SizeType _prepare_size) noexcept
     : SuperType_()
     , buffer_()
     , read_size_(0ULL)
@@ -38,7 +39,7 @@ ZBufferStreamData::ZBufferStreamData(SizeType _prepare_size) noexcept
     buffer_.prepare(_prepare_size);
 }
 
-ZBufferStreamData::ZBufferStreamData(SizeType _prepare_size, SizeType _max_size) noexcept
+ZSocketBufferStreamData::ZSocketBufferStreamData(SizeType _prepare_size, SizeType _max_size) noexcept
     : SuperType_()
     , buffer_(_max_size)
     , read_size_(0ULL)

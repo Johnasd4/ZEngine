@@ -23,19 +23,24 @@
 namespace zengine {
 namespace socket {
 
-enum TLSTypeEnum : Int32 {
-    kTLSType_Client,
-    kTLSType_Server
+enum class TLSTypeEnum : Int32 {
+    kClient,
+    kServer
 };
 
-enum TLSVerifyModeEnum : Int32 {
-    kTLSVerifyType_None,
-    kTLSVerifyType_Peer
+enum class TLSVerifyModeEnum : Int32 {
+    kNone,
+    kPeer
 };
 
-enum CertificateFileFormatTypeEnum : Int32 {
-    kCertificateFileFormatTypeType_ASN_1,
-    kCertificateFileFormatTypeType_PEM
+enum class CertificateFileFormatTypeEnum : Int32 {
+    kASN_1,
+    kPEM
+};
+
+enum class IPTypeEnum : Int32 {
+    IP4,
+    IP6
 };
 
 }//socket
@@ -44,9 +49,7 @@ enum CertificateFileFormatTypeEnum : Int32 {
 namespace zengine {
 namespace socket {
 
-class ZBuffer;
-class ZConstBuffer;
-class ZBufferStream;
+class ZSocketBufferStream;
 class ZFixedBuffer;
 class ZIOContext;
 class ZTCPEndpoint;

@@ -36,7 +36,7 @@
 namespace zengine {
 namespace error_code {
 
-enum FTCPLogOutputErrorCode : ReturnType {
+enum FTCPLogOutputErrorCodeEnum : ReturnType {
     kFTCPLogOutputErrorCode_LinkError = kErrorCodeBase_FTCPLogOutput,
     kFTCPLogOutputErrorCode_SystemError,
     kFTCPLogOutputErrorCode_NullptrParam,
@@ -52,18 +52,18 @@ enum FTCPLogOutputErrorCode : ReturnType {
 namespace zengine {
 namespace socket {
 
-constexpr UInt32 kDefaultTCPLogIP = 0x7F000001U;
-constexpr UInt16 kDefaultTCPLogPort = 10000;
-constexpr TimeType kLogServerDisconnectLogWaitMaxTime = 30;
-constexpr SizeType kLogServerDisconnectLogWaitMaxNum = 300;
+inline constexpr UInt32 kDefaultTCPLogIP = 0x7F000001U;
+inline constexpr UInt16 kDefaultTCPLogPort = 10000;
+inline constexpr TimeType kLogServerDisconnectLogWaitMaxTime = 30;
+inline constexpr SizeType kLogServerDisconnectLogWaitMaxNum = 300;
 
-enum TCPLogOutputCommandIDEnum : Int32 {
-    TCPLogOutputCommandID_GetNextLog
+enum class TCPLogOutputCommandIDEnum : Int32 {
+    kGetNextLog
 };
 
-enum TCPLogOutputReplyIDEnum : Int32 {
-    TCPLogOutputReplyID_Log,
-    TCPLogOutputReplyID_CommandIDNotExist
+enum class TCPLogOutputReplyIDEnum : Int32 {
+    kLog,
+    kCommandIDNotExist
 };
 
 //command

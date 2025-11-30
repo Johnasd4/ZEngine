@@ -42,22 +42,25 @@ public:
         return *this;
     }
 
+    NODISCARD FORCEINLINE Byte& operator[](const SizeType _index) noexcept { return data_ptr_[_index]; }
+    NODISCARD FORCEINLINE const Byte& operator[](const SizeType _index) const noexcept { return data_ptr_[_index]; }
+
     template<typename _ObjectType>
     NODISCARD FORCEINLINE _ObjectType& At(const SizeType _index) noexcept {
-        return *reinterpret_cast<_ObjectType*>(data_ptr_ + _index);
+        return *(reinterpret_cast<_ObjectType*>(data_ptr_) + _index);
     }
     template<typename _ObjectType>
     NODISCARD FORCEINLINE const _ObjectType& At(const SizeType _index) const noexcept {
-        return *reinterpret_cast<_ObjectType*>(data_ptr_ + _index);
+        return *(reinterpret_cast<const _ObjectType*>(data_ptr_) + _index);
     }
 
     template<typename _ObjectType>
-    NODISCARD FORCEINLINE _ObjectType DataPtr() noexcept { 
-        return reinterpret_cast<_ObjectType>(data_ptr_);
+    NODISCARD FORCEINLINE _ObjectType* DataPtr() noexcept { 
+        return reinterpret_cast<_ObjectType*>(data_ptr_);
     }
     template<typename _ObjectType>
-    NODISCARD FORCEINLINE _ObjectType DataPtr() const noexcept { 
-        return reinterpret_cast<_ObjectType>(data_ptr_);
+    NODISCARD FORCEINLINE _ObjectType* DataPtr() const noexcept { 
+        return reinterpret_cast<const _ObjectType*>(data_ptr_);
     }
 
     FORCEINLINE static constexpr SizeType Size() noexcept { return _size; }

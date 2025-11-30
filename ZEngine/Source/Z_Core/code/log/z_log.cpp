@@ -17,8 +17,7 @@
     Contact: 1152325286@qq.com
 */
 #define CORE_DLLFILE
-
-#include "m_log.h"
+#include "drive/d_pch.h"
 
 #include "f_console.h"
 #include "f_file_system.h"
@@ -63,7 +62,7 @@ CORE_DLLAPI ZLog::ZLog(
 
 CORE_DLLAPI const WChar* ZLog::CreateAndGetLogPath() noexcept {
     //log file path.
-    static ZWString path_str = []() -> ZWString {
+    static ZWString path_str = std::invoke([]() -> ZWString {
         const ZSystemTime& system_time = ZSystemTime::StartTimeInstance();
         TFixedWString<ZFile::kFileNameLength> path_str;
         path_str.SetString(
@@ -86,7 +85,7 @@ CORE_DLLAPI const WChar* ZLog::CreateAndGetLogPath() noexcept {
         }
 
         return ZWString(path_str.String());
-    }();
+    });
     return path_str.String();
 }
 
@@ -100,7 +99,7 @@ CORE_DLLAPI Void ZLog::GenerateLogString(const ZLog* _log_ptr, OutputString_* _o
 }
 
 static ZFile& GetLogFile() noexcept {
-    static ZFile& file = []() ->ZFile& { 
+    static ZFile& file = std::invoke([]() ->ZFile& {
         static ZFile file;
         ReturnType link_code = kOK;
         TFixedWString<ZFile::kFileNameLength> file_dir;
@@ -114,7 +113,7 @@ static ZFile& GetLogFile() noexcept {
             Z_LOG_ERROR(error_code::kMLogErrorCode_LinkError, link_code, L"ZFile::OpenSafe() link error!");
         }
         return file;
-    }();
+    });
     return file;
 }
 

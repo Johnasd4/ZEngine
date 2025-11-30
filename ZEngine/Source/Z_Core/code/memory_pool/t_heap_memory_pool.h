@@ -18,8 +18,6 @@
 */
 #pragma once
 
-#include "drive.h"
-
 #include "m_log.h"
 
 #include "t_memory_pool_thread_safe_base.h"
@@ -46,7 +44,7 @@ protected:
 
 private:
     struct HeapMemoryPtrArrayNode_ {
-        static constexpr Int32 kHeapMemoryPtrNumPurNode = (kHeapMemoryUnitSize - sizeof(Void*)) / sizeof(Void*);
+        static inline constexpr Int32 kHeapMemoryPtrNumPurNode = (kHeapMemoryUnitSize - sizeof(Void*)) / sizeof(Void*);
 
         Void* heap_memory_ptr_[kHeapMemoryPtrNumPurNode];
         HeapMemoryPtrArrayNode_* next_node_ptr_;

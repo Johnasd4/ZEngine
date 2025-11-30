@@ -21,9 +21,6 @@
     <ClCompile Include="code\data\z_io_context_data.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="code\data\z_tcp_client_data.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="code\data\z_tcp_server_data.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -93,7 +90,7 @@
     <ClCompile Include="code\f_socket\get_udp_public_address_and_port.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="code\d_function.cpp">
+    <ClCompile Include="code\drive\d_function.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="code\z_tcp_endpoint.cpp">
@@ -102,15 +99,18 @@
     <ClCompile Include="code\z_udp_endpoint.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="code\f_socket\udp_connect_p2p.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\drive\d_pch.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\data\z_buffer_stream_data.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\data\z_io_context_data.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\data\z_tcp_client_data.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\data\z_tcp_server_data.h">
@@ -141,6 +141,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\data\z_url_resolver_data.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\drive\d_pch.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

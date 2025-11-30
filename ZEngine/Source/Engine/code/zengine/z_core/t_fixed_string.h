@@ -34,11 +34,11 @@ namespace internal {
 template<typename _CharType, SizeType kCapacity>
 class TFixedString : public ZObject {
 public:
-    using STDArray_ = std::array<_CharType, kCapacity>;
-    using Iterator_ = STDArray_::iterator;
-    using ConstIterator_ = STDArray_::const_iterator;
-    using ReverseIterator_ = STDArray_::reverse_iterator;
-    using ConstReverseIterator_ = STDArray_::const_reverse_iterator;
+    using STDFixedArray_ = std::array<_CharType, kCapacity>;
+    using Iterator_ = STDFixedArray_::iterator;
+    using ConstIterator_ = STDFixedArray_::const_iterator;
+    using ReverseIterator_ = STDFixedArray_::reverse_iterator;
+    using ConstReverseIterator_ = STDFixedArray_::const_reverse_iterator;
     using InitializerList_ = std::initializer_list<_CharType>;
 
     FORCEINLINE constexpr TFixedString() noexcept : SuperType_(), str_() {}
@@ -135,7 +135,7 @@ protected:
     using SuperType_ = ZObject;
 
 private:
-    STDArray_ str_;
+    STDFixedArray_ str_;
 };
 
 }//internal

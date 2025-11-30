@@ -29,7 +29,7 @@
 
 namespace zengine {
 namespace error_code {
-enum ZWindowErrorCode : ReturnType {
+enum ZWindowErrorCodeEnum : ReturnType {
     kZWindowErrorCode_LinkError = kErrorCodeBase_ZWindow,
     kZWindowErrorCode_SystemError,
     kZWindowErrorCode_NullptrParam,
@@ -63,28 +63,28 @@ public:
     /*
         The window screen mode enum.
     */
-    enum WindowScreenModeEnum_ : Int32 {
-        kWindowScreenMode_Window,
-        kWindowScreenMode_FullScreenCustomSize,
-        kWindowScreenMode_FullScreenDefaultSize,
+    enum class WindowScreenModeEnum_ : Int32 {
+        kWindow,
+        kFullScreenCustomSize,
+        kFullScreenDefaultSize,
     };
 
     /*
         The window state enum.
     */
-    enum WindowStateEnum_ : Int32 {
-        kWindowState_Terminated,
-        kWindowState_Initialized,
-        kWindowState_Opened,
-        kWindowState_Hidden
+    enum class WindowStateEnum_ : Int32 {
+        kTerminated,
+        kInitialized,
+        kOpened,
+        kHidden
     };
 
     /*
         Font type enum.
     */
-    enum FontLanguageEnum_ : Int32 {
-        kFontLanguage_SimplifiedChineseCommon,
-        kFontLanguage_SimplifiedChineseAll
+    enum class FontLanguageEnum_ : Int32 {
+        kSimplifiedChineseCommon,
+        kSimplifiedChineseAll
     };
 
     /*
@@ -105,10 +105,10 @@ public:
         const Char* _name,
         GuiSize _size,
         GuiPos _pos = kBasePos,
-        WindowScreenModeEnum_ _screen_mode = kWindowScreenMode_Window
+        WindowScreenModeEnum_ _screen_mode = WindowScreenModeEnum_::kWindow
     ) noexcept;
     
-    ~ZWindow() noexcept;
+    virtual ~ZWindow() noexcept;
 
     ZWindow& operator=(ZWindow&& _window) noexcept;
 
@@ -146,7 +146,7 @@ public:
         const Char* _name,
         GuiSize _size,
         GuiPos _pos = kBasePos,
-        WindowScreenModeEnum_ _screen_mode = kWindowScreenMode_Window
+        WindowScreenModeEnum_ _screen_mode = WindowScreenModeEnum_::kWindow
     ) noexcept;
     /*
         Destroy window, release the resourses.
@@ -242,7 +242,7 @@ private:
     GLFWwindow* window_handle_;
     ImGuiContext* imgui_context_ptr_;
     ImGuiIO* imgui_io_ptr_;
-    TMultiset<ZFrame*, ZWidgetObjectCompare> frame_ptr_set_;
+    TMultipleSet<ZFrame*, ZWidgetObjectCompare> frame_ptr_set_;
     TQueueSafe<ZTask> task_queue_;
     WindowStateEnum_ window_state_;
 };

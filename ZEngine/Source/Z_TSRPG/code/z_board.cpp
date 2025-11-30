@@ -17,11 +17,9 @@
     Contact: 1152325286@qq.com
 */
 #define TSRPG_DLLFILE
+#include "drive/d_pch.h"
 
 #include "z_board.h"
-
-#include "z_core/m_log.h"
-#include "z_math/f_basic_math.h"
 
 #include "z_tile.h"
 
@@ -49,7 +47,7 @@ Void ZBoard::Destroy() noexcept {
 }
 
 NODISCARD ReturnType ZBoard::GetSurroundTile(
-    TVector<ZTile*>* _tile_list_ptr,
+    TArray<ZTile*>* _tile_list_ptr,
     const LogicVector2D& _center_index,
     Int32 _inner_radius,
     Int32 _outer_radius

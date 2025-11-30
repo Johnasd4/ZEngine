@@ -18,5 +18,13 @@
     <ClCompile Include="code\f_lua.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="code\drive\d_pch.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="code\drive\d_pch.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

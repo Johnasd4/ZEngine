@@ -30,7 +30,7 @@
 
 namespace zengine {
 namespace error_code {
-enum ZTimerErrorCode : ReturnType {
+enum ZTimerErrorCodeEnum : ReturnType {
     kZTimerErrorCode_LinkError = kErrorCodeBase_ZTimer,
     kZTimerErrorCode_SystemError,
     kZTimerErrorCode_NullptrParam,
@@ -56,8 +56,8 @@ namespace zengine {
 class CORE_DLLAPI ZTimer : public ZObject {
 public:
     //default 1 sec.
-    static constexpr Int32 kDefaultInterval = 1000;
-    static constexpr Int32 kTimerNeverEnd = -1;
+    static inline constexpr Int32 kDefaultInterval = 1000;
+    static inline constexpr Int32 kTimerNeverEnd = -1;
 
     ZTimer() noexcept;
     ZTimer(ZTimer&& _timer) noexcept;
@@ -132,19 +132,19 @@ protected:
     friend struct internal::ZTimerData;
 
 private:
-    enum TimerState_ : Int32 {
-        kTimerState_Idle,
-        kTimerState_Execute,
-        kTimerState_Pause,
-        kTimerState_Finished
+    enum class TimerStateEnum_ : Int32 {
+        kClosed,
+        kExecute,
+        kPause,
+        kFinished
     };
 
     ZTimer(const ZTimer&) = delete;
     ZTimer& operator=(const ZTimer&) = delete;
 
-    static Void TimerThreadFuncP(internal::ZTimerData* _data_ptr) noexcept;
+    static Void TimerThreadFuncP(internal::ZTimerData& _timer_data) noexcept;
 
-    internal::ZTimerData* timer_data_ptr_;
+    TUniquePointer<internal::ZTimerData> timer_data_ptr_;
 };
 
 }//zengine

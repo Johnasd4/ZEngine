@@ -26,7 +26,7 @@
 
 namespace zengine {
 namespace error_code {
-enum ZTextErrorCode : ReturnType {
+enum ZTextErrorCodeEnum : ReturnType {
     kZTextErrorCode_LinkError = kErrorCodeBase_ZText,
     kZTextErrorCode_SystemError,
     kZTextErrorCode_NullptrParam,
@@ -43,13 +43,13 @@ namespace gui {
 */
 class GUI_DLLAPI ZText : public ZWidgetObject {
 public:
-    static constexpr GuiColour kDefaultTextColour = { 1.0f, 1.0f, 1.0f, 1.0f };
+    static inline constexpr GuiColour kDefaultTextColour = { 1.0f, 1.0f, 1.0f, 1.0f };
 
     ZText() noexcept;
     ZText(ZText&& _text) noexcept;
     ZText(ZStringView _text, GuiPos _pos = kBasePos) noexcept;
 
-    ~ZText() noexcept;
+    virtual ~ZText() noexcept;
 
     ZText& operator=(ZText&& _text) noexcept;
 

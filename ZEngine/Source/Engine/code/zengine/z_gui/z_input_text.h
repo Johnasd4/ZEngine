@@ -27,7 +27,7 @@
 
 namespace zengine {
 namespace error_code {
-enum ZInputTextErrorCode : ReturnType {
+enum ZInputTextErrorCodeEnum : ReturnType {
     kZInputTextErrorCode_LinkError = kErrorCodeBase_ZInputText,
     kZInputTextErrorCode_SystemError,
     kZInputTextErrorCode_NullptrParam,
@@ -114,10 +114,10 @@ public:
         kInputTextFlag_CallbackEdit = 1 << 22
     };
 
-    static constexpr GuiColour kDefaultTextColour = { 1.0f, 1.0f, 1.0f, 1.0f };
-    static constexpr GuiColour kDefaultBackgroundColour = { 0.5f, 0.5f, 0.5f, 1.0f };
-    static constexpr UInt32 kDefaultInputTextSize = 112;
-    static constexpr Int32 kDefaultInputTextFlag = kInputTextFlag_None;
+    static inline constexpr GuiColour kDefaultTextColour = { 1.0f, 1.0f, 1.0f, 1.0f };
+    static inline constexpr GuiColour kDefaultBackgroundColour = { 0.5f, 0.5f, 0.5f, 1.0f };
+    static inline constexpr UInt32 kDefaultInputTextSize = 112;
+    static inline constexpr Int32 kDefaultInputTextFlag = kInputTextFlag_None;
 
     ZInputText() noexcept;
     ZInputText(ZInputText&& _input_text) noexcept;
@@ -126,7 +126,7 @@ public:
     */
     ZInputText(ZStringView _name, GuiPos _pos = kBasePos) noexcept;
 
-    ~ZInputText() noexcept;
+    virtual ~ZInputText() noexcept;
 
     ZInputText& operator=(ZInputText&& _input_text) noexcept;
 

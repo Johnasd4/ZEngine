@@ -20,7 +20,7 @@
 
 #include "../../drive.h"
 
-#include "../../t_array.h"
+#include "../../t_fixed_array.h"
 
 #include "../z_log.h"
 
@@ -32,9 +32,9 @@ namespace log {
 */
 class ZInfoLog : public ZLog {
 public:
-    static constexpr TArray<const WChar*, kInfoLogType_Max> kInfoLogType_String = 
-        TArray<const WChar*, kInfoLogType_Max>(
-            [](TArray<const WChar*, kInfoLogType_Max>* _array_ptr) {
+    static inline constexpr TFixedArray<const WChar*, kInfoLogType_Max> kInfoLogType_String = 
+        TFixedArray<const WChar*, kInfoLogType_Max>(
+            [](TFixedArray<const WChar*, kInfoLogType_Max>* _array_ptr) {
                 (*_array_ptr)[kInfoLogType_Message] = L"Message";
                 (*_array_ptr)[kInfoLogType_Start] = L"Start  ";
                 (*_array_ptr)[kInfoLogType_Process] = L"Process";

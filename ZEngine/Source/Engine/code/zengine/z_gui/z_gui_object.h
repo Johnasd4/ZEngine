@@ -34,10 +34,10 @@ namespace gui {
 */
 class GUI_DLLAPI ZGuiObject : public ZObject {
 public:
-    static constexpr GuiPos kBasePos = { -10000.0f, -10000.0f };
-    static constexpr GuiSize kBaseSize = { -10000.0f, -10000.0f };
-    static constexpr Float32 kBaseFontScale = 1.0f;
-    static constexpr Float32 kDisableColourFactor = 0.5f;
+    static inline constexpr GuiPos kBasePos = { -10000.0f, -10000.0f };
+    static inline constexpr GuiSize kBaseSize = { -10000.0f, -10000.0f };
+    static inline constexpr Float32 kBaseFontScale = 1.0f;
+    static inline constexpr Float32 kDisableColourFactor = 0.5f;
 
     NODISCARD static ZMutex& OpenGLMutex() noexcept;
     NODISCARD static ZGuiObject*& CallbackGuiObjectPtr() noexcept;
@@ -131,9 +131,9 @@ protected:
         Bool _enabled = true
     ) noexcept;
 
-    ZGuiObject& operator=(ZGuiObject&& _obj) noexcept;
+    virtual ~ZGuiObject() noexcept;
 
-    FORCEINLINE ~ZGuiObject() {}
+    ZGuiObject& operator=(ZGuiObject&& _obj) noexcept;
 
 private:
     ZGuiObject(const ZGuiObject&) = delete;

@@ -18,12 +18,6 @@
 */
 #pragma once
 
-#include "drive.h"
-
-#include <boost/asio.hpp>
-
-#include "z_core/z_object.h"
-
 namespace zengine {
 namespace socket {
 namespace internal {
@@ -37,8 +31,6 @@ protected:
 
 public:
     boost::asio::ip::tcp::tcp::acceptor acceptor_;
-    boost::asio::ip::tcp::endpoint server_endpoint_;
-    Bool if_endpoint_bind_;
 };
 
 struct ZTCPMultipleSessionServerData : public ZObject {
@@ -50,8 +42,6 @@ protected:
 
 public: 
     boost::asio::ip::tcp::tcp::acceptor acceptor_;
-    boost::asio::ip::tcp::endpoint server_endpoint_;
-    Bool if_endpoint_bind_;
 };
 
 }//internal

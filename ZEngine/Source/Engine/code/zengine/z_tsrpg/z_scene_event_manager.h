@@ -32,8 +32,8 @@ namespace tsrpg {
 */
 class TSRPG_DLLAPI ZSceneEventManager : public ZObject {
 private:
-    static constexpr Float32 kDefaultSpeedMult = 1.0F;
-    static constexpr SizeType kDefaultSceneEventGroupListSize = 126ULL;
+    static inline constexpr Float32 kDefaultSpeedMult = 1.0F;
+    static inline constexpr SizeType kDefaultSceneEventGroupListSize = 126ULL;
 
 public:
     static ZSceneEventManager& Instance() noexcept;
@@ -52,7 +52,7 @@ protected:
 
 private:
     struct SceneEventGroup_ {
-        static constexpr SizeType kDefaultInstancePoolDefaultSize = 30;
+        static inline constexpr SizeType kDefaultInstancePoolDefaultSize = 30;
 
         NODISCARD static TPool<SceneEventGroup_>& InstancePool() noexcept;
 

@@ -49,15 +49,15 @@ namespace socket {
 */
 class SOCKET_DLLAPI ZTLSContext : public ZObject {
 public:
-    enum State_ : Int32 {
-        ZTLSContextState_Uninitialized,
-        ZTLSContextState_Initialized
+    enum class StateEnum_ : Int32 {
+        kUninitialized,
+        kInitialized
     };
 
     ZTLSContext(TLSTypeEnum _tls_type) noexcept;
     ~ZTLSContext() noexcept;
 
-    NODISCARD FORCEINLINE State_ State() const noexcept { return state_; }
+    NODISCARD FORCEINLINE StateEnum_ State() const noexcept { return state_; }
     NODISCARD FORCEINLINE TLSTypeEnum TLSType() const noexcept { return tls_type_; }
     NODISCARD FORCEINLINE Bool CertificateLoaded() const noexcept { return certificate_loaded_; }
     NODISCARD FORCEINLINE Bool PrivateKeyLoaded() const noexcept { return private_key_loaded_; }
@@ -100,7 +100,7 @@ private:
 
 private:
     TUniquePointer<internal::ZTLSContextData> data_ptr_;
-    State_ state_;
+    StateEnum_ state_;
     TLSTypeEnum tls_type_;
     Bool certificate_loaded_;
     Bool private_key_loaded_;

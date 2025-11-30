@@ -34,13 +34,15 @@ namespace zengine {
 template<typename _ObjectType, SizeType kCapacity>
 class TFixedQueue : public ZObject {
 public:
-    using STDArray_ = std::array<_ObjectType, kCapacity>;
+    using STDFixedArray_ = std::array<_ObjectType, kCapacity>;
     using InitializerList_ = std::initializer_list<_ObjectType>;
 
     FORCEINLINE constexpr TFixedQueue() noexcept 
         : SuperType_() , queue_(), front_index_(0ULL), back_index_(kCapacity - 1ULL), size_(0ULL) {}
     FORCEINLINE constexpr TFixedQueue(const TFixedQueue& _queue) noexcept : SuperType_(_queue) { CopyP(_queue); }
-    FORCEINLINE constexpr TFixedQueue(TFixedQueue&& _queue) noexcept : SuperType_(std::forward<TFixedQueue>(_queue)) {
+    FORCEINLINE constexpr TFixedQueue(TFixedQueue&& _queue) noexcept 
+        : SuperType_(std::forward<TFixedQueue>(_queue)) 
+    {
         MoveP(std::forward<TFixedQueue>(_queue));
     }
 
@@ -145,7 +147,7 @@ private:
         _queue.size_ = 0ULL;
     }
 
-    STDArray_ queue_;
+    STDFixedArray_ queue_;
     SizeType front_index_;
     SizeType back_index_;
     SizeType size_;
@@ -157,7 +159,7 @@ private:
 template<typename _ObjectType, SizeType kCapacity, typename _MutexType = ZMutex>
 class TFixedQueueSafe : public ZObject {
 public:
-    using STDArray_ = std::array<_ObjectType, kCapacity>;
+    using STDFixedArray_ = std::array<_ObjectType, kCapacity>;
     using InitializerList_ = std::initializer_list<_ObjectType>;
 
     FORCEINLINE constexpr TFixedQueueSafe() noexcept 
@@ -317,7 +319,7 @@ private:
         _queue.size_ = 0ULL;
     }
 
-    STDArray_ queue_;
+    STDFixedArray_ queue_;
     SizeType front_index_;
     SizeType back_index_;
     SizeType size_;

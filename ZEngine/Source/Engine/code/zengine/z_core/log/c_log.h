@@ -25,7 +25,7 @@
 namespace zengine {
 namespace error_code {
 
-enum MLogErrorCode : ReturnType {
+enum MLogErrorCodeEnum : ReturnType {
     kMLogErrorCode_LinkError = kErrorCodeBase_MLog,
     kMLogErrorCode_LogQueueOverflow,
     kMLogErrorCode_PortIDOutOfRange,
@@ -61,19 +61,19 @@ enum InfoLogTypeEnum : SizeType {
     kInfoLogType_Max
 };
 
-static constexpr SizeType kLogMaxPortNum = 8;
-static constexpr SizeType kLogUsedPortNum = 3;
-static constexpr SizeType kLogPortMaxOutputNum = 8;
-static constexpr SizeType kErrorLogPortID = kLogMaxPortNum - 1;
-static constexpr SizeType kTraceLogPortID = kLogMaxPortNum - 2;
-static constexpr SizeType kInfoLogPortID = kLogMaxPortNum - 3;
+inline constexpr SizeType kLogMaxPortNum = 8;
+inline constexpr SizeType kLogUsedPortNum = 3;
+inline constexpr SizeType kLogPortMaxOutputNum = 8;
+inline constexpr SizeType kErrorLogPortID = kLogMaxPortNum - 1;
+inline constexpr SizeType kTraceLogPortID = kLogMaxPortNum - 2;
+inline constexpr SizeType kInfoLogPortID = kLogMaxPortNum - 3;
 
 //max size of the log message string.
-static constexpr SizeType kFormatStringMaxSize = 1024;
+inline constexpr SizeType kFormatStringMaxSize = 1024;
 //max size of the output log string.
-static constexpr SizeType kOutputStringMaxSize = 2048;
+inline constexpr SizeType kOutputStringMaxSize = 2048;
 //max size of the log message string.
-static constexpr SizeType kLogFileMaxNum = 10;
+inline constexpr SizeType kLogFileMaxNum = 10;
 
 }//log
 }//zengine

@@ -24,7 +24,7 @@
 
 namespace zengine {
 namespace error_code {
-enum ZSeparatorErrorCode : ReturnType {
+enum ZSeparatorErrorCodeEnum : ReturnType {
     kZSeparatorErrorCode_LinkError = kErrorCodeBase_ZSeparator,
     kZSeparatorErrorCode_SystemError,
     kZSeparatorErrorCode_NullptrParam,
@@ -41,12 +41,12 @@ namespace gui {
 */
 class GUI_DLLAPI ZSeparator : public ZWidgetObject {
 public:
-    static constexpr GuiColour kDefaultColour = { 1.0f, 1.0f, 1.0f, 1.0f };
+    static inline constexpr GuiColour kDefaultColour = { 1.0f, 1.0f, 1.0f, 1.0f };
 
     ZSeparator() noexcept;
     ZSeparator(ZSeparator&& _seeparator) noexcept;
 
-    ~ZSeparator() noexcept;
+    virtual ~ZSeparator() noexcept;
 
     ZSeparator& operator=(ZSeparator&& _text) noexcept;
 

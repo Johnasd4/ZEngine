@@ -32,8 +32,8 @@ namespace socket {
 */
 class SOCKET_DLLAPI ZUDPEndpoint : public ZObject {
 public:
-    static constexpr SizeType KEndpointSize = 32;
-    static constexpr SizeType KIP6Size = 16;
+    static inline constexpr SizeType KEndpointSize = 32;
+    static inline constexpr SizeType KIP6Size = 16;
 
     ZUDPEndpoint() noexcept;
     ZUDPEndpoint(const ZUDPEndpoint& _endpoint) noexcept;
@@ -44,6 +44,7 @@ public:
     NODISCARD ReturnType SetEndpoint(const Char* _ip_str, UInt16 _port) noexcept;
     Void SetEndpoint(UInt32 _ip, UInt16 _port) noexcept;
 
+    NODISCARD IPTypeEnum IPType() const noexcept;
     NODISCARD ZString IPString() const noexcept;
     NODISCARD UInt32 IP4() const noexcept;
     NODISCARD TFixedMemory<KIP6Size> IP6() const noexcept;

@@ -18,13 +18,6 @@
 */
 #pragma once
 
-#include "drive.h"
-
-#include <boost/asio.hpp>
-
-#include "z_core/t_function.h"
-#include "z_core/z_object.h"
-
 namespace zengine {
 namespace socket {
 namespace internal {
@@ -39,9 +32,8 @@ protected:
 public:
     boost::asio::ip::udp::socket socket_;
     boost::asio::ip::udp::endpoint async_receive_endpoint_;
-    Bool if_endpoint_bind_;
     Bool if_connected_;
-    TFunction<Void()> async_error_handle_func_;
+    TFunction<Void(ReturnType)> async_error_handle_func_;
 };
 
 }//internal

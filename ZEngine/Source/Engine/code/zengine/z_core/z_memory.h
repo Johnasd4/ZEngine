@@ -27,75 +27,45 @@ namespace zengine {
 /*
     A memory piece.
 */
-class ZMemory : public ZObject {
+class CORE_DLLAPI ZMemory : public ZObject {
 public:
-    FORCEINLINE ZMemory() noexcept : SuperType_(), data_ptr_(), size_(0u) {}
-    FORCEINLINE ZMemory(const ZMemory& _mem) noexcept : SuperType_(_mem), size_(_mem.size_) { 
-        Copy(data_ptr_, _mem.data_ptr_, size_);
-    }
-    FORCEINLINE ZMemory(ZMemory&& _mem) noexcept 
-        : SuperType_(std::forward<ZMemory>(_mem)), data_ptr_(_mem.data_ptr_), size_(_mem.size_) 
-    {
-        _mem.data_ptr_ = nullptr;
-        _mem.size_ = 0u;
-    } 
-    FORCEINLINE ZMemory(SizeType _size) noexcept
-        : SuperType_(), data_ptr_(static_cast<Byte*>(memory_pool::ApplyMemory(_size))), size_(_size) {}
+    ZMemory() noexcept;
+    ZMemory(const ZMemory& _mem) noexcept;
+    ZMemory(ZMemory&& _mem) noexcept;
+    ZMemory(SizeType _size) noexcept;
 
-    FORCEINLINE ~ZMemory() noexcept {
-        if (data_ptr_ != nullptr) {
-            memory_pool::ReleaseMemory(data_ptr_);
-        }
-    }
+    ~ZMemory() noexcept;
 
-    FORCEINLINE ZMemory& operator=(const ZMemory& _mem) noexcept {
-        Copy(data_ptr_, _mem.data_ptr_, size_);
-        size_ = _mem.size_;
-        return *this;
-    }
-    FORCEINLINE ZMemory& operator=(ZMemory&& _mem) noexcept {
-        data_ptr_ = _mem.data_ptr_;
-        size_ = _mem.size_;
-        _mem.data_ptr_ = nullptr;
-        _mem.size_ = 0u;
-        return *this;
-    }
+    ZMemory& operator=(const ZMemory& _mem) noexcept;
+    ZMemory& operator=(ZMemory&& _mem) noexcept;
 
     NODISCARD FORCEINLINE Byte& operator[](const SizeType _index) noexcept { return data_ptr_[_index]; }
     NODISCARD FORCEINLINE const Byte& operator[](const SizeType _index) const noexcept { return data_ptr_[_index]; }
 
     template<typename _ObjectType>
     NODISCARD FORCEINLINE _ObjectType& At(const SizeType _index) noexcept {
-        return *reinterpret_cast<_ObjectType*>(data_ptr_ + _index);
+        return *(reinterpret_cast<_ObjectType*>(data_ptr_) + _index);
     }
     template<typename _ObjectType>
     NODISCARD FORCEINLINE const _ObjectType& At(const SizeType _index) const noexcept {
-        return *reinterpret_cast<_ObjectType*>(data_ptr_ + _index);
+        return *(reinterpret_cast<const _ObjectType*>(data_ptr_) + _index);
     }
 
     template<typename _ObjectType>
-    NODISCARD FORCEINLINE _ObjectType DataPtr() noexcept {
-        return reinterpret_cast<_ObjectType>(data_ptr_);
+    NODISCARD FORCEINLINE _ObjectType* DataPtr() noexcept {
+        return reinterpret_cast<_ObjectType*>(data_ptr_);
     }
     template<typename _ObjectType>
-    NODISCARD FORCEINLINE _ObjectType DataPtr() const noexcept {
-        return reinterpret_cast<_ObjectType>(data_ptr_);
+    NODISCARD FORCEINLINE const _ObjectType* DataPtr() const noexcept {
+        return reinterpret_cast<const _ObjectType*>(data_ptr_);
     }
 
     NODISCARD FORCEINLINE SizeType Size() const noexcept { return size_; }
-    NODISCARD FORCEINLINE SizeType Capacity() const noexcept { return size_; }
+    NODISCARD FORCEINLINE SizeType Capacity() const noexcept { return capacity_; }
 
     FORCEINLINE Void Clear() noexcept { memset(data_ptr_, 0, size_); }
 
-    FORCEINLINE Void Resize(SizeType _size) noexcept {
-        if (!memory_pool::CheckMemory(data_ptr_, _size)) {
-            Byte* data_ptr = static_cast<Byte*>(memory_pool::ApplyMemory(_size));
-            Copy(data_ptr, data_ptr_, size_);
-            memory_pool::ReleaseMemory(data_ptr_);
-            data_ptr_ = data_ptr;
-        }
-        size_ = _size;
-    }
+    Void Resize(SizeType _size) noexcept;
 
     FORCEINLINE Void Swap(ZMemory& _mem) noexcept { ::zengine::Swap(this, &_mem); }
 
@@ -105,6 +75,7 @@ protected:
 private:
     Byte* data_ptr_;
     SizeType size_;
+    SizeType capacity_;
 };
 
 }//zengine

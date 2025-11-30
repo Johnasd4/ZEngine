@@ -20,14 +20,14 @@
 
 #include "drive.h"
 
-#include "../z_core/t_vector.h"
+#include "../z_core/t_array.h"
 #include "../z_core/z_string.h"
 
 #include "z_tile.h"
 
 namespace zengine {
 namespace error_code {
-enum ZLogicTileErrorCode : ReturnType {
+enum ZLogicTileErrorCodeEnum : ReturnType {
     kZLogicTileErrorCode_LinkError = kErrorCodeBase_ZLogicTile,
     kZLogicTileErrorCode_SystemError,
     kZLogicTileErrorCode_NullptrParam,
@@ -52,6 +52,8 @@ public:
     ZLogicTileTexture() noexcept;
     ZLogicTileTexture(ZLogicTileTexture&& _texture) noexcept;
     ZLogicTileTexture(const WChar* _texture_name, const WChar* _material_name) noexcept;
+
+    virtual ~ZLogicTileTexture() noexcept;
 
     ZLogicTileTexture& operator=(ZLogicTileTexture&& _texture) noexcept;
 
@@ -86,7 +88,7 @@ public:
         Int32 num_;
     };
 
-    static constexpr Int32 kDistanceNotConnect = -1;
+    static inline constexpr Int32 kDistanceNotConnect = -1;
 
     ZLogicTile() noexcept;
 
@@ -109,10 +111,10 @@ public:
     NODISCARD const ZLogicTileTexture* GetTexturePtrByPosZ(Int32 _pos_z) const noexcept;
 
     /*
-        Returns the texture vector by the given pos z and length.
+        Returns the texture array by the given pos z and length.
     */
     NODISCARD const ReturnType CalculateTexturePtrVectorByPosZAndLength(
-        TVector<const ZLogicTileTexture*>* _texture_ptr_vector_ptr,
+        TArray<const ZLogicTileTexture*>* _texture_ptr_array_ptr,
         Int32 _pos_z, 
         Int32 _length
     ) const noexcept;
@@ -173,7 +175,7 @@ private:
 
 public:
     LogicVector3D pos_;
-    TVector<TextureNode_> texture_node_vector_;
+    TArray<TextureNode_> texture_node_array_;
 
     ZDisplayTile* display_tile_head_ptr_;
     //upper tile

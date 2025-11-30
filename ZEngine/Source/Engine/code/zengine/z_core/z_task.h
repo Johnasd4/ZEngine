@@ -28,7 +28,7 @@
 
 namespace zengine {
 namespace error_code {
-enum ZTaskErrorCode : ReturnType {
+enum ZTaskErrorCodeEnum : ReturnType {
     kZTaskErrorCode_LinkError = kErrorCodeBase_ZTask,
     kZTaskErrorCode_SystemError,
     kZTaskErrorCode_NullptrParam,
@@ -43,11 +43,11 @@ enum ZTaskErrorCode : ReturnType {
 
 namespace zengine {
 
-enum ZTaskState : Int32 {
-    kZTaskState_NoTask =         0x0,
-    kZTaskState_TaskSet =        0x1,
-    kZTaskState_TaskRunning =    0x2, 
-    kZTaskState_Finished =       0x4
+enum class ZTaskStateEnum : Int32 {
+    kNoTask,
+    kTaskSet,
+    kTaskRunning, 
+    kFinished
 };
 
 /*
@@ -78,10 +78,10 @@ public:
     template<typename _TaskFunction, typename... _ArgsType>
     Void SetTask(_TaskFunction&& _func, _ArgsType&&... _args) noexcept {
         mutex_.Lock();
-        if (state_ == kZTaskState_TaskSet) {
-            state_ = kZTaskState_Finished;
+        if (state_ == ZTaskStateEnum::kTaskSet) {
+            state_ = ZTaskStateEnum::kFinished;
         }
-        if (state_ == kZTaskState_Finished) {
+        if (state_ == ZTaskStateEnum::kFinished) {
             operate_func_ptr_(this);
         }
         SetTaskP(std::forward<_TaskFunction>(_func), std::forward<_ArgsType>(_args)...);
@@ -92,8 +92,8 @@ public:
     
     NODISCARD ReturnType Run() noexcept;
 
-    FORCEINLINE NODISCARD Bool Finished() const noexcept { return state_ == kZTaskState_Finished; }
-    FORCEINLINE NODISCARD ZTaskState State() const noexcept { return state_; }
+    FORCEINLINE NODISCARD Bool Finished() const noexcept { return state_ == ZTaskStateEnum::kFinished; }
+    FORCEINLINE NODISCARD ZTaskStateEnum State() const noexcept { return state_; }
 
 protected:
     using SuperType_ = ZObject;
@@ -123,9 +123,9 @@ private:
 
         operate_func_ptr_ = [](ZTaskSafe* _task_ptr) {
             switch (_task_ptr->state_) {
-            case kZTaskState_TaskSet:
+            case ZTaskStateEnum::kTaskSet:
             {
-                _task_ptr->state_ = kZTaskState_TaskRunning;
+                _task_ptr->state_ = ZTaskStateEnum::kTaskRunning;
                 TaskParamsTuple* puple_ptr;
                 FunctionType* func_ptr = reinterpret_cast<FunctionType*>(&_task_ptr->task_func_ptr_);
                 if constexpr (sizeof(TaskParamsTuple) <= sizeof(Void*)) {
@@ -147,10 +147,10 @@ private:
                         puple_ptr->Apply(*func_ptr);
                     }
                 }
-                _task_ptr->state_ = kZTaskState_Finished;
+                _task_ptr->state_ = ZTaskStateEnum::kFinished;
                 break;
             }
-            case kZTaskState_Finished:
+            case ZTaskStateEnum::kFinished:
             {
                 //release func
                 FunctionType* func_ptr = reinterpret_cast<FunctionType*>(&_task_ptr->task_func_ptr_);
@@ -169,7 +169,7 @@ private:
                 //reset
                 _task_ptr->task_func_ptr_ = nullptr;
                 _task_ptr->params_ptr_ = nullptr;
-                _task_ptr->state_ = kZTaskState_NoTask;
+                _task_ptr->state_ = ZTaskStateEnum::kNoTask;
                 break;
             }
             default:
@@ -187,7 +187,7 @@ private:
             params_ptr_ = new TaskParamsTuple(std::forward<_ArgsType>(_args)...);
         }
         ret_val_ptr_ = nullptr;
-        state_ = kZTaskState_TaskSet;
+        state_ = ZTaskStateEnum::kTaskSet;
     }
 
     template<typename _TaskFunction>
@@ -204,9 +204,9 @@ private:
 
         operate_func_ptr_ = [](ZTaskSafe* _task_ptr) {
             switch (_task_ptr->state_) {
-            case kZTaskState_TaskSet:
+            case ZTaskStateEnum::kTaskSet:
             {
-                _task_ptr->state_ = kZTaskState_TaskRunning;
+                _task_ptr->state_ = ZTaskStateEnum::kTaskRunning;
                 FunctionType* func_ptr = reinterpret_cast<FunctionType*>(&_task_ptr->task_func_ptr_);
 
                 if constexpr (kSameType<TaskReturnType, Void>) {
@@ -221,10 +221,10 @@ private:
                         (*func_ptr)();
                     }
                 }
-                _task_ptr->state_ = kZTaskState_Finished;
+                _task_ptr->state_ = ZTaskStateEnum::kFinished;
                 break;
             }
-            case kZTaskState_Finished:
+            case ZTaskStateEnum::kFinished:
             {
                 //release func
                 FunctionType* func_ptr = reinterpret_cast<FunctionType*>(&_task_ptr->task_func_ptr_);
@@ -232,7 +232,7 @@ private:
 
                 //reset
                 _task_ptr->task_func_ptr_ = nullptr;
-                _task_ptr->state_ = kZTaskState_NoTask;
+                _task_ptr->state_ = ZTaskStateEnum::kNoTask;
                 break;
             }
             default:
@@ -245,7 +245,7 @@ private:
 
         new(&task_func_ptr_) FunctionType(std::forward<_TaskFunction>(_func));
         ret_val_ptr_ = nullptr;
-        state_ = kZTaskState_TaskSet;
+        state_ = ZTaskStateEnum::kTaskSet;
     }
 
 #pragma warning(pop)
@@ -254,7 +254,7 @@ private:
     Void* task_func_ptr_;
     Void* params_ptr_;
     Void* ret_val_ptr_;
-    ZTaskState state_;
+    ZTaskStateEnum state_;
     ZMutex mutex_;
 };
 
@@ -285,10 +285,10 @@ public:
 
     template<typename _TaskFunction, typename... _ArgsType>
     Void SetTask(_TaskFunction&& _func, _ArgsType&&... _args) noexcept {
-        if (state_ == kZTaskState_TaskSet) {
-            state_ = kZTaskState_Finished;
+        if (state_ == ZTaskStateEnum::kTaskSet) {
+            state_ = ZTaskStateEnum::kFinished;
         }
-        if (state_ == kZTaskState_Finished) {
+        if (state_ == ZTaskStateEnum::kFinished) {
             operate_func_ptr_(this);
         }
         SetTaskP(std::forward<_TaskFunction>(_func), std::forward<_ArgsType>(_args)...);
@@ -298,8 +298,8 @@ public:
     
     NODISCARD ReturnType Run() noexcept;
 
-    FORCEINLINE NODISCARD Bool Finished() const noexcept { return state_ == kZTaskState_Finished; }
-    FORCEINLINE NODISCARD ZTaskState State() const noexcept { return state_; }
+    FORCEINLINE NODISCARD Bool Finished() const noexcept { return state_ == ZTaskStateEnum::kFinished; }
+    FORCEINLINE NODISCARD ZTaskStateEnum State() const noexcept { return state_; }
 
 protected:
     using SuperType_ = ZObject;
@@ -329,9 +329,9 @@ private:
 
         operate_func_ptr_ = [](ZTask* _task_ptr) {
             switch (_task_ptr->state_) {
-            case kZTaskState_TaskSet:
+            case ZTaskStateEnum::kTaskSet:
             {
-                _task_ptr->state_ = kZTaskState_TaskRunning;
+                _task_ptr->state_ = ZTaskStateEnum::kTaskRunning;
                 TaskParamsTuple* puple_ptr;
                 FunctionType* func_ptr = reinterpret_cast<FunctionType*>(&_task_ptr->task_func_ptr_);
                 if constexpr (sizeof(TaskParamsTuple) <= sizeof(Void*)) {
@@ -353,10 +353,10 @@ private:
                         puple_ptr->Apply(*func_ptr);
                     }
                 }
-                _task_ptr->state_ = kZTaskState_Finished;
+                _task_ptr->state_ = ZTaskStateEnum::kFinished;
                 break;
             }
-            case kZTaskState_Finished:
+            case ZTaskStateEnum::kFinished:
             {
                 //release func
                 FunctionType* func_ptr = reinterpret_cast<FunctionType*>(&_task_ptr->task_func_ptr_);
@@ -375,7 +375,7 @@ private:
                 //reset
                 _task_ptr->task_func_ptr_ = nullptr;
                 _task_ptr->params_ptr_ = nullptr;
-                _task_ptr->state_ = kZTaskState_NoTask;
+                _task_ptr->state_ = ZTaskStateEnum::kNoTask;
                 break;
             }
             default:
@@ -393,7 +393,7 @@ private:
             params_ptr_ = new TaskParamsTuple(std::forward<_ArgsType>(_args)...);
         }
         ret_val_ptr_ = nullptr;
-        state_ = kZTaskState_TaskSet;
+        state_ = ZTaskStateEnum::kTaskSet;
     }
 
     template<typename _TaskFunction>
@@ -410,9 +410,9 @@ private:
 
         operate_func_ptr_ = [](ZTask* _task_ptr) {
             switch (_task_ptr->state_) {
-            case kZTaskState_TaskSet:
+            case ZTaskStateEnum::kTaskSet:
             {
-                _task_ptr->state_ = kZTaskState_TaskRunning;
+                _task_ptr->state_ = ZTaskStateEnum::kTaskRunning;
                 FunctionType* func_ptr = reinterpret_cast<FunctionType*>(&_task_ptr->task_func_ptr_);
 
                 if constexpr (kSameType<TaskReturnType, Void>) {
@@ -427,10 +427,10 @@ private:
                         (*func_ptr)();
                     }
                 }
-                _task_ptr->state_ = kZTaskState_Finished;
+                _task_ptr->state_ = ZTaskStateEnum::kFinished;
                 break;
             }
-            case kZTaskState_Finished:
+            case ZTaskStateEnum::kFinished:
             {
                 //release func
                 FunctionType* func_ptr = reinterpret_cast<FunctionType*>(&_task_ptr->task_func_ptr_);
@@ -438,7 +438,7 @@ private:
 
                 //reset
                 _task_ptr->task_func_ptr_ = nullptr;
-                _task_ptr->state_ = kZTaskState_NoTask;
+                _task_ptr->state_ = ZTaskStateEnum::kNoTask;
                 break;
             }
             default:
@@ -451,7 +451,7 @@ private:
 
         new(&task_func_ptr_) FunctionType(std::forward<_TaskFunction>(_func));
         ret_val_ptr_ = nullptr;
-        state_ = kZTaskState_TaskSet;
+        state_ = ZTaskStateEnum::kTaskSet;
     }
 
 #pragma warning(pop)
@@ -460,7 +460,7 @@ private:
     Void* task_func_ptr_;
     Void* params_ptr_;
     Void* ret_val_ptr_;
-    ZTaskState state_;
+    ZTaskStateEnum state_;
 };
 
 /*
@@ -482,8 +482,8 @@ public:
 
     template<typename _TaskFunction, typename... _ArgsType>
     Void SetTask(_TaskFunction&& _func, _ArgsType&&... _args) noexcept {
-        if (state_ == kZTaskState_TaskSet) {
-            state_ = kZTaskState_Finished;
+        if (state_ == ZTaskStateEnum::kTaskSet) {
+            state_ = ZTaskStateEnum::kFinished;
             operate_func_ptr_(this);
         }
         SetTaskP(std::forward<_TaskFunction>(_func), std::forward<_ArgsType>(_args)...);
@@ -493,8 +493,8 @@ public:
     
     NODISCARD ReturnType Run() noexcept;
 
-    FORCEINLINE NODISCARD Bool TaskSet() const noexcept { return state_ == kZTaskState_TaskSet;}
-    FORCEINLINE NODISCARD ZTaskState State() const noexcept { return state_; }
+    FORCEINLINE NODISCARD Bool TaskSet() const noexcept { return state_ == ZTaskStateEnum::kTaskSet;}
+    FORCEINLINE NODISCARD ZTaskStateEnum State() const noexcept { return state_; }
 
 protected:
     using SuperType_ = ZObject;
@@ -523,9 +523,9 @@ private:
 
         operate_func_ptr_ = [](ZRepeatTask* _task_ptr) {
             switch (_task_ptr->state_) {
-            case kZTaskState_TaskSet:
+            case ZTaskStateEnum::kTaskSet:
             {
-                _task_ptr->state_ = kZTaskState_TaskRunning;
+                _task_ptr->state_ = ZTaskStateEnum::kTaskRunning;
                 TaskParamsTuple* puple_ptr;
                 FunctionType* func_ptr = reinterpret_cast<FunctionType*>(&_task_ptr->task_func_ptr_);
                 if constexpr (sizeof(TaskParamsTuple) <= sizeof(Void*)) {
@@ -538,7 +538,7 @@ private:
                 puple_ptr->Apply(*func_ptr);
                 break;
             }
-            case kZTaskState_Finished:
+            case ZTaskStateEnum::kFinished:
             {
                 //release func
                 FunctionType* func_ptr = reinterpret_cast<FunctionType*>(&_task_ptr->task_func_ptr_);
@@ -557,7 +557,7 @@ private:
                 //reset
                 _task_ptr->task_func_ptr_ = nullptr;
                 _task_ptr->params_ptr_ = nullptr;
-                _task_ptr->state_ = kZTaskState_NoTask;
+                _task_ptr->state_ = ZTaskStateEnum::kNoTask;
                 break;
             }
             default:
@@ -574,7 +574,7 @@ private:
         else {
             params_ptr_ = new TaskParamsTuple(std::forward<_ArgsType>(_args)...);
         }
-        state_ = kZTaskState_TaskSet;
+        state_ = ZTaskStateEnum::kTaskSet;
     }
 
     template<typename _TaskFunction>
@@ -590,14 +590,14 @@ private:
 
         operate_func_ptr_ = [](ZTaskSafe* _task_ptr) {
             switch (_task_ptr->state_) {
-            case kZTaskState_TaskSet:
+            case ZTaskStateEnum::kTaskSet:
             {
-                _task_ptr->state_ = kZTaskState_TaskRunning;
+                _task_ptr->state_ = ZTaskStateEnum::kTaskRunning;
                 FunctionType* func_ptr = reinterpret_cast<FunctionType*>(&_task_ptr->task_func_ptr_);
                 (*func_ptr)();
                 break;
             }
-            case kZTaskState_Finished:
+            case ZTaskStateEnum::kFinished:
             {
                 //release func
                 FunctionType* func_ptr = reinterpret_cast<FunctionType*>(&_task_ptr->task_func_ptr_);
@@ -605,7 +605,7 @@ private:
 
                 //reset
                 _task_ptr->task_func_ptr_ = nullptr;
-                _task_ptr->state_ = kZTaskState_NoTask;
+                _task_ptr->state_ = ZTaskStateEnum::kNoTask;
                 break;
             }
             default:
@@ -617,7 +617,7 @@ private:
         };
 
         new(&task_func_ptr_) FunctionType(std::forward<_TaskFunction>(_func));
-        state_ = kZTaskState_TaskSet;
+        state_ = ZTaskStateEnum::kTaskSet;
     }
 
 #pragma warning(pop)
@@ -625,7 +625,7 @@ private:
     Void(*operate_func_ptr_)(ZRepeatTask*);
     Void* task_func_ptr_;
     Void* params_ptr_;
-    ZTaskState state_;
+    ZTaskStateEnum state_;
 };
 
 }//zengine

@@ -17,11 +17,9 @@
     Contact: 1152325286@qq.com
 */
 #define LUA_DLLFILE
+#include "drive/d_pch.h"
 
 #include "f_lua.h"
-
-#include "z_core/f_string.h"
-#include "z_core/z_string.h"
 
 namespace zengine {
 namespace lua {

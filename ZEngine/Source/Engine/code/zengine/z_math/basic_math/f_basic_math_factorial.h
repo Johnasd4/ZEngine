@@ -29,14 +29,14 @@ namespace math {
 
 namespace internal {
 
-constexpr SizeType kFactorialTableSize = 171;
-constexpr Float64 kFactorialTableRadianStepDistance = 1.0;
-constexpr Float64 kFactorialTableOffset = 0.0;
+constexpr inline SizeType kFactorialTableSize = 171;
+constexpr inline Float64 kFactorialTableRadianStepDistance = 1.0;
+constexpr inline Float64 kFactorialTableOffset = 0.0;
 
 /*
     Contains the value of factorial 1 - 170.
 */
-constexpr TLookupTable<Float64, kFactorialTableSize> kFactorialTable = TLookupTable<Float64, kFactorialTableSize>(
+inline constexpr TLookupTable<Float64, kFactorialTableSize> kFactorialTable = TLookupTable<Float64, kFactorialTableSize>(
     [](TLookupTable<Float64, kFactorialTableSize>* _table_ptr) {
         (*_table_ptr)[0] = 1.0;
         for (SizeType index = 1; index < _table_ptr->Size(); ++index) {
@@ -47,7 +47,7 @@ constexpr TLookupTable<Float64, kFactorialTableSize> kFactorialTable = TLookupTa
 /*
     Contains the value of the reciprocal of factorial 1 - 170.
 */
-constexpr TLookupTable<Float64, kFactorialTableSize> kFactorialReciprocalTable =
+inline constexpr TLookupTable<Float64, kFactorialTableSize> kFactorialReciprocalTable =
 TLookupTable<Float64, kFactorialTableSize>(
     [](TLookupTable<Float64, kFactorialTableSize>* _table_ptr) {
         for (SizeType index = 0; index < _table_ptr->Size(); ++index) {
@@ -55,8 +55,8 @@ TLookupTable<Float64, kFactorialTableSize>(
         }
     });
 
-constexpr SizeType kFactorialFloat64MaxIndex = 170;
-constexpr SizeType kFactorialFloat32MaxIndex = 34;
+inline constexpr SizeType kFactorialFloat64MaxIndex = 170;
+inline constexpr SizeType kFactorialFloat32MaxIndex = 34;
 
 }//internal
 

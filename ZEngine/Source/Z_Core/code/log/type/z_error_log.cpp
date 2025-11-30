@@ -17,6 +17,7 @@
     Contact: 1152325286@qq.com
 */
 #define CORE_DLLFILE
+#include "drive/d_pch.h"
 
 #include "log/type/z_error_log.h"
 
@@ -66,9 +67,9 @@ Void ZErrorLog::GenerateLogString(const ZLog* _log_ptr, ZLog::OutputString_* _ou
 }
 
 Void ZErrorLog::FileOutputLog(const ZLog* _log_ptr, const ZLog::OutputString_& _output_str) noexcept {
-    static constexpr WChar log_head_end[] = 
+    static constexpr WChar log_head_end[] =
         L"--------------------------------------------------------------------------------\n";
-    static ZFile& file = []() ->ZFile& {
+    static ZFile& file = std::invoke([]() ->ZFile& {
         static ZFile file;
         ReturnType link_code = kOK;
         TFixedWString<ZFile::kFileNameLength> file_dir;
@@ -83,7 +84,7 @@ Void ZErrorLog::FileOutputLog(const ZLog* _log_ptr, const ZLog::OutputString_& _
             Z_LOG_ERROR(error_code::kMLogErrorCode_LinkError, link_code, L"ZFile::Open() link error!");
         }
         return file;
-    }();
+    });
     ReturnType link_code = kOK;
 
     if (file.IfOpen()) {

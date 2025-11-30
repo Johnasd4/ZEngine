@@ -24,7 +24,7 @@
 
 namespace zengine {
 namespace error_code {
-enum ZTileErrorCode : ReturnType {
+enum ZTileErrorCodeEnum : ReturnType {
     kZTileErrorCode_LinkError = kErrorCodeBase_ZTile,
     kZTileErrorCode_SystemError,
     kZTileErrorCode_NullptrParam,

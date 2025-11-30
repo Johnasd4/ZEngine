@@ -42,7 +42,9 @@ public:
     FORCEINLINE TForwardList(const TForwardList& _forward_list) noexcept 
         : SuperType_(_forward_list), forward_list_(_forward_list.forward_list_) {}
     FORCEINLINE TForwardList(TForwardList&& _forward_list) noexcept 
-        : SuperType_(std::forward<TForwardList>(_forward_list)), forward_list_(std::move(_forward_list.forward_list_)) {}
+        : SuperType_(std::forward<TForwardList>(_forward_list))
+        , forward_list_(std::move(_forward_list.forward_list_)) 
+    {}
 
     FORCEINLINE TForwardList(SizeType _size) noexcept : SuperType_(), forward_list_(_size) {}
     FORCEINLINE TForwardList(SizeType _size, const _ObjectType& _val) noexcept 
@@ -142,7 +144,7 @@ public:
         return forward_list_.splice_after(_pos, _forward_list.forward_list_);
     }
     FORCEINLINE Iterator_ SpliceAfter(ConstIterator_ _pos, TForwardList&& _forward_list) noexcept {
-        return forward_list_.splice_after(_pos, std::forward<_ObjectType>(_forward_list.forward_list_));
+        return forward_list_.splice_after(_pos, std::move(_forward_list.forward_list_));
     }
     FORCEINLINE Iterator_ SpliceAfter(
         ConstIterator_ _pos, TForwardList& _forward_list, ConstIterator_ _start_pos
@@ -152,7 +154,7 @@ public:
     FORCEINLINE Iterator_ SpliceAfter(
         ConstIterator_ _pos, TForwardList&& _forward_list, ConstIterator_ _start_pos
     ) noexcept {
-        return forward_list_.splice_after(_pos, std::forward<_ObjectType>(_forward_list.forward_list_), _start_pos);
+        return forward_list_.splice_after(_pos, std::move(_forward_list.forward_list_), _start_pos);
     }
     FORCEINLINE Iterator_ SpliceAfter(
         ConstIterator_ _pos, TForwardList& _forward_list, ConstIterator_ _first, ConstIterator_ _last
@@ -162,7 +164,7 @@ public:
     FORCEINLINE Iterator_ SpliceAfter(
         ConstIterator_ _pos, TForwardList&& _forward_list, ConstIterator_ _first, ConstIterator_ _last
     ) noexcept {
-        return forward_list_.splice_after(_pos, std::forward<_ObjectType>(_forward_list.forward_list_), _first, _last);
+        return forward_list_.splice_after(_pos, std::move(_forward_list.forward_list_), _first, _last);
     }
 
     FORCEINLINE Iterator_ EraseAfter(ConstIterator_ _pos) noexcept { return forward_list_.erase_after(_pos); }

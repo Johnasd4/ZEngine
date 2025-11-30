@@ -26,22 +26,22 @@ using Char = char;
 using WChar = wchar_t;
 
 //range: -128~127
-using Int8 = char;
+using Int8 = int8_t;
 //range: -3,2768~3,2767
-using Int16 = short;
+using Int16 = int16_t;
 //range: -21,4748,3648~21,4748,3647
-using Int32 = int;
+using Int32 = int32_t;
 //range: -922,3372,0368,5477,5808~922,3372,0368,5477,5807
-using Int64 = long long;
+using Int64 = int64_t;
 
 //range: 0~255
-using UInt8 = unsigned char;
+using UInt8 = uint8_t;
 //range: 0~6,5535
-using UInt16 = unsigned short;
+using UInt16 = uint16_t;
 //range: 0~42,9496,7295
-using UInt32 = unsigned int;
+using UInt32 = uint32_t;
 //range: 0~1844,6744,0737,0955,1616
-using UInt64 = unsigned long long;
+using UInt64 = uint64_t;
 
 //range: -3.40E+38 ~ +3.40E+38
 using Float32 = float;
@@ -86,11 +86,9 @@ union Size64Union {
     Float64 float_64_;
 };
 
-enum StringEnum : Int32 {
-    kString_Min = 0,
-    kString_Str = kString_Min,
-    kString_WStr,
-    kString_Max
+enum class StringEnum : Int32 {
+    kString,
+    kWString
 };
 
 namespace internal {
@@ -107,7 +105,7 @@ class TAllocator;
 template<typename _ObjectType>
 class TSmartPointerAllocator;
 template<typename _ObjectType, SizeType kCapacity>
-class TArray;
+class TFixedArray;
 template<typename _ObjectType, typename>
 class TAtom;
 template<typename _ObjectType>
@@ -171,10 +169,12 @@ class TTuple;
 template<typename _MutexType>
 class TUniqueLock;
 template<typename _KeyType, typename _ValueType>
-class TUnorderedMap;
+class THashMap;
 template<typename _ObjectType>
-class TVector;
+class TArray;
 
+class ZBuffer;
+class ZConstBuffer;
 class ZConditionVariable;
 class ZConfig;
 class ZCSMutex;

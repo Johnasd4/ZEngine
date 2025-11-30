@@ -20,12 +20,15 @@
 
 #include "drive.h"
 
+#include "internal/rapidjson.h"
+
+#include "t_smart_pointer.h"
 #include "z_string.h"
 #include "z_object.h"
 
 namespace zengine {
 namespace error_code {
-enum ZJsonErrorCode : ReturnType {
+enum ZJsonErrorCodeEnum : ReturnType {
     kZJsonErrorCode_LinkError = kErrorCodeBase_ZJson,
     kZJsonErrorCode_SystemError,
     kZJsonErrorCode_NullptrParam,
@@ -33,29 +36,6 @@ enum ZJsonErrorCode : ReturnType {
     kZJsonErrorCode_JsonParseError
 };
 }//error_code
-}//zengine
-
-namespace rapidjson {
-
-template<typename _EncodingType, typename _AllocatorType>
-class GenericValue;
-template<typename _AllocatorType>
-class MemoryPoolAllocator;
-template<typename _CharType = zengine::Char>
-struct UTF8;
-
-}
-
-namespace zengine {
-
-namespace internal {
-    
-class JsonDocument;
-class JsonAllocatorP;
-using JsonAllocator = rapidjson::MemoryPoolAllocator<internal::JsonAllocatorP>;
-using JsonValue = rapidjson::GenericValue<rapidjson::UTF8<>, JsonAllocator>;
-
-}//internal
 }//zengine
 
 namespace zengine {
@@ -171,20 +151,21 @@ protected:
 
 private:
     ZJsonValue(const ZJsonValue&) = delete;
+    ZJsonValue& operator=(const ZJsonDocument&) = delete;
 
     ZJsonValue() noexcept;
     ZJsonValue(ZJsonValue&& _value) noexcept;
 
-    ZJsonValue(const Char* _key, Bool _value, ZJsonDocument& _json_doc) noexcept;
-    ZJsonValue(const Char* _key, Int32 _value, ZJsonDocument& _json_doc) noexcept;
-    ZJsonValue(const Char* _key, Int64 _value, ZJsonDocument& _json_doc) noexcept;
-    ZJsonValue(const Char* _key, UInt32 _value, ZJsonDocument& _json_doc) noexcept;
-    ZJsonValue(const Char* _key, UInt64 _value, ZJsonDocument& _json_doc) noexcept;
-    ZJsonValue(const Char* _key, Float32 _value, ZJsonDocument& _json_doc) noexcept;
-    ZJsonValue(const Char* _key, Float64 _value, ZJsonDocument& _json_doc) noexcept;
-    ZJsonValue(const Char* _key, const Char* _value, ZJsonDocument& _json_doc) noexcept;
-    ZJsonValue(const Char* _key, const ZJsonValue& _value, ZJsonDocument& _json_doc) noexcept;
-    ZJsonValue(const Char* _key, ZJsonValue&& _value, ZJsonDocument& _json_doc) noexcept;
+    ZJsonValue(const Char* _key, Bool _value) noexcept;
+    ZJsonValue(const Char* _key, Int32 _value) noexcept;
+    ZJsonValue(const Char* _key, Int64 _value) noexcept;
+    ZJsonValue(const Char* _key, UInt32 _value) noexcept;
+    ZJsonValue(const Char* _key, UInt64 _value) noexcept;
+    ZJsonValue(const Char* _key, Float32 _value) noexcept;
+    ZJsonValue(const Char* _key, Float64 _value) noexcept;
+    ZJsonValue(const Char* _key, const Char* _value) noexcept;
+    ZJsonValue(const Char* _key, const ZJsonValue& _value) noexcept;
+    ZJsonValue(const Char* _key, ZJsonValue&& _value) noexcept;
 
     internal::JsonValue* json_value_ptr_;
     internal::JsonAllocator* json_allocator_ptr_;
@@ -196,7 +177,7 @@ private:
 class CORE_DLLAPI ZJsonDocument : public ZObject {
 public:
     ZJsonDocument() noexcept;
-    ZJsonDocument(ZJsonDocument&& _value) noexcept;
+    ZJsonDocument(ZJsonDocument&& _doc) noexcept;
 
     ZJsonDocument(const Char* _key, Bool _value) noexcept;
     ZJsonDocument(const Char* _key, Int32 _value) noexcept;
@@ -208,12 +189,12 @@ public:
     ZJsonDocument(const Char* _key, const Char* _value) noexcept;
     ZJsonDocument(const Char* _key, const ZJsonValue& _value) noexcept;
     ZJsonDocument(const Char* _key, ZJsonValue&& _value) noexcept;
-    ZJsonDocument(const Char* _key, const ZJsonDocument& _value) noexcept;
-    ZJsonDocument(const Char* _key, ZJsonDocument&& _value) noexcept;
+    ZJsonDocument(const Char* _key, const ZJsonDocument& _doc) noexcept;
+    ZJsonDocument(const Char* _key, ZJsonDocument&& _doc) noexcept;
 
     ~ZJsonDocument() noexcept;
 
-    ZJsonDocument& operator=(ZJsonDocument&& _value) noexcept;
+    ZJsonDocument& operator=(ZJsonDocument&& _doc) noexcept;
 
     NODISCARD ZJsonValue operator[](const Char* _key) noexcept;
     NODISCARD const ZJsonValue operator[](const Char* _key) const noexcept;
@@ -261,23 +242,23 @@ public:
     /*
         Default overwrites the existing member if already exists.
     */
-    Void AddMember(const Char* _key, const ZJsonDocument& _value, Bool _overwrite_exist = true) noexcept;
+    Void AddMember(const Char* _key, const ZJsonDocument& _doc, Bool _overwrite_exist = true) noexcept;
     /*
         Default overwrites the existing member if already exists.
     */
-    Void AddMember(const Char* _key, ZJsonDocument&& _value, Bool _overwrite_exist = true) noexcept;
+    Void AddMember(const Char* _key, ZJsonDocument&& _doc, Bool _overwrite_exist = true) noexcept;
 
     /*
         Returns true if the member exist.
     */
-    NODISCARD Bool RemoveMember(const Char* _key) noexcept;
+    NODISCARD FORCEINLINE Bool RemoveMember(const Char* _key) noexcept { return json_doc_.RemoveMember(_key); }
 
     /*
         Returns true if the member exist.
     */
-    NODISCARD Bool HasMember(const Char* _key) const noexcept;
+    NODISCARD FORCEINLINE Bool HasMember(const Char* _key) const noexcept { return json_doc_.HasMember(_key); }
 
-    Void Clear() noexcept;
+    FORCEINLINE Void Clear() noexcept { json_doc_.Clear(); }
 
     /*
         Paese the string to json object.
@@ -305,9 +286,7 @@ private:
     ZJsonDocument(const ZJsonDocument&) = delete;
     ZJsonDocument& operator=(const ZJsonDocument&) = delete;
 
-    Void CheckPointerP() noexcept;
-
-    internal::JsonDocument* json_doc_ptr_;
+    internal::JsonDocument json_doc_;
 };
 
 }//zengine

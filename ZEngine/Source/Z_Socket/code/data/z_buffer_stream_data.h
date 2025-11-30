@@ -18,22 +18,15 @@
 */
 #pragma once
 
-#include "drive.h"
-
-#include <boost/asio.hpp>
-
-#include "z_core/t_allocator.h"
-#include "z_core/z_object.h"
-
 namespace zengine {
 namespace socket {
 namespace internal {
 
-struct ZBufferStreamData : public ZObject {
+struct ZSocketBufferStreamData : public ZObject {
 public:
-    ZBufferStreamData() noexcept;
-    ZBufferStreamData(SizeType _prepare_size) noexcept;
-    ZBufferStreamData(SizeType _prepare_size, SizeType _max_size) noexcept;
+    ZSocketBufferStreamData() noexcept;
+    ZSocketBufferStreamData(SizeType _prepare_size) noexcept;
+    ZSocketBufferStreamData(SizeType _prepare_size, SizeType _max_size) noexcept;
 
 protected:
     using SuperType_ = ZObject;

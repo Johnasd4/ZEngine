@@ -17,10 +17,9 @@
     Contact: 1152325286@qq.com
 */
 #define TSRPG_DLLFILE
+#include "drive/d_pch.h"
 
 #include "z_tile.h"
-
-#include "z_core/m_log.h"
 
 #include "z_board_object.h"
 

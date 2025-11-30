@@ -20,13 +20,13 @@
 
 #include "drive.h"
 
-#include "../z_core/t_vector.h"
+#include "../z_core/t_array.h"
 
 #include "z_rpg_object.h"
 
 namespace zengine {
 namespace error_code {
-enum ZLogicBoardViewerErrorCode : ReturnType {
+enum ZLogicBoardViewerErrorCodeEnum : ReturnType {
     kZLogicBoardViewerErrorCode_LinkError = kErrorCodeBase_ZLogicBoardViewer,
     kZLogicBoardViewerErrorCode_SystemError,
     kZLogicBoardViewerErrorCode_NullptrParam,
@@ -95,7 +95,7 @@ public:
         Includes the inner circle and outer circle.
     */
     NODISCARD ReturnType GetSurroundTile(
-        TVector<ZTile*>* _tile_list_ptr,
+        TArray<ZTile*>* _tile_list_ptr,
         const LogicVector2D& _center_index,
         Int32 _inner_radius = 1,
         Int32 _outer_radius = 1

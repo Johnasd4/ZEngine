@@ -55,9 +55,9 @@
 //*/
 //class SOCKET_DLLAPI ZUDPSingleSessionClient : public ZObject {
 //public:
-//    static constexpr Int32 kConnectRetryForever = kInt32Max;
+//    static inline constexpr Int32 kConnectRetryForever = kInt32Max;
 //
-//    enum State_ : Int32 {
+//    enum class StateEnum_ : Int32 {
 //        ZUDPSingleSessionClientState_Uninitialized,
 //        ZUDPSingleSessionClientState_Idle,
 //        ZUDPSingleSessionClientState_Connected,
@@ -132,7 +132,7 @@
 //        Read data until match char. Will suspend the current thread until data read.
 //    */
 //    NODISCARD ReturnType ReadUntil(
-//        ZBufferStream* _buffer_ptr,
+//        ZSocketBufferStream* _buffer_ptr,
 //        Char _match_char,
 //        SizeType* _data_size_ptr = nullptr
 //    ) noexcept;
@@ -141,7 +141,7 @@
 //        Read data until match string. Will suspend the current thread until data read.
 //    */
 //    NODISCARD ReturnType ReadUntil(
-//        ZBufferStream* _buffer_ptr,
+//        ZSocketBufferStream* _buffer_ptr,
 //        const Char* _match_str,
 //        SizeType* _data_size_ptr = nullptr
 //    ) noexcept;
@@ -149,30 +149,30 @@
 //    /*
 //        Read data until match char. Will not suspend the current thread.
 //        _handle_func only needs to handle the read data.
-//        _handle_func(ZUDPSocket* _socket_ptr, ZBufferStream* _buffer_stream_ptr)
+//        _handle_func(ZUDPSocket* _socket_ptr, ZSocketBufferStream* _buffer_stream_ptr)
 //    */
 //    NODISCARD ReturnType AsyncReadUntil(
-//        ZBufferStream* _buffer_ptr,
+//        ZSocketBufferStream* _buffer_ptr,
 //        Char _match_char,
-//        const TFunction<Void(ZUDPSocket*, ZBufferStream*)>& _handle_func
+//        const TFunction<Void(ZUDPSocket*, ZSocketBufferStream*)>& _handle_func
 //    ) noexcept;
 //
 //    /*
 //        Read data until match string. Will not suspend the current thread.
 //        _handle_func only needs to handle the read data.
-//        _handle_func(ZUDPSocket* _socket_ptr, ZBufferStream* _buffer_stream_ptr)
+//        _handle_func(ZUDPSocket* _socket_ptr, ZSocketBufferStream* _buffer_stream_ptr)
 //    */
 //    NODISCARD ReturnType AsyncReadUntil(
-//        ZBufferStream* _buffer_ptr,
+//        ZSocketBufferStream* _buffer_ptr,
 //        const Char* _match_str,
-//        const TFunction<Void(ZUDPSocket*, ZBufferStream*)>& _handle_func
+//        const TFunction<Void(ZUDPSocket*, ZSocketBufferStream*)>& _handle_func
 //    ) noexcept;
 //
 //    /*
 //        Read data until close. Will suspend the current thread until close.
 //    */
 //    NODISCARD ReturnType ReadUntilClose(
-//        ZBufferStream* _buffer_ptr,
+//        ZSocketBufferStream* _buffer_ptr,
 //        SizeType* _data_size_ptr = nullptr
 //    ) noexcept;
 //

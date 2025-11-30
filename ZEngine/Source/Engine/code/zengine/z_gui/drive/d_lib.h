@@ -18,17 +18,12 @@
 */
 #pragma once
 
+#pragma warning(disable: 4619) 
+
 #include "../../z_core/drive.h"
 
 //Define if at the start of the z_gui cpp file.
 #ifdef GUI_DLLFILE
-
-#pragma warning(disable: 4619) 
-
-#include "glfw/glfw3.h" 
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_opengl3.h"
-#include "imgui/imgui_impl_glfw.h"
 
 #define GUI_DLLAPI DLLEXPORT
 #define PROJECT_NAME L"ZGui"

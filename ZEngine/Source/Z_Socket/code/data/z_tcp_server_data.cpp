@@ -17,6 +17,7 @@
     Contact: 1152325286@qq.com
 */
 #define SOCKET_DLLFILE
+#include "drive/d_pch.h"
 
 #include "z_tcp_server_data.h"
 
@@ -27,15 +28,11 @@ namespace internal {
 ZTCPSingleSessionServerData::ZTCPSingleSessionServerData(boost::asio::io_context* _io_context_ptr) noexcept
     : SuperType_()
     , acceptor_(*_io_context_ptr)
-    , server_endpoint_()
-    , if_endpoint_bind_(false)
 {}
 
 ZTCPMultipleSessionServerData::ZTCPMultipleSessionServerData(boost::asio::io_context* _io_context_ptr) noexcept
     : SuperType_()
     , acceptor_(*_io_context_ptr)
-    , server_endpoint_()
-    , if_endpoint_bind_(false)
 {}
 
 }//internal

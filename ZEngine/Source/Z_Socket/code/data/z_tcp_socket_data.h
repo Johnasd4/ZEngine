@@ -18,14 +18,6 @@
 */
 #pragma once
 
-#include "drive.h"
-
-#include <boost/asio.hpp>
-
-#include "z_core/t_function.h"
-#include "z_core/z_object.h"
-#include "z_core/z_string.h"
-
 namespace zengine {
 namespace socket {
 namespace internal {
@@ -40,9 +32,10 @@ protected:
 public:
     boost::asio::ip::tcp::socket socket_;
     boost::asio::ip::tcp::endpoint bind_endpoint_;
+    //WTF??? Getting remote endpoint after socket disconnect will throw exception??? 
     boost::asio::ip::tcp::endpoint remote_endpoint_;
     Bool if_endpoint_bind_;
-    TFunction<Void()> async_error_handle_func_;
+    TFunction<Void(ReturnType)> async_error_handle_func_;
 };
 
 }//internal

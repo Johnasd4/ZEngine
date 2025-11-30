@@ -26,7 +26,7 @@
 
 namespace zengine {
 namespace error_code {
-enum FStringErrorCode : ReturnType {
+enum FStringErrorCodeEnum : ReturnType {
     kFStringErrorCode_LinkError = kErrorCodeBase_ZString,
     kFStringErrorCode_SystemError,
     kFStringErrorCode_NullptrParam,

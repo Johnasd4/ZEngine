@@ -17,6 +17,7 @@
     Contact: 1152325286@qq.com
 */
 #define GUI_DLLFILE
+#include "drive/d_pch.h"
 
 #include "z_separator.h"
 
@@ -105,7 +106,7 @@ Void ZSeparator::SetColour(GuiColour _colour) noexcept {
 }
 
 NODISCARD ZSeparator::WidgetTypeEnum_ ZSeparator::WidgetType() const noexcept {
-    return WidgetTypeEnum_::kWidgetType_Separator;
+    return WidgetTypeEnum_::kSeparator;
 }
 
 NODISCARD GuiColour ZSeparator::Colour() const noexcept {

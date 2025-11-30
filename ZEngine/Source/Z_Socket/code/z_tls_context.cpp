@@ -17,11 +17,9 @@
     Contact: 1152325286@qq.com
 */
 #define SOCKET_DLLFILE
+#include "drive/d_pch.h"
 
 #include "z_tls_context.h"
-
-#include "z_core/f_string.h"
-#include "z_core/z_string.h"
 
 #include "data/z_tls_context_data.h"
 
@@ -31,10 +29,10 @@ namespace socket {
 ZTLSContext::ZTLSContext(TLSTypeEnum _tls_type) noexcept
     : SuperType_()
     , data_ptr_(MakeUnique<internal::ZTLSContextData>(_tls_type))
-    , state_(ZTLSContextState_Uninitialized)
+    , state_(StateEnum_::kUninitialized)
     , tls_type_(_tls_type)
 {
-    if (tls_type_ != kTLSType_Client && tls_type_ != kTLSType_Server) {
+    if (tls_type_ != TLSTypeEnum::kClient && tls_type_ != TLSTypeEnum::kServer) {
         Z_LOG_ERROR(
             error_code::kPSocketErrorCode_TLSVerifyModeNotValid, 0,
             L"TLS type not valid! _tls_type: %d", _tls_type
@@ -42,7 +40,7 @@ ZTLSContext::ZTLSContext(TLSTypeEnum _tls_type) noexcept
         return;
     }
 
-    state_ = ZTLSContextState_Initialized;
+    state_ = StateEnum_::kInitialized;
 }
 
 ZTLSContext::~ZTLSContext() noexcept {}
@@ -52,21 +50,21 @@ NODISCARD ReturnType ZTLSContext::SetVerifyMode(TLSVerifyModeEnum _tls_verify_mo
     boost::system::error_code error_code;
 
     Z_CHECK(
-        state_ != ZTLSContextState_Initialized,
+        state_ != StateEnum_::kInitialized,
         error_code::kPSocketErrorCode_StateError,
         L"TLS context state error! state: %d expect state: %d",
-        state_, ZTLSContextState_Initialized
+        state_, StateEnum_::kInitialized
     );
 
     Int32 verify_mode;
 
     switch (_tls_verify_mode) {
-    case TLSVerifyModeEnum::kTLSVerifyType_None:
+    case TLSVerifyModeEnum::kNone:
         verify_mode = boost::asio::ssl::context::verify_none;
         break;
-    case TLSVerifyModeEnum::kTLSVerifyType_Peer:
+    case TLSVerifyModeEnum::kPeer:
         verify_mode = boost::asio::ssl::context::verify_peer;
-        if (tls_type_ == TLSTypeEnum::kTLSType_Server) {
+        if (tls_type_ == TLSTypeEnum::kServer) {
             verify_mode |= boost::asio::ssl::context::verify_fail_if_no_peer_cert;
         }
         break;
@@ -97,10 +95,10 @@ NODISCARD ReturnType ZTLSContext::LoadVerifyFile(const Char* _file_dir) noexcept
     boost::system::error_code error_code;
 
     Z_CHECK(
-        state_ != ZTLSContextState_Initialized,
+        state_ != StateEnum_::kInitialized,
         error_code::kPSocketErrorCode_StateError,
         L"TLS context state error! state: %d expect state: %d",
-        state_, ZTLSContextState_Initialized
+        state_, StateEnum_::kInitialized
     );
 
     data_ptr_->tls_context_.load_verify_file(_file_dir);
@@ -122,10 +120,10 @@ NODISCARD ReturnType ZTLSContext::LoadSystemVerifyFiles() noexcept {
     boost::system::error_code error_code;
 
     Z_CHECK(
-        state_ != ZTLSContextState_Initialized,
+        state_ != StateEnum_::kInitialized,
         error_code::kPSocketErrorCode_StateError,
         L"TLS context state error! state: %d expect state: %d",
-        state_, ZTLSContextState_Initialized
+        state_, StateEnum_::kInitialized
     );
 
     data_ptr_->tls_context_.set_default_verify_paths(error_code);
@@ -150,19 +148,19 @@ NODISCARD ReturnType ZTLSContext::UseCertificateFile(
     boost::system::error_code error_code;
 
     Z_CHECK(
-        state_ != ZTLSContextState_Initialized,
+        state_ != StateEnum_::kInitialized,
         error_code::kPSocketErrorCode_StateError,
         L"TLS context state error! state: %d expect state: %d",
-        state_, ZTLSContextState_Initialized
+        state_, StateEnum_::kInitialized
     );
 
     boost::asio::ssl::context_base::file_format file_format;
 
     switch (_file_format) {
-    case CertificateFileFormatTypeEnum::kCertificateFileFormatTypeType_ASN_1:
+    case CertificateFileFormatTypeEnum::kASN_1:
         file_format = boost::asio::ssl::context::asn1;
         break;
-    case CertificateFileFormatTypeEnum::kCertificateFileFormatTypeType_PEM:
+    case CertificateFileFormatTypeEnum::kPEM:
         file_format = boost::asio::ssl::context::pem;
         break;
     default:
@@ -197,10 +195,10 @@ NODISCARD ReturnType ZTLSContext::UseCertificateChainFile(
     boost::system::error_code error_code;
 
     Z_CHECK(
-        state_ != ZTLSContextState_Initialized,
+        state_ != StateEnum_::kInitialized,
         error_code::kPSocketErrorCode_StateError,
         L"TLS context state error! state: %d expect state: %d",
-        state_, ZTLSContextState_Initialized
+        state_, StateEnum_::kInitialized
     );
 
     data_ptr_->tls_context_.use_certificate_chain_file(_file_dir, error_code);
@@ -227,19 +225,19 @@ NODISCARD ReturnType ZTLSContext::UsePrivateKeyFile(
     boost::system::error_code error_code;
 
     Z_CHECK(
-        state_ != ZTLSContextState_Initialized,
+        state_ != StateEnum_::kInitialized,
         error_code::kPSocketErrorCode_StateError,
         L"TLS context state error! state: %d expect state: %d",
-        state_, ZTLSContextState_Initialized
+        state_, StateEnum_::kInitialized
     );
 
     boost::asio::ssl::context_base::file_format file_format;
 
     switch (_file_format) {
-    case CertificateFileFormatTypeEnum::kCertificateFileFormatTypeType_ASN_1:
+    case CertificateFileFormatTypeEnum::kASN_1:
         file_format = boost::asio::ssl::context::asn1;
         break;
-    case CertificateFileFormatTypeEnum::kCertificateFileFormatTypeType_PEM:
+    case CertificateFileFormatTypeEnum::kPEM:
         file_format = boost::asio::ssl::context::pem;
         break;
     default:

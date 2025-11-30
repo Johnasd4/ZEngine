@@ -44,7 +44,10 @@ public:
 
     FORCEINLINE TList() noexcept : SuperType_(), list_() {}
     FORCEINLINE TList(const TList& _list) noexcept : SuperType_(_list), list_(_list.list_) {}
-    FORCEINLINE TList(TList&& _list) noexcept : SuperType_(std::forward<TList>(_list)), list_(std::move(_list.list_)) {}
+    FORCEINLINE TList(TList&& _list) noexcept 
+        : SuperType_(std::forward<TList>(_list))
+        , list_(std::move(_list.list_)) 
+    {}
 
     FORCEINLINE TList(SizeType _size) noexcept : SuperType_(), list_(_size) {}
     FORCEINLINE TList(SizeType _size, const _ObjectType& _val) noexcept : SuperType_(), list_(_size, _val) {}
@@ -273,7 +276,9 @@ public:
         _list = _list.list_;
     }
     FORCEINLINE TListSafe(TListSafe&& _list) noexcept 
-        : SuperType_(std::forward<TListSafe>(_list)), list_(std::move(_list.list_)), mutex_() 
+        : SuperType_(std::forward<TListSafe>(_list))
+        , list_(std::move(_list.list_))
+        , mutex_() 
     {
         TLockGuard lock_guard(_list.mutex_);
         _list = std::move(_list.list_);

@@ -39,7 +39,7 @@ inline constexpr SizeType kSizeTypeMin = kUInt64Min;
 
 inline constexpr SizeType kB = 1;
 inline constexpr SizeType kKB = 1024;
-inline constexpr SizeType kMB = 1048576;
+inline constexpr SizeType kMB =  1048576;
 inline constexpr SizeType kGB = 1073741824;
 
 }//zengine

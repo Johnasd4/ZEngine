@@ -18,12 +18,10 @@
 */
 #pragma once
 
-#include "drive.h"
-
 #include "m_log.h"
-#include "t_array.h"
+#include "t_fixed_array.h"
 
-namespace zengine {
+namespace zengine { 
 namespace log {
 
 /*
@@ -36,7 +34,7 @@ public:
     */
     struct ZLogPort {
         Void(*input_func_)(const ZLog*, ZLog::OutputString_*) = nullptr;
-        TArray<Void(*)(const ZLog*, const ZLog::OutputString_&), kLogPortMaxOutputNum> output_func_array_;
+        TFixedArray<Void(*)(const ZLog*, const ZLog::OutputString_&), kLogPortMaxOutputNum> output_func_array_;
     };
 
     ZLogServer() noexcept;
@@ -85,7 +83,7 @@ private:
     ZLogServer& operator=(const ZLogServer&) = delete;
     ZLogServer& operator=(ZLogServer&&) = delete;
 
-    TArray<ZLogPort, kLogMaxPortNum> port_array_;
+    TFixedArray<ZLogPort, kLogMaxPortNum> port_array_;
 };
 
 }//log

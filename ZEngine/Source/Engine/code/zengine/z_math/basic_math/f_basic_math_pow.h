@@ -27,29 +27,29 @@ namespace math {
 
 namespace internal {
 
-constexpr Float64 kExpFactorLn2Reciprocal = 1.4426950408889634074;
-constexpr Float64 kExpFactorTaylorSeries0 = 1;
-constexpr Float64 kExpFactorTaylorSeries1 = 0.69314718055994528623;
-constexpr Float64 kExpFactorTaylorSeries2 = 0.24022650695910069407;
-constexpr Float64 kExpFactorTaylorSeries3 = 0.055504108664821569241;
-constexpr Float64 kExpFactorTaylorSeries4 = 0.009618129107628475144;
-constexpr Float64 kExpFactorTaylorSeries5 = 0.0013333558146428441116;
-constexpr Float64 kExpFactorTaylorSeries6 = 0.00015403530393381608776;
-constexpr Float64 kExpFactorTaylorSeries7 = 1.5252733804059837695e-05;
-constexpr Float64 kExpFactorTaylorSeries8 = 1.3215486790144305273e-06;
-constexpr Float64 kExpFactorTaylorSeries9 = 1.0178086009239697275e-07;
-constexpr Float64 kExpFactorTaylorSeries10 = 7.0549116208011200503e-09;
-constexpr Float64 kExpFactorTaylorSeries11 = 4.4455382718708100739e-10;
-constexpr Float64 kExpFactorTaylorSeries12 = 2.5678435993488195818e-11;
-constexpr Float64 kExpFactorTaylorSeries13 = 1.3691488853904122045e-12;
-constexpr Float64 kExpFactorTaylorSeries14 = 6.7787263548225425375e-14;
-constexpr Float64 kExpFactorTaylorSeries15 = 3.1324367070884270832e-15;
-constexpr Float64 kExpFactorTaylorSeries16 = 1.3570247948755140855e-16;
-constexpr Float64 kExpFactorTaylorSeries17 = 5.5330465324582383199e-18;
-constexpr Float64 kExpFactorTaylorSeries18 = 2.1306753354891165899e-19;
-constexpr Float64 kExpFactorTaylorSeries19 = 7.7730084288573506188e-21;
-constexpr Float64 kExpFactorTaylorSeries20 = 2.6939194384655817623e-22;
-constexpr Float64 kExpFactorTaylorSeries21 = 8.8918222068002340135e-24;
+inline constexpr Float64 kExpFactorLn2Reciprocal = 1.4426950408889634074;
+inline constexpr Float64 kExpFactorTaylorSeries0 = 1;
+inline constexpr Float64 kExpFactorTaylorSeries1 = 0.69314718055994528623;
+inline constexpr Float64 kExpFactorTaylorSeries2 = 0.24022650695910069407;
+inline constexpr Float64 kExpFactorTaylorSeries3 = 0.055504108664821569241;
+inline constexpr Float64 kExpFactorTaylorSeries4 = 0.009618129107628475144;
+inline constexpr Float64 kExpFactorTaylorSeries5 = 0.0013333558146428441116;
+inline constexpr Float64 kExpFactorTaylorSeries6 = 0.00015403530393381608776;
+inline constexpr Float64 kExpFactorTaylorSeries7 = 1.5252733804059837695e-05;
+inline constexpr Float64 kExpFactorTaylorSeries8 = 1.3215486790144305273e-06;
+inline constexpr Float64 kExpFactorTaylorSeries9 = 1.0178086009239697275e-07;
+inline constexpr Float64 kExpFactorTaylorSeries10 = 7.0549116208011200503e-09;
+inline constexpr Float64 kExpFactorTaylorSeries11 = 4.4455382718708100739e-10;
+inline constexpr Float64 kExpFactorTaylorSeries12 = 2.5678435993488195818e-11;
+inline constexpr Float64 kExpFactorTaylorSeries13 = 1.3691488853904122045e-12;
+inline constexpr Float64 kExpFactorTaylorSeries14 = 6.7787263548225425375e-14;
+inline constexpr Float64 kExpFactorTaylorSeries15 = 3.1324367070884270832e-15;
+inline constexpr Float64 kExpFactorTaylorSeries16 = 1.3570247948755140855e-16;
+inline constexpr Float64 kExpFactorTaylorSeries17 = 5.5330465324582383199e-18;
+inline constexpr Float64 kExpFactorTaylorSeries18 = 2.1306753354891165899e-19;
+inline constexpr Float64 kExpFactorTaylorSeries19 = 7.7730084288573506188e-21;
+inline constexpr Float64 kExpFactorTaylorSeries20 = 2.6939194384655817623e-22;
+inline constexpr Float64 kExpFactorTaylorSeries21 = 8.8918222068002340135e-24;
 
 //13 and 5
 /*
@@ -57,7 +57,7 @@ constexpr Float64 kExpFactorTaylorSeries21 = 8.8918222068002340135e-24;
 */
 template<typename NumberType>
 requires std::is_arithmetic_v<NumberType>
-NODISCARD constexpr const NumberType ExpCalculateA(const NumberType _exponent) noexcept {
+NODISCARD constexpr NumberType ExpCalculateA(const NumberType _exponent) noexcept {
     NumberType pow_2_exponent = _exponent * static_cast<NumberType>(kExpFactorLn2Reciprocal);
     NumberType ans_1, ans_2;
     if constexpr (std::is_same_v<NumberType, Float64>) {
@@ -106,7 +106,7 @@ NODISCARD constexpr const NumberType ExpCalculateA(const NumberType _exponent) n
 */
 template<typename NumberType>
 requires std::is_arithmetic_v<NumberType>
-NODISCARD constexpr const NumberType ExpA(const NumberType _exponent_number) noexcept {
+NODISCARD constexpr NumberType ExpA(const NumberType _exponent_number) noexcept {
     if (IsInvalid(_exponent_number)) {
         return NaN<NumberType>();
     }
@@ -118,7 +118,7 @@ NODISCARD constexpr const NumberType ExpA(const NumberType _exponent_number) noe
 */
 template<typename NumberType1, typename NumberType2>
 requires std::is_arithmetic_v<NumberType1> && std::is_arithmetic_v<NumberType2>
-NODISCARD constexpr const auto PowA(const NumberType1 _base_number, const NumberType2 _exponent_number) noexcept {
+NODISCARD constexpr auto PowA(const NumberType1 _base_number, const NumberType2 _exponent_number) noexcept {
     return std::pow(_base_number, _exponent_number);
 }
 

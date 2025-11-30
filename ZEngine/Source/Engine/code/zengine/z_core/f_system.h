@@ -24,9 +24,9 @@ namespace zengine {
 namespace error_code {
 enum FSystemErrorCodeEnum : ReturnType {
     kFSystemErrorCode_LinkError = kErrorCodeBase_FSystem,
-    kFSystemPoolErrorCode_SystemError,
-    kFSystemPoolErrorCode_NullptrParam,
-    kFSystemPoolErrorCode_ParamOutOfRange,
+    kFSystemErrorCode_SystemError,
+    kFSystemErrorCode_NullptrParam,
+    kFSystemErrorCode_ParamOutOfRange,
 };
 }//error_code
 }//zengine

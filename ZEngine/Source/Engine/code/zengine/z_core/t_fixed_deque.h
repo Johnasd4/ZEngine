@@ -49,7 +49,9 @@ public:
         , back_index_(kCapacity - 1ULL)
         , size_(0ULL) {}
     FORCEINLINE constexpr TFixedDeque(const TFixedDeque& _deque) noexcept : SuperType_(_deque){ CopyP(_deque); }
-    FORCEINLINE constexpr TFixedDeque(TFixedDeque&& _deque) noexcept : SuperType_(std::forward<TFixedDeque>(_deque)) {
+    FORCEINLINE constexpr TFixedDeque(TFixedDeque&& _deque) noexcept 
+        : SuperType_(std::forward<TFixedDeque>(_deque)) 
+    {
         MoveP(std::forward<TFixedDeque>(_deque)); 
     }
     FORCEINLINE TFixedDeque(InitializerList _init_list) noexcept 
@@ -70,12 +72,12 @@ public:
         - init_function: The function to initial the deque.
         - ArgsType...: The parameters of the function except for the fisrt.
         Example:
-        constexpr auto init_func = [](TFixedDeque<SizeType, 10ULL>* _deque_ptr) {
+        inline constexpr auto init_func = [](TFixedDeque<SizeType, 10ULL>* _deque_ptr) {
             for (SizeType index = 0ULL; index < _deque_ptr->Size(); ++index) {
                 (*_deque_ptr)[index] = 1ULL;
             }
         };
-        constexpr TFixedDeque<SizeType, 10ULL> test(init_func);
+        inline constexpr TFixedDeque<SizeType, 10ULL> test(init_func);
     */
     template<typename _InitFunction, typename... _ArgsType>
     requires internal::kIsFixedDequeInitFunction<TFixedDeque<_ObjectType, kCapacity>, _InitFunction, _ArgsType...>

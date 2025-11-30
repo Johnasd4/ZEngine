@@ -17,10 +17,9 @@
     Contact: 1152325286@qq.com
 */
 #define CORE_DLLFILE
+#include "drive/d_pch.h"
 
 #include "f_system.h"
-
-#include <shellapi.h>
 
 #include "m_log.h"
 
@@ -69,7 +68,7 @@ CORE_DLLAPI Void RunAsAdmin() noexcept {
         }
         else {
             Z_LOG_ERROR(
-                error_code::kFSystemPoolErrorCode_SystemError, error, 
+                error_code::kFSystemErrorCode_SystemError, error, 
                 L"Unknown system error!"
             );
         }

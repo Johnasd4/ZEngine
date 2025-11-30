@@ -20,29 +20,29 @@
 
 #include "drive.h"
 
-#include "t_vector.h"
+#include "t_array.h"
 #include "z_object.h"
 
 namespace zengine {
 
 /*
-    Vector container.
+    Array container.
 */
 template<typename _ObjectType>
 class TMatrix : public ZObject {
 public:
-    using DataVector_ = TVector<_ObjectType>;
-    using Iterator_ = DataVector_::Iterator_;
-    using ConstIterator_ = DataVector_::ConstIterator_;
-    using ReverseIterator_ = DataVector_::ReverseIterator_;
-    using ConstReverseIterator_ = DataVector_::ConstReverseIterator_;
+    using DataArray_ = TArray<_ObjectType>;
+    using Iterator_ = DataArray_::Iterator_;
+    using ConstIterator_ = DataArray_::ConstIterator_;
+    using ReverseIterator_ = DataArray_::ReverseIterator_;
+    using ConstReverseIterator_ = DataArray_::ConstReverseIterator_;
 
     TMatrix() noexcept : SuperType_(), data_vec_(), row_(0ULL), column_(0ULL) {}
     TMatrix(const TMatrix& _matrix) noexcept 
         : SuperType_(), data_vec_(_matrix.data_vec_), row_(_matrix.row_), column_(_matrix.column_) {}
     TMatrix(TMatrix&& _matrix) noexcept
         : SuperType_()
-        , data_vec_(std::forward<DataVector_>(_matrix.data_vec_))
+        , data_vec_(std::move(_matrix.data_vec_))
         , row_(_matrix.row_)
         , column_(_matrix.column_)
     {
@@ -71,7 +71,7 @@ public:
         SuperType_::operator=(std::forward<TMatrix>(_matrix));
         row_ = _matrix.row_;
         column_ = _matrix.column_;
-        data_vec_ = std::forward<DataVector_>(_matrix.data_vec_);
+        data_vec_ = std::move(_matrix.data_vec_);
         _matrix.row_ = 0ULL;
         _matrix.column_ = 0ULL;
         return *this;
@@ -156,7 +156,7 @@ protected:
     using SuperType_ = ZObject;
 
 private:
-    DataVector_ data_vec_;
+    DataArray_ data_vec_;
     SizeType row_;
     SizeType column_;
 };

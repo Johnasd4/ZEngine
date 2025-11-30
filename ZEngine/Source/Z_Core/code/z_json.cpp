@@ -17,14 +17,9 @@
     Contact: 1152325286@qq.com
 */
 #define CORE_DLLFILE
+#include "drive/d_pch.h"
 
 #include "z_json.h"
-
-#include <rapidjson/document.h>
-#include <rapidjson/writer.h>
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/allocators.h>
-#include <rapidjson/prettywriter.h>
 
 #include "m_log.h" 
 #include "z_file.h"
@@ -33,39 +28,6 @@
 using namespace rapidjson;
 
 namespace zengine {
-
-namespace internal {
-
-class internal::JsonAllocatorP {
-public:
-    static constexpr Bool kNeedFree = true;
-
-    Void* Malloc(SizeType _size) noexcept {
-        if (_size == 0U) {
-            return nullptr;
-        }
-        return memory_pool::ApplyMemory(static_cast<SizeType>(_size));
-    }
-
-    Void* Realloc(Void* _old_ptr, SizeType _old_size, SizeType _new_size) noexcept {
-        if (_new_size == 0U) {
-            memory_pool::ReleaseMemory(_old_ptr);
-            return nullptr;
-        }
-        return memory_pool::ReapplyMemory(_old_ptr, static_cast<SizeType>(_new_size));
-    }
-
-    static Void Free(Void* _mem_ptr) noexcept {
-        memory_pool::ReleaseMemory(_mem_ptr);
-    }
-};
-
-class internal::JsonDocument
-    : public rapidjson::GenericDocument<rapidjson::UTF8<>, internal::JsonAllocator, internal::JsonAllocatorP>
-    , public ZObject
-{};
-
-}//internal
 
 using JsonStringBuffer = rapidjson::GenericStringBuffer<rapidjson::UTF8<>, internal::JsonAllocatorP>;
 
@@ -305,12 +267,12 @@ Void ZJsonValue::AddMember(const Char* _key, const ZJsonValue& _value, Bool _ove
 Void ZJsonValue::AddMember(const Char* _key, ZJsonValue&& _value, Bool _overwrite_exist) noexcept {
     if (json_value_ptr_->HasMember(_key)) {
         (*json_value_ptr_)[_key] = internal::JsonValue(
-            std::forward<internal::JsonValue>(*_value.json_value_ptr_), *json_allocator_ptr_
+            std::move(*_value.json_value_ptr_), *json_allocator_ptr_
         );
     }
     else {
         json_value_ptr_->AddMember(
-            StringRef(_key), std::forward<internal::JsonValue>(*_value.json_value_ptr_), *json_allocator_ptr_
+            StringRef(_key), std::move(*_value.json_value_ptr_), *json_allocator_ptr_
         );
     }
 }
@@ -356,56 +318,56 @@ ZJsonValue::ZJsonValue(ZJsonValue&& _value) noexcept
     _value.json_allocator_ptr_ = nullptr;
 }
 
-ZJsonValue::ZJsonValue(const Char* _key, Bool _value, ZJsonDocument& _json_doc) noexcept
+ZJsonValue::ZJsonValue(const Char* _key, Bool _value) noexcept
     : json_value_ptr_(new internal::JsonValue())
     , json_allocator_ptr_(nullptr)
 {
     json_value_ptr_->SetObject();
     json_value_ptr_->AddMember(StringRef(_key), _value, *json_allocator_ptr_);
 }
-ZJsonValue::ZJsonValue(const Char* _key, Int32 _value, ZJsonDocument& _json_doc) noexcept
+ZJsonValue::ZJsonValue(const Char* _key, Int32 _value) noexcept
     : json_value_ptr_(new internal::JsonValue())
     , json_allocator_ptr_(nullptr)
 {
     json_value_ptr_->SetObject();
     json_value_ptr_->AddMember(StringRef(_key), _value, *json_allocator_ptr_);
 }
-ZJsonValue::ZJsonValue(const Char* _key, Int64 _value, ZJsonDocument& _json_doc) noexcept
+ZJsonValue::ZJsonValue(const Char* _key, Int64 _value) noexcept
     : json_value_ptr_(new internal::JsonValue())
     , json_allocator_ptr_(nullptr)
 {
     json_value_ptr_->SetObject();
     json_value_ptr_->AddMember(StringRef(_key), _value, *json_allocator_ptr_);
 }
-ZJsonValue::ZJsonValue(const Char* _key, UInt32 _value, ZJsonDocument& _json_doc) noexcept
+ZJsonValue::ZJsonValue(const Char* _key, UInt32 _value) noexcept
     : json_value_ptr_(new internal::JsonValue())
     , json_allocator_ptr_(nullptr)
 {
     json_value_ptr_->SetObject();
     json_value_ptr_->AddMember(StringRef(_key), _value, *json_allocator_ptr_);
 }
-ZJsonValue::ZJsonValue(const Char* _key, UInt64 _value, ZJsonDocument& _json_doc) noexcept
+ZJsonValue::ZJsonValue(const Char* _key, UInt64 _value) noexcept
     : json_value_ptr_(new internal::JsonValue())
     , json_allocator_ptr_(nullptr)
 {
     json_value_ptr_->SetObject();
     json_value_ptr_->AddMember(StringRef(_key), _value, *json_allocator_ptr_);
 }
-ZJsonValue::ZJsonValue(const Char* _key, Float32 _value, ZJsonDocument& _json_doc) noexcept
+ZJsonValue::ZJsonValue(const Char* _key, Float32 _value) noexcept
     : json_value_ptr_(new internal::JsonValue())
     , json_allocator_ptr_(nullptr)
 {
     json_value_ptr_->SetObject();
     json_value_ptr_->AddMember(StringRef(_key), _value, *json_allocator_ptr_);
 }
-ZJsonValue::ZJsonValue(const Char* _key, Float64 _value, ZJsonDocument& _json_doc) noexcept
+ZJsonValue::ZJsonValue(const Char* _key, Float64 _value) noexcept
     : json_value_ptr_(new internal::JsonValue())
     , json_allocator_ptr_(nullptr)
 {
     json_value_ptr_->SetObject();
     json_value_ptr_->AddMember(StringRef(_key), _value, *json_allocator_ptr_);
 }
-ZJsonValue::ZJsonValue(const Char* _key, const Char* _value, ZJsonDocument& _json_doc) noexcept
+ZJsonValue::ZJsonValue(const Char* _key, const Char* _value) noexcept
     : json_value_ptr_(new internal::JsonValue())
     , json_allocator_ptr_(nullptr)
 {
@@ -416,319 +378,298 @@ ZJsonValue::ZJsonValue(const Char* _key, const Char* _value, ZJsonDocument& _jso
         *json_allocator_ptr_
     );
 }
-ZJsonValue::ZJsonValue(const Char* _key, const ZJsonValue& _value, ZJsonDocument& _json_doc) noexcept
+ZJsonValue::ZJsonValue(const Char* _key, const ZJsonValue& _value) noexcept
     : json_value_ptr_(new internal::JsonValue())
     , json_allocator_ptr_(nullptr)
 {
     json_value_ptr_->SetObject();
     json_value_ptr_->AddMember(StringRef(_key), *_value.json_value_ptr_, *json_allocator_ptr_);
 }
-ZJsonValue::ZJsonValue(const Char* _key, ZJsonValue&& _value, ZJsonDocument& _json_doc) noexcept
+ZJsonValue::ZJsonValue(const Char* _key, ZJsonValue&& _value) noexcept
     : json_value_ptr_(new internal::JsonValue())
     , json_allocator_ptr_(nullptr)
 {
     json_value_ptr_->SetObject();
     json_value_ptr_->AddMember(
-        StringRef(_key), std::forward<internal::JsonValue>(*_value.json_value_ptr_),
+        StringRef(_key), std::move(*_value.json_value_ptr_),
         *json_allocator_ptr_
     );
 }
 
 ZJsonDocument::ZJsonDocument() noexcept
-    : json_doc_ptr_()
+    : json_doc_()
 {}
 ZJsonDocument::ZJsonDocument(ZJsonDocument&& _value) noexcept
-    : json_doc_ptr_(_value.json_doc_ptr_)
-{
-    _value.json_doc_ptr_ = nullptr;
-}
-
+    : json_doc_(std::move(_value.json_doc_))
+{}
 ZJsonDocument::ZJsonDocument(const Char* _key, Bool _value) noexcept
-    : json_doc_ptr_(new internal::JsonDocument())
+    : json_doc_()
 {
-    json_doc_ptr_->SetObject();
-    json_doc_ptr_->AddMember(StringRef(_key), _value, json_doc_ptr_->GetAllocator());
+    json_doc_.SetObject();
+    json_doc_.AddMember(StringRef(_key), _value, json_doc_.GetAllocator());
 }
 ZJsonDocument::ZJsonDocument(const Char* _key, Int32 _value) noexcept
-    : json_doc_ptr_(new internal::JsonDocument())
+    : json_doc_()
 {
-    json_doc_ptr_->SetObject();
-    json_doc_ptr_->AddMember(StringRef(_key), _value, json_doc_ptr_->GetAllocator());
+    json_doc_.SetObject();
+    json_doc_.AddMember(StringRef(_key), _value, json_doc_.GetAllocator());
 }
 ZJsonDocument::ZJsonDocument(const Char* _key, Int64 _value) noexcept
-    : json_doc_ptr_(new internal::JsonDocument())
+    : json_doc_()
 {
-    json_doc_ptr_->SetObject();
-    json_doc_ptr_->AddMember(StringRef(_key), _value, json_doc_ptr_->GetAllocator());
+    json_doc_.SetObject();
+    json_doc_.AddMember(StringRef(_key), _value, json_doc_.GetAllocator());
 }
 ZJsonDocument::ZJsonDocument(const Char* _key, UInt32 _value) noexcept
-    : json_doc_ptr_(new internal::JsonDocument())
+    : json_doc_()
 {
-    json_doc_ptr_->SetObject();
-    json_doc_ptr_->AddMember(StringRef(_key), _value, json_doc_ptr_->GetAllocator());
+    json_doc_.SetObject();
+    json_doc_.AddMember(StringRef(_key), _value, json_doc_.GetAllocator());
 }
 ZJsonDocument::ZJsonDocument(const Char* _key, UInt64 _value) noexcept
-    : json_doc_ptr_(new internal::JsonDocument())
+    : json_doc_()
 {
-    json_doc_ptr_->SetObject();
-    json_doc_ptr_->AddMember(StringRef(_key), _value, json_doc_ptr_->GetAllocator());
+    json_doc_.SetObject();
+    json_doc_.AddMember(StringRef(_key), _value, json_doc_.GetAllocator());
 }
 ZJsonDocument::ZJsonDocument(const Char* _key, Float32 _value) noexcept
-    : json_doc_ptr_(new internal::JsonDocument())
+    : json_doc_()
 {
-    json_doc_ptr_->SetObject();
-    json_doc_ptr_->AddMember(StringRef(_key), _value, json_doc_ptr_->GetAllocator());
+    json_doc_.SetObject();
+    json_doc_.AddMember(StringRef(_key), _value, json_doc_.GetAllocator());
 }
 ZJsonDocument::ZJsonDocument(const Char* _key, Float64 _value) noexcept
-    : json_doc_ptr_(new internal::JsonDocument())
+    : json_doc_()
 {
-    json_doc_ptr_->SetObject();
-    json_doc_ptr_->AddMember(StringRef(_key), _value, json_doc_ptr_->GetAllocator());
+    json_doc_.SetObject();
+    json_doc_.AddMember(StringRef(_key), _value, json_doc_.GetAllocator());
 }
 ZJsonDocument::ZJsonDocument(const Char* _key, const Char* _value) noexcept
-    : json_doc_ptr_(new internal::JsonDocument())
+    : json_doc_()
 {
-    json_doc_ptr_->SetObject();
-    json_doc_ptr_->AddMember(
+    json_doc_.SetObject();
+    json_doc_.AddMember(
         StringRef(_key), 
-        internal::JsonValue(_value, json_doc_ptr_->GetAllocator()), 
-        json_doc_ptr_->GetAllocator()
+        internal::JsonValue(_value, json_doc_.GetAllocator()), 
+        json_doc_.GetAllocator()
     );
 }
 ZJsonDocument::ZJsonDocument(const Char* _key, const ZJsonValue& _value) noexcept
-    : json_doc_ptr_(new internal::JsonDocument())
+    : json_doc_()
 {
-    json_doc_ptr_->SetObject();
-    json_doc_ptr_->AddMember(StringRef(_key), *_value.json_value_ptr_, json_doc_ptr_->GetAllocator());
+    json_doc_.SetObject();
+    json_doc_.AddMember(StringRef(_key), *_value.json_value_ptr_, json_doc_.GetAllocator());
 }
 ZJsonDocument::ZJsonDocument(const Char* _key, ZJsonValue&& _value) noexcept
-    : json_doc_ptr_(new internal::JsonDocument())
+    : json_doc_()
 {
-    json_doc_ptr_->SetObject();
-    json_doc_ptr_->AddMember(
-        StringRef(_key), std::forward<internal::JsonValue>(*_value.json_value_ptr_), json_doc_ptr_->GetAllocator()
+    json_doc_.SetObject();
+    json_doc_.AddMember(
+        StringRef(_key), std::move(*_value.json_value_ptr_), json_doc_.GetAllocator()
     );
 }
-ZJsonDocument::ZJsonDocument(const Char* _key, const ZJsonDocument& _value) noexcept
-    : json_doc_ptr_(new internal::JsonDocument())
+ZJsonDocument::ZJsonDocument(const Char* _key, const ZJsonDocument& _doc) noexcept
+    : json_doc_()
 {
-    json_doc_ptr_->SetObject();
-    json_doc_ptr_->AddMember(StringRef(_key), *_value.json_doc_ptr_, json_doc_ptr_->GetAllocator());
+    json_doc_.SetObject();
+    json_doc_.AddMember(
+        StringRef(_key), 
+        internal::JsonValue(_doc.json_doc_, json_doc_.GetAllocator()),
+        json_doc_.GetAllocator()
+    );
 }
-ZJsonDocument::ZJsonDocument(const Char* _key, ZJsonDocument&& _value) noexcept
-    : json_doc_ptr_(new internal::JsonDocument())
+ZJsonDocument::ZJsonDocument(const Char* _key, ZJsonDocument&& _doc) noexcept
+    : json_doc_()
 {
-    json_doc_ptr_->SetObject();
-    json_doc_ptr_->AddMember(
-        StringRef(_key), std::forward<internal::JsonValue>(*_value.json_doc_ptr_), json_doc_ptr_->GetAllocator()
+    json_doc_.SetObject();
+    json_doc_.AddMember(
+        StringRef(_key), std::move(_doc.json_doc_), json_doc_.GetAllocator()
     );
 }
 
-ZJsonDocument::~ZJsonDocument() noexcept {
-    if (json_doc_ptr_ != nullptr) {
-        delete json_doc_ptr_;
-    }
-}
+ZJsonDocument::~ZJsonDocument() noexcept {}
 
-ZJsonDocument& ZJsonDocument::operator=(ZJsonDocument&& _value) noexcept {
-    if (json_doc_ptr_ != nullptr) {
-        delete json_doc_ptr_;
-    }
-    json_doc_ptr_ = _value.json_doc_ptr_;
-    _value.json_doc_ptr_ = nullptr;
+ZJsonDocument& ZJsonDocument::operator=(ZJsonDocument&& _doc) noexcept {
+    json_doc_ = std::move(_doc.json_doc_);
     return *this;
 }
 
 NODISCARD ZJsonValue ZJsonDocument::operator[](const Char* _key) noexcept {
-    CheckPointerP();
     if (!HasMember(_key)) {
-        json_doc_ptr_->AddMember(StringRef(_key), 0, json_doc_ptr_->GetAllocator());
+        json_doc_.AddMember(StringRef(_key), 0, json_doc_.GetAllocator());
     }
     ZJsonValue value;
-    value.json_value_ptr_ = &(*json_doc_ptr_)[_key];
-    value.json_allocator_ptr_ = &json_doc_ptr_->GetAllocator();
+    value.json_value_ptr_ = &json_doc_[_key];
+    value.json_allocator_ptr_ = &json_doc_.GetAllocator();
     return value;
 }
 
 NODISCARD const ZJsonValue ZJsonDocument::operator[](const Char* _key) const noexcept {
-    const_cast<ZJsonDocument*>(this)->CheckPointerP();
     if (!HasMember(_key)) {
-        json_doc_ptr_->AddMember(StringRef(_key), 0, json_doc_ptr_->GetAllocator());
+        &const_cast<ZJsonDocument*>(this)->json_doc_.AddMember(
+            StringRef(_key), 
+            0, 
+            const_cast<ZJsonDocument*>(this)->json_doc_.GetAllocator()
+        );
     }
     ZJsonValue value;
-    value.json_value_ptr_ = &(*json_doc_ptr_)[_key];
-    value.json_allocator_ptr_ = &json_doc_ptr_->GetAllocator();
+    value.json_value_ptr_ = &const_cast<ZJsonDocument*>(this)->json_doc_[_key];
+    value.json_allocator_ptr_ = &const_cast<ZJsonDocument*>(this)->json_doc_.GetAllocator();
     return value;
 }
 
 Void ZJsonDocument::AddMember(const Char* _key, Bool _value, Bool _overwrite_exist) noexcept {
-    CheckPointerP();
-    if (json_doc_ptr_->HasMember(_key)) {
+    if (json_doc_.HasMember(_key)) {
         if (_overwrite_exist) {
-            (*json_doc_ptr_)[_key] = _value;
+            json_doc_[_key] = _value;
         }
     }
     else {
-        json_doc_ptr_->AddMember(StringRef(_key), _value, json_doc_ptr_->GetAllocator());
+        json_doc_.AddMember(StringRef(_key), _value, json_doc_.GetAllocator());
     }
 }
 Void ZJsonDocument::AddMember(const Char* _key, Int32 _value, Bool _overwrite_exist) noexcept {
-    CheckPointerP();
-    if (json_doc_ptr_->HasMember(_key)) {
+    if (json_doc_.HasMember(_key)) {
         if (_overwrite_exist) {
-            (*json_doc_ptr_)[_key] = _value;
+            json_doc_[_key] = _value;
         }
     }
     else {
-        json_doc_ptr_->AddMember(StringRef(_key), _value, json_doc_ptr_->GetAllocator());
+        json_doc_.AddMember(StringRef(_key), _value, json_doc_.GetAllocator());
     }
 }
 Void ZJsonDocument::AddMember(const Char* _key, Int64 _value, Bool _overwrite_exist) noexcept {
-    CheckPointerP();
-    if (json_doc_ptr_->HasMember(_key)) {
+    if (json_doc_.HasMember(_key)) {
         if (_overwrite_exist) {
-            (*json_doc_ptr_)[_key] = _value;
+            json_doc_[_key] = _value;
         }
     }
     else {
-        json_doc_ptr_->AddMember(StringRef(_key), _value, json_doc_ptr_->GetAllocator());
+        json_doc_.AddMember(StringRef(_key), _value, json_doc_.GetAllocator());
     }
 }
 Void ZJsonDocument::AddMember(const Char* _key, UInt32 _value, Bool _overwrite_exist) noexcept {
-    CheckPointerP();
-    if (json_doc_ptr_->HasMember(_key)) {
+    if (json_doc_.HasMember(_key)) {
         if (_overwrite_exist) {
-            (*json_doc_ptr_)[_key] = _value;
+            json_doc_[_key] = _value;
         }
     }
     else {
-        json_doc_ptr_->AddMember(StringRef(_key), _value, json_doc_ptr_->GetAllocator());
+        json_doc_.AddMember(StringRef(_key), _value, json_doc_.GetAllocator());
     }
 }
 Void ZJsonDocument::AddMember(const Char* _key, UInt64 _value, Bool _overwrite_exist) noexcept {
-    CheckPointerP();
-    if (json_doc_ptr_->HasMember(_key)) {
+    if (json_doc_.HasMember(_key)) {
         if (_overwrite_exist) {
-            (*json_doc_ptr_)[_key] = _value;
+            json_doc_[_key] = _value;
         }
     }
     else {
-        json_doc_ptr_->AddMember(StringRef(_key), _value, json_doc_ptr_->GetAllocator());
+        json_doc_.AddMember(StringRef(_key), _value, json_doc_.GetAllocator());
     }
 }
 Void ZJsonDocument::AddMember(const Char* _key, Float32 _value, Bool _overwrite_exist) noexcept {
-    CheckPointerP();
-    if (json_doc_ptr_->HasMember(_key)) {
+    if (json_doc_.HasMember(_key)) {
         if (_overwrite_exist) {
-            (*json_doc_ptr_)[_key] = _value;
+            json_doc_[_key] = _value;
         }
     }
     else {
-        json_doc_ptr_->AddMember(StringRef(_key), _value, json_doc_ptr_->GetAllocator());
+        json_doc_.AddMember(StringRef(_key), _value, json_doc_.GetAllocator());
     }
 }
 Void ZJsonDocument::AddMember(const Char* _key, Float64 _value, Bool _overwrite_exist) noexcept {
-    CheckPointerP();
-    if (json_doc_ptr_->HasMember(_key)) {
+    if (json_doc_.HasMember(_key)) {
         if (_overwrite_exist) {
-            (*json_doc_ptr_)[_key] = _value;
+            json_doc_[_key] = _value;
         }
     }
     else {
-        json_doc_ptr_->AddMember(StringRef(_key), _value, json_doc_ptr_->GetAllocator());
+        json_doc_.AddMember(StringRef(_key), _value, json_doc_.GetAllocator());
     }
 }
 Void ZJsonDocument::AddMember(const Char* _key, const Char* _value, Bool _overwrite_exist) noexcept {
-    CheckPointerP();
-    if (json_doc_ptr_->HasMember(_key)) {
+    if (json_doc_.HasMember(_key)) {
         if (_overwrite_exist) {
-            (*json_doc_ptr_)[_key] = internal::JsonValue(_value, json_doc_ptr_->GetAllocator());
+            json_doc_[_key] = internal::JsonValue(_value, json_doc_.GetAllocator());
         }
     }
     else {
-        json_doc_ptr_->AddMember(
+        json_doc_.AddMember(
             StringRef(_key), 
-            internal::JsonValue(_value, json_doc_ptr_->GetAllocator()), 
-            json_doc_ptr_->GetAllocator()
+            internal::JsonValue(_value, json_doc_.GetAllocator()), 
+            json_doc_.GetAllocator()
         );
     }
 }
 Void ZJsonDocument::AddMember(const Char* _key, const ZJsonValue& _value, Bool _overwrite_exist) noexcept {
-    CheckPointerP();
-    if (json_doc_ptr_->HasMember(_key)) {
+    if (json_doc_.HasMember(_key)) {
         if (_overwrite_exist) {
-            (*json_doc_ptr_)[_key] = internal::JsonValue(*_value.json_value_ptr_, json_doc_ptr_->GetAllocator());
+            json_doc_[_key] = internal::JsonValue(*_value.json_value_ptr_, json_doc_.GetAllocator());
         }
     }
     else {
-        json_doc_ptr_->AddMember(StringRef(_key), *_value.json_value_ptr_, json_doc_ptr_->GetAllocator());
+        json_doc_.AddMember(
+            StringRef(_key), 
+            internal::JsonValue(*_value.json_value_ptr_, json_doc_.GetAllocator()),
+            json_doc_.GetAllocator()
+        );
     }
 }
 Void ZJsonDocument::AddMember(const Char* _key, ZJsonValue&& _value, Bool _overwrite_exist) noexcept {
-    CheckPointerP();
-    if (json_doc_ptr_->HasMember(_key)) {
+    if (json_doc_.HasMember(_key)) {
         if (_overwrite_exist) {
-            (*json_doc_ptr_)[_key] = internal::JsonValue(
-                std::forward<internal::JsonValue>(*_value.json_value_ptr_), json_doc_ptr_->GetAllocator()
+            json_doc_[_key] = internal::JsonValue(
+                std::move(*_value.json_value_ptr_), json_doc_.GetAllocator()
             );
         }
     }
     else {
-        json_doc_ptr_->AddMember(
-            StringRef(_key), std::forward<internal::JsonValue>(*_value.json_value_ptr_), json_doc_ptr_->GetAllocator()
+        json_doc_.AddMember(
+            StringRef(_key), 
+            std::move(*_value.json_value_ptr_),
+            json_doc_.GetAllocator()
         );
     }
 }
-Void ZJsonDocument::AddMember(const Char* _key, const ZJsonDocument& _value, Bool _overwrite_exist) noexcept {
-    CheckPointerP();
-    if (json_doc_ptr_->HasMember(_key)) {
+Void ZJsonDocument::AddMember(const Char* _key, const ZJsonDocument& _doc, Bool _overwrite_exist) noexcept {
+    if (json_doc_.HasMember(_key)) {
         if (_overwrite_exist) {
-            (*json_doc_ptr_)[_key] = internal::JsonValue(*_value.json_doc_ptr_, json_doc_ptr_->GetAllocator());
+            json_doc_[_key] = internal::JsonValue(_doc.json_doc_, json_doc_.GetAllocator());
         }
     }
     else {
-        json_doc_ptr_->AddMember(StringRef(_key), *_value.json_doc_ptr_, json_doc_ptr_->GetAllocator());
+        json_doc_.AddMember(
+            StringRef(_key), 
+            internal::JsonValue(_doc.json_doc_, json_doc_.GetAllocator()),
+            json_doc_.GetAllocator()
+        );
     }
 }
-Void ZJsonDocument::AddMember(const Char* _key, ZJsonDocument&& _value, Bool _overwrite_exist) noexcept {
-    CheckPointerP();
-    if (json_doc_ptr_->HasMember(_key)) {
+Void ZJsonDocument::AddMember(const Char* _key, ZJsonDocument&& _doc, Bool _overwrite_exist) noexcept {
+    if (json_doc_.HasMember(_key)) {
         if (_overwrite_exist) {
-            (*json_doc_ptr_)[_key] = internal::JsonValue(
-                std::forward<internal::JsonValue>(*_value.json_doc_ptr_), json_doc_ptr_->GetAllocator()
+            json_doc_[_key] = internal::JsonValue(
+                std::move(_doc.json_doc_), json_doc_.GetAllocator()
             );
         }
     }
     else {
-        json_doc_ptr_->AddMember(
-            StringRef(_key), std::forward<internal::JsonValue>(*_value.json_doc_ptr_), json_doc_ptr_->GetAllocator()
+        json_doc_.AddMember(
+            StringRef(_key), std::move(_doc.json_doc_), json_doc_.GetAllocator()
         );
     }
 }
 
-NODISCARD Bool ZJsonDocument::RemoveMember(const Char* _key) noexcept {
-    return json_doc_ptr_ ? json_doc_ptr_->RemoveMember(_key) : false;
-}
-
-NODISCARD Bool ZJsonDocument::HasMember(const Char* _key) const noexcept {
-    return json_doc_ptr_ ? json_doc_ptr_->HasMember(_key) : false;
-}
-
-Void ZJsonDocument::Clear() noexcept {
-    if (json_doc_ptr_) {
-        json_doc_ptr_->Clear();
-    }
-}
 
 NODISCARD ReturnType ZJsonDocument::Parse(const Char* _str) noexcept {
-    CheckPointerP();
     ReturnType ret_val = kOK;
 
-    json_doc_ptr_->Parse(_str);
+    json_doc_.Parse(_str);
 
-    if (json_doc_ptr_->HasParseError()) {
+    if (json_doc_.HasParseError()) {
         ret_val = error_code::kZJsonErrorCode_JsonParseError;
-        Z_LOG_ERROR(ret_val, 0, L"Json prase error! pos: %d", json_doc_ptr_->GetErrorOffset());
+        Z_LOG_ERROR(ret_val, 0, L"Json prase error! pos: %d", json_doc_.GetErrorOffset());
         return ret_val;
     }
 
@@ -736,7 +677,7 @@ NODISCARD ReturnType ZJsonDocument::Parse(const Char* _str) noexcept {
 }
 
 NODISCARD ZString ZJsonDocument::GenerateJsonString() const noexcept {
-    if (json_doc_ptr_ == nullptr) {
+    if (json_doc_.IsNull()) {
         return ZString("");
     }
 
@@ -744,7 +685,7 @@ NODISCARD ZString ZJsonDocument::GenerateJsonString() const noexcept {
     JsonStringBuffer buffer;
     rapidjson::PrettyWriter<JsonStringBuffer> writer(buffer);
     writer.SetIndent(' ', 4);
-    json_doc_ptr_->Accept(writer);
+    json_doc_.Accept(writer);
     ZString str = buffer.GetString();
 
     return str;
@@ -766,16 +707,16 @@ NODISCARD ReturnType ZJsonDocument::ReadFile(const WChar* _path_dir) noexcept {
     //read json string from the file
     Int32 json_str_size = static_cast<Int32>(file.Size());
     ZMemory json_raw_str(json_str_size + 1);
-    link_code = file.Read(json_raw_str.DataPtr<Void*>(), json_str_size);
+    link_code = file.Read(json_raw_str.DataPtr<Void>(), json_str_size);
     if (link_code != kOK) {
         ret_val = error_code::kZJsonErrorCode_LinkError;
         Z_LOG_ERROR(ret_val, link_code, L"ZFile::Read() link error!");
         return ret_val;
     }
-    json_raw_str.DataPtr<Char*>()[json_str_size] = '\0';
+    json_raw_str.DataPtr<Char>()[json_str_size] = '\0';
 
     //parse the string
-    link_code = Parse(json_raw_str.DataPtr<Char*>());
+    link_code = Parse(json_raw_str.DataPtr<Char>());
     if (link_code != kOK) {
         ret_val = error_code::kZJsonErrorCode_LinkError;
         Z_LOG_ERROR(ret_val, link_code, L"ZJsonDocument::Parse() link error!");
@@ -794,7 +735,6 @@ NODISCARD ReturnType ZJsonDocument::ReadFile(const WChar* _path_dir) noexcept {
 }
 
 NODISCARD ReturnType ZJsonDocument::WriteFile(const WChar* _path_dir) noexcept {
-    CheckPointerP();
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
     ZFile file;
@@ -826,13 +766,6 @@ NODISCARD ReturnType ZJsonDocument::WriteFile(const WChar* _path_dir) noexcept {
         return ret_val;
     }
     return ret_val;
-}
-
-Void ZJsonDocument::CheckPointerP() noexcept {
-    if (json_doc_ptr_ == nullptr) {
-        json_doc_ptr_ = new internal::JsonDocument();
-        json_doc_ptr_->SetObject();
-    }
 }
 
 }//zengine

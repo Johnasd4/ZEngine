@@ -17,6 +17,7 @@
     Contact: 1152325286@qq.com
 */
 #define TSRPG_DLLFILE
+#include "drive/d_pch.h"
 
 #include "scene_event/z_move_tile_scene_event.h"
 
@@ -30,14 +31,14 @@ namespace tsrpg {
 
 ZMoveTileSceneEvent::ZMoveTileSceneEvent() noexcept
     : SuperType_()
-    , move_params_vector_()
+    , move_params_array_()
 {}
 
 ZMoveTileSceneEvent::~ZMoveTileSceneEvent() noexcept {}
 
 Void ZMoveTileSceneEvent::Destroy() noexcept {
     SuperType_::Destroy();
-    move_params_vector_.Clear();
+    move_params_array_.Clear();
 }
 
 NODISCARD ReturnType ZMoveTileSceneEvent::Initialize(
@@ -56,7 +57,7 @@ NODISCARD ReturnType ZMoveTileSceneEvent::Initialize(
         return ret_val;
     }
 
-    LogicVector3D target_logic_vector;
+    LogicVector3D target_logic_array;
     ZTile* tile_ptr;
     link_code = lua::GetLuaObjectFormLuaTable(_event_params, 1, &tile_ptr);
     if (link_code != kOK) {
@@ -66,7 +67,7 @@ NODISCARD ReturnType ZMoveTileSceneEvent::Initialize(
             L"lua::GetLuaObjectFormLuaTable() link error!");
         return ret_val;
     }
-    link_code = lua::GetLuaObjectFormLuaTable(_event_params, 2, &target_logic_vector);
+    link_code = lua::GetLuaObjectFormLuaTable(_event_params, 2, &target_logic_array);
     if (link_code != kOK) {
         ret_val = error_code::kZSceneEventErrorCode_LinkError;
         Z_LOG_ERROR(
@@ -87,10 +88,10 @@ NODISCARD ReturnType ZMoveTileSceneEvent::Initialize(
     ZDisplayTile* display_tile_ptr = logic_tile_ptr->display_tile_head_ptr_;
     while (display_tile_ptr != nullptr) {
         ZDisplayBoard* display_board_ptr = static_cast<ZDisplayBoard*>(display_tile_ptr->owner_board_ptr_);
-        move_params_vector_.PushBack(MoveParams_(
+        move_params_array_.PushBack(MoveParams_(
             display_tile_ptr,
             display_tile_ptr->pos_,
-            display_board_ptr->CalculateDisplayVectorByLogicVector(target_logic_vector - logic_tile_ptr->pos_)
+            display_board_ptr->CalculateDisplayVectorByLogicVector(target_logic_array - logic_tile_ptr->pos_)
         ));
     }
     return ret_val;
@@ -108,7 +109,7 @@ NODISCARD ReturnType ZMoveTileSceneEvent::Execute(Float32 _delta_time) noexcept 
         return ret_val;
     }
     //TODO: Tiles might be destroyed during the event, do something.
-    if (move_params_vector_.Size() == 0) {
+    if (move_params_array_.Size() == 0) {
         link_code = FinishImmediately();
         return ret_val;
     }
@@ -129,8 +130,8 @@ NODISCARD ReturnType ZMoveTileSceneEvent::Execute(Float32 _delta_time) noexcept 
 }
 
 Void ZMoveTileSceneEvent::MoveP(ZMoveTileSceneEvent&& _event) noexcept {
-    move_params_vector_ = std::move(_event.move_params_vector_);
-    _event.move_params_vector_.Clear();
+    move_params_array_ = std::move(_event.move_params_array_);
+    _event.move_params_array_.Clear();
 }
 
 }//tsrpg

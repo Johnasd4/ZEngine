@@ -29,7 +29,7 @@
 
 namespace zengine {
 namespace error_code {
-enum ZStringErrorCode : ReturnType {
+enum ZStringErrorCodeEnum : ReturnType {
     kZStringErrorCode_LinkError = kErrorCodeBase_ZString,
     kZStringErrorCode_SystemError,
     kZStringErrorCode_NullptrParam,
@@ -57,7 +57,7 @@ public:
     using ConstReverseIterator_ = STDString_::const_reverse_iterator;
     using InitializerList_ = std::initializer_list<_CharType>;
 
-    static constexpr SizeType kFindEnd = std::string::npos;
+    static inline constexpr SizeType kFindEnd = std::string::npos;
 
     FORCEINLINE constexpr TString() noexcept : SuperType_(), str_() {}
     FORCEINLINE constexpr TString(const TString& _str) noexcept : SuperType_(_str), str_(_str.str_) {}

@@ -23,10 +23,10 @@
 #include "../z_core/t_atom.h"
 #include "../z_core/t_function.h"
 #include "../z_core/t_smart_pointer.h"
+#include "../z_core/z_buffer.h"
 #include "../z_core/z_object.h"
 #include "../z_core/z_string_view.h"
 
-#include "z_buffer.h"
 #include "z_tcp_endpoint.h"
 
 namespace zengine {
@@ -45,18 +45,20 @@ namespace socket {
 /*
     TCP socket type.
     Contains a extra ptr that can be linked to any object. Call LinkObjectPtr<_ObjectType>() to get the object ptr.
+    Open -> Bind(Optional) -> Connect -> Read/Write -> Close
 */
 class SOCKET_DLLAPI ZTCPSocket : public ZObject {
 public:
-    static constexpr Int32 kConnectRetryForever = kInt32Max;
+    static inline constexpr Int32 kConnectRetryForever = kInt32Max;
 
 public:
-    enum State_ : Int32 {
-        ZTCPSocketState_Uninitialized,
-        ZTCPSocketState_Idle,
-        ZTCPSocketState_Connecting,
-        ZTCPSocketState_Connected,
-        ZTCPSocketState_Error
+    enum class StateEnum_ : Int32 {
+        kUninitialized,
+        kClosed,
+        kOpened,
+        kConnecting,
+        kConnected,
+        kError
     };
 
     ZTCPSocket() noexcept;
@@ -69,17 +71,23 @@ public:
     ZTCPSocket& operator=(const ZTCPSocket& _socket) noexcept;
     ZTCPSocket& operator=(ZTCPSocket&& _socket) noexcept;
 
-    NODISCARD FORCEINLINE State_ State()const  noexcept { return state_.Value(); }
+    NODISCARD FORCEINLINE StateEnum_ State()const  noexcept { return state_.Value(); }
     NODISCARD FORCEINLINE ZIOContext* IOContextPtr() const noexcept { return io_context_ptr_; }
     template<typename _ObjectType>
     NODISCARD FORCEINLINE _ObjectType* LinkObjectPtr() const noexcept { return link_object_ptr_; }
 
-    NODISCARD const ZTCPEndpoint& RemoteEndpoint() const noexcept;
+    NODISCARD ZTCPEndpoint LocalEndpoint() const noexcept;
+    NODISCARD ZTCPEndpoint RemoteEndpoint() const noexcept;
 
     /*
         Initialize socket.
     */
     NODISCARD ReturnType Initialize(ZIOContext* _io_context_ptr) noexcept;
+
+    /*
+        Open the socket.
+    */
+    NODISCARD ReturnType Open(IPTypeEnum _ip_type) noexcept;
 
     /*
         Bind endpoint. Call before connected.
@@ -94,11 +102,16 @@ public:
         Sets os read buffer size. Call after connected.
     */
     NODISCARD ReturnType SetOSReadBufferSize(Int32 _size) noexcept;
+    /*
+        Set if address is reuseable. If true, can bind multiple sockets to the same address. 
+        Call before binding endpoint. Must be called on all sockets that bind to the same address.
+    */
+    NODISCARD ReturnType SetIfReuseAddress(Bool _if_reuse) noexcept;
 
     /*
         Sets the aysnc error handle func, called when aysnc error happens.
     */
-    NODISCARD Void SetAsyncErrorHandleFunction(TFunction<Void()>&& _handle_func) noexcept;
+    NODISCARD Void SetAsyncErrorHandleFunction(TFunction<Void(ReturnType)>&& _handle_func) noexcept;
 
     /*
         Cancel async operation.
@@ -155,7 +168,7 @@ public:
         Read data until match char. Will suspend the current thread until data read.
     */
     NODISCARD ReturnType ReadUntil(
-        ZBufferStream* _buffer_ptr,
+        ZSocketBufferStream* _buffer_ptr,
         Char _match_char,
         SizeType* _data_size_ptr = nullptr
     ) noexcept;
@@ -164,7 +177,7 @@ public:
         Read data until match string. Will suspend the current thread until data read.
     */
     NODISCARD ReturnType ReadUntil(
-        ZBufferStream* _buffer_ptr,
+        ZSocketBufferStream* _buffer_ptr,
         const Char* _match_str,
         SizeType* _data_size_ptr = nullptr
     ) noexcept;
@@ -172,30 +185,30 @@ public:
     /*
         Read data until match char. Will not suspend the current thread.
         _handle_func only needs to handle the read data.
-        _handle_func(ReturnType _error_code, ZTCPSocket* _socket_ptr, ZBufferStream* _buffer_stream_ptr)
+        _handle_func(ReturnType _error_code, ZTCPSocket* _socket_ptr, ZSocketBufferStream* _buffer_stream_ptr)
     */
     NODISCARD ReturnType AsyncReadUntil(
-        ZBufferStream* _buffer_ptr,
+        ZSocketBufferStream* _buffer_ptr,
         Char _match_char,
-        const TFunction<Void(ReturnType, ZTCPSocket*, ZBufferStream*)>& _handle_func
+        const TFunction<Void(ReturnType, ZTCPSocket*, ZSocketBufferStream*)>& _handle_func
     ) noexcept;
 
     /*
         Read data until match string. Will not suspend the current thread.
         _handle_func only needs to handle the read data.
-        _handle_func(ReturnType _error_code, ZTCPSocket* _socket_ptr, ZBufferStream* _buffer_stream_ptr)
+        _handle_func(ReturnType _error_code, ZTCPSocket* _socket_ptr, ZSocketBufferStream* _buffer_stream_ptr)
     */
     NODISCARD ReturnType AsyncReadUntil(
-        ZBufferStream* _buffer_ptr,
+        ZSocketBufferStream* _buffer_ptr,
         const Char* _match_str,
-        const TFunction<Void(ReturnType, ZTCPSocket*, ZBufferStream*)>& _handle_func
+        const TFunction<Void(ReturnType, ZTCPSocket*, ZSocketBufferStream*)>& _handle_func
     ) noexcept;
 
     /*
         Read data until close. Will suspend the current thread until close.
     */
     NODISCARD ReturnType ReadUntilClose(
-        ZBufferStream* _buffer_ptr,
+        ZSocketBufferStream* _buffer_ptr,
         SizeType* _data_size_ptr = nullptr
     ) noexcept;
 
@@ -251,7 +264,7 @@ private:
     TUniquePointer<internal::ZTCPSocketData> data_ptr_;
     ZIOContext* io_context_ptr_;
     Void* link_object_ptr_;
-    TAtom<State_> state_;
+    TAtom<StateEnum_> state_;
 };
 
 }//socket

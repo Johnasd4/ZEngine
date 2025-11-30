@@ -18,8 +18,6 @@
 */
 #pragma once
 
-#include "drive.h"
-
 #include "f_memory_pool.h"
 #include "m_log.h"
 #include "z_file.h"
@@ -31,10 +29,10 @@
 namespace zengine {
 namespace memory_pool {
 
-enum MemoryPoolEnum : Int32 {
-    kMemoryPool_TSmallMemoryList,
-    kMemoryPool_TSmartPointerList,
-    kMemoryPool_TSystemMemory
+enum class MemoryPoolEnum : Int32 {
+    kTSmallMemoryList,
+    kTSmartPointerList,
+    kTSystemMemory
 };
 
 /*
@@ -46,7 +44,7 @@ enum MemoryPoolEnum : Int32 {
 template<Bool kIsThreadSafe>
 class TMemoryPoolBase : public TMemoryPoolThreadSafeBase<kIsThreadSafe> {
 public:
-    static constexpr SizeType kMaxLogLength = 4096;
+    static inline constexpr SizeType kMaxLogLength = 4096;
 
     NODISCARD FORCEINLINE MemoryPoolEnum PoolType() const noexcept { return pool_type_; }
 
@@ -58,7 +56,7 @@ protected:
     FORCEINLINE Void InitializeP(MemoryPoolEnum _pool_type) noexcept { pool_type_ = _pool_type; }
 
 #ifdef USE_MEMORY_POOL_TEST
-    inline static ZFile& log_file_ = []() -> ZFile& {
+    inline static ZFile& log_file_ = std::invoke([]() -> ZFile& {
         static ZFile file;
         TFixedWString<ZFile::kFileNameLength> file_dir;
         const ZSystemTime& system_time = ZSystemTime::StartTimeInstance();
@@ -71,7 +69,7 @@ protected:
             Z_LOG_ERROR(error_code::kFMemoryPoolErrorCode_LinkError, link_code, L"ZFile::OpenSafe() link error!");
         }
         return file;
-    }();
+    });
 #endif //USE_MEMORY_POOL_TEST
 
 private:
