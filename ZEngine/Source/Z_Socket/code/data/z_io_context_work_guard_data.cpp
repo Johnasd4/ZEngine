@@ -1,4 +1,4 @@
-﻿/*
+/*
     Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
@@ -16,31 +16,20 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#define PROJECT_NAME L"Include"
+#define SOCKET_DLLFILE
+#include "drive/d_pch.h"
 
-#include "zengine/z_engine.h"
-#include "test.h"
+#include "z_io_context_work_guard_data.h"
 
-using namespace zengine;
-using namespace zengine::gui;
-using namespace zengine::math;
-using namespace zengine::file_system;
-using namespace zengine::console;
-using namespace zengine::tsrpg;
-using namespace zengine::socket;
+namespace zengine {
+namespace socket {
+namespace internal {
 
-//Int32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
-Int32 main() { 
-    zengine::Initialize();
+ZIOContextWorkGuardData::ZIOContextWorkGuardData(boost::asio::io_context* _io_context_ptr) noexcept
+    : SuperType_()
+    , work_guard_(_io_context_ptr->get_executor())
+{}
 
-    ZJsonDocument doc;
-
-    //test::GuiTest();
-    //test::LogOutputServerTest();
-    test::SocketTest();
-
-    /**/
-    log::FinishFlush();
-    return 0;
-}
-  
+}//internal
+}//socket
+}//zengine

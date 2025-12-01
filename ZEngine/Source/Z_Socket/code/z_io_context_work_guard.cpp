@@ -1,4 +1,4 @@
-﻿/*
+/*
     Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
@@ -16,31 +16,29 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#define PROJECT_NAME L"Include"
+#define SOCKET_DLLFILE
+#include "drive/d_pch.h"
 
-#include "zengine/z_engine.h"
-#include "test.h"
+#include "z_io_context_work_guard.h"
 
-using namespace zengine;
-using namespace zengine::gui;
-using namespace zengine::math;
-using namespace zengine::file_system;
-using namespace zengine::console;
-using namespace zengine::tsrpg;
-using namespace zengine::socket;
+#include "z_io_context.h"
 
-//Int32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
-Int32 main() { 
-    zengine::Initialize();
+#include "data/z_io_context_data.h"
+#include "data/z_io_context_work_guard_data.h"
 
-    ZJsonDocument doc;
+namespace zengine {
+namespace socket {
 
-    //test::GuiTest();
-    //test::LogOutputServerTest();
-    test::SocketTest();
+ZIOContextWorkGuard::ZIOContextWorkGuard(ZIOContext* _io_context_ptr) noexcept
+    : SuperType_()
+    , data_ptr_(MakeUnique<internal::ZIOContextWorkGuardData>(&_io_context_ptr->data_ptr_->io_context_))
+{}
 
-    /**/
-    log::FinishFlush();
-    return 0;
+ZIOContextWorkGuard::~ZIOContextWorkGuard() noexcept {}
+
+Void ZIOContextWorkGuard::Reset() noexcept {
+    data_ptr_.Reset();
 }
-  
+
+}//socket
+}//zengine

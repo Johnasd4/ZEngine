@@ -1013,5 +1013,8 @@
     <ClInclude Include="code\zengine\z_core\internal\rapidjson.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="code\zengine\z_socket\z_io_context_work_guard.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

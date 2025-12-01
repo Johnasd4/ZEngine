@@ -36,7 +36,7 @@ NODISCARD ZIOContext& ZIOContext::Instance() noexcept {
 ZIOContext::ZIOContext() noexcept
     : SuperType_()
     , data_ptr_(MakeUnique<internal::ZIOContextData>())
-    , state_(StateEnum_::kClosed)
+    , running_thread_count_(0ULL)
 {}
 
 ZIOContext::~ZIOContext() noexcept {}
@@ -129,69 +129,28 @@ NODISCARD ReturnType ZIOContext::ResolveUDPAddress(
     return ret_val;
 }
 
-NODISCARD ReturnType ZIOContext::Stop() noexcept {
-    ReturnType ret_val = kOK;
-
-    Z_CHECK(
-        state_ != StateEnum_::kRun,
-        error_code::kPSocketErrorCode_StateError,
-        L"Context state error! state: %d expect state: %d",
-        state_, StateEnum_::kRun
-    );
-
+Void ZIOContext::Stop() noexcept {
     data_ptr_->io_context_.stop();
-
-    return ret_val;
 }
 
-NODISCARD ReturnType ZIOContext::Run() noexcept {
-    ReturnType ret_val = kOK;
-    ReturnType link_code = kOK;
-
-    Z_CHECK(
-        state_ != StateEnum_::kClosed,
-        error_code::kPSocketErrorCode_StateError,
-        L"Context state error! state: %d expect state: %d",
-        state_, StateEnum_::kClosed
-    );
-
-    state_ = StateEnum_::kRun;
-
+Void ZIOContext::Run() noexcept {
+    if (data_ptr_->io_context_.stopped()) {
+        data_ptr_->io_context_.restart();
+    }
+    ++running_thread_count_;
     data_ptr_->io_context_.run();
-    data_ptr_->io_context_.restart();
-
-    state_ = StateEnum_::kClosed;
-
-    return ret_val;
+    --running_thread_count_;
 }
 
-NODISCARD ReturnType ZIOContext::AsyncRun() noexcept {
-    ReturnType ret_val = kOK;
-    ReturnType link_code = kOK;
-
-    Z_CHECK(
-        state_ != StateEnum_::kClosed,
-        error_code::kPSocketErrorCode_StateError,
-        L"Context state error! state: %d expect state: %d",
-        state_, StateEnum_::kClosed
-    );
-
-    state_ = StateEnum_::kRun;
-
+Void ZIOContext::AsyncRun() noexcept {
     data_ptr_->aysnc_thread_ = ZThread(
         [this]() {
-            //start dealing with async operation.
-            data_ptr_->io_context_.run();
-            data_ptr_->io_context_.restart();
-
-            state_ = StateEnum_::kClosed;
+            Run();
         }
     );
-
-    return ret_val;
 }
 
-NODISCARD Void ZIOContext::Join() noexcept {
+Void ZIOContext::Join() noexcept {
     if (data_ptr_->aysnc_thread_.Joinable()) {
         data_ptr_->aysnc_thread_.Join();
     }

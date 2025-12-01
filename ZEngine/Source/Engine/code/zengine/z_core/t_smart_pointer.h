@@ -139,11 +139,15 @@ public:
     }
 
     Void Reset() noexcept { 
-        delete ptr_;
-        ptr_ = nullptr; 
+        if (ptr_) {
+            delete ptr_;
+            ptr_ = nullptr;
+        }
     }
     Void Reset(_ObjectType* _ptr) noexcept { 
-        delete ptr_;
+        if (ptr_) {
+            delete ptr_;
+        }
         ptr_ = _ptr;
     }
     FORCEINLINE Void Swap(TUniquePointer& _ptr) noexcept { 

@@ -117,12 +117,12 @@ public:
     /*
         Cancel async operation.
     */
-    NODISCARD ReturnType Cancel() noexcept;
+    Void Cancel() noexcept;
 
     /*
         Close the socket.
     */
-    NODISCARD ReturnType Close() noexcept;
+    Void Close() noexcept;
 
     /*
         Conect to target socket. Will suspend the current thread.

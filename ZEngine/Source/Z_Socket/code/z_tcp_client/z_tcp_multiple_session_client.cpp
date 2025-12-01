@@ -46,38 +46,20 @@ ZTCPMultipleSessionClient::ZTCPMultipleSessionClient(ZIOContext* _context_ptr) n
 }
 
 ZTCPMultipleSessionClient::~ZTCPMultipleSessionClient() noexcept {
-    ReturnType link_code = kOK;
-    link_code = Close();
-    if (link_code != kOK) {
-        Z_LOG_ERROR(
-            error_code::kPSocketErrorCode_LinkError, link_code,
-            L"ZTCPMultipleSessionClient::Close() link error!"
-        );
-        return;
-    }
+    Close();
 }
 
-NODISCARD ReturnType ZTCPMultipleSessionClient::Close() noexcept {
-    ReturnType ret_val = kOK;
-    ReturnType link_code = kOK;
-
+Void ZTCPMultipleSessionClient::Close() noexcept {
     //close socket
     socket_pool_list_.Lock();
-    auto socket_ptr = socket_pool_list_.Begin();
-    while (socket_ptr != socket_pool_list_.End()) {
-        link_code = socket_ptr->Close();
-        if (link_code != kOK) {
-            ret_val = error_code::kPSocketErrorCode_LinkError;
-            Z_LOG_ERROR(
-                error_code::kPSocketErrorCode_LinkError, link_code,
-                L"ZTCPSocket::Close() link error!"
-            );
-        }
-        socket_ptr = socket_pool_list_.Release(socket_ptr);
+    auto socket_iter = socket_pool_list_.Begin();
+    while (socket_iter != socket_pool_list_.End()) {
+        socket_iter->Close();
+        socket_iter = socket_pool_list_.ReleaseIterator(socket_iter);
     }
     socket_pool_list_.Unlock();
 
-    return ret_val;
+    return;
 }
 
 NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncConnect(
@@ -118,16 +100,10 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncConnect(
                 socket_pool_list_.PushBack(_socket_ptr);
                 _socket_ptr->SetAsyncErrorHandleFunction(
                     [this, _socket_ptr](ReturnType _error_code) {
-                        ReturnType link_code = kOK;
                         //close and release socket
                         if (_socket_ptr->State() == ZTCPSocket::StateEnum_::kError) {
-                            link_code = _socket_ptr->Close();
-                            if (link_code != kOK) {
-                                Z_LOG_ERROR(
-                                    error_code::kPSocketErrorCode_LinkError, link_code,
-                                    L"ZTCPSocket::Close() link error!"
-                                );
-                            }
+                            _socket_ptr->Close();
+                            socket_pool_list_.Erase(_socket_ptr);
                             socket_pool_list_.Release(_socket_ptr);
 
                             //disconnect
@@ -170,32 +146,20 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncBroadcast(
     ReturnType link_code = kOK;
     
     socket_pool_list_.Lock();
-    auto socket_ptr = socket_pool_list_.Begin();
-    while (socket_ptr != socket_pool_list_.End()) {
-        link_code = socket_ptr->AsyncWrite(_buffer, _handle_func);
+    auto socket_iter = socket_pool_list_.Begin();
+    while (socket_iter != socket_pool_list_.End()) {
+        link_code = socket_iter->AsyncWrite(_buffer, _handle_func);
         if (link_code != kOK) {
             //disconnect
-            if (socket_ptr->State() == ZTCPSocket::StateEnum_::kClosed) {
-                Z_DEBUG_LOG_FINISH(L"Client disconnected!");
+            if (socket_iter->State() == ZTCPSocket::StateEnum_::kClosed) {
+                Z_DEBUG_LOG_FINISH(L"Server disconnected!");
             }
-            else {
-                Z_LOG_ERROR(
-                    error_code::kPSocketErrorCode_LinkError, link_code,
-                    L"ZTCPSocket::AsyncWrite() link error!"
-                );
-                //close and release socket
-                link_code = socket_ptr->Close();
-                if (link_code != kOK) {
-                    Z_LOG_ERROR(
-                        error_code::kPSocketErrorCode_LinkError, link_code,
-                        L"ZTCPSocket::Close() link error!"
-                    );
-                }
-            }
-            socket_ptr = socket_pool_list_.Release(socket_ptr);
+            //close and release socket
+            socket_iter->Close();
+            socket_iter = socket_pool_list_.ReleaseIterator(socket_iter);
         }
         else {
-            ++socket_ptr;
+            ++socket_iter;
         }
     }
     socket_pool_list_.Unlock();

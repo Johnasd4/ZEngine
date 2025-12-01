@@ -29,7 +29,10 @@ namespace zengine {
 */
 class ZSemMutex : public ZObject {
 public:
-    FORCEINLINE ZSemMutex() noexcept : SuperType_(), handle_(CreateSemaphore(nullptr, 1, 1, nullptr)) {}
+    FORCEINLINE ZSemMutex(Int32 _max_count = 1) noexcept
+        : SuperType_()
+        , handle_(CreateSemaphore(nullptr, _max_count, _max_count, nullptr))
+    {}
     FORCEINLINE ZSemMutex(ZSemMutex&& _mutex) noexcept : SuperType_(std::forward<ZSemMutex>(_mutex)) {
         MoveP(std::forward<ZSemMutex>(_mutex));
     }

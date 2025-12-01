@@ -114,12 +114,12 @@ public:
     /*
         Cancel async operation.
     */
-    NODISCARD ReturnType Cancel() noexcept;
+    Void Cancel() noexcept;
 
     /*
         Close the socket.
     */
-    NODISCARD ReturnType Close() noexcept;
+    Void Close() noexcept;
 
     /*
         Set a target endpoint, can only receive from the given endpoint.

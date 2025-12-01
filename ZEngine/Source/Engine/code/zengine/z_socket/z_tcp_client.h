@@ -79,9 +79,14 @@ public:
     NODISCARD ReturnType SetIfReuseAddress(Bool _if_reuse) noexcept;
 
     /*
+        Cancel async operation.
+    */
+    Void Cancel() noexcept;
+
+    /*
         Close the connection.
     */
-    NODISCARD ReturnType Close() noexcept;
+    Void Close() noexcept;
 
     /*
         Connect to server. Will suspend the current thread.
@@ -223,7 +228,7 @@ public:
     /*
         Close all connections.
     */
-    NODISCARD ReturnType Close() noexcept;
+    Void Close() noexcept;
 
     /*
         Connect to server. Will not suspend the current thread.

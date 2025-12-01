@@ -75,15 +75,7 @@ ZUDPSocket::ZUDPSocket(ZIOContext* _context_ptr) noexcept
 }
 
 ZUDPSocket::~ZUDPSocket() noexcept {
-    ReturnType link_code = kOK;
-    link_code = Close();
-    if (link_code != kOK) {
-        Z_LOG_ERROR(
-            error_code::kPSocketErrorCode_LinkError, link_code,
-            L"ZUDPSocket::Close() link error!"
-        );
-        return;
-    }
+    Close();
 }
 
 ZUDPSocket& ZUDPSocket::operator=(const ZUDPSocket& _socket) noexcept {
@@ -282,62 +274,25 @@ NODISCARD Void ZUDPSocket::SetAsyncErrorHandleFunction(TFunction<Void(ReturnType
     data_ptr_->async_error_handle_func_ = std::forward<TFunction<Void(ReturnType)>>(_handle_func);
 }
 
-NODISCARD ReturnType ZUDPSocket::Cancel() noexcept {
-    ReturnType ret_val = kOK;
+Void ZUDPSocket::Cancel() noexcept {
     boost::system::error_code error_code;
 
-
-    Z_CHECK(
-        data_ptr_->socket_.is_open() == false,
-        error_code::kPSocketErrorCode_SocketNotOpen,
-        L"Socket not open!"
-    );
-
-    try {
-        data_ptr_->socket_.cancel();
-    }
-    catch (const boost::system::system_error& error) {
-        ret_val = error_code::kPSocketErrorCode_SystemError;
-        Z_LOG_ERROR(
-            ret_val, error.code().value(),
-            L"System error! error info: %ls",
-            string::String2WString(error.code().message().c_str()).String()
-        );
-        state_ = StateEnum_::kError;
-        return ret_val;
-    }
-
-    return ret_val;
+    data_ptr_->socket_.cancel(error_code);
 }
 
-NODISCARD ReturnType ZUDPSocket::Close() noexcept {
-    ReturnType ret_val = kOK;
+Void ZUDPSocket::Close() noexcept {
     boost::system::error_code error_code;
 
     if (state_ == StateEnum_::kUninitialized || state_ == StateEnum_::kClosed) {
-        return ret_val;
+        return;
     }
 
-    try {
-        data_ptr_->if_connected_ = false;
-        data_ptr_->async_error_handle_func_ = nullptr;
-        data_ptr_->socket_.cancel();
-        data_ptr_->socket_.close();
-    }
-    catch (const boost::system::system_error& error) {
-        ret_val = error_code::kPSocketErrorCode_SystemError;
-        Z_LOG_ERROR(
-            ret_val, error.code().value(),
-            L"System error! error info: %ls",
-            string::String2WString(error.code().message().c_str()).String()
-        );
-        state_ = StateEnum_::kError;
-        return ret_val;
-    }
+    data_ptr_->if_connected_ = false;
+    data_ptr_->async_error_handle_func_ = nullptr;
+    data_ptr_->socket_.cancel(error_code);
+    data_ptr_->socket_.close(error_code);
 
     state_ = StateEnum_::kClosed;
-
-    return ret_val;
 }
 
 NODISCARD ReturnType ZUDPSocket::Connect(const ZUDPEndpoint& _udp_endpoint) noexcept {

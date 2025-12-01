@@ -22,6 +22,7 @@
 #include "f_socket.h"
 
 #include "z_io_context.h"
+#include "z_io_context_work_guard.h"
 #include "z_udp_socket.h"
 
 namespace zengine {
@@ -202,13 +203,15 @@ private:
 SOCKET_DLLAPI ReturnType GetUDPPublicIP4AndPort(
     const ZUDPEndpoint& _local_udp_endpoint,
     UInt32* _public_udp_ip_ptr,
-    UInt16* _public_udp_port_ptr
+    UInt16* _public_udp_port_ptr,
+    ZIOContext* _io_context_ptr
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
 
-    ZIOContext io_context;
-    ZUDPSocket udp_socket(&io_context);
+    ZUDPSocket udp_socket(_io_context_ptr);
+    ZIOContextWorkGuard io_context_work_guard(_io_context_ptr);
+    _io_context_ptr->AsyncRun();
 
     link_code = udp_socket.Open(_local_udp_endpoint.IPType());
     if (link_code != kOK) {
@@ -216,16 +219,6 @@ SOCKET_DLLAPI ReturnType GetUDPPublicIP4AndPort(
         Z_LOG_ERROR(
             ret_val, link_code,
             L"ZUDPSocket::Open() link error!"
-        );
-        return ret_val;
-    }
-
-    link_code = udp_socket.SetIfReuseAddress(true);
-    if (link_code != kOK) {
-        ret_val = error_code::kFSocketErrorCode_LinkError;
-        Z_LOG_ERROR(
-            ret_val, link_code,
-            L"ZUDPSocket::SetIfReuseAddress() link error!"
         );
         return ret_val;
     }
@@ -252,7 +245,11 @@ SOCKET_DLLAPI ReturnType GetUDPPublicIP4AndPort(
 
     TArray<ZUDPEndpoint> endpoint_array;
     Bool if_success = false;
-    ZMutex if_success_mutex;
+    Int32 async_count = 0;
+    ZMutex async_mutex;
+    ZSemMutex success_sem_mutex;
+    ZSemMutex finish_sem_mutex;
+    success_sem_mutex.Lock();
     TList<TFixedArray<UInt8, 1000ULL>> buffer_list;
     for (
         auto stun_server_info_ptr_iter = stun_server_info_list.Begin(); 
@@ -261,7 +258,7 @@ SOCKET_DLLAPI ReturnType GetUDPPublicIP4AndPort(
         StunServerInfo* stun_server_info_ptr = stun_server_info_ptr_iter->GetPtr();
 
         //resolve address
-        link_code = io_context.ResolveUDPAddress(
+        link_code = _io_context_ptr->ResolveUDPAddress(
             stun_server_info_ptr->stun_address_str_, 
             stun_server_info_ptr->stun_port_str_,
             &endpoint_array
@@ -289,6 +286,13 @@ SOCKET_DLLAPI ReturnType GetUDPPublicIP4AndPort(
             return ret_val;
         }
 
+        async_mutex.Lock();
+        if (async_count == 0) {
+            finish_sem_mutex.Lock();
+        }
+        ++async_count;
+        async_mutex.Unlock();
+
         buffer_list.EmplaceBack();
         link_code = udp_socket.AsyncReceiveFrom(
             ZBuffer(
@@ -296,8 +300,8 @@ SOCKET_DLLAPI ReturnType GetUDPPublicIP4AndPort(
                 buffer_list.Back().Capacity()
             ),
             [
-                _public_udp_ip_ptr, _public_udp_port_ptr, &if_success, &if_success_mutex,
-                stun_server_info_ptr ,&stun_server_info_list
+                _public_udp_ip_ptr, _public_udp_port_ptr, &if_success, &async_mutex, &success_sem_mutex, &async_count,
+                &finish_sem_mutex, stun_server_info_ptr, &stun_server_info_list
             ](
                 ReturnType _error_code,
                 ZUDPSocket* _socket_ptr,
@@ -336,18 +340,22 @@ SOCKET_DLLAPI ReturnType GetUDPPublicIP4AndPort(
                                 (UInt32(_buffer.DataPtr<const UInt8>()[buffer_index + 10]) << 8) |
                                 _buffer.DataPtr<const UInt8>()[buffer_index + 11];
                             ip ^= 0x2112A442;
-                            
-                            if_success_mutex.Lock();
-                            if (if_success == false) {
-                                if_success = true;
-                                *_public_udp_ip_ptr = ip;
-                                *_public_udp_port_ptr = port;
-                            }
-                            if_success_mutex.Unlock();
 
                             //reset failed count
                             stun_server_info_ptr->failed_count_ = 0U;
 
+                            async_mutex.Lock();
+                            if (if_success == false) {
+                                if_success = true;
+                                success_sem_mutex.Unlock();
+                                *_public_udp_ip_ptr = ip;
+                                *_public_udp_port_ptr = port;
+                            }
+                            --async_count;
+                            if (async_count == 0) {
+                                finish_sem_mutex.Unlock();
+                            }
+                            async_mutex.Unlock();
                             return;
                         }
                         buffer_index += 4 + ((length + 3) & ~3);
@@ -357,6 +365,13 @@ SOCKET_DLLAPI ReturnType GetUDPPublicIP4AndPort(
                 //failed
                 stun_server_info_ptr->failed_ = true;
                 ++stun_server_info_ptr->failed_count_;
+
+                async_mutex.Lock();
+                --async_count;
+                if (async_count == 0) {
+                    finish_sem_mutex.Unlock();
+                }
+                async_mutex.Unlock();
             }
         );
         if (link_code != kOK) {
@@ -368,34 +383,19 @@ SOCKET_DLLAPI ReturnType GetUDPPublicIP4AndPort(
             return ret_val;
         }
 
-        if (!io_context.IsRunning()) {
-            link_code = io_context.AsyncRun();
-            if (link_code != kOK) {
-                ret_val = error_code::kFSocketErrorCode_LinkError;
-                Z_LOG_ERROR(
-                    ret_val, link_code,
-                    L"ZIOContext::AsyncRun() link error!"
-                );
-                return ret_val;
-            }
-        }
         ++stun_server_info_ptr_iter;
 
-        SleepMs(50);
+        SleepMs(50LL);
     }
-      
-    //cancel other
-    link_code = udp_socket.Cancel();
-    if (link_code != kOK) {
-        Z_LOG_ERROR(
-            error_code::kFSocketErrorCode_LinkError, link_code,
-            L"ZUDPSocket::Cancel() link error!"
-        );
-        return ret_val;
-    }
+    
+    io_context_work_guard.Reset();
 
-    //Wait until finish.
-    io_context.Join();
+    //wait max 200ms for success
+    success_sem_mutex.TryLockFor(200LL);
+    success_sem_mutex.Unlock();
+
+    //cancel other
+    udp_socket.Cancel();
 
     //handle failed servers
     for (
@@ -413,6 +413,10 @@ SOCKET_DLLAPI ReturnType GetUDPPublicIP4AndPort(
         }
         ++stun_server_info_ptr_iter;
     }
+
+    //wait until all operation finished
+    finish_sem_mutex.Lock();
+    finish_sem_mutex.Unlock();
 
     if (!if_success) {
         Z_LOG_ERROR(

@@ -59,15 +59,7 @@ ZTCPSingleSessionServer::ZTCPSingleSessionServer(ZIOContext* _io_context_ptr) no
 }
 
 ZTCPSingleSessionServer::~ZTCPSingleSessionServer() noexcept {
-    ReturnType link_code = kOK;
-    link_code = Close();
-    if (link_code != kOK) {
-        Z_LOG_ERROR(
-            error_code::kPSocketErrorCode_LinkError, link_code,
-            L"ZTCPSingleSessionServer::Close() link error!"
-        );
-        return;
-    }
+    Close();
 }
 
 NODISCARD ReturnType ZTCPSingleSessionServer::Open(IPTypeEnum _ip_type) noexcept {
@@ -248,41 +240,21 @@ NODISCARD ReturnType ZTCPSingleSessionServer::Listen(Int32 _max_wait_connect_cli
     return ret_val;
 }
 
-NODISCARD ReturnType ZTCPSingleSessionServer::Close() noexcept {
-    ReturnType ret_val = kOK;
-    ReturnType link_code = kOK;
+Void ZTCPSingleSessionServer::Cancel() noexcept {
+    socket_.Cancel();
+}
+
+Void ZTCPSingleSessionServer::Close() noexcept {
     boost::system::error_code error_code;
 
     if (state_ == StateEnum_::kUninitialized || state_ == StateEnum_::kClosed) {
-        return ret_val;
+        return;
     }
 
-    link_code = socket_.Close();
-    if (link_code != kOK) {
-        state_ = StateEnum_::kError;
-        ret_val = error_code::kPSocketErrorCode_LinkError;
-        Z_LOG_ERROR(
-            ret_val, link_code,
-            L"ZTCPSocket::Close() link error!"
-        );
-        return ret_val;
-    }
-
+    socket_.Close();
     data_ptr_->acceptor_.close(error_code);
-    if (error_code) {
-        state_ = StateEnum_::kError;
-        ret_val = error_code::kPSocketErrorCode_SystemError;
-        Z_LOG_ERROR(
-            ret_val, error_code.value(),
-            L"System error! error info: %ls",
-            string::String2WString(error_code.message().c_str()).String()
-        );
-        return ret_val;
-    }
 
     state_ = StateEnum_::kClosed;
-
-    return ret_val;
 }
 
 NODISCARD ReturnType ZTCPSingleSessionServer::Accept() noexcept {
@@ -314,15 +286,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::Accept() noexcept {
         [this](ReturnType error_code) {
             //disconnect
             if (socket_.State() == ZTCPSocket::StateEnum_::kError) {
-                ReturnType link_code = kOK;
-                link_code = socket_.Close();
-                if (link_code != kOK) {
-                    Z_LOG_ERROR(
-                        error_code::kPSocketErrorCode_LinkError, link_code,
-                        L"ZTCPSocket::Close() link error!"
-                    );
-                    return;
-                }
+                socket_.Close();
 
                 //connect->listen
                 if (state_ == StateEnum_::kConnected) {
@@ -359,15 +323,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::Read(
         if (link_code == error_code::kPSocketErrorCode_Disconnected) {
             state_ = StateEnum_::kListen;
             Z_DEBUG_LOG_FINISH(L"Client disconnected!");
-            link_code = socket_.Close();
-            if (link_code != kOK) {
-                ret_val = error_code::kPSocketErrorCode_LinkError;
-                Z_LOG_ERROR(
-                    ret_val, link_code,
-                    L"ZTCPSocket::Close() link error!"
-                );
-                return ret_val;
-            }
+            socket_.Close();
             ret_val = error_code::kPSocketErrorCode_Disconnected;
             return ret_val;
         }
@@ -433,15 +389,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::ReadUntil(
         if (link_code == error_code::kPSocketErrorCode_Disconnected) {
             state_ = StateEnum_::kListen;
             Z_DEBUG_LOG_FINISH(L"Client disconnected!");
-            link_code = socket_.Close();
-            if (link_code != kOK) {
-                ret_val = error_code::kPSocketErrorCode_LinkError;
-                Z_LOG_ERROR(
-                    ret_val, link_code,
-                    L"ZTCPSocket::Close() link error!"
-                );
-                return ret_val;
-            }
+            socket_.Close();
             ret_val = error_code::kPSocketErrorCode_Disconnected;
             return ret_val;
         }
@@ -479,15 +427,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::ReadUntil(
         if (link_code == error_code::kPSocketErrorCode_Disconnected) {
             state_ = StateEnum_::kListen;
             Z_DEBUG_LOG_FINISH(L"Client disconnected!");
-            link_code = socket_.Close();
-            if (link_code != kOK) {
-                ret_val = error_code::kPSocketErrorCode_LinkError;
-                Z_LOG_ERROR(
-                    ret_val, link_code,
-                    L"ZTCPSocket::Close() link error!"
-                );
-                return ret_val;
-            }
+            socket_.Close();
             ret_val = error_code::kPSocketErrorCode_Disconnected;
             return ret_val;
         }
@@ -587,15 +527,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::ReadUntilClose(
         );
     }
 
-    link_code = socket_.Close();
-    if (link_code != kOK) {
-        ret_val = error_code::kPSocketErrorCode_LinkError;
-        Z_LOG_ERROR(
-            ret_val, link_code,
-            L"ZTCPSocket::Close() link error!"
-        );
-        return ret_val;
-    }
+    socket_.Close();
 
     return ret_val;
 }
@@ -618,15 +550,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::Write(
         if (link_code == error_code::kPSocketErrorCode_Disconnected) {
             state_ = StateEnum_::kListen;
             Z_DEBUG_LOG_FINISH(L"Client disconnected!");
-            link_code = socket_.Close();
-            if (link_code != kOK) {
-                ret_val = error_code::kPSocketErrorCode_LinkError;
-                Z_LOG_ERROR(
-                    ret_val, link_code,
-                    L"ZTCPSocket::Close() link error!"
-                );
-                return ret_val;
-            }
+            socket_.Close();
             ret_val = error_code::kPSocketErrorCode_Disconnected;
             return ret_val;
         }

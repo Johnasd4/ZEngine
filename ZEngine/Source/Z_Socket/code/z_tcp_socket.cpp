@@ -77,15 +77,7 @@ ZTCPSocket::ZTCPSocket(ZIOContext* _context_ptr) noexcept
 }
 
 ZTCPSocket::~ZTCPSocket() noexcept {
-    ReturnType link_code = kOK;
-    link_code = Close();
-    if (link_code != kOK) {
-        Z_LOG_ERROR(
-            error_code::kPSocketErrorCode_LinkError, link_code,
-            L"ZTCPSocket::Reset() link error!"
-        );
-        return;
-    }
+    Close();
 }
 
 ZTCPSocket& ZTCPSocket::operator=(const ZTCPSocket& _socket) noexcept {
@@ -274,75 +266,26 @@ NODISCARD ReturnType ZTCPSocket::SetIfReuseAddress(Bool _if_reuse) noexcept {
     return ret_val;
 }
 
-NODISCARD ReturnType ZTCPSocket::Cancel() noexcept {
-    ReturnType ret_val = kOK;
+Void ZTCPSocket::Cancel() noexcept {
     boost::system::error_code error_code;
-
-    Z_CHECK(
-        data_ptr_->socket_.is_open() == false,
-        error_code::kPSocketErrorCode_SocketNotOpen,
-        L"Socket not open!"
-    );
-
-    try {
-        data_ptr_->socket_.cancel();
-    }
-    catch (const boost::system::system_error& error) {
-        state_ = StateEnum_::kError;
-        ret_val = error_code::kPSocketErrorCode_SystemError;
-        Z_LOG_ERROR(
-            ret_val, error.code().value(),
-            L"System error! error info: %ls",
-            string::String2WString(error.code().message().c_str()).String()
-        );
-        return ret_val;
-    }
-
-    return ret_val;
+    data_ptr_->socket_.cancel(error_code);
 }
 
-NODISCARD ReturnType ZTCPSocket::Close() noexcept {
-    ReturnType ret_val = kOK;
+Void ZTCPSocket::Close() noexcept {
     boost::system::error_code error_code;
 
     if (state_ == StateEnum_::kUninitialized || state_ == StateEnum_::kClosed) {
-        return ret_val;
+        return;
     }
+
 
     data_ptr_->if_endpoint_bind_ = false;
     data_ptr_->async_error_handle_func_ = nullptr;
-    if (data_ptr_->socket_.is_open()) {
-        data_ptr_->socket_.cancel();
-        if (state_ == StateEnum_::kConnected) {
-            data_ptr_->socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both, error_code);
-            if (error_code) {
-                if (!IS_DICONNECT_ERROR(error_code)) {
-                    state_ = StateEnum_::kConnected;
-                    ret_val = error_code::kPSocketErrorCode_SystemError;
-                    Z_LOG_ERROR(
-                        ret_val, error_code.value(),
-                        L"System error! error info: %ls",
-                        string::String2WString(error_code.message().c_str()).String()
-                    );
-                    return ret_val;
-                }
-            }
-        }
-        data_ptr_->socket_.close(error_code);
-        if (error_code && error_code != boost::asio::error::not_socket) {
-            state_ = StateEnum_::kConnected;
-            ret_val = error_code::kPSocketErrorCode_SystemError;
-            Z_LOG_ERROR(
-                ret_val, error_code.value(),
-                L"System error! error info: %ls",
-                string::String2WString(error_code.message().c_str()).String()
-            );
-            return ret_val;
-        }
-    }
-    state_ = StateEnum_::kClosed;
+    data_ptr_->socket_.cancel(error_code);
+    data_ptr_->socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both, error_code);
+    data_ptr_->socket_.close(error_code);
 
-    return ret_val;
+    state_ = StateEnum_::kClosed;
 }
 
 NODISCARD ReturnType ZTCPSocket::Connect(
@@ -622,15 +565,11 @@ NODISCARD ReturnType ZTCPSocket::AsyncConnectExecuteP(
                 if (state_ == StateEnum_::kConnecting) {
                     state_ = StateEnum_::kOpened;
                 }
-
-                if (_handle_func) {
-                    _handle_func(ret_val, this);
-                }
-                return;
             }
-
-            //connect success
-            OnConnectP();
+            else {
+                //connect success
+                OnConnectP();
+            }
             if (_handle_func) {
                 _handle_func(ret_val, this);
             }

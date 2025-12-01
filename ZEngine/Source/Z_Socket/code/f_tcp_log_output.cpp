@@ -162,12 +162,7 @@ public:
         zengine::log::UnregisterLogServerOutputFunction(ZTCPLogServer::ServerOutputInfoLog);
 
         //stop log server
-        link_code = log_server_.Close();
-        if (link_code != kOK) {
-            ret_val = error_code::kPSocketErrorCode_LinkError;
-            Z_LOG_ERROR(ret_val, link_code, L"ZTCPServer::Close() link error!");
-            return ret_val;
-        }
+        log_server_.Close();
 
         return ret_val;
     }
@@ -195,13 +190,7 @@ private:
                 error_code::kFTCPLogOutputErrorCode_LinkError, link_code, 
                 L"ZTCPSingleSessionServer::SetEndpoint() link error!"
             );
-            link_code = Instance().log_server_.Close();
-            if (link_code != kOK) {
-                Z_LOG_ERROR(
-                    error_code::kFTCPLogOutputErrorCode_LinkError, link_code, 
-                    L"ZTCPSingleSessionServer::Close() link error!"
-                );
-            }
+            Instance().log_server_.Close();
         }
 
         while (Instance().log_server_.State() == ZTCPSingleSessionServer::StateEnum_::kListen) {
@@ -216,14 +205,7 @@ private:
                     error_code::kPSocketErrorCode_LinkError, link_code, 
                     L"ZTCPSingleSessionServer::Accept() link error!"
                 );
-                link_code = Instance().log_server_.Close();
-                if (link_code != kOK) {
-                    Z_LOG_ERROR(
-                        error_code::kFTCPLogOutputErrorCode_LinkError, link_code,
-                        L"ZTCPSingleSessionServer::Close() link error!"
-                    );
-                    break;
-                }
+                Instance().log_server_.Close();
                 break;
             }
 
@@ -385,12 +367,7 @@ public:
 
         if (log_client_.GetSocket().State() != ZTCPSocket::StateEnum_::kClosed) {
             //stop log client
-            link_code = log_client_.Close();
-            if (link_code != kOK) {
-                ret_val = error_code::kPSocketErrorCode_LinkError;
-                Z_LOG_ERROR(ret_val, link_code, L"ZTCPSingleSessionClient::Close() link error!");
-                return ret_val;
-            }
+            log_client_.Close();
         }
 
         //wait for thread finish
@@ -429,13 +406,7 @@ private:
                 L"ZTCPServer::Open() link error!"
             );
             Z_LOG_FAILURE(L"Log server open failed!");
-            link_code = Instance().log_client_.Close();
-            if (link_code != kOK) {
-                Z_LOG_ERROR(
-                    error_code::kFTCPLogOutputErrorCode_LinkError, link_code,
-                    L"ZTCPSingleSessionClient::Close() link error!"
-                );
-            }
+            Instance().log_client_.Close();
             //call handle func
             Instance().client_finish_handle_func_();
             //shutdown
@@ -455,13 +426,7 @@ private:
                 );
             }
             Z_LOG_FAILURE(L"Log server connect failed!");
-            link_code = Instance().log_client_.Close();
-            if (link_code != kOK) {
-                Z_LOG_ERROR(
-                    error_code::kFTCPLogOutputErrorCode_LinkError, link_code,
-                    L"ZTCPSingleSessionClient::Close() link error!"
-                );
-            }
+            Instance().log_client_.Close();
             //call handle func
             Instance().client_finish_handle_func_();
             //shutdown

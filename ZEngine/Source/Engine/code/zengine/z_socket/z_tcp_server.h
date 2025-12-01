@@ -99,9 +99,14 @@ public:
     NODISCARD ReturnType Listen(Int32 _max_wait_connect_client_num = kDefaultMaxWaitConnectClientNum) noexcept;
 
     /*
+        Cancel async operation.
+    */
+    Void Cancel() noexcept;
+
+    /*
         Close the server.
     */
-    NODISCARD ReturnType Close() noexcept;
+    Void Close() noexcept;
 
     /*
         Suspend the current thread until a client is connected.
@@ -268,7 +273,7 @@ public:
     /*
         Close the server.
     */
-    NODISCARD ReturnType Close() noexcept;
+    Void Close() noexcept;
 
     /*
         Wait for a client to connected. Will not suspend the current thread.

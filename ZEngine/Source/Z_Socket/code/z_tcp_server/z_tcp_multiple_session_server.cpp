@@ -51,15 +51,7 @@ ZTCPMultipleSessionServer::ZTCPMultipleSessionServer(ZIOContext* _io_context_ptr
 }
 
 ZTCPMultipleSessionServer::~ZTCPMultipleSessionServer() noexcept {
-    ReturnType link_code = kOK;
-    link_code = Close();
-    if (link_code != kOK) {
-        Z_LOG_ERROR(
-            error_code::kPSocketErrorCode_LinkError, link_code,
-            L"ZTCPMultipleSessionServer::Close() link error!"
-        );
-        return;
-    }
+    Close();
 }
 
 NODISCARD ReturnType ZTCPMultipleSessionServer::Open(IPTypeEnum _ip_type) noexcept {
@@ -166,46 +158,25 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::Listen(Int32 _max_wait_connect_c
     return ret_val;
 }
 
-NODISCARD ReturnType ZTCPMultipleSessionServer::Close() noexcept {
-    ReturnType ret_val = kOK;
-    ReturnType link_code = kOK;
+Void ZTCPMultipleSessionServer::Close() noexcept {
+    boost::system::error_code error_code;
 
     if (state_ == StateEnum_::kUninitialized || state_ == StateEnum_::kClosed) {
-        return ret_val;
+        return;
     }
 
     //close socket
     socket_pool_list_.Lock();
-    auto socket_ptr = socket_pool_list_.Begin();
-    while (socket_ptr != socket_pool_list_.End()) {
-        link_code = socket_ptr->Close();
-        if (link_code != kOK) {
-            Z_LOG_ERROR(
-                error_code::kPSocketErrorCode_LinkError, link_code,
-                L"ZTCPSocket::Close() link error!"
-            );
-        }
-        socket_ptr = socket_pool_list_.Release(socket_ptr);
+    auto socket_iter = socket_pool_list_.Begin();
+    while (socket_iter != socket_pool_list_.End()) {
+        socket_iter->Close();
+        socket_iter = socket_pool_list_.ReleaseIterator(socket_iter);
     }
     socket_pool_list_.Unlock();
 
     //close acceptor
-    try {
-        data_ptr_->acceptor_.close();
-        state_ = StateEnum_::kClosed;
-    }
-    catch (const boost::system::system_error& error) {
-        ret_val = error_code::kPSocketErrorCode_SystemError;
-        Z_LOG_ERROR(
-            ret_val, error.code().value(),
-            L"System error! error info: %ls",
-            string::String2WString(error.code().message().c_str()).String()
-        );
-        state_ = StateEnum_::kError;
-        return ret_val;
-    }
-
-    return ret_val;
+    data_ptr_->acceptor_.close(error_code);
+    state_ = StateEnum_::kClosed;
 }
 
 NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncAccept(
@@ -231,13 +202,7 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncAccept(
 
             if (_error_code) {
                 //close and release socket
-                ReturnType link_code = socket_ptr->Close();
-                if (link_code != kOK) {
-                    Z_LOG_ERROR(
-                        error_code::kPSocketErrorCode_LinkError, link_code,
-                        L"ZTCPSocket::Close() link error!"
-                    );
-                }
+                socket_ptr->Close();
                 socket_pool_list_.Release(socket_ptr);
 
                 //handle error
@@ -260,19 +225,11 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncAccept(
                     [this, socket_ptr](ReturnType _error_code) {
                         //disconnect
                         if (socket_ptr->State() == ZTCPSocket::StateEnum_::kError) {
-                            ReturnType link_code = kOK;
-                            link_code = socket_ptr->Close();
-                            if (link_code != kOK) {
-                                Z_LOG_ERROR(
-                                    error_code::kPSocketErrorCode_LinkError, link_code,
-                                    L"ZTCPSocket::Close() link error!"
-                                );
-                                return;
-                            }
-
+                            socket_ptr->Close();
                             Z_DEBUG_LOG_FINISH(L"Client disconnected!");
 
                             //release socket
+                            socket_pool_list_.Erase(socket_ptr);
                             socket_pool_list_.Release(socket_ptr);
                         }
                     }
@@ -310,17 +267,12 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncBroadcast(
         link_code = socket_iter->AsyncWrite(_buffer, _handle_func);
         if (link_code != kOK) {
             //disconnect
-            Z_DEBUG_LOG_FINISH(L"Client disconnected!");
-
-            //close and release socket
-            link_code = socket_iter->Close();
-            if (link_code != kOK) {
-                Z_LOG_ERROR(
-                    error_code::kPSocketErrorCode_LinkError, link_code,
-                    L"ZTCPSocket::Close() link error!"
-                );
+            if (socket_iter->State() == ZTCPSocket::StateEnum_::kClosed) {
+                Z_DEBUG_LOG_FINISH(L"Client disconnected!");
             }
-            socket_iter = socket_pool_list_.Release(socket_iter);
+            //close and release socket
+            socket_iter->Close();
+            socket_iter = socket_pool_list_.ReleaseIterator(socket_iter);
         }
         else {
             ++socket_iter;

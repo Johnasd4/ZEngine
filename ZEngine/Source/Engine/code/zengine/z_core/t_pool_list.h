@@ -34,9 +34,6 @@ namespace zengine {
     When all objects applied, will auto extend the pool.
     Object's contructor will be called when the pool entends and destructor will be called when the pool destructs.
     Objects can be released directly from the list without removing.
-
-    WARNING: Before destructor function called, all objects must be released or insert to the list. 
-    Unreleased object's destructor will not be called, might cause memory leak.
 */
 template<typename _ObjectType, Bool kIfCallConstructorAndDestructor = kIsClassType<_ObjectType>>
 class TPoolList : public ZObject {
@@ -44,7 +41,11 @@ private:
     static inline constexpr SizeType kDefaultPoolSize = 10ULL;
     static inline constexpr SizeType kMemoryPtrListSize = 10ULL;
     static inline constexpr Float32 kAutoExtendMultFactor = 0.2f;
-    using MemoryPtrList_ = TList<Void*>;
+    struct MemoryStruct_ {
+        Void* memory_ptr_;
+        SizeType object_num_;
+    };
+    using MemoryList_ = TList<MemoryStruct_>;
 
 public:
     class Iterator_ {
@@ -97,7 +98,7 @@ public:
 
     TPoolList() noexcept
         : SuperType_()
-        , mem_ptr_list_(kMemoryPtrListSize)
+        , memory_list_(kMemoryPtrListSize)
         , head_node_ptr_(nullptr)
         , end_node_ptr_(nullptr)
         , model_obj_ptr_()
@@ -114,7 +115,7 @@ public:
     template<typename... _ArgsType>
     TPoolList(_ArgsType&&... args) noexcept
         : SuperType_()
-        , mem_ptr_list_(kMemoryPtrListSize)
+        , memory_list_(kMemoryPtrListSize)
         , head_node_ptr_(nullptr)
         , end_node_ptr_(nullptr)
         , model_obj_ptr_()
@@ -129,22 +130,16 @@ public:
     }
 
     ~TPoolList() noexcept {
-        if constexpr (kIfCallConstructorAndDestructor) {
-            if constexpr (kIsClassType<_ObjectType>) {
-                Node_* node_ptr = head_node_ptr_;
-                while (node_ptr != end_node_ptr_) {
-                    node_ptr->object_.~_ObjectType();
-                    node_ptr = node_ptr->next_node_ptr_;
-                }
-                node_ptr = list_head_node_ptr_;
-                while (node_ptr != nullptr) {
-                    node_ptr->object_.~_ObjectType();
-                    node_ptr = node_ptr->next_node_ptr_;
+        for (auto memory_iter = memory_list_.Begin(); memory_iter != memory_list_.End(); ++memory_iter) {
+            if constexpr (kIfCallConstructorAndDestructor) {
+                if constexpr (kIsClassType<_ObjectType>) {
+                    _ObjectType* obj_ptr = reinterpret_cast<_ObjectType*>(memory_iter->memory_ptr_);
+                    for (SizeType index = 0; index < memory_iter->object_num_; ++index, ++obj_ptr) {
+                        obj_ptr->~_ObjectType();
+                    }
                 }
             }
-        }
-        for (auto mem_ptr = mem_ptr_list_.Begin(); mem_ptr != mem_ptr_list_.End(); ++mem_ptr) {
-            memory_pool::ReleaseMemory(*mem_ptr);
+            memory_pool::ReleaseMemory(memory_iter->memory_ptr_);
         }
     }
 
@@ -279,7 +274,7 @@ public:
         return &apply_node_ptr->object_;
     }
 
-    NODISCARD Iterator_ Release(Iterator_ _iterator) noexcept {
+    NODISCARD Iterator_ ReleaseIterator(Iterator_ _iterator) noexcept {
         Node_* release_node_ptr = reinterpret_cast<Node_*>(_iterator.Ptr());
         Iterator_  ret_iterator = ++_iterator;
         if (list_head_node_ptr_ == release_node_ptr) {
@@ -342,8 +337,8 @@ private:
         }
         SizeType mem_size = sizeof(Node_) * extend_num;
         Void* mem_ptr = memory_pool::ApplyMemory(mem_size, &mem_size);
-        mem_ptr_list_.PushBack(mem_ptr);
         extend_num = mem_size / sizeof(Node_);
+        memory_list_.EmplaceBack(mem_ptr, extend_num);
         if (model_obj_ptr_) {
             for (SizeType index = 0ULL; index < extend_num; ++index) {
                 Node_* node_ptr = reinterpret_cast<Node_*>(mem_ptr) + index;
@@ -382,7 +377,7 @@ private:
     }
 
     Void MoveP(TPoolList&& _pool) noexcept {
-        mem_ptr_list_ = std::move(_pool.mem_ptr_list_);
+        memory_list_ = std::move(_pool.memory_list_);
         model_obj_ptr_ = std::move(_pool.model_obj_ptr_);
         head_node_ptr_ = _pool.head_node_ptr_;
         end_node_ptr_ = _pool.end_node_ptr_;
@@ -398,7 +393,7 @@ private:
         _pool.list_size_ = 0ULL;
     }
 
-    MemoryPtrList_ mem_ptr_list_;
+    MemoryList_ memory_list_;
     Node_* head_node_ptr_;
     Node_* end_node_ptr_;
     TUniquePointer<_ObjectType> model_obj_ptr_;
@@ -416,9 +411,6 @@ private:
     Object's contructor will be called when the pool entends and destructor will be called when the pool destructs.
     Applying object and releasing object is independent, can be used in diffent threads.
     Objects can be released directly from the list without removing.
-
-    WARNING: Before destructor function called, all objects must be released or insert to the list. 
-    Unreleased object's destructor will not be called, might cause memory leak.
 */
 template<typename _ObjectType, Bool kIfCallConstructorAndDestructor = kIsClassType<_ObjectType>>
 class TPoolListSafe : public ZObject {
@@ -426,7 +418,11 @@ private:
     static constexpr SizeType kDefaultPoolSize = 10ULL;
     static constexpr SizeType kMemoryPtrListSize = 10ULL;
     static constexpr Float32 kAutoExtendMultFactor = 0.2f;
-    using MemoryPtrList_ = TList<Void*>;
+    struct MemoryStruct_ {
+        Void* memory_ptr_;
+        SizeType object_num_;
+    };
+    using MemoryList_ = TList<MemoryStruct_>;
 
 public:
     class Iterator_ {
@@ -479,7 +475,7 @@ public:
 
     TPoolListSafe() noexcept
         : SuperType_()
-        , mem_ptr_list_(kMemoryPtrListSize)
+        , memory_list_(kMemoryPtrListSize)
         , head_node_ptr_(nullptr)
         , end_node_ptr_(nullptr)
         , model_obj_ptr_()
@@ -498,7 +494,7 @@ public:
     template<typename... _ArgsType>
     TPoolListSafe(_ArgsType&&... args) noexcept
         : SuperType_()
-        , mem_ptr_list_(kMemoryPtrListSize)
+        , memory_list_(kMemoryPtrListSize)
         , head_node_ptr_(nullptr)
         , end_node_ptr_(nullptr)
         , model_obj_ptr_()
@@ -514,22 +510,16 @@ public:
     }
 
     ~TPoolListSafe() noexcept {
-        if constexpr (kIfCallConstructorAndDestructor) {
-            if constexpr (kIsClassType<_ObjectType>) {
-                Node_* node_ptr = head_node_ptr_;
-                while (node_ptr != end_node_ptr_) {
-                    node_ptr->object_.~_ObjectType();
-                    node_ptr = node_ptr->next_node_ptr_;
-                }
-                node_ptr = list_head_node_ptr_;
-                while (node_ptr != nullptr) {
-                    node_ptr->object_.~_ObjectType();
-                    node_ptr = node_ptr->next_node_ptr_;
+        for (auto memory_iter = memory_list_.Begin(); memory_iter != memory_list_.End(); ++memory_iter) {
+            if constexpr (kIfCallConstructorAndDestructor) {
+                if constexpr (kIsClassType<_ObjectType>) {
+                    _ObjectType* obj_ptr = reinterpret_cast<_ObjectType*>(memory_iter->memory_ptr_);
+                    for (SizeType index = 0; index < memory_iter->object_num_; ++index, ++obj_ptr) {
+                        obj_ptr->~_ObjectType();
+                    }
                 }
             }
-        }
-        for (auto mem_ptr = mem_ptr_list_.Begin(); mem_ptr != mem_ptr_list_.End(); ++mem_ptr) {
-            memory_pool::ReleaseMemory(*mem_ptr);
+            memory_pool::ReleaseMemory(memory_iter->memory_ptr_);
         }
     }
 
@@ -694,7 +684,7 @@ public:
         return &apply_node_ptr->object_;
     }
 
-    NODISCARD Iterator_ Release(Iterator_ _iterator) noexcept {
+    NODISCARD Iterator_ ReleaseIterator(Iterator_ _iterator) noexcept {
         TLockGuard lock_guard(mutex_);
         Node_* release_node_ptr = reinterpret_cast<Node_*>(_iterator.Ptr());
         Iterator_  ret_iterator = ++_iterator;
@@ -774,8 +764,8 @@ private:
         }
         SizeType mem_size = sizeof(Node_) * extend_num;
         Void* mem_ptr = memory_pool::ApplyMemory(mem_size, &mem_size);
-        mem_ptr_list_.PushBack(mem_ptr);
         extend_num = mem_size / sizeof(Node_);
+        memory_list_.EmplaceBack(mem_ptr, extend_num);
         if (model_obj_ptr_) {
             for (SizeType index = 0ULL; index < extend_num; ++index) {
                 Node_* node_ptr = reinterpret_cast<Node_*>(mem_ptr) + index;
@@ -814,7 +804,7 @@ private:
     }
 
     Void MoveP(TPoolListSafe&& _pool) noexcept {
-        mem_ptr_list_ = std::move(_pool.mem_ptr_list_);
+        memory_list_ = std::move(_pool.memory_list_);
         model_obj_ptr_ = std::move(_pool.model_obj_ptr_);
         head_node_ptr_ = _pool.head_node_ptr_;
         end_node_ptr_ = _pool.end_node_ptr_;
@@ -830,7 +820,7 @@ private:
         _pool.list_size_ = 0ULL;
     }
 
-    MemoryPtrList_ mem_ptr_list_;
+    MemoryList_ memory_list_;
     Node_* head_node_ptr_;
     Node_* end_node_ptr_;
     TUniquePointer<_ObjectType> model_obj_ptr_;

@@ -54,15 +54,7 @@ ZTCPSingleSessionClient::ZTCPSingleSessionClient(ZIOContext* _io_context_ptr) no
 }
 
 ZTCPSingleSessionClient::~ZTCPSingleSessionClient() noexcept {
-    ReturnType link_code = kOK;
-    link_code = Close();
-    if (link_code != kOK) {
-        Z_LOG_ERROR(
-            error_code::kPSocketErrorCode_LinkError, link_code,
-            L"ZTCPSingleSessionClient::Close() link error!"
-        );
-        return;
-    }
+    Close();
 }
 
 NODISCARD ReturnType ZTCPSingleSessionClient::Open(IPTypeEnum _ip_type) noexcept {
@@ -150,21 +142,12 @@ NODISCARD ReturnType ZTCPSingleSessionClient::SetIfReuseAddress(Bool _if_reuse) 
     return ret_val;
 }
 
-NODISCARD ReturnType ZTCPSingleSessionClient::Close() noexcept {
-    ReturnType ret_val = kOK;
-    ReturnType link_code = kOK;
+Void ZTCPSingleSessionClient::Cancel() noexcept {
+    socket_.Cancel();
+}
 
-    link_code = socket_.Close();
-    if (link_code != kOK) {
-        ret_val = error_code::kPSocketErrorCode_LinkError;
-        Z_LOG_ERROR(
-            ret_val, link_code,
-            L"ZTCPSocket::Close() link error!"
-        );
-        return ret_val;
-    }
-
-    return ret_val;
+Void ZTCPSingleSessionClient::Close() noexcept {
+    socket_.Close();
 }
 
 NODISCARD ReturnType ZTCPSingleSessionClient::Connect(

@@ -105,6 +105,12 @@
     <ClCompile Include="code\drive\d_pch.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="code\data\z_io_context_work_guard_data.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\z_io_context_work_guard.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\data\z_buffer_stream_data.h">
@@ -144,6 +150,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\drive\d_pch.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\data\z_io_context_work_guard_data.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

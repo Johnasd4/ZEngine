@@ -22,6 +22,7 @@
 
 #include "../z_core/z_string.h"
 
+#include "z_io_context.h"
 #include "z_udp_endpoint.h"
 
 namespace zengine {
@@ -49,7 +50,8 @@ namespace socket {
 SOCKET_DLLAPI ReturnType GetUDPPublicIP4AndPort(
     const ZUDPEndpoint& _local_udp_endpoint,
     UInt32* _public_udp_ip_ptr,
-    UInt16* _public_udp_port_ptr
+    UInt16* _public_udp_port_ptr,
+    ZIOContext* _io_context_ptr = &ZIOContext::Instance()
 ) noexcept;
 
 /*
@@ -58,7 +60,8 @@ SOCKET_DLLAPI ReturnType GetUDPPublicIP4AndPort(
 SOCKET_DLLAPI ReturnType UDPConnectP2P(
     const ZUDPEndpoint& _local_udp_endpoint,
     const ZUDPEndpoint& _target_udp_endpoint,
-    TimeType _max_connect_time
+    TimeType _max_connect_time,
+    ZIOContext* _io_context_ptr = &ZIOContext::Instance()
 ) noexcept;
 
 }//socket

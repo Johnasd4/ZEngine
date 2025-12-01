@@ -21,6 +21,7 @@
 #include "drive.h"
 
 #include "../z_core/t_array.h"
+#include "../z_core/t_atom.h"
 #include "../z_core/t_smart_pointer.h"
 #include "../z_core/z_object.h"
 #include "../z_core/z_string_view.h"
@@ -43,20 +44,13 @@ namespace socket {
 */
 class SOCKET_DLLAPI ZIOContext : public ZObject {
 public:
-    enum class StateEnum_ : Int32 {
-        kClosed,
-        kRun
-    };
-
     /*
-        Used for non async only.
+        Used for functional operation, do not use in any main operation.
     */
     NODISCARD static ZIOContext& Instance() noexcept;
 
     ZIOContext() noexcept;
     ~ZIOContext() noexcept;
-
-    NODISCARD FORCEINLINE StateEnum_ State() const noexcept { return state_; }
 
     /*
         Resolve the given address.
@@ -79,38 +73,42 @@ public:
     /*
         Stop all sockets.
     */
-    NODISCARD ReturnType Stop() noexcept;
+    Void Stop() noexcept;
 
     /*
         Deal with async operation until all operation finished.
         Suspend the current thread, returns until finish.
     */
-    NODISCARD ReturnType Run() noexcept;
+    Void Run() noexcept;
 
     /*
         Deal with async operation until all operation finished.
         Starts a new thread and returns immediately.
     */
-    NODISCARD ReturnType AsyncRun() noexcept;
+    Void AsyncRun() noexcept;
 
     /*
-        If dealing with async operation.
+        If iocontext running.
     */
-    NODISCARD FORCEINLINE Bool IsRunning() noexcept { return state_ == StateEnum_::kRun; }
+    NODISCARD FORCEINLINE Bool IsRunning() noexcept { return running_thread_count_ != 0ULL; }
+
+    /*
+        Running thread count.
+    */
+    NODISCARD FORCEINLINE Bool RunningThreadCount() noexcept { return running_thread_count_.Value(); }
 
     /*
         Suspend until async operation thread finish.
     */
-    NODISCARD Void Join() noexcept;
+    Void Join() noexcept;
 
 protected:
     using SuperType_ = ZObject;
     friend class ZTCPSocket;
     friend class ZUDPSocket;
-    friend class ZTCPSingleSessionClient;
-    friend class ZTCPMultipleSessionClient;
     friend class ZTCPSingleSessionServer;
     friend class ZTCPMultipleSessionServer;
+    friend class ZIOContextWorkGuard;
 
 private:
     ZIOContext(const ZIOContext&) = delete;
@@ -120,7 +118,7 @@ private:
 
 private:
     TUniquePointer<internal::ZIOContextData> data_ptr_;
-    StateEnum_ state_;
+    TAtom<SizeType> running_thread_count_;
 };
 
 }//socket

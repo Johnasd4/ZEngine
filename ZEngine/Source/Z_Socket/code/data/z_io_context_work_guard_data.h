@@ -1,4 +1,4 @@
-﻿/*
+/*
     Copyright (c) YuLin Zhu
 
     This code file is licensed under the Creative Commons
@@ -16,31 +16,23 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#define PROJECT_NAME L"Include"
+#pragma once
 
-#include "zengine/z_engine.h"
-#include "test.h"
+namespace zengine {
+namespace socket {
+namespace internal {
 
-using namespace zengine;
-using namespace zengine::gui;
-using namespace zengine::math;
-using namespace zengine::file_system;
-using namespace zengine::console;
-using namespace zengine::tsrpg;
-using namespace zengine::socket;
+struct ZIOContextWorkGuardData : public ZObject {
+public:
+    ZIOContextWorkGuardData(boost::asio::io_context* _io_context_ptr) noexcept;
 
-//Int32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
-Int32 main() { 
-    zengine::Initialize();
+protected:
+    using SuperType_ = ZObject;
 
-    ZJsonDocument doc;
+public:
+    boost::asio::executor_work_guard<boost::asio::io_context::executor_type> work_guard_;
+};
 
-    //test::GuiTest();
-    //test::LogOutputServerTest();
-    test::SocketTest();
-
-    /**/
-    log::FinishFlush();
-    return 0;
-}
-  
+}//internal
+}//socket
+}//zengine
