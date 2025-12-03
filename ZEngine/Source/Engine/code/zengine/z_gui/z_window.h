@@ -52,6 +52,12 @@ struct ImFont;
 
 namespace zengine {
 namespace gui {
+class ZFrame;
+}//gui
+}//zengine
+
+namespace zengine {
+namespace gui {
 
 /*
     Window class. Only creates the window, before adding widgets, a ZFrame must be added first. 

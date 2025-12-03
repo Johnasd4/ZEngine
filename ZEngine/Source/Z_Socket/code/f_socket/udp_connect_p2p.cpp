@@ -58,6 +58,11 @@ SOCKET_DLLAPI ReturnType UDPConnectP2P(
         return ret_val;
     }
 
+    struct P2PMessage {
+        Bool local_received_;
+        Bool target_received_;
+    };
+
     TimeType start_time = TimeSec();
     TimeType current_time = start_time;
     while (current_time - start_time < _max_connect_time) {
@@ -81,8 +86,8 @@ SOCKET_DLLAPI ReturnType UDPConnectP2P(
         //    }
         //}
 
-        //// Sleep for a short duration before sending the next packet
-        //z_core::Sleep(100); // Sleep 100 milliseconds
+        // Sleep for a short duration before sending the next packet
+        SleepMs(100LL);
     }
 
     return ret_val;

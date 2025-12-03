@@ -35,6 +35,13 @@ enum ZTileErrorCodeEnum : ReturnType {
 
 namespace zengine {
 namespace tsrpg {
+class ZBoard;
+class ZBoardObject;
+}//tsrpg
+}//zengine
+
+namespace zengine {
+namespace tsrpg {
 
 /*
     The tile base class.

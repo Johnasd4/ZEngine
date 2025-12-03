@@ -41,6 +41,12 @@ struct ZTCPSocketData;
 
 namespace zengine {
 namespace socket {
+class ZSocketBufferStream;
+}//socket
+}//zengine
+
+namespace zengine {
+namespace socket {
 
 /*
     TCP socket type.

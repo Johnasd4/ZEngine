@@ -37,6 +37,10 @@ enum ZConfigErrorCodeEnum : ReturnType {
 }//zengine
 
 namespace zengine {
+class ZJsonDocument;
+}
+
+namespace zengine {
 
 /*
     Config class. Used for storing constants.

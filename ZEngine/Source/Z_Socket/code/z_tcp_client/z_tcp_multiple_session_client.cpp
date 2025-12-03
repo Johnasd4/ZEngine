@@ -36,7 +36,7 @@ ZTCPMultipleSessionClient::ZTCPMultipleSessionClient(ZIOContext* _context_ptr) n
 {
     if (_context_ptr == nullptr) {
         Z_LOG_ERROR(
-            error_code::kPSocketErrorCode_NullptrParam, 0,
+            error_code::kSocketErrorCode_NullptrParam, 0,
             L"_io_context_ptr is nullptr!"
         );
         return;
@@ -80,7 +80,7 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncConnect(
     link_code = socket_ptr->Open(_tcp_endpoint.IPType());
     if (link_code != kOK) {
         Z_LOG_ERROR(
-            error_code::kPSocketErrorCode_LinkError, link_code,
+            error_code::kSocketErrorCode_LinkError, link_code,
             L"ZTCPSocket::Close() link error!"
         );
     }
@@ -127,7 +127,7 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncConnect(
     );
 
     if (link_code != kOK) {
-        ret_val = error_code::kPSocketErrorCode_LinkError;
+        ret_val = error_code::kSocketErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
             L"ZTCPSocket::Connect() link error!"

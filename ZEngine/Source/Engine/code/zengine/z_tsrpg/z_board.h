@@ -38,6 +38,12 @@ enum ZBoardErrorCodeEnum : ReturnType {
 
 namespace zengine {
 namespace tsrpg {
+class ZTile;
+}//tsrpg
+}//zengine
+
+namespace zengine {
+namespace tsrpg {
 
 /*
     The board base class.

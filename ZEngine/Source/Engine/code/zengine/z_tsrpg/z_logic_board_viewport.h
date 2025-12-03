@@ -37,6 +37,15 @@ enum ZLogicBoardViewerErrorCodeEnum : ReturnType {
 
 namespace zengine {
 namespace tsrpg {
+class ZTile;
+class ZLogicTile;
+class ZLogicBoard;
+class ZDisplayBoard;
+}//tsrpg
+}//zengine
+
+namespace zengine {
+namespace tsrpg {
 
 /*
     Logic board viewer, the class between logic board and display board. 

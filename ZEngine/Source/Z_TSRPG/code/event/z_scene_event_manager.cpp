@@ -21,7 +21,7 @@
 
 #include "z_scene_event_manager.h"
 
-#include "scene_event/z_scene_event.h"
+#include "f_scene_control/z_scene_event.h"
 
 namespace zengine {
 namespace tsrpg {

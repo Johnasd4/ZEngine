@@ -18,6 +18,8 @@
 */
 #pragma once
 
+#include "drive/d_pch.h"
+
 #include "m_log.h"
 #include "t_fixed_array.h"
 

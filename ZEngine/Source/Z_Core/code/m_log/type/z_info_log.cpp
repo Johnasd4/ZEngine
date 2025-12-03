@@ -19,7 +19,7 @@
 #define CORE_DLLFILE
 #include "drive/d_pch.h"
 
-#include "log/type/z_info_log.h"
+#include "m_log/type/z_info_log.h"
 
 #include "f_console.h"
 #include "m_log.h"

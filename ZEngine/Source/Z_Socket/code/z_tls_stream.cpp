@@ -46,7 +46,7 @@ ZTLSStream::ZTLSStream(
 {
     if (_socket_ptr->State() != ZTCPSocket::StateEnum_::kConnected) {
         Z_LOG_ERROR(
-            error_code::kPSocketErrorCode_StateError, 0,
+            error_code::kSocketErrorCode_StateError, 0,
             L"Socket state error! state: %d expect state: %d",
             _socket_ptr->State(), ZTCPSocket::StateEnum_::kConnected
         );
@@ -55,7 +55,7 @@ ZTLSStream::ZTLSStream(
 
     if (_tls_context_ptr->State() != ZTLSContext::StateEnum_::kInitialized) {
         Z_LOG_ERROR(
-            error_code::kPSocketErrorCode_StateError, 0,
+            error_code::kSocketErrorCode_StateError, 0,
             L"TLS context state error! state: %d expect state: %d",
             _tls_context_ptr->State(), ZTLSContext::StateEnum_::kInitialized
         );
@@ -65,14 +65,14 @@ ZTLSStream::ZTLSStream(
     if (_tls_context_ptr->TLSType() == TLSTypeEnum::kServer) {
         if (_tls_context_ptr->CertificateLoaded() == false) {
             Z_LOG_ERROR(
-                error_code::kPSocketErrorCode_ServerCertificateNotLoaded, 0,
+                error_code::kSocketErrorCode_ServerCertificateNotLoaded, 0,
                 L"Server certificate not loaded!"
             );
             return;
         }
         if (_tls_context_ptr->PrivateKeyLoaded() == false) {
             Z_LOG_ERROR(
-                error_code::kPSocketErrorCode_ServerPrivateKeyNotLoaded, 0,
+                error_code::kSocketErrorCode_ServerPrivateKeyNotLoaded, 0,
                 L"Server private key not loaded!"
             );
             return;
@@ -101,7 +101,7 @@ ZTLSStream::~ZTLSStream() noexcept {
     link_code = Shutdown();
     if (link_code != kOK) {
         Z_LOG_ERROR(
-            error_code::kPSocketErrorCode_LinkError, link_code,
+            error_code::kSocketErrorCode_LinkError, link_code,
             L"ZTLSStream::Shutdown() link error!"
         );
         return;
@@ -127,26 +127,26 @@ NODISCARD ReturnType ZTLSStream::Initialize(
 
     Z_CHECK(
         state_ != StateEnum_::kUninitialized,
-        error_code::kPSocketErrorCode_StateError,
+        error_code::kSocketErrorCode_StateError,
         L"TLS stream state error! state: %d expect state: %d",
         state_.Value(), StateEnum_::kUninitialized
     );
     Z_CHECK(
         _socket_ptr->State() != ZTCPSocket::StateEnum_::kConnected,
-        error_code::kPSocketErrorCode_StateError,
+        error_code::kSocketErrorCode_StateError,
         L"Socket state error! state: %d expect state: %d",
         _socket_ptr->State(), ZTCPSocket::StateEnum_::kConnected
     );
     Z_CHECK(
         _tls_context_ptr->State() != ZTLSContext::StateEnum_::kInitialized,
-        error_code::kPSocketErrorCode_StateError,
+        error_code::kSocketErrorCode_StateError,
         L"TLS context state error! state: %d expect state: %d",
         _tls_context_ptr->State(), ZTLSContext::StateEnum_::kInitialized
     );
 
     if (_tls_context_ptr->TLSType() == TLSTypeEnum::kServer) {
         if (_tls_context_ptr->CertificateLoaded() == false) {
-            ret_val = error_code::kPSocketErrorCode_ServerCertificateNotLoaded;
+            ret_val = error_code::kSocketErrorCode_ServerCertificateNotLoaded;
             Z_LOG_ERROR(
                 ret_val, 0,
                 L"Server certificate not loaded!"
@@ -154,7 +154,7 @@ NODISCARD ReturnType ZTLSStream::Initialize(
             return ret_val;
         }
         if (_tls_context_ptr->PrivateKeyLoaded() == false) {
-            ret_val = error_code::kPSocketErrorCode_ServerPrivateKeyNotLoaded;
+            ret_val = error_code::kSocketErrorCode_ServerPrivateKeyNotLoaded;
             Z_LOG_ERROR(
                 ret_val, 0,
                 L"Server private key not loaded!"
@@ -178,7 +178,7 @@ NODISCARD ReturnType ZTLSStream::SetDNI(const Char* host_name) noexcept {
 
     Z_CHECK(
         state_ != StateEnum_::kWaitForHandShake,
-        error_code::kPSocketErrorCode_StateError,
+        error_code::kSocketErrorCode_StateError,
         L"TLS stream state error! state: %d expect state: %d",
         state_.Value(), StateEnum_::kWaitForHandShake
     );
@@ -195,7 +195,7 @@ NODISCARD ReturnType ZTLSStream::Handshake() noexcept {
 
     Z_CHECK(
         state_ != StateEnum_::kWaitForHandShake,
-        error_code::kPSocketErrorCode_StateError,
+        error_code::kSocketErrorCode_StateError,
         L"TLS stream state error! state: %d expect state: %d",
         state_.Value(), StateEnum_::kWaitForHandShake
     );
@@ -220,7 +220,7 @@ NODISCARD ReturnType ZTLSStream::Handshake() noexcept {
             string::String2WString(tcp_socket_ptr_->RemoteEndpoint().IPString().String()).String(),
             tcp_socket_ptr_->RemoteEndpoint().Port()
         );
-        ret_val = error_code::kPSocketErrorCode_TLSTypeNotValid;
+        ret_val = error_code::kSocketErrorCode_TLSTypeNotValid;
         Z_LOG_ERROR(ret_val, 0, L"TLS Type not valid! tls_type: %d", tls_context_ptr_->TLSType());
         return ret_val;
     }
@@ -237,7 +237,7 @@ NODISCARD ReturnType ZTLSStream::Handshake() noexcept {
         if (IS_DICONNECT_ERROR(error_code)) {
             state_ = StateEnum_::kError;
             tcp_socket_ptr_->state_ = ZTCPSocket::StateEnum_::kError;
-            ret_val = error_code::kPSocketErrorCode_Disconnected;
+            ret_val = error_code::kSocketErrorCode_Disconnected;
             Z_DEBUG_LOG_FINISH(
                 L"Socket disconnected! ip: %ls port: %d",
                 string::String2WString(tcp_socket_ptr_->RemoteEndpoint().IPString().String()).String(),
@@ -248,7 +248,7 @@ NODISCARD ReturnType ZTLSStream::Handshake() noexcept {
         else {
             state_ = StateEnum_::kError;
             tcp_socket_ptr_->state_ = ZTCPSocket::StateEnum_::kError;
-            ret_val = error_code::kPSocketErrorCode_SystemError;
+            ret_val = error_code::kSocketErrorCode_SystemError;
             Z_LOG_ERROR(
                 ret_val, error_code.value(),
                 L"System error! error info: %ls",
@@ -271,7 +271,7 @@ NODISCARD ReturnType ZTLSStream::AsyncHandshake(
 
     Z_CHECK(
         state_ != StateEnum_::kWaitForHandShake,
-        error_code::kPSocketErrorCode_StateError,
+        error_code::kSocketErrorCode_StateError,
         L"TLS stream state error! state: %d expect state: %d",
         state_.Value(), StateEnum_::kWaitForHandShake
     );
@@ -296,7 +296,7 @@ NODISCARD ReturnType ZTLSStream::AsyncHandshake(
             string::String2WString(tcp_socket_ptr_->RemoteEndpoint().IPString().String()).String(),
             tcp_socket_ptr_->RemoteEndpoint().Port()
         );
-        ret_val = error_code::kPSocketErrorCode_TLSTypeNotValid;
+        ret_val = error_code::kSocketErrorCode_TLSTypeNotValid;
         Z_LOG_ERROR(ret_val, 0, L"TLS Type not valid! tls_type: %d", tls_context_ptr_->TLSType());
         return ret_val;
         break;
@@ -325,12 +325,12 @@ NODISCARD ReturnType ZTLSStream::AsyncHandshake(
                     );
                 }
                 else if (_error_code == boost::asio::error::operation_aborted) {
-                    ret_val = error_code::kPSocketErrorCode_OperationCanceled;
+                    ret_val = error_code::kSocketErrorCode_OperationCanceled;
                 }
                 else {
                     state_ = StateEnum_::kError;
                     tcp_socket_ptr_->state_ = ZTCPSocket::StateEnum_::kError;
-                    ret_val = error_code::kPSocketErrorCode_SystemError;
+                    ret_val = error_code::kSocketErrorCode_SystemError;
                     Z_LOG_ERROR(
                         ret_val, _error_code.value(),
                         L"System error! error info: %ls",
@@ -360,7 +360,7 @@ NODISCARD ReturnType ZTLSStream::Read(
     boost::system::error_code error_code;
 
     if (state_ != StateEnum_::kHandShaked) {
-        ret_val = error_code::kPSocketErrorCode_StateError;
+        ret_val = error_code::kSocketErrorCode_StateError;
         return ret_val;
     }
     
@@ -371,7 +371,7 @@ NODISCARD ReturnType ZTLSStream::Read(
         if (IS_DICONNECT_ERROR(error_code)) {
             state_ = StateEnum_::kError;
             tcp_socket_ptr_->state_ = ZTCPSocket::StateEnum_::kError;
-            ret_val = error_code::kPSocketErrorCode_Disconnected;
+            ret_val = error_code::kSocketErrorCode_Disconnected;
             Z_DEBUG_LOG_FINISH(
                 L"Socket disconnected! ip: %ls port: %d",
                 string::String2WString(tcp_socket_ptr_->RemoteEndpoint().IPString().String()).String(),
@@ -382,7 +382,7 @@ NODISCARD ReturnType ZTLSStream::Read(
         else {
             state_ = StateEnum_::kError;
             tcp_socket_ptr_->state_ = ZTCPSocket::StateEnum_::kError;
-            ret_val = error_code::kPSocketErrorCode_SystemError;
+            ret_val = error_code::kSocketErrorCode_SystemError;
             Z_LOG_ERROR(
                 ret_val, error_code.value(),
                 L"System error! error info: %ls",
@@ -406,7 +406,7 @@ NODISCARD ReturnType ZTLSStream::AsyncRead(
     ReturnType ret_val = kOK;
 
     if (state_ != StateEnum_::kHandShaked) {
-        ret_val = error_code::kPSocketErrorCode_StateError;
+        ret_val = error_code::kSocketErrorCode_StateError;
         return ret_val;
     }
 
@@ -429,12 +429,12 @@ NODISCARD ReturnType ZTLSStream::AsyncRead(
                     );
                 }
                 else if (_error_code == boost::asio::error::operation_aborted) {
-                    ret_val = error_code::kPSocketErrorCode_OperationCanceled;
+                    ret_val = error_code::kSocketErrorCode_OperationCanceled;
                 }
                 else {
                     state_ = StateEnum_::kError;
                     tcp_socket_ptr_->state_ = ZTCPSocket::StateEnum_::kError;
-                    ret_val = error_code::kPSocketErrorCode_SystemError;
+                    ret_val = error_code::kSocketErrorCode_SystemError;
                     Z_LOG_ERROR(
                         ret_val, _error_code.value(),
                         L"System error! error info: %ls",
@@ -468,7 +468,7 @@ NODISCARD ReturnType ZTLSStream::ReadUntil(
     boost::system::error_code error_code;
 
     if (state_ != StateEnum_::kHandShaked) {
-        ret_val = error_code::kPSocketErrorCode_StateError;
+        ret_val = error_code::kSocketErrorCode_StateError;
         return ret_val;
     }
 
@@ -480,7 +480,7 @@ NODISCARD ReturnType ZTLSStream::ReadUntil(
         if (IS_DICONNECT_ERROR(error_code)) {
             state_ = StateEnum_::kError;
             tcp_socket_ptr_->state_ = ZTCPSocket::StateEnum_::kError;
-            ret_val = error_code::kPSocketErrorCode_Disconnected;
+            ret_val = error_code::kSocketErrorCode_Disconnected;
             Z_DEBUG_LOG_FINISH(
                 L"Socket disconnected! ip: %ls port: %d",
                 string::String2WString(tcp_socket_ptr_->RemoteEndpoint().IPString().String()).String(),
@@ -489,7 +489,7 @@ NODISCARD ReturnType ZTLSStream::ReadUntil(
             return ret_val;
         }
         else if (error_code == boost::asio::error::not_found) {
-            ret_val = error_code::kPSocketErrorCode_ReadUntilSymbolNotFound;
+            ret_val = error_code::kSocketErrorCode_ReadUntilSymbolNotFound;
             Z_LOG_ERROR(
                 ret_val, error_code.value(),
                 L"Match char not found!"
@@ -499,7 +499,7 @@ NODISCARD ReturnType ZTLSStream::ReadUntil(
         else {
             state_ = StateEnum_::kError;
             tcp_socket_ptr_->state_ = ZTCPSocket::StateEnum_::kError;
-            ret_val = error_code::kPSocketErrorCode_SystemError;
+            ret_val = error_code::kSocketErrorCode_SystemError;
             Z_LOG_ERROR(
                 ret_val, error_code.value(),
                 L"System error! error info: %ls",
@@ -526,7 +526,7 @@ NODISCARD ReturnType ZTLSStream::ReadUntil(
     boost::system::error_code error_code;
 
     if (state_ != StateEnum_::kHandShaked) {
-        ret_val = error_code::kPSocketErrorCode_StateError;
+        ret_val = error_code::kSocketErrorCode_StateError;
         return ret_val;
     }
 
@@ -538,7 +538,7 @@ NODISCARD ReturnType ZTLSStream::ReadUntil(
         if (IS_DICONNECT_ERROR(error_code)) {
             state_ = StateEnum_::kError;
             tcp_socket_ptr_->state_ = ZTCPSocket::StateEnum_::kError;
-            ret_val = error_code::kPSocketErrorCode_Disconnected;
+            ret_val = error_code::kSocketErrorCode_Disconnected;
             Z_DEBUG_LOG_FINISH(
                 L"Socket disconnected! ip: %ls port: %d",
                 string::String2WString(tcp_socket_ptr_->RemoteEndpoint().IPString().String()).String(),
@@ -547,7 +547,7 @@ NODISCARD ReturnType ZTLSStream::ReadUntil(
             return ret_val;
         }
         else if (error_code == boost::asio::error::not_found) {
-            ret_val = error_code::kPSocketErrorCode_ReadUntilSymbolNotFound;
+            ret_val = error_code::kSocketErrorCode_ReadUntilSymbolNotFound;
             Z_LOG_ERROR(
                 ret_val, error_code.value(),
                 L"Match string not found!"
@@ -557,7 +557,7 @@ NODISCARD ReturnType ZTLSStream::ReadUntil(
         else {
             state_ = StateEnum_::kError;
             tcp_socket_ptr_->state_ = ZTCPSocket::StateEnum_::kError;
-            ret_val = error_code::kPSocketErrorCode_SystemError;
+            ret_val = error_code::kSocketErrorCode_SystemError;
             Z_LOG_ERROR(
                 ret_val, error_code.value(),
                 L"System error! error info: %ls",
@@ -583,7 +583,7 @@ NODISCARD ReturnType ZTLSStream::AsyncReadUntil(
     ReturnType link_code = kOK;
 
     if (state_ != StateEnum_::kHandShaked) {
-        ret_val = error_code::kPSocketErrorCode_StateError;
+        ret_val = error_code::kSocketErrorCode_StateError;
         return ret_val;
     }
 
@@ -607,10 +607,10 @@ NODISCARD ReturnType ZTLSStream::AsyncReadUntil(
                         );
                     }
                     else if (_error_code == boost::asio::error::operation_aborted) {
-                        ret_val = error_code::kPSocketErrorCode_OperationCanceled;
+                        ret_val = error_code::kSocketErrorCode_OperationCanceled;
                     }
                     else if (_error_code == boost::asio::error::not_found) {
-                        ret_val = error_code::kPSocketErrorCode_ReadUntilSymbolNotFound;
+                        ret_val = error_code::kSocketErrorCode_ReadUntilSymbolNotFound;
                         Z_LOG_ERROR(
                             ret_val, _error_code.value(),
                             L"Match char not found!"
@@ -619,7 +619,7 @@ NODISCARD ReturnType ZTLSStream::AsyncReadUntil(
                     else {
                         state_ = StateEnum_::kError;
                         tcp_socket_ptr_->state_ = ZTCPSocket::StateEnum_::kError;
-                        ret_val = error_code::kPSocketErrorCode_SystemError;
+                        ret_val = error_code::kSocketErrorCode_SystemError;
                         Z_LOG_ERROR(
                             ret_val, _error_code.value(),
                             L"System error! error info: %ls",
@@ -653,7 +653,7 @@ NODISCARD ReturnType ZTLSStream::AsyncReadUntil(
     ReturnType link_code = kOK;
 
     if (state_ != StateEnum_::kHandShaked) {
-        ret_val = error_code::kPSocketErrorCode_StateError;
+        ret_val = error_code::kSocketErrorCode_StateError;
         return ret_val;
     }
 
@@ -677,10 +677,10 @@ NODISCARD ReturnType ZTLSStream::AsyncReadUntil(
                         );
                     }
                     else if (_error_code == boost::asio::error::operation_aborted) {
-                        ret_val = error_code::kPSocketErrorCode_OperationCanceled;
+                        ret_val = error_code::kSocketErrorCode_OperationCanceled;
                     }
                     else if (_error_code == boost::asio::error::not_found) {
-                        ret_val = error_code::kPSocketErrorCode_ReadUntilSymbolNotFound;
+                        ret_val = error_code::kSocketErrorCode_ReadUntilSymbolNotFound;
                         Z_LOG_ERROR(
                             ret_val, _error_code.value(),
                             L"Match string not found!"
@@ -689,7 +689,7 @@ NODISCARD ReturnType ZTLSStream::AsyncReadUntil(
                     else {
                         state_ = StateEnum_::kError;
                         tcp_socket_ptr_->state_ = ZTCPSocket::StateEnum_::kError;
-                        ret_val = error_code::kPSocketErrorCode_SystemError;
+                        ret_val = error_code::kSocketErrorCode_SystemError;
                         Z_LOG_ERROR(
                             ret_val, _error_code.value(),
                             L"System error! error info: %ls",
@@ -723,7 +723,7 @@ NODISCARD ReturnType ZTLSStream::ReadUntilClose(
     boost::system::error_code error_code;
 
     if (state_ != StateEnum_::kHandShaked) {
-        ret_val = error_code::kPSocketErrorCode_StateError;
+        ret_val = error_code::kSocketErrorCode_StateError;
         return ret_val;
     }
 
@@ -740,7 +740,7 @@ NODISCARD ReturnType ZTLSStream::ReadUntilClose(
     if (IS_DICONNECT_ERROR(error_code)) {
         state_ = StateEnum_::kError;
         tcp_socket_ptr_->state_ = ZTCPSocket::StateEnum_::kError;
-        ret_val = error_code::kPSocketErrorCode_Disconnected;
+        ret_val = error_code::kSocketErrorCode_Disconnected;
         Z_DEBUG_LOG_FINISH(
             L"Socket disconnected! ip: %ls port: %d",
             string::String2WString(tcp_socket_ptr_->RemoteEndpoint().IPString().String()).String(),
@@ -751,7 +751,7 @@ NODISCARD ReturnType ZTLSStream::ReadUntilClose(
     else {
         state_ = StateEnum_::kError;
         tcp_socket_ptr_->state_ = ZTCPSocket::StateEnum_::kError;
-        ret_val = error_code::kPSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             L"System error! error info: %ls",
@@ -775,7 +775,7 @@ NODISCARD ReturnType ZTLSStream::Write(
     boost::system::error_code error_code;
 
     if (state_ != StateEnum_::kHandShaked) {
-        ret_val = error_code::kPSocketErrorCode_StateError;
+        ret_val = error_code::kSocketErrorCode_StateError;
         return ret_val;
     }
 
@@ -787,7 +787,7 @@ NODISCARD ReturnType ZTLSStream::Write(
         if (IS_DICONNECT_ERROR(error_code)) {
             state_ = StateEnum_::kError;
             tcp_socket_ptr_->state_ = ZTCPSocket::StateEnum_::kError;
-            ret_val = error_code::kPSocketErrorCode_Disconnected;
+            ret_val = error_code::kSocketErrorCode_Disconnected;
             Z_DEBUG_LOG_FINISH(
                 L"Socket disconnected! ip: %ls port: %d",
                 string::String2WString(tcp_socket_ptr_->RemoteEndpoint().IPString().String()).String(),
@@ -798,7 +798,7 @@ NODISCARD ReturnType ZTLSStream::Write(
         else {
             state_ = StateEnum_::kError;
             tcp_socket_ptr_->state_ = ZTCPSocket::StateEnum_::kError;
-            ret_val = error_code::kPSocketErrorCode_SystemError;
+            ret_val = error_code::kSocketErrorCode_SystemError;
             Z_LOG_ERROR(
                 ret_val, error_code.value(),
                 L"System error! error info: %ls",
@@ -818,7 +818,7 @@ NODISCARD ReturnType ZTLSStream::AsyncWrite(
     ReturnType ret_val = kOK;
 
     if (state_ != StateEnum_::kHandShaked) {
-        ret_val = error_code::kPSocketErrorCode_StateError;
+        ret_val = error_code::kSocketErrorCode_StateError;
         return ret_val;
     }
 
@@ -841,12 +841,12 @@ NODISCARD ReturnType ZTLSStream::AsyncWrite(
                     );
                 }
                 else if (_error_code == boost::asio::error::operation_aborted) {
-                    ret_val = error_code::kPSocketErrorCode_OperationCanceled;
+                    ret_val = error_code::kSocketErrorCode_OperationCanceled;
                 }
                 else {
                     state_ = StateEnum_::kError;
                     tcp_socket_ptr_->state_ = ZTCPSocket::StateEnum_::kError;
-                    ret_val = error_code::kPSocketErrorCode_SystemError;
+                    ret_val = error_code::kSocketErrorCode_SystemError;
                     Z_LOG_ERROR(
                         ret_val, _error_code.value(),
                         L"System error! error info: %ls",
@@ -882,7 +882,7 @@ NODISCARD ReturnType ZTLSStream::Shutdown(
     data_ptr_->stream_.shutdown(error_code);
     if (error_code) {
         state_ = StateEnum_::kError;
-        ret_val = error_code::kPSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             L"System error! error info: %ls",

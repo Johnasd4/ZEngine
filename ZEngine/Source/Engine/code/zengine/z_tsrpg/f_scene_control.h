@@ -22,7 +22,7 @@
 
 #include "../z_lua/f_lua.h"
 
-#include "scene_event/z_scene_event.h"
+#include "f_scene_control/z_scene_event.h"
 
 namespace zengine {
 namespace error_code {

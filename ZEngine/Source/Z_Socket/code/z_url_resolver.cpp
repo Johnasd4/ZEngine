@@ -39,7 +39,7 @@ NODISCARD ReturnType ZURLResolver::Resolve(ZStringView _url_str) noexcept {
     //url not valid
     if (!data_ptr_->url_result_.has_value()) {
         ZString url_str(_url_str.DataPtr(), _url_str.Size());
-        ret_val = error_code::kPURLErrorCode_URLResolveFailed;
+        ret_val = error_code::kURLErrorCode_URLResolveFailed;
         Z_LOG_ERROR(
             ret_val, 0,
             L"URL resolved failed! _url_str: %ls",

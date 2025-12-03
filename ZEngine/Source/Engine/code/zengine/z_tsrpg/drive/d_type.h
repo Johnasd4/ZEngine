@@ -134,23 +134,5 @@ struct TileSizeType {
     }
 };
 
-class ZBoard;
-class ZDisplayBoard;
-class ZLogicBoard;
-class ZLogicBoardViewport;
-class ZLogicHexBoard;
-
-class ZTile;
-class ZLogicTile;
-class ZLogicTileTexture;
-class ZDisplayTile;
-class ZLogicHexTile;
-
-class ZBoardObject;
-class ZLogicBoardObject;
-class ZDisplayBoardObject;
-
-class ZSceneEvent;
-
 }//tsrpg
 }//zengine

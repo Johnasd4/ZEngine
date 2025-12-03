@@ -44,7 +44,7 @@ ZUDPEndpoint::ZUDPEndpoint(const Char* _ip_str, UInt16 _port) noexcept {
     boost::asio::ip::address address = boost::asio::ip::make_address(_ip_str, error_code);
     if (error_code) {
         Z_LOG_ERROR(
-            error_code::kPSocketErrorCode_IPNotVaild, 0,
+            error_code::kSocketErrorCode_IPNotVaild, 0,
             L"IP not vaild! _ip_str: %ls",
             string::String2WString(_ip_str).String()
         );
@@ -66,7 +66,7 @@ NODISCARD ReturnType ZUDPEndpoint::SetEndpoint(const Char* _ip_str, UInt16 _port
     boost::system::error_code error_code;
     boost::asio::ip::address address = boost::asio::ip::make_address(_ip_str, error_code);
     if (error_code) {
-        ret_val = error_code::kPSocketErrorCode_IPNotVaild;
+        ret_val = error_code::kSocketErrorCode_IPNotVaild;
         Z_LOG_ERROR(
             ret_val, 0,
             L"IP not vaild! _ip_str: %ls",

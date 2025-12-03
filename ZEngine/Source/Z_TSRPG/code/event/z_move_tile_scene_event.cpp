@@ -19,7 +19,7 @@
 #define TSRPG_DLLFILE
 #include "drive/d_pch.h"
 
-#include "scene_event/z_move_tile_scene_event.h"
+#include "f_scene_control/z_move_tile_scene_event.h"
 
 #include "z_logic_board.h"
 #include "z_logic_tile.h"

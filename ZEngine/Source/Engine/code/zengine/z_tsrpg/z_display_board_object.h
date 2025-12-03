@@ -36,6 +36,13 @@ enum ZDisplayBoardObjectErrorCodeEnum : ReturnType {
 
 namespace zengine {
 namespace tsrpg {
+class ZLogicBoardObject;
+class ZDisplayBoardObject;
+}//tsrpg
+}//zengine
+
+namespace zengine {
+namespace tsrpg {
 
 /*
     The objects that are placed on the board. Used for logic calculation.

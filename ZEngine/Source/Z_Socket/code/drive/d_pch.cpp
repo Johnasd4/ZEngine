@@ -18,3 +18,9 @@
 */
 #define SOCKET_DLLFILE
 #include "drive/d_pch.h"
+
+//Must be little-endian architecture!!!
+static_assert(
+    std::endian::native == std::endian::little,
+    "Current architecture is not Little-Endian! Protocol requires Little-Endian."
+);

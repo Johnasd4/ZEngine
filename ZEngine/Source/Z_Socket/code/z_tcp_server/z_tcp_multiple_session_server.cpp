@@ -38,7 +38,7 @@ ZTCPMultipleSessionServer::ZTCPMultipleSessionServer(ZIOContext* _io_context_ptr
 {
     if (_io_context_ptr == nullptr) {
         Z_LOG_ERROR(
-            error_code::kPSocketErrorCode_NullptrParam, 0,
+            error_code::kSocketErrorCode_NullptrParam, 0,
             L"_io_context_ptr is nullptr!"
         );
         return;
@@ -61,7 +61,7 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::Open(IPTypeEnum _ip_type) noexce
 
     Z_CHECK(
         state_ != StateEnum_::kClosed,
-        error_code::kPSocketErrorCode_StateError,
+        error_code::kSocketErrorCode_StateError,
         L"Server state error! state: %d expect state: %d",
         state_, StateEnum_::kClosed
     );
@@ -74,7 +74,7 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::Open(IPTypeEnum _ip_type) noexce
         data_ptr_->acceptor_.open(boost::asio::ip::tcp::v6(), error_code);
         break;
     default:
-        ret_val = error_code::kPSocketErrorCode_ParamOutOfRange;
+        ret_val = error_code::kSocketErrorCode_ParamOutOfRange;
         Z_LOG_ERROR(
             ret_val, 0,
             L"Enum out of range! _ip_type: %d",
@@ -85,7 +85,7 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::Open(IPTypeEnum _ip_type) noexce
 
     if (error_code) {
         state_ = StateEnum_::kError;
-        ret_val = error_code::kPSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             L"System error! error info: %ls",
@@ -105,7 +105,7 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::BindEndpoint(const ZTCPEndpoint&
 
     Z_CHECK(
         state_ != StateEnum_::kOpened,
-        error_code::kPSocketErrorCode_StateError,
+        error_code::kSocketErrorCode_StateError,
         L"Server state error! state: %d expect state: %d",
         state_, StateEnum_::kOpened
     );
@@ -116,7 +116,7 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::BindEndpoint(const ZTCPEndpoint&
     );
     if (error_code) {
         state_ = StateEnum_::kError;
-        ret_val = error_code::kPSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             L"System error! error info: %ls",
@@ -136,7 +136,7 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::Listen(Int32 _max_wait_connect_c
 
     Z_CHECK(
         state_ != StateEnum_::kEndpointBind,
-        error_code::kPSocketErrorCode_StateError,
+        error_code::kSocketErrorCode_StateError,
         L"Server state error! state: %d expect state: %d",
         state_, StateEnum_::kEndpointBind
     );
@@ -144,7 +144,7 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::Listen(Int32 _max_wait_connect_c
     data_ptr_->acceptor_.listen(_max_wait_connect_client_num, error_code);
     if (error_code) {
         state_ = StateEnum_::kError;
-        ret_val = error_code::kPSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             L"System error! error info: %ls",
@@ -187,7 +187,7 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncAccept(
 
     Z_CHECK(
         state_ != StateEnum_::kListen,
-        error_code::kPSocketErrorCode_StateError,
+        error_code::kSocketErrorCode_StateError,
         L"Server state error! state: %d expect state: %d",
         state_, StateEnum_::kListen
     );
@@ -207,11 +207,11 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncAccept(
 
                 //handle error
                 if (_error_code == boost::asio::error::operation_aborted) {
-                    ret_val = error_code::kPSocketErrorCode_OperationCanceled;
+                    ret_val = error_code::kSocketErrorCode_OperationCanceled;
                     Z_DEBUG_LOG_FAILURE(L"Server accept cancelled!");
                 }
                 else {
-                    ret_val = error_code::kPSocketErrorCode_SystemError;
+                    ret_val = error_code::kSocketErrorCode_SystemError;
                     Z_LOG_ERROR(
                         ret_val, _error_code.value(),
                         L"System error! error info: %ls",
@@ -256,7 +256,7 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncBroadcast(
 
     Z_CHECK(
         state_ != StateEnum_::kListen,
-        error_code::kPSocketErrorCode_StateError,
+        error_code::kSocketErrorCode_StateError,
         L"Server state error! state: %d expect state: %d",
         state_, StateEnum_::kListen
     );

@@ -18,11 +18,11 @@
 */
 #pragma once
 
-#include "basic_math/f_basic_math_compare.h"
-#include "basic_math/f_basic_math_digit.h"
-#include "basic_math/f_basic_math_factorial.h"
-#include "basic_math/f_basic_math_log.h"
-#include "basic_math/f_basic_math_pow.h"
-#include "basic_math/f_basic_math_random.h"
-#include "basic_math/f_basic_math_trigonometric.h"
-#include "basic_math/f_basic_math_valid.h"
+#include "f_basic_math/f_basic_math_compare.h"
+#include "f_basic_math/f_basic_math_digit.h"
+#include "f_basic_math/f_basic_math_factorial.h"
+#include "f_basic_math/f_basic_math_log.h"
+#include "f_basic_math/f_basic_math_pow.h"
+#include "f_basic_math/f_basic_math_random.h"
+#include "f_basic_math/f_basic_math_trigonometric.h"
+#include "f_basic_math/f_basic_math_valid.h"

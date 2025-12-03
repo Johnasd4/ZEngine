@@ -36,6 +36,13 @@ enum ZDisplayTileErrorCodeEnum : ReturnType {
 
 namespace zengine {
 namespace tsrpg {
+class ZBoard;
+class ZLogicTile;
+}//tsrpg
+}//zengine
+
+namespace zengine {
+namespace tsrpg {
 
 /*
     The display tile base class, used for scene tiles.

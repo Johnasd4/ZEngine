@@ -24,8 +24,8 @@
 #include "t_fixed_string.h"
 #include "z_system_time.h"
 
-#include "log/f_log.h"
-#include "log/z_log.h"
+#include "m_log/f_log.h"
+#include "m_log/z_log.h"
 
 #ifndef PROJECT_NAME
 #define PROJECT_NAME L"Unknown"

@@ -33,7 +33,7 @@ using namespace zengine::socket;
 Int32 main() { 
     zengine::Initialize();
 
-    ZJsonDocument doc;
+    ZSerializer test_serializer(100);
 
     //test::GuiTest();
     //test::LogOutputServerTest();

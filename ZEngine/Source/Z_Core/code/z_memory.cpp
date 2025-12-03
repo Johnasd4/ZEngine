@@ -25,7 +25,7 @@ namespace zengine {
 
 ZMemory::ZMemory() noexcept 
     : SuperType_()
-    , data_ptr_()
+    , data_ptr_(nullptr)
     , size_(0ULL) 
     , capacity_(0ULL)
 {}
@@ -77,7 +77,9 @@ Void ZMemory::Resize(SizeType _size) noexcept {
     if (_size > capacity_) {
         Byte* data_ptr = static_cast<Byte*>(memory_pool::ApplyMemory(_size, &capacity_));
         Copy(data_ptr, data_ptr_, size_);
-        memory_pool::ReleaseMemory(data_ptr_);
+        if (data_ptr_ != nullptr) {
+            memory_pool::ReleaseMemory(data_ptr_);
+        }
         data_ptr_ = data_ptr;
     }
     size_ = _size;

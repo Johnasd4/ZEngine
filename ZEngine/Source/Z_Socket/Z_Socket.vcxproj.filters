@@ -111,6 +111,9 @@
     <ClCompile Include="code\z_io_context_work_guard.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="code\z_udp_message.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\data\z_buffer_stream_data.h">
@@ -153,6 +156,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\data\z_io_context_work_guard_data.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_udp_packet\z_udp_packet_message.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

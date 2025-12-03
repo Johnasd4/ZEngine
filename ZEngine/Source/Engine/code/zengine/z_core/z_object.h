@@ -69,6 +69,4 @@ private:
     static Void operator delete[](Void*) = delete;
 };
 
-#pragma warning(disable : 26439)
-
 }//zengine

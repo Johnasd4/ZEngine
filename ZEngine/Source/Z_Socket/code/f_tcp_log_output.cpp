@@ -83,7 +83,7 @@ public:
 
         Z_CHECK(
             log_server_thread_state_ != ThreadState_::kClosed,
-            error_code::kPSocketErrorCode_StateError,
+            error_code::kSocketErrorCode_StateError,
             L"Server state error! state: %d expect state: %d",
             log_server_thread_state_.Value(), ThreadState_::kClosed
         );
@@ -91,7 +91,7 @@ public:
         //open
         link_code = log_server_.Open(_tcp_endpoint.IPType());
         if (link_code != kOK) {
-            ret_val = error_code::kPSocketErrorCode_LinkError;
+            ret_val = error_code::kSocketErrorCode_LinkError;
             Z_LOG_ERROR(ret_val, link_code, L"ZTCPServer::Open() link error!");
             return ret_val;
         }
@@ -99,7 +99,7 @@ public:
         //set end point
         link_code = log_server_.BindEndpoint(_tcp_endpoint);
         if (link_code != kOK) {
-            ret_val = error_code::kPSocketErrorCode_LinkError;
+            ret_val = error_code::kSocketErrorCode_LinkError;
             Z_LOG_ERROR(ret_val, link_code, L"ZTCPServer::SetEndpoint() link error!");
             return ret_val;
         }
@@ -202,7 +202,7 @@ private:
             if (link_code != kOK) {
                 Instance().log_server_thread_state_ = ThreadState_::kClosed;
                 Z_LOG_ERROR(
-                    error_code::kPSocketErrorCode_LinkError, link_code, 
+                    error_code::kSocketErrorCode_LinkError, link_code, 
                     L"ZTCPSingleSessionServer::Accept() link error!"
                 );
                 Instance().log_server_.Close();
@@ -336,7 +336,7 @@ public:
 
         Z_CHECK(
             log_client_thread_state_ != ThreadState_::kClosed,
-            error_code::kPSocketErrorCode_StateError,
+            error_code::kSocketErrorCode_StateError,
             L"Client state error! state: %d expect state: %d",
             log_client_thread_state_.Value(), ThreadState_::kClosed
         );
@@ -402,7 +402,7 @@ private:
         link_code = Instance().log_client_.Open(_tcp_endpoint.IPType());
         if (link_code != kOK) {
             Z_LOG_ERROR(
-                error_code::kPSocketErrorCode_LinkError, link_code, 
+                error_code::kSocketErrorCode_LinkError, link_code, 
                 L"ZTCPServer::Open() link error!"
             );
             Z_LOG_FAILURE(L"Log server open failed!");
@@ -417,11 +417,11 @@ private:
         //wait for clinet connect
         link_code = Instance().log_client_.Connect(_tcp_endpoint, _repeat_times);
         if (link_code != kOK) {
-            if (link_code == error_code::kPSocketErrorCode_ConnectFailed) {
+            if (link_code == error_code::kSocketErrorCode_ConnectFailed) {
             }
             else {
                 Z_LOG_ERROR(
-                    error_code::kPSocketErrorCode_LinkError, link_code,
+                    error_code::kSocketErrorCode_LinkError, link_code,
                     L"ZTCPSingleSessionClient::Connect() link error!"
                 );
             }

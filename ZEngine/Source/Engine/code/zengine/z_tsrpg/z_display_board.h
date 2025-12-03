@@ -38,6 +38,12 @@ enum ZDisplayBoardErrorCodeEnum : ReturnType {
 
 namespace zengine {
 namespace tsrpg {
+class ZLogicBoardViewport;
+}//tsrpg
+}//zengine
+
+namespace zengine {
+namespace tsrpg {
 
 /*
     The display board base class, used for scene boards.

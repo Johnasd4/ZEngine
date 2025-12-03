@@ -45,7 +45,7 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::Resolve(ZConstBuffer _buffer) noex
         boost::asio::buffer(_buffer.DataPtr<const Void>(), _buffer.Size()), error_code
     );
     if (error_code) {
-        ret_val = error_code::kPHTTPErrorCode_SystemError;
+        ret_val = error_code::kHTTPErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             L"System error! error info: %ls",
@@ -74,7 +74,7 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetInt32(Int32* _value_ptr, ZStrin
     ReturnType link_code = kOK;
     Z_CHECK(
         _value_ptr == nullptr,
-        error_code::kPHTTPErrorCode_NullptrParam,
+        error_code::kHTTPErrorCode_NullptrParam,
         L"_io_context_ptr is nullptr!"
     );
     try {
@@ -84,7 +84,7 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetInt32(Int32* _value_ptr, ZStrin
         ZString string(string_view.data(), string_view.size());
         link_code = string.ToInt32(_value_ptr);
         if (link_code != kOK) {
-            ret_val = error_code::kPHTTPErrorCode_LinkError;
+            ret_val = error_code::kHTTPErrorCode_LinkError;
             Z_LOG_ERROR(
                 ret_val, link_code,
                 L"ZString::ToInt32() link error!"
@@ -93,7 +93,7 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetInt32(Int32* _value_ptr, ZStrin
         }
     }
     catch (const std::exception& error_code) {
-        ret_val = error_code::kPHTTPErrorCode_SystemError;
+        ret_val = error_code::kHTTPErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, 0,
             L"System error! error info: %ls",
@@ -107,7 +107,7 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetInt64(Int64* _value_ptr, ZStrin
     ReturnType link_code = kOK;
     Z_CHECK(
         _value_ptr == nullptr,
-        error_code::kPHTTPErrorCode_NullptrParam,
+        error_code::kHTTPErrorCode_NullptrParam,
         L"_io_context_ptr is nullptr!"
     );
     try {
@@ -117,7 +117,7 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetInt64(Int64* _value_ptr, ZStrin
         ZString string(string_view.data(), string_view.size());
         link_code = string.ToInt64(_value_ptr);
         if (link_code != kOK) {
-            ret_val = error_code::kPHTTPErrorCode_LinkError;
+            ret_val = error_code::kHTTPErrorCode_LinkError;
             Z_LOG_ERROR(
                 ret_val, link_code,
                 L"ZString::ToInt64() link error!"
@@ -126,7 +126,7 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetInt64(Int64* _value_ptr, ZStrin
         }
     }
     catch (const std::exception& error_code) {
-        ret_val = error_code::kPHTTPErrorCode_SystemError;
+        ret_val = error_code::kHTTPErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, 0,
             L"System error! error info: %ls",
@@ -140,7 +140,7 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetUInt32(UInt32* _value_ptr, ZStr
     ReturnType link_code = kOK;
     Z_CHECK(
         _value_ptr == nullptr,
-        error_code::kPHTTPErrorCode_NullptrParam,
+        error_code::kHTTPErrorCode_NullptrParam,
         L"_io_context_ptr is nullptr!"
     );
     try {
@@ -150,7 +150,7 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetUInt32(UInt32* _value_ptr, ZStr
         ZString string(string_view.data(), string_view.size());
         link_code = string.ToUInt32(_value_ptr);
         if (link_code != kOK) {
-            ret_val = error_code::kPHTTPErrorCode_LinkError;
+            ret_val = error_code::kHTTPErrorCode_LinkError;
             Z_LOG_ERROR(
                 ret_val, link_code,
                 L"ZString::ToUInt32() link error!"
@@ -159,7 +159,7 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetUInt32(UInt32* _value_ptr, ZStr
         }
     }
     catch (const std::exception& error_code) {
-        ret_val = error_code::kPHTTPErrorCode_SystemError;
+        ret_val = error_code::kHTTPErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, 0,
             L"System error! error info: %ls",
@@ -173,7 +173,7 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetUInt64(UInt64* _value_ptr, ZStr
     ReturnType link_code = kOK;
     Z_CHECK(
         _value_ptr == nullptr,
-        error_code::kPHTTPErrorCode_NullptrParam,
+        error_code::kHTTPErrorCode_NullptrParam,
         L"_io_context_ptr is nullptr!"
     );
     try {
@@ -183,7 +183,7 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetUInt64(UInt64* _value_ptr, ZStr
         ZString string(string_view.data(), string_view.size());
         link_code = string.ToUInt64(_value_ptr);
         if (link_code != kOK) {
-            ret_val = error_code::kPHTTPErrorCode_LinkError;
+            ret_val = error_code::kHTTPErrorCode_LinkError;
             Z_LOG_ERROR(
                 ret_val, link_code,
                 L"ZString::ToUInt64() link error!"
@@ -192,7 +192,7 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetUInt64(UInt64* _value_ptr, ZStr
         }
     }
     catch (const std::exception& error_code) {
-        ret_val = error_code::kPHTTPErrorCode_SystemError;
+        ret_val = error_code::kHTTPErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, 0,
             L"System error! error info: %ls",
@@ -206,7 +206,7 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetFloat32(Float32* _value_ptr, ZS
     ReturnType link_code = kOK;
     Z_CHECK(
         _value_ptr == nullptr,
-        error_code::kPHTTPErrorCode_NullptrParam,
+        error_code::kHTTPErrorCode_NullptrParam,
         L"_io_context_ptr is nullptr!"
     );
     try {
@@ -216,7 +216,7 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetFloat32(Float32* _value_ptr, ZS
         ZString string(string_view.data(), string_view.size());
         link_code = string.ToFloat32(_value_ptr);
         if (link_code != kOK) {
-            ret_val = error_code::kPHTTPErrorCode_LinkError;
+            ret_val = error_code::kHTTPErrorCode_LinkError;
             Z_LOG_ERROR(
                 ret_val, link_code,
                 L"ZString::ToFloat32() link error!"
@@ -225,7 +225,7 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetFloat32(Float32* _value_ptr, ZS
         }
     }
     catch (const std::exception& error_code) {
-        ret_val = error_code::kPHTTPErrorCode_SystemError;
+        ret_val = error_code::kHTTPErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, 0,
             L"System error! error info: %ls",
@@ -239,7 +239,7 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetFloat64(Float64* _value_ptr, ZS
     ReturnType link_code = kOK;
     Z_CHECK(
         _value_ptr == nullptr,
-        error_code::kPHTTPErrorCode_NullptrParam,
+        error_code::kHTTPErrorCode_NullptrParam,
         L"_io_context_ptr is nullptr!"
     );
     try {
@@ -249,7 +249,7 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetFloat64(Float64* _value_ptr, ZS
         ZString string(string_view.data(), string_view.size());
         link_code = string.ToFloat64(_value_ptr);
         if (link_code != kOK) {
-            ret_val = error_code::kPHTTPErrorCode_LinkError;
+            ret_val = error_code::kHTTPErrorCode_LinkError;
             Z_LOG_ERROR(
                 ret_val, link_code,
                 L"ZString::ToFloat64() link error!"
@@ -258,7 +258,7 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetFloat64(Float64* _value_ptr, ZS
         }
     }
     catch (const std::exception& error_code) {
-        ret_val = error_code::kPHTTPErrorCode_SystemError;
+        ret_val = error_code::kHTTPErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, 0,
             L"System error! error info: %ls",
@@ -271,7 +271,7 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetStringView(ZStringView* _value_
     ReturnType ret_val = kOK;
     Z_CHECK(
         _value_ptr == nullptr,
-        error_code::kPHTTPErrorCode_NullptrParam,
+        error_code::kHTTPErrorCode_NullptrParam,
         L"_io_context_ptr is nullptr!"
     );
     try {
@@ -283,7 +283,7 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetStringView(ZStringView* _value_
     catch (const std::exception& error_code) {
         
         Z_LOG_ERROR(
-            error_code::kPHTTPErrorCode_SystemError, 0,
+            error_code::kHTTPErrorCode_SystemError, 0,
             L"System error! error info: %ls",
             string::String2WString(error_code.what()).String()
         );
@@ -294,7 +294,7 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetString(ZString* _value_ptr, ZSt
     ReturnType ret_val = kOK;
     Z_CHECK(
         _value_ptr == nullptr,
-        error_code::kPHTTPErrorCode_NullptrParam,
+        error_code::kHTTPErrorCode_NullptrParam,
         L"_io_context_ptr is nullptr!"
     );
     try {
@@ -306,7 +306,7 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetString(ZString* _value_ptr, ZSt
     catch (const std::exception& error_code) {
 
         Z_LOG_ERROR(
-            error_code::kPHTTPErrorCode_SystemError, 0,
+            error_code::kHTTPErrorCode_SystemError, 0,
             L"System error! error info: %ls",
             string::String2WString(error_code.what()).String()
         );

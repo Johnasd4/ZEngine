@@ -68,7 +68,6 @@ public:
     ZUDPSocket& operator=(const ZUDPSocket& _socket) noexcept;
     ZUDPSocket& operator=(ZUDPSocket&& _socket) noexcept;
 
-
     NODISCARD FORCEINLINE StateEnum_ State() const noexcept { return state_; }
     NODISCARD FORCEINLINE ZIOContext* IOContextPtr() const noexcept { return io_context_ptr_; }
     template<typename _ObjectType>
@@ -125,11 +124,6 @@ public:
         Set a target endpoint, can only receive from the given endpoint.
     */
     NODISCARD ReturnType Connect(const ZUDPEndpoint& _udp_endpoint) noexcept;
-
-    /*
-        Set a target endpoint, can only receive from the given endpoint.
-    */
-    NODISCARD ReturnType ConnectP2P(const ZUDPEndpoint& _udp_endpoint) noexcept;
 
     /*
         Receive message. Will suspend the current thread until a message received.

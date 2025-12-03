@@ -38,6 +38,12 @@ struct ZIOContextWorkGuardData;
 
 namespace zengine {
 namespace socket {
+class ZIOContext;
+}//socket
+}//zengine
+
+namespace zengine {
+namespace socket {
 
 /*
     IO context work guard. When this object is alive, the io_context will not stop running.

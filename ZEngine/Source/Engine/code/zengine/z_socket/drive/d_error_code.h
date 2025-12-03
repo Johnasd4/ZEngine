@@ -26,50 +26,62 @@ namespace error_code {
 
 inline constexpr ReturnType kErrorCodeBase_PSocket = 0x4U * kErrorCodeProjcetMask + kErrorCodeBase_SZEngine;
 
-inline constexpr ReturnType kErrorCodeBase_ZSocket = 0x0U * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
-inline constexpr ReturnType kErrorCodeBase_ZHTTP = 0x1U * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
-inline constexpr ReturnType kErrorCodeBase_ZURL = 0x2U * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
+inline constexpr ReturnType kErrorCodeBase_Socket = 0x0U * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
+inline constexpr ReturnType kErrorCodeBase_HTTP = 0x1U * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
+inline constexpr ReturnType kErrorCodeBase_URL = 0x2U * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
+inline constexpr ReturnType kErrorCodeBase_UDPMessage = 0x3U * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
+
+inline constexpr ReturnType kErrorCodeBase_ZSocket = 0x10U * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
+inline constexpr ReturnType kErrorCodeBase_ZHTTP = 0x11U * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
+inline constexpr ReturnType kErrorCodeBase_ZURL = 0x12U * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
 
 inline constexpr ReturnType kErrorCodeBase_FTCPLogOutput = 0x10U * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
 inline constexpr ReturnType kErrorCodeBase_FSocket = 0x11U * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
 
-enum ZSocketErrorCodeEnum : ReturnType {
-    kPSocketErrorCode_LinkError = kErrorCodeBase_PSocket,
-    kPSocketErrorCode_SystemError,
-    kPSocketErrorCode_NullptrParam,
-    kPSocketErrorCode_ParamOutOfRange,
-    kPSocketErrorCode_StateError,
-    kPSocketErrorCode_OperationCanceled,
-    kPSocketErrorCode_SocketNotOpen,
-    kPSocketErrorCode_AddressNotVaild,
-    kPSocketErrorCode_IPNotVaild,
-    kPSocketErrorCode_PortNotVaild,
-    kPSocketErrorCode_Disconnected,
-    kPSocketErrorCode_EndpointNotBind,
-    kPSocketErrorCode_UDPSocketNotConnected,
-    kPSocketErrorCode_ConnectFailed,
-    kPSocketErrorCode_ReadUntilSymbolNotFound,
-    kPSocketErrorCode_TLSTypeNotValid,
-    kPSocketErrorCode_TLSVerifyModeNotValid,
-    kPSocketErrorCode_CertificateFileFormatNotValid,
-    kPSocketErrorCode_ServerCertificateNotLoaded,
-    kPSocketErrorCode_ServerPrivateKeyNotLoaded,
+enum SocketErrorCodeEnum : ReturnType {
+    kSocketErrorCode_LinkError = kErrorCodeBase_Socket,
+    kSocketErrorCode_SystemError,
+    kSocketErrorCode_NullptrParam,
+    kSocketErrorCode_ParamOutOfRange,
+    kSocketErrorCode_StateError,
+    kSocketErrorCode_OperationCanceled,
+    kSocketErrorCode_SocketNotOpen,
+    kSocketErrorCode_AddressNotVaild,
+    kSocketErrorCode_IPNotVaild,
+    kSocketErrorCode_PortNotVaild,
+    kSocketErrorCode_Disconnected,
+    kSocketErrorCode_EndpointNotBind,
+    kSocketErrorCode_UDPSocketNotConnected,
+    kSocketErrorCode_ConnectFailed,
+    kSocketErrorCode_ReadUntilSymbolNotFound,
+    kSocketErrorCode_TLSTypeNotValid,
+    kSocketErrorCode_TLSVerifyModeNotValid,
+    kSocketErrorCode_CertificateFileFormatNotValid,
+    kSocketErrorCode_ServerCertificateNotLoaded,
+    kSocketErrorCode_ServerPrivateKeyNotLoaded,
 };
 
-enum ZHTTPErrorCodeEnum : ReturnType {
-    kPHTTPErrorCode_LinkError = kErrorCodeBase_PSocket,
-    kPHTTPErrorCode_SystemError,
-    kPHTTPErrorCode_NullptrParam,
-    kPHTTPErrorCode_ParamOutOfRange,
-    kPHTTPErrorCode_HTTP11ResponseResolverAlreadyUsed,
+enum HTTPErrorCodeEnum : ReturnType {
+    kHTTPErrorCode_LinkError = kErrorCodeBase_HTTP,
+    kHTTPErrorCode_SystemError,
+    kHTTPErrorCode_NullptrParam,
+    kHTTPErrorCode_ParamOutOfRange,
+    kHTTPErrorCode_HTTP11ResponseResolverAlreadyUsed,
 };
 
-enum ZURLErrorCodeEnum : ReturnType {
-    kPURLErrorCode_LinkError = kErrorCodeBase_PSocket,
-    kPURLErrorCode_SystemError,
-    kPURLErrorCode_NullptrParam,
-    kPURLErrorCode_ParamOutOfRange,
-    kPURLErrorCode_URLResolveFailed,
+enum URLErrorCodeEnum : ReturnType {
+    kURLErrorCode_LinkError = kErrorCodeBase_URL,
+    kURLErrorCode_SystemError,
+    kURLErrorCode_NullptrParam,
+    kURLErrorCode_ParamOutOfRange,
+    kURLErrorCode_URLResolveFailed,
+};
+
+enum UDPMessageErrorCodeEnum : ReturnType {
+    kUDPMessageErrorCode_LinkError = kErrorCodeBase_UDPMessage,
+    kUDPMessageErrorCode_SystemError,
+    kUDPMessageErrorCode_NullptrParam,
+    kUDPMessageErrorCode_ParamOutOfRange
 };
 
 }//error_code

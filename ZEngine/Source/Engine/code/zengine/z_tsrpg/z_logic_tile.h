@@ -70,6 +70,13 @@ private:
 
 namespace zengine {
 namespace tsrpg {
+class ZDisplayTile;
+}//tsrpg
+}//zengine
+
+
+namespace zengine {
+namespace tsrpg {
 
 /*
     The logic tile base class, used for logic calculation.

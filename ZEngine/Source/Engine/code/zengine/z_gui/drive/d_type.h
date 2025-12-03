@@ -70,13 +70,5 @@ struct GuiColour {
     Float32 alpha_;
 };
 
-class ZButton;
-class ZCheckBox;
-class ZFrame;
-class ZInputText;
-class ZSeparator;
-class ZText;
-class ZWindow;
-
 }//gui
 }//zengine

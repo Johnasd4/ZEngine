@@ -38,6 +38,13 @@ struct ZIOContextData;
 
 namespace zengine {
 namespace socket {
+class ZTCPEndpoint;
+class ZUDPEndpoint;
+}//socket
+}//zengine
+
+namespace zengine {
+namespace socket {
 
 /*
     IO context.

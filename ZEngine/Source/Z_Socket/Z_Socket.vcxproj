@@ -54,6 +54,7 @@
     <ClCompile Include="code\z_tcp_socket.cpp" />
     <ClCompile Include="code\z_tls_context.cpp" />
     <ClCompile Include="code\z_tls_stream.cpp" />
+    <ClCompile Include="code\z_udp_message.cpp" />
     <ClCompile Include="code\z_udp_socket.cpp" />
     <ClCompile Include="code\z_url_resolver.cpp" />
     <ClCompile Include="code\z_udp_endpoint.cpp" />
@@ -73,6 +74,7 @@
     <ClInclude Include="code\z_http11_resolver.h" />
     <ClInclude Include="code\z_socket_allocator.h" />
     <ClInclude Include="code\drive\d_pch.h" />
+    <ClInclude Include="code\z_udp_packet\z_udp_packet_message.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

@@ -68,6 +68,9 @@ public:
 
     NODISCARD FORCEINLINE StateEnum_ State() const noexcept { return state_; }
     NODISCARD FORCEINLINE ZIOContext* IOContextPtr() const noexcept { return io_context_ptr_; }
+    template<typename _ObjectType>
+    NODISCARD FORCEINLINE _ObjectType* LinkObjectPtr() const noexcept { return socket_.LinkObjectPtr(); }
+    NODISCARD FORCEINLINE ZTCPSocket* SocketPtr() noexcept { return &socket_; }
 
     /*
         Open the server.

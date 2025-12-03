@@ -20,66 +20,72 @@
 //
 //#include "drive.h"
 //
-//#include "../z_core/t_function.h"
-//#include "../z_core/t_pool_list.h"
-//#include "../z_core/t_smart_pointer.h"
-//#include "../z_core/t_unordered_map.h"
-//#include "../z_core/z_mutex.h"
-//#include "../z_core/z_object.h"
-//#include "../z_core/z_string.h"
-//#include "../z_core/z_string_view.h"
-//#include "../z_core/z_thread.h"
+//#include "../z_core/t_hash_map.h"
 //
-//#include "z_buffer.h"
-//#include "z_UDP_socket.h"
+//#include "z_udp_socket.h"
 //
 //namespace zengine {
 //namespace socket {
-//namespace internal {
 //
-//struct ZUDPSingleSessionClientData;
-//struct ZUDPMultipleSessionClientData;
+//struct ZUDPPacket;
 //
-//}//internal
 //}//socket
 //}//zengine
 //
 //namespace zengine {
 //namespace socket {
 //
-//using ZUDPClient = ZUDPSingleSessionClient;
-//
 ///*
-//    Single session UDP client. Can connect one server at a time.
-//    Connect -> Read/Write -> Close
+//    UDP peer for communication. Can only connect to one endpoint.
+//    Open -> BindEndpoint -> Connect -> Send/Receive -> Close
 //*/
-//class SOCKET_DLLAPI ZUDPSingleSessionClient : public ZObject {
+//class SOCKET_DLLAPI ZUDPPeer : public ZObject {
 //public:
-//    static inline constexpr Int32 kConnectRetryForever = kInt32Max;
+//    static inline constexpr Int32 kDefaultConnectTimeMs = 30000;
 //
 //    enum class StateEnum_ : Int32 {
-//        ZUDPSingleSessionClientState_Uninitialized,
-//        ZUDPSingleSessionClientState_Idle,
-//        ZUDPSingleSessionClientState_Connected,
-//        ZUDPSingleSessionClientState_Error
+//        Uninitialized,
+//        Closed,
+//        Opened,
+//        EndpointBind,
+//        Connecting,
+//        Connected,
+//        Paused,
+//        Stopped,
+//        Error
 //    };
 //
-//    ZUDPSingleSessionClient(ZIOContext* _io_context_ptr) noexcept;
+//    ZUDPPeer(ZIOContext* _io_context_ptr) noexcept;
+//    ~ZUDPPeer() noexcept;
 //
-//    ~ZUDPSingleSessionClient() noexcept;
-//
-//    NODISCARD FORCEINLINE State_ State() const noexcept { return state_; }
+//    NODISCARD FORCEINLINE StateEnum_ State() const noexcept { return state_.Value(); }
 //    NODISCARD FORCEINLINE ZIOContext* IOContextPtr() const noexcept { return io_context_ptr_; }
+//    template<typename _ObjectType>
+//    NODISCARD FORCEINLINE _ObjectType* LinkObjectPtr() const noexcept { return socket_.LinkObjectPtr(); }
+//    NODISCARD FORCEINLINE ZUDPSocket* SocketPtr() noexcept { return &socket_; }
 //
 //    /*
-//        Bind endpoint by address and port. Call before connected.
+//        Open the peer socket.
 //    */
-//    NODISCARD ReturnType BindEndpoint(const Char* _address_str, Int32 _port) noexcept;
+//    NODISCARD ReturnType Open(IPTypeEnum _ip_type) noexcept;
+//
+//    /*
+//        Bind endpoint. Call before connected.
+//    */
+//    NODISCARD ReturnType BindEndpoint(const ZUDPEndpoint& _tcp_endpoint) noexcept;
+//
+//    /*
+//        Connect to peer or server. Return after connected or timeout.
+//    */
+//    NODISCARD ReturnType ConnectP2P(
+//        const ZTCPEndpoint& _tcp_endpoint,
+//        TimeType _max_connect_time_ms = kDefaultConnectTimeMs
+//    ) noexcept;
 //
 //    /*
 //        Sets os write buffer size. Call after connected.
 //    */
-//    NODISCARD ReturnType SetOSWriteBufferSize(Int32 _size) noexcept;
+//    NODISCARD ReturnType SetMaxPacketQuqueSize(SizeType _size) noexcept;
 //    /*
 //        Sets os read buffer size. Call after connected.
 //    */
@@ -90,14 +96,7 @@
 //    */
 //    NODISCARD ReturnType Close() noexcept;
 //
-//    /*
-//        Connect to server. Will suspend the current thread.
-//    */
-//    NODISCARD ReturnType Connect(
-//        ZStringView _address_str,
-//        ZStringView _port_str,
-//        Int32 _repeat_times = kConnectRetryForever
-//    ) noexcept;
+//
 //
 //    /*
 //        Stops connecting.
@@ -204,19 +203,17 @@
 //    using SuperType_ = ZObject;
 //
 //private:
-//    ZUDPSingleSessionClient(const ZUDPSingleSessionClient&) = delete;
-//    ZUDPSingleSessionClient(ZUDPSingleSessionClient&&) = delete;
-//    ZUDPSingleSessionClient& operator=(const ZUDPSingleSessionClient&) = delete;
-//    ZUDPSingleSessionClient& operator=(ZUDPSingleSessionClient&&) = delete;
+//    ZUDPPeer(const ZUDPPeer&) = delete;
+//    ZUDPPeer(ZUDPPeer&&) = delete;
+//    ZUDPPeer& operator=(const ZUDPPeer&) = delete;
+//    ZUDPPeer& operator=(ZUDPPeer&&) = delete;
 //
 //private:
-//    TUniquePointer<internal::ZUDPSingleSessionClientData> data_ptr_;
+//    THashMap<UInt32, ZUDPPacket*> receive_check_packet_map_;
+//    TQueue
+//    TAtom<StateEnum_> state_;
 //    ZUDPSocket socket_;
 //    ZIOContext* io_context_ptr_;
-//    State_ state_;
-//
-//    SizeType client_packet_index_;
-//    SizeType server_packet_index_;
 //};
 //
 //}//socket

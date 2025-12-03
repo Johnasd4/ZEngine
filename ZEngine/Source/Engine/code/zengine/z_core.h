@@ -59,6 +59,7 @@
 #include "z_core/z_mutex.h" 
 #include "z_core/z_object.h"
 #include "z_core/z_sem_mutex.h"
+#include "z_core/z_serializer.h"
 #include "z_core/z_string.h"
 #include "z_core/z_string_view.h"
 #include "z_core/z_system_time.h"

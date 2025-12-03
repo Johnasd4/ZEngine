@@ -40,7 +40,7 @@ SOCKET_DLLAPI ReturnType StringToIP4(const Char* _ip_string, UInt32* _ip4_ptr) n
     Int32 value = 0;
     Z_CHECK(
         _ip4_ptr == nullptr,
-        error_code::kPSocketErrorCode_NullptrParam,
+        error_code::kSocketErrorCode_NullptrParam,
         L"_ip4_ptr is nullptr!"
     );
 
@@ -50,7 +50,7 @@ SOCKET_DLLAPI ReturnType StringToIP4(const Char* _ip_string, UInt32* _ip4_ptr) n
         if (c >= '0' && c <= '9') {
             value = value * 10 + (c - '0');
             if (value > 255) {
-                ret_val = error_code::kPSocketErrorCode_AddressNotVaild;
+                ret_val = error_code::kSocketErrorCode_AddressNotVaild;
                 Z_LOG_ERROR(
                     ret_val, 0, 
                     L"ip out of range! _ip_string: %ls",
@@ -62,7 +62,7 @@ SOCKET_DLLAPI ReturnType StringToIP4(const Char* _ip_string, UInt32* _ip4_ptr) n
         }
 
         if (c != '.') {
-            ret_val = error_code::kPSocketErrorCode_AddressNotVaild;
+            ret_val = error_code::kSocketErrorCode_AddressNotVaild;
             Z_LOG_ERROR(
                 ret_val, 0,
                 L"Invaild char! _ip_string: %ls",
@@ -72,7 +72,7 @@ SOCKET_DLLAPI ReturnType StringToIP4(const Char* _ip_string, UInt32* _ip4_ptr) n
         }
 
         if (++segment > 3) {
-            ret_val = error_code::kPSocketErrorCode_AddressNotVaild;
+            ret_val = error_code::kSocketErrorCode_AddressNotVaild;
             Z_LOG_ERROR(
                 ret_val, 0,
                 L"More then 3 segment! _ip_string: %ls",
@@ -85,7 +85,7 @@ SOCKET_DLLAPI ReturnType StringToIP4(const Char* _ip_string, UInt32* _ip4_ptr) n
     }
 
     if (segment != 3) {
-        ret_val = error_code::kPSocketErrorCode_AddressNotVaild;
+        ret_val = error_code::kSocketErrorCode_AddressNotVaild;
         Z_LOG_ERROR(
             ret_val, 0,
             L"Not 3 segment! _ip_string: %ls",

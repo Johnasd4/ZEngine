@@ -26,6 +26,12 @@
 
 namespace zengine {
 namespace tsrpg {
+class ZSceneEvent;
+}//tsrpg
+}//zengine
+
+namespace zengine {
+namespace tsrpg {
 
 /*
     The manager for the scene events.

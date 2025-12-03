@@ -59,7 +59,7 @@ NODISCARD ReturnType ZIOContext::ResolveTCPAddress(
     );
 
     if (error_code) {
-        ret_val = error_code::kPSocketErrorCode_AddressNotVaild;
+        ret_val = error_code::kSocketErrorCode_AddressNotVaild;
         ZString address_str(_address_str);
         ZString port_str(_port_str);
         Z_LOG_ERROR(
@@ -103,7 +103,7 @@ NODISCARD ReturnType ZIOContext::ResolveUDPAddress(
     );
 
     if (error_code) {
-        ret_val = error_code::kPSocketErrorCode_AddressNotVaild;
+        ret_val = error_code::kSocketErrorCode_AddressNotVaild;
         ZString address_str(_address_str);
         ZString port_str(_port_str);
         Z_LOG_ERROR(

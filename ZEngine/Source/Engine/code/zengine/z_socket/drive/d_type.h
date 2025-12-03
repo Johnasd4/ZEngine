@@ -45,24 +45,3 @@ enum class IPTypeEnum : Int32 {
 
 }//socket
 }//zengine
-
-namespace zengine {
-namespace socket {
-
-class ZSocketBufferStream;
-class ZFixedBuffer;
-class ZIOContext;
-class ZTCPEndpoint;
-class ZUDPEndpoint;
-class ZTCPSocket;
-class ZUDPSocket;
-class ZTCPSingleSessionClient;
-class ZTCPMultipleSessionClient;
-class ZTCPSingleSessionServer;
-class ZTCPMultipleSessionServer;
-
-class ZTLSContext;
-class ZTLSStream;
-
-}//socket
-}//zengine

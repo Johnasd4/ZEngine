@@ -38,7 +38,7 @@ ZTCPSingleSessionServer::ZTCPSingleSessionServer(ZIOContext* _io_context_ptr) no
 {
     if (_io_context_ptr == nullptr) {
         Z_LOG_ERROR(
-            error_code::kPSocketErrorCode_NullptrParam, 0,
+            error_code::kSocketErrorCode_NullptrParam, 0,
             L"_io_context_ptr is nullptr!"
         );
         return;
@@ -49,7 +49,7 @@ ZTCPSingleSessionServer::ZTCPSingleSessionServer(ZIOContext* _io_context_ptr) no
     link_code = socket_.Initialize(_io_context_ptr);
     if (link_code != kOK) {
         Z_LOG_ERROR(
-            error_code::kPSocketErrorCode_LinkError, link_code,
+            error_code::kSocketErrorCode_LinkError, link_code,
             L"ZTCPSocket::Initialize() link error!"
         );
         return;
@@ -69,7 +69,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::Open(IPTypeEnum _ip_type) noexcept
 
     Z_CHECK(
         state_ != StateEnum_::kClosed,
-        error_code::kPSocketErrorCode_StateError,
+        error_code::kSocketErrorCode_StateError,
         L"Server state error! state: %d expect state: %d",
         state_, StateEnum_::kClosed
     );
@@ -82,7 +82,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::Open(IPTypeEnum _ip_type) noexcept
         data_ptr_->acceptor_.open(boost::asio::ip::tcp::v6(), error_code);
         break;
     default:
-        ret_val = error_code::kPSocketErrorCode_ParamOutOfRange;
+        ret_val = error_code::kSocketErrorCode_ParamOutOfRange;
         Z_LOG_ERROR(
             ret_val, 0,
             L"Enum out of range! _ip_type: %d",
@@ -93,7 +93,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::Open(IPTypeEnum _ip_type) noexcept
 
     if (error_code) {
         state_ = StateEnum_::kError;
-        ret_val = error_code::kPSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             L"System error! error info: %ls",
@@ -113,7 +113,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::BindEndpoint(const ZTCPEndpoint& _
 
     Z_CHECK(
         state_ != StateEnum_::kOpened,
-        error_code::kPSocketErrorCode_StateError,
+        error_code::kSocketErrorCode_StateError,
         L"Server state error! state: %d expect state: %d",
         state_, StateEnum_::kOpened
     );
@@ -124,7 +124,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::BindEndpoint(const ZTCPEndpoint& _
     );
     if (error_code) {
         state_ = StateEnum_::kError;
-        ret_val = error_code::kPSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             L"System error! error info: %ls",
@@ -144,14 +144,14 @@ NODISCARD ReturnType ZTCPSingleSessionServer::SetOSWriteBufferSize(Int32 _size) 
 
     Z_CHECK(
         state_ != StateEnum_::kConnected,
-        error_code::kPSocketErrorCode_StateError,
+        error_code::kSocketErrorCode_StateError,
         L"Client state error! state: %d expect state: %d",
         state_, StateEnum_::kConnected
     );
 
     link_code = socket_.SetOSWriteBufferSize(_size);
     if (link_code != kOK) {
-        ret_val = error_code::kPSocketErrorCode_LinkError;
+        ret_val = error_code::kSocketErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
             L"ZTCPSocket::SetOSWriteBufferSize() link error!"
@@ -168,14 +168,14 @@ NODISCARD ReturnType ZTCPSingleSessionServer::SetOSReadBufferSize(Int32 _size) n
 
     Z_CHECK(
         state_ != StateEnum_::kConnected,
-        error_code::kPSocketErrorCode_StateError,
+        error_code::kSocketErrorCode_StateError,
         L"Client state error! state: %d expect state: %d",
         state_, StateEnum_::kConnected
     );
 
     link_code = socket_.SetOSReadBufferSize(_size);
     if (link_code != kOK) {
-        ret_val = error_code::kPSocketErrorCode_LinkError;
+        ret_val = error_code::kSocketErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
             L"ZTCPSocket::SetOSReadBufferSize() link error!"
@@ -193,14 +193,14 @@ NODISCARD ReturnType ZTCPSingleSessionServer::SetIfReuseAddress(Bool _if_reuse) 
 
     Z_CHECK(
         state_ != StateEnum_::kOpened,
-        error_code::kPSocketErrorCode_StateError,
+        error_code::kSocketErrorCode_StateError,
         L"Client state error! state: %d expect state: %d",
         state_, StateEnum_::kOpened
     );
     data_ptr_->acceptor_.set_option(boost::asio::ip::tcp::acceptor::reuse_address(_if_reuse));
     if (error_code) {
         state_ = StateEnum_::kError;
-        ret_val = error_code::kPSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             L"System error! error info: %ls",
@@ -218,7 +218,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::Listen(Int32 _max_wait_connect_cli
 
     Z_CHECK(
         state_ != StateEnum_::kEndpointBind,
-        error_code::kPSocketErrorCode_StateError,
+        error_code::kSocketErrorCode_StateError,
         L"Server state error! state: %d expect state: %d",
         state_, StateEnum_::kEndpointBind
     );
@@ -226,7 +226,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::Listen(Int32 _max_wait_connect_cli
     data_ptr_->acceptor_.listen(_max_wait_connect_client_num, error_code);
     if (error_code) {
         state_ = StateEnum_::kError;
-        ret_val = error_code::kPSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             L"System error! error info: %ls",
@@ -264,7 +264,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::Accept() noexcept {
 
     Z_CHECK(
         state_ != StateEnum_::kListen,
-        error_code::kPSocketErrorCode_StateError,
+        error_code::kSocketErrorCode_StateError,
         L"Server state error! state: %d expect state: %d",
         state_, StateEnum_::kListen
     );
@@ -273,7 +273,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::Accept() noexcept {
 
     data_ptr_->acceptor_.accept(socket_.data_ptr_->socket_, error_code);
     if (error_code) {
-        ret_val = error_code::kPSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             L"System error! error info: %ls",
@@ -313,23 +313,23 @@ NODISCARD ReturnType ZTCPSingleSessionServer::Read(
 
     Z_CHECK(
         state_ != StateEnum_::kConnected,
-        error_code::kPSocketErrorCode_StateError,
+        error_code::kSocketErrorCode_StateError,
         L"Server state error! state: %d expect state: %d",
         state_, StateEnum_::kConnected
     );
 
     link_code = socket_.Read(_buffer, _data_size_ptr);
     if (link_code != kOK) {
-        if (link_code == error_code::kPSocketErrorCode_Disconnected) {
+        if (link_code == error_code::kSocketErrorCode_Disconnected) {
             state_ = StateEnum_::kListen;
             Z_DEBUG_LOG_FINISH(L"Client disconnected!");
             socket_.Close();
-            ret_val = error_code::kPSocketErrorCode_Disconnected;
+            ret_val = error_code::kSocketErrorCode_Disconnected;
             return ret_val;
         }
         else {
             state_ = StateEnum_::kError;
-            ret_val = error_code::kPSocketErrorCode_LinkError;
+            ret_val = error_code::kSocketErrorCode_LinkError;
             Z_LOG_ERROR(
                 ret_val, link_code,
                 L"ZTCPSocket::Read() link error!"
@@ -350,7 +350,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::AsyncRead(
 
     Z_CHECK(
         state_ != StateEnum_::kConnected,
-        error_code::kPSocketErrorCode_StateError,
+        error_code::kSocketErrorCode_StateError,
         L"Server state error! state: %d expect state: %d",
         state_, StateEnum_::kConnected
     );
@@ -358,7 +358,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::AsyncRead(
     link_code = socket_.AsyncRead(_buffer, _handle_func);
     if (link_code != kOK) {
         state_ = StateEnum_::kError;
-        ret_val = error_code::kPSocketErrorCode_LinkError;
+        ret_val = error_code::kSocketErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
             L"ZTCPSocket::AsyncRead() link error!"
@@ -379,23 +379,23 @@ NODISCARD ReturnType ZTCPSingleSessionServer::ReadUntil(
 
     Z_CHECK(
         state_ != StateEnum_::kConnected,
-        error_code::kPSocketErrorCode_StateError,
+        error_code::kSocketErrorCode_StateError,
         L"Server state error! state: %d expect state: %d",
         state_, StateEnum_::kConnected
     );
 
     link_code = socket_.ReadUntil(_buffer_ptr, _match_char, _data_size_ptr);
     if (link_code != kOK) {
-        if (link_code == error_code::kPSocketErrorCode_Disconnected) {
+        if (link_code == error_code::kSocketErrorCode_Disconnected) {
             state_ = StateEnum_::kListen;
             Z_DEBUG_LOG_FINISH(L"Client disconnected!");
             socket_.Close();
-            ret_val = error_code::kPSocketErrorCode_Disconnected;
+            ret_val = error_code::kSocketErrorCode_Disconnected;
             return ret_val;
         }
         else {
             state_ = StateEnum_::kError;
-            ret_val = error_code::kPSocketErrorCode_LinkError;
+            ret_val = error_code::kSocketErrorCode_LinkError;
             Z_LOG_ERROR(
                 ret_val, link_code,
                 L"ZTCPSocket::ReadUntil() link error!"
@@ -417,23 +417,23 @@ NODISCARD ReturnType ZTCPSingleSessionServer::ReadUntil(
 
     Z_CHECK(
         state_ != StateEnum_::kConnected,
-        error_code::kPSocketErrorCode_StateError,
+        error_code::kSocketErrorCode_StateError,
         L"Server state error! state: %d expect state: %d",
         state_, StateEnum_::kConnected
     );
 
     link_code = socket_.ReadUntil(_buffer_ptr, _match_str, _data_size_ptr);
     if (link_code != kOK) {
-        if (link_code == error_code::kPSocketErrorCode_Disconnected) {
+        if (link_code == error_code::kSocketErrorCode_Disconnected) {
             state_ = StateEnum_::kListen;
             Z_DEBUG_LOG_FINISH(L"Client disconnected!");
             socket_.Close();
-            ret_val = error_code::kPSocketErrorCode_Disconnected;
+            ret_val = error_code::kSocketErrorCode_Disconnected;
             return ret_val;
         }
         else {
             state_ = StateEnum_::kError;
-            ret_val = error_code::kPSocketErrorCode_LinkError;
+            ret_val = error_code::kSocketErrorCode_LinkError;
             Z_LOG_ERROR(
                 ret_val, link_code,
                 L"ZTCPSocket::ReadUntil() link error!"
@@ -455,7 +455,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::AsyncReadUntil(
 
     Z_CHECK(
         state_ != StateEnum_::kConnected,
-        error_code::kPSocketErrorCode_StateError,
+        error_code::kSocketErrorCode_StateError,
         L"Server state error! state: %d expect state: %d",
         state_, StateEnum_::kConnected
     );
@@ -463,7 +463,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::AsyncReadUntil(
     link_code = socket_.AsyncReadUntil(_buffer_ptr, _match_char, _handle_func);
     if (link_code != kOK) {
         state_ = StateEnum_::kError;
-        ret_val = error_code::kPSocketErrorCode_LinkError;
+        ret_val = error_code::kSocketErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
             L"ZTCPSocket::AsyncReadUntil() link error!"
@@ -484,7 +484,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::AsyncReadUntil(
 
     Z_CHECK(
         state_ != StateEnum_::kConnected,
-        error_code::kPSocketErrorCode_StateError,
+        error_code::kSocketErrorCode_StateError,
         L"Server state error! state: %d expect state: %d",
         state_, StateEnum_::kConnected
     );
@@ -492,7 +492,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::AsyncReadUntil(
     link_code = socket_.AsyncReadUntil(_buffer_ptr, _match_str, _handle_func);
     if (link_code != kOK) {
         state_ = StateEnum_::kError;
-        ret_val = error_code::kPSocketErrorCode_LinkError;
+        ret_val = error_code::kSocketErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
             L"ZTCPSocket::AsyncReadUntil() link error!"
@@ -512,7 +512,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::ReadUntilClose(
 
     Z_CHECK(
         state_ != StateEnum_::kConnected,
-        error_code::kPSocketErrorCode_StateError,
+        error_code::kSocketErrorCode_StateError,
         L"Client state error! state: %d expect state: %d",
         state_, StateEnum_::kConnected
     );
@@ -520,7 +520,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::ReadUntilClose(
     link_code = socket_.ReadUntilClose(_buffer_ptr, _data_size_ptr);
     if (link_code != kOK) {
         state_ = StateEnum_::kError;
-        ret_val = error_code::kPSocketErrorCode_LinkError;
+        ret_val = error_code::kSocketErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
             L"ZTCPSocket::ReadUntilClose() link error!"
@@ -540,23 +540,23 @@ NODISCARD ReturnType ZTCPSingleSessionServer::Write(
 
     Z_CHECK(
         state_ != StateEnum_::kConnected,
-        error_code::kPSocketErrorCode_StateError,
+        error_code::kSocketErrorCode_StateError,
         L"Server state error! state: %d expect state: %d",
         state_, StateEnum_::kConnected
     );
 
     link_code = socket_.Write(_buffer);
     if (link_code != kOK) {
-        if (link_code == error_code::kPSocketErrorCode_Disconnected) {
+        if (link_code == error_code::kSocketErrorCode_Disconnected) {
             state_ = StateEnum_::kListen;
             Z_DEBUG_LOG_FINISH(L"Client disconnected!");
             socket_.Close();
-            ret_val = error_code::kPSocketErrorCode_Disconnected;
+            ret_val = error_code::kSocketErrorCode_Disconnected;
             return ret_val;
         }
         else {
             state_ = StateEnum_::kError;
-            ret_val = error_code::kPSocketErrorCode_LinkError;
+            ret_val = error_code::kSocketErrorCode_LinkError;
             Z_LOG_ERROR(
                 ret_val, link_code,
                 L"ZTCPSocket::Write() link error!"
@@ -577,7 +577,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::AsyncWrite(
 
     Z_CHECK(
         state_ != StateEnum_::kConnected,
-        error_code::kPSocketErrorCode_StateError,
+        error_code::kSocketErrorCode_StateError,
         L"Server state error! state: %d expect state: %d",
         state_, StateEnum_::kConnected
     );
@@ -585,7 +585,7 @@ NODISCARD ReturnType ZTCPSingleSessionServer::AsyncWrite(
     link_code = socket_.AsyncWrite(_buffer, _handle_func);
     if (link_code != kOK) {
         state_ = StateEnum_::kError;
-        ret_val = error_code::kPSocketErrorCode_LinkError;
+        ret_val = error_code::kSocketErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
             L"ZTCPSocket::AsyncWrite() link error!"

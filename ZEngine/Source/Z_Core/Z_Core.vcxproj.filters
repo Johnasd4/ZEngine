@@ -14,7 +14,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="code\log\type\z_trace_log.cpp">
+    <ClCompile Include="code\m_log\type\z_trace_log.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="code\drive\d_function.cpp">
@@ -29,7 +29,7 @@
     <ClCompile Include="code\f_file_system.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="code\log\f_log.cpp">
+    <ClCompile Include="code\m_log\f_log.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="code\f_memory_pool.cpp">
@@ -44,25 +44,25 @@
     <ClCompile Include="code\z_config.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="code\log\type\z_error_log.cpp">
+    <ClCompile Include="code\m_log\type\z_error_log.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="code\z_file.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="code\log\type\z_info_log.cpp">
+    <ClCompile Include="code\m_log\type\z_info_log.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="code\z_json.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="code\log\z_log.cpp">
+    <ClCompile Include="code\m_log\z_log.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="code\log\z_log_manager.cpp">
+    <ClCompile Include="code\m_log\z_log_manager.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="code\log\z_log_server.cpp">
+    <ClCompile Include="code\m_log\z_log_server.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="code\f_string.cpp">
@@ -83,38 +83,46 @@
     <ClCompile Include="code\z_timer.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="code\drive\d_pch.cpp" />
-    <ClCompile Include="code\z_memory.cpp" />
+    <ClCompile Include="code\z_memory.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\z_serializer\z_deserializer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\drive\d_pch.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\z_serializer\z_serializer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="code\log\z_log_manager.h">
+    <ClInclude Include="code\m_log\z_log_manager.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\log\z_log_server.h">
+    <ClInclude Include="code\m_log\z_log_server.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\memory_pool\t_heap_memory_pool.h">
+    <ClInclude Include="code\f_memory_pool\t_heap_memory_pool.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\memory_pool\t_list_memory_pool_base.h">
+    <ClInclude Include="code\f_memory_pool\t_list_memory_pool_base.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\memory_pool\t_memory_block_base.h">
+    <ClInclude Include="code\f_memory_pool\t_memory_block_base.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\memory_pool\t_memory_pool_base.h">
+    <ClInclude Include="code\f_memory_pool\t_memory_pool_base.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\memory_pool\t_memory_pool_thread_safe_base.h">
+    <ClInclude Include="code\f_memory_pool\t_memory_pool_thread_safe_base.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\memory_pool\t_small_memory_list_memory_pool.h">
+    <ClInclude Include="code\f_memory_pool\t_small_memory_list_memory_pool.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\memory_pool\t_smart_pointer_list_memory_pool.h">
+    <ClInclude Include="code\f_memory_pool\t_smart_pointer_list_memory_pool.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\memory_pool\t_system_memory_pool.h">
+    <ClInclude Include="code\f_memory_pool\t_system_memory_pool.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\drive\d_pch.h">

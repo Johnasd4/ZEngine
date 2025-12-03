@@ -40,6 +40,15 @@ enum ZLogicBoardErrorCodeEnum : ReturnType {
 
 namespace zengine {
 namespace tsrpg {
+class ZLogicTile;
+class ZLogicTileTexture;
+class ZLogicBoard;
+class ZLogicBoardViewport;
+}//tsrpg
+}//zengine
+
+namespace zengine {
+namespace tsrpg {
 
 /*
     The logic board base class, used for logic calculation.

@@ -18,9 +18,11 @@
 */
 #pragma once
 
-#include "log/type/z_error_log.h"
-#include "log/type/z_info_log.h"
-#include "log/type/z_trace_log.h"
+#include "drive/d_pch.h"
+
+#include "m_log/type/z_error_log.h"
+#include "m_log/type/z_info_log.h"
+#include "m_log/type/z_trace_log.h"
 #include "t_atom.h"
 #include "t_fixed_queue.h"
 #include "z_log_server.h"

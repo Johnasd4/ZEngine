@@ -34,7 +34,7 @@ ZTLSContext::ZTLSContext(TLSTypeEnum _tls_type) noexcept
 {
     if (tls_type_ != TLSTypeEnum::kClient && tls_type_ != TLSTypeEnum::kServer) {
         Z_LOG_ERROR(
-            error_code::kPSocketErrorCode_TLSVerifyModeNotValid, 0,
+            error_code::kSocketErrorCode_TLSVerifyModeNotValid, 0,
             L"TLS type not valid! _tls_type: %d", _tls_type
         );
         return;
@@ -51,7 +51,7 @@ NODISCARD ReturnType ZTLSContext::SetVerifyMode(TLSVerifyModeEnum _tls_verify_mo
 
     Z_CHECK(
         state_ != StateEnum_::kInitialized,
-        error_code::kPSocketErrorCode_StateError,
+        error_code::kSocketErrorCode_StateError,
         L"TLS context state error! state: %d expect state: %d",
         state_, StateEnum_::kInitialized
     );
@@ -69,7 +69,7 @@ NODISCARD ReturnType ZTLSContext::SetVerifyMode(TLSVerifyModeEnum _tls_verify_mo
         }
         break;
     default:
-        ret_val = error_code::kPSocketErrorCode_TLSVerifyModeNotValid;
+        ret_val = error_code::kSocketErrorCode_TLSVerifyModeNotValid;
         Z_LOG_ERROR(
             ret_val, 0,
             L"TLS verify mode not valid! _tls_verify_mode: %d", _tls_verify_mode
@@ -78,7 +78,7 @@ NODISCARD ReturnType ZTLSContext::SetVerifyMode(TLSVerifyModeEnum _tls_verify_mo
 
     data_ptr_->tls_context_.set_verify_mode(verify_mode, error_code);
     if (error_code) {
-        ret_val = error_code::kPSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             L"System error! error info: %ls",
@@ -96,14 +96,14 @@ NODISCARD ReturnType ZTLSContext::LoadVerifyFile(const Char* _file_dir) noexcept
 
     Z_CHECK(
         state_ != StateEnum_::kInitialized,
-        error_code::kPSocketErrorCode_StateError,
+        error_code::kSocketErrorCode_StateError,
         L"TLS context state error! state: %d expect state: %d",
         state_, StateEnum_::kInitialized
     );
 
     data_ptr_->tls_context_.load_verify_file(_file_dir);
     if (error_code) {
-        ret_val = error_code::kPSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             L"System error! error info: %ls",
@@ -121,14 +121,14 @@ NODISCARD ReturnType ZTLSContext::LoadSystemVerifyFiles() noexcept {
 
     Z_CHECK(
         state_ != StateEnum_::kInitialized,
-        error_code::kPSocketErrorCode_StateError,
+        error_code::kSocketErrorCode_StateError,
         L"TLS context state error! state: %d expect state: %d",
         state_, StateEnum_::kInitialized
     );
 
     data_ptr_->tls_context_.set_default_verify_paths(error_code);
     if (error_code) {
-        ret_val = error_code::kPSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             L"System error! error info: %ls",
@@ -149,7 +149,7 @@ NODISCARD ReturnType ZTLSContext::UseCertificateFile(
 
     Z_CHECK(
         state_ != StateEnum_::kInitialized,
-        error_code::kPSocketErrorCode_StateError,
+        error_code::kSocketErrorCode_StateError,
         L"TLS context state error! state: %d expect state: %d",
         state_, StateEnum_::kInitialized
     );
@@ -164,7 +164,7 @@ NODISCARD ReturnType ZTLSContext::UseCertificateFile(
         file_format = boost::asio::ssl::context::pem;
         break;
     default:
-        ret_val = error_code::kPSocketErrorCode_CertificateFileFormatNotValid;
+        ret_val = error_code::kSocketErrorCode_CertificateFileFormatNotValid;
         Z_LOG_ERROR(
             ret_val, 0,
             L"Certificate file format not valid! _file_format: %d", _file_format
@@ -174,7 +174,7 @@ NODISCARD ReturnType ZTLSContext::UseCertificateFile(
 
     data_ptr_->tls_context_.use_certificate_file(_file_dir, file_format, error_code);
     if (error_code) {
-        ret_val = error_code::kPSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             L"System error! error info: %ls",
@@ -196,14 +196,14 @@ NODISCARD ReturnType ZTLSContext::UseCertificateChainFile(
 
     Z_CHECK(
         state_ != StateEnum_::kInitialized,
-        error_code::kPSocketErrorCode_StateError,
+        error_code::kSocketErrorCode_StateError,
         L"TLS context state error! state: %d expect state: %d",
         state_, StateEnum_::kInitialized
     );
 
     data_ptr_->tls_context_.use_certificate_chain_file(_file_dir, error_code);
     if (error_code) {
-        ret_val = error_code::kPSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             L"System error! error info: %ls",
@@ -226,7 +226,7 @@ NODISCARD ReturnType ZTLSContext::UsePrivateKeyFile(
 
     Z_CHECK(
         state_ != StateEnum_::kInitialized,
-        error_code::kPSocketErrorCode_StateError,
+        error_code::kSocketErrorCode_StateError,
         L"TLS context state error! state: %d expect state: %d",
         state_, StateEnum_::kInitialized
     );
@@ -241,7 +241,7 @@ NODISCARD ReturnType ZTLSContext::UsePrivateKeyFile(
         file_format = boost::asio::ssl::context::pem;
         break;
     default:
-        ret_val = error_code::kPSocketErrorCode_CertificateFileFormatNotValid;
+        ret_val = error_code::kSocketErrorCode_CertificateFileFormatNotValid;
         Z_LOG_ERROR(
             ret_val, 0,
             L"Certificate file format not valid! _file_format: %d", _file_format
@@ -251,7 +251,7 @@ NODISCARD ReturnType ZTLSContext::UsePrivateKeyFile(
 
     data_ptr_->tls_context_.use_private_key_file(_file_dir, file_format, error_code);
     if (error_code) {
-        ret_val = error_code::kPSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             L"System error! error info: %ls",

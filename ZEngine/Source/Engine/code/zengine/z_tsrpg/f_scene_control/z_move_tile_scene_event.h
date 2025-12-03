@@ -24,6 +24,12 @@
 
 namespace zengine {
 namespace tsrpg {
+class ZDisplayTile;
+}//tsrpg
+}//zengine
+
+namespace zengine {
+namespace tsrpg {
 
 /*
     The scene event base class.

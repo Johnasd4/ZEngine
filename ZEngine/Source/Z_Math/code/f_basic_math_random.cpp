@@ -19,7 +19,7 @@
 #define MATH_DLLFILE
 #include "drive/d_pch.h"
 
-#include "basic_math/f_basic_math_random.h"
+#include "f_basic_math/f_basic_math_random.h"
 
 namespace zengine {
 namespace math {
