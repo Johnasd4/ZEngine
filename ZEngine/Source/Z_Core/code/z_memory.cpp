@@ -64,6 +64,9 @@ ZMemory& ZMemory::operator=(const ZMemory& _mem) noexcept {
     return *this;
 }
 ZMemory& ZMemory::operator=(ZMemory&& _mem) noexcept {
+    if (data_ptr_ != nullptr) {
+        memory_pool::ReleaseMemory(data_ptr_);
+    }
     data_ptr_ = _mem.data_ptr_;
     size_ = _mem.size_;
     capacity_ = _mem.capacity_;
