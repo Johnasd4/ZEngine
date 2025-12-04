@@ -114,6 +114,9 @@ public:
 
     template<typename _SrcObjectType>
     FORCEINLINE TUniquePointer& operator=(TUniquePointer<_SrcObjectType>&& _ptr) noexcept {
+        if (this == &_ptr) {
+            return *this;
+        }
         MoveP(std::forward<TUniquePointer<_SrcObjectType>>(_ptr));
         return *this;
     }
@@ -230,6 +233,9 @@ public:
 
     template<typename _SrcObjectType>
     TSharedPointer& operator=(const TSharedPointer<_SrcObjectType>& _ptr) noexcept {
+        if (this == &_ptr) {
+            return *this;
+        }
         SuperType_::operator=(_ptr);
         RemoveShareP();
         CopyP(_ptr);
@@ -238,6 +244,9 @@ public:
     }
     template<typename _SrcObjectType>
     TSharedPointer& operator=(TSharedPointer<_SrcObjectType>&& _ptr) noexcept {
+        if (this == &_ptr) {
+            return *this;
+        }
         SuperType_::operator=(std::forward<TSharedPointer<_SrcObjectType>>(_ptr));
         RemoveShareP();
         MoveP(std::forward<TSharedPointer<_SrcObjectType>>(_ptr));
@@ -420,6 +429,9 @@ public:
 
     template<typename _SrcObjectType>
     TWeakPointer& operator=(const TWeakPointer<_SrcObjectType>& _ptr) noexcept {
+        if (this == &_ptr) {
+            return *this;
+        }
         SuperType_::operator=(_ptr);
         RemoveWeakP();
         CopyP(_ptr);
@@ -428,6 +440,9 @@ public:
     }
     template<typename _SrcObjectType>
     TWeakPointer& operator=(TWeakPointer<_SrcObjectType>&& _ptr) noexcept {
+        if (this == &_ptr) {
+            return *this;
+        }
         SuperType_::operator=(std::forward<TWeakPointer<_SrcObjectType>>(_ptr));
         RemoveWeakP();
         MoveP(_ptr);

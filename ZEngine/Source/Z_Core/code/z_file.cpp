@@ -35,6 +35,9 @@ ZFile::ZFile(ZFile&& _file) noexcept : SuperType_(std::forward<ZFile>(_file)) {
 ZFile::~ZFile() noexcept { if (file_ptr_ != nullptr) { fclose(file_ptr_); } }
 
 ZFile& ZFile::operator=(ZFile&& _file) noexcept {
+    if (this == &_file) {
+        return *this;
+    }
     SuperType_::operator=(std::forward<ZFile>(_file));
     MoveP(std::forward<ZFile>(_file));
     return *this;

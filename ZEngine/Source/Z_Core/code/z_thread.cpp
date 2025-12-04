@@ -32,6 +32,9 @@ ZThread::ZThread(ZThread&& _thread) noexcept : SuperType_(std::forward<ZThread>(
 ZThread::~ZThread() noexcept {}
 
 ZThread& ZThread::operator=(ZThread&& _thread) noexcept {
+    if (this == &_thread) {
+        return *this;
+    }
     SuperType_::operator=(std::forward<ZThread>(_thread));
     MoveP(std::forward<ZThread>(_thread));
     return *this;

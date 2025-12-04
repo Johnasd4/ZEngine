@@ -39,6 +39,9 @@ public:
     FORCEINLINE ~ZMutex() noexcept { CloseHandle(handle_); }
 
     FORCEINLINE ZMutex& operator=(ZMutex&& _mutex) noexcept {
+        if (this == &_mutex) {
+            return *this;
+        }
         if (handle_ != nullptr) {
             CloseHandle(handle_);
         }

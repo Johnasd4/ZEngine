@@ -38,6 +38,9 @@ public:
     FORCEINLINE ~TFixedMemory() noexcept {}
 
     FORCEINLINE TFixedMemory& operator=(const TFixedMemory& _mem) noexcept {
+        if (this == &_mem) {
+            return *this;
+        }
         Copy(data_ptr_, _mem.data_ptr_, _size);
         return *this;
     }

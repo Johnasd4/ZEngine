@@ -90,6 +90,9 @@ public:
     }
 
     TPool& operator=(TPool&& _pool) noexcept {
+        if (this == &_pool) {
+            return *this;
+        }
         MoveP(std::forward<TPool>(_pool));
         return *this;
     }
@@ -279,6 +282,9 @@ public:
         Not thread safe.
     */
     TPoolSafe& operator=(TPoolSafe&& _pool) noexcept {
+        if (this == &_pool) {
+            return *this;
+        }
         TLockGuard lock_guard(mutex_);
         TLockGuard lock_guard(_pool.mutex_);
         MoveP(std::forward<TPoolSafe>(_pool));

@@ -109,6 +109,9 @@ ZTLSStream::~ZTLSStream() noexcept {
 }
 
 ZTLSStream& ZTLSStream::operator=(ZTLSStream&& _stream) noexcept {
+    if (this == &_stream) {
+        return *this;
+    }
     data_ptr_ = std::move(_stream.data_ptr_);
     tcp_socket_ptr_ = _stream.tcp_socket_ptr_;
     tls_context_ptr_ = _stream.tls_context_ptr_;

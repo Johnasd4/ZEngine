@@ -45,7 +45,10 @@ namespace zengine {
 */
 template<typename _Signature>
 class TSimpleFunction : public ZObject {
-    static_assert(!kSameType<_Signature, _Signature>, "TSimpleFunction signature not valid!");
+    static_assert(
+        !kSameType<_Signature, _Signature>, 
+        "TSimpleFunction: Signature not valid!"
+    );
 };
 
 template<typename _ReturnType, typename... Args>
@@ -99,7 +102,10 @@ private:
 */
 template<typename _Signature>
 class TFunction : public ZObject {
-    static_assert(!kSameType<_Signature, _Signature>, "TFunction signature not valid!");
+    static_assert(
+        !kSameType<_Signature, _Signature>, 
+        "TFunction: Signature not valid!"
+    );
 };
 
 template<typename _ReturnType, typename... ArgTypes>

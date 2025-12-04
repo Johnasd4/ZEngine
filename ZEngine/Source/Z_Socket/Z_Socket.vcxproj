@@ -20,6 +20,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="code\z_udp_packet_factory.cpp" />
     <ClCompile Include="code\z_io_context_work_guard.cpp" />
     <ClCompile Include="code\data\z_io_context_work_guard_data.cpp" />
     <ClCompile Include="code\data\z_http_11_response_resolver_data.cpp" />

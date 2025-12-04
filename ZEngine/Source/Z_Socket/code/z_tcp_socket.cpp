@@ -96,6 +96,9 @@ ZTCPSocket& ZTCPSocket::operator=(const ZTCPSocket& _socket) noexcept {
 }
 
 ZTCPSocket& ZTCPSocket::operator=(ZTCPSocket&& _socket) noexcept {
+    if (this == &_socket) {
+        return *this;
+    }
     SuperType_::operator=(std::forward<ZTCPSocket>(_socket));
     MoveP(std::forward<ZTCPSocket>(_socket));
     return *this;

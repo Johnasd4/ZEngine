@@ -49,11 +49,17 @@ public:
     FORCEINLINE constexpr ~TFixedQueue() noexcept {}
 
     FORCEINLINE TFixedQueue& operator=(const TFixedQueue& _queue) noexcept {
+        if (this == &_queue) {
+            return *this;
+        }
         SuperType_::operator=(_queue);
         CopyP(_queue);
         return *this;
     }
     FORCEINLINE TFixedQueue& operator=(TFixedQueue&& _queue) noexcept {
+        if (this == &_queue) {
+            return *this;
+        }
         SuperType_::operator=(std::forward<TFixedQueue>(_queue));
         MoveP(std::forward<TFixedQueue>(_queue));
         return *this;
@@ -131,6 +137,10 @@ protected:
 
 private:
     FORCEINLINE Void CopyP(const TFixedQueue& _queue) noexcept {
+        static_assert(
+            std::is_trivially_copyable_v<_ObjectType>,
+            "TFixedQueue::CopyP(): Type must be trivially copyable!"
+        );
         Copy(&queue_, &_queue.queue_);
         front_index_ = _queue.front_index_;
         back_index_ = _queue.back_index_;
@@ -179,6 +189,9 @@ public:
     FORCEINLINE constexpr ~TFixedQueueSafe() noexcept {}
 
     FORCEINLINE TFixedQueueSafe& operator=(const TFixedQueueSafe& _queue) noexcept {
+        if (this == &_queue) {
+            return *this;
+        }
         TLockGuard lock_guard(mutex_);
         TLockGuard lock_guard(const_cast<TFixedQueueSafe*>(&_queue)->mutex_);
         SuperType_::operator=(_queue);
@@ -186,6 +199,9 @@ public:
         return *this;
     }
     FORCEINLINE TFixedQueueSafe& operator=(TFixedQueueSafe&& _queue) noexcept {
+        if (this == &_queue) {
+            return *this;
+        }
         TLockGuard lock_guard(mutex_);
         SuperType_::operator=(std::forward<TFixedQueueSafe>(_queue));
         MoveP(std::forward<TFixedQueueSafe>(_queue));
@@ -303,6 +319,10 @@ protected:
 
 private:
     FORCEINLINE Void CopyP(const TFixedQueueSafe& _queue) noexcept {
+        static_assert(
+            std::is_trivially_copyable_v<_ObjectType>,
+            "TFixedQueueSafe::CopyP(): Type must be trivially copyable!"
+        );
         Copy(&queue_, &_queue.queue_);
         front_index_ = _queue.front_index_;
         back_index_ = _queue.back_index_;

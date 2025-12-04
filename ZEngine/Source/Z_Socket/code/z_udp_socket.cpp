@@ -79,6 +79,9 @@ ZUDPSocket::~ZUDPSocket() noexcept {
 }
 
 ZUDPSocket& ZUDPSocket::operator=(const ZUDPSocket& _socket) noexcept {
+    if (this == &_socket) {
+        return *this;
+    }
     if (_socket.io_context_ptr_ != nullptr) {
         data_ptr_ = MakeUnique<internal::ZUDPSocketData>(&io_context_ptr_->data_ptr_->io_context_);
         state_ = StateEnum_::kClosed;
@@ -91,6 +94,9 @@ ZUDPSocket& ZUDPSocket::operator=(const ZUDPSocket& _socket) noexcept {
 }
 
 ZUDPSocket& ZUDPSocket::operator=(ZUDPSocket&& _socket) noexcept {
+    if (this == &_socket) {
+        return *this;
+    }
     SuperType_::operator=(std::forward<ZUDPSocket>(_socket));
     MoveP(std::forward<ZUDPSocket>(_socket));
     return *this;

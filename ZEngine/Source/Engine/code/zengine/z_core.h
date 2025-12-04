@@ -39,6 +39,7 @@
 #include "z_core/t_list.h"
 #include "z_core/t_lock_guard.h" 
 #include "z_core/t_lookup_table.h" 
+#include "z_core/t_loop_queue.h" 
 #include "z_core/t_matrix.h"
 #include "z_core/t_pair.h"
 #include "z_core/t_pool.h"

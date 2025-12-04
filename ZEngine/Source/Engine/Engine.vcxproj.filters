@@ -1085,5 +1085,8 @@
     <ClInclude Include="code\zengine\z_core\t_loop_queue.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="code\zengine\z_socket\z_udp_packet_factory.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

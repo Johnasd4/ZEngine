@@ -77,12 +77,5 @@ enum URLErrorCodeEnum : ReturnType {
     kURLErrorCode_URLResolveFailed,
 };
 
-enum UDPMessageErrorCodeEnum : ReturnType {
-    kUDPMessageErrorCode_LinkError = kErrorCodeBase_UDPMessage,
-    kUDPMessageErrorCode_SystemError,
-    kUDPMessageErrorCode_NullptrParam,
-    kUDPMessageErrorCode_ParamOutOfRange
-};
-
 }//error_code
 }//zengine

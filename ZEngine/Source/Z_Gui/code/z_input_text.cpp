@@ -57,6 +57,9 @@ ZInputText::ZInputText(ZStringView _name, GuiPos _pos) noexcept
 ZInputText::~ZInputText() noexcept {}
 
 ZInputText& ZInputText::operator=(ZInputText&& _input_text) noexcept {
+    if (this == &_input_text) {
+        return *this;
+    }
     SuperType_::operator=(std::forward<ZInputText>(_input_text));
     MoveP(std::forward<ZInputText>(_input_text));
     return *this;

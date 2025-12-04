@@ -32,6 +32,8 @@
 #include "z_socket/z_tls_context.h"
 #include "z_socket/z_tls_stream.h"
 #include "z_socket/z_udp_endpoint.h"
+#include "z_socket/z_udp_packet.h"
+#include "z_socket/z_udp_packet_factory.h"
 #include "z_socket/z_udp_peer.h"
 #include "z_socket/z_udp_socket.h"
 #include "z_socket/z_udp_server.h"

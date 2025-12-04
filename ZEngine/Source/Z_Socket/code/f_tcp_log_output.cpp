@@ -365,7 +365,7 @@ public:
 
         log_client_thread_state_ = ThreadState_::kClosing;
 
-        if (log_client_.GetSocket().State() != ZTCPSocket::StateEnum_::kClosed) {
+        if (log_client_.SocketPtr()->State() != ZTCPSocket::StateEnum_::kClosed) {
             //stop log client
             log_client_.Close();
         }

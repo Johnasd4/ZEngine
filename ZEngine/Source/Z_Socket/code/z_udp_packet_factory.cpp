@@ -19,8 +19,19 @@
 #define SOCKET_DLLFILE
 #include "drive/d_pch.h"
 
-//Must be little-endian architecture!!!
-static_assert(
-    std::endian::native == std::endian::little,
-    "PSocket: Current architecture is not Little-Endian! Protocol requires Little-Endian."
-);
+#include "z_udp_packet_factory.h"
+
+namespace zengine {
+namespace socket {
+
+ZUDPPacketFactory::ZUDPPacketFactory() noexcept
+    : SuperType_()
+{
+    message_packet_pool_.ExtendPool(kMessagePacketPoolDefaultSize);
+    command_packet_pool_.ExtendPool(kCommandPacketPoolDefaultSize);
+}
+
+ZUDPPacketFactory::~ZUDPPacketFactory() noexcept {}
+
+}//socket
+}//zengine

@@ -54,6 +54,9 @@ ZSerializer::~ZSerializer() noexcept {
 }
 
 ZSerializer& ZSerializer::operator=(ZSerializer&& _serializer) noexcept {
+    if (this == &_serializer) {
+        return *this;
+    }
     if (data_ptr_ != nullptr) {
         memory_pool::ReleaseMemory(data_ptr_);
     }

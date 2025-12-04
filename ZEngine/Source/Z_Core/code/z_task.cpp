@@ -41,6 +41,9 @@ ZTaskSafe::ZTaskSafe(ZTaskSafe&& _task) noexcept : SuperType_(std::forward<ZTask
 ZTaskSafe::~ZTaskSafe() noexcept { Clear(); }
 
 ZTaskSafe& ZTaskSafe::operator=(ZTaskSafe&& _task) noexcept {
+    if (this == &_task) {
+        return *this;
+    }
     SuperType_::operator=(std::forward<ZTaskSafe>(_task));
     mutex_.Lock();
     MoveP(std::forward<ZTaskSafe>(_task));
@@ -130,6 +133,9 @@ ZTask::ZTask(ZTask&& _task) noexcept : SuperType_(std::forward<ZTask>(_task)) {
 ZTask::~ZTask() noexcept { Clear(); }
 
 ZTask& ZTask::operator=(ZTask&& _task) noexcept {
+    if (this == &_task) {
+        return *this;
+    }
     SuperType_::operator=(std::forward<ZTask>(_task));
     MoveP(std::forward<ZTask>(_task));
     return *this;
@@ -209,6 +215,9 @@ ZRepeatTask::ZRepeatTask(ZRepeatTask&& _task) noexcept : SuperType_(std::forward
 ZRepeatTask::~ZRepeatTask() noexcept { Clear(); }
 
 ZRepeatTask& ZRepeatTask::operator=(ZRepeatTask&& _task) noexcept {
+    if (this == &_task) {
+        return *this;
+    }
     SuperType_::operator=(std::forward<ZRepeatTask>(_task));
     MoveP(std::forward<ZRepeatTask>(_task));
     return *this;

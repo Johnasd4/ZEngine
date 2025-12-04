@@ -90,7 +90,7 @@ public:
         //simple type
         else {
             static_assert(std::is_trivially_copyable_v<_ObjectType>,
-                "ZSerializer: Type must be trivially copyable or implement OnSerialize to prevent shallow copy bugs."
+                "ZSerializer::Write(): Type must be trivially copyable or implement OnSerialize!"
             );
 
             link_code = Write(reinterpret_cast<const Void*>(&_obj), sizeof(_ObjectType));
@@ -171,7 +171,7 @@ public:
         //simple type
         else {
             static_assert(std::is_trivially_copyable_v<_ObjectType>,
-                "ZDeserializer: Type must be trivially copyable or implement OnDeserialize to prevent shallow copy bugs."
+                "ZSerializer::Read(): Type must be trivially copyable or implement OnDeserialize!"
             );
 
             link_code = Read(_obj_ptr, sizeof(_ObjectType));

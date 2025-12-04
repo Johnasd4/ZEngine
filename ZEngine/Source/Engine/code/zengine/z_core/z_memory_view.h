@@ -60,13 +60,6 @@ public:
         size_ = _mem.size_;
         return *this;
     }
-    FORCEINLINE ZMemoryView& operator=(ZMemoryView&& _mem) noexcept {
-        data_ptr_ = _mem.data_ptr_;
-        size_ = _mem.size_;
-        _mem.data_ptr_ = nullptr;
-        _mem.size_ = 0u;
-        return *this;
-    }
 
     template<typename PointerType>
     NODISCARD FORCEINLINE Void Assign(const PointerType* _data_ptr, SizeType _size) noexcept {

@@ -36,10 +36,10 @@ ZCheckBox::ZCheckBox() noexcept
     , pre_if_checked_(false)
 {}
 
-ZCheckBox::ZCheckBox(ZCheckBox&& _button) noexcept
-    : SuperType_(std::forward<ZCheckBox>(_button))
+ZCheckBox::ZCheckBox(ZCheckBox&& _check_box) noexcept
+    : SuperType_(std::forward<ZCheckBox>(_check_box))
 {
-    MoveP(std::forward<ZCheckBox>(_button));
+    MoveP(std::forward<ZCheckBox>(_check_box));
 }
 
 ZCheckBox::ZCheckBox(ZStringView _name, GuiPos _pos) noexcept
@@ -56,9 +56,12 @@ ZCheckBox::ZCheckBox(ZStringView _name, GuiPos _pos) noexcept
 
 ZCheckBox::~ZCheckBox() noexcept {}
 
-ZCheckBox& ZCheckBox::operator=(ZCheckBox&& _button) noexcept {
-    SuperType_::operator=(std::forward<ZCheckBox>(_button));
-    MoveP(std::forward<ZCheckBox>(_button));
+ZCheckBox& ZCheckBox::operator=(ZCheckBox&& _check_box) noexcept {
+    if (this == &_check_box) {
+        return *this;
+    }
+    SuperType_::operator=(std::forward<ZCheckBox>(_check_box));
+    MoveP(std::forward<ZCheckBox>(_check_box));
     return *this;
 }
 
@@ -244,22 +247,22 @@ Void ZCheckBox::OnCheckBoxClicked(Bool _if_checked) noexcept {
     }
 }
 
-Void ZCheckBox::MoveP(ZCheckBox&& _button) noexcept {
-    click_func_ = std::move(_button.click_func_);
-    text_colour_ = _button.text_colour_;
-    check_mark_colour_ = _button.check_mark_colour_;
-    check_box_colour_ = _button.check_box_colour_;
-    hovered_colour_ = _button.hovered_colour_;
-    active_colour_ = _button.active_colour_;
-    if_checked_ = _button.if_checked_;
-    pre_if_checked_ = _button.pre_if_checked_;
-    _button.text_colour_ = kDefaultTextColour;
-    _button.check_mark_colour_ = kDefaultCheckMarkColour;
-    _button.check_box_colour_ = kDefaultCheckBoxColour;
-    _button.hovered_colour_ = kDefaultHoveredColour;
-    _button.active_colour_ = kDefaultActiveColour;
-    _button.if_checked_ = false;
-    _button.pre_if_checked_ = false;
+Void ZCheckBox::MoveP(ZCheckBox&& _check_box) noexcept {
+    click_func_ = std::move(_check_box.click_func_);
+    text_colour_ = _check_box.text_colour_;
+    check_mark_colour_ = _check_box.check_mark_colour_;
+    check_box_colour_ = _check_box.check_box_colour_;
+    hovered_colour_ = _check_box.hovered_colour_;
+    active_colour_ = _check_box.active_colour_;
+    if_checked_ = _check_box.if_checked_;
+    pre_if_checked_ = _check_box.pre_if_checked_;
+    _check_box.text_colour_ = kDefaultTextColour;
+    _check_box.check_mark_colour_ = kDefaultCheckMarkColour;
+    _check_box.check_box_colour_ = kDefaultCheckBoxColour;
+    _check_box.hovered_colour_ = kDefaultHoveredColour;
+    _check_box.active_colour_ = kDefaultActiveColour;
+    _check_box.if_checked_ = false;
+    _check_box.pre_if_checked_ = false;
 }
 
 }//gui

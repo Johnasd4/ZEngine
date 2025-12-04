@@ -51,6 +51,9 @@ ZButton::ZButton(ZStringView _name, GuiSize _size, GuiPos _pos) noexcept
 ZButton::~ZButton() noexcept {}
 
 ZButton& ZButton::operator=(ZButton&& _button) noexcept {
+    if (this == &_button) {
+        return *this;
+    }
     SuperType_::operator=(std::forward<ZButton>(_button));
     MoveP(std::forward<ZButton>(_button));
     return *this;

@@ -61,6 +61,9 @@ public:
     ~TMatrix() noexcept {}
 
     TMatrix& operator=(const TMatrix& _matrix) noexcept {
+        if (this == &_matrix) {
+            return *this;
+        }
         SuperType_::operator=(_matrix);
         data_vec_ = _matrix.data_vec_;
         row_ = _matrix.row_;
@@ -68,6 +71,9 @@ public:
         return *this;
     }
     TMatrix& operator=(TMatrix&& _matrix) noexcept {
+        if (this == &_matrix) {
+            return *this;
+        }
         SuperType_::operator=(std::forward<TMatrix>(_matrix));
         row_ = _matrix.row_;
         column_ = _matrix.column_;

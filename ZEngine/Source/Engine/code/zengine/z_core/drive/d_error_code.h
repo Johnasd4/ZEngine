@@ -51,6 +51,5 @@ inline constexpr ReturnType kErrorCodeBase_ZStringView = 0xEU * kErrorCodeTypeMa
 inline constexpr ReturnType kErrorCodeBase_FString = 0x10U * kErrorCodeTypeMask + kErrorCodeBase_PCore;
 inline constexpr ReturnType kErrorCodeBase_ZSerializer = 0x11U * kErrorCodeTypeMask + kErrorCodeBase_PCore;
 
-
 }//error_code
 }//zengine

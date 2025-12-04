@@ -84,6 +84,9 @@ ZTimer::~ZTimer() noexcept {
 }
 
 ZTimer& ZTimer::operator=(ZTimer&& _timer) noexcept {
+    if (this == &_timer) {
+        return *this;
+    }
     SuperType_::operator=(std::forward<ZTimer>(_timer));
     if (timer_data_ptr_) {
         //finish current timer

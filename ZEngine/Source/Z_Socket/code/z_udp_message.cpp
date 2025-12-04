@@ -30,7 +30,7 @@ NODISCARD ReturnType ZUDPMessage::OnSerialize(ZSerializer& _out) const noexcept 
 
     link_code = _out.Write(&message_type_, MessageHeaderSize);
     if (link_code != kOK) {
-        ret_val = error_code::kUDPMessageErrorCode_LinkError;
+        ret_val = error_code::kSocketErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
             L"ZSerializer::Write() link error!"
@@ -47,7 +47,7 @@ NODISCARD ReturnType ZUDPMessage::OnDeserialize(ZDeserializer& _in) noexcept {
 
     link_code = _in.Read(&message_type_, MessageHeaderSize);
     if (link_code != kOK) {
-        ret_val = error_code::kUDPMessageErrorCode_LinkError;
+        ret_val = error_code::kSocketErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
             L"ZDeserializer::Read() link error!"

@@ -106,6 +106,9 @@ public:
     }
 
     TUniqueLock& operator=(TUniqueLock&& _unique_lock) noexcept {
+        if (this == &_unique_lock) {
+            return *this;
+        }
         SuperType_::operator=(std::forward<TUniqueLock>(_unique_lock));
         MoveP(std::forward<TUniqueLock>(_unique_lock));
         return *this;

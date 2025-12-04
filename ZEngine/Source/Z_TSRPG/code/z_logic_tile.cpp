@@ -69,6 +69,9 @@ ZLogicTileTexture::~ZLogicTileTexture() noexcept {}
 
 ZLogicTileTexture& ZLogicTileTexture::operator=(ZLogicTileTexture&& _texture) noexcept
 {
+    if (this == &_texture) {
+        return *this;
+    }
     MoveP(std::forward<ZLogicTileTexture>(_texture));
     return *this;
 }

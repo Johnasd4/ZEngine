@@ -81,6 +81,10 @@ public:
     NODISCARD FORCEINLINE ZIOContext* IOContextPtr() const noexcept { return io_context_ptr_; }
     template<typename _ObjectType>
     NODISCARD FORCEINLINE _ObjectType* LinkObjectPtr() const noexcept { return link_object_ptr_; }
+    template<typename _ObjectType>
+    NODISCARD Void SetLinkObjectPtr(_ObjectType* _obj_ptr) noexcept {
+        link_object_ptr_ = _obj_ptr;
+    }
 
     NODISCARD ZTCPEndpoint LocalEndpoint() const noexcept;
     NODISCARD ZTCPEndpoint RemoteEndpoint() const noexcept;

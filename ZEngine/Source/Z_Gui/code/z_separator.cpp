@@ -38,6 +38,9 @@ ZSeparator::ZSeparator(ZSeparator&& _text) noexcept
 ZSeparator::~ZSeparator() noexcept {}
 
 ZSeparator& ZSeparator::operator=(ZSeparator&& _text) noexcept {
+    if (this == &_text) {
+        return *this;
+    }
     SuperType_::operator=(std::forward<ZSeparator>(_text));
     MoveP(std::forward<ZSeparator>(_text));
     return *this;

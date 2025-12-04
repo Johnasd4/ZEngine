@@ -39,6 +39,9 @@ public:
     FORCEINLINE ~ZSemMutex() noexcept { CloseHandle(handle_); }
 
     FORCEINLINE ZSemMutex& operator=(ZSemMutex&& _mutex) noexcept {
+        if (this == &_mutex) {
+            return *this;
+        }
         SuperType_::operator=(std::forward<ZSemMutex>(_mutex));
         MoveP(std::forward<ZSemMutex>(_mutex));
         return *this;

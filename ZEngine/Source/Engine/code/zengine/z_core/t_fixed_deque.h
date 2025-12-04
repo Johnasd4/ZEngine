@@ -88,11 +88,17 @@ public:
     FORCEINLINE constexpr ~TFixedDeque() noexcept {}
 
     FORCEINLINE TFixedDeque& operator=(const TFixedDeque& _deque) noexcept {
+        if (this == &_deque) {
+            return *this;
+        }
         SuperType_::operator=(_deque);
         CopyP(_deque);
         return *this;
     }
     FORCEINLINE TFixedDeque& operator=(TFixedDeque&& _deque) noexcept {
+        if (this == &_deque) {
+            return *this;
+        }
         SuperType_::operator=(std::forward<TFixedDeque>(_deque));
         MoveP(std::forward<TFixedDeque>(_deque));
         return *this;

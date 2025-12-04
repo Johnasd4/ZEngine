@@ -174,6 +174,9 @@ ZWindow::ZWindow(const Char* _name, GuiSize _size, GuiPos _pos, WindowScreenMode
 ZWindow::~ZWindow() noexcept {}
 
 ZWindow& ZWindow::operator=(ZWindow&& _window) noexcept {
+    if (this == &_window) {
+        return *this;
+    }
     SuperType_::operator=(std::forward<ZWindow>(_window));
     MoveP(std::forward<ZWindow>(_window));
     return *this;

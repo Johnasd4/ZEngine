@@ -59,11 +59,17 @@ ZMemory::~ZMemory() noexcept {
 }
 
 ZMemory& ZMemory::operator=(const ZMemory& _mem) noexcept {
+    if (this == &_mem) {
+        return *this;
+    }
     Resize(_mem.size_);
     Copy(data_ptr_, _mem.data_ptr_, size_);
     return *this;
 }
 ZMemory& ZMemory::operator=(ZMemory&& _mem) noexcept {
+    if (this == &_mem) {
+        return *this;
+    }
     if (data_ptr_ != nullptr) {
         memory_pool::ReleaseMemory(data_ptr_);
     }

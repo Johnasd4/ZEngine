@@ -65,6 +65,9 @@ ZFrame::ZFrame(ZStringView _name, GuiSize _size, GuiPos _pos) noexcept
 ZFrame::~ZFrame() noexcept {}
 
 ZFrame& ZFrame::operator=(ZFrame&& _frame) noexcept {
+    if (this == &_frame) {
+        return *this;
+    }
     SuperType_::operator=(std::forward<ZFrame>(_frame));
     MoveP(std::forward<ZFrame>(_frame));
     return *this;

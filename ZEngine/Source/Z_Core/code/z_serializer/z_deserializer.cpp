@@ -47,6 +47,9 @@ ZDeserializer::ZDeserializer(ZConstBuffer _buffer) noexcept
 ZDeserializer::~ZDeserializer() noexcept {}
 
 ZDeserializer& ZDeserializer::operator=(ZDeserializer&& _serializer) noexcept {
+    if (this == &_serializer) {
+        return *this;
+    }
     data_ptr_ = _serializer.data_ptr_;
     size_left_ = _serializer.size_left_;
     _serializer.data_ptr_ = nullptr;

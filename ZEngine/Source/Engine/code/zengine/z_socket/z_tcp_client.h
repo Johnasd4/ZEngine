@@ -56,6 +56,10 @@ public:
     template<typename _ObjectType>
     NODISCARD FORCEINLINE _ObjectType* LinkObjectPtr() const noexcept { return socket_.LinkObjectPtr(); }
     NODISCARD FORCEINLINE ZTCPSocket* SocketPtr() noexcept { return &socket_; }
+    template<typename _ObjectType>
+    NODISCARD Void SetLinkObjectPtr(_ObjectType* _obj_ptr) noexcept {
+        socket_.SetLinkObjectPtr(_obj_ptr);
+    }
 
     /*
         Open the client.
@@ -103,12 +107,6 @@ public:
         Stops connecting.
     */
     NODISCARD Void StopConnect() noexcept;
-
-    /*
-        Get socket ptr.
-        WARNING: Moving the socket data might cause fatal errors.
-    */
-    NODISCARD FORCEINLINE ZTCPSocket& GetSocket() noexcept { return socket_; }
 
     /*
         Read data. Will suspend the current thread until data read.

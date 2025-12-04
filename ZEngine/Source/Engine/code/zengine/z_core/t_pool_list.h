@@ -72,11 +72,6 @@ public:
             node_ptr_ = _iterator.node_ptr_;
             return *this;
         }
-        FORCEINLINE Iterator_& operator=(Iterator_&& _iterator) noexcept {
-            node_ptr_ = _iterator.node_ptr_;
-            _iterator.node_ptr_ = nullptr;
-            return *this;
-        }
         FORCEINLINE Iterator_& operator++() noexcept {
             node_ptr_ = node_ptr_->next_node_ptr_;
             return *this;
@@ -144,6 +139,9 @@ public:
     }
 
     TPoolList& operator=(TPoolList&& _pool) noexcept {
+        if (this == &_pool) {
+            return *this;
+        }
         MoveP(std::forward<TPoolList>(_pool));
         return *this;
     }
@@ -449,11 +447,6 @@ public:
             node_ptr_ = _iterator.node_ptr_;
             return *this;
         }
-        FORCEINLINE Iterator_& operator=(Iterator_&& _iterator) noexcept {
-            node_ptr_ = _iterator.node_ptr_;
-            _iterator.node_ptr_ = nullptr;
-            return *this;
-        }
         FORCEINLINE Iterator_& operator++() noexcept {
             node_ptr_ = node_ptr_->next_node_ptr_;
             return *this;
@@ -524,6 +517,9 @@ public:
     }
 
     TPoolListSafe& operator=(TPoolListSafe&& _pool) noexcept {
+        if (this == &_pool) {
+            return *this;
+        }
         TLockGuard lock_guard(mutex_);
         TLockGuard lock_guard(_pool.mutex_);
         MoveP(std::forward<TPoolListSafe>(_pool));
