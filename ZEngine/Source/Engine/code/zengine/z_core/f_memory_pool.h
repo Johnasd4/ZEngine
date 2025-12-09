@@ -100,6 +100,16 @@ CORE_DLLAPI NODISCARD Void* ApplySmartPointerMemory() noexcept;
 */
 CORE_DLLAPI Void ReleaseSmartPointerMemory(Void* _memory_ptr) noexcept;
 
+/*
+    Applys memory for the smart pointers, size is 24.
+*/
+CORE_DLLAPI NODISCARD Void* ApplyLogStringMemory() noexcept;
+
+/*
+   Release the memory by the memory pointer. Only can be used by smart pointers.
+*/
+CORE_DLLAPI Void ReleaseLogStringMemory(Void* _memory_ptr) noexcept;
+
 #ifdef USE_MEMORY_POOL_TEST
 /*
     Gets the memory pool current condition.

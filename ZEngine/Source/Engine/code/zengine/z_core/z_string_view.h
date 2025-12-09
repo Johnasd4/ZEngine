@@ -1,17 +1,25 @@
 /*
     Copyright (c) YuLin Zhu
 
-    This code file is licensed under the Creative Commons
-    Attribution-NonCommercial 4.0 International License.
+    ** ZEngine Proprietary License **
 
-    You may obtain a copy of the License at
-    https://creativecommons.org/licenses/by-nc/4.0/
+    This software is provided "as-is", without any express or implied warranty.
+    In no event will the authors be held liable for any damages arising from the
+    use of this software.
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+    Usage Rights:
+    1. Non-Commercial Use: You may use, modify, and distribute this software
+       for non-commercial purposes (e.g., education, personal projects, open-source
+       projects that do not generate revenue) free of charge.
+
+    2. Commercial Use: Commercial use of this software is STRICTLY PROHIBITED
+       without a valid commercial license agreement with the author.
+       "Commercial use" includes, but is not limited to:
+       - Incorporating this software into a product that is sold.
+       - Using this software in a paid service.
+       - Using this software for internal business operations in a for-profit entity.
+
+    To obtain a Commercial License, please contact the author.
 
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
@@ -20,605 +28,417 @@
 
 #include "drive.h"
 
-#include "m_log.h"
-#include "t_array.h"
+#include <charconv>
+
 #include "z_string.h"
 #include "z_object.h"
 
 namespace zengine {
-namespace error_code {
-enum ZStringViewErrorCodeEnum : ReturnType {
-    kZStringViewErrorCode_LinkError = kErrorCodeBase_ZStringView,
-    kZStringViewErrorCode_SystemError,
-    kZStringViewErrorCode_NullptrParam,
-    kZStringViewErrorCode_ParamOutOfRange,
-    kZStringViewErrorCode_InvalidString,
-    kZStringViewErrorCode_StringToNumberCanNotTransform,
-    kZStringViewErrorCode_StringToNumberOutOfRange,
-};
-}//error_code
-}//zengine
-
-namespace zengine {
 namespace internal {
 
-/*
-    String view class. No heap memory applied.
-    Member:
-        _CharType str_: Points at an existing string.
-        SizeType size_: The string size.
-*/
+/**
+ * @brief A lightweight, non-owning reference to a string or a substring.
+ *
+ * This class wraps std::basic_string_view to provide a consistent interface compatible
+ * with the ZEngine object system. It is designed to be efficient for copying and passing by value.
+ *
+ * @tparam _CharType The character type of the string (e.g., char, wchar_t).
+ */
 template<typename _CharType>
-class TStringView : public ZObject {
+class TStringView {
+    static_assert(kIsChar<_CharType>, "TStringView: Requires a char type.");
+
 public:
+    /** @brief Alias for the standard string type. */
     template<typename _AllocatorType>
     using STDString_ = std::basic_string<_CharType, std::char_traits<_CharType>, _AllocatorType>;
+    /** @brief Alias for the standard string view type. */
+    using STDStringView_ = std::basic_string_view<_CharType, std::char_traits<_CharType>>;
 
-    static inline constexpr SizeType kFindEnd = std::string::npos;
+    /** @brief Represents the end position of a string or an invalid index. */
+    static inline constexpr SizeType kEnd = std::string::npos;
 
-    FORCEINLINE constexpr TStringView() noexcept 
-        : SuperType_(), str_(nullptr), size_(0ULL) {}
-    FORCEINLINE constexpr TStringView(const TStringView& _str) noexcept 
-        : SuperType_(_str), str_(_str.str_), size_(_str.size_) {}
-    FORCEINLINE constexpr TStringView(TStringView&& _str) noexcept 
-        : SuperType_(std::forward<TStringView>(_str)), str_(_str.str_), size_(_str.size_) { _str.size_ = 0; }
-    constexpr TStringView(const TStringView& _str, SizeType _pos, SizeType _len = -1) noexcept
-        : SuperType_(), str_(&_str.str_[_pos])
-    {
-        size_ = _len < _str.size_ ? _len : _str.size_;
-        SizeType sub_str_size = _str.size_ - _pos;
-        size_ = _len < sub_str_size ? _len : sub_str_size;
-    }
-    FORCEINLINE constexpr TStringView(const _CharType* _str, SizeType _size) noexcept 
-        : SuperType_(), str_(_str), size_(_size) {}
+    /**
+     * @brief Default constructor. Initializes an empty string view.
+     */
+    FORCEINLINE constexpr TStringView() noexcept
+        : str_view_()
+    {}
+
+    /**
+     * @brief Copy constructor.
+     * @param _str_view The string view object to copy from.
+     */
+    FORCEINLINE constexpr TStringView(const TStringView& _str_view) noexcept
+        : str_view_(_str_view.str_view_)
+    {}
+
+    /**
+     * @brief Constructs a string view representing a substring of another view.
+     * @param _str_view The source string view.
+     * @param _pos The starting position of the substring.
+     * @param _len The length of the substring. Defaults to kEnd (until the end of the string).
+     */
+    constexpr TStringView(const TStringView& _str_view, SizeType _pos, SizeType _len = kEnd) noexcept
+        : str_view_(&_str_view[_pos], _len)
+    {}
+
+    /**
+     * @brief Constructs a string view from a character pointer and explicit size.
+     * @param _str Pointer to the character array.
+     * @param _size The number of characters to include in the view.
+     */
+    FORCEINLINE constexpr TStringView(const _CharType* _str, SizeType _size) noexcept
+        : str_view_(_str, _size)
+    {}
+
+    /**
+     * @brief Constructs a string view from a null-terminated C-style string.
+     * @tparam _PointerType The type of the pointer (must be compatible with _CharType*).
+     * @param _str The null-terminated C-string.
+     */
     template<typename _PointerType>
-    requires kSameType<kDecayType<_PointerType>, const _CharType*>
+    requires kSameType<kDecayType<_PointerType>, const _CharType*> || kSameType<kDecayType<_PointerType>, _CharType*>
     FORCEINLINE constexpr TStringView(_PointerType&& _str) noexcept
-        : SuperType_(), str_(_str) 
-    {
-        if constexpr (std::is_array_v<std::remove_reference_t<_PointerType>>) {
-            size_ = sizeof(_str) / sizeof(_CharType) - 1ULL;
-        }
-        else {
-            if constexpr (kSameType<_CharType, Char>) {
-                size_ = strlen(str_);
-            }
-            else {
-                size_ = wcslen(str_);
-            }
-        }
-    }
-    FORCEINLINE constexpr TStringView(const TString<_CharType>& _str) noexcept 
-        : SuperType_(), str_(_str.String()), size_(_str.Size()) {}
-    template<typename _AllocatorType>
-    FORCEINLINE constexpr TStringView(const STDString_<_AllocatorType>& _std_string) noexcept
-        : SuperType_(), str_(_std_string.c_str()), size_(_std_string.size()) {}
+        : str_view_(_str)
+    {}
 
+    /**
+     * @brief Constructs a string view from a ZEngine TString object.
+     * @param _str The source TString object.
+     */
+    FORCEINLINE constexpr TStringView(const TString<_CharType>& _str) noexcept
+        : str_view_(_str.STDString())
+    {}
+
+    /**
+     * @brief Constructs a string view from a std::basic_string.
+     * @tparam _AllocatorType The allocator type used by the std::basic_string.
+     * @param _std_str The source std::basic_string object.
+     */
+    template<typename _AllocatorType>
+    FORCEINLINE constexpr TStringView(const STDString_<_AllocatorType>& _std_str) noexcept
+        : str_view_(_std_str)
+    {}
+
+    /**
+     * @brief Constructs a string view from a std::basic_string_view.
+     * @param _std_str The source std::basic_string_view object.
+     */
+    FORCEINLINE constexpr TStringView(const STDStringView_& _std_str) noexcept
+        : str_view_(_std_str)
+    {}
+
+    /**
+     * @brief Destructor.
+     */
     FORCEINLINE constexpr ~TStringView() noexcept {}
 
-    FORCEINLINE constexpr TStringView& operator=(const TStringView& _str) noexcept {
-        SuperType_::operator=(_str);
-        str_ = _str.str_;
-        size_ = _str.size_;
+    /**
+     * @brief Assignment operator. Copies the view from another TStringView.
+     * @param _str_view The source string view.
+     * @return TStringView& Reference to this object.
+     */
+    FORCEINLINE constexpr TStringView& operator=(const TStringView& _str_view) noexcept {
+        str_view_ = _str_view.str_view_;
         return *this;
     }
-    FORCEINLINE constexpr TStringView& operator=(TStringView&& _str) noexcept {
-        SuperType_::operator=(std::forward<TStringView>(_str));
-        str_ = _str.str_;
-        size_ = _str.size_;
-        _str.size_ = 0ULL;
-        return *this;
-    }
+
+    /**
+     * @brief Assignment operator. Assigns from a null-terminated C-style string.
+     * @tparam _PointerType The type of the pointer.
+     * @param _str The null-terminated C-string.
+     * @return TStringView& Reference to this object.
+     */
     template<typename _PointerType>
-    requires kSameType<kDecayType<_PointerType>, const _CharType*>
+    requires kSameType<kDecayType<_PointerType>, const _CharType*> || kSameType<kDecayType<_PointerType>, _CharType*>
     FORCEINLINE constexpr TStringView& operator=(_PointerType&& _str) noexcept {
-        str_ = _str;
-        if constexpr (std::is_array_v<std::remove_reference_t<_PointerType>>) {
-            size_ = sizeof(_str) / sizeof(_CharType) - 1ULL;
-        }
-        else {
-            if constexpr (kSameType<_CharType, Char>) {
-                size_ = strlen(str_);
-            }
-            else {
-                size_ = wcslen(str_);
-            }
-        }
+        str_view_ = _str;
         return *this;
     }
+
+    /**
+     * @brief Assignment operator. Assigns from a ZEngine TString object.
+     * @param _str The source TString object.
+     * @return TStringView& Reference to this object.
+     */
     FORCEINLINE constexpr TStringView& operator=(const TString<_CharType>& _str) noexcept {
-        str_ = _str.String();
-        size_ = _str.Size();
-        return *this;
-    }
-    template<typename _AllocatorType>
-    FORCEINLINE constexpr TStringView& operator=(const STDString_<_AllocatorType>& _std_string) noexcept {
-        str_ = _std_string.c_str();
-        size_ = _std_string.size();
+        str_view_ = _str.STDString();
         return *this;
     }
 
-    FORCEINLINE constexpr TStringView& SetViewString(const TStringView& _str) noexcept {
-        str_ = _str.str_;
-        size_ = _str.size_;
+    /**
+     * @brief Assignment operator. Assigns from a std::basic_string.
+     * @tparam _AllocatorType The allocator type of the std::basic_string.
+     * @param _std_str The source std::basic_string.
+     * @return TStringView& Reference to this object.
+     */
+    template<typename _AllocatorType>
+    FORCEINLINE constexpr TStringView& operator=(const STDString_<_AllocatorType>& _std_str) noexcept {
+        str_view_ = _std_str;
         return *this;
     }
-    FORCEINLINE constexpr TStringView& SetViewString(TStringView&& _str) noexcept {
-        str_ = _str.str_;
-        size_ = _str.size_;
-        _str.size_ = 0ULL;
+
+    /**
+     * @brief Replaces the current view with a copy of another TStringView.
+     * @param _str_view The source string view.
+     * @return TStringView& Reference to this object.
+     */
+    FORCEINLINE constexpr TStringView& Assign(const TStringView& _str_view) noexcept {
+        str_view_ = _str_view.str_view_;
         return *this;
     }
-    constexpr TStringView& SetViewString(
-        const TStringView& _str, 
-        SizeType _pos, 
-        SizeType _len = -1
+
+    /**
+     * @brief Replaces the current view with a substring of another TStringView.
+     * @param _str_view The source string view.
+     * @param _pos The starting position in the source view.
+     * @param _len The length of the substring. Defaults to kEnd.
+     * @return TStringView& Reference to this object.
+     */
+    FORCEINLINE constexpr TStringView& Assign(
+        const TStringView& _str_view,
+        SizeType _pos,
+        SizeType _len = kEnd
     ) noexcept {
-        size_ = _len < _str.size_ ? _len : _str.size_;
-        SizeType sub_str_size = _str.size_ - _pos;
-        size_ = _len < sub_str_size ? _len : sub_str_size;
+        str_view_ = STDStringView_{&_str_view[_pos], _len};
         return *this;
     }
-    FORCEINLINE constexpr TStringView& SetViewString(const _CharType* _str, SizeType _size) noexcept {
-        str_ = _str;
-        size_ = _size;
+
+    /**
+     * @brief Replaces the current view with a character array and explicit size.
+     * @param _str Pointer to the character array.
+     * @param _size The number of characters.
+     * @return TStringView& Reference to this object.
+     */
+    FORCEINLINE constexpr TStringView& Assign(const _CharType* _str, SizeType _size) noexcept {
+        str_view_ = STDStringView_{_str, _size};
         return *this;
     }
+
+    /**
+     * @brief Replaces the current view with a null-terminated C-style string.
+     * @tparam _PointerType The type of the pointer.
+     * @param _str The null-terminated C-string.
+     * @return TStringView& Reference to this object.
+     */
     template<typename _PointerType>
-    requires kSameType<kDecayType<_PointerType>, const _CharType*>
-    FORCEINLINE constexpr TStringView& SetViewString(_PointerType&& _str) noexcept {
-        str_ = _str;
-        if constexpr (std::is_array_v<std::remove_reference_t<_PointerType>>) {
-            size_ = sizeof(_str) / sizeof(_CharType) - 1ULL;
-        }
-        else {
-            if constexpr (kSameType<_CharType, Char>) {
-                size_ = strlen(str_);
-            }
-            else {
-                size_ = wcslen(str_);
-            }
-        }
+    requires kSameType<kDecayType<_PointerType>, const _CharType*> || kSameType<kDecayType<_PointerType>, _CharType*>
+    FORCEINLINE constexpr TStringView& Assign(_PointerType&& _str) noexcept {
+        str_view_ = _str;
         return *this;
     }
-    FORCEINLINE constexpr TStringView& SetViewString(const TString<_CharType>& _str) noexcept {
-        str_ = _str.String();
-        size_ = _str.Size();
+
+    /**
+     * @brief Replaces the current view with the content of a ZEngine TString.
+     * @param _str The source TString object.
+     * @return TStringView& Reference to this object.
+     */
+    FORCEINLINE constexpr TStringView& Assign(const TString<_CharType>& _str) noexcept {
+        str_view_ = _str.STDString();
         return *this;
     }
+
+    /**
+     * @brief Replaces the current view with the content of a std::basic_string.
+     * @tparam _AllocatorType The allocator type of the std::basic_string.
+     * @param _std_str The source std::basic_string.
+     * @return TStringView& Reference to this object.
+     */
     template<typename _AllocatorType>
-    FORCEINLINE constexpr TStringView& SetViewString(const STDString_<_AllocatorType>& _std_string) noexcept {
-        str_ = _std_string.c_str();
-        size_ = _std_string.size();
+    FORCEINLINE constexpr TStringView& Assign(const STDString_<_AllocatorType>& _std_str) noexcept {
+        str_view_ = _std_str;
         return *this;
     }
 
-    NODISCARD FORCEINLINE constexpr operator TString<_CharType>() const noexcept {
-        return TString<_CharType>(str_, size_);
+    /**
+     * @brief Implicit conversion to a ZEngine TString object.
+     * @return TString<_CharType> A new TString containing a copy of the view's data.
+     */
+    NODISCARD FORCEINLINE operator TString<_CharType>() const noexcept {
+        return TString<_CharType>{str_view_.data(), str_view_.size()};
     }
 
+    /**
+     * @brief Implicit conversion to the underlying std::basic_string_view.
+     * Allows TStringView to be passed directly to APIs expecting std::string_view.
+     * @return STDStringView_ A copy of the internal string view.
+     */
+    NODISCARD FORCEINLINE operator STDStringView_() const noexcept {
+        return str_view_;
+    }
+
+    /**
+     * @brief Accesses the character at the specified index.
+     * This function does not perform bounds checking.
+     * @param _index The index of the character to access.
+     * @return const _CharType& A const reference to the character.
+     */
     NODISCARD FORCEINLINE constexpr const _CharType& operator[](const SizeType _index) const noexcept {
-        return str_[_index];
+        return str_view_[_index];
     }
 
-    NODISCARD FORCEINLINE constexpr const _CharType& At(SizeType _index) const noexcept { return str_[_index]; }
-
-    NODISCARD FORCEINLINE constexpr const _CharType* DataPtr() const noexcept { return str_; }
-    NODISCARD FORCEINLINE constexpr TString<_CharType> String() const noexcept { 
-        return TString<_CharType>(str_, size_);
+    /**
+     * @brief Accesses the character at the specified index with bounds checking.
+     * @param _index The index of the character to access.
+     * @return const _CharType& A const reference to the character.
+     * @throw std::out_of_range If _index is invalid.
+     */
+    NODISCARD FORCEINLINE constexpr const _CharType& At(SizeType _index) const {
+        return str_view_.at(_index);
     }
 
-    NODISCARD FORCEINLINE constexpr SizeType Size() const noexcept { return size_; }
-    NODISCARD FORCEINLINE constexpr Bool Empty() const noexcept { return size_ == 0ULL; }
+    /**
+     * @brief Returns a pointer to the underlying character array.
+     * @return const _CharType* A const pointer to the data.
+     */
+    NODISCARD FORCEINLINE constexpr const _CharType* DataPtr() const noexcept {
+        return str_view_.data();
+    }
 
-    FORCEINLINE constexpr SizeType Find(const TStringView& _str, const SizeType _start_pos = 0) noexcept {
-        return FindP(_str.str_, _str.size_, _start_pos);
-    }
-    FORCEINLINE constexpr SizeType Find(const _CharType* _str, const SizeType _start_pos = 0) noexcept {
-        SizeType size;
-        if constexpr (kSameType<_CharType, Char>) {
-            size = strlen(_str);
-        }
-        else {
-            size = wcslen(_str);
-        }
-        return FindP(_str, size, _start_pos);
-    }
-    FORCEINLINE constexpr SizeType Find(
-        const _CharType* _str_start, const SizeType _str_len, const SizeType _start_pos = 0
+    /**
+     * @brief Accesses the underlying std::basic_string_view object.
+     * @return STDStringView_& A reference to the internal std::basic_string_view.
+     */
+    NODISCARD FORCEINLINE constexpr STDStringView_& STDStringView() noexcept { return str_view_; }
+
+    /**
+     * @brief Accesses the underlying std::basic_string_view object (const).
+     * @return const STDStringView_& A const reference to the internal std::basic_string_view.
+     */
+    NODISCARD FORCEINLINE constexpr const STDStringView_& STDStringView() const noexcept { return str_view_; }
+
+    /**
+     * @brief Returns the number of characters in the view.
+     * @return SizeType The size of the view.
+     */
+    NODISCARD FORCEINLINE constexpr SizeType Size() const noexcept { return str_view_.size(); }
+
+    /**
+     * @brief Checks if the view is empty.
+     * @return Bool True if the size is 0, false otherwise.
+     */
+    NODISCARD FORCEINLINE constexpr Bool Empty() const noexcept { return str_view_.empty(); }
+
+    /**
+     * @brief Finds the first occurrence of a substring within the view.
+     * @param _str_view The substring to search for.
+     * @param _start_pos The position to start the search from.
+     * @return SizeType The index of the first occurrence, or kEnd if not found.
+     */
+    NODISCARD FORCEINLINE constexpr SizeType Find(
+        const TStringView& _str_view,
+        const SizeType _start_pos = 0ULL
     ) noexcept {
-        return FindP(_str_start, _str_len, _start_pos);
+        return str_view_.find(_str_view.str_view_, _start_pos);
     }
-    FORCEINLINE constexpr SizeType Find(const _CharType _char, const SizeType _start_pos = 0) noexcept {
-        return FindP(_char, _start_pos);
-    }
-    FORCEINLINE constexpr SizeType ReverseFind(const TStringView& _str, const SizeType _start_pos = -1) noexcept {
-        return ReverseFindP(_str.str_, _str.size_, _start_pos);
-    }
-    FORCEINLINE constexpr SizeType ReverseFind(const _CharType* _str, const SizeType _start_pos = -1) noexcept {
-        SizeType size;
-        if constexpr (kSameType<_CharType, Char>) {
-            size = strlen(_str);
-        }
-        else {
-            size = wcslen(_str);
-        }
-        return ReverseFindP(_str, size, _start_pos);
-    }
-    FORCEINLINE constexpr SizeType ReverseFind(
-        const _CharType* _str_start, const SizeType _str_len, const SizeType _start_pos = -1
+
+    /**
+     * @brief Finds the first occurrence of a character within the view.
+     * @param _char The character to search for.
+     * @param _start_pos The position to start the search from.
+     * @return SizeType The index of the first occurrence, or kEnd if not found.
+     */
+    NODISCARD FORCEINLINE constexpr SizeType Find(
+        const _CharType _char,
+        const SizeType _start_pos = 0ULL
     ) noexcept {
-        return ReverseFindP(_str_start, _str_len, _start_pos);
-    }
-    FORCEINLINE constexpr SizeType ReverseFind(const _CharType _char, const SizeType _start_pos = -1) noexcept {
-        return ReverseFindP(_char, _start_pos);
+        return str_view_.find(_char, _start_pos);
     }
 
-    constexpr TStringView SubString(const SizeType _pos, const SizeType _len = -1) noexcept {
-        TStringView str;
-        str.str_ = &str_[_pos];
-        size_ = _len < size_ ? _len : size_;
-        size_ = size_ < _pos ? 0 : size_ - _pos;
-        return str;
+    /**
+     * @brief Finds the last occurrence of a substring within the view (searching backwards).
+     * @param _str_view The substring to search for.
+     * @param _start_pos The position to start the backward search from. Defaults to kEnd.
+     * @return SizeType The index of the last occurrence, or kEnd if not found.
+     */
+    NODISCARD FORCEINLINE constexpr SizeType ReverseFind(
+        const TStringView& _str_view,
+        const SizeType _start_pos = kEnd
+    ) noexcept {
+        return str_view_.rfind(_str_view.str_view_, _start_pos);
     }
 
-    FORCEINLINE constexpr Void Clear() noexcept { size_ = 0ULL; }
-  
-    constexpr Void Swap(TStringView& _str) noexcept { 
-        const _CharType* temp_str = _str.str_;
-        _str.str_ = str_;
-        str_ = temp_str;
-        SizeType temp_size = _str.size_;
-        _str.size_ = size_;
-        size_ = temp_size;
+    /**
+     * @brief Finds the last occurrence of a character within the view (searching backwards).
+     * @param _char The character to search for.
+     * @param _start_pos The position to start the backward search from. Defaults to kEnd.
+     * @return SizeType The index of the last occurrence, or kEnd if not found.
+     */
+    NODISCARD FORCEINLINE constexpr SizeType ReverseFind(
+        const _CharType _char,
+        const SizeType _start_pos = kEnd
+    ) noexcept {
+        return str_view_.rfind(_char, _start_pos);
     }
 
-    NODISCARD FORCEINLINE constexpr SizeType Hash() const noexcept {
-        return size_;
+    /**
+     * @brief Creates a new string view representing a substring of the current view.
+     * @param _pos The starting position of the substring.
+     * @param _len The length of the substring. Defaults to kEnd.
+     * @return TStringView A new TStringView instance.
+     */
+    NODISCARD FORCEINLINE constexpr TStringView SubString(const SizeType _pos, const SizeType _len = kEnd) noexcept {
+        return TStringView{ str_view_.substr(_pos, _len) };
     }
 
-    NODISCARD ReturnType ToInt32(Int32* _ans_ptr) noexcept {
-        ReturnType ret_val = kOK;
-        TString<_CharType> string = String();
-        if constexpr (kSameType<_CharType, Char>) {
-            Int32& err_ref = errno;
-            err_ref = 0;
-            Char* err_str;
-            *_ans_ptr = std::strtol(string.String(), &err_str, 10);
-            if (string.String() == err_str) {
-                ret_val = error_code::kZStringViewErrorCode_StringToNumberCanNotTransform;
-                Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
-            }
-            else if (err_ref == ERANGE) {
-                ret_val = error_code::kZStringViewErrorCode_StringToNumberOutOfRange;
-                Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
-            }
-        }
-        else if constexpr (kSameType<_CharType, WChar>) {
-            Int32& err_ref = errno;
-            err_ref = 0;
-            WChar* err_str;
-            *_ans_ptr = std::wcstol(str_, &err_str, 10);
-            if (str_ == err_str) {
-                ret_val = error_code::kZStringViewErrorCode_StringToNumberCanNotTransform;
-                Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
-            }
-            else if (err_ref == ERANGE) {
-                ret_val = error_code::kZStringViewErrorCode_StringToNumberOutOfRange;
-                Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
-            }
-        }
-        return ret_val;
+    /**
+     * @brief Swaps the contents of this view with another.
+     * @param _str_view The other string view to swap with.
+     */
+    FORCEINLINE constexpr Void Swap(TStringView& _str_view) noexcept {
+        str_view_.swap(_str_view.str_view_);
     }
 
-    NODISCARD ReturnType ToInt64(Int64* _ans_ptr) noexcept {
-        ReturnType ret_val = kOK;
-        TString<_CharType> string = String();
-        if constexpr (kSameType<_CharType, Char>) {
-            Int32& err_ref = errno;
-            err_ref = 0;
-            Char* err_str;
-            *_ans_ptr = std::strtoll(string.String(), &err_str, 10);
-            if (string.String() == err_str) {
-                ret_val = error_code::kZStringViewErrorCode_StringToNumberCanNotTransform;
-                Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
-            }
-            else if (err_ref == ERANGE) {
-                ret_val = error_code::kZStringViewErrorCode_StringToNumberOutOfRange;
-                Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
-            }
-        }
-        else if constexpr (kSameType<_CharType, WChar>) {
-            Int32& err_ref = errno;
-            err_ref = 0;
-            WChar* err_str;
-            *_ans_ptr = std::wcstoll(string.String(), &err_str, 10);
-            if (string.String() == err_str) {
-                ret_val = error_code::kZStringViewErrorCode_StringToNumberCanNotTransform;
-                Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
-            }
-            else if (err_ref == ERANGE) {
-                ret_val = error_code::kZStringViewErrorCode_StringToNumberOutOfRange;
-                Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
-            }
-        }
-        return ret_val;
+    /**
+     * @brief Computes a hash value for the string view.
+     * @return SizeType The hash value.
+     */
+    NODISCARD FORCEINLINE SizeType Hash() const noexcept {
+        return std::hash<STDStringView_>{}(str_view_);
     }
 
-    NODISCARD ReturnType ToUInt32(UInt32* _ans_ptr) noexcept {
-        ReturnType ret_val = kOK;
-        TString<_CharType> string = String();
-        if constexpr (kSameType<_CharType, Char>) {
-            Int32& err_ref = errno;
-            err_ref = 0;
-            Char* err_str;
-            *_ans_ptr = std::strtoul(string.String(), &err_str, 10);
-            if (string.String() == err_str) {
-                ret_val = error_code::kZStringViewErrorCode_StringToNumberCanNotTransform;
-                Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
-            }
-            else if (err_ref == ERANGE) {
-                ret_val = error_code::kZStringViewErrorCode_StringToNumberOutOfRange;
-                Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
-            }
-        }
-        else if constexpr (kSameType<_CharType, WChar>) {
-            Int32& err_ref = errno;
-            err_ref = 0;
-            WChar* err_str;
-            *_ans_ptr = std::wcstoul(string.String(), &err_str, 10);
-            if (string.String() == err_str) {
-                ret_val = error_code::kZStringViewErrorCode_StringToNumberCanNotTransform;
-                Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
-            }
-            else if (err_ref == ERANGE) {
-                ret_val = error_code::kZStringViewErrorCode_StringToNumberOutOfRange;
-                Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
-            }
-        }
-        return ret_val;
+    /**
+     * @brief Converts the view to a ZEngine TString (owning copy).
+     * @return TString<_CharType> A new TString containing the data.
+     */
+    NODISCARD FORCEINLINE TString<_CharType> ToString() const noexcept {
+        return TString<_CharType>{ DataPtr(), Size() };
     }
-
-    NODISCARD ReturnType ToUInt64(UInt64* _ans_ptr) noexcept {
-        ReturnType ret_val = kOK;
-        TString<_CharType> string = String();
-        if constexpr (kSameType<_CharType, Char>) {
-            Int32& err_ref = errno;
-            err_ref = 0;
-            Char* err_str;
-            *_ans_ptr = std::strtoull(string.String(), &err_str, 10);
-            if (string.String() == err_str) {
-                ret_val = error_code::kZStringViewErrorCode_StringToNumberCanNotTransform;
-                Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
-            }
-            else if (err_ref == ERANGE) {
-                ret_val = error_code::kZStringViewErrorCode_StringToNumberOutOfRange;
-                Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
-            }
-        }
-        else if constexpr (kSameType<_CharType, WChar>) {
-            Int32& err_ref = errno;
-            err_ref = 0;
-            WChar* err_str;
-            *_ans_ptr = std::wcstoull(string.String(), &err_str, 10);
-            if (string.String() == err_str) {
-                ret_val = error_code::kZStringViewErrorCode_StringToNumberCanNotTransform;
-                Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
-            }
-            else if (err_ref == ERANGE) {
-                ret_val = error_code::kZStringViewErrorCode_StringToNumberOutOfRange;
-                Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
-            }
-        }
-        return ret_val;
-    }
-
-    NODISCARD ReturnType ToFloat32(Float32* _ans_ptr) noexcept {
-        ReturnType ret_val = kOK;
-        TString<_CharType> string = String();
-        if constexpr (kSameType<_CharType, Char>) {
-            Int32& err_ref = errno;
-            err_ref = 0;
-            Char* err_str;
-            *_ans_ptr = std::strtof(string.String(), &err_str);
-            if (string.String() == err_str) {
-                ret_val = error_code::kZStringViewErrorCode_StringToNumberCanNotTransform;
-                Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
-            }
-            else if (err_ref == ERANGE) {
-                ret_val = error_code::kZStringViewErrorCode_StringToNumberOutOfRange;
-                Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
-            }
-        }
-        else if constexpr (kSameType<_CharType, WChar>) {
-            Int32& err_ref = errno;
-            err_ref = 0;
-            WChar* err_str;
-            *_ans_ptr = std::wcstof(string.String(), &err_str);
-            if (string.String() == err_str) {
-                ret_val = error_code::kZStringViewErrorCode_StringToNumberCanNotTransform;
-                Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
-            }
-            else if (err_ref == ERANGE) {
-                ret_val = error_code::kZStringViewErrorCode_StringToNumberOutOfRange;
-                Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
-            }
-        }
-        return ret_val;
-    }
-
-    NODISCARD ReturnType ToFloat64(Float64* _ans_ptr) noexcept {
-        ReturnType ret_val = kOK;
-        TString<_CharType> string = String();
-        if constexpr (kSameType<_CharType, Char>) {
-            Int32& err_ref = errno;
-            err_ref = 0;
-            Char* err_str;
-            *_ans_ptr = std::strtod(string.String(), &err_str);
-            if (string.String() == err_str) {
-                ret_val = error_code::kZStringViewErrorCode_StringToNumberCanNotTransform;
-                Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
-            }
-            else if (err_ref == ERANGE) {
-                ret_val = error_code::kZStringViewErrorCode_StringToNumberOutOfRange;
-                Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
-            }
-        }
-        else if constexpr (kSameType<_CharType, WChar>) {
-            Int32& err_ref = errno;
-            err_ref = 0;
-            WChar* err_str;
-            *_ans_ptr = std::wcstod(string.String(), &err_str);
-            if (string.String() == err_str) {
-                ret_val = error_code::kZStringViewErrorCode_StringToNumberCanNotTransform;
-                Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
-            }
-            else if (err_ref == ERANGE) {
-                ret_val = error_code::kZStringViewErrorCode_StringToNumberOutOfRange;
-                Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
-            }
-        }
-        return ret_val;
-    }
-
-protected:
-    using SuperType_ = ZObject;
 
 private:
-    NODISCARD SizeType FindP(const _CharType* _pattern, SizeType _pattern_size, SizeType _start_pos) noexcept {
-        if (size_ == 0ULL) {
-            return kFindEnd;
-        }
-        if (_pattern_size == 0ULL) {
-            return 0ULL;
-        }
+    static Void* operator new(SizeType) = delete;
+    static Void operator delete(Void*) = delete;
 
-        //build next array
-        TArray<SizeType> next_array(_pattern_size, 0ULL);
-        SizeType same_char_count = 0ULL;
-        for (SizeType pattern_index = 1ULL; pattern_index < _pattern_size - 1; ++pattern_index) {
-            while (same_char_count > 0ULL && _pattern[pattern_index] != _pattern[same_char_count]) {
-                same_char_count = next_array[same_char_count - 1ULL];
-            }
-            if (_pattern[pattern_index] == _pattern[same_char_count]) {
-                ++same_char_count;
-            }
-            next_array[pattern_index] = same_char_count;
-        }
-
-        //matching
-        same_char_count = 0ULL;
-        for (SizeType str_index = _start_pos; str_index < size_; ++str_index) {
-            while (same_char_count > 0ULL && str_[str_index] != _pattern[same_char_count]) {
-                same_char_count = next_array[same_char_count - 1ULL];
-            }
-            if (str_[str_index] == _pattern[same_char_count]) {
-                ++same_char_count;
-            }
-            //str_found
-            if (same_char_count == _pattern_size) {
-                return str_index - _pattern_size + 1ULL;
-            }
-        }
-
-        //not found
-        return kFindEnd;
-    }
-    NODISCARD SizeType ReverseFindP(const _CharType* _pattern, SizeType _pattern_size, SizeType _start_pos) noexcept {
-        if (size_ == 0ULL) {
-            return kFindEnd;
-        }
-        if (_pattern_size == 0ULL) {
-            return size_ - 1ULL;
-        }
-
-        //build next array
-        TArray<SizeType> next_array(_pattern_size, 0ULL);
-        SizeType same_char_count = 0ULL;
-
-        //second char
-        for (SizeType pattern_index = _pattern_size - 3ULL; pattern_index < _pattern_size; --pattern_index) {
-            while (same_char_count > 0ULL && _pattern[pattern_index] != _pattern[_pattern_size - 1 - same_char_count]) {
-                same_char_count = next_array[same_char_count - 1ULL];
-            }
-            if (_pattern[pattern_index] == _pattern[_pattern_size - 1 - same_char_count]) {
-                ++same_char_count;
-            }
-            next_array[_pattern_size - 1 - pattern_index] = same_char_count;
-        }
-
-        //matching
-        same_char_count = 0ULL;
-        SizeType start_index = size_ - 1ULL;
-        if (start_index > _start_pos) {
-            start_index = _start_pos;
-        }
-        for (SizeType str_index = start_index; str_index < size_; --str_index) {
-            while (same_char_count > 0ULL && str_[str_index] != _pattern[_pattern_size - 1 - same_char_count]) {
-                same_char_count = next_array[same_char_count - 1ULL];
-            }
-            if (str_[str_index] == _pattern[_pattern_size - 1 - same_char_count]) {
-                ++same_char_count;
-            }
-            //str_found
-            if (same_char_count == _pattern_size) {
-                return str_index;
-            }
-        }
-
-        //not found
-        return kFindEnd;
-    }
-    NODISCARD SizeType FindP(const _CharType _pattern, SizeType _start_pos) noexcept {
-        //matching
-        for (SizeType str_index = 0ULL; str_index < size_; ++str_index) {
-            //str_found
-            if (str_[str_index] == _pattern) {
-                return str_index;
-            }
-        }
-        //not found
-        return kFindEnd;
-    }
-    NODISCARD SizeType ReverseFindP(const _CharType _pattern, SizeType _start_pos) noexcept {
-        //matching
-        SizeType start_index = size_ - 1ULL;
-        if (start_index > _start_pos) {
-            start_index = _start_pos;
-        }
-        for (SizeType str_index = start_index; str_index < size_; --str_index) {
-            //str_found
-            if (str_[str_index] == _pattern) {
-                return str_index;
-            }
-        }
-        //not found
-        return kFindEnd;
-    }
-
-    const _CharType* str_;
-    SizeType size_;
+    /** @brief The internal standard string view object. */
+    STDStringView_ str_view_;
 };
 
 }//internal
+}//zengine
 
+namespace zengine {
+
+/** @brief Alias for a string view of char type. */
 using ZStringView = internal::TStringView<Char>;
+/** @brief Alias for a string view of wchar_t type. */
 using ZWStringView = internal::TStringView<WChar>;
 
 }//zengine
 
 namespace std {
-    template<>
-    struct hash<zengine::ZStringView> {
-        size_t operator()(const zengine::ZStringView& _str) const noexcept {
-            return _str.Hash();
-        }
-    };
 
-    template<>
-    struct hash<zengine::ZWStringView> {
-        size_t operator()(const zengine::ZWStringView& _str) const noexcept {
-            return _str.Hash();
-        }
-    };
+template<>
+struct hash<zengine::ZStringView> {
+    size_t operator()(const zengine::ZStringView& _str_view) const noexcept {
+        return _str_view.Hash();
+    }
+};
+template<>
+struct hash<zengine::ZWStringView> {
+    size_t operator()(const zengine::ZWStringView& _str_view) const noexcept {
+        return _str_view.Hash();
+    }
+};
+
 }//std

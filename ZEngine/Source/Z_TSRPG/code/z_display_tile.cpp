@@ -48,7 +48,7 @@ NODISCARD ReturnType ZDisplayTile::SetPos(const DisplayVector3D& _pos) noexcept 
         link_code = OnPosChanged(old_pos, _pos);
         if (link_code != kOK) {
             ret_val = error_code::kZDisplayTileErrorCode_LinkError;
-            Z_LOG_ERROR(ret_val, link_code, L"ZDisplayTile::OnPosChanged() link error!");
+            Z_LOG_ERROR(ret_val, link_code, "ZDisplayTile::OnPosChanged() link error!");
             return ret_val;
         }    
     }
@@ -62,7 +62,7 @@ NODISCARD ReturnType ZDisplayTile::SetPos(const LogicVector3D& _pos) noexcept {
     link_code = SetPos(owner_board_ptr->CalculateDisplayVectorByLogicVector(_pos));
     if (link_code != kOK) {
         ret_val = error_code::kZDisplayTileErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, L"ZDisplayTile::SetPos() link error!");
+        Z_LOG_ERROR(ret_val, link_code, "ZDisplayTile::SetPos() link error!");
         return ret_val;
     }
     return ret_val;
@@ -99,16 +99,16 @@ ReturnType ZDisplayTile::Initialize(
     link_code = SuperType_::InitializeP(_owner_board_ptr);
     if (link_code != kOK) {
         ret_val = error_code::kZDisplayTileErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, L"ZDisplayTile::Initialize() link error!");
+        Z_LOG_ERROR(ret_val, link_code, "ZDisplayTile::Initialize() link error!");
         return ret_val;
     }
     Z_CHECK(
         link_code != kOK, error_code::kZDisplayTileErrorCode_LinkError,
-        L"_logic_tile_ptr is nullptr!"
+        "_logic_tile_ptr is nullptr!"
     );
     Z_CHECK(
         _logic_tile_ptr == nullptr, error_code::kZDisplayTileErrorCode_LogicTileNotExists,
-        L"_logic_tile_ptr is nullptr!"
+        "_logic_tile_ptr is nullptr!"
     );
     if (_logic_tile_ptr->display_tile_head_ptr_ != nullptr) {
         _logic_tile_ptr->display_tile_head_ptr_->pre_display_tile_ptr_ = this;

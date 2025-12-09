@@ -64,10 +64,10 @@ NODISCARD ReturnType ZIOContext::ResolveTCPAddress(
         ZString port_str(_port_str);
         Z_LOG_ERROR(
             ret_val, error_code.value(),
-            L"System error! error info: %ls address: %ls port: %ls",
-            string::String2WString(error_code.message().c_str()).String(),
-            string::String2WString(address_str.String()).String(),
-            string::String2WString(port_str.String()).String()
+            "System error! error info: %ls address: %ls port: %ls",
+            string::StringToWString(error_code.message().c_str()).DataPtr(),
+            string::StringToWString(address_str.DataPtr()).DataPtr(),
+            string::StringToWString(port_str.DataPtr()).DataPtr()
         );
         return ret_val;
     }
@@ -108,10 +108,10 @@ NODISCARD ReturnType ZIOContext::ResolveUDPAddress(
         ZString port_str(_port_str);
         Z_LOG_ERROR(
             ret_val, error_code.value(),
-            L"System error! error info: %ls address(%d): %ls port(%d): %ls",
-            string::String2WString(error_code.message().c_str()).String(),
-            _address_str.Size(), string::String2WString(address_str.String()).String(),
-            _port_str.Size(), string::String2WString(port_str.String()).String()
+            "System error! error info: %ls address(%d): %ls port(%d): %ls",
+            string::StringToWString(error_code.message().c_str()).DataPtr(),
+            _address_str.Size(), string::StringToWString(address_str.DataPtr()).DataPtr(),
+            _port_str.Size(), string::StringToWString(port_str.DataPtr()).DataPtr()
         );
         return ret_val;
     }

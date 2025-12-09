@@ -41,7 +41,7 @@
 //Define at the start of the z_lua cpp file.
 #ifdef LUA_DLLFILE
 #define LUA_DLLAPI DLLEXPORT
-#define PROJECT_NAME L"ZLUA"
+#define PROJECT_NAME "ZLUA"
 #else
 #define LUA_DLLAPI DLLIMPORT
 #ifdef _WIN64

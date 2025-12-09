@@ -41,7 +41,7 @@ SOCKET_DLLAPI ReturnType StringToIP4(const Char* _ip_string, UInt32* _ip4_ptr) n
     Z_CHECK(
         _ip4_ptr == nullptr,
         error_code::kSocketErrorCode_NullptrParam,
-        L"_ip4_ptr is nullptr!"
+        "_ip4_ptr is nullptr!"
     );
 
     for (; *_ip_string; ++_ip_string) {
@@ -53,8 +53,8 @@ SOCKET_DLLAPI ReturnType StringToIP4(const Char* _ip_string, UInt32* _ip4_ptr) n
                 ret_val = error_code::kSocketErrorCode_AddressNotVaild;
                 Z_LOG_ERROR(
                     ret_val, 0, 
-                    L"ip out of range! _ip_string: %ls",
-                    string::String2WString(_ip_string).String()
+                    "ip out of range! _ip_string: %ls",
+                    string::StringToWString(_ip_string).DataPtr()
                 );
                 return ret_val;
             }
@@ -65,8 +65,8 @@ SOCKET_DLLAPI ReturnType StringToIP4(const Char* _ip_string, UInt32* _ip4_ptr) n
             ret_val = error_code::kSocketErrorCode_AddressNotVaild;
             Z_LOG_ERROR(
                 ret_val, 0,
-                L"Invaild char! _ip_string: %ls",
-                string::String2WString(_ip_string).String()
+                "Invaild char! _ip_string: %ls",
+                string::StringToWString(_ip_string).DataPtr()
             );
             return ret_val;
         }
@@ -75,8 +75,8 @@ SOCKET_DLLAPI ReturnType StringToIP4(const Char* _ip_string, UInt32* _ip4_ptr) n
             ret_val = error_code::kSocketErrorCode_AddressNotVaild;
             Z_LOG_ERROR(
                 ret_val, 0,
-                L"More then 3 segment! _ip_string: %ls",
-                string::String2WString(_ip_string).String()
+                "More then 3 segment! _ip_string: %ls",
+                string::StringToWString(_ip_string).DataPtr()
             );
             return ret_val;
         }
@@ -88,8 +88,8 @@ SOCKET_DLLAPI ReturnType StringToIP4(const Char* _ip_string, UInt32* _ip4_ptr) n
         ret_val = error_code::kSocketErrorCode_AddressNotVaild;
         Z_LOG_ERROR(
             ret_val, 0,
-            L"Not 3 segment! _ip_string: %ls",
-            string::String2WString(_ip_string).String()
+            "Not 3 segment! _ip_string: %ls",
+            string::StringToWString(_ip_string).DataPtr()
         );
         return ret_val;
     }

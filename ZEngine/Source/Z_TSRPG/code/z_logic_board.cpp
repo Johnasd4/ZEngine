@@ -49,7 +49,7 @@ ReturnType ZLogicBoard::SetPosOffset(const LogicVector3D& _offset) noexcept {
         link_code = logic_board_viewport_ptr->OnLogicBoardPosOffsetChanged(_offset);
         if (link_code != kOK) {
             ret_val = error_code::kZLogicTileErrorCode_LinkError;
-            Z_LOG_ERROR(ret_val, link_code, L"ZLogicBoardViewport::OnLogicBoardPosOffsetChanged() link error!");
+            Z_LOG_ERROR(ret_val, link_code, "ZLogicBoardViewport::OnLogicBoardPosOffsetChanged() link error!");
         }
         logic_board_viewport_ptr = logic_board_viewport_ptr->next_logic_board_viewport_ptr_;
     }
@@ -61,7 +61,7 @@ ReturnType ZLogicBoard::SetBaseLayerTexture(const WChar* _texture_name) noexcept
     const ZLogicTileTexture* texture_ptr = ZLogicTileTexture::GetLogicTileTextureByName(_texture_name);
     if (texture_ptr == nullptr) {
         ret_val = error_code::kZLogicBoardErrorCode_TileTextureNotExist;
-        Z_LOG_ERROR(ret_val, 0, L"Tile texture not exist! Name: %ls", _texture_name);
+        Z_LOG_ERROR(ret_val, 0, "Tile texture not exist! Name: %ls", _texture_name);
         return ret_val;
     }
     base_layer_texture_ptr_ = texture_ptr;
@@ -78,11 +78,11 @@ NODISCARD ReturnType ZLogicBoard::AddSubBoard(
 
     Z_CHECK(
         _board_ptr == nullptr, error_code::kZLogicBoardErrorCode_NullptrParam,
-        L"_board_ptr is nullptr!"
+        "_board_ptr is nullptr!"
     );
     Z_CHECK(
         _board_ptr->owner_board_ptr_ != nullptr, error_code::kZLogicBoardErrorCode_OwnerBoardAlreadyExists,
-        L"Owner board already exists!"
+        "Owner board already exists!"
     );
 
     if (sub_board_head_ptr_ != nullptr) {
@@ -93,7 +93,7 @@ NODISCARD ReturnType ZLogicBoard::AddSubBoard(
     link_code = _board_ptr->SetPosOffset(_logic_pos_offset);
     if (link_code != kOK) {
         ret_val = error_code::kZLogicTileErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, L"ZLogicBoard::SetPosOffset() link error!");
+        Z_LOG_ERROR(ret_val, link_code, "ZLogicBoard::SetPosOffset() link error!");
         return ret_val;
     }
 
@@ -163,7 +163,7 @@ NODISCARD ReturnType ZLogicBoard::Initialize(const LogicVector2D& _board_size) n
     link_code = SuperType_::InitializeP(_board_size);
     if (link_code != kOK) {
         ret_val = error_code::kZLogicBoardErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, L"ZBoard::Initialize() link error!");
+        Z_LOG_ERROR(ret_val, link_code, "ZBoard::Initialize() link error!");
         return ret_val;
     }
     
@@ -190,7 +190,7 @@ NODISCARD ReturnType ZLogicBoard::Fill(
         tile_texture_ptr = ZLogicTileTexture::GetLogicTileTextureByName(_texture_name);
         if (tile_texture_ptr == nullptr) {
             ret_val = error_code::kZLogicBoardErrorCode_TileTextureNotExist;
-            Z_LOG_ERROR(ret_val, 0, L"Tile texture not exist! Name: %ls", _texture_name);
+            Z_LOG_ERROR(ret_val, 0, "Tile texture not exist! Name: %ls", _texture_name);
             return ret_val;
         }
     }
@@ -212,7 +212,7 @@ NODISCARD ReturnType ZLogicBoard::Fill(
             );
             if (link_code != kOK) {
                 ret_val = error_code::kZLogicBoardErrorCode_LinkError;
-                Z_LOG_ERROR(ret_val, link_code, L"ZLogicTile::Initialize() link error!");
+                Z_LOG_ERROR(ret_val, link_code, "ZLogicTile::Initialize() link error!");
                 return ret_val;
             }
             (*this)(x, y) = logic_tile_ptr;

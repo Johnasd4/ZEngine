@@ -20,13 +20,21 @@
 
 #include "drive.h"
 
-#include <thread>
+#include <charconv>
+#include <chrono>
 #include <fstream>
 #include <filesystem>
-#include <shobjidl.h>
 #include <regex>
+#include <stdarg.h>
+#include <thread>
+#ifdef _WIN32
 #include <shellapi.h>
-#include <chrono>
-#include <stdarg.h>     //va_list, va_start, va_end
+#include <shobjidl.h>
+#include <windows.h>
+#endif
 
-#include "internal/rapidjson.h"
+#include <simdutf/simdutf.h>
+#include <whereami/whereami.h>
+
+#include "library/l_fmt.h"
+#include "library/l_rapidjson.h"

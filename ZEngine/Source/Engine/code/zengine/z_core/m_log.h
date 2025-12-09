@@ -1,17 +1,25 @@
 /*
     Copyright (c) YuLin Zhu
 
-    This code file is licensed under the Creative Commons
-    Attribution-NonCommercial 4.0 International License.
+    ** ZEngine Proprietary License **
 
-    You may obtain a copy of the License at
-    https://creativecommons.org/licenses/by-nc/4.0/
+    This software is provided "as-is", without any express or implied warranty.
+    In no event will the authors be held liable for any damages arising from the
+    use of this software.
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+    Usage Rights:
+    1. Non-Commercial Use: You may use, modify, and distribute this software
+       for non-commercial purposes (e.g., education, personal projects, open-source
+       projects that do not generate revenue) free of charge.
+
+    2. Commercial Use: Commercial use of this software is STRICTLY PROHIBITED
+       without a valid commercial license agreement with the author.
+       "Commercial use" includes, but is not limited to:
+       - Incorporating this software into a product that is sold.
+       - Using this software in a paid service.
+       - Using this software for internal business operations in a for-profit entity.
+
+    To obtain a Commercial License, please contact the author.
 
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
@@ -20,15 +28,12 @@
 
 #include "drive.h"
 
-#include "f_console.h"
-#include "t_fixed_string.h"
 #include "z_system_time.h"
 
 #include "m_log/f_log.h"
-#include "m_log/z_log.h"
 
 #ifndef PROJECT_NAME
-#define PROJECT_NAME L"Unknown"
+#define PROJECT_NAME "Unknown"
 #endif
 
 /*
@@ -54,7 +59,8 @@
             __LINE__,\
             _err_code,\
             0,\
-            __VA_ARGS__);\
+            __VA_ARGS__ \
+        );\
         return _err_code;\
     }
 
@@ -80,64 +86,65 @@
         __LINE__,\
         _err_code,\
         _link_code,\
-        __VA_ARGS__);
+        __VA_ARGS__ \
+    );
 
 /*
     Log trace.
     2025/10/10-23:28:14 | <Include> main.cpp-main | Trace...
 */
 #define Z_LOG_TRACE(...)\
-    zengine::log::LogTrace(zengine::TimeSec(), PROJECT_NAME, __FILE__, __func__, __VA_ARGS__);
+    zengine::log::LogTrace(zengine::TimeSec(), PROJECT_NAME, __FILE__, __func__, __LINE__, __VA_ARGS__);
 
 /*
     Log message.
     2025/10/10-23:28:14 | Message | Message...
 */
 #define Z_LOG_MESSAGE(...)\
-    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::kInfoLogType_Message, __VA_ARGS__);
+    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::InfoLogTypeEnum::kMessage, __VA_ARGS__);
 
 /*
     Log start.
     2025/10/10-23:28:14 | Start | Start...
 */
 #define Z_LOG_START(...)\
-    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::kInfoLogType_Start, __VA_ARGS__);
+    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::InfoLogTypeEnum::kStart, __VA_ARGS__);
 
 /*
     Log process.
     2025/10/10-23:28:14 | Process | Process 1...
 */
 #define Z_LOG_PROCESS(...)\
-    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::kInfoLogType_Process, __VA_ARGS__);
+    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::InfoLogTypeEnum::kProcess, __VA_ARGS__);
 
 /*
     Log finish.
     2025/10/10-23:28:14 | Finish | Finish...
 */
 #define Z_LOG_FINISH(...)\
-    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::kInfoLogType_Finish, __VA_ARGS__);
+    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::InfoLogTypeEnum::kFinish, __VA_ARGS__);
 
 /*
     Log success.
     2025/10/10-23:28:14 | Failure | Failure...
 */
 #define Z_LOG_SUCCESS(...)\
-    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::kInfoLogType_Success, __VA_ARGS__);
+    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::InfoLogTypeEnum::kSuccess, __VA_ARGS__);
 
 /*
     Log failure.
     2025/10/10-23:28:14 | Success | Success...
 */
 #define Z_LOG_FAILURE(...)\
-    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::kInfoLogType_Failure, __VA_ARGS__);
+    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::InfoLogTypeEnum::kFailure, __VA_ARGS__);
 
 /*
     Log trace.
     2025/10/10-23:28:14 | <Include> main.cpp-main | Trace...
 */
-#ifdef USE_DEBUG_LOG
+#if USE_DEBUG_LOG
 #define Z_DEBUG_LOG_TRACE(...)\
-    zengine::log::LogTrace(zengine::TimeSec(), PROJECT_NAME, __FILE__, __func__, __VA_ARGS__);
+    zengine::log::LogTrace(zengine::TimeSec(), PROJECT_NAME, __FILE__, __func__, __LINE__, __VA_ARGS__);
 #else
 #define Z_DEBUG_LOG_TRACE(...)\
     ;
@@ -147,9 +154,9 @@
     Log message.
     2025/10/10-23:28:14 | Message | Message...
 */
-#ifdef USE_DEBUG_LOG
+#if USE_DEBUG_LOG
 #define Z_DEBUG_LOG_MESSAGE(...)\
-    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::kInfoLogType_Message, __VA_ARGS__);
+    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::InfoLogTypeEnum::kMessage, __VA_ARGS__);
 #else
 #define Z_DEBUG_LOG_MESSAGE(...)\
     ;
@@ -160,9 +167,9 @@
     Log start.
     2025/10/10-23:28:14 | Start | Start...
 */
-#ifdef USE_DEBUG_LOG
+#if USE_DEBUG_LOG
 #define Z_DEBUG_LOG_START(...)\
-    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::kInfoLogType_Start, __VA_ARGS__);
+    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::InfoLogTypeEnum::kStart, __VA_ARGS__);
 #else
 #define Z_DEBUG_LOG_START(...)\
     ;
@@ -174,7 +181,7 @@
 */
 #ifdef USE_DEBUG_LOG
 #define Z_DEBUG_LOG_PROCESS(...)\
-    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::kInfoLogType_Process, __VA_ARGS__);
+    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::InfoLogTypeEnum::kProcess, __VA_ARGS__);
 #else
 #define Z_DEBUG_LOG_PROCESS(...)\
     ;
@@ -184,9 +191,9 @@
     Log finish.
     2025/10/10-23:28:14 | Finish | Finish...
 */
-#ifdef USE_DEBUG_LOG
+#if USE_DEBUG_LOG
 #define Z_DEBUG_LOG_FINISH(...)\
-    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::kInfoLogType_Finish, __VA_ARGS__);
+    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::InfoLogTypeEnum::kFinish, __VA_ARGS__);
 #else
 #define Z_DEBUG_LOG_FINISH(...)\
     ;
@@ -196,9 +203,9 @@
     Log success.
     2025/10/10-23:28:14 | Failure | Failure...
 */
-#ifdef USE_DEBUG_LOG
+#if USE_DEBUG_LOG
 #define Z_DEBUG_LOG_SUCCESS(...)\
-    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::kInfoLogType_Success, __VA_ARGS__);
+    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::InfoLogTypeEnum::kSuccess, __VA_ARGS__);
 #else
 #define Z_DEBUG_LOG_SUCCESS(...)\
     ;
@@ -208,21 +215,10 @@
     Log failure.
     2025/10/10-23:28:14 | Success | Success...
 */
-#ifdef USE_DEBUG_LOG
+#if USE_DEBUG_LOG
 #define Z_DEBUG_LOG_FAILURE(...)\
-    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::kInfoLogType_Failure, __VA_ARGS__);
+    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::InfoLogTypeEnum::kFailure, __VA_ARGS__);
 #else
 #define Z_DEBUG_LOG_FAILURE(...)\
-    ;
-#endif
-
-/*
-    Outputs the message to the console.
-*/
-#ifdef USE_CONSOLE_PRINT
-#define Z_PRINT(...)\
-    zengine::console::Print(__VA_ARGS__);
-#else
-#define Z_PRINT(...)\
     ;
 #endif

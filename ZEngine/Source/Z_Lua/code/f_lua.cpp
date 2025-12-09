@@ -29,63 +29,63 @@ namespace internal{
 namespace log {
 
 static Void LuaLogError(const Char* _str) noexcept {
-    Z_LOG_ERROR(error_code::kFLuaErrorCode_LuaLogError, 0, string::String2WString(_str).String());
+    Z_LOG_ERROR(error_code::kFLuaErrorCode_LuaLogError, 0, string::StringToWString(_str).DataPtr());
 }
 
 static Void LuaLogTrace(const Char* _str) noexcept {
-    Z_LOG_TRACE(string::String2WString(_str).String());
+    Z_LOG_TRACE(string::StringToWString(_str).DataPtr());
 }
 
 static Void LuaLogMessage(const Char* _str) noexcept {
-    Z_LOG_MESSAGE(string::String2WString(_str).String());
+    Z_LOG_MESSAGE(string::StringToWString(_str).DataPtr());
 }
 
 static Void LuaLogStart(const Char* _str) noexcept {
-    Z_LOG_START(string::String2WString(_str).String());
+    Z_LOG_START(string::StringToWString(_str).DataPtr());
 }
 
 static Void LuaLogProcess(const Char* _str) noexcept {
-    Z_LOG_PROCESS(string::String2WString(_str).String());
+    Z_LOG_PROCESS(string::StringToWString(_str).DataPtr());
 }
 
 static Void LuaLogFinish(const Char* _str) noexcept {
-    Z_LOG_FINISH(string::String2WString(_str).String());
+    Z_LOG_FINISH(string::StringToWString(_str).DataPtr());
 }
 
 static Void LuaLogSuccess(const Char* _str) noexcept {
-    Z_LOG_SUCCESS(string::String2WString(_str).String());
+    Z_LOG_SUCCESS(string::StringToWString(_str).DataPtr());
 }
 
 static Void LuaLogFailure(const Char* _str) noexcept {
-    Z_LOG_FAILURE(string::String2WString(_str).String());
+    Z_LOG_FAILURE(string::StringToWString(_str).DataPtr());
 }
 
 static Void LuaLogDebugTrace(const Char* _str) noexcept {
-    Z_DEBUG_LOG_TRACE(string::String2WString(_str).String());
+    Z_DEBUG_LOG_TRACE(string::StringToWString(_str).DataPtr());
 }
 
 static Void LuaLogDebugMessage(const Char* _str) noexcept {
-    Z_DEBUG_LOG_MESSAGE(string::String2WString(_str).String());
+    Z_DEBUG_LOG_MESSAGE(string::StringToWString(_str).DataPtr());
 }
 
 static Void LuaLogDebugStart(const Char* _str) noexcept {
-    Z_DEBUG_LOG_START(string::String2WString(_str).String());
+    Z_DEBUG_LOG_START(string::StringToWString(_str).DataPtr());
 }
 
 static Void LuaLogDebugProcess(const Char* _str) noexcept {
-    Z_DEBUG_LOG_PROCESS(string::String2WString(_str).String());
+    Z_DEBUG_LOG_PROCESS(string::StringToWString(_str).DataPtr());
 }
 
 static Void LuaLogDebugFinish(const Char* _str) noexcept {
-    Z_DEBUG_LOG_FINISH(string::String2WString(_str).String());
+    Z_DEBUG_LOG_FINISH(string::StringToWString(_str).DataPtr());
 }
 
 static Void LuaLogDebugSuccess(const Char* _str) noexcept {
-    Z_DEBUG_LOG_SUCCESS(string::String2WString(_str).String());
+    Z_DEBUG_LOG_SUCCESS(string::StringToWString(_str).DataPtr());
 }
 
 static Void LuaLogDebugFailure(const Char* _str) noexcept {
-    Z_DEBUG_LOG_FAILURE(string::String2WString(_str).String());
+    Z_DEBUG_LOG_FAILURE(string::StringToWString(_str).DataPtr());
 }
 
 }
@@ -148,8 +148,8 @@ LUA_DLLAPI NODISCARD ReturnType RunLuaScript(const Char* _script) noexcept {
         
         Z_LOG_ERROR(
             ret_val, 0, 
-            L"Lua().unsafe_script() link error! Error info: %ls", 
-            string::String2WString(e.what()).String());
+            "Lua().unsafe_script() link error! Error info: %ls", 
+            string::StringToWString(e.what()).DataPtr());
     }
     return ret_val;
 }
@@ -163,8 +163,8 @@ LUA_DLLAPI NODISCARD ReturnType RunLuaScript(LuaResult* _result_ptr, const Char*
         ret_val = error_code::kFLuaErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, 0, 
-            L"Lua().unsafe_script() link error! Error info: %ls", 
-            string::String2WString(e.what()).String());
+            "Lua().unsafe_script() link error! Error info: %ls", 
+            string::StringToWString(e.what()).DataPtr());
     }
     return ret_val;
 }
@@ -177,8 +177,8 @@ LUA_DLLAPI NODISCARD ReturnType RunLuaScriptSafe(const Char* _script) noexcept {
         sol::error e = result;
         Z_LOG_ERROR(
             ret_val, 0, 
-            L"Lua().safe_script() link error! Error info: %ls", 
-            string::String2WString(e.what()).String());
+            "Lua().safe_script() link error! Error info: %ls", 
+            string::StringToWString(e.what()).DataPtr());
     }
     return ret_val;
 }
@@ -191,8 +191,8 @@ LUA_DLLAPI NODISCARD ReturnType RunLuaScriptSafe(LuaResult* _result_ptr, const C
         sol::error e = *_result_ptr;
         Z_LOG_ERROR(
             ret_val, 0,
-            L"Lua().safe_script() link error! Error info: %ls",
-            string::String2WString(e.what()).String());
+            "Lua().safe_script() link error! Error info: %ls",
+            string::StringToWString(e.what()).DataPtr());
     }
     return ret_val;
 }
@@ -206,8 +206,8 @@ LUA_DLLAPI NODISCARD ReturnType RunLuaFile(const Char* _path_dir) noexcept {
         ret_val = error_code::kFLuaErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, 0, 
-            L"Lua().unsafe_script_file() link error! Error info: %ls", 
-            string::String2WString(e.what()).String());
+            "Lua().unsafe_script_file() link error! Error info: %ls", 
+            string::StringToWString(e.what()).DataPtr());
     }
     return ret_val;
 }
@@ -221,8 +221,8 @@ LUA_DLLAPI NODISCARD ReturnType RunLuaFile(LuaResult* _result_ptr, const Char* _
         ret_val = error_code::kFLuaErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, 0,
-            L"Lua().unsafe_script_file() link error! Error info: %ls",
-            string::String2WString(e.what()).String());
+            "Lua().unsafe_script_file() link error! Error info: %ls",
+            string::StringToWString(e.what()).DataPtr());
     }
     return ret_val;
 }
@@ -235,8 +235,8 @@ LUA_DLLAPI NODISCARD ReturnType RunLuaFileSafe(const Char* _path_dir) noexcept {
         sol::error e = result;
         Z_LOG_ERROR(
             ret_val, 0,
-            L"Lua().safe_script_file() link error! Error info: %ls",
-            string::String2WString(e.what()).String());
+            "Lua().safe_script_file() link error! Error info: %ls",
+            string::StringToWString(e.what()).DataPtr());
     }
     return ret_val;
 }
@@ -249,8 +249,8 @@ LUA_DLLAPI NODISCARD ReturnType RunLuaFileSafe(LuaSafeResult* _result_ptr, const
         sol::error e = *_result_ptr;
         Z_LOG_ERROR(
             ret_val, 0,
-            L"Lua().safe_script_file() link error! Error info: %ls",
-            string::String2WString(e.what()).String());
+            "Lua().safe_script_file() link error! Error info: %ls",
+            string::StringToWString(e.what()).DataPtr());
     }
     return ret_val;
 }
@@ -266,8 +266,8 @@ LUA_DLLAPI NODISCARD ReturnType LoadLuaFile(const Char* _path_dir) noexcept {
         sol::error e = result;
         Z_LOG_ERROR(
             ret_val, 0,
-            L"Lua().load_file() link error! Error info: %ls",
-            string::String2WString(e.what()).String());
+            "Lua().load_file() link error! Error info: %ls",
+            string::StringToWString(e.what()).DataPtr());
     }
     return ret_val;
 }
@@ -285,7 +285,7 @@ LUA_DLLAPI NODISCARD ReturnType RunLoadedLuaFile(const Char* _path_dir) noexcept
     }
     else {
         ret_val = error_code::kFLuaErrorCode_LuaFileNotLoaded;
-        Z_LOG_ERROR(ret_val, 0, L"Lua file not loaded!");
+        Z_LOG_ERROR(ret_val, 0, "Lua file not loaded!");
     }
     return ret_val;
 }
@@ -298,7 +298,7 @@ LUA_DLLAPI NODISCARD ReturnType RunLoadedLuaFile(LuaResult* _result_ptr, const C
     }
     else {
         ret_val = error_code::kFLuaErrorCode_LuaFileNotLoaded;
-        Z_LOG_ERROR(ret_val, 0, L"Lua file not loaded!");
+        Z_LOG_ERROR(ret_val, 0, "Lua file not loaded!");
     }
     return ret_val;
 }
@@ -311,7 +311,7 @@ LUA_DLLAPI NODISCARD ReturnType RunLoadedLuaFileSafe(const Char* _path_dir) noex
     }
     else {
         ret_val = error_code::kFLuaErrorCode_LuaFileNotLoaded;
-        Z_LOG_ERROR(ret_val, 0, L"Lua file not loaded!");
+        Z_LOG_ERROR(ret_val, 0, "Lua file not loaded!");
     }
     return ret_val;
 }
@@ -324,7 +324,7 @@ LUA_DLLAPI NODISCARD ReturnType RunLoadedLuaFileSafe(LuaSafeResult* _result_ptr,
     }
     else {
         ret_val = error_code::kFLuaErrorCode_LuaFileNotLoaded;
-        Z_LOG_ERROR(ret_val, 0, L"Lua file not loaded!");
+        Z_LOG_ERROR(ret_val, 0, "Lua file not loaded!");
     }
     return ret_val;
 }
@@ -334,7 +334,7 @@ LUA_DLLAPI NODISCARD ReturnType GetLuaTable(const Char* _table_name, LuaTable* _
     *_table_ptr = std::move(Lua()[_table_name]);
     if (!Valid(*_table_ptr)) {
         ret_val = error_code::kFLuaErrorCode_LuaTableNotExist;
-        Z_LOG_ERROR(ret_val, 0, L"Lua table not exist!");
+        Z_LOG_ERROR(ret_val, 0, "Lua table not exist!");
     }
     return ret_val;
 }
@@ -344,7 +344,7 @@ LUA_DLLAPI NODISCARD ReturnType GetLuaFunction(const Char* _func_name, LuaFuncti
     *_func_ptr = std::move(Lua()[_func_name]);
     if (!Valid(*_func_ptr)) {
         ret_val = error_code::kFLuaErrorCode_LuaFunctionNotExist;
-        Z_LOG_ERROR(ret_val, 0, L"Lua function not exist!");
+        Z_LOG_ERROR(ret_val, 0, "Lua function not exist!");
     }
     return ret_val;
 }
@@ -354,7 +354,7 @@ LUA_DLLAPI NODISCARD ReturnType GetLuaSafeFunction(const Char* _func_name, LuaSa
     *_func_ptr = std::move(Lua()[_func_name]);
     if (!Valid(*_func_ptr)) {
         ret_val = error_code::kFLuaErrorCode_LuaFunctionNotExist;
-        Z_LOG_ERROR(ret_val, 0, L"Lua function not exist!");
+        Z_LOG_ERROR(ret_val, 0, "Lua function not exist!");
     }
     return ret_val;
 }
@@ -368,7 +368,7 @@ LUA_DLLAPI NODISCARD ReturnType GetLuaTableFromLuaTable(
     *_table_ptr = std::move(_table[_table_name]);
     if (!Valid(*_table_ptr)) {
         ret_val = error_code::kFLuaErrorCode_LuaTableNotExist;
-        Z_LOG_ERROR(ret_val, 0, L"Lua table not exist!");
+        Z_LOG_ERROR(ret_val, 0, "Lua table not exist!");
     }
     return ret_val;
 }
@@ -382,7 +382,7 @@ LUA_DLLAPI NODISCARD ReturnType GetLuaTableFromLuaTable(
     *_table_ptr = std::move(_table[_index]);
     if (!Valid(*_table_ptr)) {
         ret_val = error_code::kFLuaErrorCode_LuaTableNotExist;
-        Z_LOG_ERROR(ret_val, 0, L"Lua table not exist!");
+        Z_LOG_ERROR(ret_val, 0, "Lua table not exist!");
     }
     return ret_val;
 }
@@ -396,7 +396,7 @@ LUA_DLLAPI NODISCARD ReturnType GetLuaFunctionFormLuaTable(
     *_func_ptr = std::move(_table[_func_name]);
     if (!Valid(*_func_ptr)) {
         ret_val = error_code::kFLuaErrorCode_LuaFunctionNotExist;
-        Z_LOG_ERROR(ret_val, 0, L"Lua function not exist!");
+        Z_LOG_ERROR(ret_val, 0, "Lua function not exist!");
     }
     return ret_val;
 }
@@ -410,7 +410,7 @@ LUA_DLLAPI NODISCARD ReturnType GetLuaFunctionFormLuaTable(
     *_func_ptr = std::move(_table[_index]);
     if (!Valid(*_func_ptr)) {
         ret_val = error_code::kFLuaErrorCode_LuaFunctionNotExist;
-        Z_LOG_ERROR(ret_val, 0, L"Lua function not exist!");
+        Z_LOG_ERROR(ret_val, 0, "Lua function not exist!");
     }
     return ret_val;
 }
@@ -424,7 +424,7 @@ LUA_DLLAPI NODISCARD ReturnType GetLuaSafeFunctionFormLuaTable(
     *_func_ptr = std::move(_table[_func_name]);
     if (!Valid(*_func_ptr)) {
         ret_val = error_code::kFLuaErrorCode_LuaFunctionNotExist;
-        Z_LOG_ERROR(ret_val, 0, L"Lua function not exist!");
+        Z_LOG_ERROR(ret_val, 0, "Lua function not exist!");
     }
     return ret_val;
 }
@@ -438,7 +438,7 @@ LUA_DLLAPI NODISCARD ReturnType GetLuaSafeFunctionFormLuaTable(
     *_func_ptr = std::move(_table[_index]);
     if (!Valid(*_func_ptr)) {
         ret_val = error_code::kFLuaErrorCode_LuaFunctionNotExist;
-        Z_LOG_ERROR(ret_val, 0, L"Lua function not exist!");
+        Z_LOG_ERROR(ret_val, 0, "Lua function not exist!");
     }
     return ret_val;
 }

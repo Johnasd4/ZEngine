@@ -1,36 +1,24 @@
-Copyright (c) YuLin Zhu (朱雨林)
+Copyright (c) YuLin Zhu
 
-This code file is licensed under the Creative Commons
-Attribution-NonCommercial 4.0 International License.
+** ZEngine Proprietary License **
 
-You may obtain a copy of the License at
-https://creativecommons.org/licenses/by-nc/4.0/
+This software is provided "as-is", without any express or implied warranty.
+In no event will the authors be held liable for any damages arising from the
+use of this software.
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+Usage Rights:
+1. Non-Commercial Use: You may use, modify, and distribute this software
+    for non-commercial purposes (e.g., education, personal projects, open-source
+    projects that do not generate revenue) free of charge.
 
-You are free to:
+2. Commercial Use: Commercial use of this software is STRICTLY PROHIBITED
+    without a valid commercial license agreement with the author.
+    "Commercial use" includes, but is not limited to:
+    - Incorporating this software into a product that is sold.
+    - Using this software in a paid service.
+    - Using this software for internal business operations in a for-profit entity.
 
-Share — copy and redistribute the material in any medium or format
-Adapt — remix, transform, and build upon the material
-under the following terms:
+To obtain a Commercial License, please contact the author.
 
-Attribution — You must give appropriate credit to the original
-author YuLin Zhu, provide a link to the license, and indicate if
-changes were made. You may do so in any reasonable manner, but not
-in any way that suggests the licensor endorses you or your use.
-
-NonCommercial — You may not use the material for commercial purposes.
-
-No additional restrictions — You may not apply legal terms or
-technological measures that legally restrict others from doing
-anything the license permits.
-
-No warranties are given. The license may not give you all of the
-permissions necessary for your intended use.
-
-For any inquiries about this license, please contact YuLin Zhu at
-1152325286@qq.com.
+Author: YuLin Zhu
+Contact: 1152325286@qq.com

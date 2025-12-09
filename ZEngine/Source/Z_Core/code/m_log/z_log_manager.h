@@ -1,17 +1,25 @@
 /*
     Copyright (c) YuLin Zhu
 
-    This code file is licensed under the Creative Commons
-    Attribution-NonCommercial 4.0 International License.
+    ** ZEngine Proprietary License **
 
-    You may obtain a copy of the License at
-    https://creativecommons.org/licenses/by-nc/4.0/
+    This software is provided "as-is", without any express or implied warranty.
+    In no event will the authors be held liable for any damages arising from the
+    use of this software.
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+    Usage Rights:
+    1. Non-Commercial Use: You may use, modify, and distribute this software
+       for non-commercial purposes (e.g., education, personal projects, open-source
+       projects that do not generate revenue) free of charge.
+
+    2. Commercial Use: Commercial use of this software is STRICTLY PROHIBITED
+       without a valid commercial license agreement with the author.
+       "Commercial use" includes, but is not limited to:
+       - Incorporating this software into a product that is sold.
+       - Using this software in a paid service.
+       - Using this software for internal business operations in a for-profit entity.
+
+    To obtain a Commercial License, please contact the author.
 
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
@@ -20,115 +28,87 @@
 
 #include "drive/d_pch.h"
 
-#include "m_log/type/z_error_log.h"
-#include "m_log/type/z_info_log.h"
-#include "m_log/type/z_trace_log.h"
+#include "m_log/z_log/z_log.h"
 #include "t_atom.h"
 #include "t_fixed_queue.h"
-#include "z_log_server.h"
+#include "t_queue.h"
+#include "t_smart_pointer.h"
 #include "z_thread.h"
 
 namespace zengine {
 namespace log {
-
-
 
 /*
     The log manager, log's the error and info to the console, file and any place that needs to log.
 */
 class ZLogManager : public ZObject {
 public:
-    static inline constexpr SizeType kLogQueueSize = 1024;
+    enum class RequestTypeEnum_ {
+        kLogOutputRegisterRequest,
+        kLogOutputUnregisterRequest
+    };
+
+private:
+    struct LogOutputRegisterRequestDataStruct_ {
+        ZLog::OutputFunction_ _output_func;
+        ZLog::OutputFunctionArray_* output_func_array_ptr_;
+    };
+    struct LogOutputUnregisterRequestDataStruct_ {
+        ZLog::OutputFunction_ _output_func;
+        ZLog::OutputFunctionArray_* output_func_array_ptr_;
+    };
+    union LogRequestDataUnion_ {
+        LogOutputRegisterRequestDataStruct_ register_data_;
+        LogOutputUnregisterRequestDataStruct_ unregister_data_;
+    };
+    struct Request_ {
+        RequestTypeEnum_ request_type_;
+        LogRequestDataUnion_ request_data_;
+    };
+
+public:
+    static inline constexpr SizeType kLogQueueSize = 4096;
 
     static inline constexpr SizeType kLogPortIDMin = 0;
     static inline constexpr SizeType kLogPortIDMax = kLogMaxPortNum - 1;
 
-    static Void LogError(
-        TimeType _raw_time,
-        const WChar* _proj_name,
-        const Char* _file_dir,
-        const Char* _func_name,
-        Int32 _err_line,
-        ReturnType _err_code,
-        ReturnType _link_code,
-        const WChar* _format,
-        ArgListType _args
+public:
+    NODISCARD static ZLogManager& Instance() noexcept;
+
+    Void Log(
+        TUniquePointer<ZLog>&& _log
     ) noexcept;
 
-    static Void LogTrace(
-        TimeType _raw_time,
-        const WChar* _proj_name,
-        const Char* _file_dir,
-        const Char* _func_name,
-        const WChar* _format,
-        ArgListType _args
+    Void RegisterLogOutputFunction(
+        ZLog::OutputFunction_ _output_func,
+        ZLog::OutputFunctionArray_* _output_func_array_ptr
     ) noexcept;
 
-    static Void LogInfo(
-        TimeType _raw_time,
-        InfoLogTypeEnum _info_type,
-        const WChar* _format,
-        ArgListType _args
+    Void UnregisterLogOutputFunction(
+        ZLog::OutputFunction_ _output_func,
+        ZLog::OutputFunctionArray_* _output_func_array_ptr
     ) noexcept;
 
-    /*
-        Register the log server port input function, the function will be called when log happens.
-    */
-    NODISCARD static ReturnType RegisterLogServerInputFunction(
-        SizeType _port_id, 
-        Void(*_input_func)(const ZLog*, ZLog::OutputString_*)
-    ) noexcept;
-
-    /*
-        Removes the log server port output function.
-    */
-    NODISCARD static ReturnType UnregisterLogServerInputFunction(
-        SizeType _port_id,
-        Void(*_input_func)(const ZLog*, ZLog::OutputString_*)
-    ) noexcept;
-
-    /*
-        Register the log server port output function, the function will be called when log happens.
-    */
-    NODISCARD static ReturnType RegisterLogServerOutputFunction(
-        SizeType _port_id,
-        Void(*_output_func)(const ZLog*, const ZLog::OutputString_&)
-    ) noexcept;
-
-    /*
-        Removes the log server port output function.
-    */
-    static Void UnregisterLogServerOutputFunction(
-        Void(*_output_func)(const ZLog*, const ZLog::OutputString_&)
-    ) noexcept;
-
-    /*
-        Called at the end of the program or when exiting the program.
-    */
-    static Void FinishFlush(TimeType _max_wait_time_ms) noexcept;
+    Void FinishFlush(TimeType _max_wait_time_ms) noexcept;
 
 protected:
     using SuperType_ = ZObject;
 
 private:
-    static ZLogManager& InstanceP() noexcept;
-
-    static Void LogThread(ZLogManager* _log_manager_ptr) noexcept;
-
     ZLogManager(const ZLogManager&) = delete;
     ZLogManager(ZLogManager&&) = delete;
     ZLogManager& operator=(const ZLogManager&) = delete;
     ZLogManager& operator=(ZLogManager&&) = delete;
 
+    static Void LogThread(ZLogManager* _log_manager_ptr) noexcept;
+
     ZLogManager() noexcept;
 
     ~ZLogManager() noexcept;
 
-    TFixedQueueSafe<ZErrorLog, kLogQueueSize> error_log_queue_;
-    TFixedQueueSafe<ZTraceLog, kLogQueueSize> trace_log_queue_;
-    TFixedQueueSafe<ZInfoLog, kLogQueueSize> info_log_queue_;
-    TFixedArray<TFixedQueueSafe<ZLog, kLogQueueSize>, kLogMaxPortNum> log_queue_array_;
-    ZLogServer log_server_;
+    TFixedQueue<TUniquePointer<ZLog>, kLogQueueSize> log_queue_;
+    ZMutex log_queue_mutex_;
+    TQueueSafe<TUniquePointer<Request_>> request_queue_;
     TAtom<Bool> log_thread_finished_;
     ZThread log_thread_;
 };

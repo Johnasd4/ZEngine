@@ -48,8 +48,8 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::Resolve(ZConstBuffer _buffer) noex
         ret_val = error_code::kHTTPErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
-            L"System error! error info: %ls",
-            string::String2WString(error_code.message().c_str()).String()
+            "System error! error info: %ls",
+            string::StringToWString(error_code.message().c_str()).DataPtr()
         );
         return ret_val;
     }
@@ -75,19 +75,19 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetInt32(Int32* _value_ptr, ZStrin
     Z_CHECK(
         _value_ptr == nullptr,
         error_code::kHTTPErrorCode_NullptrParam,
-        L"_io_context_ptr is nullptr!"
+        "_io_context_ptr is nullptr!"
     );
     try {
         auto string_view = data_ptr_->response_.at(
             boost::core::string_view(_name.DataPtr(), _name.Size())
         );
         ZString string(string_view.data(), string_view.size());
-        link_code = string.ToInt32(_value_ptr);
+        link_code = string.ToNumber(_value_ptr);
         if (link_code != kOK) {
             ret_val = error_code::kHTTPErrorCode_LinkError;
             Z_LOG_ERROR(
                 ret_val, link_code,
-                L"ZString::ToInt32() link error!"
+                "ZString::ToInt32() link error!"
             );
             return ret_val;
         }
@@ -96,8 +96,8 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetInt32(Int32* _value_ptr, ZStrin
         ret_val = error_code::kHTTPErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, 0,
-            L"System error! error info: %ls",
-            string::String2WString(error_code.what()).String()
+            "System error! error info: %ls",
+            string::StringToWString(error_code.what()).DataPtr()
         );
     }
     return ret_val;
@@ -108,19 +108,19 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetInt64(Int64* _value_ptr, ZStrin
     Z_CHECK(
         _value_ptr == nullptr,
         error_code::kHTTPErrorCode_NullptrParam,
-        L"_io_context_ptr is nullptr!"
+        "_io_context_ptr is nullptr!"
     );
     try {
         auto string_view = data_ptr_->response_.at(
             boost::core::string_view(_name.DataPtr(), _name.Size())
         );
         ZString string(string_view.data(), string_view.size());
-        link_code = string.ToInt64(_value_ptr);
+        link_code = string.ToNumber(_value_ptr);
         if (link_code != kOK) {
             ret_val = error_code::kHTTPErrorCode_LinkError;
             Z_LOG_ERROR(
                 ret_val, link_code,
-                L"ZString::ToInt64() link error!"
+                "ZString::ToInt64() link error!"
             );
             return ret_val;
         }
@@ -129,8 +129,8 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetInt64(Int64* _value_ptr, ZStrin
         ret_val = error_code::kHTTPErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, 0,
-            L"System error! error info: %ls",
-            string::String2WString(error_code.what()).String()
+            "System error! error info: %ls",
+            string::StringToWString(error_code.what()).DataPtr()
         );
     }
     return ret_val;
@@ -141,19 +141,19 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetUInt32(UInt32* _value_ptr, ZStr
     Z_CHECK(
         _value_ptr == nullptr,
         error_code::kHTTPErrorCode_NullptrParam,
-        L"_io_context_ptr is nullptr!"
+        "_io_context_ptr is nullptr!"
     );
     try {
         auto string_view = data_ptr_->response_.at(
             boost::core::string_view(_name.DataPtr(), _name.Size())
         );
         ZString string(string_view.data(), string_view.size());
-        link_code = string.ToUInt32(_value_ptr);
+        link_code = string.ToNumber(_value_ptr);
         if (link_code != kOK) {
             ret_val = error_code::kHTTPErrorCode_LinkError;
             Z_LOG_ERROR(
                 ret_val, link_code,
-                L"ZString::ToUInt32() link error!"
+                "ZString::ToUInt32() link error!"
             );
             return ret_val;
         }
@@ -162,8 +162,8 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetUInt32(UInt32* _value_ptr, ZStr
         ret_val = error_code::kHTTPErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, 0,
-            L"System error! error info: %ls",
-            string::String2WString(error_code.what()).String()
+            "System error! error info: %ls",
+            string::StringToWString(error_code.what()).DataPtr()
         );
     }
     return ret_val;
@@ -174,19 +174,19 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetUInt64(UInt64* _value_ptr, ZStr
     Z_CHECK(
         _value_ptr == nullptr,
         error_code::kHTTPErrorCode_NullptrParam,
-        L"_io_context_ptr is nullptr!"
+        "_io_context_ptr is nullptr!"
     );
     try {
         auto string_view = data_ptr_->response_.at(
             boost::core::string_view(_name.DataPtr(), _name.Size())
         );
         ZString string(string_view.data(), string_view.size());
-        link_code = string.ToUInt64(_value_ptr);
+        link_code = string.ToNumber(_value_ptr);
         if (link_code != kOK) {
             ret_val = error_code::kHTTPErrorCode_LinkError;
             Z_LOG_ERROR(
                 ret_val, link_code,
-                L"ZString::ToUInt64() link error!"
+                "ZString::ToUInt64() link error!"
             );
             return ret_val;
         }
@@ -195,8 +195,8 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetUInt64(UInt64* _value_ptr, ZStr
         ret_val = error_code::kHTTPErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, 0,
-            L"System error! error info: %ls",
-            string::String2WString(error_code.what()).String()
+            "System error! error info: %ls",
+            string::StringToWString(error_code.what()).DataPtr()
         );
     }
     return ret_val;
@@ -207,19 +207,19 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetFloat32(Float32* _value_ptr, ZS
     Z_CHECK(
         _value_ptr == nullptr,
         error_code::kHTTPErrorCode_NullptrParam,
-        L"_io_context_ptr is nullptr!"
+        "_io_context_ptr is nullptr!"
     );
     try {
         auto string_view = data_ptr_->response_.at(
             boost::core::string_view(_name.DataPtr(), _name.Size())
         );
         ZString string(string_view.data(), string_view.size());
-        link_code = string.ToFloat32(_value_ptr);
+        link_code = string.ToNumber(_value_ptr);
         if (link_code != kOK) {
             ret_val = error_code::kHTTPErrorCode_LinkError;
             Z_LOG_ERROR(
                 ret_val, link_code,
-                L"ZString::ToFloat32() link error!"
+                "ZString::ToFloat32() link error!"
             );
             return ret_val;
         }
@@ -228,8 +228,8 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetFloat32(Float32* _value_ptr, ZS
         ret_val = error_code::kHTTPErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, 0,
-            L"System error! error info: %ls",
-            string::String2WString(error_code.what()).String()
+            "System error! error info: %ls",
+            string::StringToWString(error_code.what()).DataPtr()
         );
     }
     return ret_val;
@@ -240,19 +240,19 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetFloat64(Float64* _value_ptr, ZS
     Z_CHECK(
         _value_ptr == nullptr,
         error_code::kHTTPErrorCode_NullptrParam,
-        L"_io_context_ptr is nullptr!"
+        "_io_context_ptr is nullptr!"
     );
     try {
         auto string_view = data_ptr_->response_.at(
             boost::core::string_view(_name.DataPtr(), _name.Size())
         );
         ZString string(string_view.data(), string_view.size());
-        link_code = string.ToFloat64(_value_ptr);
+        link_code = string.ToNumber(_value_ptr);
         if (link_code != kOK) {
             ret_val = error_code::kHTTPErrorCode_LinkError;
             Z_LOG_ERROR(
                 ret_val, link_code,
-                L"ZString::ToFloat64() link error!"
+                "ZString::ToFloat64() link error!"
             );
             return ret_val;
         }
@@ -261,8 +261,8 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetFloat64(Float64* _value_ptr, ZS
         ret_val = error_code::kHTTPErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, 0,
-            L"System error! error info: %ls",
-            string::String2WString(error_code.what()).String()
+            "System error! error info: %ls",
+            string::StringToWString(error_code.what()).DataPtr()
         );
     }
     return ret_val;
@@ -272,20 +272,20 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetStringView(ZStringView* _value_
     Z_CHECK(
         _value_ptr == nullptr,
         error_code::kHTTPErrorCode_NullptrParam,
-        L"_io_context_ptr is nullptr!"
+        "_io_context_ptr is nullptr!"
     );
     try {
         auto string_view_raw = data_ptr_->response_.at(
             boost::core::string_view(_name.DataPtr(), _name.Size())
         );
-        _value_ptr->SetViewString(string_view_raw.data(), string_view_raw.size());
+        _value_ptr->Assign(string_view_raw.data(), string_view_raw.size());
     }
     catch (const std::exception& error_code) {
         
         Z_LOG_ERROR(
             error_code::kHTTPErrorCode_SystemError, 0,
-            L"System error! error info: %ls",
-            string::String2WString(error_code.what()).String()
+            "System error! error info: %ls",
+            string::StringToWString(error_code.what()).DataPtr()
         );
     }
     return ret_val;
@@ -295,7 +295,7 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetString(ZString* _value_ptr, ZSt
     Z_CHECK(
         _value_ptr == nullptr,
         error_code::kHTTPErrorCode_NullptrParam,
-        L"_io_context_ptr is nullptr!"
+        "_io_context_ptr is nullptr!"
     );
     try {
         auto string_view_raw = data_ptr_->response_.at(
@@ -307,8 +307,8 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetString(ZString* _value_ptr, ZSt
 
         Z_LOG_ERROR(
             error_code::kHTTPErrorCode_SystemError, 0,
-            L"System error! error info: %ls",
-            string::String2WString(error_code.what()).String()
+            "System error! error info: %ls",
+            string::StringToWString(error_code.what()).DataPtr()
         );
     }
     return ret_val;

@@ -82,7 +82,7 @@ NODISCARD Void* THeapMemoryPool<kIsThreadSafe>::ApplyMemory(SizeType _size) noex
     Void* heap_memory_ptr = malloc(_size);
     if (heap_memory_ptr == nullptr) {
         Z_LOG_ERROR(
-            error_code::kFMemoryPoolErrorCode_ApplyHeapMemoryFailed, 0, L"Apply heap memory failed! size: %d", _size);
+            error_code::kFMemoryPoolErrorCode_ApplyHeapMemoryFailed, 0, "Apply heap memory failed! size: {}", _size);
         return heap_memory_ptr;
     }
     memory_pool.MutexType_::Lock();

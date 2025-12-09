@@ -37,7 +37,7 @@ ZTCPMultipleSessionClient::ZTCPMultipleSessionClient(ZIOContext* _context_ptr) n
     if (_context_ptr == nullptr) {
         Z_LOG_ERROR(
             error_code::kSocketErrorCode_NullptrParam, 0,
-            L"_io_context_ptr is nullptr!"
+            "_io_context_ptr is nullptr!"
         );
         return;
     }
@@ -81,7 +81,7 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncConnect(
     if (link_code != kOK) {
         Z_LOG_ERROR(
             error_code::kSocketErrorCode_LinkError, link_code,
-            L"ZTCPSocket::Close() link error!"
+            "ZTCPSocket::Close() link error!"
         );
     }
 
@@ -108,15 +108,15 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncConnect(
 
                             //disconnect
                             Z_DEBUG_LOG_FINISH(
-                                L"Server disconnected! server_address: %ls server_port: %ls",
-                                string::String2WString(_socket_ptr->RemoteEndpoint().IPString().String()).String(),
+                                "Server disconnected! server_address: %ls server_port: %ls",
+                                string::StringToWString(_socket_ptr->RemoteEndpoint().IPString().DataPtr()).DataPtr(),
                                 _socket_ptr->RemoteEndpoint().Port()
                             );
                         }
                     }
                 );
 
-                Z_DEBUG_LOG_SUCCESS(L"Server connected!");
+                Z_DEBUG_LOG_SUCCESS("Server connected!");
             }
 
             if (_handle_func) {
@@ -130,7 +130,7 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncConnect(
         ret_val = error_code::kSocketErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
-            L"ZTCPSocket::Connect() link error!"
+            "ZTCPSocket::Connect() link error!"
         );
         return ret_val;
     }
@@ -152,7 +152,7 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncBroadcast(
         if (link_code != kOK) {
             //disconnect
             if (socket_iter->State() == ZTCPSocket::StateEnum_::kClosed) {
-                Z_DEBUG_LOG_FINISH(L"Server disconnected!");
+                Z_DEBUG_LOG_FINISH("Server disconnected!");
             }
             //close and release socket
             socket_iter->Close();

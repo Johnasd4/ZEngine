@@ -57,13 +57,13 @@ NODISCARD ReturnType ZBoardObject::InitializeP(ZTile* _owner_tile_ptr) noexcept 
     SuperType_::InitializeP();
     Z_CHECK(
         _owner_tile_ptr == nullptr, error_code::kZBoardObjectErrorCode_NullptrParam,
-        L"_tile_list_ptr is nullptr!"
+        "_tile_list_ptr is nullptr!"
     );
 
     if (_owner_tile_ptr->initialized_ == false) {
         initialized_ = false;
         ret_val = error_code::kZBoardObjectErrorCode_OnwerTileNotInitialized;
-        Z_LOG_ERROR(ret_val, 0, L"Owner tile not initialized!");
+        Z_LOG_ERROR(ret_val, 0, "Owner tile not initialized!");
         return ret_val;
     }
     if (_owner_tile_ptr->board_object_head_ptr_ != nullptr) {

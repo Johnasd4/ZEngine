@@ -121,7 +121,7 @@ public:
         ReturnType link_code = LockValidCheckP();
         if (link_code != kOK) {
             Z_LOG_ERROR(
-                error_code::kTUniqueLockErrorCode_LinkError, link_code, L"TUniqueLock::LockValidCheckP() link error!");
+                error_code::kTUniqueLockErrorCode_LinkError, link_code, "TUniqueLock::LockValidCheckP() link error!");
             return;
         }
         mutex_ptr_->Lock(); 
@@ -134,7 +134,7 @@ public:
         ReturnType link_code = LockValidCheckP();
         if (link_code != kOK) {
             Z_LOG_ERROR(
-                error_code::kTUniqueLockErrorCode_LinkError, link_code, L"TUniqueLock::LockValidCheckP() link error!");
+                error_code::kTUniqueLockErrorCode_LinkError, link_code, "TUniqueLock::LockValidCheckP() link error!");
             return false;
         }
         owns_lock_ = mutex_ptr_->TryLock();
@@ -147,7 +147,7 @@ public:
         ReturnType link_code = LockValidCheckP();
         if (link_code != kOK) {
             Z_LOG_ERROR(
-                error_code::kTUniqueLockErrorCode_LinkError, link_code, L"TUniqueLock::LockValidCheckP() link error!");
+                error_code::kTUniqueLockErrorCode_LinkError, link_code, "TUniqueLock::LockValidCheckP() link error!");
             return false;
         }
         owns_lock_ = mutex_ptr_->TryLockFor(static_cast<UInt32>(_time));
@@ -160,7 +160,7 @@ public:
         ReturnType link_code = LockValidCheckP();
         if (link_code != kOK) {
             Z_LOG_ERROR(
-                error_code::kTUniqueLockErrorCode_LinkError, link_code, L"TUniqueLock::LockValidCheckP() link error!");
+                error_code::kTUniqueLockErrorCode_LinkError, link_code, "TUniqueLock::LockValidCheckP() link error!");
             return false;
         }
         owns_lock_ = mutex_ptr_->TryLockUntil(static_cast<UInt32>(_time));
@@ -170,7 +170,7 @@ public:
         ReturnType link_code = UnlockValidCheckP();
         if (link_code != kOK) {
             Z_LOG_ERROR(
-                error_code::kTUniqueLockErrorCode_LinkError, link_code, L"TUniqueLock::UnlockValidCheckP() link error!");
+                error_code::kTUniqueLockErrorCode_LinkError, link_code, "TUniqueLock::UnlockValidCheckP() link error!");
             return;
         }
         mutex_ptr_->Unlock();
@@ -214,12 +214,12 @@ private:
         ReturnType ret_val = kOK;
         if (!mutex_ptr_) {
             ret_val = error_code::kTUniqueLockErrorCode_MutexNotExist;
-            Z_LOG_ERROR(ret_val, 0, L"Mutex pointer is null!");
+            Z_LOG_ERROR(ret_val, 0, "Mutex pointer is null!");
             return false;
         }
         if (owns_lock_) {
             ret_val = error_code::kTUniqueLockErrorCode_MutexAlreadyOwn;
-            Z_LOG_ERROR(ret_val, 0, L"Already owns the mutex!");
+            Z_LOG_ERROR(ret_val, 0, "Already owns the mutex!");
             return false;
         }
         return ret_val;
@@ -232,12 +232,12 @@ private:
         ReturnType ret_val = kOK;
         if (!mutex_ptr_) {
             ret_val = error_code::kTUniqueLockErrorCode_MutexNotExist;
-            Z_LOG_ERROR(ret_val, 0, L"Mutex pointer is null!");
+            Z_LOG_ERROR(ret_val, 0, "Mutex pointer is null!");
             return false;
         }
         if (!owns_lock_) {
             ret_val = error_code::kTUniqueLockErrorCode_MutexDoNotOwn;
-            Z_LOG_ERROR(ret_val, 0, L"Doesn't owns the mutex!");
+            Z_LOG_ERROR(ret_val, 0, "Doesn't owns the mutex!");
             return false;
         }
         return ret_val;

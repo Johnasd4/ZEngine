@@ -29,7 +29,7 @@
 
 namespace zengine {
 
-ZConfig::ZConfig(const WChar* _file_dir) noexcept 
+ZConfig::ZConfig(const Char* _file_dir) noexcept 
     : config_data_ptr_(MakeUnique<ZJsonDocument>())
     , file_dir_(_file_dir)
 {
@@ -38,18 +38,18 @@ ZConfig::ZConfig(const WChar* _file_dir) noexcept
         link_code = config_data_ptr_->ReadFile(_file_dir);
         if (link_code != kOK) {
             Z_LOG_ERROR(error_code::kZJsonErrorCode_LinkError, link_code, 
-                L"ZJsonDocument::ReadFile() link error!"
+                "ZJsonDocument::ReadFile() link error!"
             );
 
             //rename broken config file
-            file_system::RenameFileByPath(_file_dir, (ZWString(_file_dir) + kBackUpExtension).String());
+            file_system::RenameFileByPath(_file_dir, (ZString(_file_dir) + kBackUpExtension).DataPtr());
 
             //save config
             link_code = SaveConfigP();
             if (link_code != kOK) {
                 Z_LOG_ERROR(
                     error_code::kZJsonErrorCode_LinkError, link_code,
-                    L"ZConfig::SaveConfigP() link error!"
+                    "ZConfig::SaveConfigP() link error!"
                 );
                 return;
             }
@@ -63,7 +63,7 @@ ZConfig::ZConfig(const WChar* _file_dir) noexcept
         if (link_code != kOK) {
             Z_LOG_ERROR(
                 error_code::kZJsonErrorCode_LinkError, link_code,
-                L"ZConfig::SaveConfigP() link error!"
+                "ZConfig::SaveConfigP() link error!"
             );
             return;
         }
@@ -150,14 +150,14 @@ NODISCARD ReturnType ZConfig::SetMemberValue(const Char* _key, Bool _value) noex
     ReturnType link_code = kOK;
     if (!config_data_ptr_->HasMember(_key)) {
         ret_val = error_code::kZConfigErrorCode_MemberNotExist;
-        Z_LOG_ERROR(ret_val, 0, L"Member not exist! key: %ls", string::String2WString(_key).String());
+        Z_LOG_ERROR(ret_val, 0, "Member not exist! key: %ls", _key);
         return ret_val;
     }
     (*config_data_ptr_)[_key] = _value;
     link_code = SaveConfigP();
     if (link_code != kOK) {
         ret_val = error_code::kZConfigErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, L"ZConfig::SaveConfigP() link error!");
+        Z_LOG_ERROR(ret_val, link_code, "ZConfig::SaveConfigP() link error!");
         return ret_val;
     }
     return ret_val;
@@ -167,14 +167,14 @@ NODISCARD ReturnType ZConfig::SetMemberValue(const Char* _key, Int32 _value) noe
     ReturnType link_code = kOK;
     if (!config_data_ptr_->HasMember(_key)) {
         ret_val = error_code::kZConfigErrorCode_MemberNotExist;
-        Z_LOG_ERROR(ret_val, 0, L"Member not exist! key: %ls", string::String2WString(_key).String());
+        Z_LOG_ERROR(ret_val, 0, "Member not exist! key: %ls", _key);
         return ret_val;
     }
     (*config_data_ptr_)[_key] = _value;
     link_code = SaveConfigP();
     if (link_code != kOK) {
         ret_val = error_code::kZConfigErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, L"ZConfig::SaveConfigP() link error!");
+        Z_LOG_ERROR(ret_val, link_code, "ZConfig::SaveConfigP() link error!");
         return ret_val;
     }
     return ret_val;
@@ -184,14 +184,14 @@ NODISCARD ReturnType ZConfig::SetMemberValue(const Char* _key, Int64 _value) noe
     ReturnType link_code = kOK;
     if (!config_data_ptr_->HasMember(_key)) {
         ret_val = error_code::kZConfigErrorCode_MemberNotExist;
-        Z_LOG_ERROR(ret_val, 0, L"Member not exist! key: %ls", string::String2WString(_key).String());
+        Z_LOG_ERROR(ret_val, 0, "Member not exist! key: %ls", _key);
         return ret_val;
     }
     (*config_data_ptr_)[_key] = _value;
     link_code = SaveConfigP();
     if (link_code != kOK) {
         ret_val = error_code::kZConfigErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, L"ZConfig::SaveConfigP() link error!");
+        Z_LOG_ERROR(ret_val, link_code, "ZConfig::SaveConfigP() link error!");
         return ret_val;
     }
     return ret_val;
@@ -201,14 +201,14 @@ NODISCARD ReturnType ZConfig::SetMemberValue(const Char* _key, UInt32 _value) no
     ReturnType link_code = kOK;
     if (!config_data_ptr_->HasMember(_key)) {
         ret_val = error_code::kZConfigErrorCode_MemberNotExist;
-        Z_LOG_ERROR(ret_val, 0, L"Member not exist! key: %ls", string::String2WString(_key).String());
+        Z_LOG_ERROR(ret_val, 0, "Member not exist! key: %ls", _key);
         return ret_val;
     }
     (*config_data_ptr_)[_key] = _value;
     link_code = SaveConfigP();
     if (link_code != kOK) {
         ret_val = error_code::kZConfigErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, L"ZConfig::SaveConfigP() link error!");
+        Z_LOG_ERROR(ret_val, link_code, "ZConfig::SaveConfigP() link error!");
         return ret_val;
     }
     return ret_val;
@@ -218,14 +218,14 @@ NODISCARD ReturnType ZConfig::SetMemberValue(const Char* _key, UInt64 _value) no
     ReturnType link_code = kOK;
     if (!config_data_ptr_->HasMember(_key)) {
         ret_val = error_code::kZConfigErrorCode_MemberNotExist;
-        Z_LOG_ERROR(ret_val, 0, L"Member not exist! key: %ls", string::String2WString(_key).String());
+        Z_LOG_ERROR(ret_val, 0, "Member not exist! key: %ls", _key);
         return ret_val;
     }
     (*config_data_ptr_)[_key] = _value;
     link_code = SaveConfigP();
     if (link_code != kOK) {
         ret_val = error_code::kZConfigErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, L"ZConfig::SaveConfigP() link error!");
+        Z_LOG_ERROR(ret_val, link_code, "ZConfig::SaveConfigP() link error!");
         return ret_val;
     }
     return ret_val;
@@ -235,14 +235,14 @@ NODISCARD ReturnType ZConfig::SetMemberValue(const Char* _key, Float32 _value) n
     ReturnType link_code = kOK;
     if (!config_data_ptr_->HasMember(_key)) {
         ret_val = error_code::kZConfigErrorCode_MemberNotExist;
-        Z_LOG_ERROR(ret_val, 0, L"Member not exist! key: %ls", string::String2WString(_key).String());
+        Z_LOG_ERROR(ret_val, 0, "Member not exist! key: %ls", _key);
         return ret_val;
     }
     (*config_data_ptr_)[_key] = _value;
     link_code = SaveConfigP();
     if (link_code != kOK) {
         ret_val = error_code::kZConfigErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, L"ZConfig::SaveConfigP() link error!");
+        Z_LOG_ERROR(ret_val, link_code, "ZConfig::SaveConfigP() link error!");
         return ret_val;
     }
     return ret_val;
@@ -252,14 +252,14 @@ NODISCARD ReturnType ZConfig::SetMemberValue(const Char* _key, Float64 _value) n
     ReturnType link_code = kOK;
     if (!config_data_ptr_->HasMember(_key)) {
         ret_val = error_code::kZConfigErrorCode_MemberNotExist;
-        Z_LOG_ERROR(ret_val, 0, L"Member not exist! key: %ls", string::String2WString(_key).String());
+        Z_LOG_ERROR(ret_val, 0, "Member not exist! key: %ls", _key);
         return ret_val;
     }
     (*config_data_ptr_)[_key] = _value;
     link_code = SaveConfigP();
     if (link_code != kOK) {
         ret_val = error_code::kZConfigErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, L"ZConfig::SaveConfigP() link error!");
+        Z_LOG_ERROR(ret_val, link_code, "ZConfig::SaveConfigP() link error!");
         return ret_val;
     }
     return ret_val;
@@ -271,7 +271,7 @@ NODISCARD ReturnType ZConfig::SetMemberValue(const Char* _key, const Char* _valu
     link_code = SaveConfigP();
     if (link_code != kOK) {
         ret_val = error_code::kZConfigErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, L"ZConfig::SaveConfigP() link error!");
+        Z_LOG_ERROR(ret_val, link_code, "ZConfig::SaveConfigP() link error!");
         return ret_val;
     }
     return ret_val;
@@ -285,7 +285,7 @@ NODISCARD ReturnType ZConfig::AddMember(const Char* _key, Bool _value, Bool _ove
         link_code = SaveConfigP();
         if (link_code != kOK) {
             ret_val = error_code::kZConfigErrorCode_LinkError;
-            Z_LOG_ERROR(ret_val, link_code, L"ZConfig::SaveConfigP() link error!");
+            Z_LOG_ERROR(ret_val, link_code, "ZConfig::SaveConfigP() link error!");
             return ret_val;
         }
     }
@@ -299,7 +299,7 @@ NODISCARD ReturnType ZConfig::AddMember(const Char* _key, Int32 _value, Bool _ov
         link_code = SaveConfigP();
         if (link_code != kOK) {
             ret_val = error_code::kZConfigErrorCode_LinkError;
-            Z_LOG_ERROR(ret_val, link_code, L"ZConfig::SaveConfigP() link error!");
+            Z_LOG_ERROR(ret_val, link_code, "ZConfig::SaveConfigP() link error!");
             return ret_val;
         }
     }
@@ -313,7 +313,7 @@ NODISCARD ReturnType ZConfig::AddMember(const Char* _key, Int64 _value, Bool _ov
         link_code = SaveConfigP();
         if (link_code != kOK) {
             ret_val = error_code::kZConfigErrorCode_LinkError;
-            Z_LOG_ERROR(ret_val, link_code, L"ZConfig::SaveConfigP() link error!");
+            Z_LOG_ERROR(ret_val, link_code, "ZConfig::SaveConfigP() link error!");
             return ret_val;
         }
     }
@@ -327,7 +327,7 @@ NODISCARD ReturnType ZConfig::AddMember(const Char* _key, UInt32 _value, Bool _o
         link_code = SaveConfigP();
         if (link_code != kOK) {
             ret_val = error_code::kZConfigErrorCode_LinkError;
-            Z_LOG_ERROR(ret_val, link_code, L"ZConfig::SaveConfigP() link error!");
+            Z_LOG_ERROR(ret_val, link_code, "ZConfig::SaveConfigP() link error!");
             return ret_val;
         }
     }
@@ -341,7 +341,7 @@ NODISCARD ReturnType ZConfig::AddMember(const Char* _key, UInt64 _value, Bool _o
         link_code = SaveConfigP();
         if (link_code != kOK) {
             ret_val = error_code::kZConfigErrorCode_LinkError;
-            Z_LOG_ERROR(ret_val, link_code, L"ZConfig::SaveConfigP() link error!");
+            Z_LOG_ERROR(ret_val, link_code, "ZConfig::SaveConfigP() link error!");
             return ret_val;
         }
     }
@@ -355,7 +355,7 @@ NODISCARD ReturnType ZConfig::AddMember(const Char* _key, Float32 _value, Bool _
         link_code = SaveConfigP();
         if (link_code != kOK) {
             ret_val = error_code::kZConfigErrorCode_LinkError;
-            Z_LOG_ERROR(ret_val, link_code, L"ZConfig::SaveConfigP() link error!");
+            Z_LOG_ERROR(ret_val, link_code, "ZConfig::SaveConfigP() link error!");
             return ret_val;
         }
     }
@@ -369,7 +369,7 @@ NODISCARD ReturnType ZConfig::AddMember(const Char* _key, Float64 _value, Bool _
         link_code = SaveConfigP();
         if (link_code != kOK) {
             ret_val = error_code::kZConfigErrorCode_LinkError;
-            Z_LOG_ERROR(ret_val, link_code, L"ZConfig::SaveConfigP() link error!");
+            Z_LOG_ERROR(ret_val, link_code, "ZConfig::SaveConfigP() link error!");
             return ret_val;
         }
     }
@@ -383,7 +383,7 @@ NODISCARD ReturnType ZConfig::AddMember(const Char* _key, const Char* _value, Bo
         link_code = SaveConfigP();
         if (link_code != kOK) {
             ret_val = error_code::kZConfigErrorCode_LinkError;
-            Z_LOG_ERROR(ret_val, link_code, L"ZConfig::SaveConfigP() link error!");
+            Z_LOG_ERROR(ret_val, link_code, "ZConfig::SaveConfigP() link error!");
             return ret_val;
         }
     }
@@ -397,7 +397,7 @@ NODISCARD ReturnType ZConfig::RemoveMember(const Char* _key) noexcept {
         link_code = SaveConfigP();
         if (link_code != kOK) {
             ret_val = error_code::kZConfigErrorCode_LinkError;
-            Z_LOG_ERROR(ret_val, link_code, L"ZConfig::SaveConfigP() link error!");
+            Z_LOG_ERROR(ret_val, link_code, "ZConfig::SaveConfigP() link error!");
             return ret_val;
         }
     }
@@ -411,7 +411,7 @@ NODISCARD ReturnType ZConfig::Clear() noexcept {
     link_code = SaveConfigP();
     if (link_code != kOK) {
         ret_val = error_code::kZConfigErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, L"ZConfig::SaveConfigP() link error!");
+        Z_LOG_ERROR(ret_val, link_code, "ZConfig::SaveConfigP() link error!");
         return ret_val;
     }
     return ret_val;
@@ -425,10 +425,10 @@ NODISCARD ReturnType ZConfig::SaveConfigP() noexcept {
     static Bool temp = UpdateVersionP();
     UpdateSaveTimeP();
 
-    link_code = config_data_ptr_->WriteFile(file_dir_.String());
+    link_code = config_data_ptr_->WriteFile(file_dir_.DataPtr());
     if (link_code != kOK) {
         ret_val = error_code::kZConfigErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, L"ZJsonDocument::WriteFile() link error!");
+        Z_LOG_ERROR(ret_val, link_code, "ZJsonDocument::WriteFile() link error!");
         return ret_val;
     }
     return ret_val;
@@ -447,7 +447,7 @@ Bool ZConfig::UpdateVersionP() noexcept {
 Void ZConfig::UpdateSaveTimeP() noexcept {
     ZSystemTime::Instance().UpdateTime();
     TFixedString<kUpdateTimeStringLength> save_time_str;
-    save_time_str.SetString(
+    save_time_str.Assign(
         "%04d/%02d/%02d-%02d:%02d:%02d",
         ZSystemTime::Instance().Year(), ZSystemTime::Instance().Month(), ZSystemTime::Instance().Day(),
         ZSystemTime::Instance().Hour(), ZSystemTime::Instance().Min(), ZSystemTime::Instance().Sec());

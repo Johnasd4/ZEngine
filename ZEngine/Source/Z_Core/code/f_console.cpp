@@ -1,17 +1,25 @@
 /*
     Copyright (c) YuLin Zhu
 
-    This code file is licensed under the Creative Commons
-    Attribution-NonCommercial 4.0 International License.
+    ** ZEngine Proprietary License **
 
-    You may obtain a copy of the License at
-    https://creativecommons.org/licenses/by-nc/4.0/
+    This software is provided "as-is", without any express or implied warranty.
+    In no event will the authors be held liable for any damages arising from the
+    use of this software.
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+    Usage Rights:
+    1. Non-Commercial Use: You may use, modify, and distribute this software
+       for non-commercial purposes (e.g., education, personal projects, open-source
+       projects that do not generate revenue) free of charge.
+
+    2. Commercial Use: Commercial use of this software is STRICTLY PROHIBITED
+       without a valid commercial license agreement with the author.
+       "Commercial use" includes, but is not limited to:
+       - Incorporating this software into a product that is sold.
+       - Using this software in a paid service.
+       - Using this software for internal business operations in a for-profit entity.
+
+    To obtain a Commercial License, please contact the author.
 
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
@@ -21,212 +29,153 @@
 
 #include "f_console.h"
 
-#include "z_core/z_mutex.h"
+#include "f_string.h"
+#include "m_log.h"
+#include "t_lock_guard.h"
+#include "z_mutex.h"
 
 namespace zengine {
 namespace console {
-
 namespace internal {
 
-/*
-    Singleton class that contains the console settings.
-*/
+/**
+ * @brief Print manager class.
+ *
+ * Handles thread-safe print operations to the console.
+ */
 class ZPrintManager : public ZObject {
 public:
-    static Void SetColour(PrintTextColourEnum _text_colour, PrintBackgroundColourEnum _background_colour) noexcept {
+    /**
+     * @brief Prints a string view to the standard output.
+     *
+     * This method is thread-safe.
+     *
+     * @param _str_view The string view content to print.
+     */
+    static Void Print(ZStringView _str_view) noexcept {
         static ZPrintManager& print_manager = ZPrintManager::InstanceP();
-
-        print_manager.print_mutex_.Lock();
-        print_manager.text_colour_ = _text_colour;
-        print_manager.background_colour_ = _background_colour;
-        //Changes the console output colour.
-        SetConsoleTextAttribute(
-            GetStdHandle(STD_OUTPUT_HANDLE), (PrintColourType)_text_colour | (PrintColourType)_background_colour);
-        print_manager.print_mutex_.Unlock();
+        TLockGuard lock_guard(print_manager.print_mutex_);
+        std::fwrite(_str_view.DataPtr(), sizeof(Char), _str_view.Size(), stdout);
     }
 
-    static Void Print(const Char* _format, ArgListType _args) noexcept {
+    /**
+     * @brief Prints a string view to the standard output.
+     *
+     * This method is thread-safe.
+     *
+     * @param _str_view The string view content to print.
+     */
+    static Void Print(ZWStringView _str_view) noexcept {
         static ZPrintManager& print_manager = ZPrintManager::InstanceP();
-
-        print_manager.print_mutex_.Lock();
-        vprintf(_format, _args);
-        print_manager.print_mutex_.Unlock();
-    }
-
-    static Void Print(const WChar* _format, ArgListType _args) noexcept {
-        static ZPrintManager& print_manager = ZPrintManager::InstanceP();
-
-        print_manager.print_mutex_.Lock();
-        vwprintf(_format, _args);
-        print_manager.print_mutex_.Unlock();
-    }
-
-    static Void Print(
-        PrintTextColourEnum _text_colour, 
-        PrintBackgroundColourEnum _background_colour, 
-        const Char* _format, 
-        ArgListType _args
-    ) noexcept {
-        static ZPrintManager& print_manager = ZPrintManager::InstanceP();
-
-        print_manager.print_mutex_.Lock();
-        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 
-                                (PrintColourType)_text_colour | (PrintColourType)_background_colour);
-        vprintf(_format, _args);
-        SetConsoleTextAttribute(
-            GetStdHandle(STD_OUTPUT_HANDLE), 
-            (PrintColourType)print_manager.text_colour_ | (PrintColourType)print_manager.background_colour_);
-        print_manager.print_mutex_.Unlock();
-    }
-
-    static Void Print(
-        PrintTextColourEnum _text_colour, 
-        PrintBackgroundColourEnum _background_colour, 
-        const WChar* _format, 
-        ArgListType _args
-    ) noexcept {
-        static ZPrintManager& print_manager = ZPrintManager::InstanceP();
-
-        print_manager.print_mutex_.Lock();
-        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 
-                                (PrintColourType)_text_colour | (PrintColourType)_background_colour);
-        vwprintf(_format, _args);
-        SetConsoleTextAttribute(
-            GetStdHandle(STD_OUTPUT_HANDLE), 
-            (PrintColourType)print_manager.text_colour_ | (PrintColourType)print_manager.background_colour_);
-        print_manager.print_mutex_.Unlock();
+        TLockGuard lock_guard(print_manager.print_mutex_);
+        std::fwrite(_str_view.DataPtr(), sizeof(WChar), _str_view.Size(), stdout);
     }
 
 protected:
+    /** Type alias for the base class. */
     using SuperType_ = ZObject;
 
 private:
-    static inline constexpr PrintTextColourEnum kDefaultTextColour = PrintTextColourEnum::kLightWhite;
-    static inline constexpr PrintBackgroundColourEnum kDefaultBackgroundColour = PrintBackgroundColourEnum::kDarkBlack;
-
+    /**
+     * @brief Retrieves the singleton instance of the print manager.
+     *
+     * @return Reference to the singleton instance.
+     */
     NODISCARD static ZPrintManager& InstanceP() {
         static ZPrintManager instance;
         return instance;
     }
 
-    ZPrintManager() : SuperType_(), text_colour_(kDefaultTextColour), background_colour_(kDefaultBackgroundColour) {}
+    /**
+     * @brief Default constructor.
+     *
+     * Initializes the console settings. On Windows, it enables ANSI escape codes
+     * and sets the console output code page to UTF-8.
+     */
+    ZPrintManager() : SuperType_() {
+#ifdef _WIN32
+        // Windows  open to supply ANSI
+        HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+        if (hOut == INVALID_HANDLE_VALUE) return;
 
-    PrintTextColourEnum text_colour_;
-    PrintBackgroundColourEnum background_colour_;
+        DWORD dwMode = 0;
+        if (!GetConsoleMode(hOut, &dwMode)) return;
+
+        dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+        SetConsoleMode(hOut, dwMode);
+
+        //set output as UTF-8
+        SetConsoleOutputCP(CP_UTF8);
+#else
+        // Linux / macOS default supply ANSI and UTF-8.
+#endif   
+    }
+
+    /** Mutex for synchronizing print operations. */
     ZMutex print_mutex_;
 };
 
 }//internal
+}//console
+}//zengine
 
-CORE_DLLAPI Void SetPrintColour(
-    PrintTextColourEnum _text_colour, 
-    PrintBackgroundColourEnum _background_colour
-) noexcept {
-    internal::ZPrintManager::SetColour(_text_colour, _background_colour);
+namespace zengine {
+namespace console {
+namespace internal {
+
+Void PrintP(ZStringView _format, fmt::format_args _args, SizeType _arg_num) noexcept {
+    try {
+        ZString str;
+        str.Reserve(_format.Size() + _arg_num * 16ULL);
+        fmt::vformat_to(
+            std::back_inserter(str.STDString()),
+            _format.STDStringView(),
+            _args
+        );
+        Print(str);
+    }
+    catch (const fmt::format_error&) {
+        Z_LOG_ERROR(
+            zengine::error_code::kFConsoleErrorCode_FormatError, 0,
+            "console::Print() format error! _format: %s",
+            _format.ToString().DataPtr()
+        );
+    }
 }
 
-/*
-    Use it as the same as printf, it's thread safe. You can add text colour and 
-    background colour infront of the format to change the colour only for this
-    output.
-*/
-CORE_DLLAPI Void Print(const Char * _format, ...) noexcept {
-    ArgListType args;
-    va_start(args, _format);
-    internal::ZPrintManager::Print(_format, args);
-    va_end(args);
+Void PrintP(ZWStringView _format, fmt::wformat_args _args, SizeType _arg_num) noexcept {
+    try {
+        ZWString str;
+        str.Reserve(_format.Size() + _arg_num * 16ULL);
+        fmt::vformat_to(
+            std::back_inserter(str.STDString()),
+            _format.STDStringView(),
+            _args
+        );
+        Print(str);
+    }
+    catch (const fmt::format_error&) {
+        Z_LOG_ERROR(
+            zengine::error_code::kFConsoleErrorCode_FormatError, 0,
+            "console::Print() format error! _format: %s",
+            string::WStringToString(_format).DataPtr()
+        );
+    }
 }
 
-/*
-    Use it as the same as printf, it's thread safe. You can add text colour and
-    background colour infront of the format to change the colour only for this
-    output.
-*/
-CORE_DLLAPI Void Print(const Char* _format, ArgListType _args) noexcept {
-    internal::ZPrintManager::Print(_format, _args);
+}//internal
+}//console
+}//zengine
+
+namespace zengine {
+namespace console {
+
+CORE_DLLAPI Void Print(ZStringView _str_view) noexcept {
+    internal::ZPrintManager::Print(_str_view);
 }
 
-/*
-    Use it as the same as printf, it's thread safe. You can add text colour and
-    background colour infront of the format to change the colour only for this
-    output.
-*/
-CORE_DLLAPI Void Print(const WChar* _format, ...) noexcept {
-    ArgListType args;
-    va_start(args, _format);
-    internal::ZPrintManager::Print(_format, args);
-    va_end(args);
-}
-
-/*
-    Use it as the same as printf, it's thread safe. You can add text colour and
-    background colour infront of the format to change the colour only for this
-    output.
-*/
-CORE_DLLAPI Void Print(const WChar* _format, ArgListType _args) noexcept {
-    internal::ZPrintManager::Print(_format, _args);
-}
-
-/*
-    Use it as the same as printf, it's thread safe. You can add text colour and
-    background colour infront of the format to change the colour only for this
-    output.
-*/
-CORE_DLLAPI Void Print(
-    PrintTextColourEnum _text_colour, 
-    PrintBackgroundColourEnum _background_colour,
-    const Char* format, 
-    ...
-) noexcept{
-    ArgListType args;
-    va_start(args, format);
-    internal::ZPrintManager::Print(_text_colour, _background_colour, format, args);
-    va_end(args);
-}
-
-/*
-    Use it as the same as printf, it's thread safe. You can add text colour and
-    background colour infront of the format to change the colour only for this
-    output.
-*/
-CORE_DLLAPI Void Print(
-    PrintTextColourEnum _text_colour, 
-    PrintBackgroundColourEnum _background_colour,
-    const Char* _format, 
-    ArgListType _args
-) noexcept{
-    internal::ZPrintManager::Print(_text_colour, _background_colour, _format, _args);
-}
-
-/*
-    Use it as the same as printf, it's thread safe. You can add text colour and
-    background colour infront of the format to change the colour only for this
-    output.
-*/
-CORE_DLLAPI Void Print(
-    PrintTextColourEnum _text_colour, 
-    PrintBackgroundColourEnum _background_colour,
-    const WChar* _format, 
-    ...
-) noexcept{
-    ArgListType args;
-    va_start(args, _format);
-    internal::ZPrintManager::Print(_text_colour, _background_colour, _format, args);
-    va_end(args);
-}
-
-/*
-    Use it as the same as printf, it's thread safe. You can add text colour and
-    background colour infront of the format to change the colour only for this
-    output.
-*/
-CORE_DLLAPI Void Print(
-    PrintTextColourEnum _text_colour, 
-    PrintBackgroundColourEnum _background_colour,
-    const WChar* _format, 
-    ArgListType _args
-) noexcept{
-    internal::ZPrintManager::Print(_text_colour, _background_colour, _format, _args);
+CORE_DLLAPI Void Print(ZWStringView _str_view) noexcept {
+    internal::ZPrintManager::Print(_str_view);
 }
 
 }//console

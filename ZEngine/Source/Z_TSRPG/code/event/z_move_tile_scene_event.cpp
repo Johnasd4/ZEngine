@@ -53,7 +53,7 @@ NODISCARD ReturnType ZMoveTileSceneEvent::Initialize(
         ret_val = error_code::kZSceneEventErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
-            L"ZSceneEvent::Initialize() link error!");
+            "ZSceneEvent::Initialize() link error!");
         return ret_val;
     }
 
@@ -64,7 +64,7 @@ NODISCARD ReturnType ZMoveTileSceneEvent::Initialize(
         ret_val = error_code::kZSceneEventErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
-            L"lua::GetLuaObjectFormLuaTable() link error!");
+            "lua::GetLuaObjectFormLuaTable() link error!");
         return ret_val;
     }
     link_code = lua::GetLuaObjectFormLuaTable(_event_params, 2, &target_logic_array);
@@ -72,7 +72,7 @@ NODISCARD ReturnType ZMoveTileSceneEvent::Initialize(
         ret_val = error_code::kZSceneEventErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
-            L"lua::GetLuaObjectFormLuaTable() link error!");
+            "lua::GetLuaObjectFormLuaTable() link error!");
         return ret_val;
     }
 
@@ -80,7 +80,7 @@ NODISCARD ReturnType ZMoveTileSceneEvent::Initialize(
         ret_val = error_code::kZSceneEventErrorCode_TileNotExist;
         Z_LOG_ERROR(
             ret_val, 0,
-            L"Tile not exist!");
+            "Tile not exist!");
         return ret_val;
     }
 
@@ -105,7 +105,7 @@ NODISCARD ReturnType ZMoveTileSceneEvent::Execute(Float32 _delta_time) noexcept 
         ret_val = error_code::kZSceneEventErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
-            L"ZSceneEvent::Execute() link error!");
+            "ZSceneEvent::Execute() link error!");
         return ret_val;
     }
     //TODO: Tiles might be destroyed during the event, do something.
@@ -123,7 +123,7 @@ NODISCARD ReturnType ZMoveTileSceneEvent::Execute(Float32 _delta_time) noexcept 
     //    ret_val = error_code::kZSceneEventErrorCode_LinkError;
     //    Z_LOG_ERROR(
     //        ret_val, link_code,
-    //        L"ZDisplayTile::SetPos() link error!");
+    //        "ZDisplayTile::SetPos() link error!");
     //    return ret_val;
     //}
     return ret_val;

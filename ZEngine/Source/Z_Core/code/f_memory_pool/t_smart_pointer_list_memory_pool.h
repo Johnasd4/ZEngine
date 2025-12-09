@@ -25,7 +25,7 @@
 namespace zengine {
 namespace memory_pool {
 
-struct TSmartPtrBlock : public TMemoryBlockBase{
+struct TSmartPointerBlock : public TMemoryBlockBase{
     FORCEINLINE Void Initialize(Void* _pool_ptr) noexcept {}
 };
 
@@ -38,7 +38,7 @@ struct TSmartPtrBlock : public TMemoryBlockBase{
     - kIsThreadSafe: Thread safe or not.
 */
 template<Bool kIsThreadSafe>
-class TSmartPointerListMemoryPool : public TListMemoryPoolBase<TSmartPtrBlock, 0, kIsThreadSafe> {
+class TSmartPointerListMemoryPool : public TListMemoryPoolBase<TSmartPointerBlock, 0, kIsThreadSafe> {
 public:
     NODISCARD FORCEINLINE static Void* ApplyMemory() noexcept {
         static TSmartPointerListMemoryPool<kIsThreadSafe>& memory_pool = InstanceP();
@@ -83,20 +83,20 @@ public:
 #if USE_MEMORY_POOL_TEST
         ReturnType link_code = kOK;
 
-        link_code = TMemoryPoolBase<kIsThreadSafe>::log_file_.Print("\n***** smart pointer pool *****\n\n");
+        link_code = TMemoryPoolBase<kIsThreadSafe>::LogFile().Print("\n***** smart pointer pool *****\n\n");
         if (link_code != kOK) {
-            Z_LOG_ERROR(error_code::kFMemoryPoolErrorCode_LinkError, link_code, L"ZFile::Print() link error!");
+            Z_LOG_ERROR(error_code::kFMemoryPoolErrorCode_LinkError, link_code, "ZFile::Print() link error!");
             return;
         }
 
-        link_code = TMemoryPoolBase<kIsThreadSafe>::log_file_.Print(
+        link_code = TMemoryPoolBase<kIsThreadSafe>::LogFile().Print(
             "    size    | usable size |  total num  | applied times | used peak num | unused num\n"
         );
         if (link_code != kOK) {
-            Z_LOG_ERROR(error_code::kFMemoryPoolErrorCode_LinkError, link_code, L"ZFile::Print() link error!");
+            Z_LOG_ERROR(error_code::kFMemoryPoolErrorCode_LinkError, link_code, "ZFile::Print() link error!");
             return;
         }
-        link_code = TMemoryPoolBase<kIsThreadSafe>::log_file_.Print(
+        link_code = TMemoryPoolBase<kIsThreadSafe>::LogFile().Print(
             "  %8u  |  %9u  |  %9d  |   %9d   |   %9d   |  %8d\n",
             SuperType_::MemoryBlockSize(),
             SuperType_::MemoryBlockMemorySize(),
@@ -104,16 +104,16 @@ public:
             momory_block_applyed_num_,
             momory_block_peak_num_,
             memory_block_used_current_num_);
-        TMemoryPoolBase<kIsThreadSafe>::log_file_.Flush();
+        TMemoryPoolBase<kIsThreadSafe>::LogFile().Flush();
         if (link_code != kOK) {
-            Z_LOG_ERROR(error_code::kFMemoryPoolErrorCode_LinkError, link_code, L"ZFile::Print() link error!");
+            Z_LOG_ERROR(error_code::kFMemoryPoolErrorCode_LinkError, link_code, "ZFile::Print() link error!");
             return;
         }
 #endif //USE_MEMORY_POOL_TEST        
     }
 
 protected:
-    using SuperType_ = TListMemoryPoolBase<TSmartPtrBlock, 0, kIsThreadSafe>;
+    using SuperType_ = TListMemoryPoolBase<TSmartPointerBlock, 0, kIsThreadSafe>;
 
 private:
     static inline constexpr SizeType kMemoryBlockHeadSize = SuperType_::NodeHeadOffset();

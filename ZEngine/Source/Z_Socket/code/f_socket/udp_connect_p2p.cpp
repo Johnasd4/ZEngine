@@ -43,7 +43,7 @@ SOCKET_DLLAPI ReturnType UDPConnectP2P(
         ret_val = error_code::kFSocketErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
-            L"ZUDPSocket::Open() link error!"
+            "ZUDPSocket::Open() link error!"
         );
         return ret_val;
     }
@@ -53,7 +53,7 @@ SOCKET_DLLAPI ReturnType UDPConnectP2P(
         ret_val = error_code::kFSocketErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
-            L"ZUDPSocket::BindEndpoint() link error!"
+            "ZUDPSocket::BindEndpoint() link error!"
         );
         return ret_val;
     }

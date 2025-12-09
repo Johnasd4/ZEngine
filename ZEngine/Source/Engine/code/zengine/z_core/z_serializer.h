@@ -82,7 +82,7 @@ public:
                 ret_val = error_code::kZSerializerErrorCode_LinkError;
                 Z_LOG_ERROR(
                     ret_val, link_code,
-                    L"_ObjectType::OnSerialize() link error!"
+                    "_ObjectType::OnSerialize() link error!"
                 );
                 return ret_val;
             }
@@ -98,7 +98,7 @@ public:
                 ret_val = error_code::kZSerializerErrorCode_LinkError;
                 Z_LOG_ERROR(
                     ret_val, link_code,
-                    L"ZDeserializer::Write() link error!"
+                    "ZDeserializer::Write() link error!"
                 );
                 return ret_val;
             }
@@ -163,7 +163,7 @@ public:
                 ret_val = error_code::kZSerializerErrorCode_LinkError;
                 Z_LOG_ERROR(
                     ret_val, link_code,
-                    L"_ObjectType::OnDeserialize() link error!"
+                    "_ObjectType::OnDeserialize() link error!"
                 );
                 return ret_val;
             }
@@ -179,7 +179,7 @@ public:
                 ret_val = error_code::kZSerializerErrorCode_LinkError;
                 Z_LOG_ERROR(
                     ret_val, link_code,
-                    L"ZDeserializer::Read() link error!"
+                    "ZDeserializer::Read() link error!"
                 );
                 return ret_val;
             }

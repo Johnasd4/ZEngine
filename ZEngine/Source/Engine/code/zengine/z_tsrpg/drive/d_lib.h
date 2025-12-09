@@ -25,7 +25,7 @@
 //Define if at the start of the z_tsrpg cpp file.
 #ifdef TSRPG_DLLFILE
 #define TSRPG_DLLAPI DLLEXPORT
-#define PROJECT_NAME L"ZTSRPG"
+#define PROJECT_NAME "ZTSRPG"
 #else
 #define TSRPG_DLLAPI DLLIMPORT
 #ifdef _WIN64

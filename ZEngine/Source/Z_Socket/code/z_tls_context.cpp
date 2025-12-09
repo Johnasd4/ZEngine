@@ -35,7 +35,7 @@ ZTLSContext::ZTLSContext(TLSTypeEnum _tls_type) noexcept
     if (tls_type_ != TLSTypeEnum::kClient && tls_type_ != TLSTypeEnum::kServer) {
         Z_LOG_ERROR(
             error_code::kSocketErrorCode_TLSVerifyModeNotValid, 0,
-            L"TLS type not valid! _tls_type: %d", _tls_type
+            "TLS type not valid! _tls_type: %d", _tls_type
         );
         return;
     }
@@ -52,7 +52,7 @@ NODISCARD ReturnType ZTLSContext::SetVerifyMode(TLSVerifyModeEnum _tls_verify_mo
     Z_CHECK(
         state_ != StateEnum_::kInitialized,
         error_code::kSocketErrorCode_StateError,
-        L"TLS context state error! state: %d expect state: %d",
+        "TLS context state error! state: %d expect state: %d",
         state_, StateEnum_::kInitialized
     );
 
@@ -72,7 +72,7 @@ NODISCARD ReturnType ZTLSContext::SetVerifyMode(TLSVerifyModeEnum _tls_verify_mo
         ret_val = error_code::kSocketErrorCode_TLSVerifyModeNotValid;
         Z_LOG_ERROR(
             ret_val, 0,
-            L"TLS verify mode not valid! _tls_verify_mode: %d", _tls_verify_mode
+            "TLS verify mode not valid! _tls_verify_mode: %d", _tls_verify_mode
         );
     }
 
@@ -81,8 +81,8 @@ NODISCARD ReturnType ZTLSContext::SetVerifyMode(TLSVerifyModeEnum _tls_verify_mo
         ret_val = error_code::kSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
-            L"System error! error info: %ls",
-            string::String2WString(error_code.message().c_str()).String()
+            "System error! error info: %ls",
+            string::StringToWString(error_code.message().c_str()).DataPtr()
         );
         return ret_val;
     }
@@ -97,7 +97,7 @@ NODISCARD ReturnType ZTLSContext::LoadVerifyFile(const Char* _file_dir) noexcept
     Z_CHECK(
         state_ != StateEnum_::kInitialized,
         error_code::kSocketErrorCode_StateError,
-        L"TLS context state error! state: %d expect state: %d",
+        "TLS context state error! state: %d expect state: %d",
         state_, StateEnum_::kInitialized
     );
 
@@ -106,8 +106,8 @@ NODISCARD ReturnType ZTLSContext::LoadVerifyFile(const Char* _file_dir) noexcept
         ret_val = error_code::kSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
-            L"System error! error info: %ls",
-            string::String2WString(error_code.message().c_str()).String()
+            "System error! error info: %ls",
+            string::StringToWString(error_code.message().c_str()).DataPtr()
         );
         return ret_val;
     }
@@ -122,7 +122,7 @@ NODISCARD ReturnType ZTLSContext::LoadSystemVerifyFiles() noexcept {
     Z_CHECK(
         state_ != StateEnum_::kInitialized,
         error_code::kSocketErrorCode_StateError,
-        L"TLS context state error! state: %d expect state: %d",
+        "TLS context state error! state: %d expect state: %d",
         state_, StateEnum_::kInitialized
     );
 
@@ -131,8 +131,8 @@ NODISCARD ReturnType ZTLSContext::LoadSystemVerifyFiles() noexcept {
         ret_val = error_code::kSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
-            L"System error! error info: %ls",
-            string::String2WString(error_code.message().c_str()).String()
+            "System error! error info: %ls",
+            string::StringToWString(error_code.message().c_str()).DataPtr()
         );
         return ret_val;
     }
@@ -150,7 +150,7 @@ NODISCARD ReturnType ZTLSContext::UseCertificateFile(
     Z_CHECK(
         state_ != StateEnum_::kInitialized,
         error_code::kSocketErrorCode_StateError,
-        L"TLS context state error! state: %d expect state: %d",
+        "TLS context state error! state: %d expect state: %d",
         state_, StateEnum_::kInitialized
     );
 
@@ -167,7 +167,7 @@ NODISCARD ReturnType ZTLSContext::UseCertificateFile(
         ret_val = error_code::kSocketErrorCode_CertificateFileFormatNotValid;
         Z_LOG_ERROR(
             ret_val, 0,
-            L"Certificate file format not valid! _file_format: %d", _file_format
+            "Certificate file format not valid! _file_format: %d", _file_format
         );
         return ret_val;
     }
@@ -177,8 +177,8 @@ NODISCARD ReturnType ZTLSContext::UseCertificateFile(
         ret_val = error_code::kSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
-            L"System error! error info: %ls",
-            string::String2WString(error_code.message().c_str()).String()
+            "System error! error info: %ls",
+            string::StringToWString(error_code.message().c_str()).DataPtr()
         );
         return ret_val;
     }
@@ -197,7 +197,7 @@ NODISCARD ReturnType ZTLSContext::UseCertificateChainFile(
     Z_CHECK(
         state_ != StateEnum_::kInitialized,
         error_code::kSocketErrorCode_StateError,
-        L"TLS context state error! state: %d expect state: %d",
+        "TLS context state error! state: %d expect state: %d",
         state_, StateEnum_::kInitialized
     );
 
@@ -206,8 +206,8 @@ NODISCARD ReturnType ZTLSContext::UseCertificateChainFile(
         ret_val = error_code::kSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
-            L"System error! error info: %ls",
-            string::String2WString(error_code.message().c_str()).String()
+            "System error! error info: %ls",
+            string::StringToWString(error_code.message().c_str()).DataPtr()
         );
         return ret_val;
     }
@@ -227,7 +227,7 @@ NODISCARD ReturnType ZTLSContext::UsePrivateKeyFile(
     Z_CHECK(
         state_ != StateEnum_::kInitialized,
         error_code::kSocketErrorCode_StateError,
-        L"TLS context state error! state: %d expect state: %d",
+        "TLS context state error! state: %d expect state: %d",
         state_, StateEnum_::kInitialized
     );
 
@@ -244,7 +244,7 @@ NODISCARD ReturnType ZTLSContext::UsePrivateKeyFile(
         ret_val = error_code::kSocketErrorCode_CertificateFileFormatNotValid;
         Z_LOG_ERROR(
             ret_val, 0,
-            L"Certificate file format not valid! _file_format: %d", _file_format
+            "Certificate file format not valid! _file_format: %d", _file_format
         );
         return ret_val;
     }
@@ -254,8 +254,8 @@ NODISCARD ReturnType ZTLSContext::UsePrivateKeyFile(
         ret_val = error_code::kSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
-            L"System error! error info: %ls",
-            string::String2WString(error_code.message().c_str()).String()
+            "System error! error info: %ls",
+            string::StringToWString(error_code.message().c_str()).DataPtr()
         );
         return ret_val;
     }

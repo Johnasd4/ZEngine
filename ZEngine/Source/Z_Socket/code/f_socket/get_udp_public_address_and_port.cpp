@@ -67,7 +67,7 @@ private:
         if (link_code != kOK) {
             Z_LOG_ERROR(
                 error_code::kFSocketErrorCode_LinkError, link_code,
-                L"StunServerInfoList::LoadStunServerInfoP() link error!"
+                "StunServerInfoList::LoadStunServerInfoP() link error!"
             );
             return;
         }
@@ -79,7 +79,7 @@ private:
         if (link_code != kOK) {
             Z_LOG_ERROR(
                 error_code::kFSocketErrorCode_LinkError, link_code,
-                L"StunServerInfoList::SaveStunServerInfoP() link error!"
+                "StunServerInfoList::SaveStunServerInfoP() link error!"
             );
             return;
         }
@@ -89,12 +89,12 @@ private:
         ReturnType ret_val = kOK;
         ReturnType link_code = kOK;
         ZFile file;
-        link_code = file.OpenSafe(L"ZEngine/Socket/Stun_Address.txt", ZFile::kOpenTypeReadPlusBin);
+        link_code = file.OpenSafe("ZEngine/Socket/Stun_Address.txt", ZFile::kOpenTypeReadPlusBin);
         if (link_code != kOK) {
             ret_val = error_code::kFSocketErrorCode_LinkError;
             Z_LOG_ERROR(
                 ret_val, link_code,
-                L"ZFile::OpenSafe() link error!"
+                "ZFile::OpenSafe() link error!"
             );
             return ret_val;
         }
@@ -106,11 +106,11 @@ private:
             ret_val = error_code::kFSocketErrorCode_LinkError;
             Z_LOG_ERROR(
                 ret_val, link_code,
-                L"ZFile::Read() link error!"
+                "ZFile::Read() link error!"
             );
             return ret_val;
         }
-        auto stun_server_info_raw_list = string::SplitToStringView(
+        auto stun_server_info_raw_list = string::SplitToStringViewSkipEmpty(
             ZStringView(memory.DataPtr<Char>(), file_size), '\n'
         );
         for (
@@ -121,7 +121,7 @@ private:
             //remove \r if exist
             ZStringView stun_server_info_raw_string_view;
             if ((*stun_server_info_raw_iter)[stun_server_info_raw_iter->Size() - 1] == '\r') {
-                stun_server_info_raw_string_view.SetViewString(
+                stun_server_info_raw_string_view.Assign(
                     stun_server_info_raw_iter->DataPtr(), 
                     stun_server_info_raw_iter->Size() - 1
                 );
@@ -130,7 +130,7 @@ private:
                 stun_server_info_raw_string_view = *stun_server_info_raw_iter;
             }
 
-            auto stun_server_info_string_view_list = string::SplitToStringView(
+            auto stun_server_info_string_view_list = string::SplitToStringViewSkipEmpty(
                 stun_server_info_raw_string_view, ':'
             );
             if (stun_server_info_string_view_list.Size() >= 2ULL) {
@@ -142,12 +142,12 @@ private:
                 UInt32 failed_count = 0ULL;
                 if (stun_server_info_string_view_list.Size() >= 3ULL) {
                     ++stun_server_info_string_view_list_iter;
-                    link_code = stun_server_info_string_view_list_iter->ToUInt32(&failed_count);
+                    link_code = stun_server_info_string_view_list_iter->ToNumber(&failed_count);
                     if (link_code != kOK) {
                         failed_count = 0;
                         Z_LOG_ERROR(
                             error_code::kFSocketErrorCode_LinkError, link_code,
-                            L"ZStringView::ToUInt32() link error!"
+                            "ZStringView::ToUInt32() link error!"
                         );
                     }
                 }
@@ -161,12 +161,12 @@ private:
         ReturnType ret_val = kOK;
         ReturnType link_code = kOK;
         ZFile file;
-        link_code = file.OpenSafe(L"ZEngine/Socket/Stun_Address.txt", ZFile::kOpenTypeWritePlusBin);
+        link_code = file.OpenSafe("ZEngine/Socket/Stun_Address.txt", ZFile::kOpenTypeWritePlusBin);
         if (link_code != kOK) {
             ret_val = error_code::kFSocketErrorCode_LinkError;
             Z_LOG_ERROR(
                 ret_val, link_code,
-                L"ZFile::OpenSafe() link error!"
+                "ZFile::OpenSafe() link error!"
             );
             return ret_val;
         }
@@ -182,16 +182,16 @@ private:
             }
             ZString stun_server_info_string = string::GenerateString(
                 "%s:%s:%u\n",
-                stun_server_info_ptr->stun_address_str_.String(),
-                stun_server_info_ptr->stun_port_str_.String(),
+                stun_server_info_ptr->stun_address_str_.DataPtr(),
+                stun_server_info_ptr->stun_port_str_.DataPtr(),
                 stun_server_info_ptr->failed_count_
             );
-            link_code = file.Write(stun_server_info_string.String(), stun_server_info_string.Size());
+            link_code = file.Write(stun_server_info_string.DataPtr(), stun_server_info_string.Size());
             if (link_code != kOK) {
                 ret_val = error_code::kFSocketErrorCode_LinkError;
                 Z_LOG_ERROR(
                     ret_val, link_code,
-                    L"ZFile::Write() link error!"
+                    "ZFile::Write() link error!"
                 );
                 return ret_val;
             }
@@ -218,7 +218,7 @@ SOCKET_DLLAPI ReturnType GetUDPPublicIP4AndPort(
         ret_val = error_code::kFSocketErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
-            L"ZUDPSocket::Open() link error!"
+            "ZUDPSocket::Open() link error!"
         );
         return ret_val;
     }
@@ -228,7 +228,7 @@ SOCKET_DLLAPI ReturnType GetUDPPublicIP4AndPort(
         ret_val = error_code::kFSocketErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
-            L"ZUDPSocket::BindEndpoint() link error!"
+            "ZUDPSocket::BindEndpoint() link error!"
         );
         return ret_val;
     }
@@ -268,7 +268,7 @@ SOCKET_DLLAPI ReturnType GetUDPPublicIP4AndPort(
             ret_val = error_code::kFSocketErrorCode_LinkError;
             Z_LOG_ERROR(
                 ret_val, link_code,
-                L"ZIOContext::ResolveUDPAddress() link error!"
+                "ZIOContext::ResolveUDPAddress() link error!"
             );
             continue;
         }
@@ -281,7 +281,7 @@ SOCKET_DLLAPI ReturnType GetUDPPublicIP4AndPort(
             ret_val = error_code::kFSocketErrorCode_LinkError;
             Z_LOG_ERROR(
                 ret_val, link_code,
-                L"ZUDPSocket::SendTo() link error!"
+                "ZUDPSocket::SendTo() link error!"
             );
             return ret_val;
         }
@@ -378,7 +378,7 @@ SOCKET_DLLAPI ReturnType GetUDPPublicIP4AndPort(
             ret_val = error_code::kFSocketErrorCode_LinkError;
             Z_LOG_ERROR(
                 ret_val, link_code,
-                L"ZUDPSocket::ReceiveFrom() link error!"
+                "ZUDPSocket::ReceiveFrom() link error!"
             );
             return ret_val;
         }
@@ -421,8 +421,8 @@ SOCKET_DLLAPI ReturnType GetUDPPublicIP4AndPort(
     if (!if_success) {
         Z_LOG_ERROR(
             error_code::kFSocketErrorCode_LinkError, link_code,
-            L"Get udp public ip4 and prot failed! local_ip: %ls local_port:%d",
-            string::String2WString(_local_udp_endpoint.IPString().String()).String(),
+            "Get udp public ip4 and prot failed! local_ip: %ls local_port:%d",
+            string::StringToWString(_local_udp_endpoint.IPString().DataPtr()).DataPtr(),
             _local_udp_endpoint.Port()
         );
         return ret_val;

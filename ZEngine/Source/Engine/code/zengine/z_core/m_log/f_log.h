@@ -1,17 +1,25 @@
 /*
     Copyright (c) YuLin Zhu
 
-    This code file is licensed under the Creative Commons
-    Attribution-NonCommercial 4.0 International License.
+    ** ZEngine Proprietary License **
 
-    You may obtain a copy of the License at
-    https://creativecommons.org/licenses/by-nc/4.0/
+    This software is provided "as-is", without any express or implied warranty.
+    In no event will the authors be held liable for any damages arising from the
+    use of this software.
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+    Usage Rights:
+    1. Non-Commercial Use: You may use, modify, and distribute this software
+       for non-commercial purposes (e.g., education, personal projects, open-source
+       projects that do not generate revenue) free of charge.
+
+    2. Commercial Use: Commercial use of this software is STRICTLY PROHIBITED
+       without a valid commercial license agreement with the author.
+       "Commercial use" includes, but is not limited to:
+       - Incorporating this software into a product that is sold.
+       - Using this software in a paid service.
+       - Using this software for internal business operations in a for-profit entity.
+
+    To obtain a Commercial License, please contact the author.
 
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
@@ -20,98 +28,144 @@
 
 #include "../drive.h"
 
-#include "z_log.h"
+#include "../library/l_fmt.h"
+
+#include "../t_smart_pointer.h"
+#include "../z_string_view.h"
+
+#include "c_log.h"
+#include "z_log/z_error_log.h"
+#include "z_log/z_info_log.h"
+#include "z_log/z_trace_log.h"
+#include "z_log/z_log.h"
+
+namespace zengine {
+namespace log {
+namespace internal {
+
+CORE_DLLAPI Void LogErrorP(
+    TimeType _log_time,
+    ZStringView _proj_name,
+    ZStringView _file_dir,
+    ZStringView _func_name,
+    Int32 _err_line,
+    ReturnType _err_code,
+    ReturnType _link_code,
+    ZStringView _format,
+    fmt::format_args _args
+) noexcept;
+
+CORE_DLLAPI Void LogTraceP(
+    TimeType _log_time,
+    ZStringView _proj_name,
+    ZStringView _file_dir,
+    ZStringView _func_name,
+    Int32 _trace_line,
+    ZStringView _format,
+    fmt::format_args _args
+) noexcept;
+
+CORE_DLLAPI Void LogInfoP(
+    TimeType _log_time,
+    InfoLogTypeEnum _info_type,
+    ZStringView _format,
+    fmt::format_args _args
+) noexcept;
+
+CORE_DLLAPI Void RegisterLogOutputFunctionP(
+    ZLog::OutputFunction_ _output_func,
+    ZLog::OutputFunctionArray_* output_func_array_ptr_
+) noexcept;
+
+CORE_DLLAPI Void UnregisterLogOutputFunctionP(
+    ZLog::OutputFunction_ _output_func,
+    ZLog::OutputFunctionArray_* output_func_array_ptr_
+) noexcept;
+
+
+}//internal
+}//log
+}//zengine
 
 namespace zengine {
 namespace log {
 
-/*
-    Log error message and error location.
-*/
-CORE_DLLAPI Void LogError(
+template<typename... _ArgsType>
+FORCEINLINE Void LogError(
     TimeType _log_time,
-    const WChar* _proj_name,
-    const Char* _file_dir,
-    const Char* _func_name,
+    ZStringView _proj_name,
+    ZStringView _file_dir,
+    ZStringView _func_name,
     Int32 _err_line,
     ReturnType _err_code,
     ReturnType _link_code,
-    const WChar* _format,
-    ...
-) noexcept;
+    ZStringView _format,
+    _ArgsType&&... _args
+) noexcept {
+    internal::LogErrorP(
+        _log_time,
+        _proj_name,
+        _file_dir,
+        _func_name,
+        _err_line,
+        _err_code,
+        _link_code,
+        _format,
+        fmt::make_format_args(_args...)
+    );
+}
 
-/*
-    Log trace message and trace location.
-*/
-CORE_DLLAPI Void LogTrace(
+template<typename... _ArgsType>
+FORCEINLINE Void LogTrace(
     TimeType _log_time,
-    const WChar* _proj_name,
-    const Char* _file_dir,
-    const Char* _func_name,
-    const WChar* _format,
-    ...
-) noexcept;
+    ZStringView _proj_name,
+    ZStringView _file_dir,
+    ZStringView _func_name,
+    Int32 _trace_line,
+    ZStringView _format,
+    _ArgsType&&... _args
+) noexcept {
+    internal::LogTraceP(
+        _log_time,
+        _proj_name,
+        _file_dir,
+        _func_name,
+        _trace_line,
+        _format,
+        fmt::make_format_args(_args...)
+    );
+}
 
-/*
-    Log info message.
-*/
-CORE_DLLAPI Void LogInfo(
+template<typename... _ArgsType>
+FORCEINLINE Void LogInfo(
     TimeType _log_time,
     InfoLogTypeEnum _info_type,
-    const WChar* _format,
-    ...
-) noexcept;
+    ZStringView _format,
+    _ArgsType&&... _args
+) noexcept {
+    internal::LogInfoP(
+        _log_time,
+        _info_type,
+        _format,
+        fmt::make_format_args(_args...)
+    );
+}
 
-/*
-    Register the log server port input function, the function will be called when log happens.
-    Each port can have 1 input function and 8 output function.
-    Port -1(max port num - 1) is error log, 2 output function used. 
-    Port -2(max port num - 2) is trace log, 2 output function used.
-    Port -3(max port num - 3) is info log, 2 output function used.
-    Port 0~4 is not used.
-*/
-CORE_DLLAPI NODISCARD ReturnType RegisterLogServerInputFunction(
-    SizeType _port_id, 
-    Void(*_input_func)(const ZLog*, ZLog::OutputString_*)
-) noexcept;
+template<typename _LogType>
+Void RegisterLogOutputFunction(ZLog::OutputFunction_ _output_func) noexcept {
+    internal::RegisterLogOutputFunctionP(
+        _output_func,
+        &_LogType::OutputFunctionArrayInstance()
+    );
+}
 
-/*
-    Removes the log server port output function.
-    Each port can have 1 input function and 8 output function.
-    Port -1(max port num - 1) is error log, 2 output function used.
-    Port -2(max port num - 2) is trace log, 2 output function used.
-    Port -3(max port num - 3) is info log, 2 output function used.
-    Port 0~4 is not used.
-*/
-CORE_DLLAPI NODISCARD ReturnType UnregisterLogServerInputFunction(
-    SizeType _port_id,
-    Void(*_input_func)(const ZLog*, ZLog::OutputString_*)
-) noexcept;
-
-/*
-    Register the log server port output function, the function will be called when log happens.
-    Each port can have 1 input function and 8 output function.
-    Port -1(max port num - 1) is error log, 2 output function used.
-    Port -2(max port num - 2) is trace log, 2 output function used.
-    Port -3(max port num - 3) is info log, 2 output function used.
-    Port 0~4 is not used.
-*/
-CORE_DLLAPI NODISCARD ReturnType RegisterLogServerOutputFunction(
-    SizeType _port_id,
-    Void(*_output_func)(const ZLog*, const ZLog::OutputString_&)
-) noexcept;
-
-/*
-    Removes the log server port output function.
-    Each port can have 1 input function and 8 output function.
-    Port -1(max port num - 1) is error log, 2 output function used.
-    Port -2(max port num - 2) is trace log, 2 output function used.
-    Port -3(max port num - 3) is info log, 2 output function used.
-    Port 0~4 is not used.
-*/
-CORE_DLLAPI Void UnregisterLogServerOutputFunction(
-    Void(*_output_func)(const ZLog*, const ZLog::OutputString_&)
-) noexcept;
+template<typename _LogType>
+Void UnregisterLogOutputFunction(ZLog::OutputFunction_ _output_func) noexcept {
+    internal::RegisterLogOutputFunctionP(
+        _output_func,
+        &_LogType::OutputFunctionArrayInstance()
+    );
+}
 
 /*
     Call at the end of the program or when exiting the program.

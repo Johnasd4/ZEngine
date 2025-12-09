@@ -75,7 +75,7 @@ NODISCARD ReturnType ZSerializer::Write(const Void* _data_ptr, SizeType _size) n
     Z_CHECK(
         _data_ptr != nullptr,
         error_code::kZSerializerErrorCode_NullptrParam,
-        L"_data_ptr is nullptr!"
+        "_data_ptr is nullptr!"
     );
 
     SizeType pre_size = size_;

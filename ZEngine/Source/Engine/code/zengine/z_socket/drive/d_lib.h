@@ -30,7 +30,7 @@
 #pragma comment(lib,"libcrypto.lib")
 #pragma comment(lib,"libssl.lib")
 #define SOCKET_DLLAPI DLLEXPORT
-#define PROJECT_NAME L"ZSocket"
+#define PROJECT_NAME "ZSocket"
 #else
 #define SOCKET_DLLAPI DLLIMPORT
 #ifdef _WIN64

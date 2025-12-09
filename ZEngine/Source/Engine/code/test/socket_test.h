@@ -301,14 +301,14 @@ ReturnType SocketTest() {
     if (link_code != kOK) {
         Z_LOG_ERROR(
             0, link_code,
-            L"socket::GetUDPPublicIP4AndPort() link error!"
+            "socket::GetUDPPublicIP4AndPort() link error!"
         );
         return link_code;
     }
 
     Z_LOG_MESSAGE(
-        L"%ls %d",
-        zengine::string::String2WString(IP4ToString(public_udp_ip).String()).String(),
+        "{} {}",
+        IP4ToString(public_udp_ip),
         public_udp_port
     );
     

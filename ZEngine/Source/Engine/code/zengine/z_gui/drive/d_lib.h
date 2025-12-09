@@ -26,7 +26,7 @@
 #ifdef GUI_DLLFILE
 
 #define GUI_DLLAPI DLLEXPORT
-#define PROJECT_NAME L"ZGui"
+#define PROJECT_NAME "ZGui"
 #pragma comment(lib,"opengl32.lib")
 #pragma comment(lib,"glfw3dll.lib")
 

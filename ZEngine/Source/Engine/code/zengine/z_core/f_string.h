@@ -1,17 +1,25 @@
 /*
     Copyright (c) YuLin Zhu
 
-    This code file is licensed under the Creative Commons
-    Attribution-NonCommercial 4.0 International License.
+    ** ZEngine Proprietary License **
 
-    You may obtain a copy of the License at
-    https://creativecommons.org/licenses/by-nc/4.0/
+    This software is provided "as-is", without any express or implied warranty.
+    In no event will the authors be held liable for any damages arising from the
+    use of this software.
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+    Usage Rights:
+    1. Non-Commercial Use: You may use, modify, and distribute this software
+       for non-commercial purposes (e.g., education, personal projects, open-source
+       projects that do not generate revenue) free of charge.
+
+    2. Commercial Use: Commercial use of this software is STRICTLY PROHIBITED
+       without a valid commercial license agreement with the author.
+       "Commercial use" includes, but is not limited to:
+       - Incorporating this software into a product that is sold.
+       - Using this software in a paid service.
+       - Using this software for internal business operations in a for-profit entity.
+
+    To obtain a Commercial License, please contact the author.
 
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
@@ -20,116 +28,323 @@
 
 #include "drive.h"
 
+#include "library/l_fmt.h"
+
 #include "t_list.h"
 #include "z_string.h"
 #include "z_string_view.h"
 
 namespace zengine {
 namespace error_code {
+
+/** @brief Enumerates error codes for FString operations. */
 enum FStringErrorCodeEnum : ReturnType {
-    kFStringErrorCode_LinkError = kErrorCodeBase_ZString,
+    /** @brief Represents a linking error in the FString module. */
+    kFStringErrorCode_LinkError = kErrorCodeBase_FString,
+    /** @brief Represents a general system error. */
     kFStringErrorCode_SystemError,
+    /** @brief Indicates a null pointer was passed as a parameter. */
     kFStringErrorCode_NullptrParam,
+    /** @brief Indicates a parameter is out of its valid range. */
     kFStringErrorCode_ParamOutOfRange,
+    /** @brief Represents an invalid string format. */
     kFStringErrorCode_InvalidString,
+    /** @brief Error when a string cannot be converted to a number. */
     kFStringErrorCode_StringToNumberCanNotTransform,
+    /** @brief Error when a converted number is out of the range of the target type. */
     kFStringErrorCode_StringToNumberOutOfRange,
+    /** @brief Error when converting a number to a string failed. */
+    kFStringErrorCode_NumberToStringError,
+    /** @brief Error related to string formatting. */
+    kFStringErrorCode_FormatError,
 };
+
 }//error_code
 }//zengine
 
 namespace zengine {
 namespace string {
+namespace internal {
 
-/*
-    Translate narrow string to wide string, if the string is invalid, will return "".
-*/
-CORE_DLLAPI NODISCARD ZWString String2WString(const Char* _str) noexcept;
+/**
+ * @brief Internal function to generate a ZString using fmt arguments.
+ * @param _format The format string view.
+ * @param _args The format arguments.
+ * @param _arg_num The number of arguments.
+ * @return The formatted ZString.
+ */
+CORE_DLLAPI NODISCARD ZString GenerateStringP(
+    ZStringView _format,
+    fmt::format_args _args, 
+    SizeType _arg_num
+) noexcept;
 
-/*
-    Translate wide string to narrow string, if the string is invalid, will return "".
-*/
-CORE_DLLAPI NODISCARD ZString WString2String(const WChar* _str) noexcept;
+/**
+ * @brief Internal function to generate a string into a buffer using fmt arguments.
+ * @param _str The destination buffer.
+ * @param _max_len The maximum length of the buffer.
+ * @param _format The format string view.
+ * @param _args The format arguments.
+ * @return The number of characters written.
+ */
+CORE_DLLAPI NODISCARD SizeType GenerateStringP(
+    Char* _str, 
+    SizeType _max_len,
+    ZStringView _format, 
+    fmt::format_args _args
+) noexcept;
 
-/*
-    Translate narrow string to Int32, if the string is invalid, will return "".
-*/
-CORE_DLLAPI NODISCARD ReturnType String2Int32(const Char* _str, Int32* _ans_ptr) noexcept;
-/*
-    Translate narrow string to Int64, if the string is invalid, will return "".
-*/
-CORE_DLLAPI NODISCARD ReturnType String2Int64(const Char* _str, Int64* _ans_ptr) noexcept;
-/*
-    Translate narrow string to UInt32, if the string is invalid, will return "".
-*/
-CORE_DLLAPI NODISCARD ReturnType String2UInt32(const Char* _str, UInt32* _ans_ptr) noexcept;
-/*
-    Translate narrow string to UInt64, if the string is invalid, will return "".
-*/
-CORE_DLLAPI NODISCARD ReturnType String2UInt64(const Char* _str, UInt64* _ans_ptr) noexcept;
-/*
-    Translate narrow string to Float32, if the string is invalid, will return "".
-*/
-CORE_DLLAPI NODISCARD ReturnType String2Float32(const Char* _str, Float32* _ans_ptr) noexcept;
-/*
-    Translate narrow string to Float64, if the string is invalid, will return "".
-*/
-CORE_DLLAPI NODISCARD ReturnType String2Float64(const Char* _str, Float64* _ans_ptr) noexcept;
+/**
+ * @brief Internal function to generate a string into a buffer without a null terminator using fmt arguments.
+ * @param _str The destination buffer.
+ * @param _max_len The maximum length of the buffer.
+ * @param _format The format string view.
+ * @param _args The format arguments.
+ * @return The number of characters written.
+ */
+CORE_DLLAPI NODISCARD SizeType GenerateStringNoEndP(
+    Char* _str,
+    SizeType _max_len,
+    ZStringView _format,
+    fmt::format_args _args
+) noexcept;
 
-/*
-    Translate wide string to Int32, if the string is invalid, will return "".
-*/
-CORE_DLLAPI NODISCARD ReturnType WString2Int32(const WChar* _str, Int32* _ans_ptr) noexcept;
-/*
-    Translate wide string to Int64, if the string is invalid, will return "".
-*/
-CORE_DLLAPI NODISCARD ReturnType WString2Int64(const WChar* _str, Int64* _ans_ptr) noexcept;
-/*
-    Translate wide string to UInt32, if the string is invalid, will return "".
-*/
-CORE_DLLAPI NODISCARD ReturnType WString2UInt32(const WChar* _str, UInt32* _ans_ptr) noexcept;
-/*
-    Translate wide string to UInt64, if the string is invalid, will return "".
-*/
-CORE_DLLAPI NODISCARD ReturnType WString2UInt64(const WChar* _str, UInt64* _ans_ptr) noexcept;
-/*
-    Translate wide string to Float32, if the string is invalid, will return "".
-*/
-CORE_DLLAPI NODISCARD ReturnType WString2Float32(const WChar* _str, Float32* _ans_ptr) noexcept;
-/*
-    Translate wide string to Float64, if the string is invalid, will return "".
-*/
-CORE_DLLAPI NODISCARD ReturnType WString2Float64(const WChar* _str, Float64* _ans_ptr) noexcept;
+}//internal
+}//string
+}//zengine
 
-/*
-    Generate narrow string.
-*/
-CORE_DLLAPI NODISCARD ZString GenerateString(const Char* _format, ...) noexcept;
+namespace zengine {
+namespace string {
 
-/*
-    Generate wide string.
-*/
-CORE_DLLAPI NODISCARD ZWString GenerateWString(const WChar* _format, ...) noexcept;
+/**
+ * @brief Translates a narrow character string (ZStringView) to a wide character string (ZWString).
+ * @param _str The narrow string view to convert.
+ * @return A ZWString containing the converted wide string. Returns an empty string if the input is invalid.
+ */
+CORE_DLLAPI NODISCARD ZWString StringToWString(ZStringView _str) noexcept;
 
-/*
-    Splits the given string view to string.
-*/
-CORE_DLLAPI NODISCARD TList<ZString> SplitToString(ZStringView _str, const Char _token) noexcept;
+/**
+ * @brief Translates a wide character string (ZWStringView) to a narrow character string (ZString).
+ * @param _str The wide string view to convert.
+ * @return A ZString containing the converted narrow string. Returns an empty string if the input is invalid.
+ */
+CORE_DLLAPI NODISCARD ZString WStringToString(ZWStringView _str) noexcept;
 
-/*
-    Splits the given string view to string.
-*/
-CORE_DLLAPI NODISCARD TList<ZWString> SplitToString(ZWStringView _str, const WChar _token) noexcept;
+/**
+ * @brief Splits a string view by a specified delimiter into a list of strings, skipping any empty entries.
+ * @param _str The string view to be split.
+ * @param _token The character to split the string by.
+ * @return A TList<ZString> containing the non-empty substrings.
+ */
+CORE_DLLAPI NODISCARD TList<ZString> SplitToStringSkipEmpty(ZStringView _str, const Char _token) noexcept;
 
-/*
-    Splits the given string view to string view.
-*/
-CORE_DLLAPI NODISCARD TList<ZStringView> SplitToStringView(ZStringView _str, const Char _token) noexcept;
+/**
+ * @brief Splits a string view by a specified delimiter into a list of string views, skipping any empty entries.
+ * @param _str The string view to be split.
+ * @param _token The character to split the string by.
+ * @return A TList<ZStringView> containing the non-empty substrings.
+ */
+CORE_DLLAPI NODISCARD TList<ZStringView> SplitToStringViewSkipEmpty(ZStringView _str, const Char _token) noexcept;
 
-/*
-    Splits the given string view to string view.
-*/
-CORE_DLLAPI NODISCARD TList<ZWStringView> SplitToStringView(ZWStringView _str, const WChar _token) noexcept;
+/**
+ * @brief Converts a string view to an Int8 number.
+ * @param _str The string view to convert.
+ * @param _ans_ptr Pointer to store the result.
+ * @return kOK if successful, otherwise an error code.
+ */
+CORE_DLLAPI NODISCARD ReturnType StringToNumber(ZStringView _str, Int8* _ans_ptr) noexcept;
+
+/**
+ * @brief Converts a string view to an Int16 number.
+ * @param _str The string view to convert.
+ * @param _ans_ptr Pointer to store the result.
+ * @return kOK if successful, otherwise an error code.
+ */
+CORE_DLLAPI NODISCARD ReturnType StringToNumber(ZStringView _str, Int16* _ans_ptr) noexcept;
+
+/**
+ * @brief Converts a string view to an Int32 number.
+ * @param _str The string view to convert.
+ * @param _ans_ptr Pointer to store the result.
+ * @return kOK if successful, otherwise an error code.
+ */
+CORE_DLLAPI NODISCARD ReturnType StringToNumber(ZStringView _str, Int32* _ans_ptr) noexcept;
+
+/**
+ * @brief Converts a string view to an Int64 number.
+ * @param _str The string view to convert.
+ * @param _ans_ptr Pointer to store the result.
+ * @return kOK if successful, otherwise an error code.
+ */
+CORE_DLLAPI NODISCARD ReturnType StringToNumber(ZStringView _str, Int64* _ans_ptr) noexcept;
+
+/**
+ * @brief Converts a string view to a UInt8 number.
+ * @param _str The string view to convert.
+ * @param _ans_ptr Pointer to store the result.
+ * @return kOK if successful, otherwise an error code.
+ */
+CORE_DLLAPI NODISCARD ReturnType StringToNumber(ZStringView _str, UInt8* _ans_ptr) noexcept;
+
+/**
+ * @brief Converts a string view to a UInt16 number.
+ * @param _str The string view to convert.
+ * @param _ans_ptr Pointer to store the result.
+ * @return kOK if successful, otherwise an error code.
+ */
+CORE_DLLAPI NODISCARD ReturnType StringToNumber(ZStringView _str, UInt16* _ans_ptr) noexcept;
+
+/**
+ * @brief Converts a string view to a UInt32 number.
+ * @param _str The string view to convert.
+ * @param _ans_ptr Pointer to store the result.
+ * @return kOK if successful, otherwise an error code.
+ */
+CORE_DLLAPI NODISCARD ReturnType StringToNumber(ZStringView _str, UInt32* _ans_ptr) noexcept;
+
+/**
+ * @brief Converts a string view to a UInt64 number.
+ * @param _str The string view to convert.
+ * @param _ans_ptr Pointer to store the result.
+ * @return kOK if successful, otherwise an error code.
+ */
+CORE_DLLAPI NODISCARD ReturnType StringToNumber(ZStringView _str, UInt64* _ans_ptr) noexcept;
+
+/**
+ * @brief Converts a string view to a Float32 number.
+ * @param _str The string view to convert.
+ * @param _ans_ptr Pointer to store the result.
+ * @return kOK if successful, otherwise an error code.
+ */
+CORE_DLLAPI NODISCARD ReturnType StringToNumber(ZStringView _str, Float32* _ans_ptr) noexcept;
+
+/**
+ * @brief Converts a string view to a Float64 number.
+ * @param _str The string view to convert.
+ * @param _ans_ptr Pointer to store the result.
+ * @return kOK if successful, otherwise an error code.
+ */
+CORE_DLLAPI NODISCARD ReturnType StringToNumber(ZStringView _str, Float64* _ans_ptr) noexcept;
+
+/**
+ * @brief Converts an Int8 number to a ZString.
+ * @param _num The number to convert.
+ * @return A ZString representation of the number.
+ */
+CORE_DLLAPI NODISCARD ZString NumberToString(Int8 _num) noexcept;
+
+/**
+ * @brief Converts an Int16 number to a ZString.
+ * @param _num The number to convert.
+ * @return A ZString representation of the number.
+ */
+CORE_DLLAPI NODISCARD ZString NumberToString(Int16 _num) noexcept;
+
+/**
+ * @brief Converts an Int32 number to a ZString.
+ * @param _num The number to convert.
+ * @return A ZString representation of the number.
+ */
+CORE_DLLAPI NODISCARD ZString NumberToString(Int32 _num) noexcept;
+
+/**
+ * @brief Converts an Int64 number to a ZString.
+ * @param _num The number to convert.
+ * @return A ZString representation of the number.
+ */
+CORE_DLLAPI NODISCARD ZString NumberToString(Int64 _num) noexcept;
+
+/**
+ * @brief Converts a UInt8 number to a ZString.
+ * @param _num The number to convert.
+ * @return A ZString representation of the number.
+ */
+CORE_DLLAPI NODISCARD ZString NumberToString(UInt8 _num) noexcept;
+
+/**
+ * @brief Converts a UInt16 number to a ZString.
+ * @param _num The number to convert.
+ * @return A ZString representation of the number.
+ */
+CORE_DLLAPI NODISCARD ZString NumberToString(UInt16 _num) noexcept;
+
+/**
+ * @brief Converts a UInt32 number to a ZString.
+ * @param _num The number to convert.
+ * @return A ZString representation of the number.
+ */
+CORE_DLLAPI NODISCARD ZString NumberToString(UInt32 _num) noexcept;
+
+/**
+ * @brief Converts a UInt64 number to a ZString.
+ * @param _num The number to convert.
+ * @return A ZString representation of the number.
+ */
+CORE_DLLAPI NODISCARD ZString NumberToString(UInt64 _num) noexcept;
+
+/**
+ * @brief Converts a Float32 number to a ZString.
+ * @param _num The number to convert.
+ * @return A ZString representation of the number.
+ */
+CORE_DLLAPI NODISCARD ZString NumberToString(Float32 _num) noexcept;
+
+/**
+ * @brief Converts a Float64 number to a ZString.
+ * @param _num The number to convert.
+ * @return A ZString representation of the number.
+ */
+CORE_DLLAPI NODISCARD ZString NumberToString(Float64 _num) noexcept;
+
+/**
+ * @brief Generates a formatted ZString.
+ * @tparam _ArgsType The types of the format arguments.
+ * @param _format The format string view.
+ * @param _args The format arguments.
+ * @return The formatted ZString.
+ */
+template<typename... _ArgsType>
+NODISCARD ZString GenerateString(ZStringView _format, _ArgsType&&... _args) noexcept {
+    return internal::GenerateStringP(_format, fmt::make_format_args(_args...), sizeof...(_args));
+}
+
+/**
+ * @brief Generates a formatted string into a buffer.
+ * @tparam _ArgsType The types of the format arguments.
+ * @param _str The destination buffer.
+ * @param _max_len The maximum length of the buffer.
+ * @param _format The format string view.
+ * @param _args The format arguments.
+ * @return The number of characters written.
+ */
+template<typename... _ArgsType>
+SizeType GenerateString(
+    Char* _str, 
+    SizeType _max_len, 
+    ZStringView _format, 
+    _ArgsType&&... _args
+) noexcept {
+    return internal::GenerateStringP(_str, _max_len, _format, fmt::make_format_args(_args...));
+}
+
+/**
+ * @brief Generates a formatted string into a buffer without a null terminator.
+ * @tparam _ArgsType The types of the format arguments.
+ * @param _str The destination buffer.
+ * @param _max_len The maximum length of the buffer.
+ * @param _format The format string view.
+ * @param _args The format arguments.
+ * @return The number of characters written.
+ */
+template<typename... _ArgsType>
+SizeType GenerateStringNoEnd(
+    Char* _str,
+    SizeType _max_len,
+    ZStringView _format,
+    _ArgsType&&... _args
+) noexcept {
+    return internal::GenerateStringNoEndP(_str, _max_len, _format, fmt::make_format_args(_args...));
+}
 
 }//string
 }//zengine

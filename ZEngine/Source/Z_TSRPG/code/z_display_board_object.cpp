@@ -60,7 +60,7 @@ NODISCARD ReturnType ZDisplayBoardObject::Initialize(ZTile* _owner_tile_ptr) noe
     link_code = SuperType_::InitializeP(_owner_tile_ptr);
     if (link_code != kOK) {
         ret_val = error_code::kZDisplayBoardObjectErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, L"ZBoardObject::Initialize() link error!");
+        Z_LOG_ERROR(ret_val, link_code, "ZBoardObject::Initialize() link error!");
         return ret_val;
     }
     return ret_val;
@@ -72,7 +72,7 @@ NODISCARD ReturnType ZDisplayBoardObject::RegisterLogicBoardObject(ZLogicBoardOb
     ReturnType link_code = kOK;
     Z_CHECK(
         _logic_object_ptr == nullptr, error_code::kZDisplayBoardObjectErrorCode_LogicTileNotExists,
-        L"_logic_object_ptr is nullptr!"
+        "_logic_object_ptr is nullptr!"
     );
     if (_logic_object_ptr->display_board_object_head_ptr_ != nullptr) {
         _logic_object_ptr->display_board_object_head_ptr_->pre_display_board_object_ptr_ = this;

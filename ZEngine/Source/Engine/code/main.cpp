@@ -16,10 +16,10 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#define PROJECT_NAME L"Include"
+#define PROJECT_NAME "Include"
 
 #include "zengine/z_engine.h"
-#include "test.h"
+//#include "test.h"
 
 using namespace zengine;
 using namespace zengine::gui;
@@ -33,14 +33,15 @@ using namespace zengine::socket;
 Int32 main() { 
     zengine::Initialize();
 
-    ZSerializer test_serializer(100);
+    //string::StringToWString("12345");
 
     //test::GuiTest();
     //test::LogOutputServerTest();
-    test::SocketTest();
+    //test::SocketTest();
+    ZString string("12314253252523451345345134513512341234124");
+    string.Resize(100);
 
-    /**/
-    log::FinishFlush();
-    return 0;
+
+    Exit(kOK);
 }
   

@@ -14,7 +14,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="code\m_log\type\z_trace_log.cpp">
+    <ClCompile Include="code\m_log\z_log\z_trace_log.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="code\drive\d_function.cpp">
@@ -44,25 +44,22 @@
     <ClCompile Include="code\z_config.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="code\m_log\type\z_error_log.cpp">
+    <ClCompile Include="code\m_log\z_log\z_error_log.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="code\z_file.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="code\m_log\type\z_info_log.cpp">
+    <ClCompile Include="code\m_log\z_log\z_info_log.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="code\z_json.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="code\m_log\z_log.cpp">
+    <ClCompile Include="code\m_log\z_log\z_log.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="code\m_log\z_log_manager.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\m_log\z_log_server.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="code\f_string.cpp">
@@ -98,9 +95,6 @@
     <ClInclude Include="code\m_log\z_log_manager.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\m_log\z_log_server.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="code\f_memory_pool\t_heap_memory_pool.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -126,6 +120,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\drive\d_pch.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\f_memory_pool\t_log_string_list_memory_pool.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

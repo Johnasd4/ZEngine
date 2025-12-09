@@ -48,7 +48,7 @@ NODISCARD ReturnType ZSceneEvent::FinishImmediately() noexcept {
         ret_val = error_code::kZSceneEventErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
-            L"ZSceneEvent::Execute() link error!");
+            "ZSceneEvent::Execute() link error!");
         return ret_val;
     }
     return ret_val;

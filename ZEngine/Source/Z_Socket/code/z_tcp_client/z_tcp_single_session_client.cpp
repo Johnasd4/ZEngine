@@ -37,7 +37,7 @@ ZTCPSingleSessionClient::ZTCPSingleSessionClient(ZIOContext* _io_context_ptr) no
     if (_io_context_ptr == nullptr) {
         Z_LOG_ERROR(
             error_code::kSocketErrorCode_NullptrParam, 0,
-            L"_io_context_ptr is nullptr!"
+            "_io_context_ptr is nullptr!"
         );
         return;
     }
@@ -47,7 +47,7 @@ ZTCPSingleSessionClient::ZTCPSingleSessionClient(ZIOContext* _io_context_ptr) no
     if (link_code != kOK) {
         Z_LOG_ERROR(
             error_code::kSocketErrorCode_LinkError, link_code,
-            L"ZTCPSocket::Initialize() link error!"
+            "ZTCPSocket::Initialize() link error!"
         );
         return;
     }
@@ -66,7 +66,7 @@ NODISCARD ReturnType ZTCPSingleSessionClient::Open(IPTypeEnum _ip_type) noexcept
         ret_val = error_code::kSocketErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
-            L"ZTCPSocket::Open() link error!"
+            "ZTCPSocket::Open() link error!"
         );
         return ret_val;
     }
@@ -83,7 +83,7 @@ NODISCARD ReturnType ZTCPSingleSessionClient::BindEndpoint(const ZTCPEndpoint& _
         ret_val = error_code::kSocketErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
-            L"ZTCPSocket::BindEndpoint() link error!"
+            "ZTCPSocket::BindEndpoint() link error!"
         );
         return ret_val;
     }
@@ -100,7 +100,7 @@ NODISCARD ReturnType ZTCPSingleSessionClient::SetOSWriteBufferSize(Int32 _size) 
         ret_val = error_code::kSocketErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
-            L"ZTCPSocket::SetOSWriteBufferSize() link error!"
+            "ZTCPSocket::SetOSWriteBufferSize() link error!"
         );
         return ret_val;
     }
@@ -117,7 +117,7 @@ NODISCARD ReturnType ZTCPSingleSessionClient::SetOSReadBufferSize(Int32 _size) n
         ret_val = error_code::kSocketErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
-            L"ZTCPSocket::SetOSReadBufferSize() link error!"
+            "ZTCPSocket::SetOSReadBufferSize() link error!"
         );
         return ret_val;
     }
@@ -134,7 +134,7 @@ NODISCARD ReturnType ZTCPSingleSessionClient::SetIfReuseAddress(Bool _if_reuse) 
         ret_val = error_code::kSocketErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
-            L"ZTCPSocket::SetIfReuseAddress() link error!"
+            "ZTCPSocket::SetIfReuseAddress() link error!"
         );
         return ret_val;
     }
@@ -161,14 +161,14 @@ NODISCARD ReturnType ZTCPSingleSessionClient::Connect(
     link_code = socket_.Connect(_tcp_endpoint, _repeat_times);
     if (link_code != kOK) {
         if (link_code == error_code::kSocketErrorCode_ConnectFailed) {
-            Z_DEBUG_LOG_FAILURE(L"Server connect failed!");
+            Z_DEBUG_LOG_FAILURE("Server connect failed!");
             return link_code;
         }
         else {
             ret_val = error_code::kSocketErrorCode_LinkError;
             Z_LOG_ERROR(
                 ret_val, link_code,
-                L"ZTCPSocket::Connect() link error!"
+                "ZTCPSocket::Connect() link error!"
             );
             return ret_val;
         }
@@ -178,8 +178,8 @@ NODISCARD ReturnType ZTCPSingleSessionClient::Connect(
         [this](ReturnType _error_code) {
             //disconnect
             Z_DEBUG_LOG_FINISH(
-                L"Server disconnected! server_ip: %ls server_port: %d",
-                string::String2WString(socket_.RemoteEndpoint().IPString().String()).String(),
+                "Server disconnected! server_ip: %ls server_port: %d",
+                string::StringToWString(socket_.RemoteEndpoint().IPString().DataPtr()).DataPtr(),
                 socket_.RemoteEndpoint().Port()
             );
         }
@@ -202,7 +202,7 @@ NODISCARD ReturnType ZTCPSingleSessionClient::Read(
     link_code = socket_.Read(_buffer, _data_size_ptr);
     if (link_code != kOK) {
         if (link_code == error_code::kSocketErrorCode_Disconnected) {
-            Z_DEBUG_LOG_FINISH(L"Server disconnected!");
+            Z_DEBUG_LOG_FINISH("Server disconnected!");
             ret_val = error_code::kSocketErrorCode_Disconnected;
             return ret_val;
         }
@@ -210,7 +210,7 @@ NODISCARD ReturnType ZTCPSingleSessionClient::Read(
             ret_val = error_code::kSocketErrorCode_LinkError;
             Z_LOG_ERROR(
                 ret_val, link_code,
-                L"ZTCPSocket::Read() link error!"
+                "ZTCPSocket::Read() link error!"
             );
             return ret_val;
         }
@@ -231,7 +231,7 @@ NODISCARD ReturnType ZTCPSingleSessionClient::AsyncRead(
         ret_val = error_code::kSocketErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
-            L"ZTCPSocket::AsyncRead() link error!"
+            "ZTCPSocket::AsyncRead() link error!"
         );
         return ret_val;
     }
@@ -250,7 +250,7 @@ NODISCARD ReturnType ZTCPSingleSessionClient::ReadUntil(
     link_code = socket_.ReadUntil(_buffer_ptr, _match_char, _data_size_ptr);
     if (link_code != kOK) {
         if (link_code == error_code::kSocketErrorCode_Disconnected) {
-            Z_DEBUG_LOG_FINISH(L"Server disconnected!");
+            Z_DEBUG_LOG_FINISH("Server disconnected!");
             ret_val = error_code::kSocketErrorCode_Disconnected;
             return ret_val;
         }
@@ -261,7 +261,7 @@ NODISCARD ReturnType ZTCPSingleSessionClient::ReadUntil(
             ret_val = error_code::kSocketErrorCode_LinkError;
             Z_LOG_ERROR(
                 ret_val, link_code,
-                L"ZTCPSocket::ReadUntil() link error!"
+                "ZTCPSocket::ReadUntil() link error!"
             );
             return ret_val;
         }
@@ -281,7 +281,7 @@ NODISCARD ReturnType ZTCPSingleSessionClient::ReadUntil(
     link_code = socket_.ReadUntil(_buffer_ptr, _match_str, _data_size_ptr);
     if (link_code != kOK) {
         if (link_code == error_code::kSocketErrorCode_Disconnected) {
-            Z_DEBUG_LOG_FINISH(L"Server disconnected!");
+            Z_DEBUG_LOG_FINISH("Server disconnected!");
             return link_code;
         }
         else if (link_code == error_code::kSocketErrorCode_ReadUntilSymbolNotFound) {
@@ -291,7 +291,7 @@ NODISCARD ReturnType ZTCPSingleSessionClient::ReadUntil(
             ret_val = error_code::kSocketErrorCode_LinkError;
             Z_LOG_ERROR(
                 ret_val, link_code,
-                L"ZTCPSocket::ReadUntil() link error!"
+                "ZTCPSocket::ReadUntil() link error!"
             );
             return ret_val;
         }
@@ -313,7 +313,7 @@ NODISCARD ReturnType ZTCPSingleSessionClient::AsyncReadUntil(
         ret_val = error_code::kSocketErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
-            L"ZTCPSocket::AsyncReadUntil() link error!"
+            "ZTCPSocket::AsyncReadUntil() link error!"
         );
         return ret_val;
     }
@@ -334,7 +334,7 @@ NODISCARD ReturnType ZTCPSingleSessionClient::AsyncReadUntil(
         ret_val = error_code::kSocketErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
-            L"ZTCPSocket::AsyncReadUntil() link error!"
+            "ZTCPSocket::AsyncReadUntil() link error!"
         );
         return ret_val;
     }
@@ -354,7 +354,7 @@ NODISCARD ReturnType ZTCPSingleSessionClient::ReadUntilClose(
         ret_val = error_code::kSocketErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
-            L"ZTCPSocket::ReadUntilClose() link error!"
+            "ZTCPSocket::ReadUntilClose() link error!"
         );
         return ret_val;
     }
@@ -371,7 +371,7 @@ NODISCARD ReturnType ZTCPSingleSessionClient::Write(
     link_code = socket_.Write(_buffer);
     if (link_code != kOK) {
         if (link_code == error_code::kSocketErrorCode_Disconnected) {
-            Z_DEBUG_LOG_FINISH(L"Server disconnected!");
+            Z_DEBUG_LOG_FINISH("Server disconnected!");
             ret_val = error_code::kSocketErrorCode_Disconnected;
             return ret_val;
         }
@@ -379,7 +379,7 @@ NODISCARD ReturnType ZTCPSingleSessionClient::Write(
             ret_val = error_code::kSocketErrorCode_LinkError;
             Z_LOG_ERROR(
                 ret_val, link_code,
-                L"ZTCPSocket::Write() link error!"
+                "ZTCPSocket::Write() link error!"
             );
             return ret_val;
         }
@@ -400,7 +400,7 @@ NODISCARD ReturnType ZTCPSingleSessionClient::AsyncWrite(
         ret_val = error_code::kSocketErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
-            L"ZTCPSocket::AsyncWrite() link error!"
+            "ZTCPSocket::AsyncWrite() link error!"
         );
         return ret_val;
     }

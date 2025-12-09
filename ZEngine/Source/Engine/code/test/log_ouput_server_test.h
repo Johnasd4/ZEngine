@@ -38,14 +38,14 @@ Int32 LogOutputServerTest() {
 
     SizeType count = 0;
     while (true) {
-        Z_LOG_ERROR(0, 0, L"Error... %d", count);
-        Z_LOG_TRACE(L"Trace... %d", count);
-        Z_LOG_MESSAGE(L"Message... %d", count);
-        Z_LOG_START(L"Start... %d", count);
-        Z_LOG_PROCESS(L"Process %d", count);
-        Z_LOG_FINISH(L"Finish... %d", count);
-        Z_LOG_FAILURE(L"Failure... %d", count);
-        Z_LOG_SUCCESS(L"Success... %d", count);
+        Z_LOG_ERROR(0, 0, "Error... {}", count);
+        Z_LOG_TRACE("Trace... {}", count);
+        Z_LOG_MESSAGE("Message... {}", count);
+        Z_LOG_START("Start... {}", count);
+        Z_LOG_PROCESS("Process {}", count);
+        Z_LOG_FINISH("Finish... {}", count);
+        Z_LOG_FAILURE("Failure... {}", count);
+        Z_LOG_SUCCESS("Success... {}", count);
         ++count;
         SleepMs(1000);
     }

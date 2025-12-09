@@ -121,7 +121,7 @@ Void ZInputText::Tick(Float32 _delta_sec) noexcept {
     if (if_multiline_) {
         GuiSize size = Size();
         ImGui::InputTextMultiline(
-            Name().String(),
+            Name().DataPtr(),
             input_text_.DataPtr<Char>(),
             input_text_.Size(), 
             ImVec2(size.width_, size.height_),
@@ -141,7 +141,7 @@ Void ZInputText::Tick(Float32 _delta_sec) noexcept {
             flag = kInputTextFlag_ReadOnly;
         }
         ImGui::InputText(
-            Name().String(), input_text_.DataPtr<Char>(), input_text_.Size(), flag,
+            Name().DataPtr(), input_text_.DataPtr<Char>(), input_text_.Size(), flag,
             [](ImGuiInputTextCallbackData* _data) {
                 (dynamic_cast<ZInputText*>(ZGuiObject::CallbackGuiObjectPtr()))->InputTextChangedCallbackP();
                 return 0;

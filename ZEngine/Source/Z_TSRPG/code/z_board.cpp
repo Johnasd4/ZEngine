@@ -56,7 +56,7 @@ NODISCARD ReturnType ZBoard::GetSurroundTile(
     ReturnType ret_val = kOK;
     Z_CHECK(
         _tile_list_ptr == nullptr, error_code::kZBoardErrorCode_NullptrParam,
-        L"_tile_list_ptr is nullptr!"
+        "_tile_list_ptr is nullptr!"
     );
     if (IsType(kBoardType_HexBoard)) {
         _tile_list_ptr->Clear();
@@ -84,7 +84,7 @@ NODISCARD ReturnType ZBoard::GetSurroundTile(
     //}
     else {
         ret_val = error_code::kZBoardErrorCode_BoardTypeNotExist;
-        Z_LOG_ERROR(ret_val, 0, L"Board type not exist! Type: %d", Type());
+        Z_LOG_ERROR(ret_val, 0, "Board type not exist! Type: %d", Type());
         return ret_val;
     }
     return ret_val;

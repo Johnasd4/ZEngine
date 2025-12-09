@@ -81,7 +81,7 @@ NODISCARD ReturnType ZThreadPool::AddThreadNum(Int32 _thread_num) noexcept {
     ReturnType ret_val = kOK;
     if (_thread_num < 0) {
         ret_val = error_code::kZThreadPoolErrorCode_AddNegitiveNumThread;
-        Z_LOG_ERROR(ret_val, 0, L"Add thread < 0! thread_num_: %d", _thread_num);
+        Z_LOG_ERROR(ret_val, 0, "Add thread < 0! thread_num_: %d", _thread_num);
         return ret_val;
     }
     max_thread_num_ += _thread_num;
@@ -104,14 +104,14 @@ NODISCARD ReturnType ZThreadPool::AddTask(ZTask&& _task) noexcept {
     TUniqueLock<ZMutex> lock(pool_mutex_);
     if (finished_) {
         ret_val = error_code::kZThreadPoolErrorCode_PoolFinished;
-        Z_LOG_ERROR(ret_val, 0, L"Thread pool finished, can't add task!");
+        Z_LOG_ERROR(ret_val, 0, "Thread pool finished, can't add task!");
         return ret_val;
     }
     //when idle.
     if (max_thread_num_ == free_thread_num_) {
         pool_idle_mutex_.TryLock();
     }
-    task_queue_.Push(std::forward<ZTask>(_task));
+    task_queue_.PushBack(std::forward<ZTask>(_task));
     cv_.NotifyOne();
     return ret_val;
 }
@@ -144,11 +144,11 @@ Void ZThreadPool::SubThread(ZThreadPool& _thread_pool) noexcept {
                 continue;
             }
             task = std::move(_thread_pool.task_queue_.Front());
-            _thread_pool.task_queue_.Pop();
+            _thread_pool.task_queue_.PopFront();
         }
         link_code = task.Run();
         if (link_code != kOK) {
-            Z_LOG_ERROR(error_code::kZThreadPoolErrorCode_LinkError, link_code, L"ZTask::Run() link error!");
+            Z_LOG_ERROR(error_code::kZThreadPoolErrorCode_LinkError, link_code, "ZTask::Run() link error!");
         }
         task.Clear();
     }

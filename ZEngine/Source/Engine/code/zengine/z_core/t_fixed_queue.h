@@ -95,6 +95,7 @@ public:
     NODISCARD FORCEINLINE static constexpr SizeType Capacity() noexcept { return kCapacity; }
     NODISCARD FORCEINLINE constexpr SizeType Size() noexcept { return size_; }
     NODISCARD FORCEINLINE constexpr Bool Empty() noexcept { return size_ == 0ULL; }
+    NODISCARD FORCEINLINE constexpr Bool Full() noexcept { return size_ == kCapacity; }
 
     constexpr Void PopFront() noexcept { 
         if (size_ > 0ULL) {
@@ -267,6 +268,10 @@ public:
     NODISCARD FORCEINLINE constexpr Bool Empty() noexcept { 
         TLockGuard lock_guard(mutex_); 
         return size_ == 0;
+    }
+    NODISCARD FORCEINLINE constexpr Bool Full() noexcept {
+        TLockGuard lock_guard(mutex_);
+        return size_ == kCapacity;
     }
 
     constexpr Void PopFront() noexcept { 

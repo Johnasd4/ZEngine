@@ -20,7 +20,7 @@
 
 #include "drive.h"
 
-#include "internal/rapidjson.h"
+#include "library/l_rapidjson.h"
 
 #include "t_smart_pointer.h"
 #include "z_string.h"
@@ -272,11 +272,11 @@ public:
     /*
         Read a json file.
     */
-    NODISCARD ReturnType ReadFile(const WChar* _path_dir) noexcept;
+    NODISCARD ReturnType ReadFile(const Char* _path_dir) noexcept;
     /*
         Write a json file.
     */
-    NODISCARD ReturnType WriteFile(const WChar* _path_dir) noexcept;
+    NODISCARD ReturnType WriteFile(const Char* _path_dir) noexcept;
 
 protected:
     using SuperType_ = ZObject;

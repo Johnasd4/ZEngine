@@ -64,7 +64,7 @@ NODISCARD ReturnType ZDeserializer::Read(Void* _data_ptr, SizeType _size) noexce
     Z_CHECK(
         _data_ptr != nullptr,
         error_code::kZSerializerErrorCode_NullptrParam,
-        L"_data_ptr is nullptr!"
+        "_data_ptr is nullptr!"
     );
 
     link_code = ApplyDataSizeCheck(_size);
@@ -72,7 +72,7 @@ NODISCARD ReturnType ZDeserializer::Read(Void* _data_ptr, SizeType _size) noexce
         ret_val = error_code::kZSerializerErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
-            L"ZDeserializer::MoveDataPointerP() link error!"
+            "ZDeserializer::MoveDataPointerP() link error!"
         );
         return ret_val;
     }
@@ -89,7 +89,7 @@ NODISCARD ReturnType ZDeserializer::ApplyDataSizeCheck(SizeType _offset) noexcep
         ret_val = error_code::kZSerializerErrorCode_DeserializerOutOfData;
         Z_LOG_ERROR(
             ret_val, 0,
-            L"size_left_(%llu) is smaller than _offset(%llu)!",
+            "size_left_(%llu) is smaller than _offset(%llu)!",
             size_left_, _offset
         );
         return ret_val;

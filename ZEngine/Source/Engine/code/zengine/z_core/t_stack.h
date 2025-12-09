@@ -82,10 +82,10 @@ public:
     NODISCARD FORCEINLINE SizeType Capacity() const noexcept { return stack_.Capacity(); }
     NODISCARD FORCEINLINE Bool Empty() const noexcept { return stack_.Empty(); }
 
-    FORCEINLINE Void Pop() noexcept { stack_.PopBack(); }
+    FORCEINLINE Void PopFront() noexcept { stack_.PopBack(); }
 
-    FORCEINLINE Void Push(const _ObjectType& _val) noexcept { stack_.PushBack(_val); }
-    FORCEINLINE Void Push(_ObjectType&& _val) noexcept { stack_.PushBack(std::forward<_ObjectType>(_val)); }
+    FORCEINLINE Void PushBack(const _ObjectType& _val) noexcept { stack_.PushBack(_val); }
+    FORCEINLINE Void PushBack(_ObjectType&& _val) noexcept { stack_.PushBack(std::forward<_ObjectType>(_val)); }
 
     FORCEINLINE Void Clear() noexcept { stack_.Clear(); }
 

@@ -1,239 +1,118 @@
 /*
-    Copyright (c) YuLin Zhu
+Copyright (c) YuLin Zhu
+code
+Code
+** ZEngine Proprietary License **
 
-    This code file is licensed under the Creative Commons
-    Attribution-NonCommercial 4.0 International License.
+This software is provided "as-is", without any express or implied warranty.
+In no event will the authors be held liable for any damages arising from the
+use of this software.
 
-    You may obtain a copy of the License at
-    https://creativecommons.org/licenses/by-nc/4.0/
+Usage Rights:
+1. Non-Commercial Use: You may use, modify, and distribute this software
+   for non-commercial purposes (e.g., education, personal projects, open-source
+   projects that do not generate revenue) free of charge.
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+2. Commercial Use: Commercial use of this software is STRICTLY PROHIBITED
+   without a valid commercial license agreement with the author.
+   "Commercial use" includes, but is not limited to:
+   - Incorporating this software into a product that is sold.
+   - Using this software in a paid service.
+   - Using this software for internal business operations in a for-profit entity.
 
-    Author: YuLin Zhu
-    Contact: 1152325286@qq.com
+To obtain a Commercial License, please contact the author.
+
+Author: YuLin Zhu
+Contact: 1152325286@qq.com
 */
 #pragma once
 
 #include "drive.h"
 
+#include "library/l_fmt.h"
+
+#include "z_string.h"
+#include "z_string_view.h"
+
 namespace zengine {
 namespace error_code {
+
+/** @brief Enumerates error codes for the console module, inheriting from ReturnType. */
 enum FConsoleErrorCodeEnum : ReturnType {
+    /** @brief Error code indicating a linking error within the console module. */
     kFConsoleErrorCode_LinkError = kErrorCodeBase_FConsole,
+    /** @brief Error code indicating a system-level error occurred. */
     kFConsoleErrorCode_SystemError,
+    /** @brief Error code indicating a null pointer was passed as a parameter. */
     kFConsoleErrorCode_NullptrParam,
-    kFConsoleErrorCode_ParamOutOfRange
+    /** @brief Error code indicating a parameter is out of the valid range. */
+    kFConsoleErrorCode_ParamOutOfRange,
+    /** @brief Error code indicating a format error occurred during string generation. */
+    kFConsoleErrorCode_FormatError
 };
+
 }//error_code
 }//zengine
 
 namespace zengine {
 namespace console {
+namespace internal {
 
-using PrintColourType = UInt16;
+/**
+ * @brief Internal function to print formatted string output using format arguments.
+ * @param _format The format string view.
+ * @param _args The format arguments.
+ * @param _arg_num The number of arguments.
+ */
+CORE_DLLAPI Void PrintP(ZStringView _format, fmt::format_args _args, SizeType _arg_num) noexcept;
 
-enum class PrintTextColourEnum : PrintColourType {
-    kDarkBlack = 0x00U,
-    kDarkBlue = 0x01U,
-    kDarkGreen = 0x02U,
-    kDarkCyan = 0x03U,
-    kDarkRed = 0x04U,
-    kDarkPurple = 0x05U,
-    kDarkYellow = 0x06U,
-    kDarkWhite = 0x07U,
-    kLightBlack = 0x08U,
-    kLightBlue = 0x09U,
-    kLightGreen = 0x0AU,
-    kLightCyan = 0x0BU,
-    kLightRed = 0x0CU,
-    kLightPurple = 0x0DU,
-    kLightYellow = 0x0EU,
-    kLightWhite = 0x0FU
-};
+/**
+ * @brief Internal function to print formatted wide string output using wide format arguments.
+ * @param _format The wide format string view.
+ * @param _args The wide format arguments.
+ * @param _arg_num The number of arguments.
+ */
+CORE_DLLAPI Void PrintP(ZWStringView _format, fmt::wformat_args _args, SizeType _arg_num) noexcept;
 
-enum class PrintBackgroundColourEnum : PrintColourType {
-    kDarkBlack = 0x00U,
-    kDarkBlue = 0x10U,
-    kDarkGreen = 0x20U,
-    kDarkCyan = 0x30U,
-    kDarkRed = 0x40U,
-    kDarkPurple = 0x50U,
-    kDarkYellow = 0x60U,
-    kDarkWhite = 0x70U,
-    kLightBlack = 0x80U,
-    kLightBlue = 0x90U,
-    kLightGreen = 0xA0U,
-    kLightCyan = 0xB0U,
-    kLightRed = 0xC0U,
-    kLightPurple = 0xD0U,
-    kLightYellow = 0xE0U,
-    kLightWhite = 0xF0U
-};
+}//internal
+}//console
+}//zengine
 
-/*
-    Sets the current print colour.
-*/
-CORE_DLLAPI Void SetPrintColour(
-    PrintTextColourEnum _text_colour, 
-    PrintBackgroundColourEnum _background_colour
-) noexcept;
+namespace zengine {
+namespace console {
 
-/*
-    Use it as the same as printf, it's thread safe. You can add text colour and 
-    background colour infront of the format to change the colour only for this
-    output.
-*/
-CORE_DLLAPI Void Print(const Char* _format, ...) noexcept;
+/**
+ * @brief Prints a ZStringView to the console.
+ * @param _str_view The string view content to be printed.
+ */
+CORE_DLLAPI Void Print(ZStringView _str_view) noexcept;
 
-/*
-    Use it as the same as printf, it's thread safe. You can add text colour and
-    background colour infront of the format to change the colour only for this
-    output.
-*/
-CORE_DLLAPI Void Print(const Char* _format, ArgListType _args) noexcept;
+/**
+ * @brief Prints a ZWStringView (wide string view) to the console.
+ * @param _str_view The wide string view content to be printed.
+ */
+CORE_DLLAPI Void Print(ZWStringView _str_view) noexcept;
 
-/*
-    Use it as the same as printf, it's thread safe. You can add text colour and
-    background colour infront of the _format to change the colour only for this
-    output.
-*/
-CORE_DLLAPI Void Print(const WChar* _format, ...) noexcept;
-
-/*
-    Use it as the same as printf, it's thread safe. You can add text colour and
-    background colour infront of the format to change the colour only for this
-    output.
-*/
-CORE_DLLAPI Void Print(const WChar* _format, ArgListType _args) noexcept;
-
-/*
-    Use it as the same as printf, it's thread safe. You can add text colour and
-    background colour infront of the format to change the colour only for this
-    output.
-*/
-CORE_DLLAPI Void Print(
-    PrintTextColourEnum _text_colour, 
-    PrintBackgroundColourEnum _background_colour, 
-    const Char* _format, ...
-) noexcept;
-
-/*
-    Use it as the same as printf, it's thread safe. You can add text colour and
-    background colour infront of the format to change the colour only for this
-    output.
-*/
-CORE_DLLAPI Void Print(
-    PrintTextColourEnum _text_colour, 
-    PrintBackgroundColourEnum _background_colour, 
-    const Char* _format, 
-    ArgListType _args
-) noexcept;
-
-/*
-    Use it as the same as printf, it's thread safe. You can add text colour and
-    background colour infront of the format to change the colour only for this
-    output.
-*/
-CORE_DLLAPI Void Print(
-    PrintTextColourEnum _text_colour, 
-    PrintBackgroundColourEnum _background_colour,
-    const WChar* _format, ...
-) noexcept;
-
-/*
-    Use it as the same as printf, it's thread safe. You can add text colour and
-    background colour infront of the format to change the colour only for this
-    output.
-*/
-CORE_DLLAPI Void Print(
-    PrintTextColourEnum _text_colour, 
-    PrintBackgroundColourEnum _background_colour,
-    const WChar* _format, 
-    ArgListType _args
-) noexcept;
-
-template<typename _CharType, typename... _ArgsType>
-FORCEINLINE Void PrintTrace(const _CharType* _format, _ArgsType&&... _args) noexcept {
-    Print(
-        PrintTextColourEnum::kLightWhite, 
-        PrintBackgroundColourEnum::kDarkBlack, 
-        _format, 
-        std::forward<_ArgsType>(_args)...
-    );
+/**
+ * @brief Prints formatted output to the console using a format string and arguments.
+ * @tparam _ArgsType The types of the arguments to be formatted.
+ * @param _format The format string view.
+ * @param _args The variable arguments to be formatted and printed.
+ */
+template<typename... _ArgsType>
+Void Print(ZStringView _format, _ArgsType&&... _args) noexcept {
+    internal::PrintP(_format, fmt::make_format_args(_args...), sizeof...(_args));
 }
 
-template<typename _CharType, typename... _ArgsType>
-FORCEINLINE Void PrintMessage(const _CharType* _format, _ArgsType&&... _args) noexcept {
-    Print(
-        PrintTextColourEnum::kDarkWhite, 
-        PrintBackgroundColourEnum::kDarkBlack, 
-        _format, 
-        std::forward<_ArgsType>(_args)...
-    );
-}
-
-template<typename _CharType, typename... _ArgsType>
-FORCEINLINE Void PrintStart(const _CharType* _format, _ArgsType&&... _args) noexcept {
-    Print(
-        PrintTextColourEnum::kLightYellow, 
-        PrintBackgroundColourEnum::kDarkBlack, 
-        _format, 
-        std::forward<_ArgsType>(_args)...
-    );
-}
-
-template<typename _CharType, typename... _ArgsType>
-FORCEINLINE Void PrintProcess(const _CharType* _format, _ArgsType&&... _args) noexcept {
-    Print(
-        PrintTextColourEnum::kDarkYellow, 
-        PrintBackgroundColourEnum::kDarkBlack,
-        _format, 
-        std::forward<_ArgsType>(_args)...
-    );
-}
-
-template<typename _CharType, typename... _ArgsType>
-FORCEINLINE Void PrintFinish(const _CharType* _format, _ArgsType&&... _args) noexcept {
-    Print(
-        PrintTextColourEnum::kLightGreen,
-        PrintBackgroundColourEnum::kDarkBlack,
-        _format, 
-        std::forward<_ArgsType>(_args)...
-    );
-}
-
-template<typename _CharType, typename... _ArgsType>
-FORCEINLINE Void PrintSuccess(const _CharType* _format, _ArgsType&&... _args) noexcept {
-    Print(
-        PrintTextColourEnum::kDarkGreen, 
-        PrintBackgroundColourEnum::kDarkBlack, 
-        _format, 
-        std::forward<_ArgsType>(_args)...
-    );
-}
-
-template<typename _CharType, typename... _ArgsType>
-FORCEINLINE Void PrintFailure(const _CharType* _format, _ArgsType&&... _args) noexcept {
-    Print(
-        PrintTextColourEnum::kDarkRed, 
-        PrintBackgroundColourEnum::kDarkBlack, 
-        _format, 
-        std::forward<_ArgsType>(_args)...
-    );
-}
-
-template<typename _CharType, typename... _ArgsType>
-FORCEINLINE Void PrintError(const _CharType* _format, _ArgsType&&... _args) noexcept {
-    Print(
-        PrintTextColourEnum::kDarkPurple, 
-        PrintBackgroundColourEnum::kDarkBlack, 
-        _format,
-        std::forward<_ArgsType>(_args)...
-    );
+/**
+ * @brief Prints formatted output to the console using a wide format string and arguments.
+ * @tparam _ArgsType The types of the arguments to be formatted.
+ * @param _format The wide format string view.
+ * @param _args The variable arguments to be formatted and printed.
+ */
+template<typename... _ArgsType>
+Void Print(ZWStringView _format, _ArgsType&&... _args) noexcept {
+    internal::PrintP(_format, fmt::make_wformat_args(_args...), sizeof...(_args));
 }
 
 }//console

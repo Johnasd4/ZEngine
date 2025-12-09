@@ -42,8 +42,8 @@ NODISCARD ReturnType ZURLResolver::Resolve(ZStringView _url_str) noexcept {
         ret_val = error_code::kURLErrorCode_URLResolveFailed;
         Z_LOG_ERROR(
             ret_val, 0,
-            L"URL resolved failed! _url_str: %ls",
-            string::String2WString(url_str.String()).String()
+            "URL resolved failed! _url_str: %ls",
+            string::StringToWString(url_str.DataPtr()).DataPtr()
         );
         return ret_val;
     }

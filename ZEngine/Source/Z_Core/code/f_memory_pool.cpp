@@ -23,6 +23,7 @@
 
 #include "m_log.h"
 
+#include "f_memory_pool/t_log_string_list_memory_pool.h"
 #include "f_memory_pool/t_small_memory_list_memory_pool.h"
 #include "f_memory_pool/t_smart_pointer_list_memory_pool.h"
 #include "f_memory_pool/t_system_memory_pool.h"
@@ -38,6 +39,7 @@ using SmallMemoryBlock = TSmallMemoryBlock<MEMORY_POOL_THREAD_SAFE>;
 using SystemMemoryBlock = TSystemMemoryBlock<MEMORY_POOL_THREAD_SAFE>;
 using SmallMemoryListMemoryPool = TSmallMemoryListMemoryPool<MEMORY_POOL_THREAD_SAFE>;
 using SmartPointerListMemoryPool = TSmartPointerListMemoryPool<MEMORY_POOL_THREAD_SAFE>;
+using LogStringListMemoryPool = TLogStringListMemoryPool<MEMORY_POOL_THREAD_SAFE>;
 using SystemMemoryPool = TSystemMemoryPool<MEMORY_POOL_THREAD_SAFE>;
 
 }
@@ -211,6 +213,14 @@ CORE_DLLAPI NODISCARD Void* ApplySmartPointerMemory() noexcept {
 
 CORE_DLLAPI Void ReleaseSmartPointerMemory(Void* _memory_ptr) noexcept {
     internal::SmartPointerListMemoryPool::ReleaseMemory(_memory_ptr);
+}
+
+CORE_DLLAPI NODISCARD Void* ApplyLogStringMemory() noexcept {
+    return internal::LogStringListMemoryPool::ApplyMemory();
+}
+
+CORE_DLLAPI Void ReleaseLogStringMemory(Void* _memory_ptr) noexcept {
+    internal::LogStringListMemoryPool::ReleaseMemory(_memory_ptr);
 }
 
 #ifdef USE_MEMORY_POOL_TEST

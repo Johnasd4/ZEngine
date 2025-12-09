@@ -160,7 +160,7 @@ NODISCARD FORCEINLINE ReturnType GetLuaObject(const Char* _obj_name, _ObjectType
     }
     else {
         ret_val = error_code::kFLuaErrorCode_LuaObjectTypeWrongOrNotExist;
-        Z_LOG_ERROR(ret_val, 0, L"Lua object type wrong or not exist!");
+        Z_LOG_ERROR(ret_val, 0, "Lua object type wrong or not exist!");
     }
     return ret_val;
 }
@@ -230,7 +230,7 @@ NODISCARD FORCEINLINE ReturnType GetLuaObjectFormLuaTable(
     }
     else {
         ret_val = error_code::kFLuaErrorCode_LuaObjectTypeWrongOrNotExist;
-        Z_LOG_ERROR(ret_val, 0, L"Lua object type wrong or not exist!");
+        Z_LOG_ERROR(ret_val, 0, "Lua object type wrong or not exist!");
     }
     return ret_val;
 }
@@ -251,7 +251,7 @@ NODISCARD FORCEINLINE ReturnType GetLuaObjectFormLuaTable(
     }
     else {
         ret_val = error_code::kFLuaErrorCode_LuaObjectTypeWrongOrNotExist;
-        Z_LOG_ERROR(ret_val, 0, L"Lua object type wrong or not exist!");
+        Z_LOG_ERROR(ret_val, 0, "Lua object type wrong or not exist!");
     }
     return ret_val;
 }
@@ -270,7 +270,7 @@ NODISCARD FORCEINLINE ReturnType CallLuaFunction(
     }
     catch (const sol::error& e) {
         ret_val = error_code::kFLuaErrorCode_LuaCrash;
-        Z_LOG_ERROR(ret_val, 0, L"Lua functon crashs! Error info: %ls", string::String2WString(e.what()).String());
+        Z_LOG_ERROR(ret_val, 0, "Lua functon crashs! Error info: %ls", string::StringToWString(e.what()).DataPtr());
     }
     return ret_val;
 }
@@ -290,7 +290,7 @@ NODISCARD FORCEINLINE ReturnType CallLuaFunction(
     }
     catch (const sol::error& e) {
         ret_val = error_code::kFLuaErrorCode_LuaCrash;
-        Z_LOG_ERROR(ret_val, 0, L"Lua functon crashs! Error info: %ls", string::String2WString(e.what()).String());
+        Z_LOG_ERROR(ret_val, 0, "Lua functon crashs! Error info: %ls", string::StringToWString(e.what()).DataPtr());
     }
     return ret_val;
 }
@@ -308,7 +308,7 @@ NODISCARD FORCEINLINE ReturnType CallLuaSafeFunction(
     if (!result.valid()) {
         ret_val = error_code::kFLuaErrorCode_LuaCrash;
         sol::error e = result;
-        Z_LOG_ERROR(ret_val, 0, L"Lua crashs! Error info: %ls", string::String2WString(e.what()).String());
+        Z_LOG_ERROR(ret_val, 0, "Lua crashs! Error info: %ls", string::StringToWString(e.what()).DataPtr());
     }
     return ret_val;
 }
@@ -327,7 +327,7 @@ NODISCARD FORCEINLINE ReturnType CallLuaSafeFunction(
     if (!_result_ptr->valid()) {
         ret_val = error_code::kFLuaErrorCode_LuaCrash;
         sol::error e = *_result_ptr;
-        Z_LOG_ERROR(ret_val, 0, L"Lua crashs! Error info: %ls", string::String2WString(e.what()).String());
+        Z_LOG_ERROR(ret_val, 0, "Lua crashs! Error info: %ls", string::StringToWString(e.what()).DataPtr());
     }
     return ret_val;
 }

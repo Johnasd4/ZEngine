@@ -44,7 +44,7 @@ NODISCARD ReturnType ZLogicHexBoard::Initialize(const LogicVector2D& _board_size
     link_code = SuperType_::Initialize(_board_size);
     if (link_code != kOK) {
         ret_val = error_code::kZLogicHexBoardErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, L"ZLogicBoard::Initialize() link error!");
+        Z_LOG_ERROR(ret_val, link_code, "ZLogicBoard::Initialize() link error!");
         return ret_val;
     }
     return ret_val;

@@ -23,7 +23,7 @@
 //Define if at the start of the z_math cpp file.
 #ifdef MATH_DLLFILE
 #define MATH_DLLAPI DLLEXPORT
-#define PROJECT_NAME L"ZMath"
+#define PROJECT_NAME "ZMath"
 #else
 #define MATH_DLLAPI DLLIMPORT
 #ifdef _WIN64

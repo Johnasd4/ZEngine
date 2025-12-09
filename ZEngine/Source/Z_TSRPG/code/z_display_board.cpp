@@ -48,7 +48,7 @@ NODISCARD ReturnType ZDisplayBoard::SetTileSize(const TileSizeType& _size) noexc
             link_code = OnTileSizeChanged(old_tile_size, _size);
             if (link_code != kOK) {
                 ret_val = error_code::kZDisplayBoardErrorCode_LinkError;
-                Z_LOG_ERROR(ret_val, link_code, L"ZDisplayBoard::OnTileSizeChanged() link error!");
+                Z_LOG_ERROR(ret_val, link_code, "ZDisplayBoard::OnTileSizeChanged() link error!");
                 return ret_val;
             }          
         }
@@ -66,7 +66,7 @@ NODISCARD ReturnType ZDisplayBoard::SetPosOffset(const DisplayVector3D& _offset)
             link_code = OnPosOffsetChanged(old_pos_offset, _offset);
             if (link_code != kOK) {
                 ret_val = error_code::kZDisplayBoardErrorCode_LinkError;
-                Z_LOG_ERROR(ret_val, link_code, L"ZDisplayBoard::OnPosOffsetChanged() link error!");
+                Z_LOG_ERROR(ret_val, link_code, "ZDisplayBoard::OnPosOffsetChanged() link error!");
                 return ret_val;
             }
         }
@@ -85,7 +85,7 @@ NODISCARD ReturnType ZDisplayBoard::SetPosOffset(const LogicVector3D& _offset) n
             link_code = OnPosOffsetChanged(old_pos_offset, offset);
             if (link_code != kOK) {
                 ret_val = error_code::kZDisplayBoardErrorCode_LinkError;
-                Z_LOG_ERROR(ret_val, link_code, L"ZDisplayBoard::OnPosOffsetChanged() link error!");
+                Z_LOG_ERROR(ret_val, link_code, "ZDisplayBoard::OnPosOffsetChanged() link error!");
                 return ret_val;
             }
         }
@@ -113,12 +113,12 @@ NODISCARD ReturnType ZDisplayBoard::Initialize(
     ReturnType link_code = kOK;
     Z_CHECK(
         _logic_board_viewport_ptr == nullptr, error_code::kZDisplayBoardErrorCode_NullptrParam,
-        L"_logic_board_viewport_ptr is nullptr!"
+        "_logic_board_viewport_ptr is nullptr!"
     );
     link_code = SuperType_::InitializeP(_logic_board_viewport_ptr->view_size_);
     if (link_code != kOK) {
         ret_val = error_code::kZDisplayBoardErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, L"ZBoard::Initialize() link error!");
+        Z_LOG_ERROR(ret_val, link_code, "ZBoard::Initialize() link error!");
         return ret_val;
     }
     tile_size_ = _tile_size;

@@ -32,12 +32,11 @@
     <ClCompile Include="code\f_memory_pool.cpp" />
     <ClCompile Include="code\f_system.cpp" />
     <ClCompile Include="code\m_log\f_log.cpp" />
-    <ClCompile Include="code\m_log\type\z_error_log.cpp" />
-    <ClCompile Include="code\m_log\type\z_info_log.cpp" />
-    <ClCompile Include="code\m_log\type\z_trace_log.cpp" />
-    <ClCompile Include="code\m_log\z_log.cpp" />
+    <ClCompile Include="code\m_log\z_log\z_error_log.cpp" />
+    <ClCompile Include="code\m_log\z_log\z_info_log.cpp" />
+    <ClCompile Include="code\m_log\z_log\z_trace_log.cpp" />
+    <ClCompile Include="code\m_log\z_log\z_log.cpp" />
     <ClCompile Include="code\m_log\z_log_manager.cpp" />
-    <ClCompile Include="code\m_log\z_log_server.cpp" />
     <ClCompile Include="code\z_condition_variable.cpp" />
     <ClCompile Include="code\z_config.cpp" />
     <ClCompile Include="code\z_file.cpp" />
@@ -53,8 +52,8 @@
     <ClCompile Include="code\z_timer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="code\f_memory_pool\t_log_string_list_memory_pool.h" />
     <ClInclude Include="code\m_log\z_log_manager.h" />
-    <ClInclude Include="code\m_log\z_log_server.h" />
     <ClInclude Include="code\f_memory_pool\t_heap_memory_pool.h" />
     <ClInclude Include="code\f_memory_pool\t_list_memory_pool_base.h" />
     <ClInclude Include="code\f_memory_pool\t_memory_block_base.h" />
@@ -147,7 +146,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>drive/d_pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_core;$(SolutionDir)Source/Z_Core/code</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_core;$(SolutionDir)Source/Z_Core/code;$(SolutionDir)/Library/Simdutf/include;$(SolutionDir)/Library/WhereAmI/include</AdditionalIncludeDirectories>
       <PrecompiledHeaderOutputFile>$(SolutionDir)Binaries\intermediate\$(ProjectName)\$(Platform)\$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).pch</PrecompiledHeaderOutputFile>
     </ClCompile>
     <Link>
@@ -176,7 +175,7 @@ if exist "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectNa
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>drive/d_pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_core;$(SolutionDir)Source/Z_Core/code</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_core;$(SolutionDir)Source/Z_Core/code;$(SolutionDir)/Library/Simdutf/include;$(SolutionDir)/Library/WhereAmI/include</AdditionalIncludeDirectories>
       <PrecompiledHeaderOutputFile>$(SolutionDir)Binaries\intermediate\$(ProjectName)\$(Platform)\$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).pch</PrecompiledHeaderOutputFile>
     </ClCompile>
     <Link>
@@ -205,7 +204,7 @@ if exist "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectNa
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>drive/d_pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(SolutionDir)Binaries\intermediate\$(ProjectName)\$(Platform)\$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_core;$(SolutionDir)Source/Z_Core/code</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_core;$(SolutionDir)Source/Z_Core/code;$(SolutionDir)/Library/Simdutf/include;$(SolutionDir)/Library/WhereAmI/include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -234,7 +233,7 @@ if exist "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectNa
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>drive/d_pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(SolutionDir)Binaries\intermediate\$(ProjectName)\$(Platform)\$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_core;$(SolutionDir)Source/Z_Core/code</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_core;$(SolutionDir)Source/Z_Core/code;$(SolutionDir)/Library/Simdutf/include;$(SolutionDir)/Library/WhereAmI/include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>

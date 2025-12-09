@@ -127,7 +127,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_tsrpg</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_tsrpg;$(SolutionDir)Source/Z_TSRPG/code</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>drive/d_pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(SolutionDir)Binaries\intermediate\$(ProjectName)\$(Platform)\$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).pch</PrecompiledHeaderOutputFile>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -158,7 +158,7 @@ if exist "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectNa
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_tsrpg</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_tsrpg;$(SolutionDir)Source/Z_TSRPG/code</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>drive/d_pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(SolutionDir)Binaries\intermediate\$(ProjectName)\$(Platform)\$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).pch</PrecompiledHeaderOutputFile>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -222,7 +222,7 @@ if exist "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\$(ProjectNa
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeaderFile>drive/d_pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(SolutionDir)Binaries\intermediate\$(ProjectName)\$(Platform)\$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_tsrpg</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_tsrpg;$(SolutionDir)Source/Z_TSRPG/code</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>
     <Link>

@@ -87,12 +87,12 @@ public:
     NODISCARD FORCEINLINE SizeType Capacity() const noexcept { return queue_.Capacity(); }
     NODISCARD FORCEINLINE Bool Empty() const noexcept { return queue_.Empty(); }
 
-    FORCEINLINE Void Pop() noexcept { queue_.PopFront(); }
+    FORCEINLINE Void PopFront() noexcept { queue_.PopFront(); }
 
-    FORCEINLINE Void Push(const _ObjectType& _val) noexcept { queue_.PushBack(_val); }
-    FORCEINLINE Void Push(_ObjectType&& _val) noexcept { queue_.PushBack(std::forward<_ObjectType>(_val)); }
+    FORCEINLINE Void PushBack(const _ObjectType& _val) noexcept { queue_.PushBack(_val); }
+    FORCEINLINE Void PushBack(_ObjectType&& _val) noexcept { queue_.PushBack(std::forward<_ObjectType>(_val)); }
     template <typename... ArgsType>
-    FORCEINLINE Void Push(ArgsType&&... _args) noexcept { queue_.EmplaceBack(std::forward<ArgsType>(_args)...); }
+    FORCEINLINE Void PushBack(ArgsType&&... _args) noexcept { queue_.EmplaceBack(std::forward<ArgsType>(_args)...); }
 
     FORCEINLINE Void Clear() noexcept { queue_.Clear(); }
 
@@ -222,21 +222,21 @@ public:
         return queue_.Empty(); 
     }
 
-    FORCEINLINE Void Pop() noexcept { 
+    FORCEINLINE Void PopFront() noexcept { 
         TLockGuard lock_guard(mutex_); 
         queue_.PopFront(); 
     }
 
-    FORCEINLINE Void Push(const _ObjectType& _val) noexcept { 
+    FORCEINLINE Void PushBack(const _ObjectType& _val) noexcept { 
         TLockGuard lock_guard(mutex_); 
         queue_.PushBack(_val); 
     }
-    FORCEINLINE Void Push(_ObjectType&& _val) noexcept { 
+    FORCEINLINE Void PushBack(_ObjectType&& _val) noexcept { 
         TLockGuard lock_guard(mutex_); 
         queue_.PushBack(std::forward<_ObjectType>(_val)); 
     }
     template <typename... ArgsType>
-    FORCEINLINE Void Push(ArgsType&&... _args) noexcept { 
+    FORCEINLINE Void EmplaceBack(ArgsType&&... _args) noexcept {
         TLockGuard lock_guard(mutex_); 
         queue_.EmplaceBack(std::forward<ArgsType>(_args)...); 
     }

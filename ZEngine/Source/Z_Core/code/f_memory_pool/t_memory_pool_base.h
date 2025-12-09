@@ -32,6 +32,7 @@ namespace memory_pool {
 enum class MemoryPoolEnum : Int32 {
     kTSmallMemoryList,
     kTSmartPointerList,
+    kTLogStringList,
     kTSystemMemory
 };
 
@@ -56,20 +57,23 @@ protected:
     FORCEINLINE Void InitializeP(MemoryPoolEnum _pool_type) noexcept { pool_type_ = _pool_type; }
 
 #ifdef USE_MEMORY_POOL_TEST
-    inline static ZFile& log_file_ = std::invoke([]() -> ZFile& {
-        static ZFile file;
-        TFixedWString<ZFile::kFileNameLength> file_dir;
-        const ZSystemTime& system_time = ZSystemTime::StartTimeInstance();
-        file_dir.SetString(
-            L"%ls\\%04d%02d%02d%02d%02d%02d_memory.log", log::ZLog::CreateAndGetLogPath(),
-            system_time.Year(), system_time.Month(), system_time.Day(),
-            system_time.Hour(), system_time.Min(), system_time.Sec());
-        ReturnType link_code = file.Open(file_dir.String(), ZFile::kOpenTypeAppend);
-        if (link_code != kOK) {
-            Z_LOG_ERROR(error_code::kFMemoryPoolErrorCode_LinkError, link_code, L"ZFile::OpenSafe() link error!");
-        }
-        return file;
-    });
+    static ZFile& LogFile() noexcept {
+        static ZFile log_file_ = std::invoke([]() -> ZFile {
+            ZFile file;
+            TFixedString<kMaxFileDirLength> file_dir;
+            const ZSystemTime& system_time = ZSystemTime::StartTimeInstance();
+            file_dir.Assign(
+                "{}\\{:04}{:02}{:02}{:02}{:02}{:02}_memory.log", log::ZLog::CreateAndGetLogPath(),
+                system_time.Year(), system_time.Month(), system_time.Day(),
+                system_time.Hour(), system_time.Min(), system_time.Sec());
+            ReturnType link_code = file.Open(file_dir.DataPtr(), ZFile::kOpenTypeAppend);
+            if (link_code != kOK) {
+                Z_LOG_ERROR(error_code::kFMemoryPoolErrorCode_LinkError, link_code, "ZFile::OpenSafe() link error!");
+            }
+            return file;
+        });
+        return log_file_;
+    }
 #endif //USE_MEMORY_POOL_TEST
 
 private:

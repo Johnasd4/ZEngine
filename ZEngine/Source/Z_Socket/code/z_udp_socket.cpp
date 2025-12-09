@@ -65,7 +65,7 @@ ZUDPSocket::ZUDPSocket(ZIOContext* _context_ptr) noexcept
     if (_context_ptr == nullptr) {
         Z_LOG_ERROR(
             error_code::kSocketErrorCode_NullptrParam, 0,
-            L"_io_context_ptr is nullptr!"
+            "_io_context_ptr is nullptr!"
         );
         return;
     }
@@ -114,14 +114,14 @@ NODISCARD ReturnType ZUDPSocket::Initialize(ZIOContext* _io_context_ptr) noexcep
     Z_CHECK(
         state_ != StateEnum_::kUninitialized,
         error_code::kSocketErrorCode_StateError,
-        L"Socket state error! state: %d expect state: %d",
+        "Socket state error! state: %d expect state: %d",
         state_, StateEnum_::kUninitialized
     );
 
     Z_CHECK(
         _io_context_ptr == nullptr,
         error_code::kSocketErrorCode_NullptrParam,
-        L"_io_context_ptr is nullptr!"
+        "_io_context_ptr is nullptr!"
     );
 
     data_ptr_ = MakeUnique<internal::ZUDPSocketData>(&_io_context_ptr->data_ptr_->io_context_);
@@ -138,7 +138,7 @@ NODISCARD ReturnType ZUDPSocket::Open(IPTypeEnum _ip_type) noexcept {
     Z_CHECK(
         state_ != StateEnum_::kClosed,
         error_code::kSocketErrorCode_StateError,
-        L"Socket state error! state: %d expect state: %d",
+        "Socket state error! state: %d expect state: %d",
         state_, StateEnum_::kClosed
     );
 
@@ -153,7 +153,7 @@ NODISCARD ReturnType ZUDPSocket::Open(IPTypeEnum _ip_type) noexcept {
         ret_val = error_code::kSocketErrorCode_ParamOutOfRange;
         Z_LOG_ERROR(
             ret_val, 0,
-            L"Enum out of range! _ip_type: %d",
+            "Enum out of range! _ip_type: %d",
             _ip_type
         );
         return ret_val;
@@ -169,8 +169,8 @@ NODISCARD ReturnType ZUDPSocket::Open(IPTypeEnum _ip_type) noexcept {
         ret_val = error_code::kSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
-            L"System error! error info: %ls",
-            string::String2WString(error_code.message().c_str()).String()
+            "System error! error info: %ls",
+            string::StringToWString(error_code.message().c_str()).DataPtr()
         );
         return ret_val;
     }
@@ -187,7 +187,7 @@ NODISCARD ReturnType ZUDPSocket::BindEndpoint(const ZUDPEndpoint& _udp_endpoint)
     Z_CHECK(
         state_ != StateEnum_::kOpened,
         error_code::kSocketErrorCode_StateError,
-        L"Socket state error! state: %d expect state: %d",
+        "Socket state error! state: %d expect state: %d",
         state_, StateEnum_::kOpened
     );
 
@@ -198,8 +198,8 @@ NODISCARD ReturnType ZUDPSocket::BindEndpoint(const ZUDPEndpoint& _udp_endpoint)
         ret_val = error_code::kSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
-            L"System error! error info: %ls",
-            string::String2WString(error_code.message().c_str()).String()
+            "System error! error info: %ls",
+            string::StringToWString(error_code.message().c_str()).DataPtr()
         );
         state_ = StateEnum_::kError;
         return ret_val;
@@ -215,7 +215,7 @@ NODISCARD ReturnType ZUDPSocket::SetOSWriteBufferSize(Int32 _size) noexcept {
     Z_CHECK(
         state_ != StateEnum_::kOpened,
         error_code::kSocketErrorCode_StateError,
-        L"Socket state error! state: %d expect state: %d",
+        "Socket state error! state: %d expect state: %d",
         state_, StateEnum_::kOpened
     );
 
@@ -224,8 +224,8 @@ NODISCARD ReturnType ZUDPSocket::SetOSWriteBufferSize(Int32 _size) noexcept {
         ret_val = error_code::kSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
-            L"System error! error info: %ls",
-            string::String2WString(error_code.message().c_str()).String()
+            "System error! error info: %ls",
+            string::StringToWString(error_code.message().c_str()).DataPtr()
         );
         state_ = StateEnum_::kError;
         return ret_val;
@@ -241,7 +241,7 @@ NODISCARD ReturnType ZUDPSocket::SetOSReadBufferSize(Int32 _size) noexcept {
     Z_CHECK(
         state_ != StateEnum_::kOpened,
         error_code::kSocketErrorCode_StateError,
-        L"Socket state error! state: %d expect state: %d",
+        "Socket state error! state: %d expect state: %d",
         state_, StateEnum_::kOpened
     );
 
@@ -250,8 +250,8 @@ NODISCARD ReturnType ZUDPSocket::SetOSReadBufferSize(Int32 _size) noexcept {
         ret_val = error_code::kSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
-            L"System error! error info: %ls",
-            string::String2WString(error_code.message().c_str()).String()
+            "System error! error info: %ls",
+            string::StringToWString(error_code.message().c_str()).DataPtr()
         );
         state_ = StateEnum_::kError;
         return ret_val;
@@ -267,7 +267,7 @@ NODISCARD ReturnType ZUDPSocket::SetIfReuseAddress(Bool _if_reuse) noexcept {
     Z_CHECK(
         state_ != StateEnum_::kClosed,
         error_code::kSocketErrorCode_StateError,
-        L"Socket state error! state: %d expect state: %d",
+        "Socket state error! state: %d expect state: %d",
         state_, StateEnum_::kClosed
     );
 
@@ -308,7 +308,7 @@ NODISCARD ReturnType ZUDPSocket::Connect(const ZUDPEndpoint& _udp_endpoint) noex
     Z_CHECK(
         state_ != StateEnum_::kOpened,
         error_code::kSocketErrorCode_StateError,
-        L"Socket state error! state: %d expect state: %d",
+        "Socket state error! state: %d expect state: %d",
         state_, StateEnum_::kOpened
     );
 
@@ -320,8 +320,8 @@ NODISCARD ReturnType ZUDPSocket::Connect(const ZUDPEndpoint& _udp_endpoint) noex
         ret_val = error_code::kSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
-            L"System error! error info: %ls",
-            string::String2WString(error_code.message().c_str()).String()
+            "System error! error info: %ls",
+            string::StringToWString(error_code.message().c_str()).DataPtr()
         );
         state_ = StateEnum_::kError;
         return ret_val;
@@ -342,7 +342,7 @@ NODISCARD ReturnType ZUDPSocket::ReceiveFrom(
     Z_CHECK(
         state_ != StateEnum_::kOpened,
         error_code::kSocketErrorCode_StateError,
-        L"Socket state error! state: %d expect state: %d",
+        "Socket state error! state: %d expect state: %d",
         state_, StateEnum_::kOpened
     );
 
@@ -358,8 +358,8 @@ NODISCARD ReturnType ZUDPSocket::ReceiveFrom(
         ret_val = error_code::kSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
-            L"System error! error info: %ls",
-            string::String2WString(error_code.message().c_str()).String()
+            "System error! error info: %ls",
+            string::StringToWString(error_code.message().c_str()).DataPtr()
         );
         state_ = StateEnum_::kError;
         return ret_val;
@@ -387,7 +387,7 @@ NODISCARD ReturnType ZUDPSocket::AsyncReceiveFrom(
     Z_CHECK(
         state_ != StateEnum_::kOpened,
         error_code::kSocketErrorCode_StateError,
-        L"Socket state error! state: %d expect state: %d",
+        "Socket state error! state: %d expect state: %d",
         state_, StateEnum_::kOpened
     );
 
@@ -409,8 +409,8 @@ NODISCARD ReturnType ZUDPSocket::AsyncReceiveFrom(
                     ret_val = error_code::kSocketErrorCode_SystemError;
                     Z_LOG_ERROR(
                         ret_val, _error_code.value(),
-                        L"System error! error info: %ls",
-                        string::String2WString(_error_code.message().c_str()).String()
+                        "System error! error info: %ls",
+                        string::StringToWString(_error_code.message().c_str()).DataPtr()
                     );
                     state_ = StateEnum_::kError;
                 }
@@ -445,13 +445,13 @@ NODISCARD ReturnType ZUDPSocket::Receive(
     Z_CHECK(
         state_ != StateEnum_::kOpened,
         error_code::kSocketErrorCode_StateError,
-        L"Socket state error! state: %d expect state: %d",
+        "Socket state error! state: %d expect state: %d",
         state_, StateEnum_::kOpened
     );
     Z_CHECK(
         data_ptr_->if_connected_ == false,
         error_code::kSocketErrorCode_UDPSocketNotConnected,
-        L"Socket not connected!"
+        "Socket not connected!"
     );
 
     SizeType data_size = data_ptr_->socket_.receive(
@@ -463,8 +463,8 @@ NODISCARD ReturnType ZUDPSocket::Receive(
         ret_val = error_code::kSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
-            L"System error! error info: %ls",
-            string::String2WString(error_code.message().c_str()).String()
+            "System error! error info: %ls",
+            string::StringToWString(error_code.message().c_str()).DataPtr()
         );
         state_ = StateEnum_::kError;
         return ret_val;
@@ -487,13 +487,13 @@ NODISCARD ReturnType ZUDPSocket::AsyncReceive(
     Z_CHECK(
         state_ != StateEnum_::kOpened,
         error_code::kSocketErrorCode_StateError,
-        L"Socket state error! state: %d expect state: %d",
+        "Socket state error! state: %d expect state: %d",
         state_, StateEnum_::kOpened
     );
     Z_CHECK(
         data_ptr_->if_connected_ == false,
         error_code::kSocketErrorCode_UDPSocketNotConnected,
-        L"Socket not connected!"
+        "Socket not connected!"
     );
 
     data_ptr_->socket_.async_receive_from(
@@ -513,8 +513,8 @@ NODISCARD ReturnType ZUDPSocket::AsyncReceive(
                     ret_val = error_code::kSocketErrorCode_SystemError;
                     Z_LOG_ERROR(
                         ret_val, _error_code.value(),
-                        L"System error! error info: %ls",
-                        string::String2WString(_error_code.message().c_str()).String()
+                        "System error! error info: %ls",
+                        string::StringToWString(_error_code.message().c_str()).DataPtr()
                     );
                     state_ = StateEnum_::kError;
                 }
@@ -545,7 +545,7 @@ NODISCARD ReturnType ZUDPSocket::SendTo(
     Z_CHECK(
         state_ != StateEnum_::kOpened,
         error_code::kSocketErrorCode_StateError,
-        L"Socket state error! state: %d expect state: %d",
+        "Socket state error! state: %d expect state: %d",
         state_, StateEnum_::kOpened
     );
 
@@ -559,8 +559,8 @@ NODISCARD ReturnType ZUDPSocket::SendTo(
         ret_val = error_code::kSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
-            L"System error! error info: %ls",
-            string::String2WString(error_code.message().c_str()).String()
+            "System error! error info: %ls",
+            string::StringToWString(error_code.message().c_str()).DataPtr()
         );
         state_ = StateEnum_::kError;
         return ret_val;
@@ -580,7 +580,7 @@ NODISCARD ReturnType ZUDPSocket::AsyncSendTo(
     Z_CHECK(
         state_ != StateEnum_::kOpened,
         error_code::kSocketErrorCode_StateError,
-        L"Socket state error! state: %d expect state: %d",
+        "Socket state error! state: %d expect state: %d",
         state_, StateEnum_::kOpened
     );
 
@@ -602,8 +602,8 @@ NODISCARD ReturnType ZUDPSocket::AsyncSendTo(
                     ret_val = error_code::kSocketErrorCode_SystemError;
                     Z_LOG_ERROR(
                         ret_val, _error_code.value(),
-                        L"System error! error info: %ls",
-                        string::String2WString(_error_code.message().c_str()).String()
+                        "System error! error info: %ls",
+                        string::StringToWString(_error_code.message().c_str()).DataPtr()
                     );
                     state_ = StateEnum_::kError;
                 }
@@ -633,13 +633,13 @@ NODISCARD ReturnType ZUDPSocket::Send(
     Z_CHECK(
         state_ != StateEnum_::kOpened,
         error_code::kSocketErrorCode_StateError,
-        L"Socket state error! state: %d expect state: %d",
+        "Socket state error! state: %d expect state: %d",
         state_, StateEnum_::kOpened
     );
     Z_CHECK(
         data_ptr_->if_connected_ == false,
         error_code::kSocketErrorCode_UDPSocketNotConnected,
-        L"Socket not connected!"
+        "Socket not connected!"
     );
 
     data_ptr_->socket_.send(
@@ -651,8 +651,8 @@ NODISCARD ReturnType ZUDPSocket::Send(
         ret_val = error_code::kSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
-            L"System error! error info: %ls",
-            string::String2WString(error_code.message().c_str()).String()
+            "System error! error info: %ls",
+            string::StringToWString(error_code.message().c_str()).DataPtr()
         );
         state_ = StateEnum_::kError;
         return ret_val;
@@ -671,13 +671,13 @@ NODISCARD ReturnType ZUDPSocket::AsyncSend(
     Z_CHECK(
         state_ != StateEnum_::kOpened,
         error_code::kSocketErrorCode_StateError,
-        L"Socket state error! state: %d expect state: %d",
+        "Socket state error! state: %d expect state: %d",
         state_, StateEnum_::kOpened
     );
     Z_CHECK(
         data_ptr_->if_connected_ == false,
         error_code::kSocketErrorCode_UDPSocketNotConnected,
-        L"Socket not connected!"
+        "Socket not connected!"
     );
 
     data_ptr_->socket_.async_send(
@@ -697,8 +697,8 @@ NODISCARD ReturnType ZUDPSocket::AsyncSend(
                     ret_val = error_code::kSocketErrorCode_SystemError;
                     Z_LOG_ERROR(
                         ret_val, _error_code.value(),
-                        L"System error! error info: %ls",
-                        string::String2WString(_error_code.message().c_str()).String()
+                        "System error! error info: %ls",
+                        string::StringToWString(_error_code.message().c_str()).DataPtr()
                     );
                     state_ = StateEnum_::kError;
                 }

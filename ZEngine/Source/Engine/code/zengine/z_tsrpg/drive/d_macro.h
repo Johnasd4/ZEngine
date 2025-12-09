@@ -20,6 +20,6 @@
 
 #define Z_TSRPG_INITIALIZE_CHECK()\
     if (!initialized_) {\
-        Z_LOG_ERROR(error_code::kZRPGObjectErrorCode_NotInitialized, 0, L"RPG object not initialized!");\
+        Z_LOG_ERROR(error_code::kZRPGObjectErrorCode_NotInitialized, 0, "RPG object not initialized!");\
         return error_code::kZRPGObjectErrorCode_NotInitialized;\
     }\

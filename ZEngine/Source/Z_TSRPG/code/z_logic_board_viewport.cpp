@@ -128,7 +128,7 @@ NODISCARD ReturnType ZLogicBoardViewport::Initialize(
 
     Z_CHECK(
         _logic_board_ptr == nullptr, error_code::kZLogicBoardViewerErrorCode_NullptrParam,
-        L"_logic_board_ptr is nullptr!"
+        "_logic_board_ptr is nullptr!"
     );
 
     base_index_= _base_index;
@@ -155,7 +155,7 @@ NODISCARD ReturnType ZLogicBoardViewport::SetBaseIndex(const LogicVector2D& _bas
             link_code = display_board_ptr_->OnLogicBoardViewportBaseIndexChanged(old_base_index, _base_index);
             if (link_code != kOK) {
                 ret_val = error_code::kZLogicBoardViewerErrorCode_LinkError;
-                Z_LOG_ERROR(ret_val, link_code, L"ZDisplayBoard::OnLogicBoardViewerChanged() link error!");
+                Z_LOG_ERROR(ret_val, link_code, "ZDisplayBoard::OnLogicBoardViewerChanged() link error!");
                 return ret_val;
             }
             
@@ -175,7 +175,7 @@ NODISCARD ReturnType ZLogicBoardViewport::SetViewSize(const LogicVector2D& _view
             link_code = display_board_ptr_->OnLogicBoardViewportViewSizeChanged(old_view_size, view_size_);
             if (link_code != kOK) {
                 ret_val = error_code::kZLogicBoardViewerErrorCode_LinkError;
-                Z_LOG_ERROR(ret_val, link_code, L"ZDisplayBoard::OnLogicBoardViewerChanged() link error!");
+                Z_LOG_ERROR(ret_val, link_code, "ZDisplayBoard::OnLogicBoardViewerChanged() link error!");
                 return ret_val;
             }           
         }
@@ -200,7 +200,7 @@ NODISCARD ReturnType ZLogicBoardViewport::GetSurroundTile(
     link_code = logic_board_ptr_->GetSurroundTile(_tile_list_ptr, index, _inner_radius, _outer_radius);
     if (link_code != kOK) {
         ret_val = error_code::kZLogicBoardViewerErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, L"ZLogicBoard::GetSurroundTile() link error!");
+        Z_LOG_ERROR(ret_val, link_code, "ZLogicBoard::GetSurroundTile() link error!");
         return ret_val;
     }
     return ret_val;
@@ -224,7 +224,7 @@ NODISCARD ReturnType ZLogicBoardViewport::OnLogicBoardPosOffsetChanged(const Log
     link_code = display_board_ptr_->SetPosOffset(offset);
     if (link_code != kOK) {
         ret_val = error_code::kZLogicBoardViewerErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, L"ZDisplay::SetPosOffset() link error!");
+        Z_LOG_ERROR(ret_val, link_code, "ZDisplay::SetPosOffset() link error!");
         return ret_val;
     }
 

@@ -669,7 +669,7 @@ NODISCARD ReturnType ZJsonDocument::Parse(const Char* _str) noexcept {
 
     if (json_doc_.HasParseError()) {
         ret_val = error_code::kZJsonErrorCode_JsonParseError;
-        Z_LOG_ERROR(ret_val, 0, L"Json prase error! pos: %d", json_doc_.GetErrorOffset());
+        Z_LOG_ERROR(ret_val, 0, "Json prase error! pos: %d", json_doc_.GetErrorOffset());
         return ret_val;
     }
 
@@ -691,7 +691,7 @@ NODISCARD ZString ZJsonDocument::GenerateJsonString() const noexcept {
     return str;
 }
 
-NODISCARD ReturnType ZJsonDocument::ReadFile(const WChar* _path_dir) noexcept {
+NODISCARD ReturnType ZJsonDocument::ReadFile(const Char* _path_dir) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
     ZFile file;
@@ -700,7 +700,7 @@ NODISCARD ReturnType ZJsonDocument::ReadFile(const WChar* _path_dir) noexcept {
     link_code = file.Open(_path_dir, ZFile::kOpenTypeReadBin);
     if (link_code != kOK) {
         ret_val = error_code::kZJsonErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, L"ZFile::Open() link error!");
+        Z_LOG_ERROR(ret_val, link_code, "ZFile::Open() link error!");
         return ret_val;
     }
 
@@ -710,7 +710,7 @@ NODISCARD ReturnType ZJsonDocument::ReadFile(const WChar* _path_dir) noexcept {
     link_code = file.Read(json_raw_str.DataPtr<Void>(), json_str_size);
     if (link_code != kOK) {
         ret_val = error_code::kZJsonErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, L"ZFile::Read() link error!");
+        Z_LOG_ERROR(ret_val, link_code, "ZFile::Read() link error!");
         return ret_val;
     }
     json_raw_str.DataPtr<Char>()[json_str_size] = '\0';
@@ -719,7 +719,7 @@ NODISCARD ReturnType ZJsonDocument::ReadFile(const WChar* _path_dir) noexcept {
     link_code = Parse(json_raw_str.DataPtr<Char>());
     if (link_code != kOK) {
         ret_val = error_code::kZJsonErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, L"ZJsonDocument::Parse() link error!");
+        Z_LOG_ERROR(ret_val, link_code, "ZJsonDocument::Parse() link error!");
         return ret_val;
     }
 
@@ -727,14 +727,14 @@ NODISCARD ReturnType ZJsonDocument::ReadFile(const WChar* _path_dir) noexcept {
     link_code = file.Close();
     if (link_code != kOK) {
         ret_val = error_code::kZJsonErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, L"ZFile::Close() link error!");
+        Z_LOG_ERROR(ret_val, link_code, "ZFile::Close() link error!");
         return ret_val;
     }
 
     return ret_val;
 }
 
-NODISCARD ReturnType ZJsonDocument::WriteFile(const WChar* _path_dir) noexcept {
+NODISCARD ReturnType ZJsonDocument::WriteFile(const Char* _path_dir) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
     ZFile file;
@@ -743,7 +743,7 @@ NODISCARD ReturnType ZJsonDocument::WriteFile(const WChar* _path_dir) noexcept {
     link_code = file.OpenSafe(_path_dir, ZFile::kOpenTypeWriteBin);
     if (link_code != kOK) {
         ret_val = error_code::kZJsonErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, L"ZFile::Open() link error!");
+        Z_LOG_ERROR(ret_val, link_code, "ZFile::Open() link error!");
         return ret_val;
     }
 
@@ -751,10 +751,10 @@ NODISCARD ReturnType ZJsonDocument::WriteFile(const WChar* _path_dir) noexcept {
     ZString json_str = GenerateJsonString();
 
     //write string to file
-    link_code = file.Write(static_cast<const Void*>(json_str.String()), json_str.Size());
+    link_code = file.Write(static_cast<const Void*>(json_str.DataPtr()), json_str.Size());
     if (link_code != kOK) {
         ret_val = error_code::kZJsonErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, L"ZFile::Write() link error!");
+        Z_LOG_ERROR(ret_val, link_code, "ZFile::Write() link error!");
         return ret_val;
     }
 
@@ -762,7 +762,7 @@ NODISCARD ReturnType ZJsonDocument::WriteFile(const WChar* _path_dir) noexcept {
     link_code = file.Close();
     if (link_code != kOK) {
         ret_val = error_code::kZJsonErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, L"ZFile::Close() link error!");
+        Z_LOG_ERROR(ret_val, link_code, "ZFile::Close() link error!");
         return ret_val;
     }
     return ret_val;

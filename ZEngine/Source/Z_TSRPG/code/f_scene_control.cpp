@@ -42,14 +42,14 @@ TSRPG_DLLAPI Void AddSceneEvent(
     default:
         Z_LOG_ERROR(
             error_code::kFSceneControlErrorCode_EventIdNotExist, 0,
-            L"Event id not exist! event_id: %d", _event_id);
+            "Event id not exist! event_id: %d", _event_id);
         return;
     }
     link_code = scene_event_ptr->Initialize(_delay_time, _execute_total_time, _event_params);
     if (link_code != kOK) {
         Z_LOG_ERROR(
             error_code::kFSceneControlErrorCode_LinkError, link_code,
-            L"ZSceneEvent::Initialize() link error! event_id: %d", _event_id);
+            "ZSceneEvent::Initialize() link error! event_id: %d", _event_id);
         return;
     }
     ZSceneEventManager::Instance().AddSceneEvent(scene_event_ptr);

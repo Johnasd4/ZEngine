@@ -27,16 +27,29 @@ namespace zengine {
 
 CORE_DLLAPI Void Initialize() noexcept { 
     setlocale(LC_ALL, "");
-    Z_LOG_ERROR(0, 0, L"Error...");
-    Z_LOG_TRACE(L"Trace...");
-    Z_LOG_MESSAGE(L"Message...");
-    Z_LOG_START(L"Start...");
-    Z_LOG_PROCESS(L"Process...");
-    Z_LOG_FINISH(L"Finish...");
-    Z_LOG_FAILURE(L"Failure...");
-    Z_LOG_SUCCESS(L"Success...");
-    Z_LOG_SUCCESS(L"ZEngine initialize success!");
 
+    //register log output function
+#if USE_FILE_LOG
+    log::RegisterLogOutputFunction<log::ZErrorLog>(log::ZErrorLog::FileOutputLog);
+    log::RegisterLogOutputFunction<log::ZInfoLog>(log::ZInfoLog::FileOutputLog);
+    log::RegisterLogOutputFunction<log::ZTraceLog>(log::ZTraceLog::FileOutputLog);
+#endif
+#if USE_CONSOLE_LOG
+    log::RegisterLogOutputFunction<log::ZErrorLog>(log::ZErrorLog::ConsoleOutputLog);
+    log::RegisterLogOutputFunction<log::ZInfoLog>(log::ZInfoLog::ConsoleOutputLog);
+    log::RegisterLogOutputFunction<log::ZTraceLog>(log::ZTraceLog::ConsoleOutputLog);
+#endif
+
+    Z_LOG_ERROR(0, 0, "Error...");
+    Z_LOG_TRACE("Trace...");
+    Z_LOG_MESSAGE("Message...");
+    Z_LOG_START("Start...");
+    Z_LOG_PROCESS("Process...");
+    Z_LOG_FINISH("Finish...");
+    Z_LOG_FAILURE("Failure...");
+    Z_LOG_SUCCESS("Success...");
+
+    Z_LOG_SUCCESS("ZEngine initialize success!");
 }
 
 }//zengine

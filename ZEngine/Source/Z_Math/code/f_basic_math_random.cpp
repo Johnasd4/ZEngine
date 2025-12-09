@@ -54,7 +54,7 @@ private:
         refill_timer_.SetTickFunc(RefillTimerTickFunc);
         link_code = refill_timer_.Start();
         if (link_code != kOK) {
-            Z_LOG_ERROR(error_code::kFBasicMathRandom_LinkError, link_code, L"ZTimer::Start() link error!");
+            Z_LOG_ERROR(error_code::kFBasicMathRandom_LinkError, link_code, "ZTimer::Start() link error!");
             return;
         }
     };

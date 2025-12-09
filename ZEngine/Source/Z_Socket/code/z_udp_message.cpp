@@ -33,7 +33,7 @@ NODISCARD ReturnType ZUDPMessage::OnSerialize(ZSerializer& _out) const noexcept 
         ret_val = error_code::kSocketErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
-            L"ZSerializer::Write() link error!"
+            "ZSerializer::Write() link error!"
         );
         return ret_val;
     }
@@ -50,7 +50,7 @@ NODISCARD ReturnType ZUDPMessage::OnDeserialize(ZDeserializer& _in) noexcept {
         ret_val = error_code::kSocketErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
-            L"ZDeserializer::Read() link error!"
+            "ZDeserializer::Read() link error!"
         );
         return ret_val;
     }

@@ -34,7 +34,7 @@ NODISCARD static THashMap<ZWString::STDString_, ZLogicTileTexture>& TextureMapP(
 
 Void ZLogicTileTexture::RegisterLogicTileTexture(ZLogicTileTexture&& _texture) noexcept {
     static THashMap<ZWString::STDString_, ZLogicTileTexture>& texture_map = TextureMapP();
-    texture_map.InsertOrAssign(_texture.texture_name_.String(), std::move(_texture));
+    texture_map.InsertOrAssign(_texture.texture_name_.DataPtr(), std::move(_texture));
 }
 
 NODISCARD const ZLogicTileTexture* ZLogicTileTexture::GetLogicTileTextureByName(const WChar* _texture_name) noexcept {
@@ -43,7 +43,7 @@ NODISCARD const ZLogicTileTexture* ZLogicTileTexture::GetLogicTileTextureByName(
     if (iterator == texture_map.End()) {
         Z_LOG_ERROR(
             error_code::kZLogicTileErrorCode_TextureNotExist, 0,
-            L"Texture not exist! Name: %ls", _texture_name
+            "Texture not exist! Name: %ls", _texture_name
         );
         return nullptr;
     }
@@ -108,7 +108,7 @@ NODISCARD ReturnType ZLogicTile::SetPos(const LogicVector3D& _pos) noexcept {
             link_code = OnPosChanged(old_pos, _pos);
             if (link_code != kOK) {
                 ret_val = error_code::kZLogicTileErrorCode_LinkError;
-                Z_LOG_ERROR(ret_val, link_code, L"ZLogicTile::OnPosChanged() link error!");
+                Z_LOG_ERROR(ret_val, link_code, "ZLogicTile::OnPosChanged() link error!");
                 return ret_val;
             }
         }
@@ -128,7 +128,7 @@ NODISCARD const ZLogicTileTexture* ZLogicTile::GetTexturePtrByPosZ(Int32 _pos_z)
     if (_pos_z > Z()) {
         Z_LOG_ERROR(
             error_code::kZLogicTileErrorCode_TexturePosZOutOfRange, 0,
-            L"Texture pos z out of range! Tile(x, y, z) = (%d, %d, %d), pos_z = %d", X(), Y(), Z(), _pos_z
+            "Texture pos z out of range! Tile(x, y, z) = (%d, %d, %d), pos_z = %d", X(), Y(), Z(), _pos_z
         );
         return nullptr;
     }
@@ -138,7 +138,7 @@ NODISCARD const ZLogicTileTexture* ZLogicTile::GetTexturePtrByPosZ(Int32 _pos_z)
         if (base_layer_texture_ptr == nullptr) {
             Z_LOG_ERROR(
                 error_code::kZLogicTileErrorCode_TexturePosZOutOfRange, 0,
-                L"Texture pos z out of range! Tile(x, y, z) = (%d, %d, %d), pos_z = %d", X(), Y(), Z(), _pos_z
+                "Texture pos z out of range! Tile(x, y, z) = (%d, %d, %d), pos_z = %d", X(), Y(), Z(), _pos_z
             );
             return nullptr;
         }
@@ -159,7 +159,7 @@ NODISCARD const ReturnType ZLogicTile::CalculateTexturePtrVectorByPosZAndLength(
     ReturnType link_code = kOK;
     Z_CHECK(
         _texture_ptr_array_ptr == nullptr, error_code::kZLogicTileErrorCode_NullptrParam, 
-        L"_texture_ptr_array_ptr is nullptr!"
+        "_texture_ptr_array_ptr is nullptr!"
     )
         Int32 node_index = static_cast<Int32>(texture_node_array_.Size()) - 1;
     Int32 start_pos_z = math::Min(_pos_z, Z());
@@ -230,13 +230,13 @@ NODISCARD ReturnType ZLogicTile::Initialize(
 
     Z_CHECK(
         _owner_board_ptr == nullptr, error_code::kZLogicTileErrorCode_NullptrParam,
-        L"_TileMeshPtr is nullptr!"
+        "_TileMeshPtr is nullptr!"
     );
 
     link_code = SuperType_::InitializeP(_owner_board_ptr);
     if (link_code != kOK) {
         ret_val = error_code::kZLogicTileErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, L"ZLogicTile::Initialize() link error!");
+        Z_LOG_ERROR(ret_val, link_code, "ZLogicTile::Initialize() link error!");
         return ret_val;
     }
 
@@ -270,7 +270,7 @@ NODISCARD ReturnType ZLogicTile::OnPosChanged(const LogicVector3D& _old_pos, con
             ret_val = error_code::kZLogicTileErrorCode_LinkError;
             Z_LOG_ERROR(
                 ret_val, link_code, 
-                L"ZDisplayTile::SetPos() link error! old_pos(x, y, z) = (%d, %d, %d), new_pos(x, y, z) = (%d, %d, %d)",
+                "ZDisplayTile::SetPos() link error! old_pos(x, y, z) = (%d, %d, %d), new_pos(x, y, z) = (%d, %d, %d)",
                 _old_pos.x_, _old_pos.y_, _old_pos.z_, _new_pos.x_, _new_pos.y_, _new_pos.z_
             );
         }

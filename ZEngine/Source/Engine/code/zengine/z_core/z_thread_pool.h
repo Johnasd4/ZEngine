@@ -84,7 +84,7 @@ public:
         if (max_thread_num_ == free_thread_num_) {
             pool_idle_mutex_.TryLock();
         }
-        task_queue_.Push(std::forward<_TaskFunction>(_func), std::forward<_ArgsType>(_args)...);
+        task_queue_.PushBack(std::forward<_TaskFunction>(_func), std::forward<_ArgsType>(_args)...);
         cv_.NotifyOne();
         return ret_val;
     }

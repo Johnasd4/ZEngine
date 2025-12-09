@@ -47,7 +47,7 @@ NODISCARD ReturnType ZLogicHexTile::Initialize(
     link_code = SuperType_::Initialize(_owner_board_ptr, _pos, _texture_ptr, _texture_length);
     if (link_code != kOK) {
         ret_val = error_code::kZLogicHexTileErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, L"ZLogicTile::Initialize() link error!");
+        Z_LOG_ERROR(ret_val, link_code, "ZLogicTile::Initialize() link error!");
         return ret_val;
     }
     return ret_val;

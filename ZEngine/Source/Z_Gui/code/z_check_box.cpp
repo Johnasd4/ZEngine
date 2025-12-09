@@ -176,7 +176,7 @@ Void ZCheckBox::Tick(Float32 _delta_sec) noexcept {
         );
     }
 
-    ImGui::Checkbox(Name().String(), &if_checked_);
+    ImGui::Checkbox(Name().DataPtr(), &if_checked_);
     if (if_checked_ != pre_if_checked_) {
         OnCheckBoxClicked(if_checked_);
         pre_if_checked_ = if_checked_;

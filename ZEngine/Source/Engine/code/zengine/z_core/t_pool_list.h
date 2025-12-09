@@ -38,7 +38,7 @@ namespace zengine {
 template<typename _ObjectType, Bool kIfCallConstructorAndDestructor = kIsClassType<_ObjectType>>
 class TPoolList : public ZObject {
 private:
-    static inline constexpr SizeType kDefaultPoolSize = 10ULL;
+    static inline constexpr SizeType kExtendMinSize = 10ULL;
     static inline constexpr SizeType kMemoryPtrListSize = 10ULL;
     static inline constexpr Float32 kAutoExtendMultFactor = 0.2f;
     struct MemoryStruct_ {
@@ -93,7 +93,7 @@ public:
 
     TPoolList() noexcept
         : SuperType_()
-        , memory_list_(kMemoryPtrListSize)
+        , memory_list_()
         , head_node_ptr_(nullptr)
         , end_node_ptr_(nullptr)
         , model_obj_ptr_()
@@ -110,7 +110,7 @@ public:
     template<typename... _ArgsType>
     TPoolList(_ArgsType&&... args) noexcept
         : SuperType_()
-        , memory_list_(kMemoryPtrListSize)
+        , memory_list_()
         , head_node_ptr_(nullptr)
         , end_node_ptr_(nullptr)
         , model_obj_ptr_()
@@ -330,8 +330,8 @@ private:
     */
     Void ApplyNewObjectsP(SizeType _num = 0ULL) noexcept {
         SizeType extend_num = _num == 0ULL ? SizeType(pool_size_ * kAutoExtendMultFactor) : (pool_size_ - _num);
-        if (extend_num < kDefaultPoolSize) {
-            extend_num = kDefaultPoolSize;
+        if (extend_num < kExtendMinSize) {
+            extend_num = kExtendMinSize;
         }
         SizeType mem_size = sizeof(Node_) * extend_num;
         Void* mem_ptr = memory_pool::ApplyMemory(mem_size, &mem_size);
@@ -413,7 +413,7 @@ private:
 template<typename _ObjectType, Bool kIfCallConstructorAndDestructor = kIsClassType<_ObjectType>>
 class TPoolListSafe : public ZObject {
 private:
-    static constexpr SizeType kDefaultPoolSize = 10ULL;
+    static constexpr SizeType kExtendMinSize = 10ULL;
     static constexpr SizeType kMemoryPtrListSize = 10ULL;
     static constexpr Float32 kAutoExtendMultFactor = 0.2f;
     struct MemoryStruct_ {
@@ -468,7 +468,7 @@ public:
 
     TPoolListSafe() noexcept
         : SuperType_()
-        , memory_list_(kMemoryPtrListSize)
+        , memory_list_()
         , head_node_ptr_(nullptr)
         , end_node_ptr_(nullptr)
         , model_obj_ptr_()
@@ -487,7 +487,7 @@ public:
     template<typename... _ArgsType>
     TPoolListSafe(_ArgsType&&... args) noexcept
         : SuperType_()
-        , memory_list_(kMemoryPtrListSize)
+        , memory_list_()
         , head_node_ptr_(nullptr)
         , end_node_ptr_(nullptr)
         , model_obj_ptr_()
@@ -755,8 +755,8 @@ private:
     */
     Void ApplyNewObjectsP(SizeType _num = 0ULL) noexcept {
         SizeType extend_num = _num == 0ULL ? SizeType(pool_size_ * kAutoExtendMultFactor) : (pool_size_ - _num);
-        if (extend_num < kDefaultPoolSize) {
-            extend_num = kDefaultPoolSize;
+        if (extend_num < kExtendMinSize) {
+            extend_num = kExtendMinSize;
         }
         SizeType mem_size = sizeof(Node_) * extend_num;
         Void* mem_ptr = memory_pool::ApplyMemory(mem_size, &mem_size);

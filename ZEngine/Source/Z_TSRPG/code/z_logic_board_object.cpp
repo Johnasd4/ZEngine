@@ -55,7 +55,7 @@ NODISCARD ReturnType ZLogicBoardObject::Initialize(ZTile* _owner_tile_ptr) noexc
     link_code = SuperType_::InitializeP(_owner_tile_ptr);
     if (link_code != kOK) {
         ret_val = error_code::kZLogicBoardObjectErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, L"ZBoard::Initialize() link error!");
+        Z_LOG_ERROR(ret_val, link_code, "ZBoard::Initialize() link error!");
         return ret_val;
     }
     return ret_val;

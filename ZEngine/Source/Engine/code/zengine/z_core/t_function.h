@@ -72,20 +72,24 @@ public:
         func_ptr_ = _func.func_ptr_;
         return *this;
     }
-    TSimpleFunction& operator=(TSimpleFunction&& _func) noexcept {
-        func_ptr_ = _func.func_ptr_;
-        return *this;
+
+    Bool operator==(const TSimpleFunction& _func) noexcept {
+        return func_ptr_ == _func.func_ptr_;
     }
 
     _ReturnType operator()(Args... args) const noexcept {
         if (!func_ptr_) {
             Z_LOG_ERROR(
                 error_code::kTFunctionErrorCode_FunctionNotExist, 0, 
-                L"Simple function not exist, can not execute!"
+                "Simple function not exist, can not execute!"
             );
             return _ReturnType();
         }
         return func_ptr_(std::forward<Args>(args)...);
+    }
+
+    FORCEINLINE operator Bool() const noexcept {
+        return func_ptr_ != nullptr;
     }
 
 protected:
@@ -145,7 +149,7 @@ public:
 
     _ReturnType operator()(ArgTypes... args) const noexcept {
         if (!func_) {
-            Z_LOG_ERROR(error_code::kTFunctionErrorCode_FunctionNotExist, 0, L"Function not exist, can not execute!");
+            Z_LOG_ERROR(error_code::kTFunctionErrorCode_FunctionNotExist, 0, "Function not exist, can not execute!");
             return _ReturnType();
         }
         return func_->Execute(std::forward<ArgTypes>(args)...);

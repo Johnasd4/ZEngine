@@ -55,31 +55,29 @@ public:
     };
 
     /*Read only.*/
-    static inline constexpr WChar kOpenTypeRead[] = L"r";
+    static inline constexpr Char kOpenTypeRead[] = "r";
     /*Write only, will clear the file.*/
-    static inline constexpr WChar kOpenTypeWrite[] = L"w";
+    static inline constexpr Char kOpenTypeWrite[] = "w";
     /*Append at the end of the file.*/
-    static inline constexpr WChar kOpenTypeAppend[] = L"a";
+    static inline constexpr Char kOpenTypeAppend[] = "a";
     /*Read and write.*/
-    static inline constexpr WChar kOpenTypeReadPlus[] = L"r+";
+    static inline constexpr Char kOpenTypeReadPlus[] = "r+";
     /*Read and write, will clear the file.*/
-    static inline constexpr WChar kOpenTypeWritePlus[] = L"w+";
+    static inline constexpr Char kOpenTypeWritePlus[] = "w+";
     /*Read and write, starts at the end of the file.*/
-    static inline constexpr WChar kOpenTypeAppendPlus[] = L"a+";
+    static inline constexpr Char kOpenTypeAppendPlus[] = "a+";
     /*Read only.(binary file)*/
-    static inline constexpr WChar kOpenTypeReadBin[] = L"rb";
+    static inline constexpr Char kOpenTypeReadBin[] = "rb";
     /*Write only, will clear the file.(binary file)*/
-    static inline constexpr WChar kOpenTypeWriteBin[] = L"wb";
+    static inline constexpr Char kOpenTypeWriteBin[] = "wb";
     /*Append at the end of the file.(binary file)*/
-    static inline constexpr WChar kOpenTypeAppendBin[] = L"ab";
+    static inline constexpr Char kOpenTypeAppendBin[] = "ab";
     /*Read and write.(binary file)*/
-    static inline constexpr WChar kOpenTypeReadPlusBin[] = L"rb+";
+    static inline constexpr Char kOpenTypeReadPlusBin[] = "rb+";
     /*Read and write, will clear the file.(binary file)*/
-    static inline constexpr WChar kOpenTypeWritePlusBin[] = L"wb+";
+    static inline constexpr Char kOpenTypeWritePlusBin[] = "wb+";
     /*Read and write, starts at the end of the file.(binary file)*/
-    static inline constexpr WChar kOpenTypeAppendPlusBin[] = L"ab+";
-    /*The max length of the file name.*/
-    static inline constexpr SizeType kFileNameLength = MAX_PATH;
+    static inline constexpr Char kOpenTypeAppendPlusBin[] = "ab+";
 
     ZFile() noexcept;
     ZFile(ZFile&& _file) noexcept;
@@ -105,14 +103,6 @@ public:
     */
     NODISCARD ReturnType Scan(const Char* _format, ...) noexcept;
     /*
-        Scans from the file.
-    */
-    NODISCARD ReturnType Scan(const WChar* _format, ArgListType _args) noexcept;
-    /*
-        Scans from the file.
-    */
-    NODISCARD ReturnType Scan(const WChar* _format, ...) noexcept;
-    /*
         Prints in the file.
     */
     NODISCARD ReturnType Print(const Char* _format, ArgListType _args) noexcept;
@@ -120,14 +110,6 @@ public:
         Prints in the file.
     */
     NODISCARD ReturnType Print(const Char* _format, ...) noexcept;
-    /*
-        Prints in the file.
-    */
-    NODISCARD ReturnType Print(const WChar* _format, ArgListType _args) noexcept;
-    /*
-        Prints in the file.
-    */
-    NODISCARD ReturnType Print(const WChar* _format, ...) noexcept;
 
     /*
         If a file is opened.
@@ -136,11 +118,11 @@ public:
     /*
         Opens the file, needs the path exist.
     */
-    NODISCARD ReturnType Open(const WChar* _file_dir, const WChar* _open_type) noexcept;
+    NODISCARD ReturnType Open(const Char* _file_dir, const Char* _open_type) noexcept;
     /*
         Opens the file safe, will create the path if the path doesn't exist.
     */
-    NODISCARD ReturnType OpenSafe(const WChar* _file_dir, const WChar* _open_type) noexcept;
+    NODISCARD ReturnType OpenSafe(const Char* _file_dir, const Char* _open_type) noexcept;
     /*
         Close the current file.
     */

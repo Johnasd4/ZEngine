@@ -67,7 +67,7 @@ ZTCPSocket::ZTCPSocket(ZIOContext* _context_ptr) noexcept
     if (_context_ptr == nullptr) {
         Z_LOG_ERROR(
             error_code::kSocketErrorCode_NullptrParam, 0,
-            L"_io_context_ptr is nullptr!"
+            "_io_context_ptr is nullptr!"
         );
         return;
     }
@@ -121,14 +121,14 @@ NODISCARD ReturnType ZTCPSocket::Initialize(ZIOContext* _io_context_ptr) noexcep
     Z_CHECK(
         state_ != StateEnum_::kUninitialized,
         error_code::kSocketErrorCode_StateError,
-        L"Socket state error! state: %d expect state: %d",
+        "Socket state error! state: %d expect state: %d",
         state_.Value(), StateEnum_::kUninitialized
     );
 
     Z_CHECK(
         _io_context_ptr == nullptr,
         error_code::kSocketErrorCode_NullptrParam,
-        L"_io_context_ptr is nullptr!"
+        "_io_context_ptr is nullptr!"
     );
 
     data_ptr_ = MakeUnique<internal::ZTCPSocketData>(&_io_context_ptr->data_ptr_->io_context_);
@@ -145,7 +145,7 @@ NODISCARD ReturnType ZTCPSocket::Open(IPTypeEnum _ip_type) noexcept {
     Z_CHECK(
         state_ != StateEnum_::kClosed,
         error_code::kSocketErrorCode_StateError,
-        L"Socket state error! state: %d expect state: %d",
+        "Socket state error! state: %d expect state: %d",
         state_, StateEnum_::kClosed
     );
 
@@ -160,7 +160,7 @@ NODISCARD ReturnType ZTCPSocket::Open(IPTypeEnum _ip_type) noexcept {
         ret_val = error_code::kSocketErrorCode_ParamOutOfRange;
         Z_LOG_ERROR(
             ret_val, 0,
-            L"Enum out of range! _ip_type: %d",
+            "Enum out of range! _ip_type: %d",
             _ip_type
         );
         return ret_val;
@@ -176,8 +176,8 @@ NODISCARD ReturnType ZTCPSocket::Open(IPTypeEnum _ip_type) noexcept {
         ret_val = error_code::kSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
-            L"System error! error info: %ls",
-            string::String2WString(error_code.message().c_str()).String()
+            "System error! error info: %ls",
+            string::StringToWString(error_code.message().c_str()).DataPtr()
         );
         return ret_val;
     }
@@ -194,7 +194,7 @@ NODISCARD ReturnType ZTCPSocket::BindEndpoint(const ZTCPEndpoint& _tcp_endpoint)
     Z_CHECK(
         state_ != StateEnum_::kOpened,
         error_code::kSocketErrorCode_StateError,
-        L"Socket state error! state: %d expect state: %d",
+        "Socket state error! state: %d expect state: %d",
         state_.Value(), StateEnum_::kOpened
     );
 
@@ -211,7 +211,7 @@ NODISCARD ReturnType ZTCPSocket::SetOSWriteBufferSize(Int32 _size) noexcept {
     Z_CHECK(
         state_ != StateEnum_::kConnected,
         error_code::kSocketErrorCode_StateError,
-        L"Socket state error! state: %d expect state: %d",
+        "Socket state error! state: %d expect state: %d",
         state_.Value(), StateEnum_::kConnected
     );
 
@@ -221,8 +221,8 @@ NODISCARD ReturnType ZTCPSocket::SetOSWriteBufferSize(Int32 _size) noexcept {
         ret_val = error_code::kSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
-            L"System error! error info: %ls",
-            string::String2WString(error_code.message().c_str()).String()
+            "System error! error info: %ls",
+            string::StringToWString(error_code.message().c_str()).DataPtr()
         );
         return ret_val;
     }
@@ -237,7 +237,7 @@ NODISCARD ReturnType ZTCPSocket::SetOSReadBufferSize(Int32 _size) noexcept {
     Z_CHECK(
         state_ != StateEnum_::kConnected,
         error_code::kSocketErrorCode_StateError,
-        L"Socket state error! state: %d expect state: %d",
+        "Socket state error! state: %d expect state: %d",
         state_.Value(), StateEnum_::kConnected
     );
 
@@ -247,8 +247,8 @@ NODISCARD ReturnType ZTCPSocket::SetOSReadBufferSize(Int32 _size) noexcept {
         ret_val = error_code::kSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
-            L"System error! error info: %ls",
-            string::String2WString(error_code.message().c_str()).String()
+            "System error! error info: %ls",
+            string::StringToWString(error_code.message().c_str()).DataPtr()
         );
         return ret_val;
     }
@@ -263,7 +263,7 @@ NODISCARD ReturnType ZTCPSocket::SetIfReuseAddress(Bool _if_reuse) noexcept {
     Z_CHECK(
         state_ != StateEnum_::kClosed,
         error_code::kSocketErrorCode_StateError,
-        L"Socket state error! state: %d expect state: %d",
+        "Socket state error! state: %d expect state: %d",
         state_, StateEnum_::kClosed
     );
 
@@ -305,7 +305,7 @@ NODISCARD ReturnType ZTCPSocket::Connect(
     Z_CHECK(
         state_ != StateEnum_::kOpened,
         error_code::kSocketErrorCode_StateError,
-        L"Socket state error! state: %d expect state: %d",
+        "Socket state error! state: %d expect state: %d",
         state_.Value(), StateEnum_::kOpened
     );
 
@@ -318,8 +318,8 @@ NODISCARD ReturnType ZTCPSocket::Connect(
 
     //connect
     Z_DEBUG_LOG_START(
-        L"Try to connect... ip: %ls port: %d",
-        string::String2WString(ip_str.String()).String(),
+        "Try to connect... ip: %ls port: %d",
+        string::StringToWString(ip_str.DataPtr()).DataPtr(),
         port
     );
 
@@ -341,8 +341,8 @@ NODISCARD ReturnType ZTCPSocket::Connect(
                 ret_val = error_code::kSocketErrorCode_SystemError;
                 Z_LOG_ERROR(
                     ret_val, error_code.value(),
-                    L"System error! error info: %ls",
-                    string::String2WString(error_code.message().c_str()).String()
+                    "System error! error info: %ls",
+                    string::StringToWString(error_code.message().c_str()).DataPtr()
                 );
                 break;
             }
@@ -359,7 +359,7 @@ NODISCARD ReturnType ZTCPSocket::Connect(
         //connect failed
         if (error_code) {
             if (state_ != StateEnum_::kConnecting) {
-                Z_DEBUG_LOG_PROCESS(L"Connect stopped!");
+                Z_DEBUG_LOG_PROCESS("Connect stopped!");
 				break;
             }
             else if (error_code == boost::asio::error::connection_refused) {
@@ -368,9 +368,9 @@ NODISCARD ReturnType ZTCPSocket::Connect(
                 }
                 reconnect_times += 1;
                 Z_DEBUG_LOG_PROCESS(
-                    L"Retry to connect... repeat_times: %d ip: %ls port: %d",
+                    "Retry to connect... repeat_times: %d ip: %ls port: %d",
                     reconnect_times,
-                    string::String2WString(ip_str.String()).String(),
+                    string::StringToWString(ip_str.DataPtr()).DataPtr(),
                     port
                 );
             }
@@ -379,8 +379,8 @@ NODISCARD ReturnType ZTCPSocket::Connect(
                 ret_val = error_code::kSocketErrorCode_SystemError;
                 Z_LOG_ERROR(
                     ret_val, error_code.value(),
-                    L"System error! error info: %ls",
-                    string::String2WString(error_code.message().c_str()).String()
+                    "System error! error info: %ls",
+                    string::StringToWString(error_code.message().c_str()).DataPtr()
                 );
                 return ret_val;
             }
@@ -399,8 +399,8 @@ NODISCARD ReturnType ZTCPSocket::Connect(
     if (state_ != StateEnum_::kConnected) {
         ret_val = error_code::kSocketErrorCode_ConnectFailed;
         Z_DEBUG_LOG_FAILURE(
-            L"Socket connect failed! ip: %ls port: %d",
-            string::String2WString(ip_str.String()).String(),
+            "Socket connect failed! ip: %ls port: %d",
+            string::StringToWString(ip_str.DataPtr()).DataPtr(),
             port
         );
         return ret_val;
@@ -419,14 +419,14 @@ NODISCARD ReturnType ZTCPSocket::AsyncConnect(
     Z_CHECK(
         state_ != StateEnum_::kOpened,
         error_code::kSocketErrorCode_StateError,
-        L"Socket state error! state: %d expect state: %d",
+        "Socket state error! state: %d expect state: %d",
         state_.Value(), StateEnum_::kOpened
     );
 
     //connect
     Z_DEBUG_LOG_START(
-        L"Try to connect... ip: %ls port: %d",
-        string::String2WString(_tcp_endpoint.IPString().String()).String(),
+        "Try to connect... ip: %ls port: %d",
+        string::StringToWString(_tcp_endpoint.IPString().DataPtr()).DataPtr(),
         _tcp_endpoint.Port()
     );
 
@@ -442,7 +442,7 @@ NODISCARD ReturnType ZTCPSocket::AsyncConnect(
         ret_val = error_code::kSocketErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
-            L"ZTCPSocket::AsyncConnectExecuteP() link error!"
+            "ZTCPSocket::AsyncConnectExecuteP() link error!"
         );
         return ret_val;
     }
@@ -469,8 +469,8 @@ NODISCARD ReturnType ZTCPSocket::AsyncConnectExecuteP(
             ret_val = error_code::kSocketErrorCode_SystemError;
             Z_LOG_ERROR(
                 ret_val, error_code.value(),
-                L"System error! error info: %ls",
-                string::String2WString(error_code.message().c_str()).String()
+                "System error! error info: %ls",
+                string::StringToWString(error_code.message().c_str()).DataPtr()
             );
             return ret_val;
         }
@@ -482,16 +482,16 @@ NODISCARD ReturnType ZTCPSocket::AsyncConnectExecuteP(
             ret_val = error_code::kSocketErrorCode_SystemError;
             Z_LOG_ERROR(
                 ret_val, error_code.value(),
-                L"System error! error info: %ls",
-                string::String2WString(error_code.message().c_str()).String()
+                "System error! error info: %ls",
+                string::StringToWString(error_code.message().c_str()).DataPtr()
             );
             return ret_val;
         }
     }
 
     Z_DEBUG_LOG_PROCESS(
-        L"Connecting... ip: %ls port: %d",
-        string::String2WString(_tcp_endpoint.IPString().String()).String(),
+        "Connecting... ip: %ls port: %d",
+        string::StringToWString(_tcp_endpoint.IPString().DataPtr()).DataPtr(),
         _tcp_endpoint.Port()
     );
 
@@ -512,15 +512,15 @@ NODISCARD ReturnType ZTCPSocket::AsyncConnectExecuteP(
                     Bool if_retry = false;
                     //retry
                     if (state_ != StateEnum_::kConnecting) {
-                        Z_DEBUG_LOG_PROCESS(L"Connect stopped!");
+                        Z_DEBUG_LOG_PROCESS("Connect stopped!");
                     }
                     else if (_reconnect_times < _repeat_times) {
                         _reconnect_times += 1;
                         if_retry = true;
                         Z_DEBUG_LOG_PROCESS(
-                            L"Retry to connect... repeat_times: %d ip: %ls port: %d",
+                            "Retry to connect... repeat_times: %d ip: %ls port: %d",
                             _reconnect_times,
-                            string::String2WString(_tcp_endpoint.IPString().String()).String(),
+                            string::StringToWString(_tcp_endpoint.IPString().DataPtr()).DataPtr(),
                             _tcp_endpoint.Port()
                         );
                     }
@@ -535,7 +535,7 @@ NODISCARD ReturnType ZTCPSocket::AsyncConnectExecuteP(
                             ret_val = error_code::kSocketErrorCode_LinkError;
                             Z_LOG_ERROR(
                                 ret_val, link_code,
-                                L"ZTCPSocket::AsyncConnectExecuteP() link error!"
+                                "ZTCPSocket::AsyncConnectExecuteP() link error!"
                             );
                             _handle_func(ret_val, this);
                             return;
@@ -546,16 +546,16 @@ NODISCARD ReturnType ZTCPSocket::AsyncConnectExecuteP(
                     ret_val = error_code::kSocketErrorCode_ConnectFailed;
                     //timeout
                     Z_DEBUG_LOG_FAILURE(
-                        L"Connect failed! ip: %ls port: %ls",
-                        string::String2WString(_tcp_endpoint.IPString().String()).String(),
+                        "Connect failed! ip: %ls port: %ls",
+                        string::StringToWString(_tcp_endpoint.IPString().DataPtr()).DataPtr(),
                         _tcp_endpoint.Port()
                     );
                 }
                 else if (_error_code == boost::asio::error::operation_aborted) {
                     ret_val = error_code::kSocketErrorCode_OperationCanceled;
                     Z_DEBUG_LOG_FAILURE(
-                        L"Connect canceled! ip: %ls port: %ls",
-                        string::String2WString(_tcp_endpoint.IPString().String()).String(),
+                        "Connect canceled! ip: %ls port: %ls",
+                        string::StringToWString(_tcp_endpoint.IPString().DataPtr()).DataPtr(),
                         _tcp_endpoint.Port()
                     );
                 }
@@ -563,8 +563,8 @@ NODISCARD ReturnType ZTCPSocket::AsyncConnectExecuteP(
                     ret_val = error_code::kSocketErrorCode_SystemError;
                     Z_LOG_ERROR(
                         ret_val, _error_code.value(),
-                        L"System error! error info: %ls",
-                        string::String2WString(_error_code.message().c_str()).String()
+                        "System error! error info: %ls",
+                        string::StringToWString(_error_code.message().c_str()).DataPtr()
                     );
                 }
 
@@ -588,7 +588,7 @@ NODISCARD ReturnType ZTCPSocket::AsyncConnectExecuteP(
 NODISCARD Void ZTCPSocket::StopConnect() noexcept {
     if (state_ == StateEnum_::kConnecting) {
         state_ = StateEnum_::kOpened;
-        Z_DEBUG_LOG_PROCESS(L"Stop connecting...");
+        Z_DEBUG_LOG_PROCESS("Stop connecting...");
     }
 }
 
@@ -614,8 +614,8 @@ NODISCARD ReturnType ZTCPSocket::Read(
             state_ = StateEnum_::kError;
             ret_val = error_code::kSocketErrorCode_Disconnected;
             Z_DEBUG_LOG_FINISH(
-                L"Socket disconnected! ip: %ls port: %d",
-                string::String2WString(RemoteEndpoint().IPString().String()).String(),
+                "Socket disconnected! ip: %ls port: %d",
+                string::StringToWString(RemoteEndpoint().IPString().DataPtr()).DataPtr(),
                 RemoteEndpoint().Port()
             );
             return ret_val;
@@ -625,8 +625,8 @@ NODISCARD ReturnType ZTCPSocket::Read(
             ret_val = error_code::kSocketErrorCode_SystemError;
             Z_LOG_ERROR(
                 ret_val, error_code.value(),
-                L"System error! error info: %ls",
-                string::String2WString(error_code.message().c_str()).String()
+                "System error! error info: %ls",
+                string::StringToWString(error_code.message().c_str()).DataPtr()
             );
             return ret_val;
         }
@@ -664,8 +664,8 @@ NODISCARD ReturnType ZTCPSocket::AsyncRead(
                     state_ = StateEnum_::kError;
                     ret_val = error_code::kSocketErrorCode_Disconnected;
                     Z_DEBUG_LOG_FINISH(
-                        L"Socket disconnected! ip: %ls port: %d",
-                        string::String2WString(RemoteEndpoint().IPString().String()).String(),
+                        "Socket disconnected! ip: %ls port: %d",
+                        string::StringToWString(RemoteEndpoint().IPString().DataPtr()).DataPtr(),
                         RemoteEndpoint().Port()
                     );
                 }
@@ -677,8 +677,8 @@ NODISCARD ReturnType ZTCPSocket::AsyncRead(
                     ret_val = error_code::kSocketErrorCode_SystemError;
                     Z_LOG_ERROR(
                         ret_val, _error_code.value(),
-                        L"System error! error info: %ls",
-                        string::String2WString(_error_code.message().c_str()).String()
+                        "System error! error info: %ls",
+                        string::StringToWString(_error_code.message().c_str()).DataPtr()
                     );
                 }
 
@@ -721,8 +721,8 @@ NODISCARD ReturnType ZTCPSocket::ReadUntil(
             state_ = StateEnum_::kError;
             ret_val = error_code::kSocketErrorCode_Disconnected;
             Z_DEBUG_LOG_FINISH(
-                L"Socket disconnected! ip: %ls port: %d",
-                string::String2WString(RemoteEndpoint().IPString().String()).String(),
+                "Socket disconnected! ip: %ls port: %d",
+                string::StringToWString(RemoteEndpoint().IPString().DataPtr()).DataPtr(),
                 RemoteEndpoint().Port()
             );
             return ret_val;
@@ -731,7 +731,7 @@ NODISCARD ReturnType ZTCPSocket::ReadUntil(
             ret_val = error_code::kSocketErrorCode_ReadUntilSymbolNotFound;
             Z_LOG_ERROR(
                 ret_val, error_code.value(),
-                L"Match char not found!"
+                "Match char not found!"
             );
             return ret_val;
         }
@@ -740,8 +740,8 @@ NODISCARD ReturnType ZTCPSocket::ReadUntil(
             ret_val = error_code::kSocketErrorCode_SystemError;
             Z_LOG_ERROR(
                 ret_val, error_code.value(),
-                L"System error! error info: %ls",
-                string::String2WString(error_code.message().c_str()).String()
+                "System error! error info: %ls",
+                string::StringToWString(error_code.message().c_str()).DataPtr()
             );
             return ret_val;
         }
@@ -777,8 +777,8 @@ NODISCARD ReturnType ZTCPSocket::ReadUntil(
             state_ = StateEnum_::kError;
             ret_val = error_code::kSocketErrorCode_Disconnected;
             Z_DEBUG_LOG_FINISH(
-                L"Socket disconnected! ip: %ls port: %d",
-                string::String2WString(RemoteEndpoint().IPString().String()).String(),
+                "Socket disconnected! ip: %ls port: %d",
+                string::StringToWString(RemoteEndpoint().IPString().DataPtr()).DataPtr(),
                 RemoteEndpoint().Port()
             );
             return ret_val;
@@ -787,7 +787,7 @@ NODISCARD ReturnType ZTCPSocket::ReadUntil(
             ret_val = error_code::kSocketErrorCode_ReadUntilSymbolNotFound;
             Z_LOG_ERROR(
                 ret_val, error_code.value(),
-                L"Match string not found!"
+                "Match string not found!"
             );
             return ret_val;
         }
@@ -796,8 +796,8 @@ NODISCARD ReturnType ZTCPSocket::ReadUntil(
             ret_val = error_code::kSocketErrorCode_SystemError;
             Z_LOG_ERROR(
                 ret_val, error_code.value(),
-                L"System error! error info: %ls",
-                string::String2WString(error_code.message().c_str()).String()
+                "System error! error info: %ls",
+                string::StringToWString(error_code.message().c_str()).DataPtr()
             );
             return ret_val;
         }
@@ -837,8 +837,8 @@ NODISCARD ReturnType ZTCPSocket::AsyncReadUntil(
                     state_ = StateEnum_::kError;
                     ret_val = error_code::kSocketErrorCode_Disconnected;
                     Z_DEBUG_LOG_FINISH(
-                        L"Socket disconnected! ip: %ls port: %d",
-                        string::String2WString(RemoteEndpoint().IPString().String()).String(),
+                        "Socket disconnected! ip: %ls port: %d",
+                        string::StringToWString(RemoteEndpoint().IPString().DataPtr()).DataPtr(),
                         RemoteEndpoint().Port()
                     );
                 }
@@ -849,7 +849,7 @@ NODISCARD ReturnType ZTCPSocket::AsyncReadUntil(
                     ret_val = error_code::kSocketErrorCode_ReadUntilSymbolNotFound;
                     Z_LOG_ERROR(
                         ret_val, _error_code.value(),
-                        L"Match char not found!"
+                        "Match char not found!"
                     );
                 }
                 else {
@@ -857,8 +857,8 @@ NODISCARD ReturnType ZTCPSocket::AsyncReadUntil(
                     ret_val = error_code::kSocketErrorCode_SystemError;
                     Z_LOG_ERROR(
                         ret_val, _error_code.value(),
-                        L"System error! error info: %ls",
-                        string::String2WString(_error_code.message().c_str()).String()
+                        "System error! error info: %ls",
+                        string::StringToWString(_error_code.message().c_str()).DataPtr()
                     );
                 }
 
@@ -905,8 +905,8 @@ NODISCARD ReturnType ZTCPSocket::AsyncReadUntil(
                     state_ = StateEnum_::kError;
                     ret_val = error_code::kSocketErrorCode_Disconnected;
                     Z_DEBUG_LOG_FINISH(
-                        L"Socket disconnected! ip: %ls port: %d",
-                        string::String2WString(RemoteEndpoint().IPString().String()).String(),
+                        "Socket disconnected! ip: %ls port: %d",
+                        string::StringToWString(RemoteEndpoint().IPString().DataPtr()).DataPtr(),
                         RemoteEndpoint().Port()
                     );
                 }
@@ -917,7 +917,7 @@ NODISCARD ReturnType ZTCPSocket::AsyncReadUntil(
                     ret_val = error_code::kSocketErrorCode_ReadUntilSymbolNotFound;
                     Z_LOG_ERROR(
                         ret_val, _error_code.value(),
-                        L"Match string not found!"
+                        "Match string not found!"
                     );
                 }
                 else {
@@ -925,8 +925,8 @@ NODISCARD ReturnType ZTCPSocket::AsyncReadUntil(
                     ret_val = error_code::kSocketErrorCode_SystemError;
                     Z_LOG_ERROR(
                         ret_val, _error_code.value(),
-                        L"System error! error info: %ls",
-                        string::String2WString(_error_code.message().c_str()).String()
+                        "System error! error info: %ls",
+                        string::StringToWString(_error_code.message().c_str()).DataPtr()
                     );
                 }
 
@@ -973,8 +973,8 @@ NODISCARD ReturnType ZTCPSocket::ReadUntilClose(
         state_ = StateEnum_::kError;
         ret_val = error_code::kSocketErrorCode_Disconnected;
         Z_DEBUG_LOG_FINISH(
-            L"Socket disconnected! ip: %ls port: %d",
-            string::String2WString(RemoteEndpoint().IPString().String()).String(),
+            "Socket disconnected! ip: %ls port: %d",
+            string::StringToWString(RemoteEndpoint().IPString().DataPtr()).DataPtr(),
             RemoteEndpoint().Port()
         );
         return ret_val;
@@ -984,8 +984,8 @@ NODISCARD ReturnType ZTCPSocket::ReadUntilClose(
         ret_val = error_code::kSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
-            L"System error! error info: %ls",
-            string::String2WString(error_code.message().c_str()).String()
+            "System error! error info: %ls",
+            string::StringToWString(error_code.message().c_str()).DataPtr()
         );
         return ret_val;
     }
@@ -1018,8 +1018,8 @@ NODISCARD ReturnType ZTCPSocket::Write(
             state_ = StateEnum_::kError;
             ret_val = error_code::kSocketErrorCode_Disconnected;
             Z_DEBUG_LOG_FINISH(
-                L"Socket disconnected! ip: %ls port: %d",
-                string::String2WString(RemoteEndpoint().IPString().String()).String(),
+                "Socket disconnected! ip: %ls port: %d",
+                string::StringToWString(RemoteEndpoint().IPString().DataPtr()).DataPtr(),
                 RemoteEndpoint().Port()
             );
             return ret_val;
@@ -1029,8 +1029,8 @@ NODISCARD ReturnType ZTCPSocket::Write(
             ret_val = error_code::kSocketErrorCode_SystemError;
             Z_LOG_ERROR(
                 ret_val, error_code.value(),
-                L"System error! error info: %ls",
-                string::String2WString(error_code.message().c_str()).String()
+                "System error! error info: %ls",
+                string::StringToWString(error_code.message().c_str()).DataPtr()
             );
             return ret_val;
         }
@@ -1065,8 +1065,8 @@ NODISCARD ReturnType ZTCPSocket::AsyncWrite(
                     state_ = StateEnum_::kError;
                     ret_val = error_code::kSocketErrorCode_Disconnected;
                     Z_DEBUG_LOG_FINISH(
-                        L"Socket disconnected! ip: %ls port: %d",
-                        string::String2WString(RemoteEndpoint().IPString().String()).String(),
+                        "Socket disconnected! ip: %ls port: %d",
+                        string::StringToWString(RemoteEndpoint().IPString().DataPtr()).DataPtr(),
                         RemoteEndpoint().Port()
                     );
                 }
@@ -1078,8 +1078,8 @@ NODISCARD ReturnType ZTCPSocket::AsyncWrite(
                     ret_val = error_code::kSocketErrorCode_SystemError;
                     Z_LOG_ERROR(
                         ret_val, _error_code.value(),
-                        L"System error! error info: %ls",
-                        string::String2WString(_error_code.message().c_str()).String()
+                        "System error! error info: %ls",
+                        string::StringToWString(_error_code.message().c_str()).DataPtr()
                     );
                 }
 
@@ -1121,8 +1121,8 @@ Void ZTCPSocket::OnConnectP() noexcept {
     data_ptr_->remote_endpoint_ = data_ptr_->socket_.remote_endpoint();
 
     Z_DEBUG_LOG_SUCCESS(
-        L"Socket connected! ip: %ls port: %d",
-        string::String2WString(RemoteEndpoint().IPString().String()).String(),
+        "Socket connected! ip: %ls port: %d",
+        string::StringToWString(RemoteEndpoint().IPString().DataPtr()).DataPtr(),
         RemoteEndpoint().Port()
     );
 }

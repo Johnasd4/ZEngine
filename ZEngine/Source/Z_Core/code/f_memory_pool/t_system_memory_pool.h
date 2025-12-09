@@ -64,7 +64,7 @@ public:
             reinterpret_cast<TSystemMemoryBlock<kIsThreadSafe>*>(malloc(size));
         if (block_ptr == nullptr) {
             Z_LOG_ERROR(error_code::kFMemoryPoolErrorCode_ApplyHeapMemoryFailed, 0,
-                L"Apply heap memory failed! Exit program! size: %d", _size);
+                "Apply heap memory failed! Exit program! size: %d", _size);
             exit(EXIT_FAILURE);
             return nullptr;
         }
@@ -80,7 +80,7 @@ public:
         block_ptr = realloc(block_ptr, size);
         if (block_ptr == nullptr) {
             Z_LOG_ERROR(error_code::kFMemoryPoolErrorCode_ApplyHeapMemoryFailed, 0,
-                L"Apply heap memory failed! Exit program! size: %d", _size);
+                "Apply heap memory failed! Exit program! size: %d", _size);
             exit(EXIT_FAILURE);
             return nullptr;
         }
@@ -118,25 +118,25 @@ public:
 #if USE_MEMORY_POOL_TEST
         ReturnType link_code = kOK;
 
-        link_code = TMemoryPoolBase<kIsThreadSafe>::log_file_.Print("\n***** system memory pool *****\n\n");
+        link_code = TMemoryPoolBase<kIsThreadSafe>::LogFile().Print("\n***** system memory pool *****\n\n");
         if (link_code != kOK) {
-            Z_LOG_ERROR(error_code::kFMemoryPoolErrorCode_LinkError, link_code, L"ZFile::Print() link error!");
+            Z_LOG_ERROR(error_code::kFMemoryPoolErrorCode_LinkError, link_code, "ZFile::Print() link error!");
             return;
         }
 
-        link_code = TMemoryPoolBase<kIsThreadSafe>::log_file_.Print("applied times | used peak num | unused num\n");
+        link_code = TMemoryPoolBase<kIsThreadSafe>::LogFile().Print("applied times | used peak num | unused num\n");
         if (link_code != kOK) {
-            Z_LOG_ERROR(error_code::kFMemoryPoolErrorCode_LinkError, link_code, L"ZFile::Print() link error!");
+            Z_LOG_ERROR(error_code::kFMemoryPoolErrorCode_LinkError, link_code, "ZFile::Print() link error!");
             return;
         }
 
-        link_code = TMemoryPoolBase<kIsThreadSafe>::log_file_.Print(
+        link_code = TMemoryPoolBase<kIsThreadSafe>::LogFile().Print(
             "   %9d   |   %9d   |  %8d\n",
             momory_block_applyed_num_,
             momory_block_peak_num_,
             memory_block_used_current_num_);
         if (link_code != kOK) {
-            Z_LOG_ERROR(error_code::kFMemoryPoolErrorCode_LinkError, link_code, L"ZFile::Print() link error!");
+            Z_LOG_ERROR(error_code::kFMemoryPoolErrorCode_LinkError, link_code, "ZFile::Print() link error!");
             return;
         }
 #endif //USE_MEMORY_POOL_TEST        

@@ -55,7 +55,7 @@ Void ZSceneEventManager::FinishAllExecutingSceneEventGroup() noexcept {
             if (link_code != kOK) {
                 Z_LOG_ERROR(
                     error_code::kZSceneEventErrorCode_LinkError, link_code,
-                    L"ZSceneEvent::FinishImmediately() link error!");
+                    "ZSceneEvent::FinishImmediately() link error!");
             }
             delete event_ptr;
             event_list.PopFront();
@@ -83,7 +83,7 @@ Void ZSceneEventManager::Tick(Float32 _delta_time) noexcept {
             if (link_code != kOK) {
                 Z_LOG_ERROR(
                     error_code::kZSceneEventErrorCode_LinkError, link_code,
-                    L"ZSceneEvent::Execute() link error!");
+                    "ZSceneEvent::Execute() link error!");
                 (*event_ptr)->Destroy();
             }
             if ((*event_ptr)->Finished()) {

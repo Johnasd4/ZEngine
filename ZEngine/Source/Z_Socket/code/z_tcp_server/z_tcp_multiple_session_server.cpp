@@ -39,7 +39,7 @@ ZTCPMultipleSessionServer::ZTCPMultipleSessionServer(ZIOContext* _io_context_ptr
     if (_io_context_ptr == nullptr) {
         Z_LOG_ERROR(
             error_code::kSocketErrorCode_NullptrParam, 0,
-            L"_io_context_ptr is nullptr!"
+            "_io_context_ptr is nullptr!"
         );
         return;
     }
@@ -62,7 +62,7 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::Open(IPTypeEnum _ip_type) noexce
     Z_CHECK(
         state_ != StateEnum_::kClosed,
         error_code::kSocketErrorCode_StateError,
-        L"Server state error! state: %d expect state: %d",
+        "Server state error! state: %d expect state: %d",
         state_, StateEnum_::kClosed
     );
 
@@ -77,7 +77,7 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::Open(IPTypeEnum _ip_type) noexce
         ret_val = error_code::kSocketErrorCode_ParamOutOfRange;
         Z_LOG_ERROR(
             ret_val, 0,
-            L"Enum out of range! _ip_type: %d",
+            "Enum out of range! _ip_type: %d",
             _ip_type
         );
         return ret_val;
@@ -88,8 +88,8 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::Open(IPTypeEnum _ip_type) noexce
         ret_val = error_code::kSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
-            L"System error! error info: %ls",
-            string::String2WString(error_code.message().c_str()).String()
+            "System error! error info: %ls",
+            string::StringToWString(error_code.message().c_str()).DataPtr()
         );
         return ret_val;
     }
@@ -106,7 +106,7 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::BindEndpoint(const ZTCPEndpoint&
     Z_CHECK(
         state_ != StateEnum_::kOpened,
         error_code::kSocketErrorCode_StateError,
-        L"Server state error! state: %d expect state: %d",
+        "Server state error! state: %d expect state: %d",
         state_, StateEnum_::kOpened
     );
 
@@ -119,8 +119,8 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::BindEndpoint(const ZTCPEndpoint&
         ret_val = error_code::kSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
-            L"System error! error info: %ls",
-            string::String2WString(error_code.message().c_str()).String()
+            "System error! error info: %ls",
+            string::StringToWString(error_code.message().c_str()).DataPtr()
         );
         return ret_val;
     }
@@ -137,7 +137,7 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::Listen(Int32 _max_wait_connect_c
     Z_CHECK(
         state_ != StateEnum_::kEndpointBind,
         error_code::kSocketErrorCode_StateError,
-        L"Server state error! state: %d expect state: %d",
+        "Server state error! state: %d expect state: %d",
         state_, StateEnum_::kEndpointBind
     );
 
@@ -147,8 +147,8 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::Listen(Int32 _max_wait_connect_c
         ret_val = error_code::kSocketErrorCode_SystemError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
-            L"System error! error info: %ls",
-            string::String2WString(error_code.message().c_str()).String()
+            "System error! error info: %ls",
+            string::StringToWString(error_code.message().c_str()).DataPtr()
         );
         return ret_val;
     }
@@ -188,7 +188,7 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncAccept(
     Z_CHECK(
         state_ != StateEnum_::kListen,
         error_code::kSocketErrorCode_StateError,
-        L"Server state error! state: %d expect state: %d",
+        "Server state error! state: %d expect state: %d",
         state_, StateEnum_::kListen
     );
 
@@ -208,14 +208,14 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncAccept(
                 //handle error
                 if (_error_code == boost::asio::error::operation_aborted) {
                     ret_val = error_code::kSocketErrorCode_OperationCanceled;
-                    Z_DEBUG_LOG_FAILURE(L"Server accept cancelled!");
+                    Z_DEBUG_LOG_FAILURE("Server accept cancelled!");
                 }
                 else {
                     ret_val = error_code::kSocketErrorCode_SystemError;
                     Z_LOG_ERROR(
                         ret_val, _error_code.value(),
-                        L"System error! error info: %ls",
-                        string::String2WString(_error_code.message().c_str()).String()
+                        "System error! error info: %ls",
+                        string::StringToWString(_error_code.message().c_str()).DataPtr()
                     );
                 }
             }
@@ -226,7 +226,7 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncAccept(
                         //disconnect
                         if (socket_ptr->State() == ZTCPSocket::StateEnum_::kError) {
                             socket_ptr->Close();
-                            Z_DEBUG_LOG_FINISH(L"Client disconnected!");
+                            Z_DEBUG_LOG_FINISH("Client disconnected!");
 
                             //release socket
                             socket_pool_list_.Erase(socket_ptr);
@@ -235,7 +235,7 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncAccept(
                     }
                 );
                 socket_pool_list_.PushBack(socket_ptr);
-                Z_DEBUG_LOG_SUCCESS(L"Client connected!");
+                Z_DEBUG_LOG_SUCCESS("Client connected!");
             }
 
             if (_handle_func) {
@@ -257,7 +257,7 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncBroadcast(
     Z_CHECK(
         state_ != StateEnum_::kListen,
         error_code::kSocketErrorCode_StateError,
-        L"Server state error! state: %d expect state: %d",
+        "Server state error! state: %d expect state: %d",
         state_, StateEnum_::kListen
     );
     
@@ -268,7 +268,7 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncBroadcast(
         if (link_code != kOK) {
             //disconnect
             if (socket_iter->State() == ZTCPSocket::StateEnum_::kClosed) {
-                Z_DEBUG_LOG_FINISH(L"Client disconnected!");
+                Z_DEBUG_LOG_FINISH("Client disconnected!");
             }
             //close and release socket
             socket_iter->Close();

@@ -20,7 +20,7 @@
 
 #include "z_socket/f_socket.h"
 #include "z_socket/f_tcp_log_output.h"
-#include "z_socket/z_buffer_stream.h"
+#include "z_socket/z_socket_buffer_stream.h"
 #include "z_socket/z_http_request_generator.h"
 #include "z_socket/z_http_response_resolver.h"
 #include "z_socket/z_io_context.h"

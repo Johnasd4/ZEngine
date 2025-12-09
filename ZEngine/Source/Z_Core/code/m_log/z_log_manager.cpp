@@ -1,17 +1,25 @@
 /*
     Copyright (c) YuLin Zhu
 
-    This code file is licensed under the Creative Commons
-    Attribution-NonCommercial 4.0 International License.
+    ** ZEngine Proprietary License **
 
-    You may obtain a copy of the License at
-    https://creativecommons.org/licenses/by-nc/4.0/
+    This software is provided "as-is", without any express or implied warranty.
+    In no event will the authors be held liable for any damages arising from the
+    use of this software.
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+    Usage Rights:
+    1. Non-Commercial Use: You may use, modify, and distribute this software
+       for non-commercial purposes (e.g., education, personal projects, open-source
+       projects that do not generate revenue) free of charge.
+
+    2. Commercial Use: Commercial use of this software is STRICTLY PROHIBITED
+       without a valid commercial license agreement with the author.
+       "Commercial use" includes, but is not limited to:
+       - Incorporating this software into a product that is sold.
+       - Using this software in a paid service.
+       - Using this software for internal business operations in a for-profit entity.
+
+    To obtain a Commercial License, please contact the author.
 
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
@@ -21,116 +29,13 @@
 
 #include "z_log_manager.h"
 
+#include "m_log.h"
 #include "t_lock_guard.h"
 
 namespace zengine {
 namespace log {
 
-Void ZLogManager::LogError(
-    TimeType _raw_time,
-    const WChar* _proj_name,
-    const Char* _file_dir,
-    const Char* _func_name,
-    Int32 _err_line,
-    ReturnType _err_code,
-    ReturnType _link_code,
-    const WChar* _format,
-    ArgListType _args
-) noexcept {
-    static ZLogManager& log_manager = ZLogManager::InstanceP();
-    log_manager.error_log_queue_.EmplaceBack(
-        _raw_time, _proj_name, _file_dir, _func_name, _err_line, _err_code, _link_code, _format, _args
-    );
-}
-
-Void ZLogManager::LogTrace(
-    TimeType _raw_time,
-    const WChar* _proj_name,
-    const Char* _file_dir,
-    const Char* _func_name,
-    const WChar* _format,
-    ArgListType _args
-) noexcept {
-    static ZLogManager& log_manager = ZLogManager::InstanceP();
-    log_manager.trace_log_queue_.EmplaceBack(
-        _raw_time, _proj_name, _file_dir, _func_name, _format, _args
-    );
-}
-
-Void ZLogManager::LogInfo(
-    TimeType _raw_time,
-    InfoLogTypeEnum _info_type,
-    const WChar* _format,
-    ArgListType _args
-) noexcept {
-    static ZLogManager& log_manager = ZLogManager::InstanceP();
-    log_manager.info_log_queue_.EmplaceBack(
-        _raw_time, _info_type, _format, _args
-    );
-}
-
-NODISCARD ReturnType ZLogManager::RegisterLogServerInputFunction(
-    SizeType _port_id, Void(*_input_func)(const ZLog*, ZLog::OutputString_*)
-) noexcept {
-    ReturnType ret_val = kOK;
-    ReturnType link_code = kOK;
-    _port_id = (_port_id + kLogMaxPortNum) % kLogMaxPortNum;
-    link_code = ZLogManager::InstanceP().log_server_.RegisterInputFunction(_port_id, _input_func);
-    if (link_code != kOK) {
-        ret_val = error_code::kMLogErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, L"ZLogServer::RegisterInputFunction() link error!");
-        return ret_val;
-    }
-
-    return ret_val;
-}
-
-NODISCARD ReturnType ZLogManager::UnregisterLogServerInputFunction(
-    SizeType _port_id, Void(*_input_func)(const ZLog*, ZLog::OutputString_*)
-) noexcept {
-    ReturnType ret_val = kOK;
-    ReturnType link_code = kOK;
-    _port_id = (_port_id + kLogMaxPortNum) % kLogMaxPortNum;
-    link_code = ZLogManager::InstanceP().log_server_.UnregisterInputFunction(_port_id, _input_func);
-    if (link_code != kOK) {
-        ret_val = error_code::kMLogErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, L"ZLogServer::UnregisterInputFunction() link error!");
-        return ret_val;
-    }
-
-    return ret_val;
-}
-
-NODISCARD ReturnType ZLogManager::RegisterLogServerOutputFunction(
-    SizeType _port_id, Void(*_output_func)(const ZLog*, const ZLog::OutputString_&)
-) noexcept {
-    ReturnType ret_val = kOK;
-    ReturnType link_code = kOK;
-    _port_id = (_port_id + kLogMaxPortNum) % kLogMaxPortNum;
-    link_code = ZLogManager::InstanceP().log_server_.RegisterOutputFunction(_port_id, _output_func);
-    if (link_code != kOK) {
-        ret_val = error_code::kMLogErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, L"ZLogServer::RegisterOutputFunction() link error!");
-        return ret_val;
-    }
-
-    return ret_val;
-}
-
-Void ZLogManager::UnregisterLogServerOutputFunction(
-    Void(*_output_func)(const ZLog*, const ZLog::OutputString_&)
-) noexcept {
-    ZLogManager::InstanceP().log_server_.UnregisterOutputFunction(_output_func);
-}
-
-Void ZLogManager::FinishFlush(TimeType _max_wait_time_ms) noexcept {
-    ZLogManager::InstanceP().log_thread_finished_ = true;
-    if (ZLogManager::InstanceP().log_thread_.Joinable()) {
-        ZLogManager::InstanceP().log_thread_.Join(_max_wait_time_ms);
-    }
-}
-
-ZLogManager& ZLogManager::InstanceP() noexcept {
+NODISCARD ZLogManager& ZLogManager::Instance() noexcept {
     static ZLogManager log_manager;
     return log_manager;
 }
@@ -141,34 +46,61 @@ Void ZLogManager::LogThread(ZLogManager* _log_manager_ptr) noexcept {
     while (_log_manager_ptr->log_thread_finished_ == false) {
         if_log = false;
 
-        //err log
-        if (!_log_manager_ptr->error_log_queue_.Empty()) {
-            _log_manager_ptr->log_server_.OutputLog(kErrorLogPortID, &_log_manager_ptr->error_log_queue_.Front());
-            _log_manager_ptr->error_log_queue_.PopFront();
-            if_log = true;
-        }
+        //log manager request handle
+        while (_log_manager_ptr->request_queue_.Size() > 0ULL) {
+            TUniquePointer<Request_> request_ptr = std::move(_log_manager_ptr->request_queue_.Front());
+            _log_manager_ptr->request_queue_.PopFront();
+            auto& request_data = request_ptr->request_data_.register_data_;
+            ZLog::OutputFunction_ request_func = request_data._output_func;
+            ZLog::OutputFunctionArray_* request_func_array_ptr = request_data.output_func_array_ptr_;
+            SizeType index;
+            ZLog::OutputFunction_ index_func;
 
-        //trace log
-        if (!_log_manager_ptr->trace_log_queue_.Empty()) {
-            _log_manager_ptr->log_server_.OutputLog(kTraceLogPortID, &_log_manager_ptr->trace_log_queue_.Front());
-            _log_manager_ptr->trace_log_queue_.PopFront();
-            if_log = true;
-        }
-
-        //info log
-        if (!_log_manager_ptr->info_log_queue_.Empty()) {
-            _log_manager_ptr->log_server_.OutputLog(kInfoLogPortID, &_log_manager_ptr->info_log_queue_.Front());
-            _log_manager_ptr->info_log_queue_.PopFront();
-            if_log = true;
-        }
-
-        //log
-        for (SizeType port_id = 0; port_id < _log_manager_ptr->log_queue_array_.Capacity(); ++port_id) {
-            if (!_log_manager_ptr->log_queue_array_[port_id].Empty()) {
-                _log_manager_ptr->log_server_.OutputLog(port_id, &_log_manager_ptr->log_queue_array_[port_id].Front());
-                _log_manager_ptr->log_queue_array_[port_id].PopFront();
-                if_log = true;
+            switch (request_ptr->request_type_) {
+            case RequestTypeEnum_::kLogOutputRegisterRequest:
+                for (index = 0; index < kOutputFunctionMaxNum; ++index) {
+                    index_func = (*request_func_array_ptr)[index];
+                    if (index_func) {
+                        //Check for same output.
+                        if (index_func == request_func) {
+                            Z_LOG_ERROR(
+                                error_code::kMLogErrorCode_LogPortOutputFunctionAlreadyRegistered, 0, 
+                                "Output function already registered!"
+                            );
+                            break;
+                        }
+                    }
+                    else {
+                        //find empty output.
+                        (*request_func_array_ptr)[index] = request_func;
+                        break;
+                    }
+                }
+                if (index == kOutputFunctionMaxNum) {
+                    Z_LOG_ERROR(
+                        error_code::kMLogErrorCode_LogPortOutputFunctionFull, 0, 
+                        "Register failed, output function array full!"
+                    );
+                }
+                break;
+            case RequestTypeEnum_::kLogOutputUnregisterRequest:
+                for (index = 0; index < kOutputFunctionMaxNum; ++index) {
+                    index_func = (*request_func_array_ptr)[index];
+                    if (index_func == request_func) {
+                        (*request_func_array_ptr)[index] = nullptr;
+                        break;
+                    }
+                }
+                break;
             }
+        }
+
+        //output log
+        while (_log_manager_ptr->log_queue_.Size() > 0ULL) {
+            if_log = true;
+            TUniquePointer<ZLog> log = std::move(_log_manager_ptr->log_queue_.Front());
+            _log_manager_ptr->log_queue_.PopFront();
+            log->OutputLog();
         }
 
         //log str
@@ -177,114 +109,64 @@ Void ZLogManager::LogThread(ZLogManager* _log_manager_ptr) noexcept {
         }
     }
 
-    //flush remaining logs
-    //err log
-    while (!_log_manager_ptr->error_log_queue_.Empty()) {
-        _log_manager_ptr->log_server_.OutputLog(kErrorLogPortID, &_log_manager_ptr->error_log_queue_.Front());
-        _log_manager_ptr->error_log_queue_.PopFront();
+    //output remaining log
+    while (_log_manager_ptr->log_queue_.Size() > 0ULL) {
+        if_log = true;
+        _log_manager_ptr->log_queue_mutex_.Lock();
+        TUniquePointer<ZLog> log = std::move(_log_manager_ptr->log_queue_.Front());
+        _log_manager_ptr->log_queue_.PopFront();
+        _log_manager_ptr->log_queue_mutex_.Unlock();
+        log->OutputLog();
     }
+}
 
-    //trace log
-    while (!_log_manager_ptr->trace_log_queue_.Empty()) {
-        _log_manager_ptr->log_server_.OutputLog(kTraceLogPortID, &_log_manager_ptr->trace_log_queue_.Front());
-        _log_manager_ptr->trace_log_queue_.PopFront();
+Void ZLogManager::Log(
+    TUniquePointer<ZLog>&& _log
+) noexcept {
+    TLockGuard lock_guard{log_queue_mutex_};
+    if (!log_queue_.Full()) {
+        log_queue_.PushBack(std::forward<TUniquePointer<ZLog>>(_log));
     }
+}
 
-    //info log
-    while (!_log_manager_ptr->info_log_queue_.Empty()) {
-        _log_manager_ptr->log_server_.OutputLog(kInfoLogPortID, &_log_manager_ptr->info_log_queue_.Front());
-        _log_manager_ptr->info_log_queue_.PopFront();
+Void ZLogManager::RegisterLogOutputFunction(
+    ZLog::OutputFunction_ _output_func,
+    ZLog::OutputFunctionArray_* _output_func_array_ptr
+) noexcept {
+    auto request_ptr = MakeUnique<Request_>();
+    request_ptr->request_type_ = RequestTypeEnum_::kLogOutputRegisterRequest;
+    auto& request_data = request_ptr->request_data_.register_data_;
+    request_data._output_func = _output_func;
+    request_data.output_func_array_ptr_ = _output_func_array_ptr;
+    request_queue_.EmplaceBack(std::move(request_ptr));
+}
+
+Void ZLogManager::UnregisterLogOutputFunction(
+    ZLog::OutputFunction_ _output_func,
+    ZLog::OutputFunctionArray_* _output_func_array_ptr
+) noexcept {
+    auto request_ptr = MakeUnique<Request_>();
+    request_ptr->request_type_ = RequestTypeEnum_::kLogOutputUnregisterRequest;
+    auto& request_data = request_ptr->request_data_.unregister_data_;
+    request_data._output_func = _output_func;
+    request_data.output_func_array_ptr_ = _output_func_array_ptr;
+    request_queue_.EmplaceBack(std::move(request_ptr));
+}
+
+Void ZLogManager::FinishFlush(TimeType _max_wait_time_ms) noexcept {
+    log_thread_finished_ = true;
+    if (log_thread_.Joinable()) {
+        log_thread_.Join(_max_wait_time_ms);
     }
-
-    //log
-    for (SizeType port_id = 0; port_id < _log_manager_ptr->log_queue_array_.Capacity(); ++port_id) {
-        while (!_log_manager_ptr->log_queue_array_[port_id].Empty()) {
-            _log_manager_ptr->log_server_.OutputLog(port_id, &_log_manager_ptr->log_queue_array_[port_id].Front());
-            _log_manager_ptr->log_queue_array_[port_id].PopFront();
-        }
-    }
-
 }
 
 ZLogManager::ZLogManager() noexcept 
-    : SuperType_() 
-    , error_log_queue_()
-    , log_queue_array_()
-    , log_server_()
+    : log_queue_()
+    , log_queue_mutex_()
+    , request_queue_()
     , log_thread_finished_(false)
     , log_thread_(ZLogManager::LogThread, this) 
-{
-    ReturnType link_code = kOK;
-
-    //Register the the default ports.
-    link_code = log_server_.RegisterInputFunction(kErrorLogPortID, ZErrorLog::GenerateLogString);
-    if (link_code != kOK) {
-        Z_LOG_ERROR(
-            error_code::kMLogErrorCode_LinkError, link_code, 
-            L"ZLogServer::RegisterInputFunction() link error!"
-        );
-    }
-    link_code = log_server_.RegisterInputFunction(kTraceLogPortID, ZTraceLog::GenerateLogString);
-    if (link_code != kOK) {
-        Z_LOG_ERROR(
-            error_code::kMLogErrorCode_LinkError, link_code, 
-            L"ZLogServer::RegisterInputFunction() link error!"
-        );
-    }
-    link_code = log_server_.RegisterInputFunction(kInfoLogPortID, ZInfoLog::GenerateLogString);
-    if (link_code != kOK) {
-        Z_LOG_ERROR(
-            error_code::kMLogErrorCode_LinkError, link_code,
-            L"ZLogServer::RegisterInputFunction() link error!"
-        );
-    }
-#if USE_FILE_LOG
-    link_code = log_server_.RegisterOutputFunction(kErrorLogPortID, ZErrorLog::FileOutputLog);
-    if (link_code != kOK) {
-        Z_LOG_ERROR(
-            error_code::kMLogErrorCode_LinkError, link_code, 
-            L"ZLogServer::RegisterOutputFunction() link error!"
-        );
-    }
-    link_code = log_server_.RegisterOutputFunction(kTraceLogPortID, ZTraceLog::FileOutputLog);
-    if (link_code != kOK) {
-        Z_LOG_ERROR(
-            error_code::kMLogErrorCode_LinkError, link_code,
-            L"ZLogServer::RegisterOutputFunction() link error!"
-        );
-    }
-    link_code = log_server_.RegisterOutputFunction(kInfoLogPortID, ZInfoLog::FileOutputLog);
-    if (link_code != kOK) {
-        Z_LOG_ERROR(
-            error_code::kMLogErrorCode_LinkError, link_code,
-            L"ZLogServer::RegisterOutputFunction() link error!"
-        );
-    }
-#endif
-#if USE_CONSOLE_LOG
-    link_code = log_server_.RegisterOutputFunction(kErrorLogPortID, ZErrorLog::ConsoleOutputLog);
-    if (link_code != kOK) {
-        Z_LOG_ERROR(
-            error_code::kMLogErrorCode_LinkError, link_code,
-            L"ZLogServer::RegisterOutputFunction() link error!"
-        );
-    }
-    link_code = log_server_.RegisterOutputFunction(kTraceLogPortID, ZTraceLog::ConsoleOutputLog);
-    if (link_code != kOK) {
-        Z_LOG_ERROR(
-            error_code::kMLogErrorCode_LinkError, link_code,
-            L"ZLogServer::RegisterOutputFunction() link error!"
-        );
-    }
-    link_code = log_server_.RegisterOutputFunction(kInfoLogPortID, ZInfoLog::ConsoleOutputLog);
-    if (link_code != kOK) {
-        Z_LOG_ERROR(
-            error_code::kMLogErrorCode_LinkError, link_code,
-            L"ZLogServer::RegisterOutputFunction() link error!"
-        );
-    }
-#endif
-}
+{}
 
 ZLogManager::~ZLogManager() noexcept {}
 

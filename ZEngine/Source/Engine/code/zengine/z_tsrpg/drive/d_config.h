@@ -26,7 +26,7 @@ namespace zengine {
 namespace tsrpg {
 
 //the config path
-inline constexpr WChar kTSRPGConfigPathDir[] = L".\\config\\tsrpg_config.json";
+inline constexpr Char kTSRPGConfigPathDir[] = ".\\config\\tsrpg_config.json";
 
 }//tsrpg
 }//zengine

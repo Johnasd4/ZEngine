@@ -1,17 +1,25 @@
 /*
     Copyright (c) YuLin Zhu
 
-    This code file is licensed under the Creative Commons
-    Attribution-NonCommercial 4.0 International License.
+    ** ZEngine Proprietary License **
 
-    You may obtain a copy of the License at
-    https://creativecommons.org/licenses/by-nc/4.0/
+    This software is provided "as-is", without any express or implied warranty.
+    In no event will the authors be held liable for any damages arising from the
+    use of this software.
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+    Usage Rights:
+    1. Non-Commercial Use: You may use, modify, and distribute this software
+       for non-commercial purposes (e.g., education, personal projects, open-source
+       projects that do not generate revenue) free of charge.
+
+    2. Commercial Use: Commercial use of this software is STRICTLY PROHIBITED
+       without a valid commercial license agreement with the author.
+       "Commercial use" includes, but is not limited to:
+       - Incorporating this software into a product that is sold.
+       - Using this software in a paid service.
+       - Using this software for internal business operations in a for-profit entity.
+
+    To obtain a Commercial License, please contact the author.
 
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
@@ -27,267 +35,168 @@
 
 namespace zengine {
 namespace string {
+namespace internal {
 
-CORE_DLLAPI NODISCARD ZWString String2WString(const Char* _str) noexcept {
-    ReturnType ret_val = kOK;
-    TArray<WChar> temp_str;
-    //calculate length
-    SizeType str_len = std::mbstowcs(nullptr, _str, 0);
-    //invalid input string returns empty string
-    if (str_len == -1) {
-        return ZWString(L"");
+CORE_DLLAPI NODISCARD ZString GenerateStringP(
+    ZStringView _format,
+    fmt::format_args _args, 
+    SizeType _arg_num
+) noexcept {
+    ZString str;
+    try {
+        str.Reserve(_format.Size() + _arg_num * 16ULL);
+        fmt::vformat_to(
+            std::back_inserter(str.STDString()),
+            _format.STDStringView(),
+            _args
+        );
     }
-    temp_str.Reserve(str_len + 1);
-    std::mbstowcs(temp_str.DataPtr(), _str, str_len + 1);
-    return ZWString(temp_str.DataPtr());
+    catch (const fmt::format_error&) {
+        str.Clear();
+        Z_LOG_ERROR(
+            zengine::error_code::kFStringErrorCode_FormatError, 0,
+            "console::Print() format error! _format: {}",
+            _format.ToString().DataPtr()
+        );
+    }
+    return str;
 }
 
-CORE_DLLAPI NODISCARD ZString WString2String(const WChar* _str) noexcept {
-    ReturnType ret_val = kOK;
-    TArray<Char> temp_str;
-    //calculate length
-    SizeType str_len = std::wcstombs(nullptr, _str, 0);
-    //invalid input string returns empty string
-    if (str_len == -1) {
-        return ZString("");
+CORE_DLLAPI NODISCARD SizeType GenerateStringP(
+    Char* _str,
+    SizeType _max_len,
+    ZStringView _format,
+    fmt::format_args _args
+) noexcept {
+    if (_str == nullptr || _max_len == 0ULL) {
+        return 0ULL;
     }
-    temp_str.Reserve(str_len + 1);
-    std::wcstombs(temp_str.DataPtr(), _str, str_len + 1);
-    return ZString(temp_str.DataPtr());
+    try {
+        auto result = fmt::vformat_to_n(
+            _str,
+            _max_len - 1,
+            _format.STDStringView(),
+            _args
+        );
+        _str[result.size] = '\0';
+        return result.size;
+    }
+    catch (const fmt::format_error&) {
+        Z_LOG_ERROR(
+            zengine::error_code::kFStringErrorCode_FormatError, 0,
+            "console::Print() format error! _format: {}",
+            _format.ToString().DataPtr()
+        );
+        _str[0] = '\0';
+        return 0ULL;
+    }
 }
 
-CORE_DLLAPI NODISCARD ReturnType String2Int32(const Char* _str, Int32* _ans_ptr) noexcept {
-    ReturnType ret_val = kOK;
-    Int32& err_ref = errno;
-    err_ref = 0;
-    Char* err_str;
-    *_ans_ptr = std::strtol(_str, &err_str, 10);
-    if (_str == err_str) {
-        ret_val = error_code::kFStringErrorCode_StringToNumberCanNotTransform;
-        Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
+CORE_DLLAPI NODISCARD SizeType GenerateStringNoEndP(
+    Char* _str,
+    SizeType _max_len,
+    ZStringView _format,
+    fmt::format_args _args
+) noexcept {
+    if (_str == nullptr || _max_len == 0ULL) {
+        return 0ULL;
     }
-    else if (err_ref == ERANGE) {
-        ret_val = error_code::kFStringErrorCode_StringToNumberOutOfRange;
-        Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
+    try {
+        auto result = fmt::vformat_to_n(
+            _str,
+            _max_len,
+            _format.STDStringView(),
+            _args
+        );
+        return result.size;
     }
-    return ret_val;
+    catch (const fmt::format_error&) {
+        Z_LOG_ERROR(
+            zengine::error_code::kFStringErrorCode_FormatError, 0,
+            "console::Print() format error! _format: {}",
+            _format.ToString().DataPtr()
+        );
+        return 0ULL;
+    }
 }
 
-CORE_DLLAPI NODISCARD ReturnType String2Int64(const Char* _str, Int64* _ans_ptr) noexcept {
-    ReturnType ret_val = kOK;
-    Int32& err_ref = errno;
-    err_ref = 0;
-    Char* err_str;
-    *_ans_ptr = std::strtoll(_str, &err_str, 10);
-    if (_str == err_str) {
-        ret_val = error_code::kFStringErrorCode_StringToNumberCanNotTransform;
-        Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
-    }
-    else if (err_ref == ERANGE) {
-        ret_val = error_code::kFStringErrorCode_StringToNumberOutOfRange;
-        Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
-    }
-    return ret_val;
-}
+}//internal
+}//string
+}//zengine
 
-CORE_DLLAPI NODISCARD ReturnType String2UInt32(const Char* _str, UInt32* _ans_ptr) noexcept {
-    ReturnType ret_val = kOK;
-    Int32& err_ref = errno;
-    err_ref = 0;
-    Char* err_str;
-    *_ans_ptr = std::strtoul(_str, &err_str, 10);
-    if (_str == err_str) {
-        ret_val = error_code::kFStringErrorCode_StringToNumberCanNotTransform;
-        Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
-    }
-    else if (err_ref == ERANGE) {
-        ret_val = error_code::kFStringErrorCode_StringToNumberOutOfRange;
-        Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
-    }
-    return ret_val;
-}
+namespace zengine {
+namespace string {
 
-CORE_DLLAPI NODISCARD ReturnType String2UInt64(const Char* _str, UInt64* _ans_ptr) noexcept {
-    ReturnType ret_val = kOK;
-    Int32& err_ref = errno;
-    err_ref = 0;
-    Char* err_str;
-    *_ans_ptr = std::strtoull(_str, &err_str, 10);
-    if (_str == err_str) {
-        ret_val = error_code::kFStringErrorCode_StringToNumberCanNotTransform;
-        Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
+CORE_DLLAPI NODISCARD ZWString StringToWString(ZStringView _str) noexcept {
+    if (_str.Size() == 0Ull) {
+        return ZWString();
     }
-    else if (err_ref == ERANGE) {
-        ret_val = error_code::kFStringErrorCode_StringToNumberOutOfRange;
-        Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
-    }
-    return ret_val;
-}
 
-CORE_DLLAPI NODISCARD ReturnType String2Float32(const Char* _str, Float32* _ans_ptr) noexcept {
-    ReturnType ret_val = kOK;
-    Int32& err_ref = errno;
-    err_ref = 0;
-    Char* err_str;
-    *_ans_ptr = std::strtof(_str, &err_str);
-    if (_str == err_str) {
-        ret_val = error_code::kFStringErrorCode_StringToNumberCanNotTransform;
-        Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
-    }
-    else if (err_ref == ERANGE) {
-        ret_val = error_code::kFStringErrorCode_StringToNumberOutOfRange;
-        Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
-    }
-    return ret_val;
-}
+    SizeType len = _str.Size();
+    SizeType wlen = 0;
 
-CORE_DLLAPI NODISCARD ReturnType String2Float64(const Char* _str, Float64* _ans_ptr) noexcept {
-    ReturnType ret_val = kOK;
-    Int32& err_ref = errno;
-    err_ref = 0;
-    Char* err_str;
-    *_ans_ptr = std::strtod(_str, &err_str);
-    if (_str == err_str) {
-        ret_val = error_code::kFStringErrorCode_StringToNumberCanNotTransform;
-        Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
+    //If utf16 or utf32 is needed, calculate the required length first.
+    if constexpr (sizeof(WChar) == 2ULL) {
+        // Windows (UTF-16)
+        wlen = simdutf::utf16_length_from_utf8(_str.DataPtr(), len);
     }
-    else if (err_ref == ERANGE) {
-        ret_val = error_code::kFStringErrorCode_StringToNumberOutOfRange;
-        Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
+    else {
+        // Linux/macOS (UTF-32)
+        wlen = simdutf::utf32_length_from_utf8(_str.DataPtr(), len);
     }
-    return ret_val;
-}
 
-CORE_DLLAPI NODISCARD ReturnType WString2Int32(const WChar* _str, Int32* _ans_ptr) noexcept {
-    ReturnType ret_val = kOK;
-    Int32& err_ref = errno;
-    err_ref = 0;
-    WChar* err_str;
-    *_ans_ptr = std::wcstol(_str, &err_str, 10);
-    if (_str == err_str) {
-        ret_val = error_code::kFStringErrorCode_StringToNumberCanNotTransform;
-        Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
-    }
-    else if (err_ref == ERANGE) {
-        ret_val = error_code::kFStringErrorCode_StringToNumberOutOfRange;
-        Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
-    }
-    return ret_val;
-}
+    ZWString ans_str;
+    ans_str.Resize(wlen);
 
-CORE_DLLAPI NODISCARD ReturnType WString2Int64(const WChar* _str, Int64* _ans_ptr) noexcept {
-    ReturnType ret_val = kOK;
-    Int32& err_ref = errno;
-    err_ref = 0;
-    WChar* err_str;
-    *_ans_ptr = std::wcstoll(_str, &err_str, 10);
-    if (_str == err_str) {
-        ret_val = error_code::kFStringErrorCode_StringToNumberCanNotTransform;
-        Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
+    //convert utf8 to utf16 or utf32
+    if constexpr (sizeof(WChar) == 2ULL) {
+        simdutf::convert_utf8_to_utf16(_str.DataPtr(), len, reinterpret_cast<char16_t*>(ans_str.DataPtr()));
     }
-    else if (err_ref == ERANGE) {
-        ret_val = error_code::kFStringErrorCode_StringToNumberOutOfRange;
-        Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
+    else {
+        simdutf::convert_utf8_to_utf32(_str.DataPtr(), len, reinterpret_cast<char32_t*>(ans_str.DataPtr()));
     }
-    return ret_val;
-}
 
-CORE_DLLAPI NODISCARD ReturnType WString2UInt32(const WChar* _str, UInt32* _ans_ptr) noexcept {
-    ReturnType ret_val = kOK;
-    Int32& err_ref = errno;
-    err_ref = 0;
-    WChar* err_str;
-    *_ans_ptr = std::wcstoul(_str, &err_str, 10);
-    if (_str == err_str) {
-        ret_val = error_code::kFStringErrorCode_StringToNumberCanNotTransform;
-        Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
-    }
-    else if (err_ref == ERANGE) {
-        ret_val = error_code::kFStringErrorCode_StringToNumberOutOfRange;
-        Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
-    }
-    return ret_val;
-}
-
-CORE_DLLAPI NODISCARD ReturnType WString2UInt64(const WChar* _str, UInt64* _ans_ptr) noexcept {
-    ReturnType ret_val = kOK;
-    Int32& err_ref = errno;
-    err_ref = 0;
-    WChar* err_str;
-    *_ans_ptr = std::wcstoull(_str, &err_str, 10);
-    if (_str == err_str) {
-        ret_val = error_code::kFStringErrorCode_StringToNumberCanNotTransform;
-        Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
-    }
-    else if (err_ref == ERANGE) {
-        ret_val = error_code::kFStringErrorCode_StringToNumberOutOfRange;
-        Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
-    }
-    return ret_val;
-}
-
-CORE_DLLAPI NODISCARD ReturnType WString2Float32(const WChar* _str, Float32* _ans_ptr) noexcept {
-    ReturnType ret_val = kOK;
-    Int32& err_ref = errno;
-    err_ref = 0;
-    WChar* err_str;
-    *_ans_ptr = std::wcstof(_str, &err_str);
-    if (_str == err_str) {
-        ret_val = error_code::kFStringErrorCode_StringToNumberCanNotTransform;
-        Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
-    }
-    else if (err_ref == ERANGE) {
-        ret_val = error_code::kFStringErrorCode_StringToNumberOutOfRange;
-        Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
-    }
-    return ret_val;
-}
-
-CORE_DLLAPI NODISCARD ReturnType WString2Float64(const WChar* _str, Float64* _ans_ptr) noexcept {
-    ReturnType ret_val = kOK;
-    Int32& err_ref = errno;
-    err_ref = 0;
-    WChar* err_str;
-    *_ans_ptr = std::wcstod(_str, &err_str);
-    if (_str == err_str) {
-        ret_val = error_code::kFStringErrorCode_StringToNumberCanNotTransform;
-        Z_LOG_ERROR(ret_val, 0, L"Can not transform to number!");
-    }
-    else if (err_ref == ERANGE) {
-        ret_val = error_code::kFStringErrorCode_StringToNumberOutOfRange;
-        Z_LOG_ERROR(ret_val, 0, L"Number out of range!");
-    }
-    return ret_val;
-}
-
-CORE_DLLAPI NODISCARD ZString GenerateString(const Char* _format, ...) noexcept {
-    ArgListType args;
-    va_start(args, _format);
-    Int32 buffer_size = vsnprintf(nullptr, 0, _format, args) + 1;
-    ZMemory memory(buffer_size * sizeof(Char));
-    Int32 string_size = vsprintf(memory.DataPtr<Char>(), _format, args);
-    ZString ans_str(memory.DataPtr<Char>(), string_size);
-    va_end(args);
     return ans_str;
 }
 
-CORE_DLLAPI NODISCARD ZWString GenerateWString(const WChar* _format, ...) noexcept {
-    ArgListType args;
-    va_start(args, _format);
-    Int32 buffer_size = vswprintf(nullptr, 0, _format, args) + 1;
-    ZMemory memory(buffer_size * sizeof(WChar));
-    Int32 string_size = vswprintf(memory.DataPtr<WChar>(), _format, args);
-    ZWString ans_str(memory.DataPtr<WChar>(), string_size);
-    va_end(args);
+CORE_DLLAPI NODISCARD ZString WStringToString(ZWStringView _str) noexcept {
+    if (_str.Size() == 0Ull) {
+        return ZString();
+    }
+
+    SizeType wlen = _str.Size();
+    SizeType len = 0;
+
+    //Calculate the required length first.
+    if constexpr (sizeof(WChar) == 2ULL) {
+        // Windows (UTF-16)
+        len = simdutf::utf8_length_from_utf16(reinterpret_cast<const char16_t*>(_str.DataPtr()), wlen);
+    }
+    else {
+        // Linux/macOS (UTF-32)
+        len = simdutf::utf8_length_from_utf32(reinterpret_cast<const char32_t*>(_str.DataPtr()), wlen);
+    }
+
+    ZString ans_str;
+    ans_str.Resize(len);
+
+    //convert utf16 or utf32 to utf8
+    if constexpr (sizeof(WChar) == 2) {
+        simdutf::convert_utf16_to_utf8(reinterpret_cast<const char16_t*>(_str.DataPtr()), wlen, ans_str.DataPtr());
+    }
+    else {
+        simdutf::convert_utf32_to_utf8(reinterpret_cast<const char32_t*>(_str.DataPtr()), wlen, ans_str.DataPtr());
+    }
+
     return ans_str;
 }
 
-CORE_DLLAPI NODISCARD TList<ZString> SplitToString(ZStringView _str, const Char _token) noexcept {
-    ReturnType ret_val = kOK;
+template<typename _ReturnType>
+NODISCARD static TList<_ReturnType> SplitStringSkipEmptyP(ZStringView _str, const Char _token) noexcept {
     SizeType start_index = 0;
     SizeType end_index = 0;
     SizeType str_len = 0;
-    TList<ZString> result_list;
+    TList<_ReturnType> result_list;
     while (end_index != _str.Size()) {
         if (_str[end_index] != _token) {
             ++end_index;
@@ -310,89 +219,117 @@ CORE_DLLAPI NODISCARD TList<ZString> SplitToString(ZStringView _str, const Char 
     return result_list;
 };
 
-CORE_DLLAPI NODISCARD TList<ZWString> SplitToString(ZWStringView _str, const WChar _token) noexcept {
-    ReturnType ret_val = kOK;
-    SizeType start_index = 0;
-    SizeType end_index = 0;
-    SizeType str_len = 0;
-    TList<ZWString> result_list;
-    while (end_index != _str.Size()) {
-        if (_str[end_index] != _token) {
-            ++end_index;
-            continue;
-        }
-        else if (start_index == end_index) {
-            ++end_index;
-            start_index = end_index;
-            continue;
-        }
-        str_len = end_index - start_index;
-        result_list.EmplaceBack(_str, start_index, str_len);
-        ++end_index;
-        start_index = end_index;
-    };
-    if (start_index != end_index) {
-        str_len = end_index - start_index;
-        result_list.EmplaceBack(_str, start_index, str_len);
-    }
-    return result_list;
+CORE_DLLAPI NODISCARD TList<ZString> SplitToStringSkipEmpty(ZStringView _str, const Char _token) noexcept {
+    return SplitStringSkipEmptyP<ZString>(_str, _token);
 };
 
-CORE_DLLAPI NODISCARD TList<ZStringView> SplitToStringView(ZStringView _str, const Char _token) noexcept {
-    ReturnType ret_val = kOK;
-    SizeType start_index = 0;
-    SizeType end_index = 0;
-    SizeType str_len = 0;
-    TList<ZStringView> result_list;
-    while (end_index != _str.Size()) {
-        if (_str[end_index] != _token) {
-            ++end_index;
-            continue;
-        }
-        else if (start_index == end_index) {
-            ++end_index;
-            start_index = end_index;
-            continue;
-        }
-        str_len = end_index - start_index;
-        result_list.EmplaceBack(_str, start_index, str_len);
-        ++end_index;
-        start_index = end_index;
-    };
-    if (start_index != end_index) {
-        str_len = end_index - start_index;
-        result_list.EmplaceBack(_str, start_index, str_len);
-    }
-    return result_list;
+CORE_DLLAPI NODISCARD TList<ZStringView> SplitToStringViewSkipEmpty(ZStringView _str, const Char _token) noexcept {
+    return SplitStringSkipEmptyP<ZStringView>(_str, _token);
 };
 
-CORE_DLLAPI NODISCARD TList<ZWStringView> SplitToStringView(ZWStringView _str, const WChar _token) noexcept {
+template<typename _NumberType>
+NODISCARD static ReturnType StringToNumberP(ZStringView _str, _NumberType* _ans_ptr) noexcept {
     ReturnType ret_val = kOK;
-    SizeType start_index = 0;
-    SizeType end_index = 0;
-    SizeType str_len = 0;
-    TList<ZWStringView> result_list;
-    while (end_index != _str.Size()) {
-        if (_str[end_index] != _token) {
-            ++end_index;
-            continue;
+
+    static_assert(kIsNumber<_NumberType>,
+        "string::StringToNumber(): _NumberType must be a number type!"
+        );
+
+    auto [error_pos_ptr, error_code] = std::from_chars(_str.DataPtr(), _str.DataPtr() + _str.Size(), *_ans_ptr);
+    if (error_code != std::errc()) {
+        if (error_code == std::errc::invalid_argument) {
+            ret_val = error_code::kFStringErrorCode_StringToNumberCanNotTransform;
+            Z_LOG_ERROR(ret_val, 0, "Can not transform to number!");
         }
-        else if (start_index == end_index) {
-            ++end_index;
-            start_index = end_index;
-            continue;
+        else if (error_code == std::errc::result_out_of_range) {
+            ret_val = error_code::kFStringErrorCode_StringToNumberOutOfRange;
+            Z_LOG_ERROR(ret_val, 0, "Number out of range!");
         }
-        str_len = end_index - start_index;
-        result_list.EmplaceBack(_str, start_index, str_len);
-        ++end_index;
-        start_index = end_index;
-    };
-    if (start_index != end_index) {
-        str_len = end_index - start_index;
-        result_list.EmplaceBack(_str, start_index, str_len);
+        return ret_val;
     }
-    return result_list;
-};
+
+    return ret_val;
+}
+
+CORE_DLLAPI NODISCARD ReturnType StringToNumber(ZStringView _str, Int8* _ans_ptr) noexcept {
+    return StringToNumberP(_str, _ans_ptr);
+}
+CORE_DLLAPI NODISCARD ReturnType StringToNumber(ZStringView _str, Int16* _ans_ptr) noexcept {
+    return StringToNumberP(_str, _ans_ptr);
+}
+CORE_DLLAPI NODISCARD ReturnType StringToNumber(ZStringView _str, Int32* _ans_ptr) noexcept {
+    return StringToNumberP(_str, _ans_ptr);
+}
+CORE_DLLAPI NODISCARD ReturnType StringToNumber(ZStringView _str, Int64* _ans_ptr) noexcept {
+    return StringToNumberP(_str, _ans_ptr);
+}
+CORE_DLLAPI NODISCARD ReturnType StringToNumber(ZStringView _str, UInt8* _ans_ptr) noexcept {
+    return StringToNumberP(_str, _ans_ptr);
+}
+CORE_DLLAPI NODISCARD ReturnType StringToNumber(ZStringView _str, UInt16* _ans_ptr) noexcept {
+    return StringToNumberP(_str, _ans_ptr);
+}
+CORE_DLLAPI NODISCARD ReturnType StringToNumber(ZStringView _str, UInt32* _ans_ptr) noexcept {
+    return StringToNumberP(_str, _ans_ptr);
+}
+CORE_DLLAPI NODISCARD ReturnType StringToNumber(ZStringView _str, UInt64* _ans_ptr) noexcept {
+    return StringToNumberP(_str, _ans_ptr);
+}
+CORE_DLLAPI NODISCARD ReturnType StringToNumber(ZStringView _str, Float32* _ans_ptr) noexcept {
+    return StringToNumberP(_str, _ans_ptr);
+}
+CORE_DLLAPI NODISCARD ReturnType StringToNumber(ZStringView _str, Float64* _ans_ptr) noexcept {
+    return StringToNumberP(_str, _ans_ptr);
+}
+
+template<typename _NumberType>
+NODISCARD static ZString NumberToStringP(_NumberType _num) noexcept {
+    static_assert(kIsNumber<_NumberType>,
+        "string::NumberToString(): _NumberType must be a number type!"
+        );
+
+    constexpr SizeType kMaxBufferSize = 64;
+    Char buffer[kMaxBufferSize];
+
+    auto result = std::to_chars(buffer, buffer + kMaxBufferSize, _num);
+    if (result.ec != std::errc()) {
+        Z_LOG_ERROR(error_code::kFStringErrorCode_NumberToStringError, 0, "Number to string error!");
+        return ZString();
+    }
+
+    return ZString(buffer, static_cast<SizeType>(result.ptr - buffer));
+}
+
+CORE_DLLAPI NODISCARD ZString NumberToString(Int8 _num) noexcept {
+    return NumberToStringP(_num);
+}
+CORE_DLLAPI NODISCARD ZString NumberToString(Int16 _num) noexcept {
+    return NumberToStringP(_num);
+}
+CORE_DLLAPI NODISCARD ZString NumberToString(Int32 _num) noexcept {
+    return NumberToStringP(_num);
+}
+CORE_DLLAPI NODISCARD ZString NumberToString(Int64 _num) noexcept {
+    return NumberToStringP(_num);
+}
+CORE_DLLAPI NODISCARD ZString NumberToString(UInt8 _num) noexcept {
+    return NumberToStringP(_num);
+}
+CORE_DLLAPI NODISCARD ZString NumberToString(UInt16 _num) noexcept {
+    return NumberToStringP(_num);
+}
+CORE_DLLAPI NODISCARD ZString NumberToString(UInt32 _num) noexcept {
+    return NumberToStringP(_num);
+}
+CORE_DLLAPI NODISCARD ZString NumberToString(UInt64 _num) noexcept {
+    return NumberToStringP(_num);
+}
+CORE_DLLAPI NODISCARD ZString NumberToString(Float32 _num) noexcept {
+    return NumberToStringP(_num);
+}
+CORE_DLLAPI NODISCARD ZString NumberToString(Float64 _num) noexcept {
+    return NumberToStringP(_num);
+}
 
 }//string
 }//zengine

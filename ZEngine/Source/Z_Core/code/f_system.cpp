@@ -64,12 +64,12 @@ CORE_DLLAPI Void RunAsAdmin() noexcept {
     {
         DWORD error = GetLastError();
         if (error == ERROR_CANCELLED) {
-            Z_LOG_FAILURE(L"User denied administrator privileges!");
+            Z_LOG_FAILURE("User denied administrator privileges!");
         }
         else {
             Z_LOG_ERROR(
                 error_code::kFSystemErrorCode_SystemError, error, 
-                L"Unknown system error!"
+                "Unknown system error!"
             );
         }
     }

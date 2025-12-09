@@ -176,8 +176,8 @@ NODISCARD ReturnType ZTimer::Start() noexcept {
     Z_CHECK(
         timer_data_ptr_->state_ != TimerStateEnum_::kClosed,
         error_code::kZTimerErrorCode_TimerStateError,
-        L"Client state error! state: %d expect state: %d",
-        timer_data_ptr_->state_, TimerStateEnum_::kClosed
+        "Client state error! state: %d expect state: %d",
+        static_cast<Int32>(timer_data_ptr_->state_), static_cast<Int32>(TimerStateEnum_::kClosed)
     );
 
     timer_data_ptr_->state_ = TimerStateEnum_::kExecute;

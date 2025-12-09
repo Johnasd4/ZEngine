@@ -23,6 +23,7 @@
 #include "t_array.h"
 #include "t_list.h"
 #include "z_string.h"
+#include "z_string_view.h"
 
 namespace zengine {
 namespace error_code {
@@ -49,32 +50,37 @@ namespace file_system {
     The info of the files, contains: path, name, extension, directory.
 */
 struct ZFileInfo {
-    ZWString path_;
-    ZWString name_;
-    ZWString extension_;
-    ZWString directory_;
+    ZString path_;
+    ZString name_;
+    ZString extension_;
+    ZString directory_;
 };
 
 /*
     The file filter struct.
     Exanple:
-        { L"Text Files", L"*.txt" },
-        { L"All Files", L"*.*" }
+        { "Text Files", "*.txt" },
+        { "All Files", "*.*" }
 */
 struct ZFileFilter {
-    const WChar* hint_;
-    const WChar* extension_;
+    const Char* hint_;
+    const Char* extension_;
 };
 
 /*
    Returns the program's path.
 */
-CORE_DLLAPI NODISCARD ZWString ProgramPath() noexcept;
+CORE_DLLAPI NODISCARD ZStringView ExecutePath() noexcept;
+
+/*
+   Returns the program's path.
+*/
+CORE_DLLAPI NODISCARD ZStringView ExecutablePath() noexcept;
 
 /*
    Returns the program's directory.
 */
-CORE_DLLAPI NODISCARD ZWString ProgramDirectory() noexcept;
+CORE_DLLAPI NODISCARD ZStringView ExecutableDirectoryPath() noexcept;
 
 /*
     Get program info.
@@ -84,110 +90,110 @@ CORE_DLLAPI NODISCARD ReturnType ProgramInfo(ZFileInfo* _file_info_ptr) noexcept
 /*
     Create file by the given path.
 */
-CORE_DLLAPI NODISCARD ReturnType CreateFileByPath(const WChar* _path_dir) noexcept;
+CORE_DLLAPI NODISCARD ReturnType CreateFileByPath(const Char* _path_dir) noexcept;
 
 /*
     Delete file by the given path.
 */
-CORE_DLLAPI NODISCARD ReturnType DeleteFileByPath(const WChar* _path_dir) noexcept;
+CORE_DLLAPI NODISCARD ReturnType DeleteFileByPath(const Char* _path_dir) noexcept;
 
 /*
     Rename file by the given path.
 */
-CORE_DLLAPI NODISCARD ReturnType RenameFileByPath(const WChar* _old_path_dir, const WChar* _new_path_dir) noexcept;
+CORE_DLLAPI NODISCARD ReturnType RenameFileByPath(const Char* _old_path_dir, const Char* _new_path_dir) noexcept;
 
 /*
     Copy file by the given path.
 */
 CORE_DLLAPI NODISCARD ReturnType CopyFileByPath(
-    const WChar* _source_path_dir, 
-    const WChar* _target_path_dir,
+    const Char* _source_path_dir, 
+    const Char* _target_path_dir,
     Bool overwrite_exist = true
 ) noexcept;
 
 /*
     Create directory by the given path.
 */
-CORE_DLLAPI NODISCARD ReturnType CreateDirectoryByPath(const WChar* _path_dir) noexcept;
+CORE_DLLAPI NODISCARD ReturnType CreateDirectoryByPath(ZStringView _path_dir) noexcept;
 
 /*
     Delete directory by the given path.
 */
-CORE_DLLAPI NODISCARD ReturnType DeleteDirectoryByPath(const WChar* _path_dir) noexcept;
+CORE_DLLAPI NODISCARD ReturnType DeleteDirectoryByPath(ZStringView _path_dir) noexcept;
 
 /*
     Checks if the path exists.
 */
-CORE_DLLAPI NODISCARD Bool PathExist(const WChar* _path_dir) noexcept;
+CORE_DLLAPI NODISCARD Bool PathExist(const Char* _path_dir) noexcept;
 
 /*
     Checks if the path valid.
 */
-CORE_DLLAPI NODISCARD Bool PathValid(const WChar* _path_dir) noexcept;
+CORE_DLLAPI NODISCARD Bool PathValid(const Char* _path_dir) noexcept;
 
 /*
     Get all the files under the given path. 
     Pushs the file names into the given list.
 */
-CORE_DLLAPI NODISCARD ReturnType GetFilesByPath(const WChar* _path_dir, TList<ZWString>* _file_list_ptr) noexcept;
+CORE_DLLAPI NODISCARD ReturnType GetFilesByPath(const Char* _path_dir, TList<ZString>* _file_list_ptr) noexcept;
 
 /*
     Get all the directories under the given path. 
     Pushs the file names into the given list.
 */
-CORE_DLLAPI NODISCARD ReturnType GetDirectoriesByPath(const WChar* _path_dir, TList<ZWString>* _file_list_ptr) noexcept;
+CORE_DLLAPI NODISCARD ReturnType GetDirectoriesByPath(ZStringView _path_dir, TList<ZString>* _file_list_ptr) noexcept;
 
 /*
     Get all the files and directories under the given path. 
     Pushs the file names into the given list.
 */
 CORE_DLLAPI NODISCARD ReturnType GetFilesAndDirectoriesByPath(
-    const WChar* _path_dir, TList<ZWString>* _file_list_ptr
+    const Char* _path_dir, TList<ZString>* _file_list_ptr
 ) noexcept;
 
 /*
     Get all the files under the given path, even the file is in a deeper folder. 
     Pushs the file names into the given list.
 */
-CORE_DLLAPI NODISCARD ReturnType GetFileTreeByPath(const WChar* _path_dir, TList<ZWString>* _file_list_ptr) noexcept;
+CORE_DLLAPI NODISCARD ReturnType GetFileTreeByPath(const Char* _path_dir, TList<ZString>* _file_list_ptr) noexcept;
 
 /*
     Get the file info by the given path.
 */
 CORE_DLLAPI NODISCARD ReturnType GetFileInfoByPath(
-    const ZWString& _file, ZFileInfo* _file_info_ptr
+    const ZString& _file, ZFileInfo* _file_info_ptr
 ) noexcept;
 
 /*
     Get the files info by the given path list.
 */
 CORE_DLLAPI NODISCARD ReturnType GetFileInfoListByPathList(
-    const TList<ZWString>& _file_list, TList<ZFileInfo>* _file_info_list_ptr
+    const TList<ZString>& _file_list, TList<ZFileInfo>* _file_info_list_ptr
 ) noexcept;
 
 /*
     Get file path by the file selector.
 */
 CORE_DLLAPI NODISCARD ReturnType GetFileByFileSelector(
-    const TArray<ZFileFilter>& _file_filter_array, ZWString* _file_ptr
+    const TArray<ZFileFilter>& _file_filter_array, ZString* _file_ptr
 ) noexcept;
 
 /*
     Get mutiple file path by the file selector.
 */
 CORE_DLLAPI NODISCARD ReturnType GetFilesByFileSelector(
-    const TArray<ZFileFilter>& _file_filter_array, TList<ZWString>* _file_list_ptr
+    const TArray<ZFileFilter>& _file_filter_array, TList<ZString>* _file_list_ptr
 ) noexcept;
 
 /*
     Get folder path by the file selector.
 */
-CORE_DLLAPI NODISCARD ReturnType GetFolderByFileSelector(ZWString* _folder_ptr) noexcept;
+CORE_DLLAPI NODISCARD ReturnType GetFolderByFileSelector(ZString* _folder_ptr) noexcept;
 
 /*
     Get mutiple folder path by the file selector.
 */
-CORE_DLLAPI NODISCARD ReturnType GetFoldersByFileSelector(TList<ZWString>* _folder_list_ptr) noexcept;
+CORE_DLLAPI NODISCARD ReturnType GetFoldersByFileSelector(TList<ZString>* _folder_list_ptr) noexcept;
 
 }//file_system
 }//zengine

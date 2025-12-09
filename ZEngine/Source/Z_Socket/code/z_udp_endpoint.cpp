@@ -45,8 +45,8 @@ ZUDPEndpoint::ZUDPEndpoint(const Char* _ip_str, UInt16 _port) noexcept {
     if (error_code) {
         Z_LOG_ERROR(
             error_code::kSocketErrorCode_IPNotVaild, 0,
-            L"IP not vaild! _ip_str: %ls",
-            string::String2WString(_ip_str).String()
+            "IP not vaild! _ip_str: %ls",
+            string::StringToWString(_ip_str).DataPtr()
         );
         return;
     }
@@ -69,8 +69,8 @@ NODISCARD ReturnType ZUDPEndpoint::SetEndpoint(const Char* _ip_str, UInt16 _port
         ret_val = error_code::kSocketErrorCode_IPNotVaild;
         Z_LOG_ERROR(
             ret_val, 0,
-            L"IP not vaild! _ip_str: %ls",
-            string::String2WString(_ip_str).String()
+            "IP not vaild! _ip_str: %ls",
+            string::StringToWString(_ip_str).DataPtr()
         );
         return ret_val;
     }

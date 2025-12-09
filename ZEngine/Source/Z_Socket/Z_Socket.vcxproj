@@ -43,7 +43,7 @@
     <ClCompile Include="code\f_socket\get_udp_public_address_and_port.cpp" />
     <ClCompile Include="code\f_socket\udp_connect_p2p.cpp" />
     <ClCompile Include="code\f_tcp_log_output.cpp" />
-    <ClCompile Include="code\z_buffer_stream.cpp" />
+    <ClCompile Include="code\z_socket_buffer_stream.cpp" />
     <ClCompile Include="code\z_http_request_generator\z_http_11_request_generator.cpp" />
     <ClCompile Include="code\z_http_response_resolver\z_http_11_response_resolver.cpp" />
     <ClCompile Include="code\z_io_context.cpp" />

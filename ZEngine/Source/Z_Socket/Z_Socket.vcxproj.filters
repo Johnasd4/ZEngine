@@ -39,7 +39,7 @@
     <ClCompile Include="code\f_tcp_log_output.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="code\z_buffer_stream.cpp">
+    <ClCompile Include="code\z_socket_buffer_stream.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="code\z_io_context.cpp">

@@ -121,7 +121,7 @@ Void ZFrame::Tick(Float32 _delta_sec) noexcept {
             );
         }
         //begin base frame
-        ImGui::Begin(Name().String(), nullptr, frame_flag_);
+        ImGui::Begin(Name().DataPtr(), nullptr, frame_flag_);
 
         if (Enabled()) {
             //tick widgets
@@ -232,11 +232,11 @@ Void ZFrame::Tick(Float32 _delta_sec) noexcept {
 
         //sub frame begin
         if (SizeSet()) {
-            ImGui::BeginChild(Name().String(), ImVec2(Width(), Height()), true, frame_flag_);
+            ImGui::BeginChild(Name().DataPtr(), ImVec2(Width(), Height()), true, frame_flag_);
         }
         else {
             ImGui::BeginChild(
-                Name().String(),
+                Name().DataPtr(),
                 ImVec2(0, 0), 
                 true, 
                 frame_flag_
@@ -343,7 +343,7 @@ ReturnType ZFrame::Add(ZWidgetObject* _widget_obj_ptr) noexcept {
     Z_CHECK(
         _widget_obj_ptr == nullptr,
         error_code::kZFrameErrorCode_NullptrParam,
-        L"_widget_obj is nullptr!"
+        "_widget_obj is nullptr!"
     );
 
     if (_widget_obj_ptr->WidgetType() == ZWidgetObject::WidgetTypeEnum_::kFrame) {
@@ -363,7 +363,7 @@ ReturnType ZFrame::Remove(ZWidgetObject* _widget_obj_ptr) noexcept {
     Z_CHECK(
         _widget_obj_ptr == nullptr,
         error_code::kZFrameErrorCode_NullptrParam,
-        L"_widget_obj is nullptr!"
+        "_widget_obj is nullptr!"
     );
 
     if (_widget_obj_ptr->WidgetType() == ZWidgetObject::WidgetTypeEnum_::kFrame) {

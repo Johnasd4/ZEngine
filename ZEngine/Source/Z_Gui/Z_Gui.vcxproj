@@ -121,7 +121,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_gui;$(SolutionDir)/Library/OpenGL2_vc2022/include;$(SolutionDir)/Library/ImGui_1_90_9/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_gui;$(SolutionDir)Source/Z_Gui/code;$(SolutionDir)/Library/OpenGL2_vc2022/include;$(SolutionDir)/Library/ImGui_1_90_9/include</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>drive/d_pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(SolutionDir)Binaries\intermediate\$(ProjectName)\$(Platform)\$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).pch</PrecompiledHeaderOutputFile>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -152,7 +152,7 @@ copy /Y "$(SolutionDir)Library\OpenGL2_vc2022\bin\glfw3.dll" "$(SolutionDir)Bina
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_gui;$(SolutionDir)/Library/OpenGL2_vc2022/include;$(SolutionDir)/Library/ImGui_1_90_9/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_gui;$(SolutionDir)Source/Z_Gui/code;$(SolutionDir)/Library/OpenGL2_vc2022/include;$(SolutionDir)/Library/ImGui_1_90_9/include</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>drive/d_pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(SolutionDir)Binaries\intermediate\$(ProjectName)\$(Platform)\$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).pch</PrecompiledHeaderOutputFile>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -216,7 +216,7 @@ copy /Y "$(SolutionDir)Library\OpenGL2_vc2022\bin\glfw3.dll" "$(SolutionDir)Bina
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeaderFile>drive/d_pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(SolutionDir)Binaries\intermediate\$(ProjectName)\$(Platform)\$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_gui;$(SolutionDir)/Library/OpenGL2_vc2022/include;$(SolutionDir)/Library/ImGui_1_90_9/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/Source/Engine/code/zengine;$(SolutionDir)Source/Engine/code/zengine/z_gui;$(SolutionDir)Source/Z_Gui/code;$(SolutionDir)/Library/OpenGL2_vc2022/include;$(SolutionDir)/Library/ImGui_1_90_9/include</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>
     <Link>

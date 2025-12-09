@@ -49,7 +49,7 @@ namespace zengine {
 */
 class CORE_DLLAPI ZConfig : public ZObject {
 public:
-    ZConfig(const WChar* _file_dir) noexcept;
+    ZConfig(const Char* _file_dir) noexcept;
     ~ZConfig() noexcept;
 
     NODISCARD Bool GetMemberValueBool(const Char* _key) const noexcept;
@@ -136,10 +136,10 @@ private:
     static inline constexpr SizeType kUpdateTimeStringLength = 32;
     static inline constexpr Char kVersionKey[] = "VERSION";
     static inline constexpr Char kSaveTimeKey[] = "SAVE_TIME";
-    static inline constexpr WChar kBackUpExtension[] = L".bak";
+    static inline constexpr Char kBackUpExtension[] = ".bak";
 
     TUniquePointer<ZJsonDocument> config_data_ptr_;
-    ZWString file_dir_;
+    ZString file_dir_;
 };
 
 }//zengine
