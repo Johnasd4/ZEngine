@@ -31,23 +31,39 @@
 
 namespace zengine {
 
+/** @brief Maximum value for a 32-bit signed integer. */
 inline constexpr Int32 kInt32Max = 2147483647;
+/** @brief Minimum value for a 32-bit signed integer. */
 inline constexpr Int32 kInt32Min = -2147483647; 
+/** @brief Maximum value for a 64-bit signed integer. */
 inline constexpr Int64 kInt64Max = 9223372036854775807LL;
+/** @brief Minimum value for a 64-bit signed integer. */
 inline constexpr Int64 kInt64Min = -9223372036854775807LL;
+/** @brief Maximum value for a 64-bit unsigned integer. */
 inline constexpr UInt64 kUInt64Max = 18446744073709551615ULL;
+/** @brief Minimum value for a 64-bit unsigned integer. */
 inline constexpr UInt64 kUInt64Min = 0ULL;
+/** @brief Maximum value for a 32-bit floating point number. */
 inline constexpr Float32 kFloat32Max = 3.402823466e+38F;
+/** @brief Minimum value for a 32-bit floating point number. */
 inline constexpr Float32 kFloat32Min = -3.402823466e+38F;
 
+/** @brief Maximum value for the TimeType alias. */
 inline constexpr TimeType kTimeTypeMax = kInt64Max;
+/** @brief Minimum value for the TimeType alias. */
 inline constexpr TimeType kTimeTypeMin = kInt64Min;
+/** @brief Maximum value for the SizeType alias. */
 inline constexpr SizeType kSizeTypeMax = kUInt64Max;
+/** @brief Minimum value for the SizeType alias. */
 inline constexpr SizeType kSizeTypeMin = kUInt64Min;
 
+/** @brief Constant representing 1 Byte. */
 inline constexpr SizeType kB = 1;
+/** @brief Constant representing 1 Kilobyte (1024 Bytes). */
 inline constexpr SizeType kKB = 1024;
+/** @brief Constant representing 1 Megabyte (1024 Kilobytes). */
 inline constexpr SizeType kMB =  1048576;
+/** @brief Constant representing 1 Gigabyte (1024 Megabytes). */
 inline constexpr SizeType kGB = 1073741824;
 
 }//zengine

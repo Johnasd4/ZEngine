@@ -53,8 +53,8 @@ NODISCARD ReturnType ZIOContext::ResolveTCPAddress(
     //resolve endpoints
     boost::asio::ip::tcp::resolver resolver(data_ptr_->io_context_);
     boost::asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(
-        boost::asio::string_view(_address_str.DataPtr(), _address_str.Size()),
-        boost::asio::string_view(_port_str.DataPtr(), _port_str.Size()),
+        boost::asio::string_view(_address_str.GetDataPtr(), _address_str.GetSize()),
+        boost::asio::string_view(_port_str.GetDataPtr(), _port_str.GetSize()),
         error_code
     );
 
@@ -65,9 +65,9 @@ NODISCARD ReturnType ZIOContext::ResolveTCPAddress(
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             "System error! error info: %ls address: %ls port: %ls",
-            string::StringToWString(error_code.message().c_str()).DataPtr(),
-            string::StringToWString(address_str.DataPtr()).DataPtr(),
-            string::StringToWString(port_str.DataPtr()).DataPtr()
+            string::StringToWString(error_code.message().c_str()).GetDataPtr(),
+            string::StringToWString(address_str.GetDataPtr()).GetDataPtr(),
+            string::StringToWString(port_str.GetDataPtr()).GetDataPtr()
         );
         return ret_val;
     }
@@ -79,7 +79,7 @@ NODISCARD ReturnType ZIOContext::ResolveTCPAddress(
         endpoint_iterator != endpoints.end(); 
         ++endpoint_iterator, ++array_index
     ) {
-        *(*_endpoint_array_ptr)[array_index].endpoint_data_.DataPtr<boost::asio::ip::tcp::endpoint>() = 
+        *(*_endpoint_array_ptr)[array_index].endpoint_data_.GetDataPtr<boost::asio::ip::tcp::endpoint>() = 
             *endpoint_iterator;
     }
     return ret_val;
@@ -97,8 +97,8 @@ NODISCARD ReturnType ZIOContext::ResolveUDPAddress(
     //resolve endpoints
     boost::asio::ip::udp::resolver resolver(data_ptr_->io_context_);
     boost::asio::ip::udp::resolver::results_type endpoints = resolver.resolve(
-        boost::asio::string_view(_address_str.DataPtr(), _address_str.Size()),
-        boost::asio::string_view(_port_str.DataPtr(), _port_str.Size()),
+        boost::asio::string_view(_address_str.GetDataPtr(), _address_str.GetSize()),
+        boost::asio::string_view(_port_str.GetDataPtr(), _port_str.GetSize()),
         error_code
     );
 
@@ -109,9 +109,9 @@ NODISCARD ReturnType ZIOContext::ResolveUDPAddress(
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             "System error! error info: %ls address(%d): %ls port(%d): %ls",
-            string::StringToWString(error_code.message().c_str()).DataPtr(),
-            _address_str.Size(), string::StringToWString(address_str.DataPtr()).DataPtr(),
-            _port_str.Size(), string::StringToWString(port_str.DataPtr()).DataPtr()
+            string::StringToWString(error_code.message().c_str()).GetDataPtr(),
+            _address_str.GetSize(), string::StringToWString(address_str.GetDataPtr()).GetDataPtr(),
+            _port_str.GetSize(), string::StringToWString(port_str.GetDataPtr()).GetDataPtr()
         );
         return ret_val;
     }
@@ -123,7 +123,7 @@ NODISCARD ReturnType ZIOContext::ResolveUDPAddress(
         endpoint_iterator != endpoints.end();
         ++endpoint_iterator, ++array_index
         ) {
-        *(*_endpoint_array_ptr)[array_index].endpoint_data_.DataPtr<boost::asio::ip::udp::endpoint>() =
+        *(*_endpoint_array_ptr)[array_index].endpoint_data_.GetDataPtr<boost::asio::ip::udp::endpoint>() =
             *endpoint_iterator;
     }
     return ret_val;
@@ -151,7 +151,7 @@ Void ZIOContext::AsyncRun() noexcept {
 }
 
 Void ZIOContext::Join() noexcept {
-    if (data_ptr_->aysnc_thread_.Joinable()) {
+    if (data_ptr_->aysnc_thread_.IsJoinable()) {
         data_ptr_->aysnc_thread_.Join();
     }
 }

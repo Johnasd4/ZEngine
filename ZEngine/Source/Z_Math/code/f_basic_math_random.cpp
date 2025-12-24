@@ -67,7 +67,7 @@ private:
         static TArray<Void(*)()> refill_func_array;
 
         //add the new refill func
-        if (!manager_refill_func_array.Empty()) {
+        if (!manager_refill_func_array.IsEmpty()) {
             manager_refill_func_array_mutex.Lock();
             for (
                 auto refill_func = manager_refill_func_array.Begin()
@@ -101,10 +101,10 @@ public:
     NODISCARD static _NumberType Apply() noexcept {
         static RandPool& instance = Instance();
         TLockGuard<ZMutex> lock_guard(instance.apply_mutex_);
-        if (++instance.apply_num_ >= instance.pool_array_.Size()) {
+        if (++instance.apply_num_ >= instance.pool_array_.GetSize()) {
             instance.ExtendP();
         }
-        return instance.pool_array_[instance.current_index_++ % instance.pool_array_.Size()];
+        return instance.pool_array_[instance.current_index_++ % instance.pool_array_.GetSize()];
     }
 
     NODISCARD static Void RefillTimerFunc() noexcept {
@@ -114,7 +114,7 @@ public:
         SizeType end_index;
         Bool if_resize = false;
         SizeType apply_num;
-        SizeType array_size = instance.pool_array_.Size();
+        SizeType array_size = instance.pool_array_.GetSize();
 
         {
             TLockGuard<ZMutex> lock_guard(instance.apply_mutex_);
@@ -166,7 +166,7 @@ private:
     }
 
     static Void RefillP(TArray<_NumberType>* _rand_array_ptr, SizeType _begin_index, SizeType _end_index) noexcept {
-        SizeType size = _rand_array_ptr->Size();
+        SizeType size = _rand_array_ptr->GetSize();
         SizeType index = _begin_index;
         //refill size always > 0
         do {
@@ -177,7 +177,7 @@ private:
     }
 
     Void ExtendP() noexcept {
-        pool_array_.Resize(pool_array_.Size() * 2);
+        pool_array_.Resize(pool_array_.GetSize() * 2);
         RefillP(&pool_array_, 1, 0);
         current_index_ = 0;
         refill_index_ = 0;

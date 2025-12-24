@@ -54,7 +54,7 @@ SOCKET_DLLAPI ReturnType StringToIP4(const Char* _ip_string, UInt32* _ip4_ptr) n
                 Z_LOG_ERROR(
                     ret_val, 0, 
                     "ip out of range! _ip_string: %ls",
-                    string::StringToWString(_ip_string).DataPtr()
+                    string::StringToWString(_ip_string).GetDataPtr()
                 );
                 return ret_val;
             }
@@ -66,7 +66,7 @@ SOCKET_DLLAPI ReturnType StringToIP4(const Char* _ip_string, UInt32* _ip4_ptr) n
             Z_LOG_ERROR(
                 ret_val, 0,
                 "Invaild char! _ip_string: %ls",
-                string::StringToWString(_ip_string).DataPtr()
+                string::StringToWString(_ip_string).GetDataPtr()
             );
             return ret_val;
         }
@@ -76,7 +76,7 @@ SOCKET_DLLAPI ReturnType StringToIP4(const Char* _ip_string, UInt32* _ip4_ptr) n
             Z_LOG_ERROR(
                 ret_val, 0,
                 "More then 3 segment! _ip_string: %ls",
-                string::StringToWString(_ip_string).DataPtr()
+                string::StringToWString(_ip_string).GetDataPtr()
             );
             return ret_val;
         }
@@ -89,7 +89,7 @@ SOCKET_DLLAPI ReturnType StringToIP4(const Char* _ip_string, UInt32* _ip4_ptr) n
         Z_LOG_ERROR(
             ret_val, 0,
             "Not 3 segment! _ip_string: %ls",
-            string::StringToWString(_ip_string).DataPtr()
+            string::StringToWString(_ip_string).GetDataPtr()
         );
         return ret_val;
     }

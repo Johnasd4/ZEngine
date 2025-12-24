@@ -30,7 +30,7 @@ namespace error_code {
 
 enum FSocketErrorCodeEnum : ReturnType {
     kFSocketErrorCode_LinkError = kErrorCodeBase_FSocket,
-    kFSocketErrorCode_SystemError,
+    kFSocketErrorCode_SystemOrLibraryError,
     kFSocketErrorCode_NullptrParam,
     kFSocketErrorCode_ParamOutOfRange,
     kFSocketErrorCode_LogServerStateError,

@@ -30,7 +30,7 @@ namespace zengine {
 namespace error_code {
 enum ZButtonErrorCodeEnum : ReturnType {
     kZButtonErrorCode_LinkError = kErrorCodeBase_ZButton,
-    kZButtonErrorCode_SystemError,
+    kZButtonErrorCode_SystemOrLibraryError,
     kZButtonErrorCode_NullptrParam,
     kZButtonErrorCode_ParamOutOfRange,
 };

@@ -28,7 +28,7 @@
 
 #include "../drive.h"
 
-#include "../library/l_fmt.h"
+#include "../internal/l_fmt.h"
 
 #include "../t_smart_pointer.h"
 #include "../z_string_view.h"
@@ -43,6 +43,18 @@ namespace zengine {
 namespace log {
 namespace internal {
 
+/**
+ * @brief Internal implementation to process and dispatch an error log.
+ * @param _log_time The timestamp of the log.
+ * @param _proj_name The project name.
+ * @param _file_dir The file directory/path.
+ * @param _func_name The function name.
+ * @param _err_line The line number.
+ * @param _err_code The error code (returns kOK if successful, if failed returns error code).
+ * @param _link_code The secondary link error code.
+ * @param _format The format string.
+ * @param _args The pre-formatted arguments.
+ */
 CORE_DLLAPI Void LogErrorP(
     TimeType _log_time,
     ZStringView _proj_name,
@@ -55,6 +67,16 @@ CORE_DLLAPI Void LogErrorP(
     fmt::format_args _args
 ) noexcept;
 
+/**
+ * @brief Internal implementation to process and dispatch a trace log.
+ * @param _log_time The timestamp of the log.
+ * @param _proj_name The project name.
+ * @param _file_dir The file directory/path.
+ * @param _func_name The function name.
+ * @param _trace_line The line number.
+ * @param _format The format string.
+ * @param _args The pre-formatted arguments.
+ */
 CORE_DLLAPI Void LogTraceP(
     TimeType _log_time,
     ZStringView _proj_name,
@@ -65,6 +87,13 @@ CORE_DLLAPI Void LogTraceP(
     fmt::format_args _args
 ) noexcept;
 
+/**
+ * @brief Internal implementation to process and dispatch an information log.
+ * @param _log_time The timestamp of the log.
+ * @param _info_type The type/category of the info log.
+ * @param _format The format string.
+ * @param _args The pre-formatted arguments.
+ */
 CORE_DLLAPI Void LogInfoP(
     TimeType _log_time,
     InfoLogTypeEnum _info_type,
@@ -72,11 +101,21 @@ CORE_DLLAPI Void LogInfoP(
     fmt::format_args _args
 ) noexcept;
 
+/**
+ * @brief Internal helper to register a log output function.
+ * @param _output_func The function pointer to register.
+ * @param output_func_array_ptr_ Pointer to the array storing output functions.
+ */
 CORE_DLLAPI Void RegisterLogOutputFunctionP(
     ZLog::OutputFunction_ _output_func,
     ZLog::OutputFunctionArray_* output_func_array_ptr_
 ) noexcept;
 
+/**
+ * @brief Internal helper to unregister a log output function.
+ * @param _output_func The function pointer to unregister.
+ * @param output_func_array_ptr_ Pointer to the array storing output functions.
+ */
 CORE_DLLAPI Void UnregisterLogOutputFunctionP(
     ZLog::OutputFunction_ _output_func,
     ZLog::OutputFunctionArray_* output_func_array_ptr_
@@ -90,6 +129,19 @@ CORE_DLLAPI Void UnregisterLogOutputFunctionP(
 namespace zengine {
 namespace log {
 
+/**
+ * @brief Logs an error message with formatting support.
+ * @tparam _ArgsType Variadic argument types for formatting.
+ * @param _log_time The timestamp of the log.
+ * @param _proj_name The project name.
+ * @param _file_dir The file directory/path.
+ * @param _func_name The function name.
+ * @param _err_line The line number.
+ * @param _err_code The error code (returns kOK if successful, if failed returns error code).
+ * @param _link_code The secondary link error code.
+ * @param _format The format string.
+ * @param _args The arguments to format into the string.
+ */
 template<typename... _ArgsType>
 FORCEINLINE Void LogError(
     TimeType _log_time,
@@ -115,6 +167,17 @@ FORCEINLINE Void LogError(
     );
 }
 
+/**
+ * @brief Logs a trace message with formatting support.
+ * @tparam _ArgsType Variadic argument types for formatting.
+ * @param _log_time The timestamp of the log.
+ * @param _proj_name The project name.
+ * @param _file_dir The file directory/path.
+ * @param _func_name The function name.
+ * @param _trace_line The line number.
+ * @param _format The format string.
+ * @param _args The arguments to format into the string.
+ */
 template<typename... _ArgsType>
 FORCEINLINE Void LogTrace(
     TimeType _log_time,
@@ -136,6 +199,14 @@ FORCEINLINE Void LogTrace(
     );
 }
 
+/**
+ * @brief Logs an informational message with formatting support.
+ * @tparam _ArgsType Variadic argument types for formatting.
+ * @param _log_time The timestamp of the log.
+ * @param _info_type The type/category of the info log.
+ * @param _format The format string.
+ * @param _args The arguments to format into the string.
+ */
 template<typename... _ArgsType>
 FORCEINLINE Void LogInfo(
     TimeType _log_time,
@@ -151,6 +222,11 @@ FORCEINLINE Void LogInfo(
     );
 }
 
+/**
+ * @brief Registers an output callback function for a specific log type.
+ * @tparam _LogType The class type of the log (e.g., ZErrorLog, ZInfoLog).
+ * @param _output_func The function pointer to register.
+ */
 template<typename _LogType>
 Void RegisterLogOutputFunction(ZLog::OutputFunction_ _output_func) noexcept {
     internal::RegisterLogOutputFunctionP(
@@ -159,6 +235,11 @@ Void RegisterLogOutputFunction(ZLog::OutputFunction_ _output_func) noexcept {
     );
 }
 
+/**
+ * @brief Unregisters an output callback function for a specific log type.
+ * @tparam _LogType The class type of the log (e.g., ZErrorLog, ZInfoLog).
+ * @param _output_func The function pointer to unregister.
+ */
 template<typename _LogType>
 Void UnregisterLogOutputFunction(ZLog::OutputFunction_ _output_func) noexcept {
     internal::RegisterLogOutputFunctionP(
@@ -167,10 +248,13 @@ Void UnregisterLogOutputFunction(ZLog::OutputFunction_ _output_func) noexcept {
     );
 }
 
-/*
-    Call at the end of the program or when exiting the program.
-*/
-CORE_DLLAPI Void FinishFlush(TimeType _max_wait_time_ms = kLogFinishFlushMaxTime) noexcept;
+/**
+ * @brief Flushes all pending logs and waits for completion.
+ *
+ * Call at the end of the program or when exiting the program to ensure no logs are lost.
+ * @param _max_wait_time_ms The maximum time to wait for flushing in milliseconds.
+ */
+CORE_DLLAPI Void FinishFlush() noexcept;
 
 }//log
 }//zengine

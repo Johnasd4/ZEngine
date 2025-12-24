@@ -33,7 +33,7 @@ namespace zengine {
     List container.
 */
 template<typename _ObjectType>
-class TList : public ZObject {
+class TList : public ZObject<> {
 public:
     using STDList_ = std::list<_ObjectType, TAllocator<_ObjectType>>;
     using Iterator_ = STDList_::iterator;
@@ -95,9 +95,9 @@ public:
     NODISCARD FORCEINLINE _ObjectType& Back() noexcept { return list_.back(); }
     NODISCARD FORCEINLINE const _ObjectType& Back() const noexcept { return list_.back(); }
 
-    NODISCARD FORCEINLINE SizeType Size() const noexcept { return static_cast<SizeType>(list_.size()); }
-    NODISCARD FORCEINLINE SizeType Capacity() const noexcept { return kSizeTypeMax; }
-    NODISCARD FORCEINLINE Bool Empty() const noexcept { return list_.empty(); }
+    NODISCARD FORCEINLINE SizeType GetSize() const noexcept { return static_cast<SizeType>(list_.size()); }
+    NODISCARD FORCEINLINE SizeType GetCapacity() const noexcept { return kSizeTypeMax; }
+    NODISCARD FORCEINLINE Bool IsEmpty() const noexcept { return list_.empty(); }
 
     NODISCARD FORCEINLINE Iterator_ Begin() noexcept { return list_.begin(); }
     NODISCARD FORCEINLINE ConstIterator_ Begin() const noexcept { return list_.begin(); }
@@ -260,7 +260,7 @@ private:
     List container.. Thread safe.
 */
 template<typename _ObjectType>
-class TListSafe : public ZObject {
+class TListSafe : public ZObject<> {
 public:
     using STDList_ = std::list<_ObjectType, TAllocator<_ObjectType>>;
     using Iterator_ = STDList_::iterator;
@@ -356,12 +356,12 @@ public:
         return list_.back(); 
     }
 
-    NODISCARD FORCEINLINE SizeType Size() const noexcept {
+    NODISCARD FORCEINLINE SizeType GetSize() const noexcept {
         TLockGuard lock_guard(mutex_);
         return static_cast<SizeType>(list_.size()); 
     }
-    NODISCARD FORCEINLINE SizeType Capacity() const noexcept { return kSizeTypeMax; }
-    NODISCARD FORCEINLINE Bool Empty() const noexcept { 
+    NODISCARD FORCEINLINE SizeType GetCapacity() const noexcept { return kSizeTypeMax; }
+    NODISCARD FORCEINLINE Bool IsEmpty() const noexcept { 
         TLockGuard lock_guard(mutex_);
         return list_.empty(); 
     }

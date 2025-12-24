@@ -27,7 +27,7 @@ namespace zengine {
 namespace error_code {
 enum TUniqueLockErrorCodeEnum : ReturnType {
     kTUniqueLockErrorCode_LinkError = kErrorCodeBase_TUniqueLock,
-    kTUniqueLockErrorCode_SystemError,
+    kTUniqueLockErrorCode_SystemOrLibraryError,
     kTUniqueLockErrorCode_NullptrParam,
     kTUniqueLockErrorCode_ParamOutOfRange,
     kTUniqueLockErrorCode_MutexNotExist,
@@ -43,7 +43,7 @@ namespace zengine {
     Unique lock class, controls the mutex.
 */
 template<typename _MutexType>
-class TUniqueLock : public ZObject {
+class TUniqueLock : public ZObject<> {
 private:
     struct NoLockType_ { Int32 value_; };
     struct TryLockType_ { Int32 value_; };

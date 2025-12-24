@@ -85,11 +85,11 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::Open(IPTypeEnum _ip_type) noexce
 
     if (error_code) {
         state_ = StateEnum_::kError;
-        ret_val = error_code::kSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemOrLibraryError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             "System error! error info: %ls",
-            string::StringToWString(error_code.message().c_str()).DataPtr()
+            string::StringToWString(error_code.message().c_str()).GetDataPtr()
         );
         return ret_val;
     }
@@ -111,16 +111,16 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::BindEndpoint(const ZTCPEndpoint&
     );
 
     data_ptr_->acceptor_.bind(
-        *_tcp_endpoint.endpoint_data_.DataPtr<const boost::asio::ip::tcp::endpoint>(),
+        *_tcp_endpoint.endpoint_data_.GetDataPtr<const boost::asio::ip::tcp::endpoint>(),
         error_code
     );
     if (error_code) {
         state_ = StateEnum_::kError;
-        ret_val = error_code::kSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemOrLibraryError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             "System error! error info: %ls",
-            string::StringToWString(error_code.message().c_str()).DataPtr()
+            string::StringToWString(error_code.message().c_str()).GetDataPtr()
         );
         return ret_val;
     }
@@ -144,11 +144,11 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::Listen(Int32 _max_wait_connect_c
     data_ptr_->acceptor_.listen(_max_wait_connect_client_num, error_code);
     if (error_code) {
         state_ = StateEnum_::kError;
-        ret_val = error_code::kSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemOrLibraryError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             "System error! error info: %ls",
-            string::StringToWString(error_code.message().c_str()).DataPtr()
+            string::StringToWString(error_code.message().c_str()).GetDataPtr()
         );
         return ret_val;
     }
@@ -211,11 +211,11 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncAccept(
                     Z_DEBUG_LOG_FAILURE("Server accept cancelled!");
                 }
                 else {
-                    ret_val = error_code::kSocketErrorCode_SystemError;
+                    ret_val = error_code::kSocketErrorCode_SystemOrLibraryError;
                     Z_LOG_ERROR(
                         ret_val, _error_code.value(),
                         "System error! error info: %ls",
-                        string::StringToWString(_error_code.message().c_str()).DataPtr()
+                        string::StringToWString(_error_code.message().c_str()).GetDataPtr()
                     );
                 }
             }

@@ -28,7 +28,7 @@ namespace zengine {
 namespace error_code {
 enum ZBoardErrorCodeEnum : ReturnType {
     kZBoardErrorCode_LinkError = kErrorCodeBase_ZBoard,
-    kZBoardErrorCode_SystemError,
+    kZBoardErrorCode_SystemOrLibraryError,
     kZBoardErrorCode_NullptrParam,
     kZBoardErrorCode_ParamOutOfRange,
     kZBoardErrorCode_BoardTypeNotExist
@@ -81,7 +81,7 @@ public:
 
     NODISCARD FORCEINLINE Int32 XLength() const noexcept { return static_cast<Int32>(tile_matrix_.Row()); }
     NODISCARD FORCEINLINE Int32 YLength() const noexcept { return static_cast<Int32>(tile_matrix_.Column()); }
-    NODISCARD FORCEINLINE LogicVector2D Size() const noexcept {
+    NODISCARD FORCEINLINE LogicVector2D GetSize() const noexcept {
         return LogicVector2D(static_cast<Int32>(tile_matrix_.Row()), static_cast<Int32>(tile_matrix_.Column()));
     }
 

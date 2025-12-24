@@ -78,11 +78,11 @@ NODISCARD ReturnType ZTLSContext::SetVerifyMode(TLSVerifyModeEnum _tls_verify_mo
 
     data_ptr_->tls_context_.set_verify_mode(verify_mode, error_code);
     if (error_code) {
-        ret_val = error_code::kSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemOrLibraryError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             "System error! error info: %ls",
-            string::StringToWString(error_code.message().c_str()).DataPtr()
+            string::StringToWString(error_code.message().c_str()).GetDataPtr()
         );
         return ret_val;
     }
@@ -103,11 +103,11 @@ NODISCARD ReturnType ZTLSContext::LoadVerifyFile(const Char* _file_dir) noexcept
 
     data_ptr_->tls_context_.load_verify_file(_file_dir);
     if (error_code) {
-        ret_val = error_code::kSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemOrLibraryError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             "System error! error info: %ls",
-            string::StringToWString(error_code.message().c_str()).DataPtr()
+            string::StringToWString(error_code.message().c_str()).GetDataPtr()
         );
         return ret_val;
     }
@@ -128,11 +128,11 @@ NODISCARD ReturnType ZTLSContext::LoadSystemVerifyFiles() noexcept {
 
     data_ptr_->tls_context_.set_default_verify_paths(error_code);
     if (error_code) {
-        ret_val = error_code::kSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemOrLibraryError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             "System error! error info: %ls",
-            string::StringToWString(error_code.message().c_str()).DataPtr()
+            string::StringToWString(error_code.message().c_str()).GetDataPtr()
         );
         return ret_val;
     }
@@ -174,11 +174,11 @@ NODISCARD ReturnType ZTLSContext::UseCertificateFile(
 
     data_ptr_->tls_context_.use_certificate_file(_file_dir, file_format, error_code);
     if (error_code) {
-        ret_val = error_code::kSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemOrLibraryError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             "System error! error info: %ls",
-            string::StringToWString(error_code.message().c_str()).DataPtr()
+            string::StringToWString(error_code.message().c_str()).GetDataPtr()
         );
         return ret_val;
     }
@@ -203,11 +203,11 @@ NODISCARD ReturnType ZTLSContext::UseCertificateChainFile(
 
     data_ptr_->tls_context_.use_certificate_chain_file(_file_dir, error_code);
     if (error_code) {
-        ret_val = error_code::kSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemOrLibraryError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             "System error! error info: %ls",
-            string::StringToWString(error_code.message().c_str()).DataPtr()
+            string::StringToWString(error_code.message().c_str()).GetDataPtr()
         );
         return ret_val;
     }
@@ -251,11 +251,11 @@ NODISCARD ReturnType ZTLSContext::UsePrivateKeyFile(
 
     data_ptr_->tls_context_.use_private_key_file(_file_dir, file_format, error_code);
     if (error_code) {
-        ret_val = error_code::kSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemOrLibraryError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             "System error! error info: %ls",
-            string::StringToWString(error_code.message().c_str()).DataPtr()
+            string::StringToWString(error_code.message().c_str()).GetDataPtr()
         );
         return ret_val;
     }

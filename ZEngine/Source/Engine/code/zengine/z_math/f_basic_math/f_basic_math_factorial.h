@@ -39,7 +39,7 @@ constexpr inline Float64 kFactorialTableOffset = 0.0;
 inline constexpr TLookupTable<Float64, kFactorialTableSize> kFactorialTable = TLookupTable<Float64, kFactorialTableSize>(
     [](TLookupTable<Float64, kFactorialTableSize>* _table_ptr) {
         (*_table_ptr)[0] = 1.0;
-        for (SizeType index = 1; index < _table_ptr->Size(); ++index) {
+        for (SizeType index = 1; index < _table_ptr->GetSize(); ++index) {
             (*_table_ptr)[index] = (*_table_ptr)[index - 1] * static_cast<Float64>(index);
         }
     });
@@ -50,7 +50,7 @@ inline constexpr TLookupTable<Float64, kFactorialTableSize> kFactorialTable = TL
 inline constexpr TLookupTable<Float64, kFactorialTableSize> kFactorialReciprocalTable =
 TLookupTable<Float64, kFactorialTableSize>(
     [](TLookupTable<Float64, kFactorialTableSize>* _table_ptr) {
-        for (SizeType index = 0; index < _table_ptr->Size(); ++index) {
+        for (SizeType index = 0; index < _table_ptr->GetSize(); ++index) {
             (*_table_ptr)[index] = 1.0 / kFactorialTable[index];
         }
     });

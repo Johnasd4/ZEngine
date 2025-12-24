@@ -34,7 +34,7 @@ ZConfig::ZConfig(const Char* _file_dir) noexcept
     , file_dir_(_file_dir)
 {
     ReturnType link_code = kOK;
-    if (file_system::PathExist(_file_dir)) {
+    if (file_system::IsPathExist(_file_dir)) {
         link_code = config_data_ptr_->ReadFile(_file_dir);
         if (link_code != kOK) {
             Z_LOG_ERROR(error_code::kZJsonErrorCode_LinkError, link_code, 
@@ -42,7 +42,7 @@ ZConfig::ZConfig(const Char* _file_dir) noexcept
             );
 
             //rename broken config file
-            file_system::RenameFileByPath(_file_dir, (ZString(_file_dir) + kBackUpExtension).DataPtr());
+            file_system::RenameFileByPath(_file_dir, (ZString(_file_dir) + kBackUpExtension).GetDataPtr());
 
             //save config
             link_code = SaveConfigP();
@@ -425,7 +425,7 @@ NODISCARD ReturnType ZConfig::SaveConfigP() noexcept {
     static Bool temp = UpdateVersionP();
     UpdateSaveTimeP();
 
-    link_code = config_data_ptr_->WriteFile(file_dir_.DataPtr());
+    link_code = config_data_ptr_->WriteFile(file_dir_.GetDataPtr());
     if (link_code != kOK) {
         ret_val = error_code::kZConfigErrorCode_LinkError;
         Z_LOG_ERROR(ret_val, link_code, "ZJsonDocument::WriteFile() link error!");
@@ -451,7 +451,7 @@ Void ZConfig::UpdateSaveTimeP() noexcept {
         "%04d/%02d/%02d-%02d:%02d:%02d",
         ZSystemTime::Instance().Year(), ZSystemTime::Instance().Month(), ZSystemTime::Instance().Day(),
         ZSystemTime::Instance().Hour(), ZSystemTime::Instance().Min(), ZSystemTime::Instance().Sec());
-    (*config_data_ptr_)[kSaveTimeKey] = save_time_str.DataPtr();
+    (*config_data_ptr_)[kSaveTimeKey] = save_time_str.GetDataPtr();
 }
 
 }//zengine

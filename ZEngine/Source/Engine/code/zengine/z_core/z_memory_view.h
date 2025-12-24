@@ -75,12 +75,12 @@ public:
     }
 
     template<typename _ObjectType>
-    NODISCARD FORCEINLINE _ObjectType* DataPtr() const noexcept {
+    NODISCARD FORCEINLINE _ObjectType* GetDataPtr() const noexcept {
         return reinterpret_cast<const _ObjectType*>(data_ptr_);
     }
 
-    NODISCARD FORCEINLINE SizeType Size() const noexcept { return size_; }
-    NODISCARD FORCEINLINE SizeType Capacity() const noexcept { return size_; }
+    NODISCARD FORCEINLINE SizeType GetSize() const noexcept { return size_; }
+    NODISCARD FORCEINLINE SizeType GetCapacity() const noexcept { return size_; }
 
 protected:
     using SuperType_ = ZObject;

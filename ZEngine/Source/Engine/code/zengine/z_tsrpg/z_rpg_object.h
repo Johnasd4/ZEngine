@@ -26,7 +26,7 @@ namespace zengine {
 namespace error_code {
 enum ZRPGObjectErrorCodeEnum : ReturnType {
     kZRPGObjectErrorCode_LinkError = kErrorCodeBase_ZRPGObject,
-    kZRPGObjectErrorCode_SystemError,
+    kZRPGObjectErrorCode_SystemOrLibraryError,
     kZRPGObjectErrorCode_NullptrParam,
     kZRPGObjectErrorCode_ParamOutOfRange,
     kZRPGObjectErrorCode_NotInitialized

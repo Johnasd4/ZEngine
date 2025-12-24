@@ -33,7 +33,7 @@ namespace zengine {
     Array container.
 */
 template<typename _ObjectType>
-class TArray : public ZObject {
+class TArray : public ZObject<> {
 public:
     using STDArray_ = std::vector<_ObjectType, TAllocator<_ObjectType>>;
     using Iterator_ = STDArray_::iterator;
@@ -94,12 +94,12 @@ public:
     NODISCARD FORCEINLINE const _ObjectType& Front() const noexcept { return array_.front(); }
     NODISCARD FORCEINLINE _ObjectType& Back() noexcept { return array_.back(); }
     NODISCARD FORCEINLINE const _ObjectType& Back() const noexcept { return array_.back(); }
-    NODISCARD FORCEINLINE _ObjectType* DataPtr() noexcept { return array_.data(); }
-    NODISCARD FORCEINLINE const _ObjectType* DataPtr() const noexcept { return array_.data(); }
+    NODISCARD FORCEINLINE _ObjectType* GetDataPtr() noexcept { return array_.data(); }
+    NODISCARD FORCEINLINE const _ObjectType* GetDataPtr() const noexcept { return array_.data(); }
 
-    NODISCARD FORCEINLINE SizeType Size() const noexcept { return static_cast<SizeType>(array_.size()); }
-    NODISCARD FORCEINLINE SizeType Capacity() const noexcept { return array_.capacity(); }
-    NODISCARD FORCEINLINE Bool Empty() const noexcept { return array_.empty(); }
+    NODISCARD FORCEINLINE SizeType GetSize() const noexcept { return static_cast<SizeType>(array_.size()); }
+    NODISCARD FORCEINLINE SizeType GetCapacity() const noexcept { return array_.capacity(); }
+    NODISCARD FORCEINLINE Bool IsEmpty() const noexcept { return array_.empty(); }
 
     NODISCARD FORCEINLINE Iterator_ Begin() noexcept { return array_.begin(); }
     NODISCARD FORCEINLINE ConstIterator_ Begin() const noexcept { return array_.begin(); }
@@ -168,7 +168,7 @@ private:
     Array container. Thread safe.
 */
 template<typename _ObjectType>
-class TArraySafe : public ZObject {
+class TArraySafe : public ZObject<> {
 public:
     using STDArray_ = std::vector<_ObjectType, TAllocator<_ObjectType>>;
     using Iterator_ = STDArray_::iterator;
@@ -280,24 +280,24 @@ public:
         TLockGuard lock_guard(mutex_); 
         return array_.back(); 
     }
-    NODISCARD FORCEINLINE _ObjectType* DataPtr() noexcept { 
+    NODISCARD FORCEINLINE _ObjectType* GetDataPtr() noexcept { 
         TLockGuard lock_guard(mutex_); 
         return array_.data(); 
     }
-    NODISCARD FORCEINLINE const _ObjectType* DataPtr() const noexcept { 
+    NODISCARD FORCEINLINE const _ObjectType* GetDataPtr() const noexcept { 
         TLockGuard lock_guard(mutex_); 
         return array_.data(); 
     }
 
-    NODISCARD FORCEINLINE SizeType Size() const noexcept { 
+    NODISCARD FORCEINLINE SizeType GetSize() const noexcept { 
         TLockGuard lock_guard(mutex_); 
         return static_cast<SizeType>(array_.size()); 
     }
-    NODISCARD FORCEINLINE SizeType Capacity() const noexcept { 
+    NODISCARD FORCEINLINE SizeType GetCapacity() const noexcept { 
         TLockGuard lock_guard(mutex_); 
         return array_.capacity(); 
     }
-    NODISCARD FORCEINLINE Bool Empty() const noexcept { 
+    NODISCARD FORCEINLINE Bool IsEmpty() const noexcept { 
         TLockGuard lock_guard(mutex_); 
         return array_.empty(); 
     }

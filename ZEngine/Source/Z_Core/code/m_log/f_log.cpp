@@ -39,6 +39,9 @@ CORE_DLLAPI Void LogErrorP(
     fmt::format_args _args
 ) noexcept {
     static ZLogManager& manager = ZLogManager::Instance();
+    if (manager.IsFinished()) {
+        return;
+    }
     TUniquePointer<ZLog> log_ptr = MakeUnique<ZErrorLog>(
         _log_time,
         _proj_name,
@@ -49,9 +52,9 @@ CORE_DLLAPI Void LogErrorP(
         _link_code
     );
     ZLog::LogString_* log_string_ptr = log_ptr->LogStringPtr();
-    log_string_ptr->size_ = string::internal::GenerateStringNoEndP(
-        log_string_ptr->log_str_ptr_->DataPtr(),
-        log_string_ptr->log_str_ptr_->Capacity(),
+    log_string_ptr->size_ = string::internal::GenerateStringNoEnd(
+        log_string_ptr->log_str_ptr_->GetDataPtr(),
+        log_string_ptr->log_str_ptr_->GetCapacity(),
         _format,
         _args
     );
@@ -68,6 +71,9 @@ CORE_DLLAPI Void LogTraceP(
     fmt::format_args _args
 ) noexcept {
     static ZLogManager& manager = ZLogManager::Instance();
+    if (manager.IsFinished()) {
+        return;
+    }
     TUniquePointer<ZLog> log_ptr = MakeUnique<ZTraceLog>(
         _log_time,
         _proj_name,
@@ -76,9 +82,9 @@ CORE_DLLAPI Void LogTraceP(
         _trace_line
     );
     ZLog::LogString_* log_string_ptr = log_ptr->LogStringPtr();
-    log_string_ptr->size_ = string::internal::GenerateStringNoEndP(
-        log_string_ptr->log_str_ptr_->DataPtr(),
-        log_string_ptr->log_str_ptr_->Capacity(),
+    log_string_ptr->size_ = string::internal::GenerateStringNoEnd(
+        log_string_ptr->log_str_ptr_->GetDataPtr(),
+        log_string_ptr->log_str_ptr_->GetCapacity(),
         _format,
         _args
     );
@@ -92,14 +98,17 @@ CORE_DLLAPI Void LogInfoP(
     fmt::format_args _args
 ) noexcept {
     static ZLogManager& manager = ZLogManager::Instance();
+    if (manager.IsFinished()) {
+        return;
+    }
     TUniquePointer<ZLog> log_ptr = MakeUnique<ZInfoLog>(
         _log_time,
         _info_type
     );
     ZLog::LogString_* log_string_ptr = log_ptr->LogStringPtr();
-    log_string_ptr->size_ = string::internal::GenerateStringNoEndP(
-        log_string_ptr->log_str_ptr_->DataPtr(),
-        log_string_ptr->log_str_ptr_->Capacity(),
+    log_string_ptr->size_ = string::internal::GenerateStringNoEnd(
+        log_string_ptr->log_str_ptr_->GetDataPtr(),
+        log_string_ptr->log_str_ptr_->GetCapacity(),
         _format,
         _args
     );
@@ -133,8 +142,8 @@ CORE_DLLAPI Void UnregisterLogOutputFunctionP(
 namespace zengine {
 namespace log {
 
-CORE_DLLAPI Void FinishFlush(TimeType _max_wait_time_ms) noexcept {
-    ZLogManager::Instance().FinishFlush(_max_wait_time_ms);
+CORE_DLLAPI Void FinishFlush() noexcept {
+    ZLogManager::Instance().FinishFlush();
 }
 
 }//log

@@ -46,10 +46,10 @@ Void ZSceneEventManager::AddCurrentSceneEventGroupToExecuteList() noexcept {
 
 Void ZSceneEventManager::FinishAllExecutingSceneEventGroup() noexcept {
     ReturnType link_code = kOK;
-    while(!scene_event_group_execute_list_.Empty()) {
+    while(!scene_event_group_execute_list_.IsEmpty()) {
         SceneEventGroup_* event_group_ptr = scene_event_group_execute_list_.Front();
         TList<ZSceneEvent*>& event_list = event_group_ptr->scene_event_list_;
-        while (!event_list.Empty()) {
+        while (!event_list.IsEmpty()) {
             ZSceneEvent* event_ptr = event_list.Front();
             link_code = event_ptr->FinishImmediately();
             if (link_code != kOK) {
@@ -68,7 +68,7 @@ Void ZSceneEventManager::FinishAllExecutingSceneEventGroup() noexcept {
 }
 
 Void ZSceneEventManager::Tick(Float32 _delta_time) noexcept {
-    if (scene_event_group_execute_list_.Empty() || if_pause_) {
+    if (scene_event_group_execute_list_.IsEmpty() || if_pause_) {
         return;
     }
     Float32 tick_time = _delta_time * speed_mult_;
@@ -94,7 +94,7 @@ Void ZSceneEventManager::Tick(Float32 _delta_time) noexcept {
                 ++event_ptr;
             }
         }
-        if (event_list.Empty()) {
+        if (event_list.IsEmpty()) {
             SceneEventGroup_::InstancePool().Release(*event_group_ptr);
             event_group_ptr = scene_event_group_execute_list_.Erase(event_group_ptr);
         }

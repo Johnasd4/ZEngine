@@ -28,7 +28,7 @@ namespace zengine {
 namespace error_code {
 enum ZSerializerErrorCodeEnum : ReturnType {
     kZSerializerErrorCode_LinkError = kErrorCodeBase_ZSerializer,
-    kZSerializerErrorCode_SystemError,
+    kZSerializerErrorCode_SystemOrLibraryError,
     kZSerializerErrorCode_NullptrParam,
     kZSerializerErrorCode_ParamOutOfRange,
     kZSerializerErrorCode_DeserializerOutOfData,
@@ -44,7 +44,7 @@ namespace zengine {
     ReturnType OnSerialize(ZSerializer& _out) const;
     SizeType CalculateSerializeSize();
 */
-class CORE_DLLAPI ZSerializer : public ZObject {
+class CORE_DLLAPI ZSerializer : public ZObject<> {
 private:
     static inline constexpr Float32 kAutoExtendMultFactor = 1.5f;
 
@@ -111,8 +111,8 @@ public:
 
     NODISCARD FORCEINLINE ZConstBuffer ToBuffer() const noexcept { return ZConstBuffer(data_ptr_, size_); }
 
-    NODISCARD FORCEINLINE SizeType Size() const noexcept { return size_; }
-    NODISCARD FORCEINLINE SizeType Capacity() const noexcept { return capacity_; }
+    NODISCARD FORCEINLINE SizeType GetSize() const noexcept { return size_; }
+    NODISCARD FORCEINLINE SizeType GetCapacity() const noexcept { return capacity_; }
 
     FORCEINLINE Void Clear() noexcept { size_ = 0ULL; }
 
@@ -142,7 +142,7 @@ private:
     Non-copyable class need to implement OnDeserialize() methods.
     ReturnType OnDeserialize(ZDeserializer& _in);
 */
-class CORE_DLLAPI ZDeserializer : public ZObject {
+class CORE_DLLAPI ZDeserializer : public ZObject<> {
 public:
     ZDeserializer() noexcept;
     ZDeserializer(ZDeserializer&& _deserializer) noexcept;
@@ -191,8 +191,8 @@ public:
     NODISCARD ReturnType Read(Void* _data_ptr, SizeType _size) noexcept;
 
     FORCEINLINE Void FromBuffer(ZConstBuffer _buffer) noexcept { 
-        data_ptr_ = _buffer.DataPtr<const Byte>();
-        size_left_ = _buffer.Size();
+        data_ptr_ = _buffer.GetDataPtr<const Byte>();
+        size_left_ = _buffer.GetSize();
     }
 
     NODISCARD FORCEINLINE SizeType SizeLeft() const noexcept { return size_left_; }

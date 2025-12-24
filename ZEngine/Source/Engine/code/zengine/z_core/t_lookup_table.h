@@ -34,7 +34,7 @@ concept kIsLookupTableInitFunction = requires(_LookupTableType * _lookup_table, 
 }//internal
 
 template<typename _ObjectType, SizeType kTableSize>
-class TLookupTable : public ZObject {
+class TLookupTable : public ZObject<> {
 public:
     /*
         The work is done at compile time.
@@ -65,7 +65,7 @@ public:
     NODISCARD FORCEINLINE constexpr _ObjectType& operator[](SizeType _index) { return data_[_index]; }
     NODISCARD FORCEINLINE constexpr const _ObjectType& operator[](SizeType _index) const { return data_[_index]; }
 
-    NODISCARD FORCEINLINE static constexpr SizeType Size() { return kTableSize; }
+    NODISCARD FORCEINLINE static constexpr SizeType GetSize() { return kTableSize; }
 
     /*
         Find the object at the certain index.

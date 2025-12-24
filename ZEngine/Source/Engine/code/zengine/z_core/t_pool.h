@@ -34,7 +34,7 @@ namespace zengine {
     Applying object and releasing object is independent, can be used in diffent threads.
 */
 template<typename _ObjectType, Bool kIfCallConstructorAndDestructor = kIsClassType<_ObjectType>>
-class TPool : public ZObject {
+class TPool : public ZObject<> {
 private:
     static inline constexpr SizeType kExtendMinSize = 10ULL;
     static inline constexpr SizeType kMemoryPtrListSize = 10ULL;
@@ -85,7 +85,7 @@ public:
                     }
                 }
             }
-            memory_pool::ReleaseMemory(memory_iter->memory_ptr_);
+            memory_pool::ReleaseThreadLocalMemory(memory_iter->memory_ptr_);
         }
     }
 
@@ -151,7 +151,7 @@ private:
             extend_num = kExtendMinSize;
         }
         SizeType mem_size = sizeof(Node_) * extend_num;
-        Void* mem_ptr = memory_pool::ApplyMemory(mem_size, &mem_size);
+        Void* mem_ptr = memory_pool::ApplyThreadLocalMemory(mem_size, &mem_size);
         extend_num = mem_size / sizeof(Node_);
         memory_list_.EmplaceBack(mem_ptr, extend_num);
         if (model_obj_ptr_) {
@@ -215,7 +215,7 @@ private:
     Applying object and releasing object is independent, can be used in diffent threads.
 */
 template<typename _ObjectType, Bool kIfCallConstructorAndDestructor = kIsClassType<_ObjectType>>
-class TPoolSafe : public ZObject {
+class TPoolSafe : public ZObject<> {
 private:
     static constexpr inline SizeType kExtendMinSize = 10ULL;
     static constexpr inline SizeType kMemoryPtrListSize = 10ULL;
@@ -268,7 +268,7 @@ public:
                     }
                 }
             }
-            memory_pool::ReleaseMemory(memory_iter->memory_ptr_);
+            memory_pool::ReleaseThreadLocalMemory(memory_iter->memory_ptr_);
         }
     }
 
@@ -358,7 +358,7 @@ private:
             extend_num = kExtendMinSize;
         }
         SizeType mem_size = sizeof(Node_) * extend_num;
-        Void* mem_ptr = memory_pool::ApplyMemory(mem_size, &mem_size);
+        Void* mem_ptr = memory_pool::ApplyThreadLocalMemory(mem_size, &mem_size);
         extend_num = mem_size / sizeof(Node_);
         memory_list_.EmplaceBack(mem_ptr, extend_num);
         if (model_obj_ptr_) {

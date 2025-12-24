@@ -28,7 +28,7 @@ namespace zengine {
 namespace error_code {
 enum ZLogicBoardViewerErrorCodeEnum : ReturnType {
     kZLogicBoardViewerErrorCode_LinkError = kErrorCodeBase_ZLogicBoardViewer,
-    kZLogicBoardViewerErrorCode_SystemError,
+    kZLogicBoardViewerErrorCode_SystemOrLibraryError,
     kZLogicBoardViewerErrorCode_NullptrParam,
     kZLogicBoardViewerErrorCode_ParamOutOfRange,
 };

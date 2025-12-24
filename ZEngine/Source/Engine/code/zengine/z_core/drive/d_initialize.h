@@ -31,6 +31,8 @@
 
 namespace zengine {
 
+/** @brief Initializes the core engine systems. */
+/** @brief This function is called at the very beginning of the program to perform initialization. */
 CORE_DLLAPI Void Initialize() noexcept;
 
 }//zengine

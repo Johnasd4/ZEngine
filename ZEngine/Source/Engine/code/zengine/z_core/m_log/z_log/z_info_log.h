@@ -36,11 +36,20 @@
 namespace zengine {
 namespace log {
 
-/*
-    Error log info.
-*/
-class CORE_DLLAPI ZInfoLog : public ZLog {
+/**
+ * @brief Information log info.
+ *
+ * This class specializes the ZLog base class to handle informational logging events,
+ * categorization via InfoLogTypeEnum, and formatting.
+ */
+class CORE_DLLAPI CACHE_LINE_ALIGN ZInfoLog : public ZLog {
 public:
+    /**
+     * @brief String representation of information log types.
+     *
+     * A fixed array mapping InfoLogTypeEnum values to their corresponding string representations
+     * (e.g., "Message", "Start", "Success").
+     */
     static constexpr TFixedArray<ZStringView, static_cast<SizeType>(InfoLogTypeEnum::kMax)> kInfoLogType_String =
         TFixedArray<ZStringView, static_cast<SizeType>(InfoLogTypeEnum::kMax)>(
             [](TFixedArray<ZStringView, static_cast<SizeType>(InfoLogTypeEnum::kMax)>* _array_ptr) {
@@ -52,32 +61,78 @@ public:
                 (*_array_ptr)[static_cast<SizeType>(InfoLogTypeEnum::kFailure)] = "Failure";
             });
 
+    /**
+     * @brief Outputs the log content to a file.
+     * @param _log_ptr Pointer to the log object.
+     * @param _output_str The formatted log string to output.
+     */
     static Void FileOutputLog(const ZLog* _log_ptr, ZStringView _output_str) noexcept;
 
+    /**
+     * @brief Outputs the log content to the console.
+     * @param _log_ptr Pointer to the log object.
+     * @param _output_str The formatted log string to output.
+     */
     static Void ConsoleOutputLog(const ZLog* _log_ptr, ZStringView _output_str) noexcept;
 
+    /**
+     * @brief Constructs a ZInfoLog object.
+     * @param _log_time The time the log occurred.
+     * @param _info_type The specific type/category of the information log.
+     */
     ZInfoLog(
         TimeType _log_time, 
         InfoLogTypeEnum _info_type
     ) noexcept;
 
+    /**
+     * @brief Virtual destructor.
+     */
     virtual ~ZInfoLog() noexcept;
 
+    /**
+     * @brief Custom memory allocation operator.
+     * @param _size The size of memory to allocate.
+     * @return Void* Pointer to the allocated memory.
+     */
     NODISCARD static Void* operator new(SizeType _size) noexcept;
 
+    /**
+     * @brief Custom memory deallocation operator.
+     * @param _memory_ptr Pointer to the memory to deallocate.
+     */
     NODISCARD static Void operator delete(Void* _memory_ptr) noexcept;
 
+    /**
+     * @brief Gets the specific information type of this log.
+     * @return const InfoLogTypeEnum The info type enumeration value.
+     */
     NODISCARD FORCEINLINE const InfoLogTypeEnum InfoType() const noexcept { return info_type_; }
 
+    /**
+     * @brief Gets the static instance of the output function array.
+     * @return OutputFunctionArray_& Reference to the fixed array of output functions.
+     */
     NODISCARD static OutputFunctionArray_& OutputFunctionArrayInstance() noexcept;
-    NODISCARD virtual OutputFunctionArray_& OutputFunctionArray() noexcept;
 
 protected:
+    /** @brief Base class alias. */
     using SuperType_ = ZLog;
 
-    virtual Void GenerateOutputString(OutputString_* _output_str_ptr) noexcept;
+    /**
+     * @brief Generates the formatted output string for the info log.
+     * @param _output_str_ptr Pointer to the output string structure to be filled.
+     */
+    virtual Void GenerateOutputStringP(OutputString_* _output_str_ptr) noexcept;
+
+    /**
+     * @brief Retrieves the registered output functions for this specific log type.
+     * @return OutputFunctionArray_& Reference to the fixed array of output functions.
+     */
+    NODISCARD virtual OutputFunctionArray_& OutputFunctionArrayP() noexcept;
 
 private:
+    /** @brief The specific type of information log. */
     InfoLogTypeEnum info_type_;
 };
 

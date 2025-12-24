@@ -109,7 +109,7 @@ NODISCARD ReturnType ZTCPMultipleSessionClient::AsyncConnect(
                             //disconnect
                             Z_DEBUG_LOG_FINISH(
                                 "Server disconnected! server_address: %ls server_port: %ls",
-                                string::StringToWString(_socket_ptr->RemoteEndpoint().IPString().DataPtr()).DataPtr(),
+                                string::StringToWString(_socket_ptr->RemoteEndpoint().IPString().GetDataPtr()).GetDataPtr(),
                                 _socket_ptr->RemoteEndpoint().Port()
                             );
                         }

@@ -20,9 +20,9 @@
 #include "drive/d_pch.h"
 
 #include "z_timer.h"
-
 #include "m_log.h"
 #include "t_lock_guard.h"
+#include "z_mutex.h"
 
 namespace zengine {
 namespace internal {
@@ -48,7 +48,7 @@ public:
     TFunction<Void()> temp_tick_func_;
     ZThread timer_thread_;
     ZMutex timer_mutex_;
-    ZSemMutex sleep_mutex_;
+    ZMutex sleep_mutex_;
 
 protected:
     using SuperType_ = ZObject;
@@ -78,7 +78,7 @@ ZTimer::~ZTimer() noexcept {
         TLockGuard lock_guard(timer_data_ptr_->timer_mutex_);
         timer_data_ptr_->state_ = TimerStateEnum_::kFinished;
     }
-    if (timer_data_ptr_->timer_thread_.Joinable()) {
+    if (timer_data_ptr_->timer_thread_.IsJoinable()) {
         timer_data_ptr_->timer_thread_.Join();
     }
 }
@@ -153,7 +153,7 @@ NODISCARD Void ZTimer::WaitUntilFinished() noexcept {
     if (!timer_data_ptr_) {
         timer_data_ptr_ = MakeUnique<internal::ZTimerData>();
     }
-    if (timer_data_ptr_->timer_thread_.Joinable()) {
+    if (timer_data_ptr_->timer_thread_.IsJoinable()) {
         timer_data_ptr_->timer_thread_.Join();
     }
 }
@@ -228,13 +228,13 @@ Void ZTimer::TimerThreadFuncP(internal::ZTimerData& _timer_data) noexcept {
     {
         TLockGuard lock_guard(_timer_data.timer_mutex_);
         repeat_times_count = _timer_data.repeat_times_ < 0 ? kTimerNeverEnd - 1 : 0;
-        next_tick_time = TimeMs() + _timer_data.delay_start_time_;
+        next_tick_time = Time() + _timer_data.delay_start_time_;
         tick_func = std::move(_timer_data.temp_tick_func_);
     }
 
     do {
         //sleep
-        TimeType sleep_time = next_tick_time - TimeMs();
+        TimeType sleep_time = next_tick_time - Time();
         if (sleep_time > 0) {
             //end
             if (_timer_data.sleep_mutex_.TryLockFor(static_cast<UInt32>(sleep_time))) {

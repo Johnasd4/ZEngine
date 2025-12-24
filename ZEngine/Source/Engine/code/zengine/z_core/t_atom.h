@@ -32,7 +32,7 @@ namespace zengine {
     Atom template class, the variable will be thread safe.
 */
 template<typename _ObjectType, typename = void>
-class TAtom : public ZObject {
+class TAtom : public ZObject<> {
 public:
     FORCEINLINE TAtom() noexcept : SuperType_(), mutex_(), obj_() {}
     FORCEINLINE TAtom(const TAtom& _atom) noexcept : SuperType_(_atom), mutex_() {
@@ -342,7 +342,7 @@ private:
 };
 
 template<typename _ObjectType>
-class TAtom<_ObjectType, typename std::enable_if<kIsBasicType<_ObjectType>>::type> : public ZObject {
+class TAtom<_ObjectType, typename std::enable_if<kIsBasicType<_ObjectType>>::type> : public ZObject<> {
 public:
     using STDAtom_ = std::atomic<_ObjectType>;
 

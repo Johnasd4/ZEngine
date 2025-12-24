@@ -29,7 +29,7 @@ namespace zengine {
     Array container.
 */
 template<typename _ObjectType>
-class TMatrix : public ZObject {
+class TMatrix : public ZObject<> {
 public:
     using DataArray_ = TArray<_ObjectType>;
     using Iterator_ = DataArray_::Iterator_;
@@ -106,14 +106,14 @@ public:
         return data_vec_.At(_row * column_ + _column);
     }
 
-    NODISCARD FORCEINLINE _ObjectType* DataPtr() noexcept { return data_vec_.DataPtr(); }
-    NODISCARD FORCEINLINE const _ObjectType* DataPtr() const noexcept { return data_vec_.DataPtr(); }
+    NODISCARD FORCEINLINE _ObjectType* GetDataPtr() noexcept { return data_vec_.GetDataPtr(); }
+    NODISCARD FORCEINLINE const _ObjectType* GetDataPtr() const noexcept { return data_vec_.GetDataPtr(); }
 
-    NODISCARD FORCEINLINE SizeType Size() const noexcept { return data_vec_.Size(); }
+    NODISCARD FORCEINLINE SizeType GetSize() const noexcept { return data_vec_.GetSize(); }
     NODISCARD FORCEINLINE SizeType Row() const noexcept { return row_; }
     NODISCARD FORCEINLINE SizeType Column() const noexcept { return column_; }
-    NODISCARD FORCEINLINE SizeType Capacity() const noexcept { return data_vec_.Capacity(); }
-    NODISCARD FORCEINLINE Bool Empty() const noexcept { return data_vec_.Empty(); }
+    NODISCARD FORCEINLINE SizeType GetCapacity() const noexcept { return data_vec_.GetCapacity(); }
+    NODISCARD FORCEINLINE Bool IsEmpty() const noexcept { return data_vec_.IsEmpty(); }
 
     NODISCARD FORCEINLINE Iterator_ Begin() noexcept { return data_vec_.Begin(); }
     NODISCARD FORCEINLINE ConstIterator_ Begin() const noexcept { return data_vec_.Begin(); }

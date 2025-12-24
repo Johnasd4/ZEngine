@@ -32,7 +32,7 @@ namespace zengine {
     Queue container.
 */
 template<typename _ObjectType, typename _ContainerType = TDeque<_ObjectType>>
-class TQueue : public ZObject {
+class TQueue : public ZObject<> {
 public:
     using InitializerList_ = std::initializer_list<_ObjectType>;
 
@@ -83,9 +83,9 @@ public:
     NODISCARD FORCEINLINE _ObjectType& Back() noexcept { return queue_.Back(); }
     NODISCARD FORCEINLINE const _ObjectType& Back() const noexcept { return queue_.Back(); }
 
-    NODISCARD FORCEINLINE SizeType Size() const noexcept { return queue_.Size(); }
-    NODISCARD FORCEINLINE SizeType Capacity() const noexcept { return queue_.Capacity(); }
-    NODISCARD FORCEINLINE Bool Empty() const noexcept { return queue_.Empty(); }
+    NODISCARD FORCEINLINE SizeType GetSize() const noexcept { return queue_.GetSize(); }
+    NODISCARD FORCEINLINE SizeType GetCapacity() const noexcept { return queue_.GetCapacity(); }
+    NODISCARD FORCEINLINE Bool IsEmpty() const noexcept { return queue_.IsEmpty(); }
 
     FORCEINLINE Void PopFront() noexcept { queue_.PopFront(); }
 
@@ -112,7 +112,7 @@ private:
     Thread safe queue container.
 */
 template<typename _ObjectType, typename _ContainerType = TDeque<_ObjectType>, typename _MutexType = ZMutex>
-class TQueueSafe : public ZObject {
+class TQueueSafe : public ZObject<> {
 public:
     using InitializerList_ = std::initializer_list<_ObjectType>;
 
@@ -209,17 +209,17 @@ public:
         return queue_.Back(); 
     }
 
-    NODISCARD FORCEINLINE SizeType Size() const noexcept { 
+    NODISCARD FORCEINLINE SizeType GetSize() const noexcept { 
         TLockGuard lock_guard(*const_cast<_MutexType*>(&mutex_));
-        return queue_.Size(); 
+        return queue_.GetSize(); 
     }
-    NODISCARD FORCEINLINE SizeType Capacity() const noexcept { 
+    NODISCARD FORCEINLINE SizeType GetCapacity() const noexcept { 
         TLockGuard lock_guard(*const_cast<_MutexType*>(&mutex_));
-        return queue_.Capacity(); 
+        return queue_.GetCapacity(); 
     }
-    NODISCARD FORCEINLINE Bool Empty() const noexcept { 
+    NODISCARD FORCEINLINE Bool IsEmpty() const noexcept { 
         TLockGuard lock_guard(*const_cast<_MutexType*>(&mutex_));
-        return queue_.Empty(); 
+        return queue_.IsEmpty(); 
     }
 
     FORCEINLINE Void PopFront() noexcept { 
@@ -264,8 +264,8 @@ protected:
     using SuperType_ = ZObject;
 
 private:
-    _ContainerType queue_;
     _MutexType mutex_;
+    _ContainerType queue_;
 };
 
 }//zengine

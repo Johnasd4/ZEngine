@@ -33,7 +33,7 @@ namespace zengine {
     Object's contructor will be called when the queue resize and destructor will be called when the pool destructs.
 */
 template<typename _ObjectType, Bool kIfCallConstructorAndDestructor = kIsClassType<_ObjectType>>
-class TLoopQueue : public ZObject {
+class TLoopQueue : public ZObject<> {
 private:
     static inline constexpr Float32 kAutoExtendMultFactor = 1.5f;
 
@@ -42,7 +42,7 @@ public:
 
     FORCEINLINE TLoopQueue(SizeType _capacity) noexcept 
         : SuperType_() 
-        , data_ptr_(memory_pool::ApplyMemory(_capacity * sizeof(_ObjectType), &capacity_))
+        , data_ptr_(memory_pool::ApplyThreadLocalMemory(_capacity * sizeof(_ObjectType), &capacity_))
         , front_index_(0ULL)
         , back_index_(_capacity - 1ULL)
         , size_(0ULL) 
@@ -64,7 +64,7 @@ public:
     FORCEINLINE ~TLoopQueue() noexcept {
         DestroyAllObjectsP();
         if (data_ptr_ != nullptr) {
-            memory_pool::ReleaseMemory(data_ptr_);
+            memory_pool::ReleaseThreadLocalMemory(data_ptr_);
         }
     }
 
@@ -110,9 +110,9 @@ public:
     NODISCARD FORCEINLINE _ObjectType& Back() noexcept { return data_ptr_[back_index_]; }
     NODISCARD FORCEINLINE const _ObjectType& Back() const noexcept { return data_ptr_[back_index_]; }
 
-    NODISCARD FORCEINLINE SizeType Capacity() noexcept { return capacity_; }
-    NODISCARD FORCEINLINE SizeType Size() noexcept { return size_; }
-    NODISCARD FORCEINLINE Bool Empty() noexcept { return size_ == 0ULL; }
+    NODISCARD FORCEINLINE SizeType GetCapacity() noexcept { return capacity_; }
+    NODISCARD FORCEINLINE SizeType GetSize() noexcept { return size_; }
+    NODISCARD FORCEINLINE Bool IsEmpty() noexcept { return size_ == 0ULL; }
     NODISCARD FORCEINLINE Bool Full() noexcept { return size_ == capacity_; }
 
     Void PopFront() noexcept { 
@@ -169,7 +169,7 @@ public:
 
         //apply memory
         SizeType new_memory_size = 0;
-        _ObjectType* new_data_ptr = static_cast<_ObjectType*>(memory_pool::ApplyMemory(
+        _ObjectType* new_data_ptr = static_cast<_ObjectType*>(memory_pool::ApplyThreadLocalMemory(
             _capacity * sizeof(_ObjectType), &new_memory_size
         ));
 
@@ -200,7 +200,7 @@ public:
 
         //release old memory
         if (data_ptr_ != nullptr) {
-            memory_pool::ReleaseMemory(data_ptr_);
+            memory_pool::ReleaseThreadLocalMemory(data_ptr_);
         }
 
         //update members
@@ -271,10 +271,10 @@ private:
         if(capacity_ < _queue.size_) {
             if (data_ptr_ != nullptr) {
                 DestroyAllObjectsP();
-                memory_pool::ReleaseMemory(data_ptr_);
+                memory_pool::ReleaseThreadLocalMemory(data_ptr_);
             }
             //allocate new memory
-            data_ptr_ = static_cast<_ObjectType*>(memory_pool::ApplyMemory(
+            data_ptr_ = static_cast<_ObjectType*>(memory_pool::ApplyThreadLocalMemory(
                 _queue.size_ * sizeof(_ObjectType), &capacity_
             ));
             capacity_ = capacity_ / sizeof(_ObjectType);
@@ -306,7 +306,7 @@ private:
     FORCEINLINE Void MoveP(TLoopQueue&& _queue) noexcept {
         if (data_ptr_ != nullptr) {
             DestroyAllObjectsP();
-            memory_pool::ReleaseMemory(data_ptr_);
+            memory_pool::ReleaseThreadLocalMemory(data_ptr_);
         }
         data_ptr_ = _queue.data_ptr_;
         front_index_ = _queue.front_index_;

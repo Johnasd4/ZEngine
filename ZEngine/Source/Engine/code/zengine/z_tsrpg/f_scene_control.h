@@ -28,7 +28,7 @@ namespace zengine {
 namespace error_code {
 enum FSceneControlErrorCodeEnum : ReturnType {
     kFSceneControlErrorCode_LinkError = kErrorCodeBase_FSceneControl,
-    kFSceneControlErrorCode_SystemError,
+    kFSceneControlErrorCode_SystemOrLibraryError,
     kFSceneControlErrorCode_NullptrParam,
     kFSceneControlErrorCode_ParamOutOfRange,
     kFSceneControlErrorCode_LuaObjectNotValid,

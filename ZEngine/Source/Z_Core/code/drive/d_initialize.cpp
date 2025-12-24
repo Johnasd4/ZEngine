@@ -28,6 +28,11 @@ namespace zengine {
 CORE_DLLAPI Void Initialize() noexcept { 
     setlocale(LC_ALL, "");
 
+#if USE_MEMORY_POOL_PERFORMANCE_TEST
+    //initialize memory pool log file
+    //ZFile& file = memory_pool::TMemoryPoolBase<MEMORY_POOL_THREAD_SAFE>::LogFile();
+#endif //USE_MEMORY_POOL_PERFORMANCE_TEST
+
     //register log output function
 #if USE_FILE_LOG
     log::RegisterLogOutputFunction<log::ZErrorLog>(log::ZErrorLog::FileOutputLog);

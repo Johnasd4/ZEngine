@@ -124,7 +124,7 @@ inline constexpr Float64 kSinCosTableOffset = 0.0;
 inline constexpr ZInterpolationTable<Float64, kSinCosTableSize> kSinCosTable = ZInterpolationTable<Float64, kSinCosTableSize>(
     kSinCosTableOffset, kSinCosTableRadianStepDistance,
     [](ZInterpolationTable<Float64, kSinCosTableSize>* _table_ptr) {
-        for (SizeType index = 0; index < _table_ptr->Capacity(); ++index) {
+        for (SizeType index = 0; index < _table_ptr->GetCapacity(); ++index) {
             (*_table_ptr)[index] =
                 SinA<Float64>(static_cast<Float64>(index * kSinCosTableRadianStepDistance));
         }

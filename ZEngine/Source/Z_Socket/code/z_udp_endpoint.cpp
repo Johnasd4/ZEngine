@@ -46,17 +46,17 @@ ZUDPEndpoint::ZUDPEndpoint(const Char* _ip_str, UInt16 _port) noexcept {
         Z_LOG_ERROR(
             error_code::kSocketErrorCode_IPNotVaild, 0,
             "IP not vaild! _ip_str: %ls",
-            string::StringToWString(_ip_str).DataPtr()
+            string::StringToWString(_ip_str).GetDataPtr()
         );
         return;
     }
-    *endpoint_data_.DataPtr<boost::asio::ip::udp::endpoint>() = boost::asio::ip::udp::endpoint(
+    *endpoint_data_.GetDataPtr<boost::asio::ip::udp::endpoint>() = boost::asio::ip::udp::endpoint(
         boost::asio::ip::make_address(_ip_str), _port
     );
 }
 
 ZUDPEndpoint::ZUDPEndpoint(UInt32 _ip, UInt16 _port) noexcept {
-    *endpoint_data_.DataPtr<boost::asio::ip::udp::endpoint>() = boost::asio::ip::udp::endpoint(
+    *endpoint_data_.GetDataPtr<boost::asio::ip::udp::endpoint>() = boost::asio::ip::udp::endpoint(
         boost::asio::ip::address_v4(_ip), _port
     );
 }
@@ -70,44 +70,44 @@ NODISCARD ReturnType ZUDPEndpoint::SetEndpoint(const Char* _ip_str, UInt16 _port
         Z_LOG_ERROR(
             ret_val, 0,
             "IP not vaild! _ip_str: %ls",
-            string::StringToWString(_ip_str).DataPtr()
+            string::StringToWString(_ip_str).GetDataPtr()
         );
         return ret_val;
     }
-    *endpoint_data_.DataPtr<boost::asio::ip::udp::endpoint>() = boost::asio::ip::udp::endpoint(
+    *endpoint_data_.GetDataPtr<boost::asio::ip::udp::endpoint>() = boost::asio::ip::udp::endpoint(
         boost::asio::ip::make_address(_ip_str), _port
     );
     return ret_val;
 }
 
 Void ZUDPEndpoint::SetEndpoint(UInt32 _ip, UInt16 _port) noexcept {
-    *endpoint_data_.DataPtr<boost::asio::ip::udp::endpoint>() = boost::asio::ip::udp::endpoint(
+    *endpoint_data_.GetDataPtr<boost::asio::ip::udp::endpoint>() = boost::asio::ip::udp::endpoint(
         boost::asio::ip::address_v4(_ip), _port
     );
 }
 
 NODISCARD IPTypeEnum ZUDPEndpoint::IPType() const noexcept {
     Bool is_ip6 = 
-        endpoint_data_.DataPtr<const boost::asio::ip::udp::endpoint>()->protocol() == boost::asio::ip::udp::v6();
+        endpoint_data_.GetDataPtr<const boost::asio::ip::udp::endpoint>()->protocol() == boost::asio::ip::udp::v6();
     return is_ip6 ? IPTypeEnum::IP6 : IPTypeEnum::IP4;
 }
 NODISCARD ZString ZUDPEndpoint::IPString() const noexcept {
-    return endpoint_data_.DataPtr<const boost::asio::ip::udp::endpoint>()->address().to_string().c_str();
+    return endpoint_data_.GetDataPtr<const boost::asio::ip::udp::endpoint>()->address().to_string().c_str();
 }
 NODISCARD UInt32 ZUDPEndpoint::IP4() const noexcept {
-    return endpoint_data_.DataPtr<const boost::asio::ip::udp::endpoint>()->address().to_v4().to_uint();
+    return endpoint_data_.GetDataPtr<const boost::asio::ip::udp::endpoint>()->address().to_v4().to_uint();
 }
 NODISCARD TFixedMemory<ZUDPEndpoint::KIP6Size> ZUDPEndpoint::IP6() const noexcept {
     TFixedMemory<KIP6Size> data;
     Copy(
-        data.DataPtr<Void>(),
-        endpoint_data_.DataPtr<const boost::asio::ip::udp::endpoint>()->address().to_v6().to_bytes().data(),
+        data.GetDataPtr<Void>(),
+        endpoint_data_.GetDataPtr<const boost::asio::ip::udp::endpoint>()->address().to_v6().to_bytes().data(),
         KIP6Size
     );
     return data;
 }
 NODISCARD UInt16 ZUDPEndpoint::Port() const noexcept {
-    return endpoint_data_.DataPtr<const boost::asio::ip::udp::endpoint>()->port();
+    return endpoint_data_.GetDataPtr<const boost::asio::ip::udp::endpoint>()->port();
 }
 
 ZUDPEndpoint::~ZUDPEndpoint() noexcept {}

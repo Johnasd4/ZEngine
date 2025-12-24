@@ -34,7 +34,7 @@ NODISCARD static THashMap<ZWString::STDString_, ZLogicTileTexture>& TextureMapP(
 
 Void ZLogicTileTexture::RegisterLogicTileTexture(ZLogicTileTexture&& _texture) noexcept {
     static THashMap<ZWString::STDString_, ZLogicTileTexture>& texture_map = TextureMapP();
-    texture_map.InsertOrAssign(_texture.texture_name_.DataPtr(), std::move(_texture));
+    texture_map.InsertOrAssign(_texture.texture_name_.GetDataPtr(), std::move(_texture));
 }
 
 NODISCARD const ZLogicTileTexture* ZLogicTileTexture::GetLogicTileTextureByName(const WChar* _texture_name) noexcept {
@@ -117,14 +117,14 @@ NODISCARD ReturnType ZLogicTile::SetPos(const LogicVector3D& _pos) noexcept {
 }
 
 NODISCARD const ZLogicTileTexture* ZLogicTile::GetTopTexturePtr() const noexcept {
-    if (texture_node_array_.Size() == 0) {
+    if (texture_node_array_.GetSize() == 0) {
         return static_cast<ZLogicBoard*>(owner_board_ptr_)->base_layer_texture_ptr_;
     }
-    return texture_node_array_[texture_node_array_.Size() - 1].texture_ptr_;
+    return texture_node_array_[texture_node_array_.GetSize() - 1].texture_ptr_;
 }
 
 NODISCARD const ZLogicTileTexture* ZLogicTile::GetTexturePtrByPosZ(Int32 _pos_z) const noexcept {
-    SizeType node_index = texture_node_array_.Size() - 1;
+    SizeType node_index = texture_node_array_.GetSize() - 1;
     if (_pos_z > Z()) {
         Z_LOG_ERROR(
             error_code::kZLogicTileErrorCode_TexturePosZOutOfRange, 0,
@@ -161,7 +161,7 @@ NODISCARD const ReturnType ZLogicTile::CalculateTexturePtrVectorByPosZAndLength(
         _texture_ptr_array_ptr == nullptr, error_code::kZLogicTileErrorCode_NullptrParam, 
         "_texture_ptr_array_ptr is nullptr!"
     )
-        Int32 node_index = static_cast<Int32>(texture_node_array_.Size()) - 1;
+        Int32 node_index = static_cast<Int32>(texture_node_array_.GetSize()) - 1;
     Int32 start_pos_z = math::Min(_pos_z, Z());
     const ZLogicTileTexture* base_layer_texture_ptr = 
         static_cast<ZLogicBoard*>(owner_board_ptr_)->base_layer_texture_ptr_;

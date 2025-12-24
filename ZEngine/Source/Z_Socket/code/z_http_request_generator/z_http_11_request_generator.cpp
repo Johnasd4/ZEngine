@@ -46,32 +46,32 @@ Void ZHTTP11RequestGenerator::SetRequestType(RequestTypeEnum_ _request_type) noe
 }
 Void ZHTTP11RequestGenerator::SetTarget(ZStringView _target_str) noexcept {
     data_ptr_->request_.target(
-        boost::core::string_view(_target_str.DataPtr(), _target_str.Size())
+        boost::core::string_view(_target_str.GetDataPtr(), _target_str.GetSize())
     );
 }
 
 Void ZHTTP11RequestGenerator::SetHost(ZStringView _host_str) noexcept {
     data_ptr_->request_.set(
         boost::beast::http::field::host, 
-        boost::core::string_view(_host_str.DataPtr(), _host_str.Size())
+        boost::core::string_view(_host_str.GetDataPtr(), _host_str.GetSize())
     );
 }
 Void ZHTTP11RequestGenerator::SetAccept(ZStringView _accept_str) noexcept {
     data_ptr_->request_.set(
         boost::beast::http::field::accept, 
-        boost::core::string_view(_accept_str.DataPtr(), _accept_str.Size())      
+        boost::core::string_view(_accept_str.GetDataPtr(), _accept_str.GetSize())      
     );
 }
 Void ZHTTP11RequestGenerator::SetConnection(ZStringView _connection_str) noexcept {
     data_ptr_->request_.set(
         boost::beast::http::field::connection,
-        boost::core::string_view(_connection_str.DataPtr(), _connection_str.Size())
+        boost::core::string_view(_connection_str.GetDataPtr(), _connection_str.GetSize())
     );
 }
 Void ZHTTP11RequestGenerator::SetUserAgent(ZStringView _user_agent_str) noexcept {
     data_ptr_->request_.set(
         boost::beast::http::field::user_agent,
-        boost::core::string_view(_user_agent_str.DataPtr(), _user_agent_str.Size())
+        boost::core::string_view(_user_agent_str.GetDataPtr(), _user_agent_str.GetSize())
     );
 }
 

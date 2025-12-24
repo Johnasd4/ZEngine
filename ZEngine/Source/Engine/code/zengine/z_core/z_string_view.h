@@ -28,8 +28,6 @@
 
 #include "drive.h"
 
-#include <charconv>
-
 #include "z_string.h"
 #include "z_object.h"
 
@@ -107,7 +105,8 @@ public:
      * @brief Constructs a string view from a ZEngine TString object.
      * @param _str The source TString object.
      */
-    FORCEINLINE constexpr TStringView(const TString<_CharType>& _str) noexcept
+    template<Bool _IsGlobal>
+    FORCEINLINE constexpr TStringView(const TString<_CharType, _IsGlobal>& _str) noexcept
         : str_view_(_str.STDString())
     {}
 
@@ -162,7 +161,8 @@ public:
      * @param _str The source TString object.
      * @return TStringView& Reference to this object.
      */
-    FORCEINLINE constexpr TStringView& operator=(const TString<_CharType>& _str) noexcept {
+    template<Bool _IsGlobal>
+    FORCEINLINE constexpr TStringView& operator=(const TString<_CharType, _IsGlobal>& _str) noexcept {
         str_view_ = _str.STDString();
         return *this;
     }
@@ -234,7 +234,8 @@ public:
      * @param _str The source TString object.
      * @return TStringView& Reference to this object.
      */
-    FORCEINLINE constexpr TStringView& Assign(const TString<_CharType>& _str) noexcept {
+    template<Bool _IsGlobal>
+    FORCEINLINE constexpr TStringView& Assign(const TString<_CharType, _IsGlobal>& _str) noexcept {
         str_view_ = _str.STDString();
         return *this;
     }
@@ -252,20 +253,30 @@ public:
     }
 
     /**
-     * @brief Implicit conversion to a ZEngine TString object.
-     * @return TString<_CharType> A new TString containing a copy of the view's data.
-     */
-    NODISCARD FORCEINLINE operator TString<_CharType>() const noexcept {
-        return TString<_CharType>{str_view_.data(), str_view_.size()};
-    }
-
-    /**
      * @brief Implicit conversion to the underlying std::basic_string_view.
      * Allows TStringView to be passed directly to APIs expecting std::string_view.
      * @return STDStringView_ A copy of the internal string view.
      */
     NODISCARD FORCEINLINE operator STDStringView_() const noexcept {
         return str_view_;
+    }
+
+    /**
+     * @brief Implicit conversion to a ZEngine TString (global memory).
+     * Creates a new TString instance containing a copy of the view's data.
+     * @return TString<_CharType, true> A new TString object.
+     */
+    NODISCARD FORCEINLINE operator TString<_CharType, true>() const noexcept {
+        return TString<_CharType, true>(str_view_.data(), str_view_.size());
+    }
+
+    /**
+     * @brief Implicit conversion to a ZEngine TString (thread-local memory).
+     * Creates a new TString instance containing a copy of the view's data.
+     * @return TString<_CharType, false> A new TString object.
+     */
+    NODISCARD FORCEINLINE operator TString<_CharType, false>() const noexcept {
+        return TString<_CharType, false>(str_view_.data(), str_view_.size());
     }
 
     /**
@@ -292,7 +303,7 @@ public:
      * @brief Returns a pointer to the underlying character array.
      * @return const _CharType* A const pointer to the data.
      */
-    NODISCARD FORCEINLINE constexpr const _CharType* DataPtr() const noexcept {
+    NODISCARD FORCEINLINE constexpr const _CharType* GetDataPtr() const noexcept {
         return str_view_.data();
     }
 
@@ -312,13 +323,13 @@ public:
      * @brief Returns the number of characters in the view.
      * @return SizeType The size of the view.
      */
-    NODISCARD FORCEINLINE constexpr SizeType Size() const noexcept { return str_view_.size(); }
+    NODISCARD FORCEINLINE constexpr SizeType GetSize() const noexcept { return str_view_.size(); }
 
     /**
      * @brief Checks if the view is empty.
      * @return Bool True if the size is 0, false otherwise.
      */
-    NODISCARD FORCEINLINE constexpr Bool Empty() const noexcept { return str_view_.empty(); }
+    NODISCARD FORCEINLINE constexpr Bool IsEmpty() const noexcept { return str_view_.empty(); }
 
     /**
      * @brief Finds the first occurrence of a substring within the view.
@@ -402,8 +413,16 @@ public:
      * @brief Converts the view to a ZEngine TString (owning copy).
      * @return TString<_CharType> A new TString containing the data.
      */
-    NODISCARD FORCEINLINE TString<_CharType> ToString() const noexcept {
-        return TString<_CharType>{ DataPtr(), Size() };
+    NODISCARD FORCEINLINE TString<_CharType, true> ToString() const noexcept {
+        return TString<_CharType, true>{ GetDataPtr(), GetSize() };
+    }
+
+    /**
+     * @brief Converts the view to a ZEngine TString (owning copy).
+     * @return TString<_CharType> A new TString containing the data.
+     */
+    NODISCARD FORCEINLINE TString<_CharType, false> ToStringLocal() const noexcept {
+        return TString<_CharType, false>{ GetDataPtr(), GetSize() };
     }
 
 private:

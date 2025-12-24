@@ -183,10 +183,7 @@
       <Command>if not exist "$(SolutionDir)Library\Lua_5_4_7\include\lua" mkdir "$(SolutionDir)Library\Lua_5_4_7\include\lua"
 xcopy /S /Y "$(SolutionDir)Library\Lua_5_4_7\$(ProjectName)\code\include\*.h*" "$(SolutionDir)Library\Lua_5_4_7\include\lua"
 if not exist "$(SolutionDir)Library\Lua_5_4_7\lib" mkdir "$(SolutionDir)Library\Lua_5_4_7\lib"
-copy /Y "$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).lib" "$(SolutionDir)Library\Lua_5_4_7\lib\$(ProjectName)_$(Platform)_$(Configuration).lib"
-if not exist "$(SolutionDir)Release\include_library" mkdir "$(SolutionDir)Release\include_library"
-xcopy /E /Y "$(SolutionDir)Library\Lua_5_4_7\include\*.h*" "$(SolutionDir)Release\include_library"
-xcopy /E /Y "$(SolutionDir)Library\Sol2_3_3_0\include\*.h*" "$(SolutionDir)Release\include_library"  </Command>
+copy /Y "$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).lib" "$(SolutionDir)Library\Lua_5_4_7\lib\$(ProjectName)_$(Platform)_$(Configuration).lib"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -214,10 +211,7 @@ xcopy /E /Y "$(SolutionDir)Library\Sol2_3_3_0\include\*.h*" "$(SolutionDir)Relea
       <Command>if not exist "$(SolutionDir)Library\Lua_5_4_7\include\lua" mkdir "$(SolutionDir)Library\Lua_5_4_7\include\lua"
 xcopy /S /Y "$(SolutionDir)Library\Lua_5_4_7\$(ProjectName)\code\include\*.h*" "$(SolutionDir)Library\Lua_5_4_7\include\lua"
 if not exist "$(SolutionDir)Library\Lua_5_4_7\lib" mkdir "$(SolutionDir)Library\Lua_5_4_7\lib"
-copy /Y "$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).lib" "$(SolutionDir)Library\Lua_5_4_7\lib\$(ProjectName)_$(Platform)_$(Configuration).lib"
-if not exist "$(SolutionDir)Release\include_library" mkdir "$(SolutionDir)Release\include_library"
-xcopy /E /Y "$(SolutionDir)Library\Lua_5_4_7\include\*.h*" "$(SolutionDir)Release\include_library"
-xcopy /E /Y "$(SolutionDir)Library\Sol2_3_3_0\include\*.h*" "$(SolutionDir)Release\include_library"  </Command>
+copy /Y "$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).lib" "$(SolutionDir)Library\Lua_5_4_7\lib\$(ProjectName)_$(Platform)_$(Configuration).lib"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -241,10 +235,7 @@ xcopy /E /Y "$(SolutionDir)Library\Sol2_3_3_0\include\*.h*" "$(SolutionDir)Relea
       <Command>if not exist "$(SolutionDir)Library\Lua_5_4_7\include\lua" mkdir "$(SolutionDir)Library\Lua_5_4_7\include\lua"
 xcopy /S /Y "$(SolutionDir)Library\Lua_5_4_7\$(ProjectName)\code\include\*.h*" "$(SolutionDir)Library\Lua_5_4_7\include\lua"
 if not exist "$(SolutionDir)Library\Lua_5_4_7\lib" mkdir "$(SolutionDir)Library\Lua_5_4_7\lib"
-copy /Y "$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).lib" "$(SolutionDir)Library\Lua_5_4_7\lib\$(ProjectName)_$(Platform)_$(Configuration).lib"
-if not exist "$(SolutionDir)Release\include_library" mkdir "$(SolutionDir)Release\include_library"
-xcopy /E /Y "$(SolutionDir)Library\Lua_5_4_7\include\*.h*" "$(SolutionDir)Release\include_library"
-xcopy /E /Y "$(SolutionDir)Library\Sol2_3_3_0\include\*.h*" "$(SolutionDir)Release\include_library"  </Command>
+copy /Y "$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).lib" "$(SolutionDir)Library\Lua_5_4_7\lib\$(ProjectName)_$(Platform)_$(Configuration).lib"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -272,10 +263,7 @@ xcopy /E /Y "$(SolutionDir)Library\Sol2_3_3_0\include\*.h*" "$(SolutionDir)Relea
       <Command>if not exist "$(SolutionDir)Library\Lua_5_4_7\include\lua" mkdir "$(SolutionDir)Library\Lua_5_4_7\include\lua"
 xcopy /S /Y "$(SolutionDir)Library\Lua_5_4_7\$(ProjectName)\code\include\*.h*" "$(SolutionDir)Library\Lua_5_4_7\include\lua"
 if not exist "$(SolutionDir)Library\Lua_5_4_7\lib" mkdir "$(SolutionDir)Library\Lua_5_4_7\lib"
-copy /Y "$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).lib" "$(SolutionDir)Library\Lua_5_4_7\lib\$(ProjectName)_$(Platform)_$(Configuration).lib"
-if not exist "$(SolutionDir)Release\include_library" mkdir "$(SolutionDir)Release\include_library"
-xcopy /E /Y "$(SolutionDir)Library\Lua_5_4_7\include\*.h*" "$(SolutionDir)Release\include_library"
-xcopy /E /Y "$(SolutionDir)Library\Sol2_3_3_0\include\*.h*" "$(SolutionDir)Release\include_library"  </Command>
+copy /Y "$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration)\$(ProjectName)_$(Platform)_$(Configuration).lib" "$(SolutionDir)Library\Lua_5_4_7\lib\$(ProjectName)_$(Platform)_$(Configuration).lib"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

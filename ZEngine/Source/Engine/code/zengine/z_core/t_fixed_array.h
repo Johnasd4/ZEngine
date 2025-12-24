@@ -39,7 +39,7 @@ concept kIsArrayInitFunction = requires(_ArrayType* _array, _Function _func, _Ar
     Array container.
 */
 template<typename _ObjectType, SizeType kCapacity>
-class TFixedArray : public ZObject {
+class TFixedArray : public ZObject<> {
 public:
     using STDFixedArray_ = std::array<_ObjectType, kCapacity>;
     using Iterator_ = STDFixedArray_::iterator;
@@ -107,10 +107,10 @@ public:
     NODISCARD FORCEINLINE constexpr const _ObjectType& Front() const noexcept { return array_.front(); }
     NODISCARD FORCEINLINE constexpr _ObjectType& Back() noexcept { return array_.back(); }
     NODISCARD FORCEINLINE constexpr const _ObjectType& Back() const noexcept { return array_.back(); }
-    NODISCARD FORCEINLINE constexpr _ObjectType* DataPtr() noexcept { return array_.data(); }
-    NODISCARD FORCEINLINE constexpr const _ObjectType* DataPtr() const noexcept { return array_.data(); }
+    NODISCARD FORCEINLINE constexpr _ObjectType* GetDataPtr() noexcept { return array_.data(); }
+    NODISCARD FORCEINLINE constexpr const _ObjectType* GetDataPtr() const noexcept { return array_.data(); }
 
-    NODISCARD FORCEINLINE static constexpr SizeType Capacity() noexcept { return kCapacity; }
+    NODISCARD FORCEINLINE static constexpr SizeType GetCapacity() noexcept { return kCapacity; }
 
     NODISCARD FORCEINLINE Iterator_ Begin() noexcept { return array_.begin(); }
     NODISCARD FORCEINLINE ConstIterator_ Begin() const noexcept { return array_.begin(); }

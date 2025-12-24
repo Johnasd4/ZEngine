@@ -55,7 +55,7 @@ ZSocketBufferStream& ZSocketBufferStream::operator=(ZSocketBufferStream&& _buffe
     return *this;
 }
 
-NODISCARD SizeType ZSocketBufferStream::Size() const noexcept {
+NODISCARD SizeType ZSocketBufferStream::GetSize() const noexcept {
     return data_ptr_->buffer_.data().size() - data_ptr_->read_size_;
 }
 

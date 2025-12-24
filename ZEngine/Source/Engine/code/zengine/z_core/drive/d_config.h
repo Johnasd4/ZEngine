@@ -30,38 +30,46 @@
 #include "d_lib.h"
 #include "d_type.h"
 
-// Shows the use of the memory pool, includes the memory block left when the 
-// program emds, the total memory blocks appplyed and the peak situation of
-// the memory pool. Using this test will slightly reduce the performance of 
-// the program.
-#define USE_MEMORY_POOL_TEST true
-//Wheather the memory pool is thread safe.
+/**
+ * @brief Enables memory pool usage statistics, including remaining blocks, total applied, and peak usage.
+ * @note Using this test will slightly reduce the performance of the program.
+ */
+#define USE_MEMORY_POOL_PERFORMANCE_TEST true
+ /** @brief Determines whether the memory pool is thread-safe. */
+#define MEMORY_POOL
+/** @brief Determines whether the memory pool is thread-safe. */
 #define MEMORY_POOL_THREAD_SAFE true
-//Wheather the smart pointer is thread safe.
+/** @brief Determines whether the smart pointer is thread-safe. */
 #define SMART_POINTER_THREAD_SAFE true
 
 //Log type.
 #ifdef _DEBUG
+/** @brief Determines whether to use macros starting with Z_DEBUG_LOG for log output. */
 #define USE_DEBUG_LOG true
+/** @brief Determines whether to use the Z_PRINT macro for output. */
 #define USE_CONSOLE_PRINT true
+/** @brief Determines whether to print logs to the console. */
 #define USE_CONSOLE_LOG true
+/** @brief Determines whether to print logs to a file. */
 #define USE_FILE_LOG true
 #else
+/** @brief Determines whether to use macros starting with Z_DEBUG_LOG for log output. */
 #define USE_DEBUG_LOG false
+/** @brief Determines whether to use the Z_PRINT macro for output. */
 #define USE_CONSOLE_PRINT false
+/** @brief Determines whether to print logs to the console. */
 #define USE_CONSOLE_LOG false
+/** @brief Determines whether to print logs to a file. */
 #define USE_FILE_LOG true
 #endif//_DEBUG
 
+#define DEFAULT_USE_GLOBAL_MEMORY_POOL true
+
 namespace zengine {
 
-//The unit size when applying memory.
-inline constexpr SizeType kHeapMemoryUnitSize = 4 * kKB;
-
-//the time before program exiting.
-inline constexpr TimeType kLogFinishFlushMaxTime = 5000LL;
-
-//the time before program exiting.
+/** @brief The delay time in milliseconds before the program exits. */
+inline constexpr TimeType kExitTimeMs = 50LL;
+/** @brief The maximum length allowed for a file directory path. */
 inline constexpr SizeType kMaxFileDirLength = 4096LL;
 
 }//zengine

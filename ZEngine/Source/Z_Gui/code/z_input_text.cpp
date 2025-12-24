@@ -119,11 +119,11 @@ Void ZInputText::Tick(Float32 _delta_sec) noexcept {
     ImGui::SetWindowFontScale(FontScale());
     ZGuiObject::CallbackGuiObjectPtr() = this;
     if (if_multiline_) {
-        GuiSize size = Size();
+        GuiSize size = GetSize();
         ImGui::InputTextMultiline(
-            Name().DataPtr(),
-            input_text_.DataPtr<Char>(),
-            input_text_.Size(), 
+            Name().GetDataPtr(),
+            input_text_.GetDataPtr<Char>(),
+            input_text_.GetSize(), 
             ImVec2(size.width_, size.height_),
             input_text_flag_,
             [](ImGuiInputTextCallbackData* _data) {
@@ -141,7 +141,7 @@ Void ZInputText::Tick(Float32 _delta_sec) noexcept {
             flag = kInputTextFlag_ReadOnly;
         }
         ImGui::InputText(
-            Name().DataPtr(), input_text_.DataPtr<Char>(), input_text_.Size(), flag,
+            Name().GetDataPtr(), input_text_.GetDataPtr<Char>(), input_text_.GetSize(), flag,
             [](ImGuiInputTextCallbackData* _data) {
                 (dynamic_cast<ZInputText*>(ZGuiObject::CallbackGuiObjectPtr()))->InputTextChangedCallbackP();
                 return 0;
@@ -192,11 +192,11 @@ Void ZInputText::SetInputTextBufferSize(UInt32 _buffer_size) noexcept {
 }
 
 Void ZInputText::SetInputText(ZStringView _input_text) noexcept {
-    if (input_text_.Size() <= _input_text.Size()) {
-        input_text_.Resize(_input_text.Size() + 1ULL);
+    if (input_text_.GetSize() <= _input_text.GetSize()) {
+        input_text_.Resize(_input_text.GetSize() + 1ULL);
     }
-    Copy(input_text_.DataPtr<Char>(), _input_text.DataPtr(), _input_text.Size());
-    input_text_.At<Char>(_input_text.Size()) = '\0';
+    Copy(input_text_.GetDataPtr<Char>(), _input_text.GetDataPtr(), _input_text.GetSize());
+    input_text_.At<Char>(_input_text.GetSize()) = '\0';
 }
 
 NODISCARD ZInputText::WidgetTypeEnum_ ZInputText::WidgetType() const noexcept {
@@ -204,7 +204,7 @@ NODISCARD ZInputText::WidgetTypeEnum_ ZInputText::WidgetType() const noexcept {
 }
 
 NODISCARD const Char* ZInputText::InputText() const noexcept {
-    return input_text_.DataPtr<const Char>();
+    return input_text_.GetDataPtr<const Char>();
 }
 
 NODISCARD GuiColour ZInputText::TextColour() const noexcept {
@@ -216,7 +216,7 @@ NODISCARD GuiColour ZInputText::BackgroundColour() const noexcept {
 }
 
 NODISCARD SizeType ZInputText::InputTextBufferSize() const noexcept {
-    return input_text_.Size();
+    return input_text_.GetSize();
 }
 
 Void ZInputText::OnInputTextChanged() noexcept {}

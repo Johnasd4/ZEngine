@@ -23,16 +23,14 @@
 #include "t_atom.h"
 #include "t_function.h"
 #include "t_smart_pointer.h"
-#include "z_mutex.h"
 #include "z_object.h"
-#include "z_sem_mutex.h"
 #include "z_thread.h"
 
 namespace zengine {
 namespace error_code {
 enum ZTimerErrorCodeEnum : ReturnType {
     kZTimerErrorCode_LinkError = kErrorCodeBase_ZTimer,
-    kZTimerErrorCode_SystemError,
+    kZTimerErrorCode_SystemOrLibraryError,
     kZTimerErrorCode_NullptrParam,
     kZTimerErrorCode_ParamOutOfRange,
     kZTimerErrorCode_TimerStateError
@@ -53,7 +51,7 @@ namespace zengine {
 /*
     Timer class.
 */
-class CORE_DLLAPI ZTimer : public ZObject {
+class CORE_DLLAPI ZTimer : public ZObject<> {
 public:
     //default 1 sec.
     static inline constexpr Int32 kDefaultInterval = 1000;

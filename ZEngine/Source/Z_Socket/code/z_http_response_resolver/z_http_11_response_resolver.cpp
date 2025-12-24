@@ -42,14 +42,14 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::Resolve(ZConstBuffer _buffer) noex
         data_ptr_ = MakeUnique<internal::ZHTTP11ResponseResolverData>();
     }
     SizeType bytes_used = data_ptr_->response_parser_.put(
-        boost::asio::buffer(_buffer.DataPtr<const Void>(), _buffer.Size()), error_code
+        boost::asio::buffer(_buffer.GetDataPtr<const Void>(), _buffer.GetSize()), error_code
     );
     if (error_code) {
-        ret_val = error_code::kHTTPErrorCode_SystemError;
+        ret_val = error_code::kHTTPErrorCode_SystemOrLibraryError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             "System error! error info: %ls",
-            string::StringToWString(error_code.message().c_str()).DataPtr()
+            string::StringToWString(error_code.message().c_str()).GetDataPtr()
         );
         return ret_val;
     }
@@ -79,7 +79,7 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetInt32(Int32* _value_ptr, ZStrin
     );
     try {
         auto string_view = data_ptr_->response_.at(
-            boost::core::string_view(_name.DataPtr(), _name.Size())
+            boost::core::string_view(_name.GetDataPtr(), _name.GetSize())
         );
         ZString string(string_view.data(), string_view.size());
         link_code = string.ToNumber(_value_ptr);
@@ -93,11 +93,11 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetInt32(Int32* _value_ptr, ZStrin
         }
     }
     catch (const std::exception& error_code) {
-        ret_val = error_code::kHTTPErrorCode_SystemError;
+        ret_val = error_code::kHTTPErrorCode_SystemOrLibraryError;
         Z_LOG_ERROR(
             ret_val, 0,
             "System error! error info: %ls",
-            string::StringToWString(error_code.what()).DataPtr()
+            string::StringToWString(error_code.what()).GetDataPtr()
         );
     }
     return ret_val;
@@ -112,7 +112,7 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetInt64(Int64* _value_ptr, ZStrin
     );
     try {
         auto string_view = data_ptr_->response_.at(
-            boost::core::string_view(_name.DataPtr(), _name.Size())
+            boost::core::string_view(_name.GetDataPtr(), _name.GetSize())
         );
         ZString string(string_view.data(), string_view.size());
         link_code = string.ToNumber(_value_ptr);
@@ -126,11 +126,11 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetInt64(Int64* _value_ptr, ZStrin
         }
     }
     catch (const std::exception& error_code) {
-        ret_val = error_code::kHTTPErrorCode_SystemError;
+        ret_val = error_code::kHTTPErrorCode_SystemOrLibraryError;
         Z_LOG_ERROR(
             ret_val, 0,
             "System error! error info: %ls",
-            string::StringToWString(error_code.what()).DataPtr()
+            string::StringToWString(error_code.what()).GetDataPtr()
         );
     }
     return ret_val;
@@ -145,7 +145,7 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetUInt32(UInt32* _value_ptr, ZStr
     );
     try {
         auto string_view = data_ptr_->response_.at(
-            boost::core::string_view(_name.DataPtr(), _name.Size())
+            boost::core::string_view(_name.GetDataPtr(), _name.GetSize())
         );
         ZString string(string_view.data(), string_view.size());
         link_code = string.ToNumber(_value_ptr);
@@ -159,11 +159,11 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetUInt32(UInt32* _value_ptr, ZStr
         }
     }
     catch (const std::exception& error_code) {
-        ret_val = error_code::kHTTPErrorCode_SystemError;
+        ret_val = error_code::kHTTPErrorCode_SystemOrLibraryError;
         Z_LOG_ERROR(
             ret_val, 0,
             "System error! error info: %ls",
-            string::StringToWString(error_code.what()).DataPtr()
+            string::StringToWString(error_code.what()).GetDataPtr()
         );
     }
     return ret_val;
@@ -178,7 +178,7 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetUInt64(UInt64* _value_ptr, ZStr
     );
     try {
         auto string_view = data_ptr_->response_.at(
-            boost::core::string_view(_name.DataPtr(), _name.Size())
+            boost::core::string_view(_name.GetDataPtr(), _name.GetSize())
         );
         ZString string(string_view.data(), string_view.size());
         link_code = string.ToNumber(_value_ptr);
@@ -192,11 +192,11 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetUInt64(UInt64* _value_ptr, ZStr
         }
     }
     catch (const std::exception& error_code) {
-        ret_val = error_code::kHTTPErrorCode_SystemError;
+        ret_val = error_code::kHTTPErrorCode_SystemOrLibraryError;
         Z_LOG_ERROR(
             ret_val, 0,
             "System error! error info: %ls",
-            string::StringToWString(error_code.what()).DataPtr()
+            string::StringToWString(error_code.what()).GetDataPtr()
         );
     }
     return ret_val;
@@ -211,7 +211,7 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetFloat32(Float32* _value_ptr, ZS
     );
     try {
         auto string_view = data_ptr_->response_.at(
-            boost::core::string_view(_name.DataPtr(), _name.Size())
+            boost::core::string_view(_name.GetDataPtr(), _name.GetSize())
         );
         ZString string(string_view.data(), string_view.size());
         link_code = string.ToNumber(_value_ptr);
@@ -225,11 +225,11 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetFloat32(Float32* _value_ptr, ZS
         }
     }
     catch (const std::exception& error_code) {
-        ret_val = error_code::kHTTPErrorCode_SystemError;
+        ret_val = error_code::kHTTPErrorCode_SystemOrLibraryError;
         Z_LOG_ERROR(
             ret_val, 0,
             "System error! error info: %ls",
-            string::StringToWString(error_code.what()).DataPtr()
+            string::StringToWString(error_code.what()).GetDataPtr()
         );
     }
     return ret_val;
@@ -244,7 +244,7 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetFloat64(Float64* _value_ptr, ZS
     );
     try {
         auto string_view = data_ptr_->response_.at(
-            boost::core::string_view(_name.DataPtr(), _name.Size())
+            boost::core::string_view(_name.GetDataPtr(), _name.GetSize())
         );
         ZString string(string_view.data(), string_view.size());
         link_code = string.ToNumber(_value_ptr);
@@ -258,11 +258,11 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetFloat64(Float64* _value_ptr, ZS
         }
     }
     catch (const std::exception& error_code) {
-        ret_val = error_code::kHTTPErrorCode_SystemError;
+        ret_val = error_code::kHTTPErrorCode_SystemOrLibraryError;
         Z_LOG_ERROR(
             ret_val, 0,
             "System error! error info: %ls",
-            string::StringToWString(error_code.what()).DataPtr()
+            string::StringToWString(error_code.what()).GetDataPtr()
         );
     }
     return ret_val;
@@ -276,16 +276,16 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetStringView(ZStringView* _value_
     );
     try {
         auto string_view_raw = data_ptr_->response_.at(
-            boost::core::string_view(_name.DataPtr(), _name.Size())
+            boost::core::string_view(_name.GetDataPtr(), _name.GetSize())
         );
         _value_ptr->Assign(string_view_raw.data(), string_view_raw.size());
     }
     catch (const std::exception& error_code) {
         
         Z_LOG_ERROR(
-            error_code::kHTTPErrorCode_SystemError, 0,
+            error_code::kHTTPErrorCode_SystemOrLibraryError, 0,
             "System error! error info: %ls",
-            string::StringToWString(error_code.what()).DataPtr()
+            string::StringToWString(error_code.what()).GetDataPtr()
         );
     }
     return ret_val;
@@ -299,16 +299,16 @@ NODISCARD ReturnType ZHTTP11ResponseResolver::GetString(ZString* _value_ptr, ZSt
     );
     try {
         auto string_view_raw = data_ptr_->response_.at(
-            boost::core::string_view(_name.DataPtr(), _name.Size())
+            boost::core::string_view(_name.GetDataPtr(), _name.GetSize())
         );
         _value_ptr->Assign(string_view_raw.data(), string_view_raw.size());
     }
     catch (const std::exception& error_code) {
 
         Z_LOG_ERROR(
-            error_code::kHTTPErrorCode_SystemError, 0,
+            error_code::kHTTPErrorCode_SystemOrLibraryError, 0,
             "System error! error info: %ls",
-            string::StringToWString(error_code.what()).DataPtr()
+            string::StringToWString(error_code.what()).GetDataPtr()
         );
     }
     return ret_val;

@@ -30,29 +30,24 @@
 
 #include "z_system_time.h"
 
+#include "f_console.h"
 #include "m_log/f_log.h"
 
 #ifndef PROJECT_NAME
 #define PROJECT_NAME "Unknown"
 #endif
 
-/*
-    Checks the condition, returns if false.
-    --------------------------------------------------------------------------------
-    Time: 2025/10/10-23:28:14
-    Project: Include
-    File: main.cpp
-    Function: main
-    Line: 68
-    Error Code: 0x1
-    Link Code: 0x2
-    Message: Error...
-    --------------------------------------------------------------------------------
-*/
+/** 
+ * @brief Checks if the specified condition is true. If it is, logs an error and returns the error code. 
+ * @note This macro is used to handle error conditions where the function should exit if the condition is met. 
+ * @param _condition The boolean condition to check. 
+ * @param _err_code The error code to return if the condition is true. 
+ * @param ... Additional arguments for the error message format string. 
+ */
 #define Z_CHECK(_condition, _err_code, ...)\
     if(_condition) {\
         zengine::log::LogError(\
-            zengine::TimeSec(),\
+            zengine::Time(),\
             PROJECT_NAME,\
             __FILE__,\
             __func__,\
@@ -64,22 +59,15 @@
         return _err_code;\
     }
 
-/*
-    Log error.
-    --------------------------------------------------------------------------------
-    Time: 2025/10/10-23:28:14
-    Project: Include
-    File: main.cpp
-    Function: main
-    Line: 68
-    Error Code: 0x1
-    Link Code: 0x2
-    Message: Error...
-    --------------------------------------------------------------------------------
-*/
+/** 
+ * @brief Logs an error message with detailed context (file, function, line, codes). 
+ * @param _err_code The error code associated with the error. 
+ * @param _link_code The link code associated with the error. 
+ * @param ... The format string and arguments for the log message. 
+ */
 #define Z_LOG_ERROR(_err_code, _link_code, ...)\
     zengine::log::LogError(\
-        zengine::TimeSec(),\
+        zengine::Time(),\
         PROJECT_NAME,\
         __FILE__,\
         __func__,\
@@ -89,136 +77,179 @@
         __VA_ARGS__ \
     );
 
-/*
-    Log trace.
-    2025/10/10-23:28:14 | <Include> main.cpp-main | Trace...
-*/
+/** 
+ * @brief Logs a trace message with context information. 
+ * @param ... The format string and arguments for the trace message. 
+ */
 #define Z_LOG_TRACE(...)\
-    zengine::log::LogTrace(zengine::TimeSec(), PROJECT_NAME, __FILE__, __func__, __LINE__, __VA_ARGS__);
+    zengine::log::LogTrace(zengine::Time(), PROJECT_NAME, __FILE__, __func__, __LINE__, __VA_ARGS__);
 
-/*
-    Log message.
-    2025/10/10-23:28:14 | Message | Message...
-*/
+/** 
+ * @brief Logs a general informational message. 
+ * @param ... The format string and arguments for the message. 
+ */
 #define Z_LOG_MESSAGE(...)\
-    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::InfoLogTypeEnum::kMessage, __VA_ARGS__);
+    zengine::log::LogInfo(zengine::Time(), zengine::log::InfoLogTypeEnum::kMessage, __VA_ARGS__);
 
-/*
-    Log start.
-    2025/10/10-23:28:14 | Start | Start...
-*/
+/** 
+ * @brief Logs a start event message. 
+ * @param ... The format string and arguments for the message. 
+ */
 #define Z_LOG_START(...)\
-    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::InfoLogTypeEnum::kStart, __VA_ARGS__);
+    zengine::log::LogInfo(zengine::Time(), zengine::log::InfoLogTypeEnum::kStart, __VA_ARGS__);
 
-/*
-    Log process.
-    2025/10/10-23:28:14 | Process | Process 1...
-*/
+/** 
+ * @brief Logs a process event message. 
+ * @param ... The format string and arguments for the message. 
+ */
 #define Z_LOG_PROCESS(...)\
-    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::InfoLogTypeEnum::kProcess, __VA_ARGS__);
+    zengine::log::LogInfo(zengine::Time(), zengine::log::InfoLogTypeEnum::kProcess, __VA_ARGS__);
 
-/*
-    Log finish.
-    2025/10/10-23:28:14 | Finish | Finish...
-*/
+/** 
+ * @brief Logs a finish event message. 
+ * @param ... The format string and arguments for the message. 
+ */
 #define Z_LOG_FINISH(...)\
-    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::InfoLogTypeEnum::kFinish, __VA_ARGS__);
+    zengine::log::LogInfo(zengine::Time(), zengine::log::InfoLogTypeEnum::kFinish, __VA_ARGS__);
 
-/*
-    Log success.
-    2025/10/10-23:28:14 | Failure | Failure...
-*/
+/** 
+ * @brief Logs a success event message. 
+ * @param ... The format string and arguments for the message. 
+ */
 #define Z_LOG_SUCCESS(...)\
-    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::InfoLogTypeEnum::kSuccess, __VA_ARGS__);
+    zengine::log::LogInfo(zengine::Time(), zengine::log::InfoLogTypeEnum::kSuccess, __VA_ARGS__);
 
-/*
-    Log failure.
-    2025/10/10-23:28:14 | Success | Success...
-*/
+/** 
+ * @brief Logs a failure event message. 
+ * @param ... The format string and arguments for the message. 
+ */
 #define Z_LOG_FAILURE(...)\
-    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::InfoLogTypeEnum::kFailure, __VA_ARGS__);
+    zengine::log::LogInfo(zengine::Time(), zengine::log::InfoLogTypeEnum::kFailure, __VA_ARGS__);
 
-/*
-    Log trace.
-    2025/10/10-23:28:14 | <Include> main.cpp-main | Trace...
-*/
 #if USE_DEBUG_LOG
+/** 
+ * @brief Logs a trace message only if debug logging is enabled (USE_DEBUG_LOG). 
+ * @param ... The format string and arguments for the trace message. 
+ */
 #define Z_DEBUG_LOG_TRACE(...)\
-    zengine::log::LogTrace(zengine::TimeSec(), PROJECT_NAME, __FILE__, __func__, __LINE__, __VA_ARGS__);
+    Z_LOG_TRACE(__VA_ARGS__);
 #else
+/** 
+ * @brief Logs a trace message only if debug logging is enabled (USE_DEBUG_LOG). 
+ * @param ... The format string and arguments for the trace message. 
+ */
 #define Z_DEBUG_LOG_TRACE(...)\
     ;
 #endif
 
-/*
-    Log message.
-    2025/10/10-23:28:14 | Message | Message...
-*/
 #if USE_DEBUG_LOG
+/** 
+ * @brief Logs a general message only if debug logging is enabled (USE_DEBUG_LOG). 
+ * @param ... The format string and arguments for the message. 
+ */
 #define Z_DEBUG_LOG_MESSAGE(...)\
-    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::InfoLogTypeEnum::kMessage, __VA_ARGS__);
+    Z_LOG_MESSAGE(__VA_ARGS__);
 #else
+/** 
+ * @brief Logs a general message only if debug logging is enabled (USE_DEBUG_LOG). 
+ * @param ... The format string and arguments for the message. 
+ */
 #define Z_DEBUG_LOG_MESSAGE(...)\
     ;
 #endif
 
-
-/*
-    Log start.
-    2025/10/10-23:28:14 | Start | Start...
-*/
 #if USE_DEBUG_LOG
+/** 
+ * @brief Logs a start event message only if debug logging is enabled (USE_DEBUG_LOG). 
+ * @param ... The format string and arguments for the message. 
+ */
 #define Z_DEBUG_LOG_START(...)\
-    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::InfoLogTypeEnum::kStart, __VA_ARGS__);
+    Z_LOG_START(__VA_ARGS__);
 #else
+/** 
+ * @brief Logs a start event message only if debug logging is enabled (USE_DEBUG_LOG). 
+ * @param ... The format string and arguments for the message. 
+ */
 #define Z_DEBUG_LOG_START(...)\
     ;
 #endif
 
-/*
-    Log process.
-    2025/10/10-23:28:14 | Process | Process 1...
-*/
 #ifdef USE_DEBUG_LOG
+/** 
+ * @brief Logs a process event message only if debug logging is enabled (USE_DEBUG_LOG). 
+ * @param ... The format string and arguments for the message. 
+ */
 #define Z_DEBUG_LOG_PROCESS(...)\
-    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::InfoLogTypeEnum::kProcess, __VA_ARGS__);
+    Z_LOG_PROCESS(__VA_ARGS__);
 #else
+/** 
+ * @brief Logs a process event message only if debug logging is enabled (USE_DEBUG_LOG). 
+ * @param ... The format string and arguments for the message. 
+ */
 #define Z_DEBUG_LOG_PROCESS(...)\
     ;
 #endif
 
-/*
-    Log finish.
-    2025/10/10-23:28:14 | Finish | Finish...
-*/
 #if USE_DEBUG_LOG
+/** 
+ * @brief Logs a finish event message only if debug logging is enabled (USE_DEBUG_LOG). 
+ * @param ... The format string and arguments for the message. 
+ */
 #define Z_DEBUG_LOG_FINISH(...)\
-    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::InfoLogTypeEnum::kFinish, __VA_ARGS__);
+    Z_LOG_FINISH(__VA_ARGS__);
 #else
+/** 
+ * @brief Logs a finish event message only if debug logging is enabled (USE_DEBUG_LOG). 
+ * @param ... The format string and arguments for the message. 
+ */
 #define Z_DEBUG_LOG_FINISH(...)\
     ;
 #endif
 
-/*
-    Log success.
-    2025/10/10-23:28:14 | Failure | Failure...
-*/
 #if USE_DEBUG_LOG
+/** 
+ * @brief Logs a success event message only if debug logging is enabled (USE_DEBUG_LOG). 
+ * @param ... The format string and arguments for the message. 
+ */
 #define Z_DEBUG_LOG_SUCCESS(...)\
-    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::InfoLogTypeEnum::kSuccess, __VA_ARGS__);
+    Z_LOG_SUCCESS(__VA_ARGS__);
 #else
+/** 
+ * @brief Logs a success event message only if debug logging is enabled (USE_DEBUG_LOG). 
+ * @param ... The format string and arguments for the message. 
+ */
 #define Z_DEBUG_LOG_SUCCESS(...)\
     ;
 #endif
 
-/*
-    Log failure.
-    2025/10/10-23:28:14 | Success | Success...
-*/
 #if USE_DEBUG_LOG
+/** 
+ * @brief Logs a failure event message only if debug logging is enabled (USE_DEBUG_LOG). 
+ * @param ... The format string and arguments for the message. 
+ */
 #define Z_DEBUG_LOG_FAILURE(...)\
-    zengine::log::LogInfo(zengine::TimeSec(), zengine::log::InfoLogTypeEnum::kFailure, __VA_ARGS__);
+    Z_LOG_FAILURE(__VA_ARGS__);
 #else
+/** 
+ * @brief Logs a failure event message only if debug logging is enabled (USE_DEBUG_LOG). 
+ * @param ... The format string and arguments for the message. 
+ */
 #define Z_DEBUG_LOG_FAILURE(...)\
+    ;
+#endif
+
+#if USE_CONSOLE_PRINT
+/** 
+ * @brief Prints a message to the console if console printing is enabled (USE_CONSOLE_PRINT). 
+ * @param ... The format string and arguments for the message. 
+ */
+#define Z_PRINT(...)\
+    zengine::console::Print(__VA_ARGS__);
+#else
+/** 
+ * @brief Prints a message to the console if console printing is enabled (USE_CONSOLE_PRINT). 
+ * @param ... The format string and arguments for the message. 
+ */
+#define Z_PRINT(...)\
     ;
 #endif

@@ -34,7 +34,7 @@ namespace zengine {
 
 namespace internal {
 
-struct TControlBlockP : ZObject {
+struct TControlBlockP : ZObject<> {
 public:
     template<typename _ObjectType>
     static Void DeleteFuncP(Void* _obj_ptr) noexcept {
@@ -51,10 +51,10 @@ public:
     virtual ~TControlBlockP() noexcept {}
 
     NODISCARD FORCEINLINE static Void* operator new(SizeType _size) noexcept {
-        return memory_pool::ApplySmartPointerMemory();
+        return memory_pool::ApplySmartPointerControlBlockMemory();
     }
     NODISCARD FORCEINLINE static Void operator delete(Void* _memory_ptr) noexcept {
-        memory_pool::ReleaseSmartPointerMemory(_memory_ptr);
+        memory_pool::ReleaseSmartPointerControlBlockMemory(_memory_ptr);
     }
 
     NODISCARD FORCEINLINE virtual Void DestroyObject() noexcept {
@@ -89,7 +89,7 @@ class TWeakPointer;
     Unique smart pointer.
 */
 template<typename _ObjectType>
-class TUniquePointer : public ZObject {
+class TUniquePointer : public ZObject<> {
 public:
     FORCEINLINE TUniquePointer() noexcept : SuperType_(), ptr_(nullptr) {}
     FORCEINLINE TUniquePointer(NullptrType _ptr) noexcept : SuperType_(), ptr_(nullptr) {}
@@ -184,7 +184,7 @@ private:
     Shared smart pointer.
 */
 template<typename _ObjectType>
-class TSharedPointer : public ZObject {
+class TSharedPointer : public ZObject<> {
 public:
     FORCEINLINE TSharedPointer() noexcept 
         : SuperType_(), obj_ptr_(nullptr), ctrl_block_ptr_(nullptr) {}
@@ -398,7 +398,7 @@ private:
     Weak smart pointer.
 */
 template<typename _ObjectType>
-class TWeakPointer : public ZObject {
+class TWeakPointer : public ZObject<> {
 public:
     FORCEINLINE TWeakPointer() noexcept : SuperType_(), ctrl_block_ptr_(nullptr) {}
     template<typename _SrcObjectType>

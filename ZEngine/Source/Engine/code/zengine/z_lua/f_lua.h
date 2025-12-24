@@ -30,7 +30,7 @@ namespace zengine {
 namespace error_code {
 enum FLuaErrorCodeEnum : ReturnType {
     kFLuaErrorCode_LinkError = kErrorCodeBase_FLua,
-    kFLuaErrorCode_SystemError,
+    kFLuaErrorCode_SystemOrLibraryError,
     kFLuaErrorCode_NullptrParam,
     kFLuaErrorCode_ParamOutOfRange,
     kFLuaErrorCode_LuaFunctionNotExist,
@@ -270,7 +270,7 @@ NODISCARD FORCEINLINE ReturnType CallLuaFunction(
     }
     catch (const sol::error& e) {
         ret_val = error_code::kFLuaErrorCode_LuaCrash;
-        Z_LOG_ERROR(ret_val, 0, "Lua functon crashs! Error info: %ls", string::StringToWString(e.what()).DataPtr());
+        Z_LOG_ERROR(ret_val, 0, "Lua functon crashs! Error info: %ls", string::StringToWString(e.what()).GetDataPtr());
     }
     return ret_val;
 }
@@ -290,7 +290,7 @@ NODISCARD FORCEINLINE ReturnType CallLuaFunction(
     }
     catch (const sol::error& e) {
         ret_val = error_code::kFLuaErrorCode_LuaCrash;
-        Z_LOG_ERROR(ret_val, 0, "Lua functon crashs! Error info: %ls", string::StringToWString(e.what()).DataPtr());
+        Z_LOG_ERROR(ret_val, 0, "Lua functon crashs! Error info: %ls", string::StringToWString(e.what()).GetDataPtr());
     }
     return ret_val;
 }
@@ -308,7 +308,7 @@ NODISCARD FORCEINLINE ReturnType CallLuaSafeFunction(
     if (!result.valid()) {
         ret_val = error_code::kFLuaErrorCode_LuaCrash;
         sol::error e = result;
-        Z_LOG_ERROR(ret_val, 0, "Lua crashs! Error info: %ls", string::StringToWString(e.what()).DataPtr());
+        Z_LOG_ERROR(ret_val, 0, "Lua crashs! Error info: %ls", string::StringToWString(e.what()).GetDataPtr());
     }
     return ret_val;
 }
@@ -327,7 +327,7 @@ NODISCARD FORCEINLINE ReturnType CallLuaSafeFunction(
     if (!_result_ptr->valid()) {
         ret_val = error_code::kFLuaErrorCode_LuaCrash;
         sol::error e = *_result_ptr;
-        Z_LOG_ERROR(ret_val, 0, "Lua crashs! Error info: %ls", string::StringToWString(e.what()).DataPtr());
+        Z_LOG_ERROR(ret_val, 0, "Lua crashs! Error info: %ls", string::StringToWString(e.what()).GetDataPtr());
     }
     return ret_val;
 }

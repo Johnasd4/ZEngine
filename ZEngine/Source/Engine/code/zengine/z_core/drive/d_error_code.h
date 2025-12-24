@@ -43,7 +43,7 @@ inline constexpr ReturnType kErrorCodeBase_PCore = 0x0U * kErrorCodeProjcetMask 
 
 inline constexpr ReturnType kErrorCodeBase_FString = 0x0U * kErrorCodeTypeMask + kErrorCodeBase_PCore;
 inline constexpr ReturnType kErrorCodeBase_ZFile = 0x1U * kErrorCodeTypeMask + kErrorCodeBase_PCore;
-inline constexpr ReturnType kErrorCodeBase_FConsole = 0x2U * kErrorCodeTypeMask + kErrorCodeBase_PCore;
+inline constexpr ReturnType kErrorCodeBase_TFixedString = 0x2U * kErrorCodeTypeMask + kErrorCodeBase_PCore;
 inline constexpr ReturnType kErrorCodeBase_MLog = 0x3U * kErrorCodeTypeMask + kErrorCodeBase_PCore;
 inline constexpr ReturnType kErrorCodeBase_TUniqueLock = 0x4U * kErrorCodeTypeMask + kErrorCodeBase_PCore;
 inline constexpr ReturnType kErrorCodeBase_ZThreadPool = 0x5U * kErrorCodeTypeMask + kErrorCodeBase_PCore;
@@ -56,7 +56,6 @@ inline constexpr ReturnType kErrorCodeBase_ZConfig = 0xBU * kErrorCodeTypeMask +
 inline constexpr ReturnType kErrorCodeBase_FSystem = 0xCU * kErrorCodeTypeMask + kErrorCodeBase_PCore;
 inline constexpr ReturnType kErrorCodeBase_TFunction = 0xDU * kErrorCodeTypeMask + kErrorCodeBase_PCore;
 inline constexpr ReturnType kErrorCodeBase_ZSerializer = 0xEU * kErrorCodeTypeMask + kErrorCodeBase_PCore;
-inline constexpr ReturnType kErrorCodeBase_TFixedString = 0x10U * kErrorCodeTypeMask + kErrorCodeBase_PCore;
 
 }//error_code
 }//zengine

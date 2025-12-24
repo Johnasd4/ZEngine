@@ -27,7 +27,7 @@
 namespace zengine {
 
 template<typename... _ArgsType>
-class TTuple : public ZObject {
+class TTuple : public ZObject<> {
 public:
     using STDTuple_ = std::tuple<_ArgsType...>;
     template <SizeType kIndex>
@@ -95,7 +95,7 @@ public:
         std::get<_ObjectType>(tuple_) = std::forward<_ObjectType>(_object);
     }
 
-    NODISCARD FORCEINLINE constexpr const SizeType Size() const noexcept {
+    NODISCARD FORCEINLINE constexpr const SizeType GetSize() const noexcept {
         return static_cast<SizeType>(std::tuple_size<STDTuple_>::value);
     }
     template<typename _Function>
@@ -169,8 +169,8 @@ FORCEINLINE constexpr Void Set(TTuple<_ArgsType...>* _tuple, _ObjectType&& _obje
 }
 
 template<typename... _ArgsType>
-NODISCARD FORCEINLINE constexpr const SizeType Size(const TTuple<_ArgsType...>& _tuple) noexcept {
-    return _tuple.Size();
+NODISCARD FORCEINLINE constexpr const SizeType GetSize(const TTuple<_ArgsType...>& _tuple) noexcept {
+    return _tuple.GetSize();
 }
 
 template<typename _Function,typename... _ArgsType>

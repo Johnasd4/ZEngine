@@ -104,7 +104,7 @@ ZUDPSocket& ZUDPSocket::operator=(ZUDPSocket&& _socket) noexcept {
 
 NODISCARD ZUDPEndpoint ZUDPSocket::LocalEndpoint() const noexcept {
     ZUDPEndpoint endpoint;
-    *endpoint.endpoint_data_.DataPtr<boost::asio::ip::udp::endpoint>() = data_ptr_->socket_.local_endpoint();
+    *endpoint.endpoint_data_.GetDataPtr<boost::asio::ip::udp::endpoint>() = data_ptr_->socket_.local_endpoint();
     return endpoint;
 }
 
@@ -166,11 +166,11 @@ NODISCARD ReturnType ZUDPSocket::Open(IPTypeEnum _ip_type) noexcept {
 
     if (error_code) {
         state_ = StateEnum_::kError;
-        ret_val = error_code::kSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemOrLibraryError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             "System error! error info: %ls",
-            string::StringToWString(error_code.message().c_str()).DataPtr()
+            string::StringToWString(error_code.message().c_str()).GetDataPtr()
         );
         return ret_val;
     }
@@ -192,14 +192,14 @@ NODISCARD ReturnType ZUDPSocket::BindEndpoint(const ZUDPEndpoint& _udp_endpoint)
     );
 
     data_ptr_->socket_.bind(
-        *_udp_endpoint.endpoint_data_.DataPtr<const boost::asio::ip::udp::endpoint>(), error_code
+        *_udp_endpoint.endpoint_data_.GetDataPtr<const boost::asio::ip::udp::endpoint>(), error_code
     );
     if (error_code) {
-        ret_val = error_code::kSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemOrLibraryError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             "System error! error info: %ls",
-            string::StringToWString(error_code.message().c_str()).DataPtr()
+            string::StringToWString(error_code.message().c_str()).GetDataPtr()
         );
         state_ = StateEnum_::kError;
         return ret_val;
@@ -221,11 +221,11 @@ NODISCARD ReturnType ZUDPSocket::SetOSWriteBufferSize(Int32 _size) noexcept {
 
     data_ptr_->socket_.set_option(boost::asio::socket_base::send_buffer_size(_size), error_code);
     if (error_code) {
-        ret_val = error_code::kSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemOrLibraryError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             "System error! error info: %ls",
-            string::StringToWString(error_code.message().c_str()).DataPtr()
+            string::StringToWString(error_code.message().c_str()).GetDataPtr()
         );
         state_ = StateEnum_::kError;
         return ret_val;
@@ -247,11 +247,11 @@ NODISCARD ReturnType ZUDPSocket::SetOSReadBufferSize(Int32 _size) noexcept {
 
     data_ptr_->socket_.set_option(boost::asio::socket_base::receive_buffer_size(_size), error_code);
     if (error_code) {
-        ret_val = error_code::kSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemOrLibraryError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             "System error! error info: %ls",
-            string::StringToWString(error_code.message().c_str()).DataPtr()
+            string::StringToWString(error_code.message().c_str()).GetDataPtr()
         );
         state_ = StateEnum_::kError;
         return ret_val;
@@ -313,15 +313,15 @@ NODISCARD ReturnType ZUDPSocket::Connect(const ZUDPEndpoint& _udp_endpoint) noex
     );
 
     data_ptr_->socket_.connect(
-        *_udp_endpoint.endpoint_data_.DataPtr<const boost::asio::ip::udp::endpoint>(), error_code
+        *_udp_endpoint.endpoint_data_.GetDataPtr<const boost::asio::ip::udp::endpoint>(), error_code
     );
 
     if (error_code) {
-        ret_val = error_code::kSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemOrLibraryError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             "System error! error info: %ls",
-            string::StringToWString(error_code.message().c_str()).DataPtr()
+            string::StringToWString(error_code.message().c_str()).GetDataPtr()
         );
         state_ = StateEnum_::kError;
         return ret_val;
@@ -349,17 +349,17 @@ NODISCARD ReturnType ZUDPSocket::ReceiveFrom(
     boost::asio::ip::udp::endpoint endpoint;
 
     SizeType data_size = data_ptr_->socket_.receive_from(
-        boost::asio::buffer(_buffer.DataPtr<Void>(), _buffer.Size()),
+        boost::asio::buffer(_buffer.GetDataPtr<Void>(), _buffer.GetSize()),
         endpoint,
         0,
         error_code
     );
     if (error_code) {
-        ret_val = error_code::kSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemOrLibraryError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             "System error! error info: %ls",
-            string::StringToWString(error_code.message().c_str()).DataPtr()
+            string::StringToWString(error_code.message().c_str()).GetDataPtr()
         );
         state_ = StateEnum_::kError;
         return ret_val;
@@ -370,7 +370,7 @@ NODISCARD ReturnType ZUDPSocket::ReceiveFrom(
     }
 
     if (_udp_endpoint_ptr != nullptr) {
-        *_udp_endpoint_ptr->endpoint_data_.DataPtr<boost::asio::ip::udp::endpoint>() =
+        *_udp_endpoint_ptr->endpoint_data_.GetDataPtr<boost::asio::ip::udp::endpoint>() =
             endpoint;
     }
 
@@ -392,9 +392,9 @@ NODISCARD ReturnType ZUDPSocket::AsyncReceiveFrom(
     );
 
     data_ptr_->socket_.async_receive_from(
-        boost::asio::buffer(_buffer.DataPtr<Void>(), _buffer.Size()), 
+        boost::asio::buffer(_buffer.GetDataPtr<Void>(), _buffer.GetSize()), 
         data_ptr_->async_receive_endpoint_,
-        MakeSocketHandlerAllocator([this, buffer_ptr = _buffer.DataPtr<const Void>(), _handle_func](
+        MakeSocketHandlerAllocator([this, buffer_ptr = _buffer.GetDataPtr<const Void>(), _handle_func](
             const boost::system::error_code& _error_code, 
             SizeType _message_size
         ) {
@@ -406,11 +406,11 @@ NODISCARD ReturnType ZUDPSocket::AsyncReceiveFrom(
                     ret_val = error_code::kSocketErrorCode_OperationCanceled;
                 }
                 else {
-                    ret_val = error_code::kSocketErrorCode_SystemError;
+                    ret_val = error_code::kSocketErrorCode_SystemOrLibraryError;
                     Z_LOG_ERROR(
                         ret_val, _error_code.value(),
                         "System error! error info: %ls",
-                        string::StringToWString(_error_code.message().c_str()).DataPtr()
+                        string::StringToWString(_error_code.message().c_str()).GetDataPtr()
                     );
                     state_ = StateEnum_::kError;
                 }
@@ -455,16 +455,16 @@ NODISCARD ReturnType ZUDPSocket::Receive(
     );
 
     SizeType data_size = data_ptr_->socket_.receive(
-        boost::asio::buffer(_buffer.DataPtr<Void>(), _buffer.Size()),
+        boost::asio::buffer(_buffer.GetDataPtr<Void>(), _buffer.GetSize()),
         0,
         error_code
     );
     if (error_code) {
-        ret_val = error_code::kSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemOrLibraryError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             "System error! error info: %ls",
-            string::StringToWString(error_code.message().c_str()).DataPtr()
+            string::StringToWString(error_code.message().c_str()).GetDataPtr()
         );
         state_ = StateEnum_::kError;
         return ret_val;
@@ -497,8 +497,8 @@ NODISCARD ReturnType ZUDPSocket::AsyncReceive(
     );
 
     data_ptr_->socket_.async_receive_from(
-        boost::asio::buffer(_buffer.DataPtr<Void>(), _buffer.Size()), data_ptr_->async_receive_endpoint_,
-        MakeSocketHandlerAllocator([this, buffer_ptr = _buffer.DataPtr<const Void>(), _handle_func](
+        boost::asio::buffer(_buffer.GetDataPtr<Void>(), _buffer.GetSize()), data_ptr_->async_receive_endpoint_,
+        MakeSocketHandlerAllocator([this, buffer_ptr = _buffer.GetDataPtr<const Void>(), _handle_func](
             const boost::system::error_code& _error_code,
             SizeType _message_size
         ) {
@@ -510,11 +510,11 @@ NODISCARD ReturnType ZUDPSocket::AsyncReceive(
                     ret_val = error_code::kSocketErrorCode_OperationCanceled;
                 }
                 else {
-                    ret_val = error_code::kSocketErrorCode_SystemError;
+                    ret_val = error_code::kSocketErrorCode_SystemOrLibraryError;
                     Z_LOG_ERROR(
                         ret_val, _error_code.value(),
                         "System error! error info: %ls",
-                        string::StringToWString(_error_code.message().c_str()).DataPtr()
+                        string::StringToWString(_error_code.message().c_str()).GetDataPtr()
                     );
                     state_ = StateEnum_::kError;
                 }
@@ -550,17 +550,17 @@ NODISCARD ReturnType ZUDPSocket::SendTo(
     );
 
     data_ptr_->socket_.send_to(
-        boost::asio::buffer(_buffer.DataPtr<const Void>(), _buffer.Size()),
-        *_udp_endpoint.endpoint_data_.DataPtr<const boost::asio::ip::udp::endpoint>(),
+        boost::asio::buffer(_buffer.GetDataPtr<const Void>(), _buffer.GetSize()),
+        *_udp_endpoint.endpoint_data_.GetDataPtr<const boost::asio::ip::udp::endpoint>(),
         0,
         error_code
     );
     if (error_code) {
-        ret_val = error_code::kSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemOrLibraryError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             "System error! error info: %ls",
-            string::StringToWString(error_code.message().c_str()).DataPtr()
+            string::StringToWString(error_code.message().c_str()).GetDataPtr()
         );
         state_ = StateEnum_::kError;
         return ret_val;
@@ -585,9 +585,9 @@ NODISCARD ReturnType ZUDPSocket::AsyncSendTo(
     );
 
     data_ptr_->socket_.async_send_to(
-        boost::asio::buffer(_buffer.DataPtr<const Void>(), _buffer.Size()),
-        *_udp_endpoint.endpoint_data_.DataPtr<const boost::asio::ip::udp::endpoint>(),
-        MakeSocketHandlerAllocator([this, buffer_ptr = _buffer.DataPtr<const Void>(), _handle_func](
+        boost::asio::buffer(_buffer.GetDataPtr<const Void>(), _buffer.GetSize()),
+        *_udp_endpoint.endpoint_data_.GetDataPtr<const boost::asio::ip::udp::endpoint>(),
+        MakeSocketHandlerAllocator([this, buffer_ptr = _buffer.GetDataPtr<const Void>(), _handle_func](
             const boost::system::error_code& _error_code,
             SizeType _data_size
         ) {
@@ -599,11 +599,11 @@ NODISCARD ReturnType ZUDPSocket::AsyncSendTo(
                     ret_val = error_code::kSocketErrorCode_OperationCanceled;
                 }
                 else {
-                    ret_val = error_code::kSocketErrorCode_SystemError;
+                    ret_val = error_code::kSocketErrorCode_SystemOrLibraryError;
                     Z_LOG_ERROR(
                         ret_val, _error_code.value(),
                         "System error! error info: %ls",
-                        string::StringToWString(_error_code.message().c_str()).DataPtr()
+                        string::StringToWString(_error_code.message().c_str()).GetDataPtr()
                     );
                     state_ = StateEnum_::kError;
                 }
@@ -643,16 +643,16 @@ NODISCARD ReturnType ZUDPSocket::Send(
     );
 
     data_ptr_->socket_.send(
-        boost::asio::buffer(_buffer.DataPtr<const Void>(), _buffer.Size()),
+        boost::asio::buffer(_buffer.GetDataPtr<const Void>(), _buffer.GetSize()),
         0,
         error_code
     );
     if (error_code) {
-        ret_val = error_code::kSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemOrLibraryError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             "System error! error info: %ls",
-            string::StringToWString(error_code.message().c_str()).DataPtr()
+            string::StringToWString(error_code.message().c_str()).GetDataPtr()
         );
         state_ = StateEnum_::kError;
         return ret_val;
@@ -681,8 +681,8 @@ NODISCARD ReturnType ZUDPSocket::AsyncSend(
     );
 
     data_ptr_->socket_.async_send(
-        boost::asio::buffer(_buffer.DataPtr<const Void>(), _buffer.Size()),
-        MakeSocketHandlerAllocator([this, buffer_ptr = _buffer.DataPtr<const Void>(), _handle_func](
+        boost::asio::buffer(_buffer.GetDataPtr<const Void>(), _buffer.GetSize()),
+        MakeSocketHandlerAllocator([this, buffer_ptr = _buffer.GetDataPtr<const Void>(), _handle_func](
             const boost::system::error_code& _error_code,
             SizeType _data_size
         ) {
@@ -694,11 +694,11 @@ NODISCARD ReturnType ZUDPSocket::AsyncSend(
                     ret_val = error_code::kSocketErrorCode_OperationCanceled;
                 }
                 else {
-                    ret_val = error_code::kSocketErrorCode_SystemError;
+                    ret_val = error_code::kSocketErrorCode_SystemOrLibraryError;
                     Z_LOG_ERROR(
                         ret_val, _error_code.value(),
                         "System error! error info: %ls",
-                        string::StringToWString(_error_code.message().c_str()).DataPtr()
+                        string::StringToWString(_error_code.message().c_str()).GetDataPtr()
                     );
                     state_ = StateEnum_::kError;
                 }

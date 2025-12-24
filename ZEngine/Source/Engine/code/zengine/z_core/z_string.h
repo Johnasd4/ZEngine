@@ -44,9 +44,10 @@ namespace internal {
  * conversion, and object management.
  *
  * @tparam _CharType The character type of the string (e.g., char, wchar_t).
+ * @tparam _IfAllocFromThreadLocalMemoryPool Flag indicating if memory should be allocated from the thread-local pool.
  */
-template<typename _CharType>
-class TString : public ZObject {
+template<typename _CharType, Bool _IsGlobal>
+class CORE_DLLAPI TString : public ZObject<_IsGlobal> {
 public:
     /** @brief Alias for the underlying standard string type with custom allocator. */
     using STDString_ = std::basic_string<_CharType, std::char_traits<_CharType>, TAllocator<_CharType>>;
@@ -637,7 +638,7 @@ public:
         const TString& _left_str, const TString& _right_str
     ) noexcept {
         TString str;
-        str.Reserve(_left_str.Size() + _right_str.Size());
+        str.Reserve(_left_str.GetSize() + _right_str.GetSize());
         str.Append(_left_str);
         str.Append(_right_str);
         return str;
@@ -693,7 +694,7 @@ public:
     ) noexcept {
         TString str;
         const SizeType right_str_len = std::char_traits<_CharType>::length(_right_str);
-        str.Reserve(_left_str.Size() + right_str_len);
+        str.Reserve(_left_str.GetSize() + right_str_len);
         str.Append(_left_str);
         str.Append(_right_str, right_str_len);
         return str;
@@ -724,7 +725,7 @@ public:
     ) noexcept {
         TString str;
         const SizeType left_str_len = std::char_traits<_CharType>::length(_left_str);
-        str.Reserve(left_str_len + _right_str.Size());
+        str.Reserve(left_str_len + _right_str.GetSize());
         str.Append(_left_str, left_str_len);
         str.Append(_right_str);
         return str;
@@ -754,7 +755,7 @@ public:
         const TString& _left_str, const _CharType _right_str
     ) noexcept {
         TString str;
-        str.Reserve(_left_str.Size() + 1);
+        str.Reserve(_left_str.GetSize() + 1);
         str.Append(_left_str);
         str.PushBack(_right_str);
         return str;
@@ -783,7 +784,7 @@ public:
         const _CharType _left_str, const TString& _right_str
     ) noexcept {
         TString str;
-        str.Reserve(1 + _right_str.Size());
+        str.Reserve(1 + _right_str.GetSize());
         str.PushBack(_left_str);
         str.Append(_right_str);
         return str;
@@ -871,14 +872,14 @@ public:
      * 
      * @return _CharType* Pointer to the data.
      */
-    NODISCARD FORCEINLINE constexpr _CharType* DataPtr() noexcept { return str_.data(); }
+    NODISCARD FORCEINLINE constexpr _CharType* GetDataPtr() noexcept { return str_.data(); }
     
     /**
      * @brief Returns a pointer to the underlying character array (const).
      * 
      * @return const _CharType* Const pointer to the data.
      */
-    NODISCARD FORCEINLINE constexpr const _CharType* DataPtr() const noexcept { return str_.data(); }
+    NODISCARD FORCEINLINE constexpr const _CharType* GetDataPtr() const noexcept { return str_.data(); }
     
     /**
      * @brief Returns a reference to the underlying standard string object.
@@ -899,21 +900,21 @@ public:
      * 
      * @return SizeType The size of the string.
      */
-    NODISCARD FORCEINLINE constexpr SizeType Size() const noexcept { return static_cast<SizeType>(str_.size()); }
+    NODISCARD FORCEINLINE constexpr SizeType GetSize() const noexcept { return static_cast<SizeType>(str_.size()); }
     
     /**
      * @brief Returns the current capacity of the string.
      * 
      * @return SizeType The number of characters that can be held without reallocation.
      */
-    NODISCARD FORCEINLINE constexpr SizeType Capacity() const noexcept { return str_.capacity(); }
+    NODISCARD FORCEINLINE constexpr SizeType GetCapacity() const noexcept { return str_.capacity(); }
     
     /**
      * @brief Checks if the string is empty.
      * 
      * @return Bool True if the string is empty, false otherwise.
      */
-    NODISCARD FORCEINLINE constexpr Bool Empty() const noexcept { return str_.empty(); }
+    NODISCARD FORCEINLINE constexpr Bool IsEmpty() const noexcept { return str_.empty(); }
 
     /**
      * @brief Returns an iterator to the beginning of the string.
@@ -1861,7 +1862,7 @@ public:
 
 protected:
     /** @brief Alias for the base object type. */
-    using SuperType_ = ZObject;
+    using SuperType_ = ZObject<_IsGlobal>;
 
 private:
     /** @brief The internal standard string object. */
@@ -1873,13 +1874,12 @@ private:
 
 namespace zengine {
 
-/** @brief Alias for TString using char. */
-using ZString = internal::TString<Char>;
-/** @brief Alias for TString using wchar_t. */
-using ZWString = internal::TString<WChar>;
+using ZString = internal::TString<Char, true>;
+using ZWString = internal::TString<WChar, true>;
+using ZStringLocal = internal::TString<Char, false>;
+using ZWStringLocal = internal::TString<WChar, false>;
 
 }//zengine
-
 
 namespace std {
 template<>
@@ -1891,6 +1891,18 @@ struct hash<zengine::ZString> {
 template<>
 struct hash<zengine::ZWString> {
     zengine::SizeType operator()(const zengine::ZWString& _str) const noexcept {
+        return _str.Hash();
+    }
+};
+template<>
+struct hash<zengine::ZStringLocal> {
+    zengine::SizeType operator()(const zengine::ZStringLocal& _str) const noexcept {
+        return _str.Hash();
+    }
+};
+template<>
+struct hash<zengine::ZWStringLocal> {
+    zengine::SizeType operator()(const zengine::ZWStringLocal& _str) const noexcept {
         return _str.Hash();
     }
 };

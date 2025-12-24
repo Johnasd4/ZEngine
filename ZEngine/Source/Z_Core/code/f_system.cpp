@@ -68,7 +68,7 @@ CORE_DLLAPI Void RunAsAdmin() noexcept {
         }
         else {
             Z_LOG_ERROR(
-                error_code::kFSystemErrorCode_SystemError, error, 
+                error_code::kFSystemErrorCode_SystemOrLibraryError, error, 
                 "Unknown system error!"
             );
         }

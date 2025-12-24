@@ -28,7 +28,7 @@ namespace zengine {
     A memory piece. Fixed size.
 */
 template<SizeType _size>
-class TFixedMemory : public ZObject {
+class TFixedMemory : public ZObject<> {
 public:
     FORCEINLINE TFixedMemory() noexcept : SuperType_(), data_ptr_() {}
     FORCEINLINE TFixedMemory(const TFixedMemory& _mem) noexcept : SuperType_(_mem) { 
@@ -58,16 +58,16 @@ public:
     }
 
     template<typename _ObjectType>
-    NODISCARD FORCEINLINE _ObjectType* DataPtr() noexcept { 
+    NODISCARD FORCEINLINE _ObjectType* GetDataPtr() noexcept { 
         return reinterpret_cast<_ObjectType*>(data_ptr_);
     }
     template<typename _ObjectType>
-    NODISCARD FORCEINLINE _ObjectType* DataPtr() const noexcept { 
+    NODISCARD FORCEINLINE _ObjectType* GetDataPtr() const noexcept { 
         return reinterpret_cast<const _ObjectType*>(data_ptr_);
     }
 
-    FORCEINLINE static constexpr SizeType Size() noexcept { return _size; }
-    FORCEINLINE static constexpr SizeType Capacity() noexcept { return _size; }
+    FORCEINLINE static constexpr SizeType GetSize() noexcept { return _size; }
+    FORCEINLINE static constexpr SizeType GetCapacity() noexcept { return _size; }
 
     FORCEINLINE Void Clear() noexcept { memset(data_ptr_, 0, _size); }
 

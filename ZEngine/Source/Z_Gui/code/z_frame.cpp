@@ -121,7 +121,7 @@ Void ZFrame::Tick(Float32 _delta_sec) noexcept {
             );
         }
         //begin base frame
-        ImGui::Begin(Name().DataPtr(), nullptr, frame_flag_);
+        ImGui::Begin(Name().GetDataPtr(), nullptr, frame_flag_);
 
         if (Enabled()) {
             //tick widgets
@@ -143,7 +143,7 @@ Void ZFrame::Tick(Float32 _delta_sec) noexcept {
         //font scale
         ImGui::SetWindowFontScale(FontScale());
 
-        GuiSize cur_size = Size();
+        GuiSize cur_size = GetSize();
         GuiPos cur_pos = Pos();
         ImVec2 frame_size = ImGui::GetWindowSize();
         ImVec2 frame_pos = ImGui::GetWindowPos();
@@ -216,7 +216,7 @@ Void ZFrame::Tick(Float32 _delta_sec) noexcept {
     else {
         //update size, must be called every tick to work
         if (SizeSet()) {
-            GuiSize cur_size = Size();
+            GuiSize cur_size = GetSize();
             ImGui::SetNextWindowSize(ImVec2(cur_size.width_, cur_size.height_), ImGuiCond_Always);
         }
 
@@ -232,11 +232,11 @@ Void ZFrame::Tick(Float32 _delta_sec) noexcept {
 
         //sub frame begin
         if (SizeSet()) {
-            ImGui::BeginChild(Name().DataPtr(), ImVec2(Width(), Height()), true, frame_flag_);
+            ImGui::BeginChild(Name().GetDataPtr(), ImVec2(Width(), Height()), true, frame_flag_);
         }
         else {
             ImGui::BeginChild(
-                Name().DataPtr(),
+                Name().GetDataPtr(),
                 ImVec2(0, 0), 
                 true, 
                 frame_flag_

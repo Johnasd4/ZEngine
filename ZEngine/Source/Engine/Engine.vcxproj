@@ -43,57 +43,60 @@
     <ClInclude Include="code\zengine\z_core\drive\d_macro.h" />
     <ClInclude Include="code\zengine\z_core\drive\d_type.h" />
     <ClInclude Include="code\zengine\z_core\drive.h" />
-    <ClInclude Include="code\zengine\z_core\library\l_fmt.h" />
-    <ClInclude Include="code\zengine\z_core\library\fmt\args.h" />
-    <ClInclude Include="code\zengine\z_core\library\fmt\base.h" />
-    <ClInclude Include="code\zengine\z_core\library\fmt\chrono.h" />
-    <ClInclude Include="code\zengine\z_core\library\fmt\color.h" />
-    <ClInclude Include="code\zengine\z_core\library\fmt\compile.h" />
-    <ClInclude Include="code\zengine\z_core\library\fmt\core.h" />
-    <ClInclude Include="code\zengine\z_core\library\fmt\format-inl.h" />
-    <ClInclude Include="code\zengine\z_core\library\fmt\format.h" />
-    <ClInclude Include="code\zengine\z_core\library\fmt\os.h" />
-    <ClInclude Include="code\zengine\z_core\library\fmt\ostream.h" />
-    <ClInclude Include="code\zengine\z_core\library\fmt\printf.h" />
-    <ClInclude Include="code\zengine\z_core\library\fmt\ranges.h" />
-    <ClInclude Include="code\zengine\z_core\library\fmt\std.h" />
-    <ClInclude Include="code\zengine\z_core\library\fmt\xchar.h" />
-    <ClInclude Include="code\zengine\z_core\library\l_rapidjson.h" />
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\allocators.h" />
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\document.h" />
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\encodedstream.h" />
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\encodings.h" />
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\error\en.h" />
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\error\error.h" />
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\filereadstream.h" />
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\filewritestream.h" />
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\fwd.h" />
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\internal\biginteger.h" />
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\internal\diyfp.h" />
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\internal\dtoa.h" />
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\internal\ieee754.h" />
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\internal\itoa.h" />
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\internal\meta.h" />
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\internal\pow10.h" />
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\internal\regex.h" />
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\internal\stack.h" />
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\internal\strfunc.h" />
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\internal\strtod.h" />
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\internal\swap.h" />
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\istreamwrapper.h" />
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\memorybuffer.h" />
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\memorystream.h" />
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\msinttypes\inttypes.h" />
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\msinttypes\stdint.h" />
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\ostreamwrapper.h" />
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\pointer.h" />
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\prettywriter.h" />
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\rapidjson.h" />
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\reader.h" />
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\schema.h" />
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\stream.h" />
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\stringbuffer.h" />
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\writer.h" />
+    <ClInclude Include="code\zengine\z_core\internal\l_fmt.h" />
+    <ClInclude Include="code\zengine\z_core\internal\fmt\args.h" />
+    <ClInclude Include="code\zengine\z_core\internal\fmt\base.h" />
+    <ClInclude Include="code\zengine\z_core\internal\fmt\chrono.h" />
+    <ClInclude Include="code\zengine\z_core\internal\fmt\color.h" />
+    <ClInclude Include="code\zengine\z_core\internal\fmt\compile.h" />
+    <ClInclude Include="code\zengine\z_core\internal\fmt\core.h" />
+    <ClInclude Include="code\zengine\z_core\internal\fmt\format-inl.h" />
+    <ClInclude Include="code\zengine\z_core\internal\fmt\format.h" />
+    <ClInclude Include="code\zengine\z_core\internal\fmt\os.h" />
+    <ClInclude Include="code\zengine\z_core\internal\fmt\ostream.h" />
+    <ClInclude Include="code\zengine\z_core\internal\fmt\printf.h" />
+    <ClInclude Include="code\zengine\z_core\internal\fmt\ranges.h" />
+    <ClInclude Include="code\zengine\z_core\internal\fmt\std.h" />
+    <ClInclude Include="code\zengine\z_core\internal\fmt\xchar.h" />
+    <ClInclude Include="code\zengine\z_core\internal\l_rapidjson.h" />
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\allocators.h" />
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\cursorstreamwrapper.h" />
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\document.h" />
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\encodedstream.h" />
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\encodings.h" />
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\error\en.h" />
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\error\error.h" />
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\filereadstream.h" />
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\filewritestream.h" />
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\fwd.h" />
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\internal\biginteger.h" />
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\internal\clzll.h" />
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\internal\diyfp.h" />
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\internal\dtoa.h" />
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\internal\ieee754.h" />
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\internal\itoa.h" />
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\internal\meta.h" />
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\internal\pow10.h" />
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\internal\regex.h" />
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\internal\stack.h" />
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\internal\strfunc.h" />
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\internal\strtod.h" />
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\internal\swap.h" />
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\istreamwrapper.h" />
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\memorybuffer.h" />
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\memorystream.h" />
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\msinttypes\inttypes.h" />
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\msinttypes\stdint.h" />
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\ostreamwrapper.h" />
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\pointer.h" />
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\prettywriter.h" />
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\rapidjson.h" />
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\reader.h" />
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\schema.h" />
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\stream.h" />
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\stringbuffer.h" />
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\uri.h" />
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\writer.h" />
     <ClInclude Include="code\zengine\z_core\internal\t_order_data_iterator.h" />
     <ClInclude Include="code\zengine\z_core\m_log\c_log.h" />
     <ClInclude Include="code\zengine\z_core\m_log\f_log.h" />
@@ -102,6 +105,7 @@
     <ClInclude Include="code\zengine\z_core\m_log\z_log\z_log.h" />
     <ClInclude Include="code\zengine\z_core\m_log\z_log\z_trace_log.h" />
     <ClInclude Include="code\zengine\z_core\m_log.h" />
+    <ClInclude Include="code\zengine\z_core\z_system_time.h" />
     <ClInclude Include="code\zengine\z_core\t_allocator.h" />
     <ClInclude Include="code\zengine\z_core\t_array_view.h" />
     <ClInclude Include="code\zengine\z_core\t_fixed_array.h" />
@@ -132,17 +136,15 @@
     <ClInclude Include="code\zengine\z_core\z_buffer.h" />
     <ClInclude Include="code\zengine\z_core\z_condition_variable.h" />
     <ClInclude Include="code\zengine\z_core\z_config.h" />
-    <ClInclude Include="code\zengine\z_core\z_cs_mutex.h" />
     <ClInclude Include="code\zengine\z_core\z_file.h" />
     <ClInclude Include="code\zengine\z_core\z_json.h" />
     <ClInclude Include="code\zengine\z_core\z_memory.h" />
     <ClInclude Include="code\zengine\z_core\z_memory_view.h" />
     <ClInclude Include="code\zengine\z_core\z_mutex.h" />
     <ClInclude Include="code\zengine\z_core\z_object.h" />
-    <ClInclude Include="code\zengine\z_core\z_sem_mutex.h" />
+    <ClInclude Include="code\zengine\z_core\z_semaphore.h" />
     <ClInclude Include="code\zengine\z_core\z_serializer.h" />
     <ClInclude Include="code\zengine\z_core\z_string.h" />
-    <ClInclude Include="code\zengine\z_core\z_system_time.h" />
     <ClInclude Include="code\zengine\z_core\z_task.h" />
     <ClInclude Include="code\zengine\z_core\z_thread.h" />
     <ClInclude Include="code\zengine\z_core\z_thread_pool.h" />
@@ -478,6 +480,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)Source\Engine\code;$(SolutionDir)Release\include_library</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile />
       <PrecompiledHeaderOutputFile />
+      <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -485,8 +488,8 @@
       <AdditionalLibraryDirectories>$(SolutionDir)Binaries\output\$(Platform)_$(Configuration);$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>if not exist "$(SolutionDir)Release\include" mkdir "$(SolutionDir)Release\include"
-xcopy /S /Y "$(SolutionDir)Source\$(ProjectName)\code\*.h*" "$(SolutionDir)Release\include" 
+      <Command>if not exist "$(SolutionDir)Release\include\zengine" mkdir "$(SolutionDir)Release\include\zengine"
+xcopy /S /Y "$(SolutionDir)Source\$(ProjectName)\code\zengine\*.h*" "$(SolutionDir)Release\include\zengine" 
 if not exist "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin" mkdir "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin"
 xcopy /S /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\*.dll*" "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin" 
 xcopy /S /Y "$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration)\*.dll*" "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin" 
@@ -517,6 +520,7 @@ xcopy /S /Y  "$(SolutionDir)Content\*.*" "$(SolutionDir)Binaries\debugger\ZEngin
       <AdditionalIncludeDirectories>$(SolutionDir)Source\Engine\code;$(SolutionDir)Release\include_library</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile />
       <PrecompiledHeaderOutputFile />
+      <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -526,8 +530,8 @@ xcopy /S /Y  "$(SolutionDir)Content\*.*" "$(SolutionDir)Binaries\debugger\ZEngin
       <AdditionalLibraryDirectories>$(SolutionDir)Binaries\output\$(Platform)_$(Configuration);$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>if not exist "$(SolutionDir)Release\include" mkdir "$(SolutionDir)Release\include"
-xcopy /S /Y "$(SolutionDir)Source\$(ProjectName)\code\*.h*" "$(SolutionDir)Release\include" 
+      <Command>if not exist "$(SolutionDir)Release\include\zengine" mkdir "$(SolutionDir)Release\include\zengine"
+xcopy /S /Y "$(SolutionDir)Source\$(ProjectName)\code\zengine\*.h*" "$(SolutionDir)Release\include\zengine" 
 if not exist "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin" mkdir "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin"
 xcopy /S /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\*.dll*" "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin" 
 xcopy /S /Y "$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration)\*.dll*" "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin" 
@@ -556,6 +560,7 @@ xcopy /S /Y  "$(SolutionDir)Content\*.*" "$(SolutionDir)Binaries\debugger\ZEngin
       <PrecompiledHeaderFile />
       <PrecompiledHeaderOutputFile />
       <AdditionalIncludeDirectories>$(SolutionDir)Source\Engine\code;$(SolutionDir)Release\include_library</AdditionalIncludeDirectories>
+      <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -564,8 +569,8 @@ xcopy /S /Y  "$(SolutionDir)Content\*.*" "$(SolutionDir)Binaries\debugger\ZEngin
       <UACExecutionLevel>AsInvoker</UACExecutionLevel>
     </Link>
     <PostBuildEvent>
-      <Command>if not exist "$(SolutionDir)Release\include" mkdir "$(SolutionDir)Release\include"
-xcopy /S /Y "$(SolutionDir)Source\$(ProjectName)\code\*.h*" "$(SolutionDir)Release\include" 
+      <Command>if not exist "$(SolutionDir)Release\include\zengine" mkdir "$(SolutionDir)Release\include\zengine"
+xcopy /S /Y "$(SolutionDir)Source\$(ProjectName)\code\zengine\*.h*" "$(SolutionDir)Release\include\zengine" 
 if not exist "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin" mkdir "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin"
 xcopy /S /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\*.dll*" "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin" 
 xcopy /S /Y "$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration)\*.dll*" "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin" 
@@ -596,6 +601,7 @@ xcopy /S /Y  "$(SolutionDir)Content\*.*" "$(SolutionDir)Binaries\debugger\ZEngin
       <PrecompiledHeaderFile />
       <PrecompiledHeaderOutputFile />
       <AdditionalIncludeDirectories>$(SolutionDir)Source\Engine\code;$(SolutionDir)Release\include_library</AdditionalIncludeDirectories>
+      <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -605,8 +611,8 @@ xcopy /S /Y  "$(SolutionDir)Content\*.*" "$(SolutionDir)Binaries\debugger\ZEngin
       <AdditionalLibraryDirectories>$(SolutionDir)Binaries\output\$(Platform)_$(Configuration);$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>if not exist "$(SolutionDir)Release\include" mkdir "$(SolutionDir)Release\include"
-xcopy /S /Y "$(SolutionDir)Source\$(ProjectName)\code\*.h*" "$(SolutionDir)Release\include" 
+      <Command>if not exist "$(SolutionDir)Release\include\zengine" mkdir "$(SolutionDir)Release\include\zengine"
+xcopy /S /Y "$(SolutionDir)Source\$(ProjectName)\code\zengine\*.h*" "$(SolutionDir)Release\include\zengine" 
 if not exist "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin" mkdir "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin"
 xcopy /S /Y "$(SolutionDir)Binaries\output\$(Platform)_$(Configuration)\*.dll*" "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin" 
 xcopy /S /Y "$(SolutionDir)Binaries\output_library\$(Platform)_$(Configuration)\*.dll*" "$(SolutionDir)Release\$(Platform)_$(Configuration)\bin" 

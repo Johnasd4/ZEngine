@@ -1,78 +1,123 @@
 /*
-Copyright (c) YuLin Zhu
-code
-Code
-** ZEngine Proprietary License **
+    Copyright (c) YuLin Zhu
 
-This software is provided "as-is", without any express or implied warranty.
-In no event will the authors be held liable for any damages arising from the
-use of this software.
+    ** ZEngine Proprietary License **
 
-Usage Rights:
-1. Non-Commercial Use: You may use, modify, and distribute this software
-   for non-commercial purposes (e.g., education, personal projects, open-source
-   projects that do not generate revenue) free of charge.
+    This software is provided "as-is", without any express or implied warranty.
+    In no event will the authors be held liable for any damages arising from the
+    use of this software.
 
-2. Commercial Use: Commercial use of this software is STRICTLY PROHIBITED
-   without a valid commercial license agreement with the author.
-   "Commercial use" includes, but is not limited to:
-   - Incorporating this software into a product that is sold.
-   - Using this software in a paid service.
-   - Using this software for internal business operations in a for-profit entity.
+    Usage Rights:
+    1. Non-Commercial Use: You may use, modify, and distribute this software
+       for non-commercial purposes (e.g., education, personal projects, open-source
+       projects that do not generate revenue) free of charge.
 
-To obtain a Commercial License, please contact the author.
+    2. Commercial Use: Commercial use of this software is STRICTLY PROHIBITED
+       without a valid commercial license agreement with the author.
+       "Commercial use" includes, but is not limited to:
+       - Incorporating this software into a product that is sold.
+       - Using this software in a paid service.
+       - Using this software for internal business operations in a for-profit entity.
 
-Author: YuLin Zhu
-Contact: 1152325286@qq.com
+    To obtain a Commercial License, please contact the author.
+
+    Author: YuLin Zhu
+    Contact: 1152325286@qq.com
 */
 #pragma once
 
 #include "drive.h"
 
-#include "library/l_fmt.h"
+#include "internal/l_fmt.h"
 
-#include "z_string.h"
 #include "z_string_view.h"
 
 namespace zengine {
-namespace error_code {
+namespace console {
 
-/** @brief Enumerates error codes for the console module, inheriting from ReturnType. */
-enum FConsoleErrorCodeEnum : ReturnType {
-    /** @brief Error code indicating a linking error within the console module. */
-    kFConsoleErrorCode_LinkError = kErrorCodeBase_FConsole,
-    /** @brief Error code indicating a system-level error occurred. */
-    kFConsoleErrorCode_SystemError,
-    /** @brief Error code indicating a null pointer was passed as a parameter. */
-    kFConsoleErrorCode_NullptrParam,
-    /** @brief Error code indicating a parameter is out of the valid range. */
-    kFConsoleErrorCode_ParamOutOfRange,
-    /** @brief Error code indicating a format error occurred during string generation. */
-    kFConsoleErrorCode_FormatError
+/** @brief Enumeration of text styles supported by the console output. */
+enum TextStyleEnum : Int32 {
+    /** @brief No text style. */
+    kTextStyle_None = 0,
+    /** @brief Bold text style. */
+    kTextStyle_Bold = fmt::emphasis::bold,
+    /** @brief Faint text style. */
+    kTextStyle_Faint = fmt::emphasis::faint,
+    /** @brief Italic text style. */
+    kTextStyle_Italic = fmt::emphasis::italic,
+    /** @brief Underline text style. */
+    kTextStyle_Underline = fmt::emphasis::underline,
+    /** @brief Blink text style. */
+    kTextStyle_Blink = fmt::emphasis::blink,
+    /** @brief Reverse colour text style (swaps foreground and background). */
+    kTextStyle_ReverseColour = fmt::emphasis::reverse,
+    /** @brief Conceal text style (text is hidden). */
+    kTextStyle_Conceal = fmt::emphasis::conceal,
+    /** @brief Strikethrough text style. */
+    kTextStyle_StrikeThrough = fmt::emphasis::strikethrough
 };
 
-}//error_code
+/** @brief Constant representing a color that indicates no change to the current terminal color. */
+static constexpr Colour kNoChangeColour = Colour(0, 0, 0, 0);
+
+}//console
 }//zengine
 
 namespace zengine {
 namespace console {
 namespace internal {
 
-/**
- * @brief Internal function to print formatted string output using format arguments.
- * @param _format The format string view.
- * @param _args The format arguments.
- * @param _arg_num The number of arguments.
+/** 
+ * @brief Internal function to print formatted string output using format arguments. 
+ * @param _format The format string view. 
+ * @param _args The format arguments. 
  */
-CORE_DLLAPI Void PrintP(ZStringView _format, fmt::format_args _args, SizeType _arg_num) noexcept;
+CORE_DLLAPI Void Print(
+    ZStringView _format, 
+    fmt::format_args _args
+) noexcept;
 
-/**
- * @brief Internal function to print formatted wide string output using wide format arguments.
- * @param _format The wide format string view.
- * @param _args The wide format arguments.
- * @param _arg_num The number of arguments.
+/** 
+ * @brief Internal function to print formatted string output with specific colors and styles. 
+ * @param _front_colour The foreground color of the text. Use kNoChangeColour to use default colour. 
+ * @param _back_colour The background color of the text. Use kNoChangeColour to use default colour. 
+ * @param _text_style The style attributes of the text. 
+ * @param _format The format string view. 
+ * @param _args The format arguments. 
  */
-CORE_DLLAPI Void PrintP(ZWStringView _format, fmt::wformat_args _args, SizeType _arg_num) noexcept;
+CORE_DLLAPI Void Print(
+    Colour _front_colour,
+    Colour _back_colour,
+    Int32 _text_style,
+    ZStringView _format, 
+    fmt::format_args _args
+) noexcept;
+
+/** 
+ * @brief Internal function to print formatted string output immediately (flushing the buffer). 
+ * @param _format The format string view. 
+ * @param _args The format arguments. 
+ */
+CORE_DLLAPI Void PrintImmediately(
+    ZStringView _format, 
+    fmt::format_args _args
+) noexcept;
+
+/** 
+ * @brief Internal function to print formatted output immediately with colors and styles. 
+ * @param _front_colour The foreground color of the text. Use kNoChangeColour to use default colour. 
+ * @param _back_colour The background color of the text. Use kNoChangeColour to use default colour. 
+ * @param _text_style The style attributes of the text. 
+ * @param _format The format string view. 
+ * @param _args The format arguments. 
+ */
+CORE_DLLAPI Void PrintImmediately(
+    Colour _front_colour,
+    Colour _back_colour,
+    Int32 _text_style,
+    ZStringView _format,
+    fmt::format_args _args
+) noexcept;
 
 }//internal
 }//console
@@ -81,39 +126,94 @@ CORE_DLLAPI Void PrintP(ZWStringView _format, fmt::wformat_args _args, SizeType 
 namespace zengine {
 namespace console {
 
-/**
- * @brief Prints a ZStringView to the console.
- * @param _str_view The string view content to be printed.
- */
-CORE_DLLAPI Void Print(ZStringView _str_view) noexcept;
-
-/**
- * @brief Prints a ZWStringView (wide string view) to the console.
- * @param _str_view The wide string view content to be printed.
- */
-CORE_DLLAPI Void Print(ZWStringView _str_view) noexcept;
-
-/**
- * @brief Prints formatted output to the console using a format string and arguments.
- * @tparam _ArgsType The types of the arguments to be formatted.
- * @param _format The format string view.
- * @param _args The variable arguments to be formatted and printed.
+/** 
+ * @brief Prints formatted output to the console using a format string and arguments. 
+ * @tparam _ArgsType The types of the arguments to be formatted. 
+ * @param _format The format string view. 
+ * @param _args The variable arguments to be formatted and printed. 
  */
 template<typename... _ArgsType>
-Void Print(ZStringView _format, _ArgsType&&... _args) noexcept {
-    internal::PrintP(_format, fmt::make_format_args(_args...), sizeof...(_args));
+FORCEINLINE Void Print(
+    ZStringView _format,
+    _ArgsType&&... _args
+) noexcept {
+    internal::Print(
+        _format, 
+        fmt::make_format_args(_args...)
+    );
 }
 
-/**
- * @brief Prints formatted output to the console using a wide format string and arguments.
- * @tparam _ArgsType The types of the arguments to be formatted.
- * @param _format The wide format string view.
- * @param _args The variable arguments to be formatted and printed.
+/** 
+ * @brief Prints formatted output to the console with specified colors and styles. 
+ * @tparam _ArgsType The types of the arguments to be formatted. 
+ * @param _front_colour The foreground color of the text. Use kNoChangeColour to use default colour. 
+ * @param _back_colour The background color of the text. Use kNoChangeColour to use default colour. 
+ * @param _text_style The style attributes of the text. 
+ * @param _format The format string view. 
+ * @param _args The variable arguments to be formatted and printed. 
  */
 template<typename... _ArgsType>
-Void Print(ZWStringView _format, _ArgsType&&... _args) noexcept {
-    internal::PrintP(_format, fmt::make_wformat_args(_args...), sizeof...(_args));
+FORCEINLINE Void Print(
+    Colour _front_colour, 
+    Colour _back_colour,
+    Int32 _text_style,
+    ZStringView _format, 
+    _ArgsType&&... _args
+) noexcept {
+    internal::Print(
+        _front_colour,
+        _back_colour,
+        _text_style,
+        _format, 
+        fmt::make_format_args(_args...)
+    );
 }
+
+/** 
+ * @brief Prints formatted output to the console immediately, ensuring the buffer is flushed. 
+ * @tparam _ArgsType The types of the arguments to be formatted. 
+ * @param _format The format string view. 
+ * @param _args The variable arguments to be formatted and printed. 
+ */
+template<typename... _ArgsType>
+FORCEINLINE Void PrintImmediately(
+    ZStringView _format, 
+    _ArgsType&&... _args
+) noexcept {
+    internal::PrintImmediately(
+        _format, 
+        fmt::make_format_args(_args...)
+    );
+}
+
+/** 
+ * @brief Prints formatted output immediately with specified colors and styles, flushing the buffer. 
+ * @tparam _ArgsType The types of the arguments to be formatted. 
+ * @param _front_colour The foreground color of the text. Use kNoChangeColour to use default colour. 
+ * @param _back_colour The background color of the text. Use kNoChangeColour to use default colour. 
+ * @param _text_style The style attributes of the text. 
+ * @param _format The format string view. 
+ * @param _args The variable arguments to be formatted and printed. 
+ */
+template<typename... _ArgsType>
+FORCEINLINE Void PrintImmediately(
+    Colour _front_colour,
+    Colour _back_colour,
+    Int32 _text_style,
+    ZStringView _format,
+    _ArgsType&&... _args
+) noexcept {
+    internal::PrintImmediately(
+        _front_colour,
+        _back_colour,
+        _text_style,
+        _format,
+        fmt::make_format_args(_args...)
+    );
+}
+
+/** @brief Flushes the console output buffer. */
+CORE_DLLAPI Void Flush() noexcept;
 
 }//console
 }//zengine

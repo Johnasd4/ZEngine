@@ -92,10 +92,10 @@ public:
 
     NODISCARD FORCEINLINE const _ObjectType& Front() const noexcept { return data_ptr_[0ULL]; }
     NODISCARD FORCEINLINE const _ObjectType& Back() const noexcept { return data_ptr_[size_ - 1ULL]; }
-    NODISCARD FORCEINLINE const _ObjectType* DataPtr() const noexcept { return data_ptr_; }
+    NODISCARD FORCEINLINE const _ObjectType* GetDataPtr() const noexcept { return data_ptr_; }
 
-    NODISCARD FORCEINLINE SizeType Size() const noexcept { return size_; }
-    NODISCARD FORCEINLINE Bool Empty() const noexcept { return size_ == 0ULL; }
+    NODISCARD FORCEINLINE SizeType GetSize() const noexcept { return size_; }
+    NODISCARD FORCEINLINE Bool IsEmpty() const noexcept { return size_ == 0ULL; }
 
     NODISCARD FORCEINLINE ConstIterator_ Begin() const noexcept {
         return ConstIterator_(data_ptr_);

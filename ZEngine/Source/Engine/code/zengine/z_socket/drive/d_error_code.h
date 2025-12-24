@@ -40,7 +40,7 @@ inline constexpr ReturnType kErrorCodeBase_FSocket = 0x11U * kErrorCodeTypeMask 
 
 enum SocketErrorCodeEnum : ReturnType {
     kSocketErrorCode_LinkError = kErrorCodeBase_Socket,
-    kSocketErrorCode_SystemError,
+    kSocketErrorCode_SystemOrLibraryError,
     kSocketErrorCode_NullptrParam,
     kSocketErrorCode_ParamOutOfRange,
     kSocketErrorCode_StateError,
@@ -63,7 +63,7 @@ enum SocketErrorCodeEnum : ReturnType {
 
 enum HTTPErrorCodeEnum : ReturnType {
     kHTTPErrorCode_LinkError = kErrorCodeBase_HTTP,
-    kHTTPErrorCode_SystemError,
+    kHTTPErrorCode_SystemOrLibraryError,
     kHTTPErrorCode_NullptrParam,
     kHTTPErrorCode_ParamOutOfRange,
     kHTTPErrorCode_HTTP11ResponseResolverAlreadyUsed,
@@ -71,7 +71,7 @@ enum HTTPErrorCodeEnum : ReturnType {
 
 enum URLErrorCodeEnum : ReturnType {
     kURLErrorCode_LinkError = kErrorCodeBase_URL,
-    kURLErrorCode_SystemError,
+    kURLErrorCode_SystemOrLibraryError,
     kURLErrorCode_NullptrParam,
     kURLErrorCode_ParamOutOfRange,
     kURLErrorCode_URLResolveFailed,

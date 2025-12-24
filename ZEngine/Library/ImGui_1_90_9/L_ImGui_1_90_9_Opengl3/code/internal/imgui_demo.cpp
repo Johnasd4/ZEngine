@@ -1819,7 +1819,7 @@ static void ShowDemoWindowWidgets()
                         active_tabs.push_back(next_tab_id++); // Add new tab
 
                 // Submit our regular tabs
-                for (int n = 0; n < active_tabs.Size; )
+                for (int n = 0; n < active_tabs.GetSize; )
                 {
                     bool open = true;
                     char name[16];
@@ -5199,7 +5199,7 @@ static void ShowDemoWindowTables()
         {
             // The first column will use the default _WidthStretch when ScrollX is Off and _WidthFixed when ScrollX is On
             ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_NoHide);
-            ImGui::TableSetupColumn("Size", ImGuiTableColumnFlags_WidthFixed, TEXT_BASE_WIDTH * 12.0f);
+            ImGui::TableSetupColumn("GetSize", ImGuiTableColumnFlags_WidthFixed, TEXT_BASE_WIDTH * 12.0f);
             ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthFixed, TEXT_BASE_WIDTH * 18.0f);
             ImGui::TableHeadersRow();
 
@@ -5208,7 +5208,7 @@ static void ShowDemoWindowTables()
             {
                 const char*     Name;
                 const char*     Type;
-                int             Size;
+                int             GetSize;
                 int             ChildIdx;
                 int             ChildCount;
                 static void DisplayNode(const MyTreeNode* node, const MyTreeNode* all_nodes)
@@ -5234,7 +5234,7 @@ static void ShowDemoWindowTables()
                     {
                         ImGui::TreeNodeEx(node->Name, tree_node_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_Bullet | ImGuiTreeNodeFlags_NoTreePushOnOpen);
                         ImGui::TableNextColumn();
-                        ImGui::Text("%d", node->Size);
+                        ImGui::Text("%d", node->GetSize);
                         ImGui::TableNextColumn();
                         ImGui::TextUnformatted(node->Type);
                     }
@@ -5584,10 +5584,10 @@ static void ShowDemoWindowTables()
     {
         // Create item list
         static ImVector<MyItem> items;
-        if (items.Size == 0)
+        if (items.GetSize == 0)
         {
             items.resize(50, MyItem());
-            for (int n = 0; n < items.Size; n++)
+            for (int n = 0; n < items.GetSize; n++)
             {
                 const int template_n = n % IM_ARRAYSIZE(template_items_names);
                 MyItem& item = items[n];
@@ -5629,13 +5629,13 @@ static void ShowDemoWindowTables()
             if (ImGuiTableSortSpecs* sort_specs = ImGui::TableGetSortSpecs())
                 if (sort_specs->SpecsDirty)
                 {
-                    MyItem::SortWithSortSpecs(sort_specs, items.Data, items.Size);
+                    MyItem::SortWithSortSpecs(sort_specs, items.Data, items.GetSize);
                     sort_specs->SpecsDirty = false;
                 }
 
             // Demonstrate using clipper for large vertical lists
             ImGuiListClipper clipper;
-            clipper.Begin(items.Size);
+            clipper.Begin(items.GetSize);
             while (clipper.Step())
                 for (int row_n = clipper.DisplayStart; row_n < clipper.DisplayEnd; row_n++)
                 {
@@ -5813,7 +5813,7 @@ static void ShowDemoWindowTables()
         static ImVector<MyItem> items;
         static ImVector<int> selection;
         static bool items_need_sort = false;
-        if (items.Size != items_count)
+        if (items.GetSize != items_count)
         {
             items.resize(items_count, MyItem());
             for (int n = 0; n < items_count; n++)
@@ -5827,7 +5827,7 @@ static void ShowDemoWindowTables()
         }
 
         const ImDrawList* parent_draw_list = ImGui::GetWindowDrawList();
-        const int parent_draw_list_draw_cmd_count = parent_draw_list->CmdBuffer.Size;
+        const int parent_draw_list_draw_cmd_count = parent_draw_list->CmdBuffer.GetSize;
         ImVec2 table_scroll_cur, table_scroll_max; // For debug display
         const ImDrawList* table_draw_list = NULL;  // "
 
@@ -5850,9 +5850,9 @@ static void ShowDemoWindowTables()
             ImGuiTableSortSpecs* sort_specs = ImGui::TableGetSortSpecs();
             if (sort_specs && sort_specs->SpecsDirty)
                 items_need_sort = true;
-            if (sort_specs && items_need_sort && items.Size > 1)
+            if (sort_specs && items_need_sort && items.GetSize > 1)
             {
-                MyItem::SortWithSortSpecs(sort_specs, items.Data, items.Size);
+                MyItem::SortWithSortSpecs(sort_specs, items.Data, items.GetSize);
                 sort_specs->SpecsDirty = false;
             }
             items_need_sort = false;
@@ -5873,14 +5873,14 @@ static void ShowDemoWindowTables()
 #if 1
             // Demonstrate using clipper for large vertical lists
             ImGuiListClipper clipper;
-            clipper.Begin(items.Size);
+            clipper.Begin(items.GetSize);
             while (clipper.Step())
             {
                 for (int row_n = clipper.DisplayStart; row_n < clipper.DisplayEnd; row_n++)
 #else
             // Without clipper
             {
-                for (int row_n = 0; row_n < items.Size; row_n++)
+                for (int row_n = 0; row_n < items.ComputeSize; row_n++)
 #endif
                 {
                     MyItem* item = &items[row_n];
@@ -5967,7 +5967,7 @@ static void ShowDemoWindowTables()
         if (show_debug_details && table_draw_list)
         {
             ImGui::SameLine(0.0f, 0.0f);
-            const int table_draw_list_draw_cmd_count = table_draw_list->CmdBuffer.Size;
+            const int table_draw_list_draw_cmd_count = table_draw_list->CmdBuffer.GetSize;
             if (table_draw_list == parent_draw_list)
                 ImGui::Text(": DrawCmd: +%d (in same window)",
                     table_draw_list_draw_cmd_count - parent_draw_list_draw_cmd_count);
@@ -6232,7 +6232,7 @@ static void ShowDemoWindowInputs()
 #endif
             ImGui::Text("Keys down:");         for (ImGuiKey key = start_key; key < ImGuiKey_NamedKey_END; key = (ImGuiKey)(key + 1)) { if (funcs::IsLegacyNativeDupe(key) || !ImGui::IsKeyDown(key)) continue; ImGui::SameLine(); ImGui::Text((key < ImGuiKey_NamedKey_BEGIN) ? "\"%s\"" : "\"%s\" %d", ImGui::GetKeyName(key), key); }
             ImGui::Text("Keys mods: %s%s%s%s", io.KeyCtrl ? "CTRL " : "", io.KeyShift ? "SHIFT " : "", io.KeyAlt ? "ALT " : "", io.KeySuper ? "SUPER " : "");
-            ImGui::Text("Chars queue:");       for (int i = 0; i < io.InputQueueCharacters.Size; i++) { ImWchar c = io.InputQueueCharacters[i]; ImGui::SameLine();  ImGui::Text("\'%c\' (0x%04X)", (c > ' ' && c <= 255) ? (char)c : '?', c); } // FIXME: We should convert 'c' to UTF-8 here but the functions are not public.
+            ImGui::Text("Chars queue:");       for (int i = 0; i < io.InputQueueCharacters.GetSize; i++) { ImWchar c = io.InputQueueCharacters[i]; ImGui::SameLine();  ImGui::Text("\'%c\' (0x%04X)", (c > ' ' && c <= 255) ? (char)c : '?', c); } // FIXME: We should convert 'c' to UTF-8 here but the functions are not public.
 
             ImGui::TreePop();
         }
@@ -6625,7 +6625,7 @@ void ImGui::ShowAboutWindow(bool* p_open)
         if (io.BackendFlags & ImGuiBackendFlags_HasSetMousePos)         ImGui::Text(" HasSetMousePos");
         if (io.BackendFlags & ImGuiBackendFlags_RendererHasVtxOffset)   ImGui::Text(" RendererHasVtxOffset");
         ImGui::Separator();
-        ImGui::Text("io.Fonts: %d fonts, Flags: 0x%08X, TexSize: %d,%d", io.Fonts->Fonts.Size, io.Fonts->Flags, io.Fonts->TexWidth, io.Fonts->TexHeight);
+        ImGui::Text("io.Fonts: %d fonts, Flags: 0x%08X, TexSize: %d,%d", io.Fonts->Fonts.GetSize, io.Fonts->Flags, io.Fonts->TexWidth, io.Fonts->TexHeight);
         ImGui::Text("io.DisplaySize: %.2f,%.2f", io.DisplaySize.x, io.DisplaySize.y);
         ImGui::Text("io.DisplayFramebufferScale: %.2f,%.2f", io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
         ImGui::Separator();
@@ -7172,7 +7172,7 @@ struct ExampleAppConsole
     ~ExampleAppConsole()
     {
         ClearLog();
-        for (int i = 0; i < History.Size; i++)
+        for (int i = 0; i < History.GetSize; i++)
             ImGui::MemFree(History[i]);
     }
 
@@ -7184,7 +7184,7 @@ struct ExampleAppConsole
 
     void    ClearLog()
     {
-        for (int i = 0; i < Items.Size; i++)
+        for (int i = 0; i < Items.GetSize; i++)
             ImGui::MemFree(Items[i]);
         Items.clear();
     }
@@ -7227,7 +7227,7 @@ struct ExampleAppConsole
 
         // TODO: display items starting from the bottom
 
-        if (ImGui::SmallButton("Add Debug Text"))  { AddLog("%d some text", Items.Size); AddLog("some more text"); AddLog("display very important message here!"); }
+        if (ImGui::SmallButton("Add Debug Text"))  { AddLog("%d some text", Items.GetSize); AddLog("some more text"); AddLog("display very important message here!"); }
         ImGui::SameLine();
         if (ImGui::SmallButton("Add Debug Error")) { AddLog("[error] something went wrong"); }
         ImGui::SameLine();
@@ -7349,7 +7349,7 @@ struct ExampleAppConsole
         // Insert into history. First find match and delete it so it can be pushed to the back.
         // This isn't trying to be smart or optimal.
         HistoryPos = -1;
-        for (int i = History.Size - 1; i >= 0; i--)
+        for (int i = History.GetSize - 1; i >= 0; i--)
             if (Stricmp(History[i], command_line) == 0)
             {
                 ImGui::MemFree(History[i]);
@@ -7366,13 +7366,13 @@ struct ExampleAppConsole
         else if (Stricmp(command_line, "HELP") == 0)
         {
             AddLog("Commands:");
-            for (int i = 0; i < Commands.Size; i++)
+            for (int i = 0; i < Commands.GetSize; i++)
                 AddLog("- %s", Commands[i]);
         }
         else if (Stricmp(command_line, "HISTORY") == 0)
         {
-            int first = History.Size - 10;
-            for (int i = first > 0 ? first : 0; i < History.Size; i++)
+            int first = History.GetSize - 10;
+            for (int i = first > 0 ? first : 0; i < History.GetSize; i++)
                 AddLog("%3d: %s\n", i, History[i]);
         }
         else
@@ -7413,16 +7413,16 @@ struct ExampleAppConsole
 
                 // Build a list of candidates
                 ImVector<const char*> candidates;
-                for (int i = 0; i < Commands.Size; i++)
+                for (int i = 0; i < Commands.GetSize; i++)
                     if (Strnicmp(Commands[i], word_start, (int)(word_end - word_start)) == 0)
                         candidates.push_back(Commands[i]);
 
-                if (candidates.Size == 0)
+                if (candidates.GetSize == 0)
                 {
                     // No match
                     AddLog("No match for \"%.*s\"!\n", (int)(word_end - word_start), word_start);
                 }
-                else if (candidates.Size == 1)
+                else if (candidates.GetSize == 1)
                 {
                     // Single match. Delete the beginning of the word and replace it entirely so we've got nice casing.
                     data->DeleteChars((int)(word_start - data->Buf), (int)(word_end - word_start));
@@ -7438,7 +7438,7 @@ struct ExampleAppConsole
                     {
                         int c = 0;
                         bool all_candidates_matches = true;
-                        for (int i = 0; i < candidates.Size && all_candidates_matches; i++)
+                        for (int i = 0; i < candidates.GetSize && all_candidates_matches; i++)
                             if (i == 0)
                                 c = toupper(candidates[i][match_len]);
                             else if (c == 0 || c != toupper(candidates[i][match_len]))
@@ -7456,7 +7456,7 @@ struct ExampleAppConsole
 
                     // List matches
                     AddLog("Possible matches:\n");
-                    for (int i = 0; i < candidates.Size; i++)
+                    for (int i = 0; i < candidates.GetSize; i++)
                         AddLog("- %s\n", candidates[i]);
                 }
 
@@ -7469,14 +7469,14 @@ struct ExampleAppConsole
                 if (data->EventKey == ImGuiKey_UpArrow)
                 {
                     if (HistoryPos == -1)
-                        HistoryPos = History.Size - 1;
+                        HistoryPos = History.GetSize - 1;
                     else if (HistoryPos > 0)
                         HistoryPos--;
                 }
                 else if (data->EventKey == ImGuiKey_DownArrow)
                 {
                     if (HistoryPos != -1)
-                        if (++HistoryPos >= History.Size)
+                        if (++HistoryPos >= History.GetSize)
                             HistoryPos = -1;
                 }
 
@@ -7582,10 +7582,10 @@ struct ExampleAppLog
                 // This is because we don't have random access to the result of our filter.
                 // A real application processing logs with ten of thousands of entries may want to store the result of
                 // search/filter.. especially if the filtering function is not trivial (e.g. reg-exp).
-                for (int line_no = 0; line_no < LineOffsets.Size; line_no++)
+                for (int line_no = 0; line_no < LineOffsets.GetSize; line_no++)
                 {
                     const char* line_start = buf + LineOffsets[line_no];
-                    const char* line_end = (line_no + 1 < LineOffsets.Size) ? (buf + LineOffsets[line_no + 1] - 1) : buf_end;
+                    const char* line_end = (line_no + 1 < LineOffsets.GetSize) ? (buf + LineOffsets[line_no + 1] - 1) : buf_end;
                     if (Filter.PassFilter(line_start, line_end))
                         ImGui::TextUnformatted(line_start, line_end);
                 }
@@ -7606,13 +7606,13 @@ struct ExampleAppLog
                 // anymore, which is why we don't use the clipper. Storing or skimming through the search result would make
                 // it possible (and would be recommended if you want to search through tens of thousands of entries).
                 ImGuiListClipper clipper;
-                clipper.Begin(LineOffsets.Size);
+                clipper.Begin(LineOffsets.GetSize);
                 while (clipper.Step())
                 {
                     for (int line_no = clipper.DisplayStart; line_no < clipper.DisplayEnd; line_no++)
                     {
                         const char* line_start = buf + LineOffsets[line_no];
-                        const char* line_end = (line_no + 1 < LineOffsets.Size) ? (buf + LineOffsets[line_no + 1] - 1) : buf_end;
+                        const char* line_end = (line_no + 1 < LineOffsets.GetSize) ? (buf + LineOffsets[line_no + 1] - 1) : buf_end;
                         ImGui::TextUnformatted(line_start, line_end);
                     }
                 }
@@ -8070,7 +8070,7 @@ static void ShowExampleAppFullscreen(bool* p_open)
     // Based on your use case you may want one or the other.
     const ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(use_work_area ? viewport->WorkPos : viewport->Pos);
-    ImGui::SetNextWindowSize(use_work_area ? viewport->WorkSize : viewport->Size);
+    ImGui::SetNextWindowSize(use_work_area ? viewport->WorkSize : viewport->GetSize);
 
     if (ImGui::Begin("Example: Fullscreen window", p_open, flags))
     {
@@ -8194,7 +8194,7 @@ static void ShowExampleAppCustomRendering(bool* p_open)
             static bool curve_segments_override = false;
             static int curve_segments_override_v = 8;
             static ImVec4 colf = ImVec4(1.0f, 1.0f, 0.4f, 1.0f);
-            ImGui::DragFloat("Size", &sz, 0.2f, 2.0f, 100.0f, "%.0f");
+            ImGui::DragFloat("GetSize", &sz, 0.2f, 2.0f, 100.0f, "%.0f");
             ImGui::DragFloat("Thickness", &thickness, 0.05f, 1.0f, 8.0f, "%.02f");
             ImGui::SliderInt("N-gon sides", &ngon_sides, 3, 12);
             ImGui::Checkbox("##circlesegmentoverride", &circle_segments_override);
@@ -8359,8 +8359,8 @@ static void ShowExampleAppCustomRendering(bool* p_open)
                 if (adding_line)
                     points.resize(points.size() - 2);
                 adding_line = false;
-                if (ImGui::MenuItem("Remove one", NULL, false, points.Size > 0)) { points.resize(points.size() - 2); }
-                if (ImGui::MenuItem("Remove all", NULL, false, points.Size > 0)) { points.clear(); }
+                if (ImGui::MenuItem("Remove one", NULL, false, points.GetSize > 0)) { points.resize(points.size() - 2); }
+                if (ImGui::MenuItem("Remove all", NULL, false, points.GetSize > 0)) { points.clear(); }
                 ImGui::EndPopup();
             }
 
@@ -8374,7 +8374,7 @@ static void ShowExampleAppCustomRendering(bool* p_open)
                 for (float y = fmodf(scrolling.y, GRID_STEP); y < canvas_sz.y; y += GRID_STEP)
                     draw_list->AddLine(ImVec2(canvas_p0.x, canvas_p0.y + y), ImVec2(canvas_p1.x, canvas_p0.y + y), IM_COL32(200, 200, 200, 40));
             }
-            for (int n = 0; n < points.Size; n += 2)
+            for (int n = 0; n < points.GetSize; n += 2)
                 draw_list->AddLine(ImVec2(origin.x + points[n].x, origin.y + points[n].y), ImVec2(origin.x + points[n + 1].x, origin.y + points[n + 1].y), IM_COL32(255, 255, 0, 255), 2.0f);
             draw_list->PopClipRect();
 
@@ -8586,7 +8586,7 @@ void ShowExampleAppDocuments(bool* p_open)
             for (MyDocument& doc : app.Documents)
                 open_count += doc.Open ? 1 : 0;
 
-            if (ImGui::BeginMenu("Open", open_count < app.Documents.Size))
+            if (ImGui::BeginMenu("Open", open_count < app.Documents.GetSize))
             {
                 for (MyDocument& doc : app.Documents)
                     if (!doc.Open && ImGui::MenuItem(doc.Name))
@@ -8604,7 +8604,7 @@ void ShowExampleAppDocuments(bool* p_open)
     }
 
     // [Debug] List documents with one checkbox for each
-    for (int doc_n = 0; doc_n < app.Documents.Size; doc_n++)
+    for (int doc_n = 0; doc_n < app.Documents.GetSize; doc_n++)
     {
         MyDocument& doc = app.Documents[doc_n];
         if (doc_n > 0)
@@ -8700,14 +8700,14 @@ void ShowExampleAppDocuments(bool* p_open)
     if (!app.CloseQueue.empty())
     {
         int close_queue_unsaved_documents = 0;
-        for (int n = 0; n < app.CloseQueue.Size; n++)
+        for (int n = 0; n < app.CloseQueue.GetSize; n++)
             if (app.CloseQueue[n]->Dirty)
                 close_queue_unsaved_documents++;
 
         if (close_queue_unsaved_documents == 0)
         {
             // Close documents when all are unsaved
-            for (int n = 0; n < app.CloseQueue.Size; n++)
+            for (int n = 0; n < app.CloseQueue.GetSize; n++)
                 app.CloseQueue[n]->DoForceClose();
             app.CloseQueue.clear();
         }

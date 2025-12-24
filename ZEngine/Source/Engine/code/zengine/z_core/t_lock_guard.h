@@ -29,24 +29,19 @@ namespace zengine {
     Locks the mutex when constructed and release when destructed.
 */
 template<typename _MutexType>
-class TLockGuard : public ZObject {
+class TLockGuard {
 public:
     FORCEINLINE TLockGuard(const _MutexType& _mutex) noexcept 
-        : SuperType_()
-        , mutex_ptr_(const_cast<_MutexType*>(&_mutex))
+        : mutex_ptr_(const_cast<_MutexType*>(&_mutex))
     { 
         mutex_ptr_->Lock(); 
     }
     FORCEINLINE TLockGuard(TLockGuard&& _lock_guard) noexcept 
-        : SuperType_()
-        , mutex_ptr_(_lock_guard.mutex_ptr_)
+        : mutex_ptr_(_lock_guard.mutex_ptr_)
     { 
         _lock_guard.mutex_ptr_ = nullptr;
     }
     FORCEINLINE ~TLockGuard() noexcept { mutex_ptr_->Unlock(); }
-
-protected:
-    using SuperType_ = ZObject;
 
 private:
     TLockGuard() = delete;

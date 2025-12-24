@@ -29,63 +29,63 @@ namespace internal{
 namespace log {
 
 static Void LuaLogError(const Char* _str) noexcept {
-    Z_LOG_ERROR(error_code::kFLuaErrorCode_LuaLogError, 0, string::StringToWString(_str).DataPtr());
+    Z_LOG_ERROR(error_code::kFLuaErrorCode_LuaLogError, 0, string::StringToWString(_str).GetDataPtr());
 }
 
 static Void LuaLogTrace(const Char* _str) noexcept {
-    Z_LOG_TRACE(string::StringToWString(_str).DataPtr());
+    Z_LOG_TRACE(string::StringToWString(_str).GetDataPtr());
 }
 
 static Void LuaLogMessage(const Char* _str) noexcept {
-    Z_LOG_MESSAGE(string::StringToWString(_str).DataPtr());
+    Z_LOG_MESSAGE(string::StringToWString(_str).GetDataPtr());
 }
 
 static Void LuaLogStart(const Char* _str) noexcept {
-    Z_LOG_START(string::StringToWString(_str).DataPtr());
+    Z_LOG_START(string::StringToWString(_str).GetDataPtr());
 }
 
 static Void LuaLogProcess(const Char* _str) noexcept {
-    Z_LOG_PROCESS(string::StringToWString(_str).DataPtr());
+    Z_LOG_PROCESS(string::StringToWString(_str).GetDataPtr());
 }
 
 static Void LuaLogFinish(const Char* _str) noexcept {
-    Z_LOG_FINISH(string::StringToWString(_str).DataPtr());
+    Z_LOG_FINISH(string::StringToWString(_str).GetDataPtr());
 }
 
 static Void LuaLogSuccess(const Char* _str) noexcept {
-    Z_LOG_SUCCESS(string::StringToWString(_str).DataPtr());
+    Z_LOG_SUCCESS(string::StringToWString(_str).GetDataPtr());
 }
 
 static Void LuaLogFailure(const Char* _str) noexcept {
-    Z_LOG_FAILURE(string::StringToWString(_str).DataPtr());
+    Z_LOG_FAILURE(string::StringToWString(_str).GetDataPtr());
 }
 
 static Void LuaLogDebugTrace(const Char* _str) noexcept {
-    Z_DEBUG_LOG_TRACE(string::StringToWString(_str).DataPtr());
+    Z_DEBUG_LOG_TRACE(string::StringToWString(_str).GetDataPtr());
 }
 
 static Void LuaLogDebugMessage(const Char* _str) noexcept {
-    Z_DEBUG_LOG_MESSAGE(string::StringToWString(_str).DataPtr());
+    Z_DEBUG_LOG_MESSAGE(string::StringToWString(_str).GetDataPtr());
 }
 
 static Void LuaLogDebugStart(const Char* _str) noexcept {
-    Z_DEBUG_LOG_START(string::StringToWString(_str).DataPtr());
+    Z_DEBUG_LOG_START(string::StringToWString(_str).GetDataPtr());
 }
 
 static Void LuaLogDebugProcess(const Char* _str) noexcept {
-    Z_DEBUG_LOG_PROCESS(string::StringToWString(_str).DataPtr());
+    Z_DEBUG_LOG_PROCESS(string::StringToWString(_str).GetDataPtr());
 }
 
 static Void LuaLogDebugFinish(const Char* _str) noexcept {
-    Z_DEBUG_LOG_FINISH(string::StringToWString(_str).DataPtr());
+    Z_DEBUG_LOG_FINISH(string::StringToWString(_str).GetDataPtr());
 }
 
 static Void LuaLogDebugSuccess(const Char* _str) noexcept {
-    Z_DEBUG_LOG_SUCCESS(string::StringToWString(_str).DataPtr());
+    Z_DEBUG_LOG_SUCCESS(string::StringToWString(_str).GetDataPtr());
 }
 
 static Void LuaLogDebugFailure(const Char* _str) noexcept {
-    Z_DEBUG_LOG_FAILURE(string::StringToWString(_str).DataPtr());
+    Z_DEBUG_LOG_FAILURE(string::StringToWString(_str).GetDataPtr());
 }
 
 }
@@ -149,7 +149,7 @@ LUA_DLLAPI NODISCARD ReturnType RunLuaScript(const Char* _script) noexcept {
         Z_LOG_ERROR(
             ret_val, 0, 
             "Lua().unsafe_script() link error! Error info: %ls", 
-            string::StringToWString(e.what()).DataPtr());
+            string::StringToWString(e.what()).GetDataPtr());
     }
     return ret_val;
 }
@@ -164,7 +164,7 @@ LUA_DLLAPI NODISCARD ReturnType RunLuaScript(LuaResult* _result_ptr, const Char*
         Z_LOG_ERROR(
             ret_val, 0, 
             "Lua().unsafe_script() link error! Error info: %ls", 
-            string::StringToWString(e.what()).DataPtr());
+            string::StringToWString(e.what()).GetDataPtr());
     }
     return ret_val;
 }
@@ -178,7 +178,7 @@ LUA_DLLAPI NODISCARD ReturnType RunLuaScriptSafe(const Char* _script) noexcept {
         Z_LOG_ERROR(
             ret_val, 0, 
             "Lua().safe_script() link error! Error info: %ls", 
-            string::StringToWString(e.what()).DataPtr());
+            string::StringToWString(e.what()).GetDataPtr());
     }
     return ret_val;
 }
@@ -192,7 +192,7 @@ LUA_DLLAPI NODISCARD ReturnType RunLuaScriptSafe(LuaResult* _result_ptr, const C
         Z_LOG_ERROR(
             ret_val, 0,
             "Lua().safe_script() link error! Error info: %ls",
-            string::StringToWString(e.what()).DataPtr());
+            string::StringToWString(e.what()).GetDataPtr());
     }
     return ret_val;
 }
@@ -207,7 +207,7 @@ LUA_DLLAPI NODISCARD ReturnType RunLuaFile(const Char* _path_dir) noexcept {
         Z_LOG_ERROR(
             ret_val, 0, 
             "Lua().unsafe_script_file() link error! Error info: %ls", 
-            string::StringToWString(e.what()).DataPtr());
+            string::StringToWString(e.what()).GetDataPtr());
     }
     return ret_val;
 }
@@ -222,7 +222,7 @@ LUA_DLLAPI NODISCARD ReturnType RunLuaFile(LuaResult* _result_ptr, const Char* _
         Z_LOG_ERROR(
             ret_val, 0,
             "Lua().unsafe_script_file() link error! Error info: %ls",
-            string::StringToWString(e.what()).DataPtr());
+            string::StringToWString(e.what()).GetDataPtr());
     }
     return ret_val;
 }
@@ -236,7 +236,7 @@ LUA_DLLAPI NODISCARD ReturnType RunLuaFileSafe(const Char* _path_dir) noexcept {
         Z_LOG_ERROR(
             ret_val, 0,
             "Lua().safe_script_file() link error! Error info: %ls",
-            string::StringToWString(e.what()).DataPtr());
+            string::StringToWString(e.what()).GetDataPtr());
     }
     return ret_val;
 }
@@ -250,7 +250,7 @@ LUA_DLLAPI NODISCARD ReturnType RunLuaFileSafe(LuaSafeResult* _result_ptr, const
         Z_LOG_ERROR(
             ret_val, 0,
             "Lua().safe_script_file() link error! Error info: %ls",
-            string::StringToWString(e.what()).DataPtr());
+            string::StringToWString(e.what()).GetDataPtr());
     }
     return ret_val;
 }
@@ -267,7 +267,7 @@ LUA_DLLAPI NODISCARD ReturnType LoadLuaFile(const Char* _path_dir) noexcept {
         Z_LOG_ERROR(
             ret_val, 0,
             "Lua().load_file() link error! Error info: %ls",
-            string::StringToWString(e.what()).DataPtr());
+            string::StringToWString(e.what()).GetDataPtr());
     }
     return ret_val;
 }

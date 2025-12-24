@@ -90,7 +90,7 @@ public:
 
     NODISCARD virtual Float32 Width() const noexcept;
     NODISCARD virtual Float32 Height() const noexcept;
-    NODISCARD virtual GuiSize Size() const noexcept;
+    NODISCARD virtual GuiSize GetSize() const noexcept;
     NODISCARD virtual Float32 PosX() const noexcept;
     NODISCARD virtual Float32 PosY() const noexcept;
     NODISCARD virtual GuiPos Pos() const noexcept;

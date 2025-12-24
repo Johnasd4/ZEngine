@@ -37,7 +37,7 @@ concept kIsFixedDequeInitFunction = requires(_FixedDequeType * _deque, _Function
     Fixed deque container, front points at the first object, back points at the last object.
 */
 template<typename _ObjectType, SizeType kCapacity>
-class TFixedDeque : public ZObject {
+class TFixedDeque : public ZObject<> {
 public:
     using STDArray = std::array<_ObjectType, kCapacity>;
     using InitializerList = std::initializer_list<_ObjectType>;
@@ -128,12 +128,12 @@ public:
     NODISCARD FORCEINLINE constexpr const _ObjectType& Front() const noexcept { return deque_[front_index_]; }
     NODISCARD FORCEINLINE constexpr _ObjectType& Back() noexcept { return deque_[back_index_]; }
     NODISCARD FORCEINLINE constexpr const _ObjectType& Back() const noexcept { return deque_[back_index_]; }
-    NODISCARD FORCEINLINE constexpr _ObjectType* DataPtr() noexcept { return deque_.data(); }
-    NODISCARD FORCEINLINE constexpr const _ObjectType* DataPtr() const noexcept { return deque_.data(); }
+    NODISCARD FORCEINLINE constexpr _ObjectType* GetDataPtr() noexcept { return deque_.data(); }
+    NODISCARD FORCEINLINE constexpr const _ObjectType* GetDataPtr() const noexcept { return deque_.data(); }
 
-    NODISCARD FORCEINLINE static constexpr SizeType Capacity() noexcept { return kCapacity; }
-    NODISCARD FORCEINLINE constexpr SizeType Size() noexcept { return size_; }
-    NODISCARD FORCEINLINE constexpr Bool Empty() noexcept { return size_ == 0ULL; }
+    NODISCARD FORCEINLINE static constexpr SizeType GetCapacity() noexcept { return kCapacity; }
+    NODISCARD FORCEINLINE constexpr SizeType GetSize() noexcept { return size_; }
+    NODISCARD FORCEINLINE constexpr Bool IsEmpty() noexcept { return size_ == 0ULL; }
 
     constexpr Void PopFront() noexcept { 
         --size_;

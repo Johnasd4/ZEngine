@@ -25,7 +25,7 @@
 namespace zengine {
 namespace gui {
 
-inline constexpr Char kImguiINIFileDir[] = ".\\Config\\imgui_default_settings.ini";
+inline constexpr Char kImguiINIFileDir[] = "./Config/imgui_default_settings.ini";
 
 }//gui
 }//zengine

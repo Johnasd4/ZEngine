@@ -134,8 +134,8 @@ Void ZButton::Tick(Float32 _delta_sec) noexcept {
         );
     }
 
-    GuiSize size = Size();
-    if (SizeSet() ? ImGui::Button(Name().DataPtr(), ImVec2(size.width_, size.height_)) : ImGui::Button(Name().DataPtr())) {
+    GuiSize size = GetSize();
+    if (SizeSet() ? ImGui::Button(Name().GetDataPtr(), ImVec2(size.width_, size.height_)) : ImGui::Button(Name().GetDataPtr())) {
         if (Enabled()) {
             OnButtonClicked();
         }

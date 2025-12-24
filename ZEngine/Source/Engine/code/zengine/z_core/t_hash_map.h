@@ -32,7 +32,7 @@ namespace zengine {
     Unoerdered map, hash container.
 */
 template<typename _KeyType, typename _ValueType>
-class THashMap : public ZObject {
+class THashMap : public ZObject<> {
 public:
     using ObjectType_ = std::pair<const _KeyType, _ValueType>;
     using STDHashMap_ = std::unordered_map<
@@ -82,13 +82,13 @@ public:
     NODISCARD FORCEINLINE _ValueType& At(const _KeyType& _key) noexcept { return map_.at(_key); }
     NODISCARD FORCEINLINE const _ValueType& At(const _KeyType& _key) const noexcept { return map_.at(_key); }
 
-    NODISCARD FORCEINLINE SizeType Size() const noexcept { return static_cast<SizeType>(map_.size()); }
-    NODISCARD FORCEINLINE SizeType Capacity() const noexcept { return map_.bucket_count(); }
+    NODISCARD FORCEINLINE SizeType GetSize() const noexcept { return static_cast<SizeType>(map_.size()); }
+    NODISCARD FORCEINLINE SizeType GetCapacity() const noexcept { return map_.bucket_count(); }
     NODISCARD FORCEINLINE Float32 LoadFactor() const noexcept { return map_.load_factor(); }
     NODISCARD FORCEINLINE Float32 MaxLoadFactor() const noexcept { return map_.max_load_factor(); }
     NODISCARD FORCEINLINE Void SetMaxLoadFactor(Float32 _factor) noexcept { map_.max_load_factor(_factor); }
 
-    NODISCARD FORCEINLINE Bool Empty() const noexcept { return map_.empty(); }
+    NODISCARD FORCEINLINE Bool IsEmpty() const noexcept { return map_.empty(); }
 
     NODISCARD FORCEINLINE Iterator_ Begin() noexcept { return map_.begin(); }
     NODISCARD FORCEINLINE ConstIterator_ Begin() const noexcept { return map_.begin(); }

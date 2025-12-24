@@ -38,71 +38,120 @@ namespace zengine {
 namespace console {
 namespace internal {
 
-/**
- * @brief Print manager class.
- *
- * Handles thread-safe print operations to the console.
- */
-class ZPrintManager : public ZObject {
+/** @brief Print manager class. */
+/** @brief Handles thread-safe print operations to the console. */
+class CACHE_LINE_ALIGN ZPrintManager {
 public:
-    /**
-     * @brief Prints a string view to the standard output.
-     *
-     * This method is thread-safe.
-     *
-     * @param _str_view The string view content to print.
-     */
-    static Void Print(ZStringView _str_view) noexcept {
-        static ZPrintManager& print_manager = ZPrintManager::InstanceP();
-        TLockGuard lock_guard(print_manager.print_mutex_);
-        std::fwrite(_str_view.DataPtr(), sizeof(Char), _str_view.Size(), stdout);
-    }
-
-    /**
-     * @brief Prints a string view to the standard output.
-     *
-     * This method is thread-safe.
-     *
-     * @param _str_view The string view content to print.
-     */
-    static Void Print(ZWStringView _str_view) noexcept {
-        static ZPrintManager& print_manager = ZPrintManager::InstanceP();
-        TLockGuard lock_guard(print_manager.print_mutex_);
-        std::fwrite(_str_view.DataPtr(), sizeof(WChar), _str_view.Size(), stdout);
-    }
-
-protected:
-    /** Type alias for the base class. */
-    using SuperType_ = ZObject;
-
-private:
-    /**
-     * @brief Retrieves the singleton instance of the print manager.
-     *
-     * @return Reference to the singleton instance.
-     */
+    /** @brief Retrieves the singleton instance of the print manager. */
+    /** @return Reference to the singleton instance. */
     NODISCARD static ZPrintManager& InstanceP() {
         static ZPrintManager instance;
         return instance;
     }
 
-    /**
-     * @brief Default constructor.
-     *
-     * Initializes the console settings. On Windows, it enables ANSI escape codes
-     * and sets the console output code page to UTF-8.
-     */
-    ZPrintManager() : SuperType_() {
+    /** @brief Prints formatted output string in a thread-safe manner. */
+    /** @param _format The format string view. */
+    /** @param _args The format arguments. */
+    FORCEINLINE Void Print(
+        ZStringView _format, 
+        fmt::format_args _args
+    ) noexcept {
+        TLockGuard lock_guard(mutex_);
+        PrintP(
+            _format,
+            _args
+        );
+    }
+
+    /** @brief Prints formatted output string with specific style and colors in a thread-safe manner. */
+    /** @param _front_colour The foreground color. */
+    /** @param _back_colour The background color. */
+    /** @param _text_style The text style. */
+    /** @param _format The format string view. */
+    /** @param _args The format arguments. */
+    FORCEINLINE Void Print(
+        Colour _front_colour,
+        Colour _back_colour,
+        Int32 _text_style,
+        ZStringView _format, 
+        fmt::format_args _args
+    ) noexcept {
+        TLockGuard lock_guard(mutex_);
+        PrintP(
+            _front_colour,
+            _back_colour,
+            _text_style,
+            _format,
+            _args
+        );
+    }
+
+    /** @brief Prints formatted output string and flushes the buffer immediately in a thread-safe manner. */
+    /** @param _format The format string view. */
+    /** @param _args The format arguments. */
+    FORCEINLINE Void PrintImmediately(
+        ZStringView _format, 
+        fmt::format_args _args
+    ) noexcept {
+        TLockGuard lock_guard(mutex_);
+        PrintP(
+            _format,
+            _args
+        );
+        FlushP();
+    }
+
+    /** @brief Prints formatted output string with style and flushes immediately in a thread-safe manner. */
+    /** @param _front_colour The foreground color. */
+    /** @param _back_colour The background color. */
+    /** @param _text_style The text style. */
+    /** @param _format The format string view. */
+    /** @param _args The format arguments. */
+    FORCEINLINE Void PrintImmediately(
+        Colour _front_colour,
+        Colour _back_colour,
+        Int32 _text_style,
+        ZStringView _format,
+        fmt::format_args _args
+    ) noexcept {
+        TLockGuard lock_guard(mutex_);
+        PrintP(
+            _front_colour,
+            _back_colour,
+            _text_style,
+            _format,
+            _args
+        );
+        FlushP();
+    }
+
+    /** @brief Flushes the console output buffer in a thread-safe manner. */
+    FORCEINLINE Void Flush() noexcept {
+        TLockGuard lock_guard(mutex_);
+        FlushP();
+    }
+
+private:
+    /** @brief Deleted operator new to prevent heap allocation. */
+    static Void* operator new(SizeType) = delete;
+    /** @brief Deleted operator delete. */
+    static Void operator delete(Void*) = delete;
+
+    /** @brief Default constructor. */
+    /** @brief Initializes the console settings. On Windows, it enables ANSI escape codes and sets UTF-8 output. */
+    ZPrintManager() noexcept 
+        : mutex_()
+    {
 #ifdef _WIN32
         // Windows  open to supply ANSI
-        HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
-        if (hOut == INVALID_HANDLE_VALUE) return;
+        HANDLE output_handle = GetStdHandle(STD_OUTPUT_HANDLE);
+        if (output_handle == INVALID_HANDLE_VALUE) return;
 
-        DWORD dwMode = 0;
-        if (!GetConsoleMode(hOut, &dwMode)) return;
+        DWORD console_mode = 0;
+        if (!GetConsoleMode(output_handle, &console_mode)) return;
 
-        dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-        SetConsoleMode(hOut, dwMode);
+        console_mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+        SetConsoleMode(output_handle, console_mode);
 
         //set output as UTF-8
         SetConsoleOutputCP(CP_UTF8);
@@ -111,8 +160,69 @@ private:
 #endif   
     }
 
-    /** Mutex for synchronizing print operations. */
-    ZMutex print_mutex_;
+    /** @brief Destructor. */
+    ~ZPrintManager() noexcept {}
+
+    /** @brief Internal print implementation using fmt library. */
+    /** @param _format The format string view. */
+    /** @param _args The format arguments. */
+    FORCEINLINE Void PrintP(
+        ZStringView _format, 
+        fmt::format_args _args
+    ) noexcept {
+        try {
+            fmt::vprint(_format.STDStringView(), _args);
+        }
+        catch (const fmt::format_error&) {
+            Z_LOG_ERROR(
+                zengine::error_code::kFStringErrorCode_FormatError, 0,
+                "console::Print() format error! _format: {}",
+                _format
+            );
+        }
+    }
+
+    /** @brief Internal print implementation with style using fmt library. */
+    /** @param _front_colour The foreground color. */
+    /** @param _back_colour The background color. */
+    /** @param _text_style The text style. */
+    /** @param _format The format string view. */
+    /** @param _args The format arguments. */
+    FORCEINLINE Void PrintP(
+        Colour _front_colour,
+        Colour _back_colour,
+        Int32 _text_style,
+        ZStringView _format,
+        fmt::format_args _args
+    ) noexcept {
+        fmt::text_style text_style = static_cast<fmt::emphasis>(_text_style);
+        if (_front_colour != kNoChangeColour) {
+            text_style |= fmt::fg(fmt::rgb(_front_colour.red_, _front_colour.green_, _front_colour.blue_));
+        }
+        if (_back_colour != kNoChangeColour) {
+            text_style |= fmt::bg(fmt::rgb(_back_colour.red_, _back_colour.green_, _back_colour.blue_));
+        }
+
+        try {
+            fmt::vprint(stdout, text_style, _format.STDStringView(), _args);
+        }
+        catch (const fmt::format_error&) {
+            Z_LOG_ERROR(
+                zengine::error_code::kFStringErrorCode_FormatError, 0,
+                "console::Print() format error! _format: {}",
+                _format
+            );
+        }
+    }
+
+    /** @brief Internal flush implementation. */
+    FORCEINLINE Void FlushP() noexcept {
+        std::fflush(stdout);
+    }
+
+private:
+    /** @brief Mutex for ensuring thread safety. */
+    ZMutex mutex_;
 };
 
 }//internal
@@ -123,44 +233,56 @@ namespace zengine {
 namespace console {
 namespace internal {
 
-Void PrintP(ZStringView _format, fmt::format_args _args, SizeType _arg_num) noexcept {
-    try {
-        ZString str;
-        str.Reserve(_format.Size() + _arg_num * 16ULL);
-        fmt::vformat_to(
-            std::back_inserter(str.STDString()),
-            _format.STDStringView(),
-            _args
-        );
-        Print(str);
-    }
-    catch (const fmt::format_error&) {
-        Z_LOG_ERROR(
-            zengine::error_code::kFConsoleErrorCode_FormatError, 0,
-            "console::Print() format error! _format: %s",
-            _format.ToString().DataPtr()
-        );
-    }
+CORE_DLLAPI Void Print(
+    ZStringView _format, 
+    fmt::format_args _args
+) noexcept {
+    internal::ZPrintManager::InstanceP().Print(
+        _format, 
+        _args
+    );
 }
 
-Void PrintP(ZWStringView _format, fmt::wformat_args _args, SizeType _arg_num) noexcept {
-    try {
-        ZWString str;
-        str.Reserve(_format.Size() + _arg_num * 16ULL);
-        fmt::vformat_to(
-            std::back_inserter(str.STDString()),
-            _format.STDStringView(),
-            _args
-        );
-        Print(str);
-    }
-    catch (const fmt::format_error&) {
-        Z_LOG_ERROR(
-            zengine::error_code::kFConsoleErrorCode_FormatError, 0,
-            "console::Print() format error! _format: %s",
-            string::WStringToString(_format).DataPtr()
-        );
-    }
+CORE_DLLAPI Void Print(
+    Colour _front_colour,
+    Colour _back_colour,
+    Int32 _text_style,
+    ZStringView _format,
+    fmt::format_args _args
+) noexcept {
+    internal::ZPrintManager::InstanceP().Print(
+        _front_colour,
+        _back_colour,
+        _text_style,
+        _format,
+        _args
+    );
+}
+
+CORE_DLLAPI Void PrintImmediately(
+    ZStringView _format,
+    fmt::format_args _args
+) noexcept {
+    internal::ZPrintManager::InstanceP().PrintImmediately(
+        _format,
+        _args
+    );
+}
+
+CORE_DLLAPI Void PrintImmediately(
+    Colour _front_colour,
+    Colour _back_colour,
+    Int32 _text_style,
+    ZStringView _format,
+    fmt::format_args _args
+) noexcept {
+    internal::ZPrintManager::InstanceP().PrintImmediately(
+        _front_colour,
+        _back_colour,
+        _text_style,
+        _format,
+        _args
+    );
 }
 
 }//internal
@@ -170,12 +292,8 @@ Void PrintP(ZWStringView _format, fmt::wformat_args _args, SizeType _arg_num) no
 namespace zengine {
 namespace console {
 
-CORE_DLLAPI Void Print(ZStringView _str_view) noexcept {
-    internal::ZPrintManager::Print(_str_view);
-}
-
-CORE_DLLAPI Void Print(ZWStringView _str_view) noexcept {
-    internal::ZPrintManager::Print(_str_view);
+CORE_DLLAPI Void Flush() noexcept {
+    internal::ZPrintManager::InstanceP().Flush();
 }
 
 }//console

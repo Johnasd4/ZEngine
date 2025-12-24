@@ -89,10 +89,10 @@ Void ZText::Tick(Float32 _delta_sec) noexcept {
 
     ImGui::SetWindowFontScale(FontScale());
     if (if_wrap_) {
-        ImGui::TextWrapped(Name().DataPtr());
+        ImGui::TextWrapped(Name().GetDataPtr());
     }
     else {
-        ImGui::Text(Name().DataPtr());
+        ImGui::Text(Name().GetDataPtr());
     }
 
     ImVec2 temp_pos = ImGui::GetItemRectMin();

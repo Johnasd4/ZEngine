@@ -30,8 +30,8 @@
 #include "m_log/z_log/z_info_log.h"
 
 #include "f_console.h"
+#include "f_log_file.h"
 #include "m_log.h"
-#include "t_pool.h"
 #include "z_file.h"
 #include "z_system_time.h"
 
@@ -39,32 +39,14 @@ namespace zengine {
 namespace log {
 
 Void ZInfoLog::FileOutputLog(const ZLog* _log_ptr, ZStringView _output_str) noexcept {
-    static ZFile& file = std::invoke([]() ->ZFile& {
-        static ZFile file;
-        ReturnType link_code = kOK;
-        TFixedString<kMaxFileDirLength> file_dir;
-        const ZSystemTime& system_time = ZSystemTime::StartTimeInstance();
-        file_dir.AssignNoEnd(
-            "{}\\{:04}{:02}{:02}{:02}{:02}{:02}_Info.log", ZLog::CreateAndGetLogPath(),
-            system_time.Year(), system_time.Month(), system_time.Day(),
-            system_time.Hour(), system_time.Min(), system_time.Sec()
-        );
-        link_code = file.Open(file_dir.DataPtr(), ZFile::kOpenTypeAppend);
-        if (link_code != kOK) {
-            Z_LOG_ERROR(error_code::kMLogErrorCode_LinkError, link_code, "ZFile::OpenSafe() link error!");
-        }
-        return file;
-    });
+    thread_local ZFile& file = InfoLogFile();
     ReturnType link_code = kOK;
 
-    if (file.IfOpen()) {
+    if (file.IsOpen()) {
         link_code = file.Print("{}\n", _output_str);
         if (link_code != kOK) {
             Z_LOG_ERROR(error_code::kMLogErrorCode_LinkError, link_code, "ZFile::Print() link error!");
-            link_code = file.Close();
-            if (link_code != kOK) {
-                Z_LOG_ERROR(error_code::kMLogErrorCode_LinkError, link_code, "ZFile::Close() link error!");
-            }
+            file.Close();
             return;
         }
     }
@@ -72,24 +54,67 @@ Void ZInfoLog::FileOutputLog(const ZLog* _log_ptr, ZStringView _output_str) noex
 
 Void ZInfoLog::ConsoleOutputLog(const ZLog* _log_ptr, ZStringView _output_str) noexcept {
     ZInfoLog& info_log = *(ZInfoLog*)_log_ptr;
+    static constexpr Colour kMessageFrontColour = Colour(204, 204, 204, 255);
+    static constexpr Colour kStartFrontColour = Colour(255, 255, 0, 255);
+    static constexpr Colour kProcessFrontColour = Colour(255, 128, 0, 255);
+    static constexpr Colour kFinishFrontColour = Colour(0, 255, 0, 255);
+    static constexpr Colour kSuccessFrontColour = Colour(0, 204, 0, 255);
+    static constexpr Colour kFailureFrontColour = Colour(204, 0, 0, 255);
+    static constexpr Colour kBackColour = console::kNoChangeColour;
     switch (info_log.info_type_) {
     case InfoLogTypeEnum::kMessage:
-        console::Print("{}\n", _output_str);
+        console::Print(
+            kMessageFrontColour,
+            kBackColour,
+            console::kTextStyle_None,
+            "{}\n",
+            _output_str
+        );
         break;
     case InfoLogTypeEnum::kStart:
-        console::Print("{}\n", _output_str);
+        console::Print(
+            kStartFrontColour,
+            kBackColour,
+            console::kTextStyle_None,
+            "{}\n",
+            _output_str
+        );
         break;
     case InfoLogTypeEnum::kProcess:
-        console::Print("{}\n", _output_str);
+        console::Print(
+            kProcessFrontColour,
+            kBackColour,
+            console::kTextStyle_None,
+            "{}\n",
+            _output_str
+        );
         break;
     case InfoLogTypeEnum::kFinish:
-        console::Print("{}\n", _output_str);
+        console::Print(
+            kFinishFrontColour,
+            kBackColour,
+            console::kTextStyle_None,
+            "{}\n",
+            _output_str
+        );
         break;
     case InfoLogTypeEnum::kSuccess:
-        console::Print("{}\n", _output_str);
+        console::Print(
+            kSuccessFrontColour,
+            kBackColour,
+            console::kTextStyle_None,
+            "{}\n",
+            _output_str
+        );
         break;
     case InfoLogTypeEnum::kFailure:
-        console::Print("{}\n", _output_str);
+        console::Print(
+            kFailureFrontColour,
+            kBackColour,
+            console::kTextStyle_None,
+            "{}\n",
+            _output_str
+        );
         break;
     }
 }
@@ -101,19 +126,12 @@ ZInfoLog::ZInfoLog(TimeType _log_time, InfoLogTypeEnum _info_type) noexcept
 
 ZInfoLog::~ZInfoLog() noexcept {}
 
-static TPoolSafe<ZInfoLog, false>& LogPoolInstanceP() noexcept {
-    static TPoolSafe<ZInfoLog, false> error_log_pool;
-    return error_log_pool;
-}
-
 NODISCARD Void* ZInfoLog::operator new(SizeType _size) noexcept {
-    static TPoolSafe<ZInfoLog, false>& error_log_pool = LogPoolInstanceP();
-    return error_log_pool.Apply();
+    return memory_pool::ApplyInfoLogMemory();
 }
 
 NODISCARD Void ZInfoLog::operator delete(Void* _memory_ptr) noexcept {
-    static TPoolSafe<ZInfoLog, false>& error_log_pool = LogPoolInstanceP();
-    error_log_pool.Release(reinterpret_cast<ZInfoLog*>(_memory_ptr));
+    memory_pool::ReleaseInfoLogMemory(_memory_ptr);
 }
 
 NODISCARD ZLog::OutputFunctionArray_& ZInfoLog::OutputFunctionArrayInstance() noexcept {
@@ -121,20 +139,21 @@ NODISCARD ZLog::OutputFunctionArray_& ZInfoLog::OutputFunctionArrayInstance() no
     return output_func_array_ptr;
 }
 
-NODISCARD ZLog::OutputFunctionArray_& ZInfoLog::OutputFunctionArray() noexcept {
+NODISCARD ZLog::OutputFunctionArray_& ZInfoLog::OutputFunctionArrayP() noexcept {
     return OutputFunctionArrayInstance();
 }
 
-Void ZInfoLog::GenerateOutputString(OutputString_* _output_str_ptr) noexcept {
+Void ZInfoLog::GenerateOutputStringP(OutputString_* _output_str_ptr) noexcept {
     static ZSystemTime& system_time = ZSystemTime::Instance();
     system_time.UpdateTimeFast(LogTime());
   
     _output_str_ptr->size_ = _output_str_ptr->output_str_.AssignNoEnd(
-        "{:04d}/{:02d}/{:02d}-{:02d}:{:02d}:{:02d} | {} | {}",
+        "{:04d}/{:02d}/{:02d}-{:02d}:{:02d}:{:02d}-{:03d}.{:03d}.{:03d} | {} | {}",
         system_time.Year(), system_time.Month(), system_time.Day(),
         system_time.Hour(), system_time.Min(), system_time.Sec(),
+        system_time.Ms(), system_time.Us(), system_time.Ns(),
         kInfoLogType_String[static_cast<SizeType>(info_type_)], 
-        ZStringView(LogStringPtr()->log_str_ptr_->DataPtr(), LogStringPtr()->size_)
+        ZStringView(LogStringPtr()->log_str_ptr_->GetDataPtr(), LogStringPtr()->size_)
     );
 }
 

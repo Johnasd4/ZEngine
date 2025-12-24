@@ -26,24 +26,24 @@
 */
 #pragma once
 
-#pragma warning(disable: 4251)
-#pragma warning(disable: 4275)
+#pragma warning(disable: 4251)  //ignore dllexport warning.
+#pragma warning(disable: 4275)  //ignore dllexport warning.
 #pragma warning(disable: 6011)
 #pragma warning(disable: 26813)
 #pragma warning(disable : 26800)
 
-//Ignores the safety io function warning.
-#define _CRT_SECURE_NO_WARNINGS
-#define _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
-#define _CRT_NON_CONFORMING_SWPRINTFS
-
-//Removes the part that conflicts with Winsock.h and Winsock2.h.
-#define WIN32_LEAN_AND_MEAN
-
 #define NOMINMAX
 
+//#ifdef _WIN32
+////sets the _WIN32_WINNT and WINVER to Windows 10
+//#ifndef _WIN32_WINNT
+#define _WIN32_WINNT 0x0A00
+//#endif
+#define WINVER 0x0A00
+#define _STL_WIN32_WINNT 0x0A00
+//#endif
+
 #include <iostream>
-#include <windows.h>
 
 #include "d_macro.h"
 
@@ -51,23 +51,6 @@
 #ifdef CORE_DLLFILE
 #define CORE_DLLAPI DLLEXPORT
 #define PROJECT_NAME "ZCore"
-#ifdef _WIN64
-#ifdef _DEBUG
-#pragma comment(lib,"L_WhereAmI_x64_Debug.lib")
-#pragma comment(lib,"L_Simdutf_x64_Debug.lib")
-#else
-#pragma comment(lib,"L_WhereAmI_x64_Release.lib")
-#pragma comment(lib,"L_Simdutf_x64_Release.lib")
-#endif//_DEBUG
-#else
-#ifdef _DEBUG
-#pragma comment(lib,"L_WhereAmI_Win32_Debug.lib")
-#pragma comment(lib,"L_Simdutf_Win32_Debug.lib")
-#else
-#pragma comment(lib,"L_WhereAmI_Win32_Release.lib")
-#pragma comment(lib,"L_Simdutf_Win32_Release.lib")
-#endif//_DEBUG
-#endif//_WIN64
 #else
 #define CORE_DLLAPI DLLIMPORT
 #ifdef _WIN64

@@ -1471,7 +1471,7 @@ void ImGui::SeparatorEx(ImGuiSeparatorFlags flags, float thickness)
         if (columns)
         {
             x1 = window->Pos.x + window->DC.Indent.x; // Used to be Pos.x before 2023/10/03
-            x2 = window->Pos.x + window->Size.x;
+            x2 = window->Pos.x + window->GetSize.x;
             PushColumnsBackground();
         }
 
@@ -1899,9 +1899,9 @@ void ImGui::EndComboPreview()
     // FIXME: Using CursorMaxPos approximation instead of correct AABB which we will store in ImDrawCmd in the future
     ImDrawList* draw_list = window->DrawList;
     if (window->DC.CursorMaxPos.x < preview_data->PreviewRect.Max.x && window->DC.CursorMaxPos.y < preview_data->PreviewRect.Max.y)
-        if (draw_list->CmdBuffer.Size > 1) // Unlikely case that the PushClipRect() didn't create a command
+        if (draw_list->CmdBuffer.GetSize > 1) // Unlikely case that the PushClipRect() didn't create a command
         {
-            draw_list->_CmdHeader.ClipRect = draw_list->CmdBuffer[draw_list->CmdBuffer.Size - 1].ClipRect = draw_list->CmdBuffer[draw_list->CmdBuffer.Size - 2].ClipRect;
+            draw_list->_CmdHeader.ClipRect = draw_list->CmdBuffer[draw_list->CmdBuffer.GetSize - 1].ClipRect = draw_list->CmdBuffer[draw_list->CmdBuffer.GetSize - 2].ClipRect;
             draw_list->_TryMergeDrawCmds();
         }
     PopClipRect();
@@ -2149,7 +2149,7 @@ bool ImGui::DataTypeApplyFromText(const char* buf, ImGuiDataType data_type, void
     // Copy the value in an opaque buffer so we can compare at the end of the function if it changed at all.
     const ImGuiDataTypeInfo* type_info = DataTypeGetInfo(data_type);
     ImGuiDataTypeStorage data_backup;
-    memcpy(&data_backup, p_data, type_info->Size);
+    memcpy(&data_backup, p_data, type_info->GetSize);
 
     while (ImCharIsBlankA(*buf))
         buf++;
@@ -2157,8 +2157,8 @@ bool ImGui::DataTypeApplyFromText(const char* buf, ImGuiDataType data_type, void
     {
         if (p_data_when_empty != NULL)
         {
-            memcpy(p_data, p_data_when_empty, type_info->Size);
-            return memcmp(&data_backup, p_data, type_info->Size) != 0;
+            memcpy(p_data, p_data_when_empty, type_info->GetSize);
+            return memcmp(&data_backup, p_data, type_info->GetSize) != 0;
         }
         return false;
     }
@@ -2174,9 +2174,9 @@ bool ImGui::DataTypeApplyFromText(const char* buf, ImGuiDataType data_type, void
 
     // Small types need a 32-bit buffer to receive the result from scanf()
     int v32 = 0;
-    if (sscanf(buf, format, type_info->Size >= 4 ? p_data : &v32) < 1)
+    if (sscanf(buf, format, type_info->GetSize >= 4 ? p_data : &v32) < 1)
         return false;
-    if (type_info->Size < 4)
+    if (type_info->GetSize < 4)
     {
         if (data_type == ImGuiDataType_S8)
             *(ImS8*)p_data = (ImS8)ImClamp(v32, (int)IM_S8_MIN, (int)IM_S8_MAX);
@@ -2190,7 +2190,7 @@ bool ImGui::DataTypeApplyFromText(const char* buf, ImGuiDataType data_type, void
             IM_ASSERT(0);
     }
 
-    return memcmp(&data_backup, p_data, type_info->Size) != 0;
+    return memcmp(&data_backup, p_data, type_info->GetSize) != 0;
 }
 
 template<typename T>
@@ -2571,7 +2571,7 @@ bool ImGui::DragScalarN(const char* label, ImGuiDataType data_type, void* p_data
     BeginGroup();
     PushID(label);
     PushMultiItemsWidths(components, CalcItemWidth());
-    size_t type_size = GDataTypeInfo[data_type].Size;
+    size_t type_size = GDataTypeInfo[data_type].GetSize;
     for (int i = 0; i < components; i++)
     {
         PushID(i);
@@ -3159,7 +3159,7 @@ bool ImGui::SliderScalarN(const char* label, ImGuiDataType data_type, void* v, i
     BeginGroup();
     PushID(label);
     PushMultiItemsWidths(components, CalcItemWidth());
-    size_t type_size = GDataTypeInfo[data_type].Size;
+    size_t type_size = GDataTypeInfo[data_type].GetSize;
     for (int i = 0; i < components; i++)
     {
         PushID(i);
@@ -3493,7 +3493,7 @@ bool ImGui::TempInputScalar(const ImRect& bb, ImGuiID id, const char* label, ImG
     if (TempInputText(bb, id, label, data_buf, IM_ARRAYSIZE(data_buf), flags))
     {
         // Backup old value
-        size_t data_type_size = type_info->Size;
+        size_t data_type_size = type_info->GetSize;
         ImGuiDataTypeStorage data_backup;
         memcpy(&data_backup, p_data, data_type_size);
 
@@ -3518,7 +3518,7 @@ void ImGui::SetNextItemRefVal(ImGuiDataType data_type, void* p_data)
 {
     ImGuiContext& g = *GImGui;
     g.NextItemData.Flags |= ImGuiNextItemDataFlags_HasRefVal;
-    memcpy(&g.NextItemData.RefVal, p_data, DataTypeGetInfo(data_type)->Size);
+    memcpy(&g.NextItemData.RefVal, p_data, DataTypeGetInfo(data_type)->GetSize);
 }
 
 // Note: p_data, p_step, p_step_fast are _pointers_ to a memory address holding the data. For an Input widget, p_step and p_step_fast are optional.
@@ -3612,7 +3612,7 @@ bool ImGui::InputScalarN(const char* label, ImGuiDataType data_type, void* p_dat
     BeginGroup();
     PushID(label);
     PushMultiItemsWidths(components, CalcItemWidth());
-    size_t type_size = GDataTypeInfo[data_type].Size;
+    size_t type_size = GDataTypeInfo[data_type].GetSize;
     for (int i = 0; i < components; i++)
     {
         PushID(i);
@@ -3856,11 +3856,11 @@ static bool STB_TEXTEDIT_INSERTCHARS(ImGuiInputTextState* obj, int pos, const Im
         return false;
 
     // Grow internal buffer if needed
-    if (new_text_len + text_len + 1 > obj->TextW.Size)
+    if (new_text_len + text_len + 1 > obj->TextW.GetSize)
     {
         if (!is_resizable)
             return false;
-        IM_ASSERT(text_len < obj->TextW.Size);
+        IM_ASSERT(text_len < obj->TextW.GetSize);
         obj->TextW.resize(text_len + ImClamp(new_text_len * 4, 32, ImMax(256, new_text_len)) + 1);
     }
 
@@ -4381,7 +4381,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
     {
         const char* buf_end = NULL;
         state->TextW.resize(buf_size + 1);
-        state->CurLenW = ImTextStrFromUtf8(state->TextW.Data, state->TextW.Size, buf, NULL, &buf_end);
+        state->CurLenW = ImTextStrFromUtf8(state->TextW.Data, state->TextW.GetSize, buf, NULL, &buf_end);
         state->CurLenA = (int)(buf_end - buf);
         state->CursorClamp();
         render_selection &= state->HasSelection();
@@ -4506,10 +4506,10 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
         // Process regular text input (before we check for Return because using some IME will effectively send a Return?)
         // We ignore CTRL inputs, but need to allow ALT+CTRL as some keyboards (e.g. German) use AltGR (which _is_ Alt+Ctrl) to input certain characters.
         const bool ignore_char_inputs = (io.KeyCtrl && !io.KeyAlt) || (is_osx && io.KeyCtrl);
-        if (io.InputQueueCharacters.Size > 0)
+        if (io.InputQueueCharacters.GetSize > 0)
         {
             if (!ignore_char_inputs && !is_readonly && !input_requested_by_nav)
-                for (int n = 0; n < io.InputQueueCharacters.Size; n++)
+                for (int n = 0; n < io.InputQueueCharacters.GetSize; n++)
                 {
                     // Insert character if they pass filtering
                     unsigned int c = (unsigned int)io.InputQueueCharacters[n];
@@ -4707,15 +4707,15 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
                 // Restore initial value. Only return true if restoring to the initial value changes the current buffer contents.
                 // Push records into the undo stack so we can CTRL+Z the revert operation itself
                 apply_new_text = state->InitialTextA.Data;
-                apply_new_text_length = state->InitialTextA.Size - 1;
+                apply_new_text_length = state->InitialTextA.GetSize - 1;
                 value_changed = true;
                 ImVector<ImWchar> w_text;
                 if (apply_new_text_length > 0)
                 {
                     w_text.resize(ImTextCountCharsFromUtf8(apply_new_text, apply_new_text + apply_new_text_length) + 1);
-                    ImTextStrFromUtf8(w_text.Data, w_text.Size, apply_new_text, apply_new_text + apply_new_text_length);
+                    ImTextStrFromUtf8(w_text.Data, w_text.GetSize, apply_new_text, apply_new_text + apply_new_text_length);
                 }
-                stb_textedit_replace(state, &state->Stb, w_text.Data, (apply_new_text_length > 0) ? (w_text.Size - 1) : 0);
+                stb_textedit_replace(state, &state->Stb, w_text.Data, (apply_new_text_length > 0) ? (w_text.GetSize - 1) : 0);
             }
         }
 
@@ -4723,8 +4723,8 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
         if (!is_readonly)
         {
             state->TextAIsValid = true;
-            state->TextA.resize(state->TextW.Size * 4 + 1);
-            ImTextStrToUtf8(state->TextA.Data, state->TextA.Size, state->TextW.Data, NULL);
+            state->TextA.resize(state->TextW.GetSize * 4 + 1);
+            ImTextStrToUtf8(state->TextA.Data, state->TextA.GetSize, state->TextW.Data, NULL);
         }
 
         // When using 'ImGuiInputTextFlags_EnterReturnsTrue' as a special case we reapply the live buffer back to the input buffer
@@ -4812,8 +4812,8 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
                         IM_ASSERT(callback_data.BufTextLen == (int)strlen(callback_data.Buf)); // You need to maintain BufTextLen if you change the text!
                         InputTextReconcileUndoStateAfterUserCallback(state, callback_data.Buf, callback_data.BufTextLen); // FIXME: Move the rest of this block inside function and rename to InputTextReconcileStateAfterUserCallback() ?
                         if (callback_data.BufTextLen > backup_current_text_length && is_resizable)
-                            state->TextW.resize(state->TextW.Size + (callback_data.BufTextLen - backup_current_text_length)); // Worse case scenario resize
-                        state->CurLenW = ImTextStrFromUtf8(state->TextW.Data, state->TextW.Size, callback_data.Buf, NULL);
+                            state->TextW.resize(state->TextW.GetSize + (callback_data.BufTextLen - backup_current_text_length)); // Worse case scenario resize
+                        state->CurLenW = ImTextStrFromUtf8(state->TextW.Data, state->TextW.GetSize, callback_data.Buf, NULL);
                         state->CurLenA = callback_data.BufTextLen;  // Assume correct length and valid UTF-8 from user, saves us an extra strlen()
                         state->CursorAnimReset();
                     }
@@ -4836,7 +4836,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
         if (g.ActiveId != id && IsItemDeactivatedAfterEdit() && !is_readonly && strcmp(g.InputTextDeactivatedState.TextA.Data, buf) != 0)
         {
             apply_new_text = g.InputTextDeactivatedState.TextA.Data;
-            apply_new_text_length = g.InputTextDeactivatedState.TextA.Size - 1;
+            apply_new_text_length = g.InputTextDeactivatedState.TextA.GetSize - 1;
             value_changed = true;
             //IMGUI_DEBUG_LOG("InputText(): apply Deactivated data for 0x%08X: \"%.*s\".\n", id, apply_new_text_length, apply_new_text);
         }
@@ -5771,10 +5771,10 @@ bool ImGui::ColorPicker4(const char* label, float col[4], ImGuiColorEditFlags fl
         {
             const float a0 = (n)     /6.0f * 2.0f * IM_PI - aeps;
             const float a1 = (n+1.0f)/6.0f * 2.0f * IM_PI + aeps;
-            const int vert_start_idx = draw_list->VtxBuffer.Size;
+            const int vert_start_idx = draw_list->VtxBuffer.GetSize;
             draw_list->PathArcTo(wheel_center, (wheel_r_inner + wheel_r_outer)*0.5f, a0, a1, segment_per_arc);
             draw_list->PathStroke(col_white, 0, wheel_thickness);
-            const int vert_end_idx = draw_list->VtxBuffer.Size;
+            const int vert_end_idx = draw_list->VtxBuffer.GetSize;
 
             // Paint colors over existing vertices
             ImVec2 gradient_p0(wheel_center.x + ImCos(a0) * wheel_r_inner, wheel_center.y + ImSin(a0) * wheel_r_inner);
@@ -6311,7 +6311,7 @@ bool ImGui::TreeNodeBehavior(ImGuiID id, ImGuiTreeNodeFlags flags, const char* l
     if (is_open && !g.NavIdIsAlive && (flags & ImGuiTreeNodeFlags_NavLeftJumpsBackHere) && !(flags & ImGuiTreeNodeFlags_NoTreePushOnOpen))
         if (g.NavMoveDir == ImGuiDir_Left && g.NavWindow == window && NavMoveRequestButNoResultYet())
         {
-            g.NavTreeNodeStack.resize(g.NavTreeNodeStack.Size + 1);
+            g.NavTreeNodeStack.resize(g.NavTreeNodeStack.GetSize + 1);
             ImGuiNavTreeNodeData* nav_tree_node_data = &g.NavTreeNodeStack.back();
             nav_tree_node_data->ID = id;
             nav_tree_node_data->InFlags = g.LastItemData.InFlags;
@@ -6513,7 +6513,7 @@ void ImGui::TreePop()
     }
     window->DC.TreeJumpToParentOnPopMask &= tree_depth_mask - 1;
 
-    IM_ASSERT(window->IDStack.Size > 1); // There should always be 1 element in the IDStack (pushed during window creation). If this triggers you called TreePop/PopID too much.
+    IM_ASSERT(window->IDStack.GetSize > 1); // There should always be 1 element in the IDStack (pushed during window creation). If this triggers you called TreePop/PopID too much.
     PopID();
 }
 
@@ -6937,7 +6937,7 @@ void ImGui::DebugNodeTypingSelectState(ImGuiTypingSelectState* data)
 {
 #ifndef IMGUI_DISABLE_DEBUG_TOOLS
     Text("SearchBuffer = \"%s\"", data->SearchBuffer);
-    Text("SingleCharMode = %d, Size = %d, Lock = %d", data->Request.SingleCharMode, data->Request.SingleCharSize, data->SingleCharModeLock);
+    Text("SingleCharMode = %d, GetSize = %d, Lock = %d", data->Request.SingleCharMode, data->Request.SingleCharSize, data->SingleCharModeLock);
     Text("LastRequest = time: %.2f, frame: %d", data->LastRequestTime, data->LastRequestFrame);
 #else
     IM_UNUSED(data);
@@ -7490,7 +7490,7 @@ static bool IsRootOfOpenMenuSet()
 {
     ImGuiContext& g = *GImGui;
     ImGuiWindow* window = g.CurrentWindow;
-    if ((g.OpenPopupStack.Size <= g.BeginPopupStack.Size) || (window->Flags & ImGuiWindowFlags_ChildMenu))
+    if ((g.OpenPopupStack.GetSize <= g.BeginPopupStack.GetSize) || (window->Flags & ImGuiWindowFlags_ChildMenu))
         return false;
 
     // Initially we used 'upper_popup->OpenParentId == window->IDStack.back()' to differentiate multiple menu sets from each others
@@ -7504,7 +7504,7 @@ static bool IsRootOfOpenMenuSet()
     // This fixes the most common case of menu opening on hover when moving between window content and menu bar. Multiple different menu sets in same nav layer would still
     // open on hover, but that should be a lesser problem, because if such menus are close in proximity in window content then it won't feel weird and if they are far apart
     // it likely won't be a problem anyone runs into.
-    const ImGuiPopupData* upper_popup = &g.OpenPopupStack[g.BeginPopupStack.Size];
+    const ImGuiPopupData* upper_popup = &g.OpenPopupStack[g.BeginPopupStack.GetSize];
     if (window->DC.NavLayerCurrent != upper_popup->ParentNavLayer)
         return false;
     return upper_popup->Window && (upper_popup->Window->Flags & ImGuiWindowFlags_ChildMenu) && ImGui::IsWindowChildOf(upper_popup->Window, window, true);
@@ -7609,7 +7609,7 @@ bool ImGui::BeginMenuEx(const char* label, const char* icon, bool enabled)
         // Close menu when not hovering it anymore unless we are moving roughly in the direction of the menu
         // Implement http://bjk5.com/post/44698559168/breaking-down-amazons-mega-dropdown to avoid using timers, so menus feels more reactive.
         bool moving_toward_child_menu = false;
-        ImGuiPopupData* child_popup = (g.BeginPopupStack.Size < g.OpenPopupStack.Size) ? &g.OpenPopupStack[g.BeginPopupStack.Size] : NULL; // Popup candidate (testing below)
+        ImGuiPopupData* child_popup = (g.BeginPopupStack.GetSize < g.OpenPopupStack.GetSize) ? &g.OpenPopupStack[g.BeginPopupStack.GetSize] : NULL; // Popup candidate (testing below)
         ImGuiWindow* child_menu_window = (child_popup && child_popup->Window && child_popup->Window->ParentWindow == window) ? child_popup->Window : NULL;
         if (g.HoveredWindow == window && child_menu_window != NULL)
         {
@@ -7672,12 +7672,12 @@ bool ImGui::BeginMenuEx(const char* label, const char* icon, bool enabled)
     if (!enabled) // explicitly close if an open menu becomes disabled, facilitate users code a lot in pattern such as 'if (BeginMenu("options", has_object)) { ..use object.. }'
         want_close = true;
     if (want_close && IsPopupOpen(id, ImGuiPopupFlags_None))
-        ClosePopupToLevel(g.BeginPopupStack.Size, true);
+        ClosePopupToLevel(g.BeginPopupStack.GetSize, true);
 
     IMGUI_TEST_ENGINE_ITEM_INFO(id, label, g.LastItemData.StatusFlags | ImGuiItemStatusFlags_Openable | (menu_is_open ? ImGuiItemStatusFlags_Opened : 0));
     PopID();
 
-    if (want_open && !menu_is_open && g.OpenPopupStack.Size > g.BeginPopupStack.Size)
+    if (want_open && !menu_is_open && g.OpenPopupStack.GetSize > g.BeginPopupStack.GetSize)
     {
         // Don't reopen/recycle same menu level in the same frame if it is a different menu ID, first close the other menu and yield for a frame.
         OpenPopup(label);
@@ -7736,7 +7736,7 @@ void ImGui::EndMenu()
         if (g.NavMoveDir == ImGuiDir_Left && NavMoveRequestButNoResultYet())
             if (g.NavWindow && (g.NavWindow->RootWindowForNav == window) && parent_window->DC.LayoutType == ImGuiLayoutType_Vertical)
             {
-                ClosePopupToLevel(g.BeginPopupStack.Size - 1, true);
+                ClosePopupToLevel(g.BeginPopupStack.GetSize - 1, true);
                 NavMoveRequestCancel();
             }
 
@@ -7968,7 +7968,7 @@ bool    ImGui::BeginTabBarEx(ImGuiTabBar* tab_bar, const ImRect& tab_bar_bb, ImG
 
     // Ensure correct ordering when toggling ImGuiTabBarFlags_Reorderable flag, or when a new tab was added while being not reorderable
     if ((flags & ImGuiTabBarFlags_Reorderable) != (tab_bar->Flags & ImGuiTabBarFlags_Reorderable) || (tab_bar->TabsAddedNew && !(flags & ImGuiTabBarFlags_Reorderable)))
-        ImQsort(tab_bar->Tabs.Data, tab_bar->Tabs.Size, sizeof(ImGuiTabItem), TabItemComparerByBeginOrder);
+        ImQsort(tab_bar->Tabs.Data, tab_bar->Tabs.GetSize, sizeof(ImGuiTabItem), TabItemComparerByBeginOrder);
     tab_bar->TabsAddedNew = false;
 
     // Flags
@@ -8060,7 +8060,7 @@ static void ImGui::TabBarLayout(ImGuiTabBar* tab_bar)
     int tab_dst_n = 0;
     bool need_sort_by_section = false;
     ImGuiTabBarSection sections[3]; // Layout sections: Leading, Central, Trailing
-    for (int tab_src_n = 0; tab_src_n < tab_bar->Tabs.Size; tab_src_n++)
+    for (int tab_src_n = 0; tab_src_n < tab_bar->Tabs.GetSize; tab_src_n++)
     {
         ImGuiTabItem* tab = &tab_bar->Tabs[tab_src_n];
         if (tab->LastFrameVisible < tab_bar->PrevFrameVisible || tab->WantClose)
@@ -8092,11 +8092,11 @@ static void ImGui::TabBarLayout(ImGuiTabBar* tab_bar)
         sections[curr_tab_section_n].TabCount++;
         tab_dst_n++;
     }
-    if (tab_bar->Tabs.Size != tab_dst_n)
+    if (tab_bar->Tabs.GetSize != tab_dst_n)
         tab_bar->Tabs.resize(tab_dst_n);
 
     if (need_sort_by_section)
-        ImQsort(tab_bar->Tabs.Data, tab_bar->Tabs.Size, sizeof(ImGuiTabItem), TabItemComparerBySection);
+        ImQsort(tab_bar->Tabs.Data, tab_bar->Tabs.GetSize, sizeof(ImGuiTabItem), TabItemComparerBySection);
 
     // Calculate spacing between sections
     sections[0].Spacing = sections[0].TabCount > 0 && (sections[1].TabCount + sections[2].TabCount) > 0 ? g.Style.ItemInnerSpacing.x : 0.0f;
@@ -8129,13 +8129,13 @@ static void ImGui::TabBarLayout(ImGuiTabBar* tab_bar)
     // Leading/Trailing tabs will be shrink only if central one aren't visible anymore, so layout the shrink data as: leading, trailing, central
     // (whereas our tabs are stored as: leading, central, trailing)
     int shrink_buffer_indexes[3] = { 0, sections[0].TabCount + sections[2].TabCount, sections[0].TabCount };
-    g.ShrinkWidthBuffer.resize(tab_bar->Tabs.Size);
+    g.ShrinkWidthBuffer.resize(tab_bar->Tabs.GetSize);
 
     // Compute ideal tabs widths + store them into shrink buffer
     ImGuiTabItem* most_recently_selected_tab = NULL;
     int curr_section_n = -1;
     bool found_selected_tab_id = false;
-    for (int tab_n = 0; tab_n < tab_bar->Tabs.Size; tab_n++)
+    for (int tab_n = 0; tab_n < tab_bar->Tabs.GetSize; tab_n++)
     {
         ImGuiTabItem* tab = &tab_bar->Tabs[tab_n];
         IM_ASSERT(tab->LastFrameVisible >= tab_bar->PrevFrameVisible);
@@ -8174,7 +8174,7 @@ static void ImGui::TabBarLayout(ImGuiTabBar* tab_bar)
 
     // Horizontal scrolling buttons
     // (note that TabBarScrollButtons() will alter BarRect.Max.x)
-    if ((tab_bar->WidthAllTabsIdeal > tab_bar->BarRect.GetWidth() && tab_bar->Tabs.Size > 1) && !(tab_bar->Flags & ImGuiTabBarFlags_NoTabListScrollingButtons) && (tab_bar->Flags & ImGuiTabBarFlags_FittingPolicyScroll))
+    if ((tab_bar->WidthAllTabsIdeal > tab_bar->BarRect.GetWidth() && tab_bar->Tabs.GetSize > 1) && !(tab_bar->Flags & ImGuiTabBarFlags_NoTabListScrollingButtons) && (tab_bar->Flags & ImGuiTabBarFlags_FittingPolicyScroll))
         if (ImGuiTabItem* scroll_and_select_tab = TabBarScrollingButtons(tab_bar))
         {
             scroll_to_tab_id = scroll_and_select_tab->ID;
@@ -8319,7 +8319,7 @@ static float ImGui::TabBarCalcMaxTabWidth()
 ImGuiTabItem* ImGui::TabBarFindTabByID(ImGuiTabBar* tab_bar, ImGuiID tab_id)
 {
     if (tab_id != 0)
-        for (int n = 0; n < tab_bar->Tabs.Size; n++)
+        for (int n = 0; n < tab_bar->Tabs.GetSize; n++)
             if (tab_bar->Tabs[n].ID == tab_id)
                 return &tab_bar->Tabs[n];
     return NULL;
@@ -8328,14 +8328,14 @@ ImGuiTabItem* ImGui::TabBarFindTabByID(ImGuiTabBar* tab_bar, ImGuiID tab_id)
 // Order = visible order, not submission order! (which is tab->BeginOrder)
 ImGuiTabItem* ImGui::TabBarFindTabByOrder(ImGuiTabBar* tab_bar, int order)
 {
-    if (order < 0 || order >= tab_bar->Tabs.Size)
+    if (order < 0 || order >= tab_bar->Tabs.GetSize)
         return NULL;
     return &tab_bar->Tabs[order];
 }
 
 ImGuiTabItem* ImGui::TabBarGetCurrentTab(ImGuiTabBar* tab_bar)
 {
-    if (tab_bar->LastTabItemIdx < 0 || tab_bar->LastTabItemIdx >= tab_bar->Tabs.Size)
+    if (tab_bar->LastTabItemIdx < 0 || tab_bar->LastTabItemIdx >= tab_bar->Tabs.GetSize)
         return NULL;
     return &tab_bar->Tabs[tab_bar->LastTabItemIdx];
 }
@@ -8344,7 +8344,7 @@ const char* ImGui::TabBarGetTabName(ImGuiTabBar* tab_bar, ImGuiTabItem* tab)
 {
     if (tab->NameOffset == -1)
         return "N/A";
-    IM_ASSERT(tab->NameOffset < tab_bar->TabsNames.Buf.Size);
+    IM_ASSERT(tab->NameOffset < tab_bar->TabsNames.Buf.GetSize);
     return tab_bar->TabsNames.Buf.Data + tab->NameOffset;
 }
 
@@ -8407,7 +8407,7 @@ static void ImGui::TabBarScrollToTab(ImGuiTabBar* tab_bar, ImGuiID tab_id, ImGui
 
     // We make all tabs positions all relative Sections[0].Width to make code simpler
     float tab_x1 = tab->Offset - sections[0].Width + (order > sections[0].TabCount - 1 ? -margin : 0.0f);
-    float tab_x2 = tab->Offset - sections[0].Width + tab->Width + (order + 1 < tab_bar->Tabs.Size - sections[2].TabCount ? margin : 1.0f);
+    float tab_x2 = tab->Offset - sections[0].Width + tab->Width + (order + 1 < tab_bar->Tabs.GetSize - sections[2].TabCount ? margin : 1.0f);
     tab_bar->ScrollingTargetDistToVisibility = 0.0f;
     if (tab_bar->ScrollingTarget > tab_x1 || (tab_x2 - tab_x1 >= scrollable_width))
     {
@@ -8450,7 +8450,7 @@ void ImGui::TabBarQueueReorderFromMousePos(ImGuiTabBar* tab_bar, ImGuiTabItem* s
     const int dir = (bar_offset + src_tab->Offset) > mouse_pos.x ? -1 : +1;
     const int src_idx = tab_bar->Tabs.index_from_ptr(src_tab);
     int dst_idx = src_idx;
-    for (int i = src_idx; i >= 0 && i < tab_bar->Tabs.Size; i += dir)
+    for (int i = src_idx; i >= 0 && i < tab_bar->Tabs.GetSize; i += dir)
     {
         // Reordered tabs must share the same section
         const ImGuiTabItem* dst_tab = &tab_bar->Tabs[i];
@@ -8480,7 +8480,7 @@ bool ImGui::TabBarProcessReorder(ImGuiTabBar* tab_bar)
 
     //IM_ASSERT(tab_bar->Flags & ImGuiTabBarFlags_Reorderable); // <- this may happen when using debug tools
     int tab2_order = TabBarGetTabOrder(tab_bar, tab1) + tab_bar->ReorderRequestOffset;
-    if (tab2_order < 0 || tab2_order >= tab_bar->Tabs.Size)
+    if (tab2_order < 0 || tab2_order >= tab_bar->Tabs.GetSize)
         return false;
 
     // Reordered tabs must share the same section
@@ -8546,7 +8546,7 @@ static ImGuiTabItem* ImGui::TabBarScrollingButtons(ImGuiTabBar* tab_bar)
             while (tab_to_scroll_to == NULL)
             {
                 // If we are at the end of the list, still scroll to make our tab visible
-                tab_to_scroll_to = &tab_bar->Tabs[(target_order >= 0 && target_order < tab_bar->Tabs.Size) ? target_order : selected_order];
+                tab_to_scroll_to = &tab_bar->Tabs[(target_order >= 0 && target_order < tab_bar->Tabs.GetSize) ? target_order : selected_order];
 
                 // Cross through buttons
                 // (even if first/last item is a button, return it so we can update the scroll)
@@ -8554,7 +8554,7 @@ static ImGuiTabItem* ImGui::TabBarScrollingButtons(ImGuiTabBar* tab_bar)
                 {
                     target_order += select_dir;
                     selected_order += select_dir;
-                    tab_to_scroll_to = (target_order < 0 || target_order >= tab_bar->Tabs.Size) ? tab_to_scroll_to : NULL;
+                    tab_to_scroll_to = (target_order < 0 || target_order >= tab_bar->Tabs.GetSize) ? tab_to_scroll_to : NULL;
                 }
             }
         }
@@ -8585,7 +8585,7 @@ static ImGuiTabItem* ImGui::TabBarTabListPopupButton(ImGuiTabBar* tab_bar)
     ImGuiTabItem* tab_to_select = NULL;
     if (open)
     {
-        for (int tab_n = 0; tab_n < tab_bar->Tabs.Size; tab_n++)
+        for (int tab_n = 0; tab_n < tab_bar->Tabs.GetSize; tab_n++)
         {
             ImGuiTabItem* tab = &tab_bar->Tabs[tab_n];
             if (tab->Flags & ImGuiTabItemFlags_Button)
@@ -8768,7 +8768,7 @@ bool    ImGui::TabItemEx(ImGuiTabBar* tab_bar, const char* label, bool* p_open, 
 
     // On the very first frame of a tab bar we let first tab contents be visible to minimize appearing glitches
     if (!tab_contents_visible && tab_bar->SelectedTabId == 0 && tab_bar_appearing)
-        if (tab_bar->Tabs.Size == 1 && !(tab_bar->Flags & ImGuiTabBarFlags_AutoSelectNewTabs))
+        if (tab_bar->Tabs.GetSize == 1 && !(tab_bar->Flags & ImGuiTabBarFlags_AutoSelectNewTabs))
             tab_contents_visible = true;
 
     // Note that tab_is_new is not necessarily the same as tab_appearing! When a tab bar stops being submitted

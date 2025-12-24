@@ -96,7 +96,7 @@ Void ZGuiObject::SetFontScale(Float32 _scale) noexcept { font_scale_ = _scale; }
 
 NODISCARD Float32 ZGuiObject::Width() const noexcept { return size_.width_; }
 NODISCARD Float32 ZGuiObject::Height() const noexcept { return size_.height_; }
-NODISCARD GuiSize ZGuiObject::Size() const noexcept { return size_; }
+NODISCARD GuiSize ZGuiObject::GetSize() const noexcept { return size_; }
 NODISCARD Float32 ZGuiObject::PosX() const noexcept { return pos_.x_; }
 NODISCARD Float32 ZGuiObject::PosY() const noexcept { return pos_.y_; }
 NODISCARD GuiPos ZGuiObject::Pos() const noexcept { return pos_; }

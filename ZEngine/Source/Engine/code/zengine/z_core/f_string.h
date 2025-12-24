@@ -28,7 +28,7 @@
 
 #include "drive.h"
 
-#include "library/l_fmt.h"
+#include "internal/l_fmt.h"
 
 #include "t_list.h"
 #include "z_string.h"
@@ -42,7 +42,7 @@ enum FStringErrorCodeEnum : ReturnType {
     /** @brief Represents a linking error in the FString module. */
     kFStringErrorCode_LinkError = kErrorCodeBase_FString,
     /** @brief Represents a general system error. */
-    kFStringErrorCode_SystemError,
+    kFStringErrorCode_SystemOrLibraryError,
     /** @brief Indicates a null pointer was passed as a parameter. */
     kFStringErrorCode_NullptrParam,
     /** @brief Indicates a parameter is out of its valid range. */
@@ -73,7 +73,7 @@ namespace internal {
  * @param _arg_num The number of arguments.
  * @return The formatted ZString.
  */
-CORE_DLLAPI NODISCARD ZString GenerateStringP(
+CORE_DLLAPI NODISCARD ZString GenerateString(
     ZStringView _format,
     fmt::format_args _args, 
     SizeType _arg_num
@@ -87,7 +87,7 @@ CORE_DLLAPI NODISCARD ZString GenerateStringP(
  * @param _args The format arguments.
  * @return The number of characters written.
  */
-CORE_DLLAPI NODISCARD SizeType GenerateStringP(
+CORE_DLLAPI NODISCARD SizeType GenerateString(
     Char* _str, 
     SizeType _max_len,
     ZStringView _format, 
@@ -102,7 +102,7 @@ CORE_DLLAPI NODISCARD SizeType GenerateStringP(
  * @param _args The format arguments.
  * @return The number of characters written.
  */
-CORE_DLLAPI NODISCARD SizeType GenerateStringNoEndP(
+CORE_DLLAPI NODISCARD SizeType GenerateStringNoEnd(
     Char* _str,
     SizeType _max_len,
     ZStringView _format,
@@ -305,7 +305,7 @@ CORE_DLLAPI NODISCARD ZString NumberToString(Float64 _num) noexcept;
  */
 template<typename... _ArgsType>
 NODISCARD ZString GenerateString(ZStringView _format, _ArgsType&&... _args) noexcept {
-    return internal::GenerateStringP(_format, fmt::make_format_args(_args...), sizeof...(_args));
+    return internal::GenerateString(_format, fmt::make_format_args(_args...), sizeof...(_args));
 }
 
 /**
@@ -324,7 +324,7 @@ SizeType GenerateString(
     ZStringView _format, 
     _ArgsType&&... _args
 ) noexcept {
-    return internal::GenerateStringP(_str, _max_len, _format, fmt::make_format_args(_args...));
+    return internal::GenerateString(_str, _max_len, _format, fmt::make_format_args(_args...));
 }
 
 /**
@@ -343,7 +343,7 @@ SizeType GenerateStringNoEnd(
     ZStringView _format,
     _ArgsType&&... _args
 ) noexcept {
-    return internal::GenerateStringNoEndP(_str, _max_len, _format, fmt::make_format_args(_args...));
+    return internal::GenerateStringNoEnd(_str, _max_len, _format, fmt::make_format_args(_args...));
 }
 
 }//string

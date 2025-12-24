@@ -40,8 +40,8 @@ ZDeserializer::ZDeserializer(ZDeserializer&& _serializer) noexcept
 
 ZDeserializer::ZDeserializer(ZConstBuffer _buffer) noexcept
     : SuperType_()
-    , data_ptr_(_buffer.DataPtr<const Byte>())
-    , size_left_(_buffer.Size())
+    , data_ptr_(_buffer.GetDataPtr<const Byte>())
+    , size_left_(_buffer.GetSize())
 {}
 
 ZDeserializer::~ZDeserializer() noexcept {}

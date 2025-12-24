@@ -109,7 +109,7 @@ NODISCARD ReturnType ZMoveTileSceneEvent::Execute(Float32 _delta_time) noexcept 
         return ret_val;
     }
     //TODO: Tiles might be destroyed during the event, do something.
-    if (move_params_array_.Size() == 0) {
+    if (move_params_array_.GetSize() == 0) {
         link_code = FinishImmediately();
         return ret_val;
     }

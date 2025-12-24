@@ -1,17 +1,25 @@
 /*
     Copyright (c) YuLin Zhu
 
-    This code file is licensed under the Creative Commons
-    Attribution-NonCommercial 4.0 International License.
+    ** ZEngine Proprietary License **
 
-    You may obtain a copy of the License at
-    https://creativecommons.org/licenses/by-nc/4.0/
+    This software is provided "as-is", without any express or implied warranty.
+    In no event will the authors be held liable for any damages arising from the
+    use of this software.
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+    Usage Rights:
+    1. Non-Commercial Use: You may use, modify, and distribute this software
+       for non-commercial purposes (e.g., education, personal projects, open-source
+       projects that do not generate revenue) free of charge.
+
+    2. Commercial Use: Commercial use of this software is STRICTLY PROHIBITED
+       without a valid commercial license agreement with the author.
+       "Commercial use" includes, but is not limited to:
+       - Incorporating this software into a product that is sold.
+       - Using this software in a paid service.
+       - Using this software for internal business operations in a for-profit entity.
+
+    To obtain a Commercial License, please contact the author.
 
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
@@ -22,50 +30,69 @@
 #include "z_system_time.h"
 
 namespace zengine {
-
-inline constexpr TimeType kSecPurMin = 60;
-inline constexpr TimeType kSecPurHour = 3600;
-inline constexpr TimeType kMinPurHour = 60;
-inline constexpr TimeType kHourPurDay = 24;
-inline constexpr TimeType kDayPurYear1 = 365;
-inline constexpr TimeType kDayPurYear4 = 1461;
-inline constexpr TimeType kDayPurYear100 = 36524;
-inline constexpr TimeType kDayPurYear400 = 146097;
-
-inline constexpr Int32 kNormalMonthDay[12] = { 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-inline constexpr Int32 kSwissMonthDay[12] = { 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-
-inline constexpr TimeType kStartTimeOffset = 62167219200LL;  //start at year 0 instead of 1970
-
 namespace internal {
 
-static TimeType CalculateRegionTimeOffset() noexcept {
-    time_t raw_time = TimeSec();
-    tm local_time = *localtime(&raw_time);
-    tm utc_time = *gmtime(&raw_time);
+/**
+ * @brief Thread-safe cross-platform wrapper for getting local time.
+ * @details Converts a raw time value to a structure representing the local time, handling platform differences between
+ * Windows (localtime_s) and POSIX (localtime_r).
+ * @param _time_raw Pointer to the stored time_t value.
+ * @param _result Pointer to the tm structure where the result will be stored.
+ */
+FORCEINLINE Void LocalTimeSafe(const time_t* _time_raw, struct tm* _result) noexcept {
+#if defined(_WIN32) || defined(_WIN64)
+    localtime_s(_result, _time_raw);
+#else
+    localtime_r(_time_raw, _result);
+#endif
+}
 
-    //Hour offsets.
-    int hour_offset = local_time.tm_hour - utc_time.tm_hour;
+/**
+ * @brief Thread-safe cross-platform wrapper for getting UTC time.
+ * @details Converts a raw time value to a structure representing the Coordinated Universal Time (UTC), handling
+ * platform differences between Windows (gmtime_s) and POSIX (gmtime_r).
+ * @param _time_raw Pointer to the stored time_t value.
+ * @param result Pointer to the tm structure where the result will be stored.
+ */
+FORCEINLINE Void UTCTimeSafe(const time_t* _time_raw, struct tm* result) noexcept {
+#if defined(_WIN32) || defined(_WIN64)
+    gmtime_s(result, _time_raw);
+#else
+    gmtime_r(_time_raw, result);
+#endif
+}
 
-    //Across day.
-    if (local_time.tm_yday > utc_time.tm_yday) {
-        hour_offset += kHourPurDay;
-    }
-    else if (local_time.tm_yday < utc_time.tm_yday) {
-        hour_offset -= kHourPurDay;
-    }
-    
-    //DST
-    if (local_time.tm_isdst > 0) {
-        hour_offset += 1;
-    }
-    return hour_offset * kSecPurHour;
+/**
+ * @brief Computes the local time zone offset relative to UTC in nanoseconds.
+ * @details Calculates the difference between the local time and UTC time for the current instant.
+ * Used to adjust UTC timestamps to local time.
+ * @return The offset in nanoseconds (positive for East of Prime Meridian, negative for West).
+ */
+FORCEINLINE static TimeType ComputeRegionTimeOffsetNs() noexcept {
+    time_t raw_time = std::time(nullptr);
+
+    struct tm local_tm = {};
+    struct tm utc_tm = {};
+
+    LocalTimeSafe(&raw_time, &local_tm);
+    UTCTimeSafe(&raw_time, &utc_tm);
+
+    time_t local_time = mktime(&local_tm);
+    //set daylight saving time flag to 0
+    utc_tm.tm_isdst = 0;
+    time_t utc_time = mktime(&utc_tm);
+    return 
+        static_cast<TimeType>(difftime(local_time, utc_time)) * 
+        (ZSystemTime::kMsPerSec * ZSystemTime::kUsPerMs * ZSystemTime::kNsPerUs);
 }
 
 }//internal
+}//zengine
 
-static TimeType GetTimeOffset() noexcept {
-    static TimeType region_time_offset = internal::CalculateRegionTimeOffset() + kStartTimeOffset;
+namespace zengine {
+
+TimeType ZSystemTime::GetRegionTimeOffsetNs() noexcept {
+    static TimeType region_time_offset = internal::ComputeRegionTimeOffsetNs();
     return region_time_offset;
 }
 
@@ -83,95 +110,59 @@ ZSystemTime::ZSystemTime() noexcept : SuperType_() { UpdateTime(); }
 ZSystemTime::ZSystemTime(TimeType _time_raw) noexcept : SuperType_() { UpdateTime(_time_raw); }
 ZSystemTime::~ZSystemTime() noexcept {}
 
-Void ZSystemTime::UpdateTime(TimeType _time_raw) noexcept {
-    _time_raw += GetTimeOffset();
-    sec_ = (Int32)(_time_raw % kSecPurMin);
-    _time_raw = _time_raw / kSecPurMin;
-    min_ = (Int32)(_time_raw % kMinPurHour);
-    _time_raw = _time_raw / kMinPurHour;
-    hour_ = (Int32)(_time_raw % kHourPurDay);
-    _time_raw = _time_raw / kHourPurDay;
-
-    TimeType year_400 = _time_raw / kDayPurYear400;
-    _time_raw -= year_400 * kDayPurYear400;
-    TimeType year_100 = _time_raw / kDayPurYear100;
-    _time_raw -= year_100 * kDayPurYear100;
-    TimeType year_4 = _time_raw / kDayPurYear4;
-    _time_raw -= year_4 * kDayPurYear4;
-    TimeType year_1 = _time_raw / kDayPurYear1;
-    _time_raw -= year_1 * kDayPurYear1;
-    year_ = (Int32)(year_400 * 400LL + year_100 * 100LL + year_4 * 4LL + year_1);
-
-    Int32 month = 0;
-    Int32 day = (Int32)_time_raw;
-    if ((year_1 == 0LL && year_4 != 0LL) || year_ % 400LL == 0) {
-        while (day >= kSwissMonthDay[month]) {
-            day -= kSwissMonthDay[month];
-            ++month;
-        }
-    }
-    else
-    {
-        while (day >= kNormalMonthDay[month]) {
-            day -= kNormalMonthDay[month];
-            ++month;
-        }
-    }
-    day_ = day + 1;
-    month_ = month + 1;
-}
-
 Void ZSystemTime::UpdateTimeFast(TimeType _time_raw) noexcept {
-    Int32 pre_hour = hour_;
-
-    _time_raw += GetTimeOffset();
-    sec_ = (Int32)(_time_raw % kSecPurMin);
-    _time_raw = _time_raw / kSecPurMin;
-    min_ = (Int32)(_time_raw % kMinPurHour);
-    _time_raw = _time_raw / kMinPurHour;
-    hour_ = (Int32)(_time_raw % kHourPurDay);
-
-    if (hour_ < pre_hour) { //next day
-        _time_raw = _time_raw / kHourPurDay;
-
-        TimeType year_400 = _time_raw / kDayPurYear400;
-        _time_raw -= year_400 * kDayPurYear400;
-        TimeType year_100 = _time_raw / kDayPurYear100;
-        _time_raw -= year_100 * kDayPurYear100;
-        TimeType year_4 = _time_raw / kDayPurYear4;
-        _time_raw -= year_4 * kDayPurYear4;
-        TimeType year_1 = _time_raw / kDayPurYear1;
-        _time_raw -= year_1 * kDayPurYear1;
-        year_ += (Int32)(year_400 * 400L + year_100 * 100L + year_4 * 4L + year_1);
-
-        Int32 month = 0;
-        Int32 day = (Int32)_time_raw;
-        if ((year_1 == 0LL && year_4 != 0LL) || year_ % 400 == 0) {
-            while (day >= kSwissMonthDay[month]) {
-                day -= kSwissMonthDay[month];
-                ++month;
-            }
-        }
-        else
-        {
-            while (day >= kNormalMonthDay[month]) {
-                day -= kNormalMonthDay[month];
-                ++month;
-            }
-        }
-        day_ = day + 1;
-        month_ = month + 1;
+    TimeType pre_hour = hour_;
+    _time_raw += GetRegionTimeOffsetNs();
+    _time_raw = UpdateNsToHourReturnDay(_time_raw);
+    if (hour_ < pre_hour) {
+        UpdateDateP(_time_raw);
     }
 }
 
-CORE_DLLAPI NODISCARD TimeType TimeSec() noexcept {
-    return std::chrono::duration_cast<std::chrono::seconds>(
-        std::chrono::system_clock::now().time_since_epoch()
-    ).count();
+Void ZSystemTime::UpdateTime(TimeType _time_raw) noexcept {
+    _time_raw += GetRegionTimeOffsetNs();
+    _time_raw = UpdateNsToHourReturnDay(_time_raw);
+    UpdateDateP(_time_raw);
 }
 
-CORE_DLLAPI NODISCARD TimeType TimeMs() noexcept {
-    return std::chrono::duration_cast<std::chrono::milliseconds>(
+NODISCARD TimeType ZSystemTime::UpdateNsToHourReturnDay(TimeType _time_raw) noexcept {
+    ns_ = _time_raw % kNsPerUs;
+    _time_raw /= kNsPerUs;
+    us_ = _time_raw % kUsPerMs;
+    _time_raw /= kUsPerMs;
+    ms_ = _time_raw % kMsPerSec;
+    _time_raw /= kMsPerSec;
+    sec_ = _time_raw % kSecPerMin;
+    _time_raw /= kSecPerMin;
+    min_ = _time_raw % kMinPerHour;
+    _time_raw /= kMinPerHour;
+    hour_ = _time_raw % kHourPerDay;
+    _time_raw /= kHourPerDay;
+    return _time_raw;
+}
+
+Void ZSystemTime::UpdateDateP(
+    TimeType _day_time
+) noexcept {
+    // 1. Adjust the day count by adding the offset to shift from Unix Epoch (days since 1970-01-01)
+    //    to the civil calendar algorithm's reference point (days since 0000-03-01 proleptic Gregorian)
+    // 719468 is the number of days from 0000-03-01 to 1970-01-01 in the proleptic Gregorian calendar
+    const TimeType z = _day_time + 719468;
+
+    const TimeType era = (z >= 0 ? z : z - 146096) / 146097;
+    const TimeType doe = static_cast<TimeType>(z - era * 146097); // [0, 146096]
+    const TimeType yoe = (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365; // [0, 399]
+    const TimeType y = static_cast<TimeType>(yoe) + era * 400;
+    const TimeType doy = doe - (365 * yoe + yoe / 4 - yoe / 100); // [0, 365]
+    const TimeType mp = (5 * doy + 2) / 153; // [0, 11]
+
+    day_ = doy - (153 * mp + 2) / 5 + 1; // [1, 31]
+    month_ = mp + (mp < 10 ? 3 : -9); // [1, 12]
+    year_ = y + (month_ <= 2);
+}
+
+CORE_DLLAPI NODISCARD TimeType Time() noexcept {
+    return std::chrono::duration_cast<std::chrono::nanoseconds>(
         std::chrono::system_clock::now().time_since_epoch()
     ).count();
 }

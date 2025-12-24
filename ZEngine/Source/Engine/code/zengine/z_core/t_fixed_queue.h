@@ -32,7 +32,7 @@ namespace zengine {
     Fixed queue container, front points at the first object, back points at the last object.
 */
 template<typename _ObjectType, SizeType kCapacity>
-class TFixedQueue : public ZObject {
+class TFixedQueue : public ZObject<> {
 public:
     using STDFixedArray_ = std::array<_ObjectType, kCapacity>;
     using InitializerList_ = std::initializer_list<_ObjectType>;
@@ -89,12 +89,12 @@ public:
     NODISCARD FORCEINLINE constexpr const _ObjectType& Front() const noexcept { return queue_[front_index_]; }
     NODISCARD FORCEINLINE constexpr _ObjectType& Back() noexcept { return queue_[back_index_]; }
     NODISCARD FORCEINLINE constexpr const _ObjectType& Back() const noexcept { return queue_[back_index_]; }
-    NODISCARD FORCEINLINE constexpr _ObjectType* DataPtr() noexcept { return queue_.data(); }
-    NODISCARD FORCEINLINE constexpr const _ObjectType* DataPtr() const noexcept { return queue_.data(); }
+    NODISCARD FORCEINLINE constexpr _ObjectType* GetDataPtr() noexcept { return queue_.data(); }
+    NODISCARD FORCEINLINE constexpr const _ObjectType* GetDataPtr() const noexcept { return queue_.data(); }
 
-    NODISCARD FORCEINLINE static constexpr SizeType Capacity() noexcept { return kCapacity; }
-    NODISCARD FORCEINLINE constexpr SizeType Size() noexcept { return size_; }
-    NODISCARD FORCEINLINE constexpr Bool Empty() noexcept { return size_ == 0ULL; }
+    NODISCARD FORCEINLINE static constexpr SizeType GetCapacity() noexcept { return kCapacity; }
+    NODISCARD FORCEINLINE constexpr SizeType GetSize() noexcept { return size_; }
+    NODISCARD FORCEINLINE constexpr Bool IsEmpty() noexcept { return size_ == 0ULL; }
     NODISCARD FORCEINLINE constexpr Bool Full() noexcept { return size_ == kCapacity; }
 
     constexpr Void PopFront() noexcept { 
@@ -168,7 +168,7 @@ private:
     Fixed queue container, front points at the first object, back points at the last object.
 */
 template<typename _ObjectType, SizeType kCapacity, typename _MutexType = ZMutex>
-class TFixedQueueSafe : public ZObject {
+class TFixedQueueSafe : public ZObject<> {
 public:
     using STDFixedArray_ = std::array<_ObjectType, kCapacity>;
     using InitializerList_ = std::initializer_list<_ObjectType>;
@@ -251,21 +251,21 @@ public:
         TLockGuard lock_guard(*const_cast<_MutexType*>(&mutex_));
         return queue_[back_index_]; 
     }
-    NODISCARD FORCEINLINE constexpr _ObjectType* DataPtr() noexcept { 
+    NODISCARD FORCEINLINE constexpr _ObjectType* GetDataPtr() noexcept { 
         TLockGuard lock_guard(mutex_); 
         return queue_.data();
     }
-    NODISCARD FORCEINLINE constexpr const _ObjectType* DataPtr() const noexcept { 
+    NODISCARD FORCEINLINE constexpr const _ObjectType* GetDataPtr() const noexcept { 
         TLockGuard lock_guard(*const_cast<_MutexType*>(&mutex_));
         return queue_.data();
     }
 
-    NODISCARD FORCEINLINE static constexpr SizeType Capacity() noexcept { return kCapacity; }
-    NODISCARD FORCEINLINE constexpr SizeType Size() noexcept { 
+    NODISCARD FORCEINLINE static constexpr SizeType GetCapacity() noexcept { return kCapacity; }
+    NODISCARD FORCEINLINE constexpr SizeType GetSize() noexcept { 
         TLockGuard lock_guard(mutex_); 
         return size_;
     }
-    NODISCARD FORCEINLINE constexpr Bool Empty() noexcept { 
+    NODISCARD FORCEINLINE constexpr Bool IsEmpty() noexcept { 
         TLockGuard lock_guard(mutex_); 
         return size_ == 0;
     }

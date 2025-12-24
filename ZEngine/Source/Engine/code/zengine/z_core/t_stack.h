@@ -29,7 +29,7 @@ namespace zengine {
     Stack container.
 */
 template<typename _ObjectType, typename _ContainerType = TArray<_ObjectType>>
-class TStack : public ZObject {
+class TStack : public ZObject<> {
 public:
     using InitializerList_ = std::initializer_list<_ObjectType>;
 
@@ -78,9 +78,9 @@ public:
     NODISCARD FORCEINLINE _ObjectType& Top() noexcept { return stack_.Back(); }
     NODISCARD FORCEINLINE const _ObjectType& Top() const noexcept { return stack_.Back(); }
 
-    NODISCARD FORCEINLINE SizeType Size() const noexcept { return stack_.Size(); }
-    NODISCARD FORCEINLINE SizeType Capacity() const noexcept { return stack_.Capacity(); }
-    NODISCARD FORCEINLINE Bool Empty() const noexcept { return stack_.Empty(); }
+    NODISCARD FORCEINLINE SizeType GetSize() const noexcept { return stack_.GetSize(); }
+    NODISCARD FORCEINLINE SizeType GetCapacity() const noexcept { return stack_.GetCapacity(); }
+    NODISCARD FORCEINLINE Bool IsEmpty() const noexcept { return stack_.IsEmpty(); }
 
     FORCEINLINE Void PopFront() noexcept { stack_.PopBack(); }
 

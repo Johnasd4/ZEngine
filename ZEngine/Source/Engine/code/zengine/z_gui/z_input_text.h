@@ -29,7 +29,7 @@ namespace zengine {
 namespace error_code {
 enum ZInputTextErrorCodeEnum : ReturnType {
     kZInputTextErrorCode_LinkError = kErrorCodeBase_ZInputText,
-    kZInputTextErrorCode_SystemError,
+    kZInputTextErrorCode_SystemOrLibraryError,
     kZInputTextErrorCode_NullptrParam,
     kZInputTextErrorCode_ParamOutOfRange,
 };

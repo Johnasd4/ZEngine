@@ -697,7 +697,7 @@ NODISCARD ReturnType ZJsonDocument::ReadFile(const Char* _path_dir) noexcept {
     ZFile file;
 
     //open file
-    link_code = file.Open(_path_dir, ZFile::kOpenTypeReadBin);
+    link_code = file.Open(_path_dir, ZFile::kReadOnly);
     if (link_code != kOK) {
         ret_val = error_code::kZJsonErrorCode_LinkError;
         Z_LOG_ERROR(ret_val, link_code, "ZFile::Open() link error!");
@@ -705,18 +705,18 @@ NODISCARD ReturnType ZJsonDocument::ReadFile(const Char* _path_dir) noexcept {
     }
 
     //read json string from the file
-    Int32 json_str_size = static_cast<Int32>(file.Size());
+    Int32 json_str_size = static_cast<Int32>(file.ComputeSize());
     ZMemory json_raw_str(json_str_size + 1);
-    link_code = file.Read(json_raw_str.DataPtr<Void>(), json_str_size);
+    link_code = file.Read(ZBuffer(json_raw_str.GetDataPtr<Void>(), json_str_size), json_str_size);
     if (link_code != kOK) {
         ret_val = error_code::kZJsonErrorCode_LinkError;
         Z_LOG_ERROR(ret_val, link_code, "ZFile::Read() link error!");
         return ret_val;
     }
-    json_raw_str.DataPtr<Char>()[json_str_size] = '\0';
+    json_raw_str.GetDataPtr<Char>()[json_str_size] = '\0';
 
     //parse the string
-    link_code = Parse(json_raw_str.DataPtr<Char>());
+    link_code = Parse(json_raw_str.GetDataPtr<Char>());
     if (link_code != kOK) {
         ret_val = error_code::kZJsonErrorCode_LinkError;
         Z_LOG_ERROR(ret_val, link_code, "ZJsonDocument::Parse() link error!");
@@ -724,12 +724,7 @@ NODISCARD ReturnType ZJsonDocument::ReadFile(const Char* _path_dir) noexcept {
     }
 
     //close file
-    link_code = file.Close();
-    if (link_code != kOK) {
-        ret_val = error_code::kZJsonErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, "ZFile::Close() link error!");
-        return ret_val;
-    }
+    file.Close();
 
     return ret_val;
 }
@@ -740,7 +735,7 @@ NODISCARD ReturnType ZJsonDocument::WriteFile(const Char* _path_dir) noexcept {
     ZFile file;
 
     //open file
-    link_code = file.OpenSafe(_path_dir, ZFile::kOpenTypeWriteBin);
+    link_code = file.OpenSafe(_path_dir, ZFile::kWriteOnly | ZFile::kCreate | ZFile::kTruncate);
     if (link_code != kOK) {
         ret_val = error_code::kZJsonErrorCode_LinkError;
         Z_LOG_ERROR(ret_val, link_code, "ZFile::Open() link error!");
@@ -751,7 +746,7 @@ NODISCARD ReturnType ZJsonDocument::WriteFile(const Char* _path_dir) noexcept {
     ZString json_str = GenerateJsonString();
 
     //write string to file
-    link_code = file.Write(static_cast<const Void*>(json_str.DataPtr()), json_str.Size());
+    link_code = file.Write(ZConstBuffer(json_str.GetDataPtr(), json_str.GetSize()));
     if (link_code != kOK) {
         ret_val = error_code::kZJsonErrorCode_LinkError;
         Z_LOG_ERROR(ret_val, link_code, "ZFile::Write() link error!");
@@ -759,12 +754,8 @@ NODISCARD ReturnType ZJsonDocument::WriteFile(const Char* _path_dir) noexcept {
     }
 
     //close file
-    link_code = file.Close();
-    if (link_code != kOK) {
-        ret_val = error_code::kZJsonErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, "ZFile::Close() link error!");
-        return ret_val;
-    }
+    file.Close();
+
     return ret_val;
 }
 

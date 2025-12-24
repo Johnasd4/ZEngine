@@ -29,7 +29,7 @@ namespace zengine {
     Buffer type, initialize with a base buffer size. 
     This is only a view, does't apply any heap memory.
 */
-class ZBuffer : public ZObject {
+class ZBuffer : public ZObject<> {
 public:
     FORCEINLINE ZBuffer() noexcept
         : SuperType_()
@@ -71,11 +71,11 @@ public:
     }
 
     template<typename _ObjectType>
-    NODISCARD FORCEINLINE _ObjectType* DataPtr() const noexcept {
+    NODISCARD FORCEINLINE _ObjectType* GetDataPtr() const noexcept {
         return reinterpret_cast<_ObjectType*>(data_ptr_);
     }
 
-    NODISCARD FORCEINLINE SizeType Size() const noexcept { return size_; }
+    NODISCARD FORCEINLINE SizeType GetSize() const noexcept { return size_; }
 
 protected:
     using SuperType_ = ZObject;
@@ -89,7 +89,7 @@ private:
     Const buffer type, initialize with a base buffer size.
     This is only a view, does't apply any heap memory.
 */
-class ZConstBuffer : public ZObject {
+class ZConstBuffer : public ZObject<> {
 public:
     FORCEINLINE ZConstBuffer() noexcept
         : SuperType_()
@@ -105,8 +105,8 @@ public:
 
     FORCEINLINE ZConstBuffer(const ZBuffer& _buffer) noexcept
         : SuperType_()
-        , data_ptr_(_buffer.DataPtr<const Byte>())
-        , size_(_buffer.Size())
+        , data_ptr_(_buffer.GetDataPtr<const Byte>())
+        , size_(_buffer.GetSize())
     {}
 
     template<typename PointerType>
@@ -125,8 +125,8 @@ public:
 
     FORCEINLINE ZConstBuffer& operator=(const ZBuffer& _buffer) noexcept {
         SuperType_::operator=(_buffer);
-        data_ptr_ = _buffer.DataPtr<const Byte>();
-        size_ = _buffer.Size();
+        data_ptr_ = _buffer.GetDataPtr<const Byte>();
+        size_ = _buffer.GetSize();
         return *this;
     }
 
@@ -144,11 +144,11 @@ public:
     }
 
     template<typename _ObjectType>
-    NODISCARD FORCEINLINE const _ObjectType* DataPtr() const noexcept {
+    NODISCARD FORCEINLINE const _ObjectType* GetDataPtr() const noexcept {
         return reinterpret_cast<const _ObjectType*>(data_ptr_);
     }
 
-    NODISCARD FORCEINLINE SizeType Size() const noexcept { return size_; }
+    NODISCARD FORCEINLINE SizeType GetSize() const noexcept { return size_; }
 
 protected:
     using SuperType_ = ZObject;

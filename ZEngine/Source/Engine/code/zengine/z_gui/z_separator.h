@@ -26,7 +26,7 @@ namespace zengine {
 namespace error_code {
 enum ZSeparatorErrorCodeEnum : ReturnType {
     kZSeparatorErrorCode_LinkError = kErrorCodeBase_ZSeparator,
-    kZSeparatorErrorCode_SystemError,
+    kZSeparatorErrorCode_SystemOrLibraryError,
     kZSeparatorErrorCode_NullptrParam,
     kZSeparatorErrorCode_ParamOutOfRange,
 };

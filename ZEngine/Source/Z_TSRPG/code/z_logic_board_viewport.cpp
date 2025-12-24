@@ -132,7 +132,7 @@ NODISCARD ReturnType ZLogicBoardViewport::Initialize(
     );
 
     base_index_= _base_index;
-    view_size_ = (_view_size.x_ < 0 || _view_size.y_ < 0) ? _logic_board_ptr->Size() : _view_size;
+    view_size_ = (_view_size.x_ < 0 || _view_size.y_ < 0) ? _logic_board_ptr->GetSize() : _view_size;
 
     if (_logic_board_ptr->logic_board_viewport_head_ptr_ != nullptr) {
         _logic_board_ptr->logic_board_viewport_head_ptr_->pre_logic_board_viewport_ptr_ = this;

@@ -29,7 +29,7 @@ namespace zengine {
 namespace error_code {
 enum ZLogicTileErrorCodeEnum : ReturnType {
     kZLogicTileErrorCode_LinkError = kErrorCodeBase_ZLogicTile,
-    kZLogicTileErrorCode_SystemError,
+    kZLogicTileErrorCode_SystemOrLibraryError,
     kZLogicTileErrorCode_NullptrParam,
     kZLogicTileErrorCode_ParamOutOfRange,
     kZLogicTileErrorCode_TextureNotExist,

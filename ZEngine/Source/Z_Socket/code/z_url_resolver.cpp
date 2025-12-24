@@ -35,15 +35,15 @@ ZURLResolver::~ZURLResolver() noexcept {}
 
 NODISCARD ReturnType ZURLResolver::Resolve(ZStringView _url_str) noexcept {
     ReturnType ret_val = kOK;
-    data_ptr_->url_result_ = boost::urls::parse_uri(boost::core::string_view(_url_str.DataPtr(), _url_str.Size()));
+    data_ptr_->url_result_ = boost::urls::parse_uri(boost::core::string_view(_url_str.GetDataPtr(), _url_str.GetSize()));
     //url not valid
     if (!data_ptr_->url_result_.has_value()) {
-        ZString url_str(_url_str.DataPtr(), _url_str.Size());
+        ZString url_str(_url_str.GetDataPtr(), _url_str.GetSize());
         ret_val = error_code::kURLErrorCode_URLResolveFailed;
         Z_LOG_ERROR(
             ret_val, 0,
             "URL resolved failed! _url_str: %ls",
-            string::StringToWString(url_str.DataPtr()).DataPtr()
+            string::StringToWString(url_str.GetDataPtr()).GetDataPtr()
         );
         return ret_val;
     }

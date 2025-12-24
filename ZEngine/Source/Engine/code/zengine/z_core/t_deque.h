@@ -31,7 +31,7 @@ namespace zengine {
     Double end queue container.
 */
 template<typename _ObjectType>
-class TDeque : public ZObject {
+class TDeque : public ZObject<> {
 public:
     using STDDeque_ = std::deque<_ObjectType, TAllocator<_ObjectType>>;
     using Iterator_ = STDDeque_::iterator;
@@ -95,9 +95,9 @@ public:
     NODISCARD FORCEINLINE _ObjectType& Back() noexcept { return deque_.back(); }
     NODISCARD FORCEINLINE const _ObjectType& Back() const noexcept { return deque_.back(); }
 
-    NODISCARD FORCEINLINE SizeType Size() const noexcept { return static_cast<SizeType>(deque_.size()); }
-    NODISCARD FORCEINLINE SizeType Capacity() const noexcept { return kSizeTypeMax; }
-    NODISCARD FORCEINLINE Bool Empty() const noexcept { return deque_.empty(); }
+    NODISCARD FORCEINLINE SizeType GetSize() const noexcept { return static_cast<SizeType>(deque_.size()); }
+    NODISCARD FORCEINLINE SizeType GetCapacity() const noexcept { return kSizeTypeMax; }
+    NODISCARD FORCEINLINE Bool IsEmpty() const noexcept { return deque_.empty(); }
 
     NODISCARD FORCEINLINE Iterator_ Begin() noexcept { return deque_.begin(); }
     NODISCARD FORCEINLINE ConstIterator_ Begin() const noexcept { return deque_.begin(); }

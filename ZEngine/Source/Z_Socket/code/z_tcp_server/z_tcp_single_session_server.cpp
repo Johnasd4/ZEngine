@@ -93,11 +93,11 @@ NODISCARD ReturnType ZTCPSingleSessionServer::Open(IPTypeEnum _ip_type) noexcept
 
     if (error_code) {
         state_ = StateEnum_::kError;
-        ret_val = error_code::kSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemOrLibraryError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             "System error! error info: %ls",
-            string::StringToWString(error_code.message().c_str()).DataPtr()
+            string::StringToWString(error_code.message().c_str()).GetDataPtr()
         );
         return ret_val;
     }
@@ -119,16 +119,16 @@ NODISCARD ReturnType ZTCPSingleSessionServer::BindEndpoint(const ZTCPEndpoint& _
     );
 
     data_ptr_->acceptor_.bind(
-        *_tcp_endpoint.endpoint_data_.DataPtr<const boost::asio::ip::tcp::endpoint>(), 
+        *_tcp_endpoint.endpoint_data_.GetDataPtr<const boost::asio::ip::tcp::endpoint>(), 
         error_code
     );
     if (error_code) {
         state_ = StateEnum_::kError;
-        ret_val = error_code::kSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemOrLibraryError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             "System error! error info: %ls",
-            string::StringToWString(error_code.message().c_str()).DataPtr()
+            string::StringToWString(error_code.message().c_str()).GetDataPtr()
         );
         return ret_val;
     }
@@ -200,11 +200,11 @@ NODISCARD ReturnType ZTCPSingleSessionServer::SetIfReuseAddress(Bool _if_reuse) 
     data_ptr_->acceptor_.set_option(boost::asio::ip::tcp::acceptor::reuse_address(_if_reuse));
     if (error_code) {
         state_ = StateEnum_::kError;
-        ret_val = error_code::kSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemOrLibraryError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             "System error! error info: %ls",
-            string::StringToWString(error_code.message().c_str()).DataPtr()
+            string::StringToWString(error_code.message().c_str()).GetDataPtr()
         );
         return ret_val;
     }
@@ -226,11 +226,11 @@ NODISCARD ReturnType ZTCPSingleSessionServer::Listen(Int32 _max_wait_connect_cli
     data_ptr_->acceptor_.listen(_max_wait_connect_client_num, error_code);
     if (error_code) {
         state_ = StateEnum_::kError;
-        ret_val = error_code::kSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemOrLibraryError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             "System error! error info: %ls",
-            string::StringToWString(error_code.message().c_str()).DataPtr()
+            string::StringToWString(error_code.message().c_str()).GetDataPtr()
         );
         return ret_val;
     }
@@ -273,11 +273,11 @@ NODISCARD ReturnType ZTCPSingleSessionServer::Accept() noexcept {
 
     data_ptr_->acceptor_.accept(socket_.data_ptr_->socket_, error_code);
     if (error_code) {
-        ret_val = error_code::kSocketErrorCode_SystemError;
+        ret_val = error_code::kSocketErrorCode_SystemOrLibraryError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
             "System error! error info: %ls",
-            string::StringToWString(error_code.message().c_str()).DataPtr()
+            string::StringToWString(error_code.message().c_str()).GetDataPtr()
         );
         return ret_val;
     }

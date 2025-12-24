@@ -21,6 +21,7 @@
 
 #include "drive/d_function.h"
 
+#include "f_console.h"
 #include "m_log.h"
 
 namespace zengine {
@@ -35,7 +36,9 @@ CORE_DLLAPI NODISCARD Void SleepMs(TimeType _time) noexcept {
 
 CORE_DLLAPI NODISCARD Void Exit(ReturnType _ret_val) noexcept {
     Z_LOG_FINISH("Program exited with code 0x{:x}", _ret_val);
+    SleepMs(kExitTimeMs);
     log::FinishFlush();
+    console::Flush();
     exit(_ret_val);
 }
 

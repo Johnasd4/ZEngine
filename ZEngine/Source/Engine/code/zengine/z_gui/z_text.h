@@ -28,7 +28,7 @@ namespace zengine {
 namespace error_code {
 enum ZTextErrorCodeEnum : ReturnType {
     kZTextErrorCode_LinkError = kErrorCodeBase_ZText,
-    kZTextErrorCode_SystemError,
+    kZTextErrorCode_SystemOrLibraryError,
     kZTextErrorCode_NullptrParam,
     kZTextErrorCode_ParamOutOfRange,
 };

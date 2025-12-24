@@ -27,7 +27,7 @@ namespace zengine {
 /*
     A memory piece.
 */
-class CORE_DLLAPI ZMemory : public ZObject {
+class CORE_DLLAPI ZMemory : public ZObject<> {
 public:
     ZMemory() noexcept;
     ZMemory(const ZMemory& _mem) noexcept;
@@ -52,16 +52,16 @@ public:
     }
 
     template<typename _ObjectType>
-    NODISCARD FORCEINLINE _ObjectType* DataPtr() noexcept {
+    NODISCARD FORCEINLINE _ObjectType* GetDataPtr() noexcept {
         return reinterpret_cast<_ObjectType*>(data_ptr_);
     }
     template<typename _ObjectType>
-    NODISCARD FORCEINLINE const _ObjectType* DataPtr() const noexcept {
+    NODISCARD FORCEINLINE const _ObjectType* GetDataPtr() const noexcept {
         return reinterpret_cast<const _ObjectType*>(data_ptr_);
     }
 
-    NODISCARD FORCEINLINE SizeType Size() const noexcept { return size_; }
-    NODISCARD FORCEINLINE SizeType Capacity() const noexcept { return capacity_; }
+    NODISCARD FORCEINLINE SizeType GetSize() const noexcept { return size_; }
+    NODISCARD FORCEINLINE SizeType GetCapacity() const noexcept { return capacity_; }
 
     FORCEINLINE Void Clear() noexcept { memset(data_ptr_, 0, size_); }
 

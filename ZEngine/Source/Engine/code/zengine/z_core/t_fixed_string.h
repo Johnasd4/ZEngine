@@ -42,7 +42,7 @@ namespace internal {
     Fixed string container.
 */
 template<typename _CharType, SizeType kCapacity>
-class TFixedString : public ZObject {
+class TFixedString : public ZObject<> {
 public:
     using STDFixedArray_ = std::array<_CharType, kCapacity>;
     using Iterator_ = STDFixedArray_::iterator;
@@ -86,18 +86,18 @@ public:
 
     NODISCARD FORCEINLINE Bool operator==(const TFixedString& _str) noexcept { 
         if constexpr (kSameType<_CharType, Char>) {
-            return strcmp(DataPtr(), _str.DataPtr()) == 0;
+            return strcmp(GetDataPtr(), _str.GetDataPtr()) == 0;
         }
         else {
-            return wcscmp(DataPtr(), _str.DataPtr()) == 0;
+            return wcscmp(GetDataPtr(), _str.GetDataPtr()) == 0;
         }
     }
     NODISCARD FORCEINLINE Bool operator!=(const TFixedString& _str) noexcept {
         if constexpr (kSameType<_CharType, Char>) {
-            return strcmp(DataPtr(), _str.DataPtr()) == 0;
+            return strcmp(GetDataPtr(), _str.GetDataPtr()) == 0;
         }
         else {
-            return wcscmp(DataPtr(), _str.DataPtr()) == 0;
+            return wcscmp(GetDataPtr(), _str.GetDataPtr()) == 0;
         }
     }
      
@@ -120,10 +120,10 @@ public:
 
     NODISCARD FORCEINLINE constexpr _CharType& At(SizeType _index) noexcept { return str_.at(_index); }
     NODISCARD FORCEINLINE constexpr const _CharType& At(SizeType _index) const noexcept { return str_.at(_index); } 
-    NODISCARD FORCEINLINE constexpr _CharType* DataPtr() noexcept { return str_.data(); }
-    NODISCARD FORCEINLINE constexpr const _CharType* DataPtr() const noexcept { return str_.data(); }
+    NODISCARD FORCEINLINE constexpr _CharType* GetDataPtr() noexcept { return str_.data(); }
+    NODISCARD FORCEINLINE constexpr const _CharType* GetDataPtr() const noexcept { return str_.data(); }
 
-    NODISCARD FORCEINLINE static constexpr SizeType Capacity() noexcept { return kCapacity; }
+    NODISCARD FORCEINLINE static constexpr SizeType GetCapacity() noexcept { return kCapacity; }
 
     NODISCARD FORCEINLINE Iterator_ Begin() noexcept { return str_.begin(); }
     NODISCARD FORCEINLINE ConstIterator_ Begin() const noexcept { return str_.begin(); }

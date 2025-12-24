@@ -99,9 +99,9 @@ private:
             return ret_val;
         }
         //read all data
-        Int32 file_size = file.Size();
+        Int32 file_size = file.GetSize();
         ZMemory memory(file_size);
-        link_code = file.Read(memory.DataPtr<Void>(), file_size);
+        link_code = file.Read(memory.GetDataPtr<Void>(), file_size);
         if (link_code != kOK) {
             ret_val = error_code::kFSocketErrorCode_LinkError;
             Z_LOG_ERROR(
@@ -111,7 +111,7 @@ private:
             return ret_val;
         }
         auto stun_server_info_raw_list = string::SplitToStringViewSkipEmpty(
-            ZStringView(memory.DataPtr<Char>(), file_size), '\n'
+            ZStringView(memory.GetDataPtr<Char>(), file_size), '\n'
         );
         for (
             auto stun_server_info_raw_iter = stun_server_info_raw_list.Begin();
@@ -120,10 +120,10 @@ private:
             ) {
             //remove \r if exist
             ZStringView stun_server_info_raw_string_view;
-            if ((*stun_server_info_raw_iter)[stun_server_info_raw_iter->Size() - 1] == '\r') {
+            if ((*stun_server_info_raw_iter)[stun_server_info_raw_iter->GetSize() - 1] == '\r') {
                 stun_server_info_raw_string_view.Assign(
-                    stun_server_info_raw_iter->DataPtr(), 
-                    stun_server_info_raw_iter->Size() - 1
+                    stun_server_info_raw_iter->GetDataPtr(), 
+                    stun_server_info_raw_iter->GetSize() - 1
                 );
             }
             else {
@@ -133,14 +133,14 @@ private:
             auto stun_server_info_string_view_list = string::SplitToStringViewSkipEmpty(
                 stun_server_info_raw_string_view, ':'
             );
-            if (stun_server_info_string_view_list.Size() >= 2ULL) {
+            if (stun_server_info_string_view_list.GetSize() >= 2ULL) {
                 auto stun_server_info_string_view_list_iter = stun_server_info_string_view_list.Begin();
                 ZStringView address_string_view = *stun_server_info_string_view_list_iter;
                 ++stun_server_info_string_view_list_iter;
                 ZStringView port_string_view = *stun_server_info_string_view_list_iter;
 
                 UInt32 failed_count = 0ULL;
-                if (stun_server_info_string_view_list.Size() >= 3ULL) {
+                if (stun_server_info_string_view_list.GetSize() >= 3ULL) {
                     ++stun_server_info_string_view_list_iter;
                     link_code = stun_server_info_string_view_list_iter->ToNumber(&failed_count);
                     if (link_code != kOK) {
@@ -182,11 +182,11 @@ private:
             }
             ZString stun_server_info_string = string::GenerateString(
                 "%s:%s:%u\n",
-                stun_server_info_ptr->stun_address_str_.DataPtr(),
-                stun_server_info_ptr->stun_port_str_.DataPtr(),
+                stun_server_info_ptr->stun_address_str_.GetDataPtr(),
+                stun_server_info_ptr->stun_port_str_.GetDataPtr(),
                 stun_server_info_ptr->failed_count_
             );
-            link_code = file.Write(stun_server_info_string.DataPtr(), stun_server_info_string.Size());
+            link_code = file.Write(stun_server_info_string.GetDataPtr(), stun_server_info_string.GetSize());
             if (link_code != kOK) {
                 ret_val = error_code::kFSocketErrorCode_LinkError;
                 Z_LOG_ERROR(
@@ -296,8 +296,8 @@ SOCKET_DLLAPI ReturnType GetUDPPublicIP4AndPort(
         buffer_list.EmplaceBack();
         link_code = udp_socket.AsyncReceiveFrom(
             ZBuffer(
-                buffer_list.Back().DataPtr(),
-                buffer_list.Back().Capacity()
+                buffer_list.Back().GetDataPtr(),
+                buffer_list.Back().GetCapacity()
             ),
             [
                 _public_udp_ip_ptr, _public_udp_port_ptr, &if_success, &async_mutex, &success_sem_mutex, &async_count,
@@ -310,35 +310,35 @@ SOCKET_DLLAPI ReturnType GetUDPPublicIP4AndPort(
             ) {
                 if (
                     _error_code == kOK &&
-                    _buffer.Size() >= 28 && 
-                    _buffer.DataPtr<const UInt8>()[0] == 0x01 && 
-                    _buffer.DataPtr<const UInt8>()[1] == 0x01
+                    _buffer.GetSize() >= 28 && 
+                    _buffer.GetDataPtr<const UInt8>()[0] == 0x01 && 
+                    _buffer.GetDataPtr<const UInt8>()[1] == 0x01
                 ) {
                     SizeType buffer_index = 20;
-                    while (buffer_index + 8 < _buffer.Size()) {
+                    while (buffer_index + 8 < _buffer.GetSize()) {
                         UInt16 type = 
-                            (_buffer.DataPtr<const UInt8>()[buffer_index] << 8)
-                            | _buffer.DataPtr<const UInt8>()[buffer_index + 1];
+                            (_buffer.GetDataPtr<const UInt8>()[buffer_index] << 8)
+                            | _buffer.GetDataPtr<const UInt8>()[buffer_index + 1];
                         UInt16 length = 
-                            (_buffer.DataPtr<const UInt8>()[buffer_index + 2] << 8) |
-                            _buffer.DataPtr<const UInt8>()[buffer_index + 3];
+                            (_buffer.GetDataPtr<const UInt8>()[buffer_index + 2] << 8) |
+                            _buffer.GetDataPtr<const UInt8>()[buffer_index + 3];
                         //success
                         if (
                             type == 0x0020 &&
                             length >= 8 &&
-                            _buffer.DataPtr<const UInt8>()[buffer_index + 4] == 0 &&
-                            _buffer.DataPtr<const UInt8>()[buffer_index + 5] == 1
+                            _buffer.GetDataPtr<const UInt8>()[buffer_index + 4] == 0 &&
+                            _buffer.GetDataPtr<const UInt8>()[buffer_index + 5] == 1
                         ) {
                             // XOR-MAPPED-ADDRESS IPv4
                             UInt16 port = 
-                                (_buffer.DataPtr<const UInt8>()[buffer_index + 6] << 8) |
-                                _buffer.DataPtr<const UInt8>()[buffer_index + 7];
+                                (_buffer.GetDataPtr<const UInt8>()[buffer_index + 6] << 8) |
+                                _buffer.GetDataPtr<const UInt8>()[buffer_index + 7];
                             port ^= 0x2112;
                             UInt32 ip =
-                                (UInt32(_buffer.DataPtr<const UInt8>()[buffer_index + 8]) << 24) |
-                                (UInt32(_buffer.DataPtr<const UInt8>()[buffer_index + 9]) << 16) |
-                                (UInt32(_buffer.DataPtr<const UInt8>()[buffer_index + 10]) << 8) |
-                                _buffer.DataPtr<const UInt8>()[buffer_index + 11];
+                                (UInt32(_buffer.GetDataPtr<const UInt8>()[buffer_index + 8]) << 24) |
+                                (UInt32(_buffer.GetDataPtr<const UInt8>()[buffer_index + 9]) << 16) |
+                                (UInt32(_buffer.GetDataPtr<const UInt8>()[buffer_index + 10]) << 8) |
+                                _buffer.GetDataPtr<const UInt8>()[buffer_index + 11];
                             ip ^= 0x2112A442;
 
                             //reset failed count
@@ -422,7 +422,7 @@ SOCKET_DLLAPI ReturnType GetUDPPublicIP4AndPort(
         Z_LOG_ERROR(
             error_code::kFSocketErrorCode_LinkError, link_code,
             "Get udp public ip4 and prot failed! local_ip: %ls local_port:%d",
-            string::StringToWString(_local_udp_endpoint.IPString().DataPtr()).DataPtr(),
+            string::StringToWString(_local_udp_endpoint.IPString().GetDataPtr()).GetDataPtr(),
             _local_udp_endpoint.Port()
         );
         return ret_val;

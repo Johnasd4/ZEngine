@@ -53,7 +53,7 @@ public:
 
     ZSocketBufferStream& operator=(ZSocketBufferStream&& _buffer) noexcept;
 
-    NODISCARD SizeType Size() const noexcept;
+    NODISCARD SizeType GetSize() const noexcept;
 
     NODISCARD const ZConstBuffer ReadData() noexcept;
     NODISCARD const ZConstBuffer ReadData(SizeType _size) noexcept;

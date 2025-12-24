@@ -36,7 +36,7 @@ namespace zengine {
     Objects can be released directly from the list without removing.
 */
 template<typename _ObjectType, Bool kIfCallConstructorAndDestructor = kIsClassType<_ObjectType>>
-class TPoolList : public ZObject {
+class TPoolList : public ZObject<> {
 private:
     static inline constexpr SizeType kExtendMinSize = 10ULL;
     static inline constexpr SizeType kMemoryPtrListSize = 10ULL;
@@ -134,7 +134,7 @@ public:
                     }
                 }
             }
-            memory_pool::ReleaseMemory(memory_iter->memory_ptr_);
+            memory_pool::ReleaseThreadLocalMemory(memory_iter->memory_ptr_);
         }
     }
 
@@ -334,7 +334,7 @@ private:
             extend_num = kExtendMinSize;
         }
         SizeType mem_size = sizeof(Node_) * extend_num;
-        Void* mem_ptr = memory_pool::ApplyMemory(mem_size, &mem_size);
+        Void* mem_ptr = memory_pool::ApplyThreadLocalMemory(mem_size, &mem_size);
         extend_num = mem_size / sizeof(Node_);
         memory_list_.EmplaceBack(mem_ptr, extend_num);
         if (model_obj_ptr_) {
@@ -411,7 +411,7 @@ private:
     Objects can be released directly from the list without removing.
 */
 template<typename _ObjectType, Bool kIfCallConstructorAndDestructor = kIsClassType<_ObjectType>>
-class TPoolListSafe : public ZObject {
+class TPoolListSafe : public ZObject<> {
 private:
     static constexpr SizeType kExtendMinSize = 10ULL;
     static constexpr SizeType kMemoryPtrListSize = 10ULL;
@@ -512,7 +512,7 @@ public:
                     }
                 }
             }
-            memory_pool::ReleaseMemory(memory_iter->memory_ptr_);
+            memory_pool::ReleaseThreadLocalMemory(memory_iter->memory_ptr_);
         }
     }
 
@@ -759,7 +759,7 @@ private:
             extend_num = kExtendMinSize;
         }
         SizeType mem_size = sizeof(Node_) * extend_num;
-        Void* mem_ptr = memory_pool::ApplyMemory(mem_size, &mem_size);
+        Void* mem_ptr = memory_pool::ApplyThreadLocalMemory(mem_size, &mem_size);
         extend_num = mem_size / sizeof(Node_);
         memory_list_.EmplaceBack(mem_ptr, extend_num);
         if (model_obj_ptr_) {

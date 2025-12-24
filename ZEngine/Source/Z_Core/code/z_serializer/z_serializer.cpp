@@ -43,13 +43,13 @@ ZSerializer::ZSerializer(ZSerializer&& _serializer) noexcept
 
 ZSerializer::ZSerializer(SizeType _capacity) noexcept
     : SuperType_()
-    , data_ptr_(static_cast<Byte*>(memory_pool::ApplyMemory(_capacity, &capacity_)))
+    , data_ptr_(static_cast<Byte*>(memory_pool::ApplyThreadLocalMemory(_capacity, &capacity_)))
     , size_(0ULL) 
 {}
 
 ZSerializer::~ZSerializer() noexcept {
     if (data_ptr_ != nullptr) {
-        memory_pool::ReleaseMemory(data_ptr_);
+        memory_pool::ReleaseThreadLocalMemory(data_ptr_);
     }
 }
 
@@ -58,7 +58,7 @@ ZSerializer& ZSerializer::operator=(ZSerializer&& _serializer) noexcept {
         return *this;
     }
     if (data_ptr_ != nullptr) {
-        memory_pool::ReleaseMemory(data_ptr_);
+        memory_pool::ReleaseThreadLocalMemory(data_ptr_);
     }
     data_ptr_ = _serializer.data_ptr_;
     size_ = _serializer.size_;
@@ -87,10 +87,10 @@ NODISCARD ReturnType ZSerializer::Write(const Void* _data_ptr, SizeType _size) n
 
 Void ZSerializer::Reserve(SizeType _capcity) noexcept {
     if (_capcity > capacity_) {
-        Byte* data_ptr = static_cast<Byte*>(memory_pool::ApplyMemory(_capcity, &capacity_));
+        Byte* data_ptr = static_cast<Byte*>(memory_pool::ApplyThreadLocalMemory(_capcity, &capacity_));
         Copy(data_ptr, data_ptr_, size_);
         if (data_ptr_ != nullptr) {
-            memory_pool::ReleaseMemory(data_ptr_);
+            memory_pool::ReleaseThreadLocalMemory(data_ptr_);
         }
         data_ptr_ = data_ptr;
     }

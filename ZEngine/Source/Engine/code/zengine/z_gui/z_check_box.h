@@ -30,7 +30,7 @@ namespace zengine {
 namespace error_code {
 enum ZCheckBoxErrorCodeEnum : ReturnType {
     kZCheckBoxErrorCode_LinkError = kErrorCodeBase_ZCheckBox,
-    kZCheckBoxErrorCode_SystemError,
+    kZCheckBoxErrorCode_SystemOrLibraryError,
     kZCheckBoxErrorCode_NullptrParam,
     kZCheckBoxErrorCode_ParamOutOfRange,
 };

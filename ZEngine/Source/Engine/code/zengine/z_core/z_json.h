@@ -20,7 +20,7 @@
 
 #include "drive.h"
 
-#include "library/l_rapidjson.h"
+#include "internal/l_rapidjson.h"
 
 #include "t_smart_pointer.h"
 #include "z_string.h"
@@ -30,7 +30,7 @@ namespace zengine {
 namespace error_code {
 enum ZJsonErrorCodeEnum : ReturnType {
     kZJsonErrorCode_LinkError = kErrorCodeBase_ZJson,
-    kZJsonErrorCode_SystemError,
+    kZJsonErrorCode_SystemOrLibraryError,
     kZJsonErrorCode_NullptrParam,
     kZJsonErrorCode_ParamOutOfRange,
     kZJsonErrorCode_JsonParseError
@@ -42,7 +42,7 @@ namespace zengine {
 /*
     Json value class.
 */
-class CORE_DLLAPI ZJsonValue : public ZObject {
+class CORE_DLLAPI ZJsonValue : public ZObject<> {
 public:
     ~ZJsonValue() noexcept;
     
@@ -174,7 +174,7 @@ private:
 /*
     Json document class.
 */
-class CORE_DLLAPI ZJsonDocument : public ZObject {
+class CORE_DLLAPI ZJsonDocument : public ZObject<> {
 public:
     ZJsonDocument() noexcept;
     ZJsonDocument(ZJsonDocument&& _doc) noexcept;

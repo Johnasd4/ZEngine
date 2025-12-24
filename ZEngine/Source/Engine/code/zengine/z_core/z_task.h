@@ -30,7 +30,7 @@ namespace zengine {
 namespace error_code {
 enum ZTaskErrorCodeEnum : ReturnType {
     kZTaskErrorCode_LinkError = kErrorCodeBase_ZTask,
-    kZTaskErrorCode_SystemError,
+    kZTaskErrorCode_SystemOrLibraryError,
     kZTaskErrorCode_NullptrParam,
     kZTaskErrorCode_ParamOutOfRange,
     kZTaskErrorCode_StateError,
@@ -54,7 +54,7 @@ enum class ZTaskStateEnum : Int32 {
     Task class, package a function and it's params, the task can only execute one time, thread safe.
     Use ZTask instead for thread pool tasks.
 */
-class CORE_DLLAPI ZTaskSafe : public ZObject {
+class CORE_DLLAPI ZTaskSafe : public ZObject<> {
 public:
     ZTaskSafe() noexcept;
     ZTaskSafe(ZTaskSafe&& _task) noexcept;
@@ -262,7 +262,7 @@ private:
     Task class, package a function and it's params, the task can only execute one time, not thread safe, 
     Used if for thread pool tasks.
 */
-class CORE_DLLAPI ZTask : public ZObject {
+class CORE_DLLAPI ZTask : public ZObject<> {
 public:
     ZTask() noexcept;
     ZTask(ZTask&& _task) noexcept;
@@ -466,7 +466,7 @@ private:
 /*
     Task class, package a function and it's params, the task can execute multiple times.
 */
-class CORE_DLLAPI ZRepeatTask : public ZObject {
+class CORE_DLLAPI ZRepeatTask : public ZObject<> {
 public:
     ZRepeatTask() noexcept;
     ZRepeatTask(ZRepeatTask&& _task) noexcept;

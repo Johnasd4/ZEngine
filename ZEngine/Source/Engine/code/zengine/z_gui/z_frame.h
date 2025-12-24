@@ -29,7 +29,7 @@ namespace zengine {
 namespace error_code {
 enum ZFrameErrorCodeEnum : ReturnType {
     kZFrameErrorCode_LinkError = kErrorCodeBase_ZFrame,
-    kZFrameErrorCode_SystemError,
+    kZFrameErrorCode_SystemOrLibraryError,
     kZFrameErrorCode_NullptrParam,
     kZFrameErrorCode_ParamOutOfRange,
     kZFrameErrorCode_FrameAreadyCreated,

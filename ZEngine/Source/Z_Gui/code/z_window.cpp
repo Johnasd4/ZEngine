@@ -215,7 +215,7 @@ NODISCARD ReturnType ZWindow::Execute() noexcept {
         pre_time = current_time;
 
         //call tasks
-        while (task_queue_.Size() > 0ULL) {
+        while (task_queue_.GetSize() > 0ULL) {
             link_code = task_queue_.Front().Run();
             if (link_code != kOK) {
                 Z_LOG_ERROR(
@@ -258,7 +258,7 @@ Void ZWindow::Tick(Float32 _delta_sec) noexcept {
         return;
     }
 
-    GuiSize cur_size = Size();
+    GuiSize cur_size = GetSize();
     GuiPos cur_pos = Pos();
 
     //update size
@@ -448,13 +448,13 @@ Void ZWindow::SetScreenMode(WindowScreenModeEnum_ _screen_mode) noexcept {
     //get the main monitor
     GLFWmonitor* main_monitor = glfwGetPrimaryMonitor();
     if (main_monitor == nullptr) {
-        Z_LOG_ERROR(error_code::kZWindowErrorCode_SystemError, 0, "glfwGetPrimaryMonitor() system error!");
+        Z_LOG_ERROR(error_code::kZWindowErrorCode_SystemOrLibraryError, 0, "glfwGetPrimaryMonitor() system error!");
         return;
     }
     //get the main monitor
     const GLFWvidmode* video_mode = glfwGetVideoMode(main_monitor);
     if (video_mode == nullptr) {
-        Z_LOG_ERROR(error_code::kZWindowErrorCode_SystemError, 0, "glfwGetVideoMode() system error!");
+        Z_LOG_ERROR(error_code::kZWindowErrorCode_SystemOrLibraryError, 0, "glfwGetVideoMode() system error!");
         return;
     }
 
@@ -477,7 +477,7 @@ Void ZWindow::SetScreenMode(WindowScreenModeEnum_ _screen_mode) noexcept {
 }
 
 Void ZWindow::SetScreenCenter() noexcept {
-    SetPos(ScreenCenterPos(Size()));
+    SetPos(ScreenCenterPos(GetSize()));
 }
 
 NODISCARD GuiPos ZWindow::AbsPos() const noexcept { return GuiPos(0.0f, 0.0f); }
@@ -539,7 +539,7 @@ NODISCARD ReturnType ZWindow::LoadFontFromFileTTF(
         Z_LOG_ERROR(
             ret_val, 0, 
             "Font language load failed! _file_dir: %ls", 
-            string::StringToWString(_file_dir).DataPtr()
+            string::StringToWString(_file_dir).GetDataPtr()
         );
         return ret_val;
     }
@@ -559,12 +559,12 @@ NODISCARD ReturnType ZWindow::SaveSettings(const Char* _file_dir) noexcept {
     ReturnType ret_val = kOK;
 
     ZWString file_dir = string::StringToWString(_file_dir);
-    if (!file_system::PathValid(file_dir.DataPtr())) {
+    if (!file_system::IsPathValid(file_dir.GetDataPtr())) {
         ret_val = error_code::kZWindowErrorCode_INIFileDirNotValid;
         Z_LOG_ERROR(
             ret_val, 0,
             "Save settings failed, file dir not valid! _file_dir: %ls",
-            file_dir.DataPtr()
+            file_dir.GetDataPtr()
         );
         return ret_val;
     }
@@ -579,12 +579,12 @@ NODISCARD ReturnType ZWindow::LoadSettings(const Char* _file_dir) noexcept {
     ReturnType link_code = kOK;
 
     ZWString file_dir = string::StringToWString(_file_dir);
-    if (!file_system::PathExist(file_dir.DataPtr())) {
+    if (!file_system::IsPathExist(file_dir.GetDataPtr())) {
         ret_val = error_code::kZWindowErrorCode_INIFileDirNotExist;
         Z_LOG_ERROR(
             ret_val, 0,
             "Load settings failed, file dir not exist! _file_dir: %ls",
-            file_dir.DataPtr()
+            file_dir.GetDataPtr()
         );
         return ret_val;
     }
@@ -699,7 +699,7 @@ NODISCARD ReturnType ZWindow::CreateWindowP(
             nullptr
         );
         if (window_handle_ == nullptr) {
-            ret_val = error_code::kZWindowErrorCode_SystemError;
+            ret_val = error_code::kZWindowErrorCode_SystemOrLibraryError;
             Z_LOG_ERROR(ret_val, 0, "glfwCreateWindow() system error!");
             return ret_val;
         }
@@ -717,7 +717,7 @@ NODISCARD ReturnType ZWindow::CreateWindowP(
             nullptr
         );
         if (window_handle_ == nullptr) {
-            ret_val = error_code::kZWindowErrorCode_SystemError;
+            ret_val = error_code::kZWindowErrorCode_SystemOrLibraryError;
             Z_LOG_ERROR(ret_val, 0, "glfwCreateWindow() system error!");
             return ret_val;
         }
@@ -729,21 +729,21 @@ NODISCARD ReturnType ZWindow::CreateWindowP(
         //get the main monitor
         GLFWmonitor* main_monitor = glfwGetPrimaryMonitor();
         if (main_monitor == nullptr) {
-            ret_val = error_code::kZWindowErrorCode_SystemError;
+            ret_val = error_code::kZWindowErrorCode_SystemOrLibraryError;
             Z_LOG_ERROR(ret_val, 0, "glfwGetPrimaryMonitor() system error!");
             return ret_val;
         }
         //get the main monitor
         const GLFWvidmode* video_mode = glfwGetVideoMode(main_monitor);
         if (video_mode == nullptr) {
-            ret_val = error_code::kZWindowErrorCode_SystemError;
+            ret_val = error_code::kZWindowErrorCode_SystemOrLibraryError;
             Z_LOG_ERROR(ret_val, 0, "glfwGetVideoMode() system error!");
             return ret_val;
         }
         //create window
         window_handle_ = glfwCreateWindow(video_mode->width, video_mode->height, _name, main_monitor, nullptr);
         if (window_handle_ == nullptr) {
-            ret_val = error_code::kZWindowErrorCode_SystemError;
+            ret_val = error_code::kZWindowErrorCode_SystemOrLibraryError;
             Z_LOG_ERROR(ret_val, 0, "glfwCreateWindow() system error!");
             return ret_val;
         }
@@ -781,7 +781,7 @@ NODISCARD ReturnType ZWindow::CreateContextP() noexcept {
         TLockGuard lock_guard(OpenGLMutex());
         //init opengl
         if (glfwInit() != GLFW_TRUE) {
-            ret_val = error_code::kZWindowErrorCode_SystemError;
+            ret_val = error_code::kZWindowErrorCode_SystemOrLibraryError;
             Z_LOG_ERROR(ret_val, 0, "glfwInit() system error!");
             return ret_val;
         }

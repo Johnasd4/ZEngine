@@ -28,6 +28,8 @@
 
 #include "../drive.h"
 
+#include "../z_string_view.h"
+
 namespace zengine {
 namespace error_code {
 
@@ -92,34 +94,39 @@ enum class InfoLogTypeEnum : SizeType {
 };
 
 /** @brief The maximum number of supported log ports. */
-inline constexpr SizeType kLogMaxPortNum = 8;
+inline constexpr UInt32 kLogMaxPortNum = 8U;
 
 /** @brief The number of log ports currently defined for use (Error, Trace, Info). */
-inline constexpr SizeType kLogUsedPortNum = 3;
+inline constexpr UInt32 kLogUsedPortNum = 3U;
 
 /** @brief The maximum number of output functions that can be registered per port. */
-inline constexpr SizeType kOutputFunctionMaxNum = 8;
+inline constexpr UInt32 kOutputFunctionMaxNum = 8U;
 
 /** @brief The port ID assigned for error logging. */
-inline constexpr SizeType kErrorLogPortID = kLogMaxPortNum - 1;
+inline constexpr UInt32 kErrorLogPortID = kLogMaxPortNum - 1U;
 
 /** @brief The port ID assigned for trace logging. */
-inline constexpr SizeType kTraceLogPortID = kLogMaxPortNum - 2;
+inline constexpr UInt32 kTraceLogPortID = kLogMaxPortNum - 2U;
 
 /** @brief The port ID assigned for info logging. */
-inline constexpr SizeType kInfoLogPortID = kLogMaxPortNum - 3;
+inline constexpr UInt32 kInfoLogPortID = kLogMaxPortNum - 3U;
 
 /** @brief The root directory path where log files are stored. */
-inline constexpr ZStringView kLogFileRootPathDir = ".\\Log";
+inline constexpr ZStringView kLogFileRootPathDir = "Log";
 
 /** @brief The maximum size of a single log message string (4096 - 8 bytes for memory block header). */
-inline constexpr SizeType kLogStringMaxSize = 4088ULL;
+inline constexpr UInt32 kLogStringMaxSize = 4096U;
+/** @brief The size to extend the log string pool when more memory is needed. */
+inline constexpr UInt32 kLogStringPoolExtendSize = 512U * kKB;
 
 /** @brief The maximum size of the final formatted output log string. */
-inline constexpr SizeType kOutputStringMaxSize = 8192ULL;
+inline constexpr UInt32 kOutputStringMaxSize = 8192U;
+
+/** @brief The size of log file output buffer size(65536 - 16 bytes for memory block header). */
+inline constexpr UInt32 kFileOutputBufferSize = 65520U;
 
 /** @brief The maximum number of log files to retain before rotation or overwriting. */
-inline constexpr SizeType kLogFileMaxNum = 10;
+inline constexpr UInt32 kLogFileMaxNum = 10;
 
 }//log
 }//zengine

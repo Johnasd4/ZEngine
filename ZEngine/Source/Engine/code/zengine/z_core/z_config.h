@@ -28,7 +28,7 @@ namespace zengine {
 namespace error_code {
 enum ZConfigErrorCodeEnum : ReturnType {
     kZConfigErrorCode_LinkError = kErrorCodeBase_ZConfig,
-    kZConfigErrorCode_SystemError,
+    kZConfigErrorCode_SystemOrLibraryError,
     kZConfigErrorCode_NullptrParam,
     kZConfigErrorCode_ParamOutOfRange,
     kZConfigErrorCode_MemberNotExist
@@ -47,7 +47,7 @@ namespace zengine {
     Aoto saves and reads.
     WARNING: Large config file will impact io performance.
 */
-class CORE_DLLAPI ZConfig : public ZObject {
+class CORE_DLLAPI ZConfig : public ZObject<> {
 public:
     ZConfig(const Char* _file_dir) noexcept;
     ~ZConfig() noexcept;

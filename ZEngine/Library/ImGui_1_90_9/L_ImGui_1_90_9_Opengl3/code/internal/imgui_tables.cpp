@@ -347,7 +347,7 @@ bool    ImGui::BeginTableEx(const char* name, ImGuiID id, int columns_count, ImG
 
     // Acquire temporary buffers
     const int table_idx = g.Tables.GetIndex(table);
-    if (++g.TablesTempDataStacked > g.TablesTempData.Size)
+    if (++g.TablesTempDataStacked > g.TablesTempData.GetSize)
         g.TablesTempData.resize(g.TablesTempDataStacked, ImGuiTableTempData());
     ImGuiTableTempData* temp_data = table->TempData = &g.TablesTempData[g.TablesTempDataStacked - 1];
     temp_data->TableIndex = table_idx;
@@ -377,7 +377,7 @@ bool    ImGui::BeginTableEx(const char* name, ImGuiID id, int columns_count, ImG
     if (instance_no > 0)
     {
         IM_ASSERT(table->ColumnsCount == columns_count && "BeginTable(): Cannot change columns count mid-frame while preserving same ID");
-        if (table->InstanceDataExtra.Size < instance_no)
+        if (table->InstanceDataExtra.GetSize < instance_no)
             table->InstanceDataExtra.push_back(ImGuiTableInstanceData());
         instance_id = GetIDWithSeed(instance_no, GetIDWithSeed("##Instances", NULL, id)); // Push "##Instances" followed by (int)instance_no in ID stack.
     }
@@ -457,7 +457,7 @@ bool    ImGui::BeginTableEx(const char* name, ImGuiID id, int columns_count, ImG
     temp_data->HostBackupCurrLineSize = inner_window->DC.CurrLineSize;
     temp_data->HostBackupCursorMaxPos = inner_window->DC.CursorMaxPos;
     temp_data->HostBackupItemWidth = outer_window->DC.ItemWidth;
-    temp_data->HostBackupItemWidthStackSize = outer_window->DC.ItemWidthStack.Size;
+    temp_data->HostBackupItemWidthStackSize = outer_window->DC.ItemWidthStack.GetSize;
     inner_window->DC.PrevLineSize = inner_window->DC.CurrLineSize = ImVec2(0.0f, 0.0f);
 
     // Make left and top borders not overlap our contents by offsetting HostClipRect (#6765)
@@ -526,7 +526,7 @@ bool    ImGui::BeginTableEx(const char* name, ImGuiID id, int columns_count, ImG
         table->IsResetDisplayOrderRequest = true;
 
     // Mark as used to avoid GC
-    if (table_idx >= g.TablesLastTimeActive.Size)
+    if (table_idx >= g.TablesLastTimeActive.GetSize)
         g.TablesLastTimeActive.resize(table_idx + 1, -1.0f);
     g.TablesLastTimeActive[table_idx] = (float)g.Time;
     temp_data->LastTimeActive = (float)g.Time;
@@ -608,7 +608,7 @@ bool    ImGui::BeginTableEx(const char* name, ImGuiID id, int columns_count, ImG
 
     // Clear names
     // At this point the ->NameOffset field of each column will be invalid until TableUpdateLayout() or the first call to TableSetupColumn()
-    if (table->ColumnsNames.Buf.Size > 0)
+    if (table->ColumnsNames.Buf.GetSize > 0)
         table->ColumnsNames.Buf.resize(0);
 
     // Apply queued resizing/reordering/hiding requests
@@ -1450,7 +1450,7 @@ void    ImGui::EndTable()
 
     // Pop from id stack
     IM_ASSERT_USER_ERROR(inner_window->IDStack.back() == table_instance->TableInstanceID, "Mismatching PushID/PopID!");
-    IM_ASSERT_USER_ERROR(outer_window->DC.ItemWidthStack.Size >= temp_data->HostBackupItemWidthStackSize, "Too many PopItemWidth!");
+    IM_ASSERT_USER_ERROR(outer_window->DC.ItemWidthStack.GetSize >= temp_data->HostBackupItemWidthStackSize, "Too many PopItemWidth!");
     if (table->InstanceCurrent > 0)
         PopID();
     PopID();
@@ -1462,7 +1462,7 @@ void    ImGui::EndTable()
     inner_window->SkipItems = table->HostSkipItems;
     outer_window->DC.CursorPos = table->OuterRect.Min;
     outer_window->DC.ItemWidth = temp_data->HostBackupItemWidth;
-    outer_window->DC.ItemWidthStack.Size = temp_data->HostBackupItemWidthStackSize;
+    outer_window->DC.ItemWidthStack.GetSize = temp_data->HostBackupItemWidthStackSize;
     outer_window->DC.ColumnsOffset = temp_data->HostBackupColumnsOffset;
 
     // Layout in outer window
@@ -2538,9 +2538,9 @@ void ImGui::TableMergeDrawChannels(ImGuiTable* table)
 
             // Don't attempt to merge if there are multiple draw calls within the column
             ImDrawChannel* src_channel = &splitter->_Channels[channel_no];
-            if (src_channel->_CmdBuffer.Size > 0 && src_channel->_CmdBuffer.back().ElemCount == 0 && src_channel->_CmdBuffer.back().UserCallback == NULL) // Equivalent of PopUnusedDrawCmd()
+            if (src_channel->_CmdBuffer.GetSize > 0 && src_channel->_CmdBuffer.back().ElemCount == 0 && src_channel->_CmdBuffer.back().UserCallback == NULL) // Equivalent of PopUnusedDrawCmd()
                 src_channel->_CmdBuffer.pop_back();
-            if (src_channel->_CmdBuffer.Size != 1)
+            if (src_channel->_CmdBuffer.GetSize != 1)
                 continue;
 
             // Find out the width of this merge group and check if it will fit in our column
@@ -2642,7 +2642,7 @@ void ImGui::TableMergeDrawChannels(ImGuiTable* table)
                     merge_channels_count--;
 
                     ImDrawChannel* channel = &splitter->_Channels[n];
-                    IM_ASSERT(channel->_CmdBuffer.Size == 1 && merge_clip_rect.Contains(ImRect(channel->_CmdBuffer[0].ClipRect)));
+                    IM_ASSERT(channel->_CmdBuffer.GetSize == 1 && merge_clip_rect.Contains(ImRect(channel->_CmdBuffer[0].ClipRect)));
                     channel->_CmdBuffer[0].ClipRect = merge_clip_rect.ToVec4();
                     memcpy(dst_tmp++, channel, sizeof(ImDrawChannel));
                 }
@@ -2662,7 +2662,7 @@ void ImGui::TableMergeDrawChannels(ImGuiTable* table)
             memcpy(dst_tmp++, channel, sizeof(ImDrawChannel));
             remaining_count--;
         }
-        IM_ASSERT(dst_tmp == g.DrawChannelsTempMergeBuffer.Data + g.DrawChannelsTempMergeBuffer.Size);
+        IM_ASSERT(dst_tmp == g.DrawChannelsTempMergeBuffer.Data + g.DrawChannelsTempMergeBuffer.GetSize);
         memcpy(splitter->_Channels.Data + LEADING_DRAW_CHANNELS, g.DrawChannelsTempMergeBuffer.Data, (splitter->_Count - LEADING_DRAW_CHANNELS) * sizeof(ImDrawChannel));
     }
 }
@@ -3220,7 +3220,7 @@ void ImGui::TableAngledHeadersRow()
         }
 
     // Render row
-    TableAngledHeadersRowEx(row_id, g.Style.TableAngledHeadersAngle, 0.0f, temp_data->AngledHeadersRequests.Data, temp_data->AngledHeadersRequests.Size);
+    TableAngledHeadersRowEx(row_id, g.Style.TableAngledHeadersAngle, 0.0f, temp_data->AngledHeadersRequests.Data, temp_data->AngledHeadersRequests.GetSize);
 }
 
 // Important: data must be fed left to right
@@ -3870,7 +3870,7 @@ void ImGui::TableGcCompactSettings()
     for (ImGuiTableSettings* settings = g.SettingsTables.begin(); settings != NULL; settings = g.SettingsTables.next_chunk(settings))
         if (settings->ID != 0)
             required_memory += (int)TableSettingsCalcChunkSize(settings->ColumnsCount);
-    if (required_memory == g.SettingsTables.Buf.Size)
+    if (required_memory == g.SettingsTables.Buf.GetSize)
         return;
     ImChunkStream<ImGuiTableSettings> new_chunk_stream;
     new_chunk_stream.Buf.reserve(required_memory);
@@ -3922,7 +3922,7 @@ void ImGui::DebugNodeTable(ImGuiTable* table)
     }
 
     bool clear_settings = SmallButton("Clear settings");
-    BulletText("OuterRect: Pos: (%.1f,%.1f) Size: (%.1f,%.1f) Sizing: '%s'", table->OuterRect.Min.x, table->OuterRect.Min.y, table->OuterRect.GetWidth(), table->OuterRect.GetHeight(), DebugNodeTableGetSizingPolicyDesc(table->Flags));
+    BulletText("OuterRect: Pos: (%.1f,%.1f) GetSize: (%.1f,%.1f) Sizing: '%s'", table->OuterRect.Min.x, table->OuterRect.Min.y, table->OuterRect.GetWidth(), table->OuterRect.GetHeight(), DebugNodeTableGetSizingPolicyDesc(table->Flags));
     BulletText("ColumnsGivenWidth: %.1f, ColumnsAutoFitWidth: %.1f, InnerWidth: %.1f%s", table->ColumnsGivenWidth, table->ColumnsAutoFitWidth, table->InnerWidth, table->InnerWidth == 0.0f ? " (auto)" : "");
     BulletText("CellPaddingX: %.1f, CellSpacingX: %.1f/%.1f, OuterPaddingX: %.1f", table->CellPaddingX, table->CellSpacingX1, table->CellSpacingX2, table->OuterPaddingX);
     BulletText("HoveredColumnBody: %d, HoveredColumnBorder: %d", table->HoveredColumnBody, table->HoveredColumnBorder);
@@ -4032,7 +4032,7 @@ void ImGui::SetWindowClipRectBeforeSetChannel(ImGuiWindow* window, const ImRect&
     ImVec4 clip_rect_vec4 = clip_rect.ToVec4();
     window->ClipRect = clip_rect;
     window->DrawList->_CmdHeader.ClipRect = clip_rect_vec4;
-    window->DrawList->_ClipRectStack.Data[window->DrawList->_ClipRectStack.Size - 1] = clip_rect_vec4;
+    window->DrawList->_ClipRectStack.Data[window->DrawList->_ClipRectStack.GetSize - 1] = clip_rect_vec4;
 }
 
 int ImGui::GetColumnIndex()
@@ -4085,7 +4085,7 @@ float ImGui::GetColumnOffset(int column_index)
 
     if (column_index < 0)
         column_index = columns->Current;
-    IM_ASSERT(column_index < columns->Columns.Size);
+    IM_ASSERT(column_index < columns->Columns.GetSize);
 
     const float t = columns->Columns[column_index].OffsetNorm;
     const float x_offset = ImLerp(columns->OffMinX, columns->OffMaxX, t);
@@ -4127,7 +4127,7 @@ void ImGui::SetColumnOffset(int column_index, float offset)
 
     if (column_index < 0)
         column_index = columns->Current;
-    IM_ASSERT(column_index < columns->Columns.Size);
+    IM_ASSERT(column_index < columns->Columns.GetSize);
 
     const bool preserve_width = !(columns->Flags & ImGuiOldColumnFlags_NoPreserveWidths) && (column_index < columns->Count - 1);
     const float width = preserve_width ? GetColumnWidthEx(columns, column_index, columns->IsBeingResized) : 0.0f;
@@ -4191,7 +4191,7 @@ void ImGui::PopColumnsBackground()
 ImGuiOldColumns* ImGui::FindOrCreateColumns(ImGuiWindow* window, ImGuiID id)
 {
     // We have few columns per window so for now we don't need bother much with turning this into a faster lookup.
-    for (int n = 0; n < window->ColumnsStorage.Size; n++)
+    for (int n = 0; n < window->ColumnsStorage.GetSize; n++)
         if (window->ColumnsStorage[n].ID == id)
             return &window->ColumnsStorage[n];
 
@@ -4249,12 +4249,12 @@ void ImGui::BeginColumns(const char* str_id, int columns_count, ImGuiOldColumnFl
     columns->LineMinY = columns->LineMaxY = window->DC.CursorPos.y;
 
     // Clear data if columns count changed
-    if (columns->Columns.Size != 0 && columns->Columns.Size != columns_count + 1)
+    if (columns->Columns.GetSize != 0 && columns->Columns.GetSize != columns_count + 1)
         columns->Columns.resize(0);
 
     // Initialize default widths
-    columns->IsFirstFrame = (columns->Columns.Size == 0);
-    if (columns->Columns.Size == 0)
+    columns->IsFirstFrame = (columns->Columns.GetSize == 0);
+    if (columns->Columns.GetSize == 0)
     {
         columns->Columns.reserve(columns_count + 1);
         for (int n = 0; n < columns_count + 1; n++)

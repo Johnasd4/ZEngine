@@ -31,7 +31,7 @@ namespace zengine {
     Forward List container.
 */
 template<typename _ObjectType>
-class TForwardList : public ZObject {
+class TForwardList : public ZObject<> {
 public:
     using STDForwardList_ = std::forward_list<_ObjectType, TAllocator<_ObjectType>>;
     using Iterator_ = STDForwardList_::iterator;
@@ -90,8 +90,8 @@ public:
     NODISCARD FORCEINLINE _ObjectType& Front() noexcept { return forward_list_.front(); }
     NODISCARD FORCEINLINE const _ObjectType& Front() const noexcept { return forward_list_.front(); }
 
-    NODISCARD FORCEINLINE SizeType Capacity() const noexcept { return kSizeTypeMax; }
-    NODISCARD FORCEINLINE Bool Empty() const noexcept { return forward_list_.empty(); }
+    NODISCARD FORCEINLINE SizeType GetCapacity() const noexcept { return kSizeTypeMax; }
+    NODISCARD FORCEINLINE Bool IsEmpty() const noexcept { return forward_list_.empty(); }
 
     NODISCARD FORCEINLINE Iterator_ BeforeBegin() noexcept { return forward_list_.before_begin(); }
     NODISCARD FORCEINLINE ConstIterator_ BeforeBegin() const noexcept { return forward_list_.before_begin(); }

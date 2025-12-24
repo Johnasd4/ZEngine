@@ -32,7 +32,7 @@ namespace zengine {
     Set container.
 */
 template<typename _ObjectType, typename _CompareFunction = std::less<_ObjectType>>
-class TSet : public ZObject {
+class TSet : public ZObject<> {
 public:
     using STDSet_ = std::set<_ObjectType, _CompareFunction, TAllocator<_ObjectType>>;
     using Iterator_ = STDSet_::iterator;
@@ -74,9 +74,9 @@ public:
     NODISCARD FORCEINLINE _ObjectType& Back() noexcept { return set_.back(); }
     NODISCARD FORCEINLINE const _ObjectType& Back() const noexcept { return set_.back(); }
 
-    NODISCARD FORCEINLINE SizeType Size() const noexcept { return static_cast<SizeType>(set_.size()); }
-    NODISCARD FORCEINLINE SizeType Capacity() const noexcept { return kSizeTypeMax; }
-    NODISCARD FORCEINLINE Bool Empty() const noexcept { return set_.empty(); }
+    NODISCARD FORCEINLINE SizeType GetSize() const noexcept { return static_cast<SizeType>(set_.size()); }
+    NODISCARD FORCEINLINE SizeType GetCapacity() const noexcept { return kSizeTypeMax; }
+    NODISCARD FORCEINLINE Bool IsEmpty() const noexcept { return set_.empty(); }
     NODISCARD FORCEINLINE SizeType Count(const _ObjectType& _val) const noexcept { return set_.count(_val); }
 
 
@@ -162,7 +162,7 @@ private:
     Multiple Set container.
 */
 template<typename _ObjectType, typename _CompareFunction = std::less<_ObjectType>>
-class TMultipleSet : public ZObject {
+class TMultipleSet : public ZObject<> {
 public:
     using STDSet_ = std::multiset<_ObjectType, _CompareFunction, TAllocator<_ObjectType>>;
     using Iterator_ = STDSet_::iterator;
@@ -205,9 +205,9 @@ public:
     NODISCARD FORCEINLINE _ObjectType& Back() noexcept { return set_.back(); }
     NODISCARD FORCEINLINE const _ObjectType& Back() const noexcept { return set_.back(); }
 
-    NODISCARD FORCEINLINE SizeType Size() const noexcept { return static_cast<SizeType>(set_.size()); }
-    NODISCARD FORCEINLINE SizeType Capacity() const noexcept { return kSizeTypeMax; }
-    NODISCARD FORCEINLINE Bool Empty() const noexcept { return set_.empty(); }
+    NODISCARD FORCEINLINE SizeType GetSize() const noexcept { return static_cast<SizeType>(set_.size()); }
+    NODISCARD FORCEINLINE SizeType GetCapacity() const noexcept { return kSizeTypeMax; }
+    NODISCARD FORCEINLINE Bool IsEmpty() const noexcept { return set_.empty(); }
     NODISCARD FORCEINLINE SizeType Count(const _ObjectType& _val) const noexcept { return set_.count(_val); }
 
 

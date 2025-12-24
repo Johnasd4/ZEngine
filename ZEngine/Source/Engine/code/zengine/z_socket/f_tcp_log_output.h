@@ -38,7 +38,7 @@ namespace error_code {
 
 enum FTCPLogOutputErrorCodeEnum : ReturnType {
     kFTCPLogOutputErrorCode_LinkError = kErrorCodeBase_FTCPLogOutput,
-    kFTCPLogOutputErrorCode_SystemError,
+    kFTCPLogOutputErrorCode_SystemOrLibraryError,
     kFTCPLogOutputErrorCode_NullptrParam,
     kFTCPLogOutputErrorCode_ParamOutOfRange,
     kFTCPLogOutputErrorCode_LogServerStateError,

@@ -24,7 +24,7 @@ namespace zengine {
 namespace error_code {
 enum FSystemErrorCodeEnum : ReturnType {
     kFSystemErrorCode_LinkError = kErrorCodeBase_FSystem,
-    kFSystemErrorCode_SystemError,
+    kFSystemErrorCode_SystemOrLibraryError,
     kFSystemErrorCode_NullptrParam,
     kFSystemErrorCode_ParamOutOfRange,
 };

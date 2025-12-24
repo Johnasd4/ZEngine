@@ -39,12 +39,20 @@ namespace log {
 
 ZStringView ZLog::CreateAndGetLogPath() noexcept {
     //log file path.
-    static ZString path_str = std::invoke([]() -> ZString {
+    thread_local ZString path_str = std::invoke([]() -> ZString {
         const ZSystemTime& system_time = ZSystemTime::StartTimeInstance();
-        TFixedString<kMaxFileDirLength> path_str;
-        SizeType path_str_len = path_str.AssignNoEnd(
-            "{}\\{:04}{:02}{:02}{:02}{:02}{:02}",
-            kLogFileRootPathDir,
+        TFixedString<kMaxFileDirLength> log_root_path_str;
+        TFixedString<kMaxFileDirLength> log_path_str;
+
+        SizeType log_root_path_str_len = log_root_path_str.AssignNoEnd(
+            "{}/{}",
+            file_system::GetExecuteDirectoryPath(),
+            kLogFileRootPathDir
+        );
+
+        SizeType log_path_str_len = log_path_str.AssignNoEnd(
+            "{}/{:04}{:02}{:02}{:02}{:02}{:02}",
+            ZStringView(log_root_path_str.GetDataPtr(), log_root_path_str_len),
             system_time.Year(),
             system_time.Month(),
             system_time.Day(),
@@ -54,7 +62,9 @@ ZStringView ZLog::CreateAndGetLogPath() noexcept {
         );
 
         //create log path.
-        ReturnType link_code = file_system::CreateDirectoryByPath(ZStringView(path_str.DataPtr(), path_str_len));
+        ReturnType link_code = file_system::CreateDirectoryByPath(
+            ZStringView(log_path_str.GetDataPtr(), log_path_str_len)
+        );
         if (link_code != kOK) {
             Z_LOG_ERROR(
                 error_code::kMLogErrorCode_LinkError, link_code, "file_system::CreateDirectoryByPath() link error!");
@@ -63,12 +73,12 @@ ZStringView ZLog::CreateAndGetLogPath() noexcept {
         //clear the expired log files.
         TList<ZString> dir_list;
         file_system::GetDirectoriesByPath(kLogFileRootPathDir, &dir_list);
-        while(dir_list.Size() > log::kLogFileMaxNum) {
+        while(dir_list.GetSize() > log::kLogFileMaxNum) {
             file_system::DeleteDirectoryByPath(dir_list.Front());
             dir_list.PopFront();
         }
 
-        return ZString(path_str.DataPtr(), path_str_len);
+        return ZString(log_path_str.GetDataPtr(), log_path_str_len);
     });
     return path_str;
 }
@@ -78,12 +88,12 @@ ZLog::~ZLog() noexcept {
 }
 
 Void ZLog::OutputLog() noexcept {
-    OutputFunctionArray_& output_function_array = OutputFunctionArray();
+    OutputFunctionArray_& output_function_array = OutputFunctionArrayP();
     static OutputString_ output_string;
-    GenerateOutputString(&output_string);
+    GenerateOutputStringP(&output_string);
     SizeType index = 0ULL;
     while (output_function_array[index]) {
-        output_function_array[index](this, ZStringView(output_string.output_str_.DataPtr(), output_string.size_));
+        output_function_array[index](this, ZStringView(output_string.output_str_.GetDataPtr(), output_string.size_));
         ++index;
     }
 }

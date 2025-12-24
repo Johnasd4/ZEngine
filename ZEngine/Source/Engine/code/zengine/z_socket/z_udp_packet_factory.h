@@ -50,7 +50,7 @@ public:
             kSameType<_PacketType, ZUDPPacketMessageSlice> ||
             kSameType<_PacketType, ZUDPPacketMessageLastSilce>
         ) {
-            return new(message_packet_pool_.Apply()->DataPtr<Void>()) _PacketType();
+            return new(message_packet_pool_.Apply()->GetDataPtr<Void>()) _PacketType();
         }
         else if constexpr (
             kSameType<_PacketType, ZUDPPacketDiscardMessageByID> ||
@@ -66,7 +66,7 @@ public:
             kSameType<_PacketType, ZUDPPacketSetTransferSpeedLimit> ||
             kSameType<_PacketType, ZUDPPacketEcho>
         ) {
-            return new(command_packet_pool_.Apply()->DataPtr<Void>()) _PacketType();
+            return new(command_packet_pool_.Apply()->GetDataPtr<Void>()) _PacketType();
         }
         else {
             static_assert(

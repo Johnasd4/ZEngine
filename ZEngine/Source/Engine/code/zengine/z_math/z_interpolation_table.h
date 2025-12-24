@@ -123,7 +123,7 @@ NODISCARD FORCEINLINE constexpr const NumberType ZInterpolationTable<NumberType,
     const NumberType _index) const {
     NumberType table_index = (_index - index_offset_) * step_distance_reciprocal_;
     SizeType int_table_index = static_cast<SizeType>(table_index);
-    SizeType array_index = int_table_index % SuperType::Capacity();
+    SizeType array_index = int_table_index % SuperType::GetCapacity();
     return (*this)[array_index] +
         ((*this)[array_index + 1] - (*this)[array_index]) *
         (table_index - static_cast<NumberType>(int_table_index));

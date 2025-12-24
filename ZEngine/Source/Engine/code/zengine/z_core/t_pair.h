@@ -30,7 +30,7 @@ namespace zengine {
     Pair struct.
 */
 template<typename _LeftObjectType, typename _RightObjectType>
-struct TPair : public ZObject {
+struct TPair : public ZObject<> {
 public:
     constexpr TPair() noexcept : SuperType_(), first_(), second_() {}
     template<typename _OtherObjectType1, typename _OtherObjectType2>

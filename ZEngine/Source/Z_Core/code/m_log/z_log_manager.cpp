@@ -41,13 +41,11 @@ NODISCARD ZLogManager& ZLogManager::Instance() noexcept {
 }
 
 Void ZLogManager::LogThread(ZLogManager* _log_manager_ptr) noexcept {
-    Bool if_log = true;
-
     while (_log_manager_ptr->log_thread_finished_ == false) {
-        if_log = false;
+        Bool if_log = false;
 
         //log manager request handle
-        while (_log_manager_ptr->request_queue_.Size() > 0ULL) {
+        while (_log_manager_ptr->request_queue_.GetSize() > 0ULL) {
             TUniquePointer<Request_> request_ptr = std::move(_log_manager_ptr->request_queue_.Front());
             _log_manager_ptr->request_queue_.PopFront();
             auto& request_data = request_ptr->request_data_.register_data_;
@@ -96,7 +94,7 @@ Void ZLogManager::LogThread(ZLogManager* _log_manager_ptr) noexcept {
         }
 
         //output log
-        while (_log_manager_ptr->log_queue_.Size() > 0ULL) {
+        while (_log_manager_ptr->log_queue_.GetSize() > 0ULL) {
             if_log = true;
             TUniquePointer<ZLog> log = std::move(_log_manager_ptr->log_queue_.Front());
             _log_manager_ptr->log_queue_.PopFront();
@@ -110,8 +108,7 @@ Void ZLogManager::LogThread(ZLogManager* _log_manager_ptr) noexcept {
     }
 
     //output remaining log
-    while (_log_manager_ptr->log_queue_.Size() > 0ULL) {
-        if_log = true;
+    while (_log_manager_ptr->log_queue_.GetSize() > 0ULL) {
         _log_manager_ptr->log_queue_mutex_.Lock();
         TUniquePointer<ZLog> log = std::move(_log_manager_ptr->log_queue_.Front());
         _log_manager_ptr->log_queue_.PopFront();
@@ -153,10 +150,10 @@ Void ZLogManager::UnregisterLogOutputFunction(
     request_queue_.EmplaceBack(std::move(request_ptr));
 }
 
-Void ZLogManager::FinishFlush(TimeType _max_wait_time_ms) noexcept {
+Void ZLogManager::FinishFlush() noexcept {
     log_thread_finished_ = true;
-    if (log_thread_.Joinable()) {
-        log_thread_.Join(_max_wait_time_ms);
+    if (log_thread_.IsJoinable()) {
+        log_thread_.Join();
     }
 }
 

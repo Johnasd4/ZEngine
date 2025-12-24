@@ -31,7 +31,7 @@ ZMemory::ZMemory() noexcept
 {}
 ZMemory::ZMemory(const ZMemory& _mem) noexcept
     : SuperType_(_mem)
-    , data_ptr_(static_cast<Byte*>(memory_pool::ApplyMemory(_mem.size_, &capacity_)))
+    , data_ptr_(static_cast<Byte*>(memory_pool::ApplyGlobalMemory(_mem.size_, &capacity_)))
     , size_(_mem.size_) 
 { 
     Copy(data_ptr_, _mem.data_ptr_, size_);
@@ -48,13 +48,13 @@ ZMemory::ZMemory(ZMemory&& _mem) noexcept
 } 
 ZMemory::ZMemory(SizeType _size) noexcept
     : SuperType_()
-    , data_ptr_(static_cast<Byte*>(memory_pool::ApplyMemory(_size, &capacity_)))
+    , data_ptr_(static_cast<Byte*>(memory_pool::ApplyGlobalMemory(_size, &capacity_)))
     , size_(_size) 
 {}
 
 ZMemory::~ZMemory() noexcept {
     if (data_ptr_ != nullptr) {
-        memory_pool::ReleaseMemory(data_ptr_);
+        memory_pool::ReleaseGlobalMemory(data_ptr_);
     }
 }
 
@@ -71,7 +71,7 @@ ZMemory& ZMemory::operator=(ZMemory&& _mem) noexcept {
         return *this;
     }
     if (data_ptr_ != nullptr) {
-        memory_pool::ReleaseMemory(data_ptr_);
+        memory_pool::ReleaseGlobalMemory(data_ptr_);
     }
     data_ptr_ = _mem.data_ptr_;
     size_ = _mem.size_;
@@ -84,10 +84,10 @@ ZMemory& ZMemory::operator=(ZMemory&& _mem) noexcept {
 
 Void ZMemory::Resize(SizeType _size) noexcept {
     if (_size > capacity_) {
-        Byte* data_ptr = static_cast<Byte*>(memory_pool::ApplyMemory(_size, &capacity_));
+        Byte* data_ptr = static_cast<Byte*>(memory_pool::ApplyGlobalMemory(_size, &capacity_));
         Copy(data_ptr, data_ptr_, size_);
         if (data_ptr_ != nullptr) {
-            memory_pool::ReleaseMemory(data_ptr_);
+            memory_pool::ReleaseGlobalMemory(data_ptr_);
         }
         data_ptr_ = data_ptr;
     }

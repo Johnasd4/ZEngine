@@ -28,7 +28,7 @@ namespace zengine {
 namespace error_code {
 enum TFunctionErrorCodeEnum : ReturnType {
     kTFunctionErrorCode_LinkError = kErrorCodeBase_TFunction,
-    kTFunctionErrorCode_SystemError,
+    kTFunctionErrorCode_SystemOrLibraryError,
     kTFunctionErrorCode_NullptrParam,
     kTFunctionErrorCode_ParamOutOfRange,
     kTFunctionErrorCode_FunctionNotExist,
@@ -44,7 +44,7 @@ namespace zengine {
     [_func] can be basic function or non-capture lambda expression. 
 */
 template<typename _Signature>
-class TSimpleFunction : public ZObject {
+class TSimpleFunction : public ZObject<> {
     static_assert(
         !kSameType<_Signature, _Signature>, 
         "TSimpleFunction: Signature not valid!"
@@ -52,7 +52,7 @@ class TSimpleFunction : public ZObject {
 };
 
 template<typename _ReturnType, typename... Args>
-class TSimpleFunction<_ReturnType(Args...)> : public ZObject {
+class TSimpleFunction<_ReturnType(Args...)> : public ZObject<> {
 public:
     using FunctionType_ = _ReturnType(*)(Args...);
     FORCEINLINE TSimpleFunction() noexcept : SuperType_(), func_ptr_(nullptr) {}
@@ -105,7 +105,7 @@ private:
     [_func] can be function, lambda expreesion or functor. 
 */
 template<typename _Signature>
-class TFunction : public ZObject {
+class TFunction : public ZObject<> {
     static_assert(
         !kSameType<_Signature, _Signature>, 
         "TFunction: Signature not valid!"
@@ -113,7 +113,7 @@ class TFunction : public ZObject {
 };
 
 template<typename _ReturnType, typename... ArgTypes>
-class TFunction<_ReturnType(ArgTypes...)> : public ZObject {
+class TFunction<_ReturnType(ArgTypes...)> : public ZObject<> {
 public:
     FORCEINLINE TFunction() noexcept : SuperType_(), func_() {}
 

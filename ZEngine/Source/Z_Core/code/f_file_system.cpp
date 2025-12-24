@@ -1,17 +1,25 @@
 /*
     Copyright (c) YuLin Zhu
 
-    This code file is licensed under the Creative Commons
-    Attribution-NonCommercial 4.0 International License.
+    ** ZEngine Proprietary License **
 
-    You may obtain a copy of the License at
-    https://creativecommons.org/licenses/by-nc/4.0/
+    This software is provided "as-is", without any express or implied warranty.
+    In no event will the authors be held liable for any damages arising from the
+    use of this software.
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+    Usage Rights:
+    1. Non-Commercial Use: You may use, modify, and distribute this software
+       for non-commercial purposes (e.g., education, personal projects, open-source
+       projects that do not generate revenue) free of charge.
+
+    2. Commercial Use: Commercial use of this software is STRICTLY PROHIBITED
+       without a valid commercial license agreement with the author.
+       "Commercial use" includes, but is not limited to:
+       - Incorporating this software into a product that is sold.
+       - Using this software in a paid service.
+       - Using this software for internal business operations in a for-profit entity.
+
+    To obtain a Commercial License, please contact the author.
 
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
@@ -28,161 +36,267 @@
 
 namespace zengine {
 namespace file_system {
+namespace internal {
 
-CORE_DLLAPI NODISCARD ZStringView ExecutePath() noexcept {
-    static ZString path = std::invoke([]() {
-        std::error_code error_code;
-        auto path = std::filesystem::current_path(error_code);
-        if (error_code) {
-            return ZString();
-        }
-
-        auto path_char_string = path.c_str();
-        if constexpr (kSameType<decltype(path_char_string), const Char*>) {
-            return ZString(path_char_string);
-        }
-        else {
-            return string::WStringToString(path_char_string);
-        }
-    });
-    return path;
+FORCEINLINE static uv_fs_t* RequestHandleInstancePtr() noexcept {
+    thread_local uv_fs_t request_handle;
+    return &request_handle;
 }
 
-CORE_DLLAPI NODISCARD ZStringView ExecutablePath() noexcept {
-    static ZString path = std::invoke([]() {
+FORCEINLINE static Bool IsSeparator(Char _char) noexcept {
+    return _char == '/' || _char == '\\';
+}
+
+}//internal
+}//file_system
+}//zengine
+
+namespace zengine {
+namespace file_system {
+
+CORE_DLLAPI NODISCARD Bool IsPathExist(const Char* _path_dir) noexcept {
+    Int32 ret_val = uv_fs_access(NULL, internal::RequestHandleInstancePtr(), _path_dir, F_OK, NULL);
+    uv_fs_req_cleanup(internal::RequestHandleInstancePtr());
+    return ret_val == 0;
+}
+
+CORE_DLLAPI NODISCARD ZString GetExecuteDirectoryPath() noexcept {
+    ZString path_str;
+    Char buffer[kMaxFileDirLength];
+    SizeType size = sizeof(buffer);
+
+    if (uv_cwd(buffer, &size) == 0) {
+        path_str.Assign(buffer, size);
+    }
+    return path_str;
+}
+
+CORE_DLLAPI NODISCARD ZStringView GetExecutablePath() noexcept {
+    static ZStringView path = std::invoke([]() -> ZStringView {
+        static ZString path_str;
         //get length
         Int32 length = wai_getExecutablePath(NULL, 0, NULL);
         if (length <= 0) {
-            return ZString();
+            return path_str;
         }
 
         //get path
         TFixedMemory<kMaxFileDirLength> buffer;
-        wai_getExecutablePath(buffer.DataPtr<Char>(), length, NULL);
+        wai_getExecutablePath(buffer.GetDataPtr<Char>(), length, NULL);
 
-        return ZString(buffer.DataPtr<Char>(), length);
+        path_str.Assign(buffer.GetDataPtr<Char>(), length);
+
+        return path_str;
     });
     return path;
 }
 
-CORE_DLLAPI NODISCARD ZStringView ExecutableDirectoryPath() noexcept {
-    static ZStringView s_dir = std::invoke([]() {
+CORE_DLLAPI NODISCARD ZStringView GetExecutableDirectoryPath() noexcept {
+    static ZStringView directory_dir = std::invoke([]() -> ZStringView {
         //get length
         Int32 length;
         wai_getExecutablePath(NULL, 0, &length);
 
-        return ZStringView(ExecutablePath().DataPtr(), length);
+        return ZStringView(GetExecutablePath().GetDataPtr(), length);
     });
-    return s_dir;
+    return directory_dir;
 }
 
-CORE_DLLAPI NODISCARD ReturnType ProgramInfo(ZFileInfo* _file_info_ptr) noexcept {
-    ReturnType ret_val = kOK;
-    ReturnType link_code = kOK;
-    link_code = GetFileInfoByPath(
-        ZString((std::filesystem::current_path() / std::filesystem::path(__argv[0]).filename()).string().c_str()),
-        _file_info_ptr
-    );
-    if (link_code != kOK) {
-        ret_val = error_code::kFFileSystemErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, "file_system::GetFileInfoByPath() link error!");
-        return ret_val;
+CORE_DLLAPI NODISCARD ZFileInfo GetProgramInfo() noexcept {
+    return GetFileInfoByPath(GetExecutablePath());
+}
+
+CORE_DLLAPI NODISCARD ZFileInfo GetFileInfoByPath(ZStringView _file_dir) noexcept {
+    ZFileInfo file_info;
+
+    //Assign the full path to the owning string
+    file_info.path_ = _file_dir;
+
+    //Empty path check
+    if (_file_dir.IsEmpty()) {
+        return file_info;
     }
-    return ret_val;
+
+    //Parse Offsets
+    SizeType name_start_index = 0ULL;
+    SizeType extension_start_index = _file_dir.GetSize();
+    Bool if_separator_found = false;
+
+    //Find last separator to determine name start
+    for (SizeType index = _file_dir.GetSize(); index > 0; --index) {
+        if (internal::IsSeparator(_file_dir[index - 1])) {
+            name_start_index = index;
+            if_separator_found = true;
+            break;
+        }
+    }
+
+    //Set Directory View
+    if (if_separator_found) {
+        SizeType dir_len = name_start_index - 1;
+        
+        //Edge Case: Root Directory (e.g., "/file.txt" or "C:/file.txt")
+        //If the separator is at index 0 (Unix root) or follows a drive letter, 
+        //we shouldn't strip it if it results in an empty string implies current dir.
+        //For "/file.txt": separator at 0, name_start at 1. dir_len becomes 0.
+        //We force it to 1 to keep the "/"
+        if (dir_len == 0 && internal::IsSeparator(_file_dir[0])) {
+            dir_len = 1; 
+        }
+        
+        file_info.directory_ = ZStringView(_file_dir.GetDataPtr(), dir_len);
+    } 
+    else {
+        //No separator found, meaning the file is in the current working directory.
+        //Directory view remains empty (or you can return "./" if you prefer).
+        file_info.directory_ = ZStringView();
+    }
+
+    //Set Filename View
+    SizeType name_len = _file_dir.GetSize() - name_start_index;
+    file_info.name_ = ZStringView(&_file_dir[name_start_index], name_len);
+
+    //Set Extension View
+    //Logic: Find the LAST dot in the filename.
+    //Rule: The dot cannot be the FIRST character of the filename (e.g., ".gitignore" has no extension).
+    if (name_len > 0) {
+        SizeType dot_index = 0;
+        Bool if_dot_found = false;
+
+        // Scan the filename part backwards
+        for (SizeType index = _file_dir.GetSize(); index > name_start_index; --index) {
+            if (_file_dir[index - 1] == '.') {
+                dot_index = index - 1;
+                if_dot_found = true;
+                break;
+            }
+        }
+
+        //Apply Extension Rules:
+        //A dot must be found.
+        if (if_dot_found) {
+            file_info.extension_ = ZStringView(
+                &_file_dir[dot_index],
+                _file_dir.GetSize() - dot_index
+            );
+        }
+        else {
+            file_info.extension_ = ZStringView();
+        }
+    }
+
+    return file_info;
 }
 
 CORE_DLLAPI NODISCARD ReturnType CreateFileByPath(const Char* _path_dir) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
-    try {
-        if (std::filesystem::exists(_path_dir)) {
-            Z_DEBUG_LOG_MESSAGE("File already exist! path: {}", _path_dir);
-        }
-        else {
-            std::filesystem::path path(_path_dir);
 
-            //create directory if not exist
-            link_code = CreateDirectoryByPath(_path_dir);
-            if (link_code != kOK) {
-                ret_val = error_code::kFFileSystemErrorCode_LinkError;
-                Z_DEBUG_LOG_FAILURE("Create file failed! path: {}", _path_dir);
-                Z_LOG_ERROR(ret_val, link_code, "file_system::CreateDirectoryByPath() link error!");
-                return ret_val;
-            }
-
-            //create file
-            std::ofstream file(_path_dir);
-            if (file.is_open()) {
-                file.close();
-                Z_DEBUG_LOG_SUCCESS("Create file succeed! path: {}", _path_dir);
-            }
-            else {
-                Z_DEBUG_LOG_FAILURE("Create file failed! path: {}", _path_dir);
-                ret_val = error_code::kFFileSystemErrorCode_FileCreateFailed;
-                Z_LOG_ERROR(ret_val, 0, "Create file failed! path: {}", _path_dir);
-                return ret_val;
-            }
-            return ret_val;
-        }
+    //Check if exist
+    if (IsPathExist(_path_dir)) {
+        Z_DEBUG_LOG_MESSAGE("File already exist! path: {}", _path_dir);
+        return ret_val;
     }
-    catch (const std::filesystem::filesystem_error& exception) {
-        ret_val = error_code::kFFileSystemErrorCode_SystemError;
-        Z_LOG_ERROR(ret_val, 0, "Create file failed! path: {}", _path_dir);
+
+    //Create directory if not exist
+    link_code = CreateDirectoryByPath(_path_dir);
+    if (link_code != kOK) {
+        ret_val = error_code::kFFileSystemErrorCode_LinkError;
+        Z_DEBUG_LOG_FAILURE("Create file failed! path: {}", _path_dir);
+        Z_LOG_ERROR(ret_val, link_code, "file_system::CreateDirectoryByPath() link error!");
+        return ret_val;
+    }
+
+    //Create file (Open with O_CREAT)
+    Int32 handle_and_error = uv_fs_open(
+        NULL, 
+        internal::RequestHandleInstancePtr(), 
+        _path_dir,
+        O_WRONLY | O_CREAT | O_TRUNC, 
+        0644, 
+        NULL
+    );
+    uv_fs_req_cleanup(internal::RequestHandleInstancePtr());
+
+    //Check open result
+    if (handle_and_error < 0) {
+        ret_val = error_code::kFFileSystemErrorCode_SystemOrLibraryError;
+        Z_DEBUG_LOG_FAILURE("Create file failed! path: {}", _path_dir);
         Z_LOG_ERROR(
-            ret_val, 0, "System error! path: {} error msg: {}", 
-            _path_dir, exception.what()
+            ret_val, 0, 
+            "System error! path: {} error_msg: {}",
+            _path_dir, uv_strerror(handle_and_error)
         );
         return ret_val;
     }
+
+    //Close immediately
+    uv_fs_close(NULL, internal::RequestHandleInstancePtr(), handle_and_error, NULL);
+    uv_fs_req_cleanup(internal::RequestHandleInstancePtr());
+
+    Z_DEBUG_LOG_SUCCESS("Create file succeed! path: {}", _path_dir);
     return ret_val;
 }
 
 CORE_DLLAPI NODISCARD ReturnType DeleteFileByPath(const Char* _path_dir) noexcept {
     ReturnType ret_val = kOK;
-    try {
-        if (!std::filesystem::exists(_path_dir)) {
-            Z_DEBUG_LOG_MESSAGE("File does not exist! path: {}", _path_dir);
-        }
-        else if (std::filesystem::remove(_path_dir)) {
-            Z_DEBUG_LOG_SUCCESS("Deleted file succeed! path: {}", _path_dir);
-        }
-        else {
 
-            ret_val = error_code::kFFileSystemErrorCode_FileDeleteFailed;
-            Z_LOG_ERROR(ret_val, 0, "Deleted file failed! path: {}", _path_dir);
-            return ret_val;
-        }
-    }
-    catch (const std::filesystem::filesystem_error& exception) {
-        ret_val = error_code::kFFileSystemErrorCode_SystemError;
-        Z_DEBUG_LOG_FAILURE("Deleted file failed! path: {}", _path_dir);
-        Z_LOG_ERROR(
-            ret_val, 0, "System error! path: {} error msg: {}", 
-            _path_dir, exception.what());
+    if (!IsPathExist(_path_dir)) {
+        Z_DEBUG_LOG_MESSAGE("File not exist! path: {}", _path_dir);
         return ret_val;
     }
+
+    //Delete file
+    Int32 lib_link_code = uv_fs_unlink(NULL, internal::RequestHandleInstancePtr(), _path_dir, NULL);
+    uv_fs_req_cleanup(internal::RequestHandleInstancePtr());
+    if (lib_link_code < 0) {
+        ret_val = error_code::kFFileSystemErrorCode_SystemOrLibraryError;
+        Z_DEBUG_LOG_FAILURE("Delete file failed! path: {}", _path_dir);
+        Z_LOG_ERROR(
+            ret_val, 0,
+            "System error! path: {} error_msg: {}",
+            _path_dir, uv_strerror(lib_link_code)
+        );
+        return ret_val;
+    }
+
+    Z_DEBUG_LOG_SUCCESS("Deleted file succeed! path: {}", _path_dir);
     return ret_val;
 }
 
-CORE_DLLAPI NODISCARD ReturnType RenameFileByPath(const Char* _old_path_dir, const Char* _new_path_dir) noexcept {
+CORE_DLLAPI NODISCARD ReturnType RenameFileByPath(
+    const Char* _old_path_dir,
+    const Char* _new_path_dir
+) noexcept {
     ReturnType ret_val = kOK;
-    try {
-        if (!std::filesystem::exists(_old_path_dir)) {
-            Z_DEBUG_LOG_MESSAGE("File does not exist! path: {}", _old_path_dir);
-            return ret_val;
-        }
-        std::filesystem::rename(_old_path_dir, _new_path_dir);
-        Z_DEBUG_LOG_SUCCESS("Rename file succeed! path: {} -> {}", _old_path_dir, _new_path_dir);
+
+    if (!IsPathExist(_old_path_dir)) {
+        Z_DEBUG_LOG_MESSAGE("File does not exist! path: {}", _old_path_dir);
         return ret_val;
     }
-    catch (const std::filesystem::filesystem_error& exception) {
-        ret_val = error_code::kFFileSystemErrorCode_SystemError;
+
+    //Rename file
+    Int32 lib_link_code = uv_fs_rename(
+        NULL, 
+        internal::RequestHandleInstancePtr(), 
+        _old_path_dir, 
+        _new_path_dir, 
+        NULL
+    );
+    uv_fs_req_cleanup(internal::RequestHandleInstancePtr());
+
+    if (lib_link_code < 0) {
+        ret_val = error_code::kFFileSystemErrorCode_SystemOrLibraryError;
         Z_DEBUG_LOG_FAILURE("Rename file failed! old_path: {} new_path: {}", _old_path_dir, _new_path_dir);
         Z_LOG_ERROR(
-            ret_val, 0, "System error! old path: {} new path: {} error msg: {}",
-            _old_path_dir, _new_path_dir, exception.what());
+            ret_val, 0,
+            "System error! old_path: {} new_path: {} error_msg: {}",
+            _old_path_dir, _new_path_dir, uv_strerror(lib_link_code)
+        );
         return ret_val;
     }
+
+    Z_DEBUG_LOG_SUCCESS("Rename file succeed! path: {} -> {}", _old_path_dir, _new_path_dir);
     return ret_val;
 }
 
@@ -192,705 +306,383 @@ CORE_DLLAPI NODISCARD ReturnType CopyFileByPath(
     Bool overwrite_exist
 ) noexcept {
     ReturnType ret_val = kOK;
-    try {
+    ReturnType link_code = kOK;
 
-        //check source file exist
-        if (!std::filesystem::exists(_source_path_dir)) {
-            ret_val = error_code::kFFileSystemErrorCode_PathNotExist;
-            Z_DEBUG_LOG_FAILURE(
-                "Copy file failed! source_path: {} target_path: {}",
-                _target_path_dir, _source_path_dir
-            );
-            Z_LOG_ERROR(ret_val, 0, "Copy file failed! Source path not exist! path: {}", _source_path_dir);
-            return ret_val;
-        }
-
-        //generate target directory if not exist
-        std::filesystem::path path(_target_path_dir);
-        if (!std::filesystem::exists(path.parent_path().c_str())) {
-            if (!std::filesystem::create_directories(path.parent_path().c_str())) {
-                ret_val = error_code::kFFileSystemErrorCode_PathNotDirectory;
-                Z_DEBUG_LOG_FAILURE(
-                    "Copy file failed! source_path: {} target_path: {}",
-                    _target_path_dir, _source_path_dir
-                );
-                Z_LOG_ERROR(
-                    ret_val, 0,
-                    "Copy file failed! Target directory not valid! path: {}",
-                    _target_path_dir
-                );
-                return ret_val;
-            }
-        }
-        //copy file
-        auto copy_options = std::filesystem::copy_options::none;
-        if (overwrite_exist) {
-            copy_options |= std::filesystem::copy_options::overwrite_existing;
-        }
-        if (!std::filesystem::copy_file(_source_path_dir, _target_path_dir, copy_options)) {
-            ret_val = error_code::kFFileSystemErrorCode_CopyFileFailed;
-            Z_DEBUG_LOG_FAILURE(
-                "Copy file failed! source_path: {} target_path: {}",
-                _target_path_dir, _source_path_dir
-            );
-            Z_LOG_ERROR(
-                ret_val, 0, 
-                "Copy file failed! source_path: {} target_path: {}", 
-                _target_path_dir, _source_path_dir
-            );
-            return ret_val;
-        }
-        
-        Z_DEBUG_LOG_SUCCESS(
-            "Copy file succeed! source_path: {} target_path: {}",
+    if (!IsPathExist(_source_path_dir)) {
+        Z_DEBUG_LOG_FAILURE(
+            "Copy file failed! source_path: {} target_path: {}",
             _target_path_dir, _source_path_dir
         );
-
+        Z_LOG_ERROR(ret_val, 0, "Copy file failed! Source path not exist! path: {}", _source_path_dir);
         return ret_val;
     }
-    catch (const std::filesystem::filesystem_error& exception) {
-        ret_val = error_code::kFFileSystemErrorCode_SystemError;
+
+    //Create directory if not exist
+    link_code = CreateDirectoryByPath(_target_path_dir);
+    if (link_code != kOK) {
+        ret_val = error_code::kFFileSystemErrorCode_LinkError;
+        Z_DEBUG_LOG_FAILURE(
+            "Copy file failed! source_path: {} target_path: {}",
+            _target_path_dir, _source_path_dir
+        );
+        Z_LOG_ERROR(ret_val, link_code, "file_system::CreateDirectoryByPath() link error!");
+        return ret_val;
+    }
+
+    //Copy
+    Int32 copy_flags = overwrite_exist ? 0 : UV_FS_COPYFILE_EXCL;
+    Int32 lib_link_code = uv_fs_copyfile(
+        NULL, 
+        internal::RequestHandleInstancePtr(), 
+        _source_path_dir,
+        _target_path_dir,
+        copy_flags,
+        NULL
+    );
+    uv_fs_req_cleanup(internal::RequestHandleInstancePtr());
+
+    if (lib_link_code < 0) {
+        ret_val = error_code::kFFileSystemErrorCode_SystemOrLibraryError;
         Z_DEBUG_LOG_FAILURE(
             "Copy file failed! source_path: {} target_path: {}",
             _target_path_dir, _source_path_dir
         );
         Z_LOG_ERROR(
-            ret_val, 0, "System error! source_path: {} target_path: {}",
-            _target_path_dir, _source_path_dir, exception.what());
+            ret_val, 0,
+            "System error! source_path: {} target_path: {} error_msg: {}",
+            _target_path_dir, _source_path_dir, uv_strerror(lib_link_code)
+        );
         return ret_val;
     }
+
+    Z_DEBUG_LOG_SUCCESS("Copy file succeed! src: {} tgt: {}", _source_path_dir, _target_path_dir);
     return ret_val;
 }
 
 CORE_DLLAPI NODISCARD ReturnType CreateDirectoryByPath(ZStringView _path_dir) noexcept {
     ReturnType ret_val = kOK;
-    try {
-        std::filesystem::path path_dir(_path_dir.STDStringView());
-        if (std::filesystem::exists(path_dir)) {
-            Z_DEBUG_LOG_MESSAGE("Directory already exist! path: {}", _path_dir);
-        }
-        else if (std::filesystem::create_directories(path_dir)) {
-            Z_DEBUG_LOG_SUCCESS("Create directory succeed! path: {}", _path_dir);
-        }
-        else {
-            ret_val = error_code::kFFileSystemErrorCode_CreateDirectoryFailed;
-            Z_DEBUG_LOG_FAILURE("Create directory failed! path: {}", _path_dir);
-            Z_LOG_ERROR(ret_val, 0, "Create directory failed! path: {}", _path_dir);
-            return ret_val;
-        }
-    }
-    catch (const std::filesystem::filesystem_error& exception) {
-        ret_val = error_code::kFFileSystemErrorCode_SystemError;
-        Z_DEBUG_LOG_FAILURE("Create directory failed! path: {}", _path_dir);
-        Z_LOG_ERROR(
-            ret_val, 0, "System error! path: {} error msg: {}",
-            _path_dir, exception.what());
-        return ret_val;
-    }
-    catch (const std::exception& exception) {
-        ret_val = error_code::kFFileSystemErrorCode_SystemError;
-        Z_DEBUG_LOG_FAILURE("Create directory failed! path: {}", _path_dir);
-        Z_LOG_ERROR(
-            ret_val, 0, "System error! path: {} error msg: {}",
-            _path_dir, exception.what());
-        return ret_val;
-    }
-    return ret_val;
-}
 
-CORE_DLLAPI NODISCARD ReturnType DeleteDirectoryByPath(ZStringView _path_dir) noexcept {
-    ReturnType ret_val = kOK;
-    try {
-        std::filesystem::path path_dir(_path_dir.STDStringView());
-        if (!std::filesystem::exists(path_dir)) {
-            Z_DEBUG_LOG_MESSAGE("Directory not exist! path: {}", _path_dir);
-        }
-        else if (std::filesystem::remove_all(path_dir)) {
-            Z_DEBUG_LOG_SUCCESS("Deleted directory succeed! path: {}", _path_dir);
-        }
-        else {
-            ret_val = error_code::kFFileSystemErrorCode_DirectoryDeleteFailed;
-            Z_DEBUG_LOG_FAILURE("Deleted directory failed! path: {}", _path_dir);
-            Z_LOG_ERROR(ret_val, 0, "Deleted directory failed! path: {}", _path_dir);
-            return ret_val;
-        }
+    //Make a mutable ref of the path, will restore after use
+    ZString path_dir = _path_dir;
+
+    //Remove trailing slash if present
+    if (path_dir.GetSize() > 0ULL && internal::IsSeparator(path_dir[path_dir.GetSize() - 1ULL])) {
+        path_dir.PopBack();
     }
-    catch (const std::filesystem::filesystem_error& exception) {
-        ret_val = error_code::kFFileSystemErrorCode_SystemError;
-        Z_DEBUG_LOG_FAILURE("Deleted directory failed! path: {}", _path_dir);
-        Z_LOG_ERROR(
-            ret_val, 0, "System error! path: {} error msg: {}",
-            _path_dir, exception.what());
+
+    //Empty path check
+    if (path_dir.GetSize() == 0ULL) {
+        Z_DEBUG_LOG_SUCCESS("Create directory succeed! path: {}", _path_dir);
         return ret_val;
     }
-    return ret_val;
-}
 
-CORE_DLLAPI NODISCARD ReturnType GetFilesByPath(const Char* _path_dir, TList<ZString>* _file_list_ptr) noexcept {
-    ReturnType ret_val = kOK;
-    try {
-        Z_CHECK(
-            !std::filesystem::exists(_path_dir), error_code::kFFileSystemErrorCode_PathNotExist,
-            "Path not exist! path: {}", _path_dir);
-        Z_CHECK(
-            !std::filesystem::is_directory(_path_dir), error_code::kFFileSystemErrorCode_PathNotDirectory,
-            "Path not directory! path: {}", _path_dir);
-        for (const auto& entry : std::filesystem::directory_iterator(_path_dir)) {
-            if (std::filesystem::is_regular_file(entry.path())) {
-                _file_list_ptr->PushBack(entry.path().string().c_str());
+    //Iterate to create recursively (mkdir -p)
+    for (SizeType index = 0; index < path_dir.GetSize(); ++index) {
+        Bool is_seperator = internal::IsSeparator(path_dir[index]);
+        if (is_seperator || index == path_dir.GetSize() - 1ULL) {
+            //Adjust end index for the current level
+            Char temp_char = '\0';
+            if (is_seperator) {
+                //Skip leading
+                if (index == 0ULL) {
+                    continue;
+                }
+                //Win32: Skip drive letter (C:/)
+                if (index == 2ULL && path_dir[1ULL] == ':') {
+                    continue;
+                }
+                //Temporarily end string
+                temp_char = path_dir[index];
+                path_dir[index] = '\0';
+            }
+
+            //Make directory
+            Int32 lib_link_code = uv_fs_mkdir(
+                NULL, 
+                internal::RequestHandleInstancePtr(), 
+                path_dir.GetDataPtr(),
+                0755, 
+                NULL
+            );
+            uv_fs_req_cleanup(internal::RequestHandleInstancePtr());
+
+            //Check for errors other than "already exists"
+            if (lib_link_code != 0 && lib_link_code != UV_EEXIST) {
+                //Restore
+                if (temp_char != 0ULL) {
+                    path_dir[index] = temp_char;
+                }
+                ret_val = error_code::kFFileSystemErrorCode_SystemOrLibraryError;
+                Z_DEBUG_LOG_FAILURE("Create directory failed! path: {}", _path_dir);
+                Z_LOG_ERROR(
+                    ret_val, 0, 
+                    "System error! path: {} error_msg: {}",
+                    _path_dir, uv_strerror(lib_link_code)
+                );
+                return ret_val;
+            }
+
+            //Restore
+            if (temp_char != 0ULL) {
+                path_dir[index] = temp_char;
             }
         }
     }
-    catch (const std::filesystem::filesystem_error& exception) {
-        ret_val = error_code::kFFileSystemErrorCode_SystemError;
-        Z_LOG_ERROR(
-            ret_val, 0, "System error! path: {} error msg: {}",
-            _path_dir, exception.what());
-        return ret_val;
-    }
-    catch (const std::exception& exception) {
-        ret_val = error_code::kFFileSystemErrorCode_SystemError;
-        Z_LOG_ERROR(
-            ret_val, 0, "System error! path: {} error msg: {}",
-            _path_dir, exception.what());
-        return ret_val;
-    }
+
+    Z_DEBUG_LOG_SUCCESS("Create directory succeed! path: {}", _path_dir);
     return ret_val;
 }
 
-CORE_DLLAPI NODISCARD Bool PathExist(const Char* _path_dir) noexcept {
-    return std::filesystem::exists(_path_dir);
-}
-
-CORE_DLLAPI NODISCARD Bool PathValid(const Char* _path_dir) noexcept {
-    //nullptr check
-    if (!_path_dir) {
-        return false;
-    }
-
-    ZString path_dir(_path_dir);
-
-    //empty check
-    if (path_dir.Empty()) {
-        return false;
-    }
-
-    //long file dir length check
-    if (path_dir.Size() > 32767) {
-        return false;
-    }
-
-    //normal file dir length check
-    if (path_dir.Size() > 260 && path_dir.Find("\\\\?\\") != 0 && path_dir.Find("\\\\.\\") != 0) {
-        return false;
-    }
-
-    //illegal char check
-    static constexpr Char illegal_chars[] = "*?\"<>|";
-    for (SizeType index = 0; index < sizeof(illegal_chars) - 1; ++index) {
-        if (path_dir.Find(illegal_chars[index]) != ZString::kEnd) {
-            return false;
-        }
-    }
-
-    //format check
-
-    //fullpath start
-    if (path_dir.Size() >= 2 && path_dir[1] == L':') {
-        if (
-            !((path_dir[0] >= L'A' && path_dir[0] <= L'Z') ||
-            (path_dir[0] >= L'a' && path_dir[0] <= L'z'))
-        ) {
-            return false;
-        }
-
-        if (path_dir.Size() > 2 && path_dir[2] != L'\\' && path_dir[2] != L'/') {
-            return false;
-        }
-    }
-
-    //path body
-    for (SizeType index = 1; index < path_dir.Size(); ++index) {
-        if (
-            (path_dir[index] == L'\\' && path_dir[index - 1] == L'\\') ||
-            (path_dir[index] == L'\\' && path_dir[index - 1] == L'/') ||
-            (path_dir[index] == L'/' && path_dir[index - 1] == L'\\') ||
-            (path_dir[index] == L'/' && path_dir[index - 1] == L'/')
-        ) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-CORE_DLLAPI NODISCARD ReturnType GetDirectoriesByPath(ZStringView _path_dir, TList<ZString>* _file_list_ptr) noexcept {
+CORE_DLLAPI Void DeleteDirectoryByPath(ZStringView _path_dir) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
-    try {
-        std::filesystem::path path_dir(_path_dir.STDStringView());
-        Z_CHECK(
-            !std::filesystem::exists(path_dir), error_code::kFFileSystemErrorCode_PathNotExist,
-            "Path not exist! path: {}", _path_dir);
-        Z_CHECK(
-            !std::filesystem::is_directory(path_dir), error_code::kFFileSystemErrorCode_PathNotDirectory,
-            "Path not directory! path: {}", _path_dir);
-        for (const auto& file : std::filesystem::directory_iterator(path_dir)) {
-            if (std::filesystem::is_directory(file.path())) {
-                auto str = file.path().string();
-                _file_list_ptr->PushBack(ZString(str.c_str(), str.size()));
+
+    ZString path_dir = _path_dir;
+
+    uv_fs_t scan_dir_request_handle;
+    uv_dirent_t directory_entry;
+    ReturnType lib_link_code = uv_fs_scandir(NULL, &scan_dir_request_handle, path_dir.GetDataPtr(), 0, NULL);
+    if (lib_link_code < 0) {
+        uv_fs_req_cleanup(&scan_dir_request_handle);
+        Z_LOG_ERROR(
+            error_code::kFFileSystemErrorCode_SystemOrLibraryError, 0,
+            "System error! path: {} error_msg: {}",
+            _path_dir, uv_strerror(lib_link_code)
+        );
+        return;
+    }
+
+    //iterate through directory entries
+    //Add separator if needed
+    if (!internal::IsSeparator(path_dir[path_dir.GetSize() - 1ULL])) {
+        path_dir += '/';
+    }
+
+    ZString full_path;
+    while (uv_fs_scandir_next(&scan_dir_request_handle, &directory_entry) != UV_EOF) {
+        full_path = path_dir + directory_entry.name;
+
+        //if directory, recursive delete
+        if (directory_entry.type == UV_DIRENT_DIR) {
+            DeleteDirectoryByPath(full_path);
+        }
+        //else delete file
+        else {
+            lib_link_code = uv_fs_unlink(
+                NULL,
+                internal::RequestHandleInstancePtr(),
+                full_path.GetDataPtr(),
+                NULL
+            );
+            uv_fs_req_cleanup(internal::RequestHandleInstancePtr());
+            //log error if delete failed, continue to delete other files
+            if (lib_link_code < 0) {
+                Z_DEBUG_LOG_FAILURE("Deleted file failed! path: {}", full_path);
+                Z_LOG_ERROR(
+                    error_code::kFFileSystemErrorCode_SystemOrLibraryError, 0,
+                    "System error! path: {} error_msg: {}",
+                    full_path, uv_strerror(lib_link_code)
+                );
+            }
+            else {
+                Z_DEBUG_LOG_SUCCESS("Deleted file succeed! path: {}", full_path);
             }
         }
     }
-    catch (const std::filesystem::filesystem_error& exception) {
-        ret_val = error_code::kFFileSystemErrorCode_SystemError;
+    uv_fs_req_cleanup(&scan_dir_request_handle);
+
+    //delete the now empty directory
+    if (ret_val == kOK) {
+        lib_link_code = uv_fs_rmdir(
+            NULL,
+            internal::RequestHandleInstancePtr(),
+            _path_dir.GetDataPtr(),
+            NULL
+        );
+        uv_fs_req_cleanup(internal::RequestHandleInstancePtr());
+        if (lib_link_code < 0) {
+            Z_DEBUG_LOG_FAILURE("Deleted directory failed! path: {}", _path_dir);
+            Z_LOG_ERROR(
+                error_code::kFFileSystemErrorCode_SystemOrLibraryError, 0,
+                "System error! path: {} error_msg: {}",
+                _path_dir, uv_strerror(lib_link_code)
+            );
+        }
+        else {
+            Z_DEBUG_LOG_SUCCESS("Deleted directory succeed! path: {}", _path_dir);
+        }
+    }
+}
+
+CORE_DLLAPI NODISCARD ReturnType GetFilesByPath(
+    ZStringView _path_dir,
+    TList<ZString>* _file_list_ptr
+) noexcept {
+    ReturnType ret_val = kOK;
+
+    ZString path_dir = _path_dir;
+
+    //Scan directory
+    Int32 lib_link_code = uv_fs_scandir(NULL, internal::RequestHandleInstancePtr(), _path_dir.GetDataPtr(), 0, NULL);
+    if (lib_link_code < 0) {
+        uv_fs_req_cleanup(internal::RequestHandleInstancePtr());
+        ret_val = error_code::kFFileSystemErrorCode_SystemOrLibraryError;
         Z_LOG_ERROR(
-            ret_val, 0, "System error! path: {} error msg: {}",
-            _path_dir, exception.what());
+            ret_val, 0, 
+            "System error! path: {} error_msg: {}", 
+            _path_dir, uv_strerror(lib_link_code)
+        );
         return ret_val;
     }
-    catch (const std::exception& exception) {
-        ret_val = error_code::kFFileSystemErrorCode_SystemError;
+
+    //Iterate entries
+    uv_dirent_t directory_entry;
+    //Add separator if needed
+    if (!internal::IsSeparator(_path_dir[_path_dir.GetSize() - 1ULL])) {
+        path_dir += '/';
+    }
+    while (uv_fs_scandir_next(internal::RequestHandleInstancePtr(), &directory_entry) != UV_EOF) {
+        //Only want files
+        if (directory_entry.type == UV_DIRENT_FILE) {
+            _file_list_ptr->EmplaceBack(path_dir + directory_entry.name);
+        }
+    }
+    uv_fs_req_cleanup(internal::RequestHandleInstancePtr());
+
+    return ret_val;
+}
+
+CORE_DLLAPI NODISCARD ReturnType GetDirectoriesByPath(
+    ZStringView _path_dir,
+    TList<ZString>* _file_list_ptr
+) noexcept {
+    ReturnType ret_val = kOK;
+
+    ZString path_dir = _path_dir;
+
+    //Scan directory
+    Int32 lib_link_code = uv_fs_scandir(NULL, internal::RequestHandleInstancePtr(), _path_dir.GetDataPtr(), 0, NULL);
+    if (lib_link_code < 0) {
+        uv_fs_req_cleanup(internal::RequestHandleInstancePtr());
+        ret_val = error_code::kFFileSystemErrorCode_SystemOrLibraryError;
         Z_LOG_ERROR(
-            ret_val, 0, "System error! path: {} error msg: {}",
-            _path_dir, exception.what());
+            ret_val, 0,
+            "System error! path: {} error_msg: {}",
+            _path_dir, uv_strerror(lib_link_code)
+        );
         return ret_val;
     }
+
+    //Iterate entries
+    uv_dirent_t directory_entry;
+    //Add separator if needed
+    if (!internal::IsSeparator(_path_dir[_path_dir.GetSize() - 1ULL])) {
+        path_dir += '/';
+    }
+    while (uv_fs_scandir_next(internal::RequestHandleInstancePtr(), &directory_entry) != UV_EOF) {
+        //Only want files
+        if (directory_entry.type == UV_DIRENT_DIR) {
+            _file_list_ptr->EmplaceBack(path_dir + directory_entry.name);
+        }
+    }
+    uv_fs_req_cleanup(internal::RequestHandleInstancePtr());
+
     return ret_val;
 }
 
 CORE_DLLAPI NODISCARD ReturnType GetFilesAndDirectoriesByPath(
-    const Char* _path_dir, TList<ZString>* _file_list_ptr
+    ZStringView _path_dir,
+    TList<ZString>* _file_list_ptr
 ) noexcept {
     ReturnType ret_val = kOK;
-    try {
-        Z_CHECK(
-            !std::filesystem::exists(_path_dir), error_code::kFFileSystemErrorCode_PathNotExist,
-            "Path not exist! path: {}", _path_dir);
-        Z_CHECK(
-            !std::filesystem::is_directory(_path_dir), error_code::kFFileSystemErrorCode_PathNotDirectory,
-            "Path not directory! path: {}", _path_dir);
-        for (const auto& entry : std::filesystem::directory_iterator(_path_dir)) {
-            if (std::filesystem::is_regular_file(entry.path()) || std::filesystem::is_directory(entry.path())) {
-                _file_list_ptr->PushBack(entry.path().string().c_str());
-            }
-        }
-    }
-    catch (const std::filesystem::filesystem_error& exception) {
-        ret_val = error_code::kFFileSystemErrorCode_SystemError;
+
+    ZString path_dir = _path_dir;
+
+    //Scan directory
+    Int32 lib_link_code = uv_fs_scandir(NULL, internal::RequestHandleInstancePtr(), _path_dir.GetDataPtr(), 0, NULL);
+    if (lib_link_code < 0) {
+        uv_fs_req_cleanup(internal::RequestHandleInstancePtr());
+        ret_val = error_code::kFFileSystemErrorCode_SystemOrLibraryError;
         Z_LOG_ERROR(
-            ret_val, 0, "System error! path: {} error msg: {}",
-            _path_dir, exception.what());
+            ret_val, 0,
+            "System error! path: {} error_msg: {}",
+            _path_dir, uv_strerror(lib_link_code)
+        );
         return ret_val;
     }
-    catch (const std::exception& exception) {
-        ret_val = error_code::kFFileSystemErrorCode_SystemError;
-        Z_LOG_ERROR(
-            ret_val, 0, "System error! path: {} error msg: {}",
-            _path_dir, exception.what());
-        return ret_val;
+
+    //Iterate entries
+    uv_dirent_t directory_entry;
+    //Add separator if needed
+    if (!internal::IsSeparator(_path_dir[_path_dir.GetSize() - 1ULL])) {
+        path_dir += '/';
     }
+    while (uv_fs_scandir_next(internal::RequestHandleInstancePtr(), &directory_entry) != UV_EOF) {
+        _file_list_ptr->EmplaceBack(path_dir + directory_entry.name);
+    }
+    uv_fs_req_cleanup(internal::RequestHandleInstancePtr());
+
     return ret_val;
 }
 
-CORE_DLLAPI NODISCARD ReturnType GetFileTreeByPath(const Char* _path_dir, TList<ZString>* _file_list_ptr) noexcept {
-    ReturnType ret_val = kOK;
-    try {
-        Z_CHECK(
-            !std::filesystem::exists(_path_dir), error_code::kFFileSystemErrorCode_PathNotExist,
-            "Path not exist! path: {}", _path_dir);
-        Z_CHECK(
-            !std::filesystem::is_directory(_path_dir), error_code::kFFileSystemErrorCode_PathNotDirectory,
-            "Path not directory! path: {}", _path_dir);
-        for (const auto& entry : std::filesystem::directory_iterator(_path_dir)) {
-            if (std::filesystem::is_regular_file(entry.path())) {
-                _file_list_ptr->PushBack(entry.path().string().c_str());
-            }
-            else if (std::filesystem::is_directory(entry.path())) {
-                GetFileTreeByPath(entry.path().string().c_str(), _file_list_ptr);
-            }
-        }
-    }
-    catch (const std::filesystem::filesystem_error& exception) {
-        ret_val = error_code::kFFileSystemErrorCode_SystemError;
-        Z_LOG_ERROR(
-            ret_val, 0, "System error! path: {} error msg: {}",
-            _path_dir, exception.what());
-        return ret_val;
-    }
-    catch (const std::exception& exception) {
-        ret_val = error_code::kFFileSystemErrorCode_SystemError;
-        Z_LOG_ERROR(
-            ret_val, 0, "System error! path: {} error msg: {}",
-            _path_dir, exception.what());
-        return ret_val;
-    }
-    return ret_val;
-}
-
-CORE_DLLAPI NODISCARD ReturnType GetFileInfoByPath(
-    const ZString& _file, ZFileInfo* _file_info_ptr
+CORE_DLLAPI ReturnType GetFileTreeByPath(
+    ZStringView _path_dir,
+    TList<ZString>* _file_list_ptr
 ) noexcept {
     ReturnType ret_val = kOK;
-    std::filesystem::path path(_file.DataPtr());
-    _file_info_ptr->path_ = _file.DataPtr();
-    _file_info_ptr->name_ = path.filename().string().c_str();
-    _file_info_ptr->extension_ = path.extension().string().c_str();
-    _file_info_ptr->directory_ = path.parent_path().string().c_str();
+    ReturnType link_code = kOK;
+
+    ZString path_dir = _path_dir;
+
+    uv_fs_t scan_dir_request_handle;
+    ReturnType lib_link_code = uv_fs_scandir(NULL, &scan_dir_request_handle, _path_dir.GetDataPtr(), 0, NULL);
+    if (lib_link_code < 0) {
+        uv_fs_req_cleanup(&scan_dir_request_handle);
+        ret_val = error_code::kFFileSystemErrorCode_SystemOrLibraryError;
+        Z_LOG_ERROR(
+            ret_val, 0,
+            "System error! path: {} error_msg: {}",
+            _path_dir, uv_strerror(lib_link_code)
+        );
+        return ret_val;
+    }
+
+    //Iterate entries
+    uv_dirent_t directory_entry;
+    //Add separator if needed
+    if (!internal::IsSeparator(_path_dir[_path_dir.GetSize() - 1ULL])) {
+        path_dir += '/';
+    }
+    ZString full_path;
+    while (uv_fs_scandir_next(&scan_dir_request_handle, &directory_entry) != UV_EOF) {
+        full_path = path_dir + directory_entry.name;
+
+        //if directory, recursive get
+        if (directory_entry.type == UV_DIRENT_DIR) {
+            link_code = GetFileTreeByPath(full_path, _file_list_ptr);
+            if (link_code != kOK) {
+                return link_code;
+            }
+        }
+        else {
+            //add to list
+            _file_list_ptr->EmplaceBack(full_path);
+        }
+    }
+    uv_fs_req_cleanup(&scan_dir_request_handle);
+
     return ret_val;
 }
 
 CORE_DLLAPI NODISCARD ReturnType GetFileInfoListByPathList(
-    const TList<ZString>& _file_list, TList<ZFileInfo>* _file_info_list_ptr
+    const TList<ZString>& _file_list,
+    TList<ZFileInfo>* _file_info_list_ptr
 ) noexcept {
     ReturnType ret_val = kOK;
+
     for (auto file_path = _file_list.Begin(); file_path != _file_list.End(); ++file_path) {
-        std::filesystem::path path(file_path->DataPtr());
-        _file_info_list_ptr->PushBack(
-            ZFileInfo(
-                file_path->DataPtr(), 
-                path.filename().string().c_str(), 
-                path.extension().string().c_str(),
-                path.parent_path().string().c_str()
-            )
-        );
+        _file_info_list_ptr->EmplaceBack(GetFileInfoByPath(*file_path));
     }
-    return ret_val;
-}
-  
-CORE_DLLAPI NODISCARD ReturnType GetFileByFileSelector(
-    const TArray<ZFileFilter>& _file_filter_array, ZString* _file_ptr
-) noexcept {
-    ReturnType ret_val = kOK;
-
-    //Init COM lib
-    HRESULT link_code = CoInitialize(nullptr);
-    if (FAILED(link_code)) {
-        ret_val = error_code::kFFileSystemErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, "Link error! Failed to init COM library!");
-        return ret_val;
-    }
-
-    IFileOpenDialog* file_open_dialog = nullptr;
-
-    //create dialog instance
-    link_code = CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_ALL, IID_PPV_ARGS(&file_open_dialog));
-    if (FAILED(link_code)) {
-        ret_val = error_code::kFFileSystemErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, "Link error! Failed to create file open dialog instance!");
-        CoUninitialize();
-        return ret_val;
-    }
-
-    //set filter
-    file_open_dialog->SetFileTypes(
-        static_cast<UInt32>(_file_filter_array.Size()), 
-        reinterpret_cast<const COMDLG_FILTERSPEC*>(_file_filter_array.DataPtr())
-    );
-
-    //shows the file selector, returns neg value if no file selected
-    link_code = file_open_dialog->Show(nullptr);
-    if (FAILED(link_code)) {
-        Z_LOG_MESSAGE("No file selected!");
-        CoUninitialize();
-        return ret_val;
-    }
-
-    //get the selected file
-    IShellItem* file_item_ptr;
-    link_code = file_open_dialog->GetResult(&file_item_ptr);
-    if (FAILED(link_code)) {
-        ret_val = error_code::kFFileSystemErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, "Link error! Failed to get the shell items!");
-        file_open_dialog->Release();
-        CoUninitialize();
-        return ret_val;
-    }
-
-    //get file path
-    WChar* file_path = nullptr;
-    link_code = file_item_ptr->GetDisplayName(SIGDN_FILESYSPATH, &file_path);
-    if (!SUCCEEDED(link_code)) {
-        ret_val = error_code::kFFileSystemErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, "Link error! Failed to get the file path!");
-        file_item_ptr->Release();
-        file_open_dialog->Release();
-        CoUninitialize();
-        return ret_val;
-    }
-
-    //save the value.
-    *_file_ptr = string::WStringToString(file_path);
-
-    //release resourse
-    file_item_ptr->Release();
-    file_open_dialog->Release();
-    CoUninitialize();
-
-    return ret_val;
-}
-
-CORE_DLLAPI NODISCARD ReturnType GetFilesByFileSelector(
-    const TArray<ZFileFilter>& _file_filter_array, TList<ZString>* _file_list_ptr
-) noexcept {
-    ReturnType ret_val = kOK;
-
-    //Init COM lib
-    HRESULT link_code = CoInitialize(nullptr);
-    if (FAILED(link_code)) {
-        ret_val = error_code::kFFileSystemErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, "Link error! Failed to init COM library!");
-        return ret_val;
-    }
-
-    IFileOpenDialog* file_open_dialog = nullptr;
-
-    //create dialog instance
-    link_code = CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_ALL, IID_PPV_ARGS(&file_open_dialog));
-    if (FAILED(link_code)) {
-        ret_val = error_code::kFFileSystemErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, "Link error! Failed to create file open dialog instance!");
-        CoUninitialize();
-        return ret_val;
-    }
-
-    //set options to multiple files
-    file_open_dialog->SetOptions(FOS_ALLOWMULTISELECT | FOS_FILEMUSTEXIST);
-
-    //set filter
-    file_open_dialog->SetFileTypes(
-        static_cast<UInt32>(_file_filter_array.Size()), 
-        reinterpret_cast<const COMDLG_FILTERSPEC*>(_file_filter_array.DataPtr())
-    );
-
-    //shows the file selector, returns neg value if no file selected
-    link_code = file_open_dialog->Show(nullptr);
-    if (FAILED(link_code)) {
-        Z_LOG_MESSAGE("No file selected!");
-        CoUninitialize();
-        return ret_val;
-    }
-
-    //get the selected file
-    IShellItemArray* file_items_ptr;
-    link_code = file_open_dialog->GetResults(&file_items_ptr);
-    if (FAILED(link_code)) {
-        ret_val = error_code::kFFileSystemErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, "Link error! Failed to get the shell items!");
-        file_open_dialog->Release();
-        CoUninitialize();
-        return ret_val;
-    }
-
-    DWORD file_num = 0;
-    link_code = file_items_ptr->GetCount(&file_num);
-    if (FAILED(link_code)) {
-        ret_val = error_code::kFFileSystemErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, "Link error! Get file num failed!");
-        file_items_ptr->Release();
-        file_open_dialog->Release();
-        CoUninitialize();
-        return ret_val;
-    }
-
-    for (DWORD i = 0; i < file_num; ++i) {
-        IShellItem* file_item;
-        link_code = file_items_ptr->GetItemAt(i, &file_item);
-        if (FAILED(link_code)) {
-            ret_val = error_code::kFFileSystemErrorCode_LinkError;
-            Z_LOG_ERROR(ret_val, link_code, "Link error! Get file item failed!");
-            file_items_ptr->Release();
-            file_open_dialog->Release();
-            CoUninitialize();
-            return ret_val;
-        }
-
-        //get file path
-        WChar* file_path = nullptr;
-        link_code = file_item->GetDisplayName(SIGDN_FILESYSPATH, &file_path);
-        if (FAILED(link_code)) {
-            ret_val = error_code::kFFileSystemErrorCode_LinkError;
-            Z_LOG_ERROR(ret_val, link_code, "Link error! Get file item failed!");
-            file_item->Release();
-            file_items_ptr->Release();
-            file_open_dialog->Release();
-            CoUninitialize();
-            return ret_val;
-        }
-
-        _file_list_ptr->PushBack(string::WStringToString(file_path));
-
-        //release resourse
-        CoTaskMemFree(file_path);
-        file_item->Release();
-    }
-
-    //release resourse
-    file_items_ptr->Release();
-    file_open_dialog->Release();
-    CoUninitialize();
-
-    return ret_val;
-}
-
-CORE_DLLAPI NODISCARD ReturnType GetFolderByFileSelector(ZString* _folder_ptr) noexcept {
-    ReturnType ret_val = kOK;
-
-    //Init COM lib
-    HRESULT link_code = CoInitialize(nullptr);
-    if (FAILED(link_code)) {
-        ret_val = error_code::kFFileSystemErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, "Link error! Failed to init COM library!");
-        return ret_val;
-    }
-
-    IFileOpenDialog* file_open_dialog = nullptr;
-
-    //create dialog instance
-    link_code = CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_ALL, IID_PPV_ARGS(&file_open_dialog));
-    if (FAILED(link_code)) {
-        ret_val = error_code::kFFileSystemErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, "Link error! Failed to create file open dialog instance!");
-        CoUninitialize();
-        return ret_val;
-    }
-
-    //set options to folder
-    file_open_dialog->SetOptions(FOS_PICKFOLDERS | FOS_FILEMUSTEXIST);
-
-    //shows the file selector, returns neg value if no file selected
-    link_code = file_open_dialog->Show(nullptr);
-    if (FAILED(link_code)) {
-        Z_LOG_MESSAGE("No file selected!");
-        CoUninitialize();
-        return ret_val;
-    }
-
-    //get the selected file
-    IShellItem* file_item_ptr;
-    link_code = file_open_dialog->GetResult(&file_item_ptr);
-    if (FAILED(link_code)) {
-        ret_val = error_code::kFFileSystemErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, "Link error! Failed to get the shell items!");
-        file_open_dialog->Release();
-        CoUninitialize();
-        return ret_val;
-    }
-
-    //get folder path
-    WChar* folder_path = nullptr;
-    link_code = file_item_ptr->GetDisplayName(SIGDN_FILESYSPATH, &folder_path);
-    if (!SUCCEEDED(link_code)) {
-        ret_val = error_code::kFFileSystemErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, "Link error! Failed to get the folder path!");
-        file_item_ptr->Release();
-        file_open_dialog->Release();
-        CoUninitialize();
-        return ret_val;
-    }
-
-    //save the value.
-    *_folder_ptr = string::WStringToString(folder_path);
-
-    //release resourse
-    file_item_ptr->Release();
-    file_open_dialog->Release();
-    CoUninitialize();
-
-    return ret_val;
-}
-
-CORE_DLLAPI NODISCARD ReturnType GetFoldersByFileSelector(TList<ZString>* _folder_list_ptr) noexcept {
-    ReturnType ret_val = kOK;
-
-    //Init COM lib
-    HRESULT link_code = CoInitialize(nullptr);
-    if (FAILED(link_code)) {
-        ret_val = error_code::kFFileSystemErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, "Link error! Failed to init COM library!");
-        return ret_val;
-    }
-
-    IFileOpenDialog* file_open_dialog = nullptr;
-
-    //create dialog instance
-    link_code = CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_ALL, IID_PPV_ARGS(&file_open_dialog));
-    if (FAILED(link_code)) {
-        ret_val = error_code::kFFileSystemErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, "Link error! Failed to create file open dialog instance!");
-        CoUninitialize();
-        return ret_val;
-    }
-
-    //set options to multiple files
-    file_open_dialog->SetOptions(FOS_ALLOWMULTISELECT | FOS_PICKFOLDERS | FOS_FILEMUSTEXIST);
-
-    //shows the file selector, returns neg value if no file selected
-    link_code = file_open_dialog->Show(nullptr);
-    if (FAILED(link_code)) {
-        Z_LOG_MESSAGE("No file selected!");
-        CoUninitialize();
-        return ret_val;
-    }
-
-    //get the selected file
-    IShellItemArray* file_items_ptr;
-    link_code = file_open_dialog->GetResults(&file_items_ptr);
-    if (FAILED(link_code)) {
-        ret_val = error_code::kFFileSystemErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, "Link error! Failed to get the shell items!");
-        file_open_dialog->Release();
-        CoUninitialize();
-        return ret_val;
-    }
-
-    DWORD file_num = 0;
-    link_code = file_items_ptr->GetCount(&file_num);
-    if (FAILED(link_code)) {
-        ret_val = error_code::kFFileSystemErrorCode_LinkError;
-        Z_LOG_ERROR(ret_val, link_code, "Link error! Get file num failed!");
-        file_items_ptr->Release();
-        file_open_dialog->Release();
-        CoUninitialize();
-        return ret_val;
-    }
-
-    for (DWORD i = 0; i < file_num; ++i) {
-        IShellItem* file_item;
-        link_code = file_items_ptr->GetItemAt(i, &file_item);
-        if (FAILED(link_code)) {
-            ret_val = error_code::kFFileSystemErrorCode_LinkError;
-            Z_LOG_ERROR(ret_val, link_code, "Link error! Get file item failed!");
-            file_items_ptr->Release();
-            file_open_dialog->Release();
-            CoUninitialize();
-            return ret_val;
-        }
-
-        //get folder path
-        WChar* folder_path = nullptr;
-        link_code = file_item->GetDisplayName(SIGDN_FILESYSPATH, &folder_path);
-        if (FAILED(link_code)) {
-            ret_val = error_code::kFFileSystemErrorCode_LinkError;
-            Z_LOG_ERROR(ret_val, link_code, "Link error! Get file item failed!");
-            file_item->Release();
-            file_items_ptr->Release();
-            file_open_dialog->Release();
-            CoUninitialize();
-            return ret_val;
-        }
-
-        _folder_list_ptr->PushBack(string::WStringToString(folder_path));
-
-        //release resourse
-        CoTaskMemFree(folder_path);
-        file_item->Release();
-    }
-
-    //release resourse
-    file_items_ptr->Release();
-    file_open_dialog->Release();
-    CoUninitialize();
 
     return ret_val;
 }

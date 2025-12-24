@@ -26,7 +26,7 @@ namespace zengine {
 namespace error_code {
 enum ZDisplayTileErrorCodeEnum : ReturnType {
     kZDisplayTileErrorCode_LinkError = kErrorCodeBase_ZDisplayTile,
-    kZDisplayTileErrorCode_SystemError,
+    kZDisplayTileErrorCode_SystemOrLibraryError,
     kZDisplayTileErrorCode_NullptrParam,
     kZDisplayTileErrorCode_ParamOutOfRange,
     kZDisplayTileErrorCode_LogicTileNotExists

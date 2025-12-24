@@ -179,7 +179,7 @@ NODISCARD ReturnType ZTCPSingleSessionClient::Connect(
             //disconnect
             Z_DEBUG_LOG_FINISH(
                 "Server disconnected! server_ip: %ls server_port: %d",
-                string::StringToWString(socket_.RemoteEndpoint().IPString().DataPtr()).DataPtr(),
+                string::StringToWString(socket_.RemoteEndpoint().IPString().GetDataPtr()).GetDataPtr(),
                 socket_.RemoteEndpoint().Port()
             );
         }

@@ -164,12 +164,6 @@
     <ClInclude Include="code\zengine\z_core\z_config.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\z_cs_mutex.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\zengine\z_core\z_file.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="code\zengine\z_core\z_json.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -182,13 +176,10 @@
     <ClInclude Include="code\zengine\z_core\z_object.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\z_sem_mutex.h">
+    <ClInclude Include="code\zengine\z_core\z_semaphore.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\zengine\z_core\z_string.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\zengine\z_core\z_system_time.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\zengine\z_core\z_task.h">
@@ -905,112 +896,112 @@
     <ClInclude Include="code\zengine\z_core\z_memory_view.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\error\en.h">
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\error\en.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\error\error.h">
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\error\error.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\internal\biginteger.h">
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\internal\biginteger.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\internal\diyfp.h">
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\internal\diyfp.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\internal\dtoa.h">
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\internal\dtoa.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\internal\ieee754.h">
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\internal\ieee754.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\internal\itoa.h">
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\internal\itoa.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\internal\meta.h">
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\internal\meta.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\internal\pow10.h">
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\internal\pow10.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\internal\regex.h">
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\internal\regex.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\internal\stack.h">
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\internal\stack.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\internal\strfunc.h">
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\internal\strfunc.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\internal\strtod.h">
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\internal\strtod.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\internal\swap.h">
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\internal\swap.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\msinttypes\inttypes.h">
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\msinttypes\inttypes.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\msinttypes\stdint.h">
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\msinttypes\stdint.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\allocators.h">
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\allocators.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\document.h">
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\document.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\encodedstream.h">
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\encodedstream.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\encodings.h">
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\encodings.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\filereadstream.h">
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\filereadstream.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\filewritestream.h">
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\filewritestream.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\fwd.h">
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\fwd.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\istreamwrapper.h">
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\istreamwrapper.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\memorybuffer.h">
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\memorybuffer.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\memorystream.h">
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\memorystream.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\ostreamwrapper.h">
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\ostreamwrapper.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\pointer.h">
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\pointer.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\prettywriter.h">
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\prettywriter.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\rapidjson.h">
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\rapidjson.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\reader.h">
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\reader.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\schema.h">
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\schema.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\stream.h">
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\stream.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\stringbuffer.h">
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\stringbuffer.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\rapidjson\writer.h">
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\writer.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\l_rapidjson.h">
+    <ClInclude Include="code\zengine\z_core\internal\l_rapidjson.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\zengine\z_socket\z_io_context_work_guard.h">
@@ -1088,49 +1079,64 @@
     <ClInclude Include="code\zengine\z_socket\z_udp_packet_factory.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\l_fmt.h">
+    <ClInclude Include="code\zengine\z_core\internal\l_fmt.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\fmt\args.h">
+    <ClInclude Include="code\zengine\z_core\internal\fmt\args.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\fmt\base.h">
+    <ClInclude Include="code\zengine\z_core\internal\fmt\base.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\fmt\chrono.h">
+    <ClInclude Include="code\zengine\z_core\internal\fmt\chrono.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\fmt\color.h">
+    <ClInclude Include="code\zengine\z_core\internal\fmt\color.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\fmt\compile.h">
+    <ClInclude Include="code\zengine\z_core\internal\fmt\compile.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\fmt\core.h">
+    <ClInclude Include="code\zengine\z_core\internal\fmt\core.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\fmt\format.h">
+    <ClInclude Include="code\zengine\z_core\internal\fmt\format.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\fmt\format-inl.h">
+    <ClInclude Include="code\zengine\z_core\internal\fmt\format-inl.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\fmt\os.h">
+    <ClInclude Include="code\zengine\z_core\internal\fmt\os.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\fmt\ostream.h">
+    <ClInclude Include="code\zengine\z_core\internal\fmt\ostream.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\fmt\printf.h">
+    <ClInclude Include="code\zengine\z_core\internal\fmt\printf.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\fmt\ranges.h">
+    <ClInclude Include="code\zengine\z_core\internal\fmt\ranges.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\fmt\std.h">
+    <ClInclude Include="code\zengine\z_core\internal\fmt\std.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\library\fmt\xchar.h">
+    <ClInclude Include="code\zengine\z_core\internal\fmt\xchar.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\zengine\z_core\z_file.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\zengine\z_core\z_system_time.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\cursorstreamwrapper.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\uri.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\zengine\z_core\internal\rapidjson\internal\clzll.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
