@@ -1,17 +1,25 @@
 /*
     Copyright (c) YuLin Zhu
 
-    This code file is licensed under the Creative Commons
-    Attribution-NonCommercial 4.0 International License.
+    ** ZEngine Proprietary License **
 
-    You may obtain a copy of the License at
-    https://creativecommons.org/licenses/by-nc/4.0/
+    This software is provided "as-is", without any express or implied warranty.
+    In no event will the authors be held liable for any damages arising from the
+    use of this software.
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+    Usage Rights:
+    1. Non-Commercial Use: You may use, modify, and distribute this software
+       for non-commercial purposes (e.g., education, personal projects, open-source
+       projects that do not generate revenue) free of charge.
+
+    2. Commercial Use: Commercial use of this software is STRICTLY PROHIBITED
+       without a valid commercial license agreement with the author.
+       "Commercial use" includes, but is not limited to:
+       - Incorporating this software into a product that is sold.
+       - Using this software in a paid service.
+       - Using this software for internal business operations in a for-profit entity.
+
+    To obtain a Commercial License, please contact the author.
 
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
@@ -23,135 +31,113 @@
 namespace zengine {
 namespace math {
 
-/*
-    Returns a NaN. Can't be used to compare with another NaN, 
-    Use IsNaN() to judge if a number is NaN.
-*/
+/**
+ * @brief Returns a canonical Quiet NaN (Not-a-Number).
+ * @tparam NumberType The floating-point type (Float32 or Float64).
+ * @return A floating-point value representing a Quiet NaN.
+ */
 template<typename NumberType>
-requires std::is_floating_point_v<NumberType>
-NODISCARD FORCEINLINE constexpr const NumberType NaN() {
-    if constexpr (std::is_same_v<NumberType, Float64>) {
-        Size64Union temp_number(internal::kFloat64NaNBinary);
-        return temp_number.float_64_;
-    }
-    else if constexpr (std::is_same_v<NumberType, Float32>) {
-        Size32Union temp_number(internal::kFloat32NaNBinary);
-        return temp_number.float_32_;
-    }
+requires kIsFloat<NumberType>
+NODISCARD FORCEINLINE constexpr NumberType NaN() {
+    using Traits = internal::FloatTraits<NumberType>;
+    return std::bit_cast<NumberType>(Traits::kNanBit);
 }
 
-/*
-    Returns inf.
-*/
+/**
+ * @brief Returns positive infinity (+inf).
+ * @tparam NumberType The floating-point type (Float32 or Float64).
+ * @return A floating-point value representing positive infinity.
+ */
 template<typename NumberType>
-requires std::is_floating_point_v<NumberType>
-NODISCARD FORCEINLINE constexpr const NumberType InfP() {
-    if constexpr (std::is_same_v<NumberType, Float64>) {
-        Size64Union temp_number(internal::kFloat64InfPositiveBinary);
-        return temp_number.float_64_;
-    }
-    else if constexpr (std::is_same_v<NumberType, Float32>) {
-        Size32Union temp_number(internal::kFloat32InfPositiveBinary);
-        return temp_number.float_32_;
-    }
+requires kIsFloat<NumberType>
+NODISCARD FORCEINLINE constexpr NumberType InfP() {
+    using Traits = internal::FloatTraits<NumberType>;
+    return std::bit_cast<NumberType>(Traits::kInfBit);
 }
 
-/*
-    Returns -inf.
-*/
+/**
+ * @brief Returns negative infinity (-inf).
+ * @tparam NumberType The floating-point type (Float32 or Float64).
+ * @return A floating-point value representing negative infinity.
+ */
 template<typename NumberType>
-requires std::is_floating_point_v<NumberType>
-NODISCARD FORCEINLINE constexpr const NumberType InfN() {
-    if constexpr (std::is_same_v<NumberType, Float64>) {
-        Size64Union temp_number(internal::kFloat64InfNegativeBinary);
-        return temp_number.float_64_;
-    }
-    else if constexpr (std::is_same_v<NumberType, Float32>) {
-        Size32Union temp_number(internal::kFloat32InfNegativeBinary);
-        return temp_number.float_32_;
-    }
+requires kIsFloat<NumberType>
+NODISCARD FORCEINLINE constexpr NumberType InfN() {
+    using Traits = internal::FloatTraits<NumberType>;
+    return std::bit_cast<NumberType>(Traits::kInfBit | Traits::kSignMask);
 }
 
-/*
-    If number is not NaN or inf or -inf.
-*/
+/**
+ * @brief Checks if the number is finite (not NaN and not Infinity).
+ * @tparam NumberType The floating-point type (Float32 or Float64).
+ * @param _number The floating-point number to check.
+ * @return True if the number is finite, false otherwise.
+ */
 template<typename NumberType>
-requires std::is_floating_point_v<NumberType>
-NODISCARD FORCEINLINE constexpr const Bool IsValid(const NumberType _number) {
-    if constexpr (std::is_same_v<NumberType, Float64>) {
-        Size64Union temp_number(_number);
-        return (temp_number.u_int_64_ & internal::kFloat64MantissaMask) != internal::kFloat64MantissaInvalidValueBinary;
-    }
-    else if constexpr (std::is_same_v<NumberType, Float32>) {
-        Size32Union temp_number(_number);
-        return (temp_number.u_int_32_ & internal::kFloat32MantissaMask) != internal::kFloat32MantissaInvalidValueBinary;
-    }
+requires kIsFloat<NumberType>
+NODISCARD FORCEINLINE constexpr Bool IsFinite(NumberType _number) {
+    using Traits = internal::FloatTraits<NumberType>;
+    const auto bits = std::bit_cast<typename Traits::UIntType>(_number);
+    return (bits & Traits::kExpMask) != Traits::kExpMask;
 }
 
-/*
-    If number is NaN or inf or -inf.
-*/
+/**
+ * @brief Checks if the number is NaN (Not-a-Number).
+ * @tparam NumberType The floating-point type (Float32 or Float64).
+ * @param _number The floating-point number to check.
+ * @return True if the number is NaN, false otherwise.
+ */
 template<typename NumberType>
-requires std::is_floating_point_v<NumberType>
-NODISCARD FORCEINLINE constexpr const Bool IsInvalid(const NumberType _number) {
-    if constexpr (std::is_same_v<NumberType, Float64>) {
-        Size64Union temp_number(_number);
-        return (temp_number.u_int_64_ & internal::kFloat64MantissaMask) == internal::kFloat64MantissaInvalidValueBinary;
-    }
-    else if constexpr (std::is_same_v<NumberType, Float32>) {
-        Size32Union temp_number(_number);
-        return (temp_number.u_int_32_ & internal::kFloat32MantissaMask) == internal::kFloat32MantissaInvalidValueBinary;
-    }
+requires kIsFloat<NumberType>
+NODISCARD FORCEINLINE constexpr Bool IsNaN(NumberType _number) {
+    using Traits = internal::FloatTraits<NumberType>;
+    const auto bits = std::bit_cast<typename Traits::UIntType>(_number);
+    return ((bits & Traits::kExpMask) == Traits::kExpMask) &&
+           ((bits & Traits::kMantissaMask) != 0);
 }
 
-/*
-    If number is NaN.
-*/
+/**
+ * @brief Checks if the number is Infinity (either positive or negative).
+ * @tparam NumberType The floating-point type (Float32 or Float64).
+ * @param _number The floating-point number to check.
+ * @return True if the number is Infinity, false otherwise.
+ */
 template<typename NumberType>
-requires std::is_floating_point_v<NumberType>
-NODISCARD FORCEINLINE constexpr const Bool IsNaN(const NumberType _number) {
-    if constexpr (std::is_same_v<NumberType, Float64>) {
-        Size64Union temp_number(_number);
-        return
-            ((temp_number.u_int_64_ & internal::kFloat64MantissaMask) == internal::kFloat64MantissaInvalidValueBinary) &&
-            ((temp_number.u_int_64_ & internal::kFloat64ExponentWithoutSymbolMask) !=
-            internal::kFloat64ExponentInvalidValueBinary);
-    }
-    else if constexpr (std::is_same_v<NumberType, Float32>) {
-        Size32Union temp_number(_number);
-        return
-            ((temp_number.u_int_32_ & internal::kFloat32MantissaMask) == internal::kFloat32MantissaInvalidValueBinary) &&
-            ((temp_number.u_int_32_ & internal::kFloat32ExponentWithoutSymbolMask) !=
-            internal::kFloat32ExponentInvalidValueBinary);
-    }
+requires kIsFloat<NumberType>
+NODISCARD FORCEINLINE constexpr Bool IsInf(NumberType _number) {
+    using Traits = internal::FloatTraits<NumberType>;
+    const auto bits = std::bit_cast<typename Traits::UIntType>(_number);
+    return ((bits & Traits::kExpMask) == Traits::kExpMask) &&
+           ((bits & Traits::kMantissaMask) == 0);
 }
 
-/*
-    If number is inf or -inf.
-*/
+/**
+ * @brief Checks if the number is positive Infinity.
+ * @tparam NumberType The floating-point type (Float32 or Float64).
+ * @param _number The floating-point number to check.
+ * @return True if the number is positive Infinity, false otherwise.
+ */
 template<typename NumberType>
-requires std::is_floating_point_v<NumberType>
-NODISCARD FORCEINLINE constexpr const Bool IsInf(const NumberType _number) {
-    return _number == InfP<NumberType>() || _number == InfN<NumberType>();
+requires kIsFloat<NumberType>
+NODISCARD FORCEINLINE constexpr Bool IsInfP(NumberType _number) {
+    using Traits = internal::FloatTraits<NumberType>;
+    const auto bits = std::bit_cast<typename Traits::UIntType>(_number);
+    return bits == Traits::kInfBit;
 }
 
-/*
-    If number is inf.
-*/
+/**
+ * @brief Checks if the number is negative Infinity.
+ * @tparam NumberType The floating-point type (Float32 or Float64).
+ * @param _number The floating-point number to check.
+ * @return True if the number is negative Infinity, false otherwise.
+ */
 template<typename NumberType>
-requires std::is_floating_point_v<NumberType>
-NODISCARD FORCEINLINE constexpr const Bool IsInfP(const NumberType _number) {
-    return _number == InfP<NumberType>();
+requires kIsFloat<NumberType>
+NODISCARD FORCEINLINE constexpr Bool IsInfN(NumberType _number) {
+    using Traits = internal::FloatTraits<NumberType>;
+    const auto bits = std::bit_cast<typename Traits::UIntType>(_number);
+    return bits == (Traits::kInfBit | Traits::kSignMask);
 }
 
-/*
-    If number is -inf.
-*/
-template<typename NumberType>
-requires std::is_floating_point_v<NumberType>
-NODISCARD FORCEINLINE constexpr const Bool IsInfN(const NumberType _number) {
-    return _number == InfN<NumberType>();
-}
-
-}//math
-}//zengine
+} // math
+} // zengine

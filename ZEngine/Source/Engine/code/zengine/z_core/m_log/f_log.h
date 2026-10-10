@@ -47,7 +47,7 @@ namespace internal {
  * @brief Internal implementation to process and dispatch an error log.
  * @param _log_time The timestamp of the log.
  * @param _proj_name The project name.
- * @param _file_dir The file directory/path.
+ * @param _file_path The file path.
  * @param _func_name The function name.
  * @param _err_line The line number.
  * @param _err_code The error code (returns kOK if successful, if failed returns error code).
@@ -58,7 +58,7 @@ namespace internal {
 CORE_DLLAPI Void LogErrorP(
     TimeType _log_time,
     ZStringView _proj_name,
-    ZStringView _file_dir,
+    ZStringView _file_path,
     ZStringView _func_name,
     Int32 _err_line,
     ReturnType _err_code,
@@ -71,7 +71,7 @@ CORE_DLLAPI Void LogErrorP(
  * @brief Internal implementation to process and dispatch a trace log.
  * @param _log_time The timestamp of the log.
  * @param _proj_name The project name.
- * @param _file_dir The file directory/path.
+ * @param _file_path The file path.
  * @param _func_name The function name.
  * @param _trace_line The line number.
  * @param _format The format string.
@@ -80,7 +80,7 @@ CORE_DLLAPI Void LogErrorP(
 CORE_DLLAPI Void LogTraceP(
     TimeType _log_time,
     ZStringView _proj_name,
-    ZStringView _file_dir,
+    ZStringView _file_path,
     ZStringView _func_name,
     Int32 _trace_line,
     ZStringView _format,
@@ -122,9 +122,9 @@ CORE_DLLAPI Void UnregisterLogOutputFunctionP(
 ) noexcept;
 
 
-}//internal
-}//log
-}//zengine
+} // internal
+} // log
+} // zengine
 
 namespace zengine {
 namespace log {
@@ -134,7 +134,7 @@ namespace log {
  * @tparam _ArgsType Variadic argument types for formatting.
  * @param _log_time The timestamp of the log.
  * @param _proj_name The project name.
- * @param _file_dir The file directory/path.
+ * @param _file_path The file path.
  * @param _func_name The function name.
  * @param _err_line The line number.
  * @param _err_code The error code (returns kOK if successful, if failed returns error code).
@@ -146,7 +146,7 @@ template<typename... _ArgsType>
 FORCEINLINE Void LogError(
     TimeType _log_time,
     ZStringView _proj_name,
-    ZStringView _file_dir,
+    ZStringView _file_path,
     ZStringView _func_name,
     Int32 _err_line,
     ReturnType _err_code,
@@ -157,7 +157,7 @@ FORCEINLINE Void LogError(
     internal::LogErrorP(
         _log_time,
         _proj_name,
-        _file_dir,
+        _file_path,
         _func_name,
         _err_line,
         _err_code,
@@ -172,7 +172,7 @@ FORCEINLINE Void LogError(
  * @tparam _ArgsType Variadic argument types for formatting.
  * @param _log_time The timestamp of the log.
  * @param _proj_name The project name.
- * @param _file_dir The file directory/path.
+ * @param _file_path The file path.
  * @param _func_name The function name.
  * @param _trace_line The line number.
  * @param _format The format string.
@@ -182,7 +182,7 @@ template<typename... _ArgsType>
 FORCEINLINE Void LogTrace(
     TimeType _log_time,
     ZStringView _proj_name,
-    ZStringView _file_dir,
+    ZStringView _file_path,
     ZStringView _func_name,
     Int32 _trace_line,
     ZStringView _format,
@@ -191,7 +191,7 @@ FORCEINLINE Void LogTrace(
     internal::LogTraceP(
         _log_time,
         _proj_name,
-        _file_dir,
+        _file_path,
         _func_name,
         _trace_line,
         _format,
@@ -231,7 +231,7 @@ template<typename _LogType>
 Void RegisterLogOutputFunction(ZLog::OutputFunction_ _output_func) noexcept {
     internal::RegisterLogOutputFunctionP(
         _output_func,
-        &_LogType::OutputFunctionArrayInstance()
+        &_LogType::GetOutputFunctionArrayInstance()
     );
 }
 
@@ -244,7 +244,7 @@ template<typename _LogType>
 Void UnregisterLogOutputFunction(ZLog::OutputFunction_ _output_func) noexcept {
     internal::RegisterLogOutputFunctionP(
         _output_func,
-        &_LogType::OutputFunctionArrayInstance()
+        &_LogType::GetOutputFunctionArrayInstance()
     );
 }
 
@@ -256,5 +256,5 @@ Void UnregisterLogOutputFunction(ZLog::OutputFunction_ _output_func) noexcept {
  */
 CORE_DLLAPI Void FinishFlush() noexcept;
 
-}//log
-}//zengine
+} // log
+} // zengine

@@ -37,59 +37,76 @@
 namespace zengine {
 namespace log {
 
-ZStringView ZLog::CreateAndGetLogPath() noexcept {
-    //log file path.
-    thread_local ZString path_str = std::invoke([]() -> ZString {
-        const ZSystemTime& system_time = ZSystemTime::StartTimeInstance();
+NODISCARD ZStringView ZLog::CreateAndGetLogPath() noexcept {
+    // log file path.
+    static ZStringView path_str = std::invoke([]() -> ZStringView {
+        static TFixedString<kMaxFileDirLength> log_path_str;
+        const ZSystemTime& system_time = ZSystemTime::GetProcessStartTimeInstance();
         TFixedString<kMaxFileDirLength> log_root_path_str;
-        TFixedString<kMaxFileDirLength> log_path_str;
+        TFixedString<kMaxFileDirLength> execute_path_str;
+
+        SizeType execute_path_str_len = kMaxFileDirLength;
+        ReturnType link_code = file_system::GetExecuteDirectoryPath(
+            execute_path_str.GetDataPtr(), 
+            &execute_path_str_len
+        );
+        if(link_code != kOK) {
+            return ZStringView();
+        }
 
         SizeType log_root_path_str_len = log_root_path_str.AssignNoEnd(
             "{}/{}",
-            file_system::GetExecuteDirectoryPath(),
+            ZStringView(execute_path_str.GetDataPtr(), execute_path_str_len),
             kLogFileRootPathDir
         );
 
         SizeType log_path_str_len = log_path_str.AssignNoEnd(
             "{}/{:04}{:02}{:02}{:02}{:02}{:02}",
             ZStringView(log_root_path_str.GetDataPtr(), log_root_path_str_len),
-            system_time.Year(),
-            system_time.Month(),
-            system_time.Day(),
-            system_time.Hour(),
-            system_time.Min(),
-            system_time.Sec()
+            system_time.GetYear(),
+            system_time.GetMonth(),
+            system_time.GetDay(),
+            system_time.GetHour(),
+            system_time.GetMin(),
+            system_time.GetSec()
         );
 
-        //create log path.
-        ReturnType link_code = file_system::CreateDirectoryByPath(
+        // create log path.
+        link_code = file_system::CreateDirectoryByPath(
             ZStringView(log_path_str.GetDataPtr(), log_path_str_len)
         );
         if (link_code != kOK) {
             Z_LOG_ERROR(
-                error_code::kMLogErrorCode_LinkError, link_code, "file_system::CreateDirectoryByPath() link error!");
+                error_code::kMLogErrorCode_LinkError, link_code, 
+                "file_system::CreateDirectoryByPath() link error!"
+            );
+            ASSERT(false, "file_system::CreateDirectoryByPath() link error!");
+            Exit(error_code::kMLogErrorCode_LinkError);
         }
 
-        //clear the expired log files.
-        TList<ZString> dir_list;
-        file_system::GetDirectoriesByPath(kLogFileRootPathDir, &dir_list);
-        while(dir_list.GetSize() > log::kLogFileMaxNum) {
-            file_system::DeleteDirectoryByPath(dir_list.Front());
-            dir_list.PopFront();
+        // clear the expired log files.
+        auto result = file_system::GetDirectoriesByPath(kLogFileRootPathDir);
+        if (!result) {
+            Z_LOG_ERROR(
+                error_code::kMLogErrorCode_LinkError, link_code,
+                "file_system::GetDirectoriesByPath() link error!"
+            );
+            ASSERT(false, "file_system::GetDirectoriesByPath() link error!");
+            Exit(error_code::kMLogErrorCode_LinkError);
+        }
+        while (result->GetSize() > log::kLogFileMaxNum) {
+            file_system::DeleteDirectoryByPath(result->Front());
+            result->PopFront();
         }
 
-        return ZString(log_path_str.GetDataPtr(), log_path_str_len);
+        return ZStringView(log_path_str.GetDataPtr(), log_path_str_len);
     });
     return path_str;
 }
 
-ZLog::~ZLog() noexcept {
-    memory_pool::ReleaseLogStringMemory(log_str_.log_str_ptr_);
-}
-
 Void ZLog::OutputLog() noexcept {
-    OutputFunctionArray_& output_function_array = OutputFunctionArrayP();
     static OutputString_ output_string;
+    OutputFunctionArray_& output_function_array = OutputFunctionArrayP();
     GenerateOutputStringP(&output_string);
     SizeType index = 0ULL;
     while (output_function_array[index]) {
@@ -103,11 +120,8 @@ ZLog::ZLog(
     const TimeType& _log_time
 ) noexcept
     : SuperType_()
-    , log_type_(_log_type)
-    , log_time_(_log_time)
-{
-    log_str_.log_str_ptr_ = reinterpret_cast<TFixedString<kLogStringMaxSize>*>(memory_pool::ApplyLogStringMemory());
-}
+    , log_head_(_log_type, _log_time)
+{}
 
-}//log
-}//zengine
+} // log
+} // zengine

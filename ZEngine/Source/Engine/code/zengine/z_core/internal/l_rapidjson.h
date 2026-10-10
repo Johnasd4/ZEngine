@@ -38,8 +38,9 @@
 
 namespace zengine {
 namespace internal {
-    
-class JsonAllocatorP {
+
+template<Bool _IsGlobal>
+class TJsonAllocatorP {
 public:
     static constexpr Bool kNeedFree = true;
 
@@ -47,24 +48,29 @@ public:
         if (_size == 0U) {
             return nullptr;
         }
-        return memory_pool::ApplyThreadLocalMemory(static_cast<SizeType>(_size));
+        return memory_pool::ApplyMemory<_IsGlobal>(static_cast<SizeType>(_size));
     }
 
     FORCEINLINE Void* Realloc(Void* _old_ptr, SizeType _old_size, SizeType _new_size) noexcept {
         if (_new_size == 0U) {
-            memory_pool::ReleaseThreadLocalMemory(_old_ptr);
+            memory_pool::ReleaseMemory<_IsGlobal>(_old_ptr);
             return nullptr;
         }
-        return memory_pool::ReapplyThreadLocalMemory(_old_ptr, static_cast<SizeType>(_new_size));
+        return memory_pool::ReapplyMemory<_IsGlobal>(_old_ptr, static_cast<SizeType>(_new_size));
     }
 
     FORCEINLINE static Void Free(Void* _mem_ptr) noexcept {
-        memory_pool::ReleaseThreadLocalMemory(_mem_ptr);
+        memory_pool::ReleaseMemory<_IsGlobal>(_mem_ptr);
     }
 };
-using JsonAllocator = rapidjson::MemoryPoolAllocator<internal::JsonAllocatorP>;
-using JsonDocument = rapidjson::GenericDocument<rapidjson::UTF8<>, internal::JsonAllocator, internal::JsonAllocatorP>;
-using JsonValue = rapidjson::GenericValue<rapidjson::UTF8<>, JsonAllocator>;
+template<Bool _IsGlobal>
+using RapidJsonAllocator = rapidjson::MemoryPoolAllocator<TJsonAllocatorP<_IsGlobal>>;
+template<Bool _IsGlobal>
+using RapidJsonDocument = rapidjson::GenericDocument<
+    rapidjson::UTF8<>, RapidJsonAllocator<_IsGlobal>, TJsonAllocatorP<_IsGlobal>
+>;
+template<Bool _IsGlobal>
+using RapidJsonValue = rapidjson::GenericValue<rapidjson::UTF8<>, RapidJsonAllocator<_IsGlobal>>;
 
-}//internal
-}//zengine
+} // internal
+} // zengine

@@ -71,7 +71,7 @@ NODISCARD ReturnType ZDisplayBoardObject::RegisterLogicBoardObject(ZLogicBoardOb
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
     Z_CHECK(
-        _logic_object_ptr == nullptr, error_code::kZDisplayBoardObjectErrorCode_LogicTileNotExists,
+        _logic_object_ptr != nullptr, error_code::kZDisplayBoardObjectErrorCode_LogicTileNotExists,
         "_logic_object_ptr is nullptr!"
     );
     if (_logic_object_ptr->display_board_object_head_ptr_ != nullptr) {
@@ -83,5 +83,5 @@ NODISCARD ReturnType ZDisplayBoardObject::RegisterLogicBoardObject(ZLogicBoardOb
     return ret_val;
 }
 
-}//tsrpg
-}//zengine
+} // tsrpg
+} // zengine

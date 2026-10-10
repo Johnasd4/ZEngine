@@ -1205,7 +1205,7 @@ static void             UpdateViewportsNewFrame();
 //   - If you need a finite number of contexts, you may compile and use multiple instances of the ImGui code from a different namespace.
 // - DLL users: read comments above.
 #ifndef GImGui
-thread_local ImGuiContext*   GImGui = NULL;
+ImGuiContext*   GImGui = NULL;
 #endif
 
 // Memory Allocator functions. Use SetAllocatorFunctions() to change them.
@@ -4380,7 +4380,7 @@ ImDrawData* ImGui::GetDrawData()
 
 double ImGui::GetTime()
 {
-    return GImGui->Time;
+    return GImGui->TimeNs;
 }
 
 int ImGui::GetFrameCount()
@@ -4677,7 +4677,7 @@ void ImGui::NewFrame()
     // Load settings on first frame, save settings when modified (after a delay)
     UpdateSettings();
 
-    g.Time += g.IO.DeltaTime;
+    g.TimeNs += g.IO.DeltaTime;
     g.WithinFrameScope = true;
     g.FrameCount += 1;
     g.TooltipOverrideCount = 0;
@@ -4851,7 +4851,7 @@ void ImGui::NewFrame()
 
     // Mark all windows as not visible and compact unused memory.
     IM_ASSERT(g.WindowsFocusOrder.GetSize <= g.Windows.GetSize);
-    const float memory_compact_start_time = (g.GcCompactAll || g.IO.ConfigMemoryCompactTimer < 0.0f) ? FLT_MAX : (float)g.Time - g.IO.ConfigMemoryCompactTimer;
+    const float memory_compact_start_time = (g.GcCompactAll || g.IO.ConfigMemoryCompactTimer < 0.0f) ? FLT_MAX : (float)g.TimeNs - g.IO.ConfigMemoryCompactTimer;
     for (ImGuiWindow* window : g.Windows)
     {
         window->WasActive = window->Active;
@@ -6565,7 +6565,7 @@ bool ImGui::Begin(const char* name, bool* p_open, ImGuiWindowFlags flags)
         window->Flags = (ImGuiWindowFlags)flags;
         window->ChildFlags = (g.NextWindowData.Flags & ImGuiNextWindowDataFlags_HasChildFlags) ? g.NextWindowData.ChildFlags : 0;
         window->LastFrameActive = current_frame;
-        window->LastTimeActive = (float)g.Time;
+        window->LastTimeActive = (float)g.TimeNs;
         window->BeginOrderWithinParent = 0;
         window->BeginOrderWithinContext = (short)(g.WindowsActiveCount++);
     }
@@ -8884,7 +8884,7 @@ bool ImGui::IsKeyPressed(ImGuiKey key, ImGuiInputFlags flags, ImGuiID owner_id)
             // Slightly bias 'key_pressed_time' as DownDuration is an accumulation of DeltaTime which we compare to an absolute time value.
             // Ideally we'd replace DownDuration with KeyPressedTime but it would break user's code.
             ImGuiContext& g = *GImGui;
-            double key_pressed_time = g.Time - t + 0.00001f;
+            double key_pressed_time = g.TimeNs - t + 0.00001f;
             if ((flags & ImGuiInputFlags_RepeatUntilKeyModsChange) && (g.LastKeyModsChangeTime > key_pressed_time))
                 pressed = false;
             if ((flags & ImGuiInputFlags_RepeatUntilKeyModsChangeFromNone) && (g.LastKeyModsChangeFromNoneTime > key_pressed_time))
@@ -9228,9 +9228,9 @@ static void ImGui::UpdateKeyboardInputs()
     io.KeyAlt = (io.KeyMods & ImGuiMod_Alt) != 0;
     io.KeySuper = (io.KeyMods & ImGuiMod_Super) != 0;
     if (prev_key_mods != io.KeyMods)
-        g.LastKeyModsChangeTime = g.Time;
+        g.LastKeyModsChangeTime = g.TimeNs;
     if (prev_key_mods != io.KeyMods && prev_key_mods == 0)
-        g.LastKeyModsChangeFromNoneTime = g.Time;
+        g.LastKeyModsChangeFromNoneTime = g.TimeNs;
 
     // Clear gamepad data if disabled
     if ((io.BackendFlags & ImGuiBackendFlags_HasGamepad) == 0)
@@ -9250,9 +9250,9 @@ static void ImGui::UpdateKeyboardInputs()
         {
             ImGuiKey key = (ImGuiKey)(ImGuiKey_KeysData_OFFSET + i);
             if (IsKeyboardKey(key))
-                g.LastKeyboardKeyPressTime = g.Time;
+                g.LastKeyboardKeyPressTime = g.TimeNs;
             else if (key == ImGuiKey_ReservedForModCtrl || key == ImGuiKey_ReservedForModShift || key == ImGuiKey_ReservedForModAlt || key == ImGuiKey_ReservedForModSuper)
-                g.LastKeyboardKeyPressTime = g.Time;
+                g.LastKeyboardKeyPressTime = g.TimeNs;
         }
     }
 
@@ -9314,7 +9314,7 @@ static void ImGui::UpdateMouseInputs()
         if (io.MouseClicked[i])
         {
             bool is_repeated_click = false;
-            if ((float)(g.Time - io.MouseClickedTime[i]) < io.MouseDoubleClickTime)
+            if ((float)(g.TimeNs - io.MouseClickedTime[i]) < io.MouseDoubleClickTime)
             {
                 ImVec2 delta_from_click_pos = IsMousePosValid(&io.MousePos) ? (io.MousePos - io.MouseClickedPos[i]) : ImVec2(0.0f, 0.0f);
                 if (ImLengthSqr(delta_from_click_pos) < io.MouseDoubleClickMaxDist * io.MouseDoubleClickMaxDist)
@@ -9324,7 +9324,7 @@ static void ImGui::UpdateMouseInputs()
                 io.MouseClickedLastCount[i]++;
             else
                 io.MouseClickedLastCount[i] = 1;
-            io.MouseClickedTime[i] = g.Time;
+            io.MouseClickedTime[i] = g.TimeNs;
             io.MouseClickedPos[i] = io.MousePos;
             io.MouseClickedCount[i] = io.MouseClickedLastCount[i];
             io.MouseDragMaxDistanceSqr[i] = 0.0f;
@@ -16032,13 +16032,13 @@ void ImGui::ShowIDStackToolWindow(bool* p_open)
     MetricsHelpMarker("Hover an item with the mouse to display elements of the ID Stack leading to the item's final ID.\nEach level of the stack correspond to a PushID() call.\nAll levels of the stack are hashed together to make the final ID of a widget (ID displayed at the bottom level of the stack).\nRead FAQ entry about the ID stack for details.");
 
     // CTRL+C to copy path
-    const float time_since_copy = (float)g.Time - tool->CopyToClipboardLastTime;
+    const float time_since_copy = (float)g.TimeNs - tool->CopyToClipboardLastTime;
     Checkbox("Ctrl+C: copy path to clipboard", &tool->CopyToClipboardOnCtrlC);
     SameLine();
     TextColored((time_since_copy >= 0.0f && time_since_copy < 0.75f && ImFmod(time_since_copy, 0.25f) < 0.25f * 0.5f) ? ImVec4(1.f, 1.f, 0.3f, 1.f) : ImVec4(), "*COPIED*");
     if (tool->CopyToClipboardOnCtrlC && Shortcut(ImGuiMod_Ctrl | ImGuiKey_C, ImGuiInputFlags_RouteGlobal | ImGuiInputFlags_RouteOverFocused))
     {
-        tool->CopyToClipboardLastTime = (float)g.Time;
+        tool->CopyToClipboardLastTime = (float)g.TimeNs;
         char* p = g.TempBuffer.Data;
         char* p_end = p + g.TempBuffer.GetSize;
         for (int stack_n = 0; stack_n < tool->Results.GetSize && p + 3 < p_end; stack_n++)

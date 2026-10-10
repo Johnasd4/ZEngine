@@ -31,15 +31,23 @@
 
 namespace zengine {
 
-inline constexpr ReturnType kOK = 0;
+inline constexpr ReturnType kOK = ReturnType::kOK;
 inline constexpr ReturnType kErrorCodeSolutionMask = 0x10000000U;
 inline constexpr ReturnType kErrorCodeProjcetMask = 0x100000U;
 inline constexpr ReturnType kErrorCodeTypeMask = 0x100U;
 
+} // zengine
+
+namespace zengine {
 namespace error_code {
 
+enum ZErrorCodeEnum : ReturnType::ValueType {
+    kErrorCode_SystemAbort = 0x1U,
+    kErrorCode_OptionalNoValue = 0x2U
+};
+
 inline constexpr ReturnType kErrorCodeBase_SZEngine = 0x0U * kErrorCodeSolutionMask;
-inline constexpr ReturnType kErrorCodeBase_PCore = 0x0U * kErrorCodeProjcetMask + kErrorCodeBase_SZEngine;
+inline constexpr ReturnType kErrorCodeBase_PCore = 0x1U * kErrorCodeProjcetMask + kErrorCodeBase_SZEngine;
 
 inline constexpr ReturnType kErrorCodeBase_FString = 0x0U * kErrorCodeTypeMask + kErrorCodeBase_PCore;
 inline constexpr ReturnType kErrorCodeBase_ZFile = 0x1U * kErrorCodeTypeMask + kErrorCodeBase_PCore;
@@ -56,6 +64,7 @@ inline constexpr ReturnType kErrorCodeBase_ZConfig = 0xBU * kErrorCodeTypeMask +
 inline constexpr ReturnType kErrorCodeBase_FSystem = 0xCU * kErrorCodeTypeMask + kErrorCodeBase_PCore;
 inline constexpr ReturnType kErrorCodeBase_TFunction = 0xDU * kErrorCodeTypeMask + kErrorCodeBase_PCore;
 inline constexpr ReturnType kErrorCodeBase_ZSerializer = 0xEU * kErrorCodeTypeMask + kErrorCodeBase_PCore;
+inline constexpr ReturnType kErrorCodeBase_ZTickManager = 0xFU * kErrorCodeTypeMask + kErrorCodeBase_PCore;
 
-}//error_code
-}//zengine
+} // error_code
+} // zengine

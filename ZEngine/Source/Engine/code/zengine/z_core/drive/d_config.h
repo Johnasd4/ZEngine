@@ -42,7 +42,7 @@
 /** @brief Determines whether the smart pointer is thread-safe. */
 #define SMART_POINTER_THREAD_SAFE true
 
-//Log type.
+// Log type.
 #ifdef _DEBUG
 /** @brief Determines whether to use macros starting with Z_DEBUG_LOG for log output. */
 #define USE_DEBUG_LOG true
@@ -61,7 +61,7 @@
 #define USE_CONSOLE_LOG false
 /** @brief Determines whether to print logs to a file. */
 #define USE_FILE_LOG true
-#endif//_DEBUG
+#endif // _DEBUG
 
 #define DEFAULT_USE_GLOBAL_MEMORY_POOL true
 
@@ -72,4 +72,4 @@ inline constexpr TimeType kExitTimeMs = 50LL;
 /** @brief The maximum length allowed for a file directory path. */
 inline constexpr SizeType kMaxFileDirLength = 4096LL;
 
-}//zengine
+} // zengine

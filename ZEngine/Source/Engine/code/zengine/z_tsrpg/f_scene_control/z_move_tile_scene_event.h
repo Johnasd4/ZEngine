@@ -25,8 +25,8 @@
 namespace zengine {
 namespace tsrpg {
 class ZDisplayTile;
-}//tsrpg
-}//zengine
+} // tsrpg
+} // zengine
 
 namespace zengine {
 namespace tsrpg {
@@ -70,5 +70,5 @@ private:
     TArray<MoveParams_> move_params_array_;
 };
 
-}//tsrpg
-}//zengine
+} // tsrpg
+} // zengine

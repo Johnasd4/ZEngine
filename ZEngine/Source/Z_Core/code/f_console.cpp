@@ -40,7 +40,7 @@ namespace internal {
 
 /** @brief Print manager class. */
 /** @brief Handles thread-safe print operations to the console. */
-class CACHE_LINE_ALIGN ZPrintManager {
+class CACHE_ALIGN ZPrintManager {
 public:
     /** @brief Retrieves the singleton instance of the print manager. */
     /** @return Reference to the singleton instance. */
@@ -132,10 +132,6 @@ public:
     }
 
 private:
-    /** @brief Deleted operator new to prevent heap allocation. */
-    static Void* operator new(SizeType) = delete;
-    /** @brief Deleted operator delete. */
-    static Void operator delete(Void*) = delete;
 
     /** @brief Default constructor. */
     /** @brief Initializes the console settings. On Windows, it enables ANSI escape codes and sets UTF-8 output. */
@@ -153,7 +149,7 @@ private:
         console_mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
         SetConsoleMode(output_handle, console_mode);
 
-        //set output as UTF-8
+        // set output as UTF-8
         SetConsoleOutputCP(CP_UTF8);
 #else
         // Linux / macOS default supply ANSI and UTF-8.
@@ -171,7 +167,7 @@ private:
         fmt::format_args _args
     ) noexcept {
         try {
-            fmt::vprint(_format.STDStringView(), _args);
+            fmt::vprint(_format.GetSTDStringView(), _args);
         }
         catch (const fmt::format_error&) {
             Z_LOG_ERROR(
@@ -204,7 +200,7 @@ private:
         }
 
         try {
-            fmt::vprint(stdout, text_style, _format.STDStringView(), _args);
+            fmt::vprint(stdout, text_style, _format.GetSTDStringView(), _args);
         }
         catch (const fmt::format_error&) {
             Z_LOG_ERROR(
@@ -225,9 +221,9 @@ private:
     ZMutex mutex_;
 };
 
-}//internal
-}//console
-}//zengine
+} // internal
+} // console
+} // zengine
 
 namespace zengine {
 namespace console {
@@ -285,9 +281,9 @@ CORE_DLLAPI Void PrintImmediately(
     );
 }
 
-}//internal
-}//console
-}//zengine
+} // internal
+} // console
+} // zengine
 
 namespace zengine {
 namespace console {
@@ -296,5 +292,5 @@ CORE_DLLAPI Void Flush() noexcept {
     internal::ZPrintManager::InstanceP().Flush();
 }
 
-}//console
-}//zengine
+} // console
+} // zengine

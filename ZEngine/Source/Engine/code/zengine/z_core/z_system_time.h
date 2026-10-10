@@ -28,51 +28,137 @@
 
 #include "drive.h"
 
+#include <chrono>
+
 #include "z_object.h"
 
 namespace zengine {
 
 /**
- * @brief Gets the current system time.
- * @details Returns the number of nanoseconds elapsed since 1970-01-01 00:00:00 UTC.
- * @return The current time as a TimeType (nanoseconds).
- */
-CORE_DLLAPI NODISCARD TimeType Time() noexcept;
-
-/**
  * @brief The system time class.
  * @details Inherits from ZObject and manages time decomposition [year, month, day, hour, min, sec, ms, us, ns].
  */
-class CORE_DLLAPI ZSystemTime : public ZObject<> {
+class CORE_DLLAPI ZSystemTime : public ZObject {
 public:
+    /** @brief Alias for the base class type. */
+    using SuperType_ = ZObject;
+
     /** @brief Constant for nanoseconds per microsecond. */
-    static constexpr TimeType kNsPerUs = 1000;
+    static inline constexpr TimeType kNsPerUs = 1000;
     /** @brief Constant for microseconds per millisecond. */
-    static constexpr TimeType kUsPerMs = 1000;
+    static inline constexpr TimeType kUsPerMs = 1000;
     /** @brief Constant for milliseconds per second. */
-    static constexpr TimeType kMsPerSec = 1000;
+    static inline constexpr TimeType kMsPerSec = 1000;
     /** @brief Constant for seconds per minute. */
-    static constexpr TimeType kSecPerMin = 60;
+    static inline constexpr TimeType kSecPerMin = 60;
     /** @brief Constant for seconds per hour. */
-    static constexpr TimeType kSecPerHour = 3600;
+    static inline constexpr TimeType kSecPerHour = 3600;
     /** @brief Constant for minutes per hour. */
-    static constexpr TimeType kMinPerHour = 60;
+    static inline constexpr TimeType kMinPerHour = 60;
     /** @brief Constant for hours per day. */
-    static constexpr TimeType kHourPerDay = 24;
+    static inline constexpr TimeType kHourPerDay = 24;
 
 public:
+    /**
+     * @brief Gets the current system time. Use GetSteadyTimeNs() for measuring time intervals.
+     * @details Returns the number of nanoseconds elapsed since 1970-01-01 00:00:00 UTC.
+     * @return The current time as a TimeType (nanoseconds).
+     */
+    NODISCARD FORCEINLINE static TimeType GetTimeNs() noexcept {
+        return std::chrono::duration_cast<std::chrono::nanoseconds>(
+            std::chrono::system_clock::now().time_since_epoch()
+        ).count();
+    }
+
+    /**
+     * @brief Gets the current system time. Use GetSteadyTimeUs() for measuring time intervals.
+     * @details Returns the number of microseconds elapsed since 1970-01-01 00:00:00 UTC.
+     * @return The current time as a TimeType (microseconds).
+     */
+    NODISCARD FORCEINLINE static TimeType GetTimeUs() noexcept {
+        return std::chrono::duration_cast<std::chrono::microseconds>(
+            std::chrono::system_clock::now().time_since_epoch()
+        ).count();
+    }
+
+    /**
+     * @brief Gets the current system time. Use GetSteadyTimeMs() for measuring time intervals.
+     * @details Returns the number of milliseconds elapsed since 1970-01-01 00:00:00 UTC.
+     * @return The current time as a TimeType (milliseconds).
+     */
+    NODISCARD FORCEINLINE static TimeType GetTimeMs() noexcept {
+        return std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch()
+        ).count();
+    }
+
+    /**
+     * @brief Gets the current system time. Use GetSteadyTimeSec() for measuring time intervals.
+     * @details Returns the number of seconds elapsed since 1970-01-01 00:00:00 UTC.
+     * @return The current time as a TimeType (seconds).
+     */
+    NODISCARD FORCEINLINE static TimeType GetTimeSec() noexcept {
+        return std::chrono::duration_cast<std::chrono::seconds>(
+            std::chrono::system_clock::now().time_since_epoch()
+        ).count();
+    }
+
+    /**
+     * @brief Gets the current steady time.
+     * @details Returns the number of nanoseconds elapsed since an unspecified starting point.
+     * @return The current time as a TimeType (nanoseconds).
+     */
+    NODISCARD FORCEINLINE static TimeType GetSteadyTimeNs() noexcept {
+        return std::chrono::duration_cast<std::chrono::nanoseconds>(
+            std::chrono::steady_clock::now().time_since_epoch()
+        ).count();
+    }
+
+    /**
+     * @brief Gets the current steady time.
+     * @details Returns the number of microseconds elapsed since an unspecified starting point.
+     * @return The current time as a TimeType (microseconds).
+     */
+    NODISCARD FORCEINLINE static TimeType GetSteadyTimeUs() noexcept {
+        return std::chrono::duration_cast<std::chrono::microseconds>(
+            std::chrono::steady_clock::now().time_since_epoch()
+        ).count();
+    }
+
+    /**
+     * @brief Gets the current steady time.
+     * @details Returns the number of milliseconds elapsed since an unspecified starting point.
+     * @return The current time as a TimeType (milliseconds).
+     */
+    NODISCARD FORCEINLINE static TimeType GetSteadyTimeMs() noexcept {
+        return std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now().time_since_epoch()
+        ).count();
+    }
+
+    /**
+     * @brief Gets the current steady time.
+     * @details Returns the number of seconds elapsed since an unspecified starting point.
+     * @return The current time as a TimeType (seconds).
+     */
+    NODISCARD FORCEINLINE static TimeType GetSteadyTimeSec() noexcept {
+        return std::chrono::duration_cast<std::chrono::seconds>(
+            std::chrono::steady_clock::now().time_since_epoch()
+        ).count();
+    }
+
     /**
      * @brief Gets the thread-local instance of the ZSystemTime.
      * @return A reference to the thread-local ZSystemTime instance.
      */
-    static ZSystemTime& Instance() noexcept;
+    static ZSystemTime& GetInstance() noexcept;
 
     /**
      * @brief Gets the static start time instance of the ZSystemTime.
      * @details This instance represents the time when the application started (or when the static instance was init).
      * @return A constant reference to the start time ZSystemTime instance.
      */
-    static const ZSystemTime& StartTimeInstance() noexcept;
+    static const ZSystemTime& GetProcessStartTimeInstance() noexcept;
 
     /**
      * @brief Default constructor.
@@ -90,78 +176,75 @@ public:
     /**
      * @brief Destructor.
      */
-    ~ZSystemTime() noexcept;
+    ~ZSystemTime() noexcept = default;
 
     /**
      * @brief Gets the nanosecond component.
      * @return The nanosecond part of the time.
      */
-    NODISCARD FORCEINLINE TimeType Ns() const noexcept { return ns_; }
+    NODISCARD FORCEINLINE TimeType GetNs() const noexcept { return ns_; }
 
     /**
      * @brief Gets the microsecond component.
      * @return The microsecond part of the time.
      */
-    NODISCARD FORCEINLINE TimeType Us() const noexcept { return us_; }
+    NODISCARD FORCEINLINE TimeType GetUs() const noexcept { return us_; }
 
     /**
      * @brief Gets the millisecond component.
      * @return The millisecond part of the time.
      */
-    NODISCARD FORCEINLINE TimeType Ms() const noexcept { return ms_; }
+    NODISCARD FORCEINLINE TimeType GetMs() const noexcept { return ms_; }
 
     /**
      * @brief Gets the second component.
      * @return The second part of the time.
      */
-    NODISCARD FORCEINLINE TimeType Sec() const noexcept { return sec_; }
+    NODISCARD FORCEINLINE TimeType GetSec() const noexcept { return sec_; }
 
     /**
      * @brief Gets the minute component.
      * @return The minute part of the time.
      */
-    NODISCARD FORCEINLINE TimeType Min() const noexcept { return min_; }
+    NODISCARD FORCEINLINE TimeType GetMin() const noexcept { return min_; }
 
     /**
      * @brief Gets the hour component.
      * @return The hour part of the time.
      */
-    NODISCARD FORCEINLINE TimeType Hour() const noexcept { return hour_; }
+    NODISCARD FORCEINLINE TimeType GetHour() const noexcept { return hour_; }
 
     /**
      * @brief Gets the day component.
      * @return The day part of the time.
      */
-    NODISCARD FORCEINLINE TimeType Day() const noexcept { return day_; }
+    NODISCARD FORCEINLINE TimeType GetDay() const noexcept { return day_; }
 
     /**
      * @brief Gets the month component.
      * @return The month part of the time.
      */
-    NODISCARD FORCEINLINE TimeType Month() const noexcept { return month_; }
+    NODISCARD FORCEINLINE TimeType GetMonth() const noexcept { return month_; }
 
     /**
      * @brief Gets the year component.
      * @return The year part of the time.
      */
-    NODISCARD FORCEINLINE TimeType Year() const noexcept { return year_; }
+    NODISCARD FORCEINLINE TimeType GetYear() const noexcept { return year_; }
 
     /**
      * @brief Updates the time object using the specified raw time.
      * @details Performs a full calculation of all date and time components.
      * @param _time_raw The raw time to update to. Defaults to the current system time.
      */
-    Void UpdateTime(TimeType _time_raw = Time()) noexcept;
+    Void UpdateTime(TimeType _time_raw = GetTimeNs()) noexcept;
 
     /**
      * @brief Quickly updates the time object using the specified raw time.
      * @details Optimized for frequent calls. It only recalculates the date if the hour has changed (crossed midnight).
      * @param _time_raw The raw time to update to. Defaults to the current system time.
      */
-    Void UpdateTimeFast(TimeType _time_raw = Time()) noexcept;
-
-protected:
-    using SuperType_ = ZObject;
+    Void UpdateTimeFast(TimeType _time_raw = GetTimeNs()) noexcept;
 
 private:
     /**
@@ -205,4 +288,4 @@ private:
     TimeType year_;
 };
 
-}//zengine
+} // zengine

@@ -81,8 +81,8 @@ Void ZLogicTileTexture::MoveP(ZLogicTileTexture&& _texture) noexcept {
     material_name_ = std::move(_texture.material_name_);
 }
 
-}//tsrpg
-}//zengine
+} // tsrpg
+} // zengine
 
 namespace zengine {
 namespace tsrpg {
@@ -158,7 +158,7 @@ NODISCARD const ReturnType ZLogicTile::CalculateTexturePtrVectorByPosZAndLength(
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
     Z_CHECK(
-        _texture_ptr_array_ptr == nullptr, error_code::kZLogicTileErrorCode_NullptrParam, 
+        _texture_ptr_array_ptr != nullptr, error_code::kZLogicTileErrorCode_NullptrParam, 
         "_texture_ptr_array_ptr is nullptr!"
     )
         Int32 node_index = static_cast<Int32>(texture_node_array_.GetSize()) - 1;
@@ -229,7 +229,7 @@ NODISCARD ReturnType ZLogicTile::Initialize(
     ReturnType link_code = kOK;
 
     Z_CHECK(
-        _owner_board_ptr == nullptr, error_code::kZLogicTileErrorCode_NullptrParam,
+        _owner_board_ptr != nullptr, error_code::kZLogicTileErrorCode_NullptrParam,
         "_TileMeshPtr is nullptr!"
     );
 
@@ -278,5 +278,5 @@ NODISCARD ReturnType ZLogicTile::OnPosChanged(const LogicVector3D& _old_pos, con
     return ret_val;
 }
 
-}//tsrpg
-}//zengine
+} // tsrpg
+} // zengine

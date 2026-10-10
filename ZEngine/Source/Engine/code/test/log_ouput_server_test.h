@@ -54,5 +54,5 @@ Int32 LogOutputServerTest() {
     return 0;
 }
 
-}//test
+} // test
   

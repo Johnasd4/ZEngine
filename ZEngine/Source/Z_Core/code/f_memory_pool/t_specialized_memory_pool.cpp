@@ -28,6 +28,7 @@
 #include "drive/d_pch.h"
 
 #include "m_log.h"
+#include "z_file.h"
 
 #include "t_specialized_memory_pool.h"
 #include "z_system_memory_pool.h"
@@ -45,18 +46,18 @@ ZSpecializedMemoryPoolMemoryPageNodeMemoryPool::ZSpecializedMemoryPoolMemoryPage
 ZSpecializedMemoryPoolMemoryPageNodeMemoryPool::~ZSpecializedMemoryPoolMemoryPageNodeMemoryPool() noexcept {}
 
 NOINLINE Void ZSpecializedMemoryPoolMemoryPageNodeMemoryPool::ExtendMemoryBlockP() noexcept {
-    //allocate new memory page
+    // allocate new memory page
     MemoryPageHead_* memory_page_head_ptr = reinterpret_cast<MemoryPageHead_*>(
-        ZSystemMemoryPool::Instance().Alloc64KBAlignmentMemoryAtomPageP(kApplyMemoryAtomPageNum)
+        ZSystemMemoryPool::GetInstance().Alloc64KBAlignmentMemoryAtomPageP(kApplyMemoryAtomPageNum)
     );
     memory_page_head_ptr->next_memory_page_ptr_ = head_memory_page_ptr_;
     head_memory_page_ptr_ = memory_page_head_ptr;
 
-    //initialize new memory page
+    // initialize new memory page
     unused_memory_block_ptr_ = reinterpret_cast<Byte*>(memory_page_head_ptr) + kMemoryPageStartPointerOffset;
     unused_memory_block_end_ptr_ = reinterpret_cast<Byte*>(memory_page_head_ptr) + kMemoryPageSize;
 }
 
-}//internal
-}//memory_pool
-}//zengine
+} // internal
+} // memory_pool
+} // zengine

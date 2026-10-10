@@ -1,17 +1,25 @@
 /*
     Copyright (c) YuLin Zhu
 
-    This code file is licensed under the Creative Commons
-    Attribution-NonCommercial 4.0 International License.
+    ** ZEngine Proprietary License **
 
-    You may obtain a copy of the License at
-    https://creativecommons.org/licenses/by-nc/4.0/
+    This software is provided "as-is", without any express or implied warranty.
+    In no event will the authors be held liable for any damages arising from the
+    use of this software.
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+    Usage Rights:
+    1. Non-Commercial Use: You may use, modify, and distribute this software
+       for non-commercial purposes (e.g., education, personal projects, open-source
+       projects that do not generate revenue) free of charge.
+
+    2. Commercial Use: Commercial use of this software is STRICTLY PROHIBITED
+       without a valid commercial license agreement with the author.
+       "Commercial use" includes, but is not limited to:
+       - Incorporating this software into a product that is sold.
+       - Using this software in a paid service.
+       - Using this software for internal business operations in a for-profit entity.
+
+    To obtain a Commercial License, please contact the author.
 
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
@@ -24,220 +32,154 @@
 namespace zengine {
 namespace gui {
 
-ZInputText::ZInputText() noexcept 
-    : SuperType_() 
+ZInputText::ZInputText() noexcept
+    : SuperType_()
+    , name_(string::GenerateString("{}", reinterpret_cast<SizeType>(this)))
     , text_colour_(kDefaultTextColour)
     , background_colour_(kDefaultBackgroundColour)
-    , input_text_(kDefaultInputTextSize)
-    , input_text_flag_(kDefaultInputTextFlag)
-    , if_input_text_changed_(false)
-    , if_multiline_(false)
+    , input_text_changed_func_()
+    , input_text_buffer_(kDefaultInputTextSize)
+    , input_text_length_(0)
+    , flag_(kDefaultInputTextFlag)
+    , is_multiline_(false)
+    , is_auto_extend_buffer_(true)
 {
-    input_text_.Clear();
+    input_text_buffer_.At<Char>(0) = '\0';
 }
 
-ZInputText::ZInputText(ZInputText&& _input_text) noexcept
-    : SuperType_(std::forward<ZInputText>(_input_text))
-{
-    MoveP(std::forward<ZInputText>(_input_text));
-}
-
-ZInputText::ZInputText(ZStringView _name, GuiPos _pos) noexcept
-    : SuperType_(_name, kBaseSize, _pos)
+ZInputText::ZInputText(ZStringView _name) noexcept
+    : SuperType_()
+    , name_(_name)
     , text_colour_(kDefaultTextColour)
     , background_colour_(kDefaultBackgroundColour)
-    , input_text_(kDefaultInputTextSize)
-    , input_text_flag_(kDefaultInputTextFlag)
-    , if_input_text_changed_(false)
-    , if_multiline_(false)
+    , input_text_changed_func_()
+    , input_text_buffer_(kDefaultInputTextSize)
+    , input_text_length_(0)
+    , flag_(kDefaultInputTextFlag)
+    , is_multiline_(false)
+    , is_auto_extend_buffer_(true)
 {
-    input_text_.Clear();
+    input_text_buffer_.At<Char>(0) = '\0';
 }
 
-ZInputText::~ZInputText() noexcept {}
-
-ZInputText& ZInputText::operator=(ZInputText&& _input_text) noexcept {
-    if (this == &_input_text) {
-        return *this;
-    }
-    SuperType_::operator=(std::forward<ZInputText>(_input_text));
-    MoveP(std::forward<ZInputText>(_input_text));
-    return *this;
-}
-
-Void ZInputText::Begin() noexcept {
-    SuperType_::Begin();
-}
-
-Void ZInputText::Tick(Float32 _delta_sec) noexcept {
-    if (!Visiable()) {
-        return;
-    }
-
-    if (PosSet() && PosChanged()) {
-        GuiPos pos = Pos();
-        ImGui::SetCursorPos(ImVec2(pos.x_, pos.y_));
-    }
-
-    SuperType_::Tick(_delta_sec);
-
-    if (Enabled()) {
-        ImGui::PushStyleColor(
-            ImGuiCol_Text, ImVec4(text_colour_.red_, text_colour_.green_, text_colour_.blue_, text_colour_.alpha_)
-        );
-        ImGui::PushStyleColor(
-            ImGuiCol_FrameBg,
-            ImVec4(
-                background_colour_.red_,
-                background_colour_.green_,
-                background_colour_.blue_,
-                background_colour_.alpha_
-            )
-        );
-    }
-    else {
-        ImGui::PushStyleColor(
-            ImGuiCol_Text, 
-            ImVec4(
-                text_colour_.red_ * kDisableColourFactor, 
-                text_colour_.green_ * kDisableColourFactor,
-                text_colour_.blue_ * kDisableColourFactor,
-                text_colour_.alpha_
-            )
-        );
-        ImGui::PushStyleColor(
-            ImGuiCol_FrameBg,
-            ImVec4(
-                background_colour_.red_ * kDisableColourFactor,
-                background_colour_.green_ * kDisableColourFactor,
-                background_colour_.blue_ * kDisableColourFactor,
-                background_colour_.alpha_
-            )
-        );
-    }
-
-    ImGui::SetWindowFontScale(FontScale());
-    ZGuiObject::CallbackGuiObjectPtr() = this;
-    if (if_multiline_) {
-        GuiSize size = GetSize();
-        ImGui::InputTextMultiline(
-            Name().GetDataPtr(),
-            input_text_.GetDataPtr<Char>(),
-            input_text_.GetSize(), 
-            ImVec2(size.width_, size.height_),
-            input_text_flag_,
-            [](ImGuiInputTextCallbackData* _data) {
-                (dynamic_cast<ZInputText*>(ZGuiObject::CallbackGuiObjectPtr()))->InputTextChangedCallbackP();
-                return 0;
-            }
-        );
-    }
-    else {
-        if (SizeSet()) {
-            ImGui::SetNextItemWidth(Width());
-        }
-        Int32 flag = input_text_flag_;
-        if (!Enabled()) {
-            flag = kInputTextFlag_ReadOnly;
-        }
-        ImGui::InputText(
-            Name().GetDataPtr(), input_text_.GetDataPtr<Char>(), input_text_.GetSize(), flag,
-            [](ImGuiInputTextCallbackData* _data) {
-                (dynamic_cast<ZInputText*>(ZGuiObject::CallbackGuiObjectPtr()))->InputTextChangedCallbackP();
-                return 0;
-            }
-        );
-
-    }
-
-    ImVec2 temp_pos = ImGui::GetItemRectMin();
-    ImVec2 temp_size = ImGui::GetItemRectSize();
-
-    if (OwnerPtr() != nullptr) {
-        ZGuiObject::SetPos(GuiPos(temp_pos.x, temp_pos.y) - OwnerPtr()->AbsPos());
-    }
-    ZGuiObject::SetSize(GuiSize(temp_size.x, temp_size.y));
-
-    if (if_input_text_changed_) {
-        OnInputTextChanged();
-        if_input_text_changed_ = false;
-    }
-    ImGui::PopStyleColor(2);
-}
-
-Void ZInputText::Reset() noexcept {
-    SuperType_::Reset();
-}
-
-Void ZInputText::SetHeight(Float32 _height) noexcept {
-    SuperType_::SetHeight(_height);
-    if_multiline_ = true;
-}
-
-Void ZInputText::SetSize(GuiSize _size) noexcept {
-    SuperType_::SetSize(_size);
-    if_multiline_ = true;
-}
-
-Void ZInputText::SetTextColour(GuiColour _colour) noexcept {
-    text_colour_ = _colour;
-}
-
-Void ZInputText::SetBackgroundColour(GuiColour _colour) noexcept {
-    background_colour_ = _colour;
-}
-
-Void ZInputText::SetInputTextBufferSize(UInt32 _buffer_size) noexcept {
-    input_text_.Resize(_buffer_size);
-}
-
-Void ZInputText::SetInputText(ZStringView _input_text) noexcept {
-    if (input_text_.GetSize() <= _input_text.GetSize()) {
-        input_text_.Resize(_input_text.GetSize() + 1ULL);
-    }
-    Copy(input_text_.GetDataPtr<Char>(), _input_text.GetDataPtr(), _input_text.GetSize());
-    input_text_.At<Char>(_input_text.GetSize()) = '\0';
-}
-
-NODISCARD ZInputText::WidgetTypeEnum_ ZInputText::WidgetType() const noexcept {
+NODISCARD ZWidgetObject::WidgetTypeEnum_ ZInputText::GetWidgetType() const noexcept {
     return WidgetTypeEnum_::kInputText;
 }
 
-NODISCARD const Char* ZInputText::InputText() const noexcept {
-    return input_text_.GetDataPtr<const Char>();
+Void ZInputText::SetInputText(ZStringView _input_text) noexcept {
+    if (input_text_buffer_.GetSize() <= _input_text.GetSize()) {
+        input_text_buffer_.Resize(_input_text.GetSize() + 1ULL);
+    }
+    Copy(input_text_buffer_.GetDataPtr<Char>(), _input_text.GetDataPtr(), _input_text.GetSize());
+    input_text_buffer_.At<Char>(_input_text.GetSize()) = '\0';
+    input_text_length_ = static_cast<Int32>(_input_text.GetSize());
 }
 
-NODISCARD GuiColour ZInputText::TextColour() const noexcept {
-    return text_colour_;
+Void ZInputText::OnTick(Float32 _delta_sec) noexcept {
+    if (!visible_) {
+        return;
+    }
+
+    SuperType_::OnTick(_delta_sec);
+
+    if (pos_state_ == PosSizeStateEnum_::kSet) {
+        ImGui::SetCursorPos(ImVec2(pos_.x_, pos_.y_));
+    }
+
+    ImGui::SetWindowFontScale(GetFontScale());
+
+    // push style colours
+    ImGui::PushStyleColor(
+        ImGuiCol_Text,
+        ImVec4(
+            text_colour_.red_,
+            text_colour_.green_,
+            text_colour_.blue_,
+            text_colour_.alpha_
+        )
+    );
+    ImGui::PushStyleColor(
+        ImGuiCol_FrameBg,
+        ImVec4(
+            background_colour_.red_,
+            background_colour_.green_,
+            background_colour_.blue_,
+            background_colour_.alpha_
+        )
+    );
+
+    if (!enabled_) {
+        ImGui::BeginDisabled();
+    }
+
+    Int32 flag = flag_ | ImGuiInputTextFlags_CallbackEdit | ImGuiInputTextFlags_CallbackResize;
+    if (is_multiline_) {
+        ImGui::InputTextMultiline(
+            name_.GetDataPtr(),
+            input_text_buffer_.GetDataPtr<Char>(),
+            input_text_buffer_.GetSize(),
+            ImVec2(size_.width_, size_.height_),
+            flag,
+            InputTextCallbackFunc,
+            this
+        );
+    }
+    else {
+        if (size_state_ == PosSizeStateEnum_::kSet) {
+            ImGui::SetNextItemWidth(size_.width_);
+        }
+        ImGui::InputText(
+            name_.GetDataPtr(),
+            input_text_buffer_.GetDataPtr<Char>(),
+            input_text_buffer_.GetSize(),
+            flag,
+            InputTextCallbackFunc,
+            this
+        );
+    }
+
+    if (!enabled_) {
+        ImGui::EndDisabled();
+    }
+
+    ImGui::PopStyleColor(2);
+
+    // update size
+    if (size_state_ == PosSizeStateEnum_::kGet) {
+        ImVec2 frame_size = ImGui::GetItemRectSize();
+        size_ = GuiSize(frame_size.x, frame_size.y);
+        size_state_ = PosSizeStateEnum_::kNone;
+    }
+
+    // update pos
+    if (pos_state_ == PosSizeStateEnum_::kGet) {
+        ImVec2 frame_pos = ImGui::GetItemRectMin();
+        ZGuiObject::SetPos(GuiPos(frame_pos.x, frame_pos.y) - owner_ptr_->GetAbsPos());
+        pos_state_ = PosSizeStateEnum_::kNone;
+    }
 }
 
-NODISCARD GuiColour ZInputText::BackgroundColour() const noexcept {
-    return background_colour_;
+Void ZInputText::OnInputTextChanged() noexcept {
+    if (input_text_changed_func_) {
+        input_text_changed_func_(ZStringView(input_text_buffer_.GetDataPtr<const Char>(), input_text_length_));
+    }
 }
 
-NODISCARD SizeType ZInputText::InputTextBufferSize() const noexcept {
-    return input_text_.GetSize();
+Int32 ZInputText::InputTextCallbackFunc(ImGuiInputTextCallbackData* _data_ptr) noexcept {
+    ZInputText* input_text_ptr = reinterpret_cast<ZInputText*>(_data_ptr->UserData);
+    if (_data_ptr->EventFlag == ImGuiInputTextFlags_CallbackResize) {
+        // Resize callback
+        input_text_ptr->input_text_buffer_.Resize(
+            Max(input_text_ptr->input_text_length_ * kInputTextBufferExtendFactor, _data_ptr->BufSize)
+        );
+        _data_ptr->Buf = input_text_ptr->input_text_buffer_.GetDataPtr<Char>();
+    }
+    else if (_data_ptr->EventFlag == ImGuiInputTextFlags_CallbackEdit) {
+        input_text_ptr->input_text_length_ = _data_ptr->BufTextLen;
+        input_text_ptr->OnInputTextChanged();
+    }
+    return 0;
 }
 
-Void ZInputText::OnInputTextChanged() noexcept {}
-
-Void ZInputText::MoveP(ZInputText&& _input_text) noexcept {
-    text_colour_ = _input_text.text_colour_;
-    background_colour_ = _input_text.background_colour_;
-    input_text_flag_ = _input_text.input_text_flag_;
-    if_input_text_changed_ = _input_text.if_input_text_changed_;
-    if_multiline_ = _input_text.if_multiline_;
-    input_text_ = std::move(_input_text.input_text_);
-    _input_text.text_colour_ = kDefaultTextColour;
-    _input_text.background_colour_ = kDefaultBackgroundColour;
-    _input_text.input_text_flag_ = kDefaultInputTextFlag;
-    _input_text.if_input_text_changed_ = false;
-    _input_text.if_multiline_ = false;
-}
-
-Void ZInputText::InputTextChangedCallbackP() noexcept {
-    if_input_text_changed_ = true;
-}
-
-}//gui
-}//zengine
+} // gui
+} // zengine

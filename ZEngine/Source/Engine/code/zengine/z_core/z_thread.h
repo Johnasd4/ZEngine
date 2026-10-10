@@ -1,17 +1,25 @@
 /*
     Copyright (c) YuLin Zhu
 
-    This code file is licensed under the Creative Commons
-    Attribution-NonCommercial 4.0 International License.
+    ** ZEngine Proprietary License **
 
-    You may obtain a copy of the License at
-    https://creativecommons.org/licenses/by-nc/4.0/
+    This software is provided "as-is", without any express or implied warranty.
+    In no event will the authors be held liable for any damages arising from the
+    use of this software.
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+    Usage Rights:
+    1. Non-Commercial Use: You may use, modify, and distribute this software
+       for non-commercial purposes (e.g., education, personal projects, open-source
+       projects that do not generate revenue) free of charge.
+
+    2. Commercial Use: Commercial use of this software is STRICTLY PROHIBITED
+       without a valid commercial license agreement with the author.
+       "Commercial use" includes, but is not limited to:
+       - Incorporating this software into a product that is sold.
+       - Using this software in a paid service.
+       - Using this software for internal business operations in a for-profit entity.
+
+    To obtain a Commercial License, please contact the author.
 
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
@@ -33,16 +41,55 @@ namespace zengine {
  * This class encapsulates a standard jthread and provides custom memory management for task arguments.
  * Basic type's reference will be removed. Basic type includes fundamental types, pointer types and enum types.
  */
-class ZThread : public ZObject<> {
+class CORE_DLLAPI ZThread : public ZObject {
 public:
+    /** @brief Alias for the base class. */
+    using SuperType_ = ZObject;
     /** @brief Alias for the standard thread ID type. */
     using ThreadIDType_ = std::thread::id;
+
+    /**
+     * @brief Checks if the current thread is the main thread.
+     * @return Bool True if the current thread is the main thread, False otherwise.
+     */
+    NODISCARD static Bool IsMainThread() noexcept;
 
     /**
      * @brief Retrieves the ID of the currently executing thread.
      * @return ThreadIDType_ The unique identifier of the current thread.
      */
-    NODISCARD FORCEINLINE static ThreadIDType_ GetCurrnetThreadID() noexcept { return std::this_thread::get_id(); }
+    NODISCARD static ThreadIDType_ GetCurrentThreadID() noexcept;
+
+    /**
+     * @brief Retrieves the ID of the main thread.
+     * @return ThreadIDType_ The unique identifier of the main thread.
+     */
+    NODISCARD static ThreadIDType_ GetMainThreadID() noexcept;
+
+    /**
+     * @brief Suspends the current thread for the specified time in seconds.
+     *
+     * @param _time The time to sleep in seconds.
+     */
+    NODISCARD FORCEINLINE static Void SleepSec(TimeType _time) noexcept {
+        std::this_thread::sleep_for(std::chrono::seconds(_time));
+    }
+
+    /**
+     * @brief Suspends the current thread for the specified time in milliseconds.
+     *
+     * @param _time The time to sleep in milliseconds.
+     */
+    NODISCARD FORCEINLINE static Void SleepMs(TimeType _time) noexcept {
+        std::this_thread::sleep_for(std::chrono::milliseconds(_time));
+    }
+
+    /**
+     * @brief Yields the execution of the current thread.
+     */
+    NODISCARD FORCEINLINE static Void YieldThread() noexcept {
+        std::this_thread::yield();
+    }
 
     /**
      * @brief Default constructor. Creates a thread object that represents no thread of execution.
@@ -51,6 +98,9 @@ public:
         : SuperType_()
         , thread_()
     {}
+
+    /** @brief Deleted copy constructor. */
+    ZThread(const ZThread&) = delete;
 
     /**
      * @brief Move constructor. Transfers ownership of the thread from another ZThread object.
@@ -71,26 +121,26 @@ public:
      * @tparam _Function The type of the function to execute.
      * @tparam _ArgsType The types of the arguments.
      * @param _func The function to execute.
-     * @param _args The arguments to pass to the function.
+     * @param _args The arguments to pass to the function. Use Ref() to pass by reference.
      */
     template <typename _Function, typename... _ArgsType>
     ZThread(_Function&& _func, _ArgsType&&... _args) noexcept
         : SuperType_() 
     {
         // Define the task data type (Function + Arguments Tuple)
-        using ParamsTuple = TTuple<kRemoveBasicTypeReferenceType<_ArgsType>...>;
-        using TaskType = TTuple<std::decay_t<_Function>, ParamsTuple>;
+        using ParamsTuple = TTuple<kDecayType<_ArgsType>...>;
+        using TaskType = TTuple<kDecayType<_Function>, ParamsTuple>;
 
         // Allocate memory from the custom pool (ZObject::operator new)
         TaskType* task_ptr = new TaskType(
             std::forward<_Function>(_func),
-            tuple::MakeTuple(NonBasicTypeForward(std::forward<_ArgsType>(_args))...)
+            tuple::MakeTuple(std::forward<_ArgsType>(_args)...)
         );
 
         try {
             // Start the thread
             thread_ = std::jthread([task_ptr]() {
-                //Execute the task
+                // Execute the task
                 tuple::Apply(task_ptr->template Get<0>(), std::move(task_ptr->template Get<1>()));
 
                 // Destructs the tuple (releasing resources held by args) 
@@ -107,7 +157,10 @@ public:
     /**
      * @brief Destructor. Automatically joins the thread if it uses jthread semantics.
      */
-    FORCEINLINE ~ZThread() noexcept {}
+    FORCEINLINE ~ZThread() noexcept = default;
+
+    /** @brief Deleted copy assignment operator. */
+    ZThread& operator=(const ZThread&) = delete;
 
     /**
      * @brief Move assignment operator. Transfers ownership of the thread.
@@ -120,13 +173,10 @@ public:
     }
 
     /**
-     * @brief Three-way comparison operator for thread IDs.
-     * @param _thread The ZThread object to compare with.
-     * @return std::strong_ordering The ordering relationship between thread IDs.
+     * @brief Checks if the thread is joinable.
+     * @return Bool True if the thread is joinable, False otherwise.
      */
-    NODISCARD FORCEINLINE std::strong_ordering operator<=>(const ZThread& _thread) noexcept {
-        return thread_.get_id() <=> _thread.thread_.get_id();
-    }
+    NODISCARD FORCEINLINE Bool IsJoinable() noexcept { return thread_.joinable(); }
 
     /**
      * @brief Retrieves the ID of the wrapped thread.
@@ -135,10 +185,13 @@ public:
     NODISCARD FORCEINLINE ThreadIDType_ GetID() const noexcept { return thread_.get_id(); }
 
     /**
-     * @brief Checks if the thread is joinable.
-     * @return Bool True if the thread is joinable, False otherwise.
+     * @brief Three-way comparison operator for thread IDs.
+     * @param _thread The ZThread object to compare with.
+     * @return std::strong_ordering The ordering relationship between thread IDs.
      */
-    NODISCARD FORCEINLINE Bool IsJoinable() noexcept { return thread_.joinable(); }
+    NODISCARD FORCEINLINE std::strong_ordering operator<=>(const ZThread& _thread) noexcept {
+        return thread_.get_id() <=> _thread.thread_.get_id();
+    }
 
     /**
      * @brief Waits for the thread to finish execution.
@@ -156,18 +209,9 @@ public:
      */
     FORCEINLINE Void Swap(ZThread& _thread) noexcept { thread_.swap(_thread.thread_); }
 
-protected:
-    /** @brief Alias for the base class. */
-    using SuperType_ = ZObject;
-
 private:
-    /** @brief Deleted copy constructor. */
-    ZThread(const ZThread&) = delete;
-    /** @brief Deleted copy assignment operator. */
-    ZThread& operator=(const ZThread&) = delete;
-
     /** @brief The underlying standard jthread object. */
     std::jthread thread_;
 };
 
-}//zengine
+} // zengine

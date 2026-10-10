@@ -191,7 +191,7 @@ typedef void (*ImGuiErrorLogCallback)(void* user_data, const char* fmt, ...);
 //-----------------------------------------------------------------------------
 
 #ifndef GImGui
-extern IMGUI_API thread_local ImGuiContext* GImGui;  // Current implicit context pointer
+extern IMGUI_API ImGuiContext* GImGui;  // Current implicit context pointer
 #endif
 
 //-------------------------------------------------------------------------
@@ -1295,11 +1295,11 @@ struct ImGuiShrinkWidthItem
 
 struct ImGuiPtrOrIndex
 {
-    void*       Ptr;            // Either field can be set, not both. e.g. Dock node tab bars are loose while BeginTabBar() ones are in a pool.
+    void*       GetPtr;            // Either field can be set, not both. e.g. Dock node tab bars are loose while BeginTabBar() ones are in a pool.
     int         Index;          // Usually index in a main pool.
 
-    ImGuiPtrOrIndex(void* ptr)  { Ptr = ptr; Index = -1; }
-    ImGuiPtrOrIndex(int index)  { Ptr = NULL; Index = index; }
+    ImGuiPtrOrIndex(void* ptr)  { GetPtr = ptr; Index = -1; }
+    ImGuiPtrOrIndex(int index)  { GetPtr = NULL; Index = index; }
 };
 
 //-----------------------------------------------------------------------------
@@ -1929,7 +1929,7 @@ struct ImGuiContext
     float                   FontBaseSize;                       // (Shortcut) == IO.FontGlobalScale * Font->Scale * Font->FontSize. Base text height.
     float                   CurrentDpiScale;                    // Current window/viewport DpiScale
     ImDrawListSharedData    DrawListSharedData;
-    double                  Time;
+    double                  TimeNs;
     int                     FrameCount;
     int                     FrameCountEnded;
     int                     FrameCountRendered;
@@ -2266,7 +2266,7 @@ struct ImGuiContext
         Font = NULL;
         FontSize = FontBaseSize = CurrentDpiScale = 0.0f;
         IO.Fonts = shared_font_atlas ? shared_font_atlas : IM_NEW(ImFontAtlas)();
-        Time = 0.0f;
+        TimeNs = 0.0f;
         FrameCount = 0;
         FrameCountEnded = FrameCountRendered = -1;
         WithinFrameScope = WithinFrameScopeWithImplicitWindow = WithinEndChild = false;

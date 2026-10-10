@@ -1,157 +1,147 @@
-///*
-//    Copyright (c) YuLin Zhu
-//
-//    This code file is licensed under the Creative Commons
-//    Attribution-NonCommercial 4.0 International License.
-//
-//    You may obtain a copy of the License at
-//    https://creativecommons.org/licenses/by-nc/4.0/
-//
-//    Unless required by applicable law or agreed to in writing, software
-//    distributed under the License is distributed on an "AS IS" BASIS,
-//    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//    See the License for the specific language governing permissions and
-//    limitations under the License.
-//
-//    Author: YuLin Zhu
-//    Contact: 1152325286@qq.com
-//*/
-//#define CORE_DLLFILE
-//#include "drive/d_pch.h"
-//
-//#include "z_thread_pool.h"
-//
-//namespace zengine {
-//
-//ZThreadPool::ZThreadPool() noexcept 
-//    : SuperType_()
-//    , thread_list_()
-//    , task_queue_()
-//    , pool_mutex_()
-//    , pool_idle_mutex_()
-//    , cv_()
-//    , max_thread_num_(0)
-//    , free_thread_num_(0)
-//    , finished_(false)
-//{
-//    pool_idle_mutex_.Lock();
-//}
-//
-//ZThreadPool::ZThreadPool(Int32 _thread_num) noexcept
-//    : SuperType_()
-//    , thread_list_()
-//    , task_queue_()
-//    , pool_mutex_()
-//    , pool_idle_mutex_()
-//    , cv_()
-//    , max_thread_num_(_thread_num)
-//    , free_thread_num_(0)
-//    , finished_(false) 
-//{
-//    pool_idle_mutex_.Lock();
-//    for (SizeType thread_index = 0; thread_index < _thread_num; ++thread_index) {
-//        thread_list_.EmplaceBack(SubThread, std::ref(*this));
-//    }
-//}
-//
-//ZThreadPool::~ZThreadPool() noexcept {
-//    //Clear the unstarted tasks.
-//    pool_mutex_.Lock();
-//    task_queue_.Clear();
-//    pool_mutex_.Unlock();
-//
-//    //Wait for the started tasks finish.
-//    pool_idle_mutex_.Lock();
-//    pool_idle_mutex_.Unlock();
-//
-//    //Finish the thread func.
-//    pool_mutex_.Lock();
-//    finished_ = true;
-//    max_thread_num_ = 0;
-//    cv_.NotifyAll();
-//    pool_mutex_.Unlock();
-//    for (auto thread_it = thread_list_.Begin(); thread_it != thread_list_.End(); ++thread_it) {
-//        if (thread_it->Joinable()) {
-//            thread_it->Join();
-//        }
-//    }
-//}
-//
-//NODISCARD ReturnType ZThreadPool::AddThreadNum(Int32 _thread_num) noexcept {
-//    ReturnType ret_val = kOK;
-//    if (_thread_num < 0) {
-//        ret_val = error_code::kZThreadPoolErrorCode_AddNegitiveNumThread;
-//        Z_LOG_ERROR(ret_val, 0, "Add thread < 0! thread_num_: %d", _thread_num);
-//        return ret_val;
-//    }
-//    max_thread_num_ += _thread_num;
-//    for (SizeType thread_index = 0; thread_index < _thread_num; ++thread_index) {
-//        thread_list_.EmplaceBack(std::move(ZThread(SubThread, std::ref(*this))));
-//    }
-//    return ret_val;
-//}
-//
-///*
-//    Suspend until all the tasks are done.
-//*/
-//NODISCARD Void ZThreadPool::LockUntilTaskDone() noexcept {
-//    pool_idle_mutex_.Lock();
-//    pool_idle_mutex_.Unlock();
-//}
-//
-//NODISCARD ReturnType ZThreadPool::AddTask(ZTask&& _task) noexcept {
-//    ReturnType ret_val = kOK;
-//    TUniqueLock<ZMutex> lock(pool_mutex_);
-//    if (finished_) {
-//        ret_val = error_code::kZThreadPoolErrorCode_PoolFinished;
-//        Z_LOG_ERROR(ret_val, 0, "Thread pool finished, can't add task!");
-//        return ret_val;
-//    }
-//    //when idle.
-//    if (max_thread_num_ == free_thread_num_) {
-//        pool_idle_mutex_.TryLock();
-//    }
-//    task_queue_.PushBack(std::forward<ZTask>(_task));
-//    cv_.NotifyOne();
-//    return ret_val;
-//}
-//
-//Void ZThreadPool::ClearTask() noexcept {
-//    TUniqueLock<ZMutex> lock(pool_mutex_);
-//    task_queue_.Clear();
-//}
-//
-//Void ZThreadPool::SubThread(ZThreadPool& _thread_pool) noexcept {
-//    ZTask task;
-//    ReturnType link_code = kOK;
-//    while(true) {
-//        //atom operation, do not remove the brace.
-//        {
-//            TUniqueLock<ZMutex> lock(_thread_pool.pool_mutex_);
-//            ++_thread_pool.free_thread_num_;
-//            //task all done.
-//            if (_thread_pool.task_queue_.Empty() && _thread_pool.max_thread_num_ == _thread_pool.free_thread_num_) {
-//                _thread_pool.pool_idle_mutex_.Unlock();
-//            }
-//            _thread_pool.cv_.Wait(lock, [&_thread_pool] {
-//                return _thread_pool.finished_ || !_thread_pool.task_queue_.Empty();
-//            });
-//            --_thread_pool.free_thread_num_;
-//            if (_thread_pool.finished_) {
-//                return;
-//            }
-//            if (_thread_pool.task_queue_.Empty()) {
-//                continue;
-//            }
-//            task = std::move(_thread_pool.task_queue_.Front());
-//            _thread_pool.task_queue_.PopFront();
-//        }
-//        link_code = task.Run();
-//        if (link_code != kOK) {
-//            Z_LOG_ERROR(error_code::kZThreadPoolErrorCode_LinkError, link_code, "ZTask::Run() link error!");
-//        }
-//        task.Clear();
-//    }
-//}
-//
-//}//zengine
+/*
+    Copyright (c) YuLin Zhu
+
+    ** ZEngine Proprietary License **
+
+    This software is provided "as-is", without any express or implied warranty.
+    In no event will the authors be held liable for any damages arising from the
+    use of this software.
+
+    Usage Rights:
+    1. Non-Commercial Use: You may use, modify, and distribute this software
+       for non-commercial purposes (e.g., education, personal projects, open-source
+       projects that do not generate revenue) free of charge.
+
+    2. Commercial Use: Commercial use of this software is STRICTLY PROHIBITED
+       without a valid commercial license agreement with the author.
+       "Commercial use" includes, but is not limited to:
+       - Incorporating this software into a product that is sold.
+       - Using this software in a paid service.
+       - Using this software for internal business operations in a for-profit entity.
+
+    To obtain a Commercial License, please contact the author.
+
+    Author: YuLin Zhu
+    Contact: 1152325286@qq.com
+*/
+#define CORE_DLLFILE
+#include "drive/d_pch.h"
+
+#include "z_thread_pool.h"
+
+#include "m_log.h"
+
+namespace zengine {
+
+NODISCARD ZThreadPool& ZThreadPool::GetInstance() noexcept {
+    static ZThreadPool instance;
+    return instance;
+}
+
+ZThreadPool::ZThreadPool() noexcept 
+    : SuperType_()
+    , pool_mutex_()
+    , total_thread_num_(0U)
+    , free_thread_num_(0U)
+    , finished_(false)
+    , task_queue_()
+    , work_thread_cv_()
+    , thread_list_mutex_()
+    , thread_list_()
+    , task_finished_cv_()
+{}
+
+ZThreadPool::ZThreadPool(UInt32 _thread_num) noexcept
+    : SuperType_()
+    , pool_mutex_()
+    , total_thread_num_(0U)
+    , free_thread_num_(0U)
+    , finished_(false)
+    , task_queue_()
+    , work_thread_cv_()
+    , thread_list_mutex_()
+    , thread_list_()
+    , task_finished_cv_()
+{
+    for (SizeType thread_index = 0; thread_index < _thread_num; ++thread_index) {
+        thread_list_.EmplaceBack(TaskThreadFuncP, this);
+    }
+}
+
+ZThreadPool::~ZThreadPool() noexcept {
+    // Clear the unstarted tasks.
+    {
+        TLockGuard lock_guard(pool_mutex_);
+        task_queue_.Clear();
+        finished_ = true;
+    }
+    work_thread_cv_.NotifyAll();
+
+    TLockGuard lock_guard(thread_list_mutex_);
+    for (auto iter = thread_list_.Begin(); iter != thread_list_.End(); ++iter) {
+        if (iter->IsJoinable()) {
+            iter->Join();
+        }
+    }
+}
+
+Void ZThreadPool::AddWorkThread(UInt32 _thread_num) noexcept {
+    TLockGuard lock_guard(thread_list_mutex_);
+    for (SizeType thread_index = 0; thread_index < _thread_num; ++thread_index) {
+        thread_list_.EmplaceBack(TaskThreadFuncP, this);
+    }
+}
+
+Void ZThreadPool::WaitUntilTaskFinished() noexcept {
+    TUniqueLock<ZMutex> lock(pool_mutex_);
+    task_finished_cv_.Wait(lock, [this]() {
+        return task_queue_.IsEmpty() && (free_thread_num_ == total_thread_num_);
+    });
+}
+
+Void ZThreadPool::AddTask(ZTask&& _task) noexcept {
+    TLockGuard lock_guard(pool_mutex_);
+    task_queue_.PushBack(std::move(_task));
+    work_thread_cv_.NotifyOne();
+}
+
+Void ZThreadPool::TaskThreadFuncP(ZThreadPool* _thread_pool_ptr) noexcept {
+    ReturnType link_code = kOK;
+    ZTask task;
+
+    {
+        TLockGuard lock_guard(_thread_pool_ptr->pool_mutex_);
+        ++_thread_pool_ptr->total_thread_num_;
+    }
+
+    for (;;) {
+        // atom operation, do not remove the brace.
+        {
+            TUniqueLock<ZMutex> lock(_thread_pool_ptr->pool_mutex_);
+
+            // get task
+            while (!_thread_pool_ptr->task_queue_.TryPopFront(task)) {
+                ++_thread_pool_ptr->free_thread_num_;
+                if (_thread_pool_ptr->total_thread_num_ == _thread_pool_ptr->free_thread_num_) {
+                    // all threads are idle, unlock the pool idle mutex.
+                    _thread_pool_ptr->task_finished_cv_.NotifyOne();
+                }
+                // check if finished.
+                if (_thread_pool_ptr->finished_) {
+                    return;
+                }
+                _thread_pool_ptr->work_thread_cv_.Wait(lock);
+                --_thread_pool_ptr->free_thread_num_;
+            }
+
+        }
+
+        link_code = task.Run();
+        if (link_code != kOK) {
+            Z_LOG_ERROR(error_code::kZThreadPoolErrorCode_LinkError, link_code, "ZTask::Run() link error!");
+        }
+        task.Clear();
+    };
+}
+
+} // zengine

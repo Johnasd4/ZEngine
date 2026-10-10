@@ -1,17 +1,25 @@
 /*
     Copyright (c) YuLin Zhu
 
-    This code file is licensed under the Creative Commons
-    Attribution-NonCommercial 4.0 International License.
+    ** ZEngine Proprietary License **
 
-    You may obtain a copy of the License at
-    https://creativecommons.org/licenses/by-nc/4.0/
+    This software is provided "as-is", without any express or implied warranty.
+    In no event will the authors be held liable for any damages arising from the
+    use of this software.
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+    Usage Rights:
+    1. Non-Commercial Use: You may use, modify, and distribute this software
+       for non-commercial purposes (e.g., education, personal projects, open-source
+       projects that do not generate revenue) free of charge.
+
+    2. Commercial Use: Commercial use of this software is STRICTLY PROHIBITED
+       without a valid commercial license agreement with the author.
+       "Commercial use" includes, but is not limited to:
+       - Incorporating this software into a product that is sold.
+       - Using this software in a paid service.
+       - Using this software for internal business operations in a for-profit entity.
+
+    To obtain a Commercial License, please contact the author.
 
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
@@ -20,107 +28,140 @@
 
 #include "../drive.h"
 
-#include "f_basic_math_valid.h"
+#include "f_basic_math_exp.h"
+#include "f_basic_math_log.h"
 
 namespace zengine {
 namespace math {
 
 namespace internal {
 
-inline constexpr Float64 kExpFactorLn2Reciprocal = 1.4426950408889634074;
-inline constexpr Float64 kExpFactorTaylorSeries0 = 1;
-inline constexpr Float64 kExpFactorTaylorSeries1 = 0.69314718055994528623;
-inline constexpr Float64 kExpFactorTaylorSeries2 = 0.24022650695910069407;
-inline constexpr Float64 kExpFactorTaylorSeries3 = 0.055504108664821569241;
-inline constexpr Float64 kExpFactorTaylorSeries4 = 0.009618129107628475144;
-inline constexpr Float64 kExpFactorTaylorSeries5 = 0.0013333558146428441116;
-inline constexpr Float64 kExpFactorTaylorSeries6 = 0.00015403530393381608776;
-inline constexpr Float64 kExpFactorTaylorSeries7 = 1.5252733804059837695e-05;
-inline constexpr Float64 kExpFactorTaylorSeries8 = 1.3215486790144305273e-06;
-inline constexpr Float64 kExpFactorTaylorSeries9 = 1.0178086009239697275e-07;
-inline constexpr Float64 kExpFactorTaylorSeries10 = 7.0549116208011200503e-09;
-inline constexpr Float64 kExpFactorTaylorSeries11 = 4.4455382718708100739e-10;
-inline constexpr Float64 kExpFactorTaylorSeries12 = 2.5678435993488195818e-11;
-inline constexpr Float64 kExpFactorTaylorSeries13 = 1.3691488853904122045e-12;
-inline constexpr Float64 kExpFactorTaylorSeries14 = 6.7787263548225425375e-14;
-inline constexpr Float64 kExpFactorTaylorSeries15 = 3.1324367070884270832e-15;
-inline constexpr Float64 kExpFactorTaylorSeries16 = 1.3570247948755140855e-16;
-inline constexpr Float64 kExpFactorTaylorSeries17 = 5.5330465324582383199e-18;
-inline constexpr Float64 kExpFactorTaylorSeries18 = 2.1306753354891165899e-19;
-inline constexpr Float64 kExpFactorTaylorSeries19 = 7.7730084288573506188e-21;
-inline constexpr Float64 kExpFactorTaylorSeries20 = 2.6939194384655817623e-22;
-inline constexpr Float64 kExpFactorTaylorSeries21 = 8.8918222068002340135e-24;
-
-//13 and 5
-/*
-    Calculate exp(x).
-*/
-template<typename NumberType>
-requires std::is_arithmetic_v<NumberType>
-NODISCARD constexpr NumberType ExpCalculateA(const NumberType _exponent) noexcept {
-    NumberType pow_2_exponent = _exponent * static_cast<NumberType>(kExpFactorLn2Reciprocal);
-    NumberType ans_1, ans_2;
-    if constexpr (std::is_same_v<NumberType, Float64>) {
-        Int64 int_part = static_cast<Int64>(pow_2_exponent);
-        NumberType decimal_part = pow_2_exponent - int_part;
-        NumberType decimal_part_2 = decimal_part * decimal_part;
-        ans_1 =
-            decimal_part * (static_cast<NumberType>(kExpFactorTaylorSeries1) +
-                decimal_part_2 * (static_cast<NumberType>(kExpFactorTaylorSeries3) +
-                    decimal_part_2 * (static_cast<NumberType>(kExpFactorTaylorSeries3) +
-                        decimal_part_2 * (static_cast<NumberType>(kExpFactorTaylorSeries5) +
-                            decimal_part_2 * (static_cast<NumberType>(kExpFactorTaylorSeries7) +
-                                decimal_part_2 * (static_cast<NumberType>(kExpFactorTaylorSeries9) +
-                                    decimal_part_2 * (static_cast<NumberType>(kExpFactorTaylorSeries11) +
-                                        decimal_part_2 * (static_cast<NumberType>(kExpFactorTaylorSeries13) +
-                                            decimal_part_2 * (static_cast<NumberType>(kExpFactorTaylorSeries15) +
-                                                decimal_part_2 * (static_cast<NumberType>(kExpFactorTaylorSeries17) +
-                                                    decimal_part_2 * (static_cast<NumberType>(kExpFactorTaylorSeries19) +
-                                                        decimal_part_2 * static_cast<NumberType>(kExpFactorTaylorSeries21))))))))))));
-        ans_2 = static_cast<NumberType>(kExpFactorTaylorSeries0) +
-            decimal_part_2 * (static_cast<NumberType>(kExpFactorTaylorSeries2) +
-                decimal_part_2 * (static_cast<NumberType>(kExpFactorTaylorSeries4) +
-                    decimal_part_2 * (static_cast<NumberType>(kExpFactorTaylorSeries6) +
-                        decimal_part_2 * (static_cast<NumberType>(kExpFactorTaylorSeries8) +
-                            decimal_part_2 * (static_cast<NumberType>(kExpFactorTaylorSeries10) +
-                                decimal_part_2 * (static_cast<NumberType>(kExpFactorTaylorSeries12) +
-                                    decimal_part_2 * (static_cast<NumberType>(kExpFactorTaylorSeries14) +
-                                        decimal_part_2 * (static_cast<NumberType>(kExpFactorTaylorSeries16) +
-                                            decimal_part_2 * (static_cast<NumberType>(kExpFactorTaylorSeries18) +
-                                                decimal_part_2 * static_cast<NumberType>(kExpFactorTaylorSeries20))))))))));
-        Size64Union ans(ans_1 + ans_2);
-        ans.u_int_64_ += int_part << kFloat64ExponentSize;
-        return ans.float_64_;
+/**
+ * @brief Internal implementation for calculating power.
+ * @details Handles the logic for power calculation based on the types of the base and exponent.
+ *          If the base is an integer and exponent is a float, or if both are floats, it uses the logarithmic identity.
+ *          If the exponent is an integer, it uses binary exponentiation (exponentiation by squaring) for efficiency.
+ * @tparam _BaseNumberType The type of the base value.
+ * @tparam _ExponentNumberType The type of the exponent value.
+ * @param _base The base number.
+ * @param _exponent The exponent to raise the base to.
+ * @return The result of the power calculation.
+ */
+template<typename _BaseNumberType, typename _ExponentNumberType>
+requires kIsNumber<_BaseNumberType> && kIsNumber<_ExponentNumberType>
+NODISCARD constexpr auto PowCalculate(
+    _BaseNumberType _base,
+    _ExponentNumberType _exponent
+) noexcept {
+    if constexpr (kIsInt<_BaseNumberType> && kIsFloat<_ExponentNumberType>) {
+        return Exp(_exponent * Ln(static_cast<_ExponentNumberType>(_base)));
     }
-    else if constexpr (std::is_same_v<NumberType, Float32>) {
-        Int32 int_part = static_cast<Int32>(pow_2_exponent) + kFloat32MantissaOffset;
-        NumberType decimal_part = pow_2_exponent - int_part;
-        
+    else if constexpr (kIsInt<_ExponentNumberType>) {
+        if (_base == 0) {
+            return (_exponent == 0) ? 1 : 0;
+        }
+        if (_exponent < 0) {
+            _base = 1.0 / _base;
+            _exponent = -_exponent;
+        }
+        _BaseNumberType ans = static_cast<_BaseNumberType>(1);
+        while (_exponent > static_cast<_ExponentNumberType>(0)) {
+            if ((_exponent & static_cast<_ExponentNumberType>(1)) == static_cast<_ExponentNumberType>(1)) {
+                ans *= _base;
+            }                          
+            _base *= _base;
+            _exponent >>= static_cast<_ExponentNumberType>(1);
+        }
+        return ans;
+    }
+    else {
+        return Exp(_exponent * Ln(static_cast<_ExponentNumberType>(_base)));
     }
 }
 
-}//internal
+} // internal
 
-/*
-    Calculate Exp(logarithm_number).
-*/
-template<typename NumberType>
-requires std::is_arithmetic_v<NumberType>
-NODISCARD constexpr NumberType ExpA(const NumberType _exponent_number) noexcept {
-    if (IsInvalid(_exponent_number)) {
-        return NaN<NumberType>();
+/**
+ * @brief Computes the value of a base raised to the power of an exponent.
+ * @details This function serves as a wrapper that selects the best implementation based on context.
+ *          At compile-time, it performs checks and calculation using the internal implementation.
+ *          At runtime, if the exponent is an integer, it uses the optimized binary exponentiation.
+ *          Otherwise, it falls back to the standard library implementation.
+ * @tparam _BaseNumberType The type of the base value.
+ * @tparam _ExponentNumberType The type of the exponent value.
+ * @param _base The base number.
+ * @param _exponent The exponent to raise the base to.
+ * @return The result of the power calculation, or NaN if inputs are invalid during compile-time check.
+ */
+template<typename _BaseNumberType, typename _ExponentNumberType>
+requires kIsNumber<_BaseNumberType> && kIsNumber<_ExponentNumberType>
+NODISCARD FORCEINLINE constexpr auto Pow(
+    _BaseNumberType _base,
+    _ExponentNumberType _exponent
+) noexcept {
+    if constexpr (IsCompileTimeConstant()) {
+        if (IsInvalid(_base) || IsInvalid(_exponent)) {
+            return NaN<_BaseNumberType>();
+        }
+        return internal::PowCalculate(_base, _exponent);
     }
-    return internal::ExpCalculateA(_exponent_number);
+    else if constexpr (kIsInt<_ExponentNumberType>) {
+        return internal::PowCalculate(_base, _exponent);
+    }
+    else {
+        return std::pow(_base, _exponent);
+    }
 }
 
-/*
-    Calculate Exp(logarithm_number).
-*/
-template<typename NumberType1, typename NumberType2>
-requires std::is_arithmetic_v<NumberType1> && std::is_arithmetic_v<NumberType2>
-NODISCARD constexpr auto PowA(const NumberType1 _base_number, const NumberType2 _exponent_number) noexcept {
-    return std::pow(_base_number, _exponent_number);
+/**
+ * @brief Computes a fast approximation of the power function.
+ * @details This implementation uses bit-manipulation hacks (Schraudolph's approximation) to estimate
+ *          the result of the power function. It is significantly faster than standard `Pow` but less precise.
+ *          It relies on the IEEE 754 floating-point representation linear approximation property.
+ * @tparam _FloatType The floating-point type (Float32 or Float64).
+ * @param _base The base number. Must be greater than 0.
+ * @param _exponent The exponent to raise the base to.
+ * @return The approximate result of the power calculation.
+ */
+template<typename _FloatType>
+requires kIsFloat<_FloatType>
+NODISCARD FORCEINLINE constexpr _FloatType PowFast(
+    _FloatType _base,
+    _FloatType _exponent
+) noexcept {
+    if constexpr (IsCompileTimeConstant()) {
+        return Pow(_base, _exponent);
+    }
+    else if constexpr (kIsSameType<_FloatType, Float32>) {
+        ASSERT(_base > static_cast<_FloatType>(0), "PowFast: Requires positive base");
+
+        constexpr Int32 magic_number = 1064866805;
+        // Bit Cast: float -> int
+        Int32 base_bit = std::bit_cast<Int32>(_base);
+
+        // result_int = exp * (base_int - magic) + magic
+        Int32 ans_raw = static_cast<Int32>(_exponent * static_cast<Float32>(base_bit - magic_number)) + magic_number;
+
+        // Bit Cast: int -> float
+        return std::bit_cast<Float32>(ans_raw);
+    }
+    else if constexpr (kIsSameType<_FloatType, Float64>) {
+        ASSERT(_base > static_cast<_FloatType>(0), "PowFast: Requires positive base!");
+        constexpr Int64 magic_number = 4606921280490663936LL;
+        // Bit Cast: float -> int
+        Int64 base_bit = std::bit_cast<Int64>(_base);
+
+        // result_int = exp * (base_int - magic) + magic
+        Int64 ans_raw = static_cast<Int64>(_exponent * static_cast<Float64>(base_bit - magic_number)) + magic_number;
+
+        // Bit Cast: int -> float
+        return std::bit_cast<Float64>(ans_raw);
+    }
+    else {
+        STATIC_ASSERT(false, "ExpFast: Unsupported floating point type.");
+        return static_cast<_FloatType>(0);
+    }
 }
 
-}//math
-}//zengine
+} // math
+} // zengine

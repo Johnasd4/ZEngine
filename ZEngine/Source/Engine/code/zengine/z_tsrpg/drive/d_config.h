@@ -22,11 +22,13 @@
 #include "d_lib.h"
 #include "d_type.h"
 
+#include "../../z_core/z_string_view.h"
+
 namespace zengine {
 namespace tsrpg {
 
 //the config path
-inline constexpr Char kTSRPGConfigPathDir[] = "./config/tsrpg_config.json";
+inline constexpr ZStringView kTSRPGConfigPathDir = "./config/tsrpg_config.json";
 
-}//tsrpg
-}//zengine
+} // tsrpg
+} // zengine

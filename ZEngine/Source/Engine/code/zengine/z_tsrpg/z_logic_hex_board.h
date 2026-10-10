@@ -24,14 +24,14 @@
 
 namespace zengine {
 namespace error_code {
-enum ZLogicHexBoardErrorCodeEnum : ReturnType {
+enum ZLogicHexBoardErrorCodeEnum : ReturnType::ValueType {
     kZLogicHexBoardErrorCode_LinkError = kErrorCodeBase_ZLogicHexBoard,
     kZLogicHexBoardErrorCode_SystemOrLibraryError,
     kZLogicHexBoardErrorCode_NullptrParam,
     kZLogicHexBoardErrorCode_ParamOutOfRange,
 };
-}//error_code
-}//zengine
+} // error_code
+} // zengine
 
 namespace zengine {
 namespace tsrpg {
@@ -75,5 +75,5 @@ private:
     ZLogicHexBoard& operator=(ZLogicHexBoard&&) = delete;
 };
 
-}//tsrpg
-}//zengine
+} // tsrpg
+} // zengine

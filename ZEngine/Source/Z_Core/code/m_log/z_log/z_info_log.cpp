@@ -39,7 +39,7 @@ namespace zengine {
 namespace log {
 
 Void ZInfoLog::FileOutputLog(const ZLog* _log_ptr, ZStringView _output_str) noexcept {
-    thread_local ZFile& file = InfoLogFile();
+    static ZFile& file = InfoLogFile();
     ReturnType link_code = kOK;
 
     if (file.IsOpen()) {
@@ -61,7 +61,7 @@ Void ZInfoLog::ConsoleOutputLog(const ZLog* _log_ptr, ZStringView _output_str) n
     static constexpr Colour kSuccessFrontColour = Colour(0, 204, 0, 255);
     static constexpr Colour kFailureFrontColour = Colour(204, 0, 0, 255);
     static constexpr Colour kBackColour = console::kNoChangeColour;
-    switch (info_log.info_type_) {
+    switch (info_log.InfoType()) {
     case InfoLogTypeEnum::kMessage:
         console::Print(
             kMessageFrontColour,
@@ -119,12 +119,10 @@ Void ZInfoLog::ConsoleOutputLog(const ZLog* _log_ptr, ZStringView _output_str) n
     }
 }
 
-ZInfoLog::ZInfoLog(TimeType _log_time, InfoLogTypeEnum _info_type) noexcept 
-    : SuperType_(LogTypeEnum::kInfo, _log_time)
-    , info_type_(_info_type) 
-{}
-
-ZInfoLog::~ZInfoLog() noexcept {}
+NODISCARD ZLog::OutputFunctionArray_& ZInfoLog::GetOutputFunctionArrayInstance() noexcept {
+    static OutputFunctionArray_ output_func_array_ptr;
+    return output_func_array_ptr;
+}
 
 NODISCARD Void* ZInfoLog::operator new(SizeType _size) noexcept {
     return memory_pool::ApplyInfoLogMemory();
@@ -134,30 +132,30 @@ NODISCARD Void ZInfoLog::operator delete(Void* _memory_ptr) noexcept {
     memory_pool::ReleaseInfoLogMemory(_memory_ptr);
 }
 
-NODISCARD ZLog::OutputFunctionArray_& ZInfoLog::OutputFunctionArrayInstance() noexcept {
-    static OutputFunctionArray_ output_func_array_ptr;
-    return output_func_array_ptr;
-}
+ZInfoLog::ZInfoLog(TimeType _log_time, InfoLogTypeEnum _info_type) noexcept 
+    : SuperType_(LogTypeEnum::kInfo, _log_time)
+    , info_log_head_(_info_type)
+{}
 
 NODISCARD ZLog::OutputFunctionArray_& ZInfoLog::OutputFunctionArrayP() noexcept {
-    return OutputFunctionArrayInstance();
+    return GetOutputFunctionArrayInstance();
 }
 
 Void ZInfoLog::GenerateOutputStringP(OutputString_* _output_str_ptr) noexcept {
-    static ZSystemTime& system_time = ZSystemTime::Instance();
+    static ZSystemTime& system_time = ZSystemTime::GetInstance();
     system_time.UpdateTimeFast(LogTime());
   
     _output_str_ptr->size_ = _output_str_ptr->output_str_.AssignNoEnd(
         "{:04d}/{:02d}/{:02d}-{:02d}:{:02d}:{:02d}-{:03d}.{:03d}.{:03d} | {} | {}",
-        system_time.Year(), system_time.Month(), system_time.Day(),
-        system_time.Hour(), system_time.Min(), system_time.Sec(),
-        system_time.Ms(), system_time.Us(), system_time.Ns(),
-        kInfoLogType_String[static_cast<SizeType>(info_type_)], 
-        ZStringView(LogStringPtr()->log_str_ptr_->GetDataPtr(), LogStringPtr()->size_)
+        system_time.GetYear(), system_time.GetMonth(), system_time.GetDay(),
+        system_time.GetHour(), system_time.GetMin(), system_time.GetSec(),
+        system_time.GetMs(), system_time.GetUs(), system_time.GetNs(),
+        kInfoLogType_String[static_cast<SizeType>(InfoType())],
+        ZStringView(log_string_.string_.GetDataPtr(), log_string_.size_)
     );
 }
 
 
 
-}//log
-}//zengine
+} // log
+} // zengine

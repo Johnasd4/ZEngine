@@ -24,5 +24,5 @@
 namespace zengine {
 namespace tsrpg {
 
-}//tsrpg
-}//zengine
+} // tsrpg
+} // zengine

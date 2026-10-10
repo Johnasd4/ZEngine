@@ -29,7 +29,6 @@
 #include "drive.h"
 
 #include "z_string.h"
-#include "z_object.h"
 
 namespace zengine {
 namespace internal {
@@ -44,8 +43,8 @@ namespace internal {
  */
 template<typename _CharType>
 class TStringView {
-    static_assert(kIsChar<_CharType>, "TStringView: Requires a char type.");
-
+    STATIC_ASSERT(kIsChar<_CharType>, "TStringView: Requires a char type.");
+    NO_NEW_DELETE
 public:
     /** @brief Alias for the standard string type. */
     template<typename _AllocatorType>
@@ -77,7 +76,7 @@ public:
      * @param _pos The starting position of the substring.
      * @param _len The length of the substring. Defaults to kEnd (until the end of the string).
      */
-    constexpr TStringView(const TStringView& _str_view, SizeType _pos, SizeType _len = kEnd) noexcept
+    FORCEINLINE constexpr TStringView(const TStringView& _str_view, SizeType _pos, SizeType _len = kEnd) noexcept
         : str_view_(&_str_view[_pos], _len)
     {}
 
@@ -96,7 +95,7 @@ public:
      * @param _str The null-terminated C-string.
      */
     template<typename _PointerType>
-    requires kSameType<kDecayType<_PointerType>, const _CharType*> || kSameType<kDecayType<_PointerType>, _CharType*>
+    requires kIsSameType<kDecayType<_PointerType>, const _CharType*> || kIsSameType<kDecayType<_PointerType>, _CharType*>
     FORCEINLINE constexpr TStringView(_PointerType&& _str) noexcept
         : str_view_(_str)
     {}
@@ -105,8 +104,7 @@ public:
      * @brief Constructs a string view from a ZEngine TString object.
      * @param _str The source TString object.
      */
-    template<Bool _IsGlobal>
-    FORCEINLINE constexpr TStringView(const TString<_CharType, _IsGlobal>& _str) noexcept
+    FORCEINLINE constexpr TStringView(const TString<_CharType>& _str) noexcept
         : str_view_(_str.STDString())
     {}
 
@@ -129,9 +127,9 @@ public:
     {}
 
     /**
-     * @brief Destructor.
+     * @brief Default destructor.
      */
-    FORCEINLINE constexpr ~TStringView() noexcept {}
+    FORCEINLINE constexpr ~TStringView() noexcept = default;
 
     /**
      * @brief Assignment operator. Copies the view from another TStringView.
@@ -150,7 +148,7 @@ public:
      * @return TStringView& Reference to this object.
      */
     template<typename _PointerType>
-    requires kSameType<kDecayType<_PointerType>, const _CharType*> || kSameType<kDecayType<_PointerType>, _CharType*>
+    requires kIsSameType<kDecayType<_PointerType>, const _CharType*> || kIsSameType<kDecayType<_PointerType>, _CharType*>
     FORCEINLINE constexpr TStringView& operator=(_PointerType&& _str) noexcept {
         str_view_ = _str;
         return *this;
@@ -161,8 +159,7 @@ public:
      * @param _str The source TString object.
      * @return TStringView& Reference to this object.
      */
-    template<Bool _IsGlobal>
-    FORCEINLINE constexpr TStringView& operator=(const TString<_CharType, _IsGlobal>& _str) noexcept {
+    FORCEINLINE constexpr TStringView& operator=(const TString<_CharType>& _str) noexcept {
         str_view_ = _str.STDString();
         return *this;
     }
@@ -223,7 +220,7 @@ public:
      * @return TStringView& Reference to this object.
      */
     template<typename _PointerType>
-    requires kSameType<kDecayType<_PointerType>, const _CharType*> || kSameType<kDecayType<_PointerType>, _CharType*>
+    requires kIsSameType<kDecayType<_PointerType>, const _CharType*> || kIsSameType<kDecayType<_PointerType>, _CharType*>
     FORCEINLINE constexpr TStringView& Assign(_PointerType&& _str) noexcept {
         str_view_ = _str;
         return *this;
@@ -234,8 +231,7 @@ public:
      * @param _str The source TString object.
      * @return TStringView& Reference to this object.
      */
-    template<Bool _IsGlobal>
-    FORCEINLINE constexpr TStringView& Assign(const TString<_CharType, _IsGlobal>& _str) noexcept {
+    FORCEINLINE constexpr TStringView& Assign(const TString<_CharType>& _str) noexcept {
         str_view_ = _str.STDString();
         return *this;
     }
@@ -244,6 +240,7 @@ public:
      * @brief Replaces the current view with the content of a std::basic_string.
      * @tparam _AllocatorType The allocator type of the std::basic_string.
      * @param _std_str The source std::basic_string.
+     * @param _std_str The source std::basic_string.
      * @return TStringView& Reference to this object.
      */
     template<typename _AllocatorType>
@@ -251,6 +248,38 @@ public:
         str_view_ = _std_str;
         return *this;
     }
+
+    /**
+     * @brief Checks if the view is empty.
+     * @return Bool True if the size is 0, false otherwise.
+     */
+    NODISCARD FORCEINLINE constexpr Bool IsEmpty() const noexcept { return str_view_.empty(); }
+
+    /**
+     * @brief Returns a pointer to the underlying character array.
+     * @return const _CharType* A const pointer to the data.
+     */
+    NODISCARD FORCEINLINE constexpr const _CharType* GetDataPtr() const noexcept {
+        return str_view_.data();
+    }
+
+    /**
+     * @brief Accesses the underlying std::basic_string_view object.
+     * @return STDStringView_& A reference to the internal std::basic_string_view.
+     */
+    NODISCARD FORCEINLINE constexpr STDStringView_& GetSTDStringView() noexcept { return str_view_; }
+
+    /**
+     * @brief Accesses the underlying std::basic_string_view object (const).
+     * @return const STDStringView_& A const reference to the internal std::basic_string_view.
+     */
+    NODISCARD FORCEINLINE constexpr const STDStringView_& GetSTDStringView() const noexcept { return str_view_; }
+
+    /**
+     * @brief Returns the number of characters in the view.
+     * @return SizeType The size of the view.
+     */
+    NODISCARD FORCEINLINE constexpr SizeType GetSize() const noexcept { return str_view_.size(); }
 
     /**
      * @brief Implicit conversion to the underlying std::basic_string_view.
@@ -264,19 +293,10 @@ public:
     /**
      * @brief Implicit conversion to a ZEngine TString (global memory).
      * Creates a new TString instance containing a copy of the view's data.
-     * @return TString<_CharType, true> A new TString object.
+     * @return TString<_CharType> A new TString object.
      */
-    NODISCARD FORCEINLINE operator TString<_CharType, true>() const noexcept {
-        return TString<_CharType, true>(str_view_.data(), str_view_.size());
-    }
-
-    /**
-     * @brief Implicit conversion to a ZEngine TString (thread-local memory).
-     * Creates a new TString instance containing a copy of the view's data.
-     * @return TString<_CharType, false> A new TString object.
-     */
-    NODISCARD FORCEINLINE operator TString<_CharType, false>() const noexcept {
-        return TString<_CharType, false>(str_view_.data(), str_view_.size());
+    NODISCARD FORCEINLINE operator TString<_CharType>() const noexcept {
+        return TString<_CharType>(str_view_.data(), str_view_.size());
     }
 
     /**
@@ -298,38 +318,6 @@ public:
     NODISCARD FORCEINLINE constexpr const _CharType& At(SizeType _index) const {
         return str_view_.at(_index);
     }
-
-    /**
-     * @brief Returns a pointer to the underlying character array.
-     * @return const _CharType* A const pointer to the data.
-     */
-    NODISCARD FORCEINLINE constexpr const _CharType* GetDataPtr() const noexcept {
-        return str_view_.data();
-    }
-
-    /**
-     * @brief Accesses the underlying std::basic_string_view object.
-     * @return STDStringView_& A reference to the internal std::basic_string_view.
-     */
-    NODISCARD FORCEINLINE constexpr STDStringView_& STDStringView() noexcept { return str_view_; }
-
-    /**
-     * @brief Accesses the underlying std::basic_string_view object (const).
-     * @return const STDStringView_& A const reference to the internal std::basic_string_view.
-     */
-    NODISCARD FORCEINLINE constexpr const STDStringView_& STDStringView() const noexcept { return str_view_; }
-
-    /**
-     * @brief Returns the number of characters in the view.
-     * @return SizeType The size of the view.
-     */
-    NODISCARD FORCEINLINE constexpr SizeType GetSize() const noexcept { return str_view_.size(); }
-
-    /**
-     * @brief Checks if the view is empty.
-     * @return Bool True if the size is 0, false otherwise.
-     */
-    NODISCARD FORCEINLINE constexpr Bool IsEmpty() const noexcept { return str_view_.empty(); }
 
     /**
      * @brief Finds the first occurrence of a substring within the view.
@@ -389,7 +377,10 @@ public:
      * @param _len The length of the substring. Defaults to kEnd.
      * @return TStringView A new TStringView instance.
      */
-    NODISCARD FORCEINLINE constexpr TStringView SubString(const SizeType _pos, const SizeType _len = kEnd) noexcept {
+    NODISCARD FORCEINLINE constexpr TStringView SubString(
+        const SizeType _pos, 
+        const SizeType _len = kEnd
+    ) const noexcept {
         return TStringView{ str_view_.substr(_pos, _len) };
     }
 
@@ -413,28 +404,17 @@ public:
      * @brief Converts the view to a ZEngine TString (owning copy).
      * @return TString<_CharType> A new TString containing the data.
      */
-    NODISCARD FORCEINLINE TString<_CharType, true> ToString() const noexcept {
-        return TString<_CharType, true>{ GetDataPtr(), GetSize() };
-    }
-
-    /**
-     * @brief Converts the view to a ZEngine TString (owning copy).
-     * @return TString<_CharType> A new TString containing the data.
-     */
-    NODISCARD FORCEINLINE TString<_CharType, false> ToStringLocal() const noexcept {
-        return TString<_CharType, false>{ GetDataPtr(), GetSize() };
+    NODISCARD FORCEINLINE TString<_CharType> ToString() const noexcept {
+        return TString<_CharType>{ GetDataPtr(), GetSize() };
     }
 
 private:
-    static Void* operator new(SizeType) = delete;
-    static Void operator delete(Void*) = delete;
-
     /** @brief The internal standard string view object. */
     STDStringView_ str_view_;
 };
 
-}//internal
-}//zengine
+} // internal
+} // zengine
 
 namespace zengine {
 
@@ -443,7 +423,7 @@ using ZStringView = internal::TStringView<Char>;
 /** @brief Alias for a string view of wchar_t type. */
 using ZWStringView = internal::TStringView<WChar>;
 
-}//zengine
+} // zengine
 
 namespace std {
 
@@ -460,4 +440,4 @@ struct hash<zengine::ZWStringView> {
     }
 };
 
-}//std
+} // std

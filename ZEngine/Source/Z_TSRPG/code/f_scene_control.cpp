@@ -55,5 +55,5 @@ TSRPG_DLLAPI Void AddSceneEvent(
     ZSceneEventManager::Instance().AddSceneEvent(scene_event_ptr);
 }
 
-}//tsrpg
-}//zengine
+} // tsrpg
+} // zengine

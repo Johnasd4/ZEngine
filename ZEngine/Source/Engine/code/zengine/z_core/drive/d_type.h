@@ -62,11 +62,7 @@ using Float64 = double;
 using SizeType = size_t;
 /** @brief Unsigned integer type capable of holding a pointer value. */
 using PointerType = SizeType;
-/** 
- * @brief Return type code. Returns kOK if successful, otherwise returns an error code. 
- * Format: 0xSPPTTTEE (S: Solution, P: Project, T: Type, E: Error). 
- */
-using ReturnType = UInt32;
+
 /** @brief Integer type used for representing time values. */
 using TimeType = Int64;
 /** @brief Type for handling variable argument lists. */
@@ -83,10 +79,149 @@ using Void = void;
 /** @brief Generic handle type (void pointer). */
 using Handle = void*;
 
-
 #pragma warning(disable : 26495)
+
+/**
+ * @brief Return type code. Returns kOK if successful, otherwise returns an error code.
+ *
+ * Implementation Principle:
+ * This struct serves as a lightweight wrapper around a 32-bit unsigned integer (UInt32) to provide a strong type
+ * for function return values. It adheres to a specific bitmask format: 0xSPPTTTEE (S: Solution, P: Project, T: Type,
+ * E: Error). It explicitly deletes new and delete operators to prevent heap allocation, enforcing usage on the stack
+ * or as a member variable. It supports constexpr and noexcept for maximum performance.
+ */
+struct ReturnType {
+    NO_NEW_DELETE
+public:
+    /** @brief Alias for the underlying 32-bit unsigned integer type. */
+    using ValueType = UInt32;
+    /** @brief Constant representing a successful operation (value is 0). */
+    static inline constexpr ValueType kOK = 0U;
+
+public:
+    /** @brief Default constructor. Creates a ReturnType instance. */
+    FORCEINLINE constexpr ReturnType() noexcept : value_() {}
+
+    /**
+     * @brief Copy constructor.
+     * @param _other The source ReturnType instance to copy from.
+     */
+    FORCEINLINE constexpr ReturnType(const ReturnType&) noexcept = default;
+
+    /**
+     * @brief Constructor from a raw 32-bit integer.
+     * @param _value The raw error code value conforming to the 0xSPPTTTEE format.
+     */
+    FORCEINLINE constexpr ReturnType(UInt32 _value) noexcept : value_(_value) {}
+
+    /**
+     * @brief Copy assignment operator.
+     * @param _other The source ReturnType instance to assign from.
+     * @return A reference to this ReturnType instance.
+     */
+    FORCEINLINE constexpr ReturnType& operator=(const ReturnType&) noexcept = default;
+
+    /**
+     * @brief Assignment operator from a raw 32-bit integer.
+     * @param _value The raw error code value to assign.
+     * @return A reference to this ReturnType instance.
+     */
+    FORCEINLINE constexpr ReturnType& operator=(UInt32 _value) noexcept {
+        value_ = _value;
+        return *this;
+    }
+
+    /**
+     * @brief Equality operator comparing with another ReturnType.
+     * @param _value The other ReturnType instance to compare.
+     * @return True if the underlying values are equal, false otherwise.
+     */
+    NODISCARD FORCEINLINE constexpr Bool operator==(const ReturnType& _value) const noexcept { 
+        return value_ == _value.value_; 
+    }
+
+    /**
+     * @brief Inequality operator comparing with another ReturnType.
+     * @param _value The other ReturnType instance to compare.
+     * @return True if the underlying values are different, false otherwise.
+     */
+    NODISCARD FORCEINLINE constexpr Bool operator!=(const ReturnType& _value) const noexcept { 
+        return value_ != _value.value_; 
+    }
+
+    /**
+     * @brief Bitwise OR operator combining with another ReturnType.
+     * @param _value The other ReturnType instance to combine with.
+     * @return A new ReturnType resulting from the bitwise OR of the underlying values.
+     */
+    NODISCARD FORCEINLINE constexpr ReturnType operator|(const ReturnType& _value) noexcept {
+        return value_ | _value.value_;
+    }
+
+    /**
+     * @brief Bitwise OR assignment operator combining with another ReturnType.
+     * @param _value The other ReturnType instance to combine with.
+     * @return The updated ValueType after performing the bitwise OR assignment.
+     */
+    NODISCARD FORCEINLINE constexpr ReturnType& operator|=(const ReturnType& _value) noexcept {
+        value_ |= _value.value_;
+        return *this;
+    }
+
+
+    /**
+     * @brief Equality operator comparing with a raw UInt32.
+     * @param _value The raw integer value to compare.
+     * @return True if the underlying value equals the raw integer, false otherwise.
+     */
+    NODISCARD FORCEINLINE constexpr Bool operator==(UInt32 _value) const noexcept { return value_ == _value; }
+
+    /**
+     * @brief Inequality operator comparing with a raw UInt32.
+     * @param _value The raw integer value to compare.
+     * @return True if the underlying value differs from the raw integer, false otherwise.
+     */
+    NODISCARD FORCEINLINE constexpr Bool operator!=(UInt32 _value) const noexcept { return value_ != _value; }
+
+    /**
+     * @brief Bitwise OR operator combining with a raw UInt32.
+     * @param _value The raw integer value to combine with.
+     * @return A new ReturnType resulting from the bitwise OR of the underlying value and the raw integer.
+     */
+    NODISCARD FORCEINLINE constexpr ReturnType operator|(UInt32 _value) noexcept { return value_ | _value; }
+
+    /**
+     * @brief Bitwise OR assignment operator combining with a raw UInt32.
+     * @param _value The raw integer value to combine with.
+     * @return The updated ValueType after performing the bitwise OR assignment with the raw integer.
+     */
+    NODISCARD FORCEINLINE constexpr ReturnType& operator|=(UInt32 _value) noexcept { 
+        value_ |= _value; 
+        return *this; 
+    }
+
+
+
+    /**
+     * @brief Implicit conversion operator to UInt32.
+     * @return The underlying 32-bit error code value.
+     */  
+    FORCEINLINE constexpr operator UInt32() const noexcept { return value_; }
+
+    /**
+     * @brief Implicit conversion operator to Bool.
+     * @return True if the error code indicates success (kOK), false otherwise.
+     */
+    FORCEINLINE explicit constexpr operator Bool() const noexcept { return value_ == kOK; }
+
+private:
+    /** @brief The underlying storage for the error code. */
+    ValueType value_;
+};
+
 /** @brief Structure representing a color with Red, Green, Blue, and Alpha components. */
 struct Colour {
+    NO_NEW_DELETE
 public:
     /** @brief Default constructor. Initializes to Opaque Black (R=0, G=0, B=0, A=255). */
     FORCEINLINE Colour() noexcept
@@ -157,15 +292,9 @@ public:
      * @param _buffer The Colour object to compare with. 
      * @return True if colors are identical, false otherwise. 
      */
-    FORCEINLINE Bool operator==(const Colour& _buffer) noexcept {        
+    NODISCARD FORCEINLINE Bool operator==(const Colour& _buffer) noexcept {
         return *reinterpret_cast<Int32*>(this) == *reinterpret_cast<const Int32*>(&_buffer);
     }
-
-private:
-    /** @brief Deleted operator new to prevent heap allocation. */
-    static Void* operator new(SizeType) = delete;
-    /** @brief Deleted operator delete. */
-    static Void operator delete(Void*) = delete;
 
 public:
     /** @brief The red component of the color. */
@@ -221,4 +350,4 @@ enum class StringEnum : Int32 {
     kWString
 };
 
-}//zengine
+} // zengine

@@ -15,82 +15,36 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="code\data\z_buffer_stream_data.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\data\z_io_context_data.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\data\z_tcp_server_data.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\data\z_tcp_socket_data.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\data\z_tls_context_data.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\data\z_tls_stream_data.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\data\z_udp_socket_data.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\f_tcp_log_output.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\z_socket_buffer_stream.cpp">
+    <ClInclude Include="code\z_http11_resolver.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_udp_packet\z_udp_packet_message.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\drive\d_pch.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\z_socket_allocator.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\internal\z_socket_delete_manager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="code\z_ip_address.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="code\z_io_context.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="code\z_tcp_client\z_tcp_multiple_session_client.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\z_tcp_server\z_tcp_multiple_session_server.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\z_tcp_client\z_tcp_single_session_client.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\z_tcp_server\z_tcp_single_session_server.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="code\z_tcp_socket.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="code\z_tls_context.cpp">
+    <ClCompile Include="code\z_tcp_server.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="code\z_tls_stream.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\z_udp_socket.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\z_http_request_generator\z_http_11_request_generator.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\data\z_http_11_request_generator_data.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\data\z_http_11_response_resolver_data.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\z_http_response_resolver\z_http_11_response_resolver.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\z_url_resolver.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\data\z_url_resolver_data.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\f_socket\get_udp_public_address_and_port.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\drive\d_function.cpp">
+    <ClCompile Include="code\drive\d_pch.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="code\z_tcp_endpoint.cpp">
@@ -99,70 +53,26 @@
     <ClCompile Include="code\z_udp_endpoint.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="code\f_socket\udp_connect_p2p.cpp">
+    <ClCompile Include="code\z_udp_socket.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="code\drive\d_pch.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\data\z_io_context_work_guard_data.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\z_io_context_work_guard.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\z_udp_message.cpp">
+    <ClCompile Include="code\internal\z_socket_delete_manager.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="code\z_udp_packet_factory.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="code\data\z_buffer_stream_data.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\data\z_io_context_data.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\data\z_tcp_server_data.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\data\z_tcp_socket_data.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\data\z_tls_context_data.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\data\z_tls_stream_data.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\data\z_udp_socket_data.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\z_socket_allocator.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\z_http11_resolver.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\data\z_http_11_request_generator_data.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\data\z_http_11_response_resolver_data.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\data\z_url_resolver_data.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\drive\d_pch.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\data\z_io_context_work_guard_data.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\z_udp_packet\z_udp_packet_message.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
+    <ClCompile Include="code\f_socket\get_udp_public_address_and_port.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\z_udp_message.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\z_udp_peer\z_udp_peer_p2p.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\z_kcp_session.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

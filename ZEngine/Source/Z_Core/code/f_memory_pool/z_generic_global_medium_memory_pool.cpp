@@ -27,14 +27,18 @@
 #define CORE_DLLFILE
 #include "drive/d_pch.h"
 
-#include "m_log.h"
 #include "z_generic_global_medium_memory_pool.h"
+
+#include "m_log.h"
+#include "z_file.h"
+
+#include "z_generic_memory_pool_performance_test.h"
 
 namespace zengine {
 namespace memory_pool {
 
 NOINLINE Void ZGenericGlobalMediumMemoryPool::ExtendMemoryBlockP() noexcept {
-    //get memory page data
+    // get memory page data
     MemoryPageData_* memory_page_data_ptr;
     if (block_type_ == MemoryBlockTypeEnum_::k1_5) {
         memory_page_data_ptr = &MemoryPageDataGroupInstanceP().memory_page_data_1_5_;
@@ -46,7 +50,7 @@ NOINLINE Void ZGenericGlobalMediumMemoryPool::ExtendMemoryBlockP() noexcept {
     Byte* page_ptr;
     UInt32 apply_memory_size;
     {
-        //memory page all used, need to alloc from system
+        // memory page all used, need to alloc from system
         TLockGuard lock_guard(memory_page_data_ptr->mutex_);
         if (memory_page_data_ptr->memory_atom_page_num_ == 0U) {
             ExtendMemoryPageP(memory_page_data_ptr);
@@ -67,9 +71,9 @@ NOINLINE Void ZGenericGlobalMediumMemoryPool::ExtendMemoryBlockP() noexcept {
             apply_page_num = memory_page_data_ptr->memory_atom_page_num_;
         }
         memory_page_data_ptr->memory_atom_page_num_ -= apply_page_num;
-        //initialize new memory page
+        // initialize new memory page
         apply_memory_size = apply_page_num * kMemoryAtomPageSize;
-        //move page pointer
+        // move page pointer
         memory_page_data_ptr->page_ptr_ += apply_memory_size;
     }
 
@@ -78,7 +82,7 @@ NOINLINE Void ZGenericGlobalMediumMemoryPool::ExtendMemoryBlockP() noexcept {
 
 #if USE_MEMORY_POOL_PERFORMANCE_TEST
     memory_block_total_num_ += apply_memory_size / memory_block_with_head_size_;
-#endif //USE_MEMORY_POOL_PERFORMANCE_TEST
+#endif // USE_MEMORY_POOL_PERFORMANCE_TEST
      
 }
 
@@ -122,7 +126,21 @@ ZGenericGlobalMediumMemoryPoolGroup::ZGenericGlobalMediumMemoryPoolGroup() noexc
     }
 }
 
-ZGenericGlobalMediumMemoryPoolGroup::~ZGenericGlobalMediumMemoryPoolGroup() noexcept {}
+ZGenericGlobalMediumMemoryPoolGroup::~ZGenericGlobalMediumMemoryPoolGroup() noexcept {
+#if USE_MEMORY_POOL_PERFORMANCE_TEST
+    ZGenericMemoryPoolPerformanceTest& performance_test_instance = ZGenericMemoryPoolPerformanceTest::GetInstance();
+    for (SizeType index = 0; index < kMediumMemoryPoolNum; ++index) {
+        ZGenericGlobalMediumMemoryPool& memory_pool = pool_array_[index];
+        performance_test_instance.global_medium_memory_pool_performance_data_[index] = {
+            memory_pool.memory_block_size_,
+            memory_pool.memory_block_unreleased_num_,
+            memory_pool.memory_block_applied_num_,
+            memory_pool.memory_block_peak_num_,
+            memory_pool.memory_block_total_num_
+        };
+    }
+#endif // USE_MEMORY_POOL_PERFORMANCE_TEST      
+}
 
-}//memory_pool
-}//zengine
+} // memory_pool
+} // zengine

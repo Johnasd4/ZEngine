@@ -58,10 +58,10 @@ enum TextStyleEnum : Int32 {
 };
 
 /** @brief Constant representing a color that indicates no change to the current terminal color. */
-static constexpr Colour kNoChangeColour = Colour(0, 0, 0, 0);
+static inline constexpr Colour kNoChangeColour = Colour(0, 0, 0, 0);
 
-}//console
-}//zengine
+} // console
+} // zengine
 
 namespace zengine {
 namespace console {
@@ -119,9 +119,9 @@ CORE_DLLAPI Void PrintImmediately(
     fmt::format_args _args
 ) noexcept;
 
-}//internal
-}//console
-}//zengine
+} // internal
+} // console
+} // zengine
 
 namespace zengine {
 namespace console {
@@ -215,5 +215,5 @@ FORCEINLINE Void PrintImmediately(
 /** @brief Flushes the console output buffer. */
 CORE_DLLAPI Void Flush() noexcept;
 
-}//console
-}//zengine
+} // console
+} // zengine

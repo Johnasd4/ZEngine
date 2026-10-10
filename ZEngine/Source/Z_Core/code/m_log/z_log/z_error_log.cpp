@@ -41,7 +41,7 @@ namespace log {
 Void ZErrorLog::FileOutputLog(const ZLog* _log_ptr, ZStringView _output_str) noexcept {
     static constexpr ZStringView kLogHeadEnd =
         "--------------------------------------------------------------------------------\n";
-    thread_local ZFile& file = ErrorLogFile();
+    static ZFile& file = ErrorLogFile();
     ReturnType link_code = kOK;
 
     if (file.IsOpen()) {
@@ -73,25 +73,10 @@ Void ZErrorLog::ConsoleOutputLog(const ZLog* _log_ptr, ZStringView _output_str) 
     );
 }
 
-ZErrorLog::ZErrorLog(
-    TimeType _log_time,
-    ZStringView _proj_name,
-    ZStringView _file_dir,
-    ZStringView _func_name,
-    Int32 _err_line,
-    ReturnType _err_code,
-    ReturnType _link_code
-) noexcept 
-    : SuperType_(LogTypeEnum::kError, _log_time)
-    , proj_name_(_proj_name)
-    , file_dir_(_file_dir)
-    , func_name_(_func_name)
-    , err_line_(_err_line)
-    , err_code_(_err_code)
-    , link_code_(_link_code)
-{}
-
-ZErrorLog::~ZErrorLog() noexcept {}
+NODISCARD ZLog::OutputFunctionArray_& ZErrorLog::GetOutputFunctionArrayInstance() noexcept {
+    static OutputFunctionArray_ output_func_array_ptr;
+    return output_func_array_ptr;
+}
 
 NODISCARD Void* ZErrorLog::operator new(SizeType _size) noexcept {
     return memory_pool::ApplyErrorLogMemory();
@@ -100,20 +85,29 @@ NODISCARD Void* ZErrorLog::operator new(SizeType _size) noexcept {
 NODISCARD Void ZErrorLog::operator delete(Void* _memory_ptr) noexcept {
     memory_pool::ReleaseErrorLogMemory(_memory_ptr);
 }
-NODISCARD ZLog::OutputFunctionArray_& ZErrorLog::OutputFunctionArrayInstance() noexcept {
-    static OutputFunctionArray_ output_func_array_ptr;
-    return output_func_array_ptr;
-}
+
+ZErrorLog::ZErrorLog(
+    TimeType _log_time,
+    ZStringView _proj_name,
+    ZStringView _file_path,
+    ZStringView _func_name,
+    Int32 _err_line,
+    ReturnType _err_code,
+    ReturnType _link_code
+) noexcept 
+    : SuperType_(LogTypeEnum::kError, _log_time)
+    , error_log_head_(_proj_name, _file_path, _func_name, _err_line, _err_code, _link_code)
+{}
 
 NODISCARD ZLog::OutputFunctionArray_& ZErrorLog::OutputFunctionArrayP() noexcept {
-    return OutputFunctionArrayInstance();
+    return GetOutputFunctionArrayInstance();
 }
 
 Void ZErrorLog::GenerateOutputStringP(OutputString_* _output_str_ptr) noexcept {
-    static ZSystemTime& system_time = ZSystemTime::Instance();
+    static ZSystemTime& system_time = ZSystemTime::GetInstance();
     system_time.UpdateTimeFast(LogTime());
     _output_str_ptr->size_ = _output_str_ptr->output_str_.AssignNoEnd(
-        "Time: {:04d}/{:02d}/{:02d}-{:02d}:{:02d}:{:02d}-{:03d}.{:03d}.{:03d}\n"
+        "TimeNs: {:04d}/{:02d}/{:02d}-{:02d}:{:02d}:{:02d}-{:03d}.{:03d}.{:03d}\n"
         "Project: {}\n"
         "File: {}\n"
         "Function: {}\n"
@@ -121,18 +115,18 @@ Void ZErrorLog::GenerateOutputStringP(OutputString_* _output_str_ptr) noexcept {
         "Error Code: 0x{:x}\n"
         "Link Code: 0x{:x}\n"
         "Message: {}",
-        system_time.Year(), system_time.Month(), system_time.Day(),
-        system_time.Hour(), system_time.Min(), system_time.Sec(),
-        system_time.Ms(), system_time.Us(), system_time.Ns(),
-        proj_name_, 
-        file_dir_,
-        func_name_, 
-        err_line_,
-        err_code_, 
-        link_code_, 
-        ZStringView(LogStringPtr()->log_str_ptr_->GetDataPtr(), LogStringPtr()->size_)
+        system_time.GetYear(), system_time.GetMonth(), system_time.GetDay(),
+        system_time.GetHour(), system_time.GetMin(), system_time.GetSec(),
+        system_time.GetMs(), system_time.GetUs(), system_time.GetNs(),
+        error_log_head_.proj_name_,
+        error_log_head_.file_path_,
+        error_log_head_.func_name_,
+        error_log_head_.err_line_,
+        error_log_head_.err_code_,
+        error_log_head_.link_code_,
+        ZStringView(log_string_.string_.GetDataPtr(), log_string_.size_)
     );
 }
 
-}//log
-}//zengine
+} // log
+} // zengine

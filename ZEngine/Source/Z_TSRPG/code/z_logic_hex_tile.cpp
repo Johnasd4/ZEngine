@@ -102,5 +102,5 @@ NODISCARD Int32 ZLogicHexTile::CalculateDistanceWithoutHeight(const ZLogicTile& 
     }
 }
 
-}//tsrpg
-}//zengine
+} // tsrpg
+} // zengine

@@ -78,7 +78,7 @@ FORCEINLINE static TimeType ComputeRegionTimeOffsetNs() noexcept {
     UTCTimeSafe(&raw_time, &utc_tm);
 
     time_t local_time = mktime(&local_tm);
-    //set daylight saving time flag to 0
+    // set daylight saving time flag to 0
     utc_tm.tm_isdst = 0;
     time_t utc_time = mktime(&utc_tm);
     return 
@@ -86,8 +86,8 @@ FORCEINLINE static TimeType ComputeRegionTimeOffsetNs() noexcept {
         (ZSystemTime::kMsPerSec * ZSystemTime::kUsPerMs * ZSystemTime::kNsPerUs);
 }
 
-}//internal
-}//zengine
+} // internal
+} // zengine
 
 namespace zengine {
 
@@ -96,19 +96,18 @@ TimeType ZSystemTime::GetRegionTimeOffsetNs() noexcept {
     return region_time_offset;
 }
 
-ZSystemTime& ZSystemTime::Instance() noexcept {
+ZSystemTime& ZSystemTime::GetInstance() noexcept {
     thread_local ZSystemTime system_time;
     return system_time;
 }
 
-const ZSystemTime& ZSystemTime::StartTimeInstance() noexcept {
+const ZSystemTime& ZSystemTime::GetProcessStartTimeInstance() noexcept {
     static ZSystemTime system_time;
     return system_time;
 }
 
 ZSystemTime::ZSystemTime() noexcept : SuperType_() { UpdateTime(); }
 ZSystemTime::ZSystemTime(TimeType _time_raw) noexcept : SuperType_() { UpdateTime(_time_raw); }
-ZSystemTime::~ZSystemTime() noexcept {}
 
 Void ZSystemTime::UpdateTimeFast(TimeType _time_raw) noexcept {
     TimeType pre_hour = hour_;
@@ -161,10 +160,4 @@ Void ZSystemTime::UpdateDateP(
     year_ = y + (month_ <= 2);
 }
 
-CORE_DLLAPI NODISCARD TimeType Time() noexcept {
-    return std::chrono::duration_cast<std::chrono::nanoseconds>(
-        std::chrono::system_clock::now().time_since_epoch()
-    ).count();
-}
-
-}//zengine
+} // zengine

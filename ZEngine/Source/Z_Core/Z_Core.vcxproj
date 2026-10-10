@@ -27,6 +27,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="code\z_thread.cpp" />
+    <ClCompile Include="code\z_condition_variable.cpp" />
+    <ClCompile Include="code\z_semaphore.cpp" />
     <ClCompile Include="code\f_memory_pool.cpp" />
     <ClCompile Include="code\f_console.cpp" />
     <ClCompile Include="code\f_file_system.cpp" />
@@ -38,7 +41,7 @@
     <ClCompile Include="code\f_memory_pool\z_generic_system_memory_pool.cpp" />
     <ClCompile Include="code\f_memory_pool\z_generic_thread_local_medium_memory_pool.cpp" />
     <ClCompile Include="code\f_memory_pool\z_generic_thread_local_small_memory_pool.cpp" />
-    <ClCompile Include="code\f_memory_pool\z_system_memory_pool.cpp" />
+    <ClCompile Include="code\f_memory_pool\z_generic_memory_pool_performance_test.cpp" />
     <ClCompile Include="code\f_system.cpp" />
     <ClCompile Include="code\m_log\f_log.cpp" />
     <ClCompile Include="code\m_log\z_log\f_log_file.cpp" />
@@ -47,18 +50,19 @@
     <ClCompile Include="code\m_log\z_log\z_trace_log.cpp" />
     <ClCompile Include="code\m_log\z_log\z_log.cpp" />
     <ClCompile Include="code\m_log\z_log_manager.cpp" />
-    <ClCompile Include="code\z_config.cpp" />
     <ClCompile Include="code\z_file.cpp" />
-    <ClCompile Include="code\z_json.cpp" />
     <ClCompile Include="code\f_string.cpp" />
-    <ClCompile Include="code\z_memory.cpp" />
-    <ClCompile Include="code\z_serializer\z_serializer.cpp" />
-    <ClCompile Include="code\z_serializer\z_deserializer.cpp" />
+    <ClCompile Include="code\z_mutex.cpp" />
+    <ClCompile Include="code\z_serializer.cpp" />
     <ClCompile Include="code\z_system_time.cpp" />
     <ClCompile Include="code\z_task.cpp" />
+    <ClCompile Include="code\z_thread_pool.cpp" />
+    <ClCompile Include="code\z_tick_manager.cpp" />
+    <ClCompile Include="code\z_timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\f_memory_pool\c_memory_pool.h" />
+    <ClInclude Include="code\f_memory_pool\z_generic_memory_pool_performance_test.h" />
     <ClInclude Include="code\f_memory_pool\g.h" />
     <ClInclude Include="code\f_memory_pool\z_generic_global_medium_memory_pool.h" />
     <ClInclude Include="code\f_memory_pool\z_generic_global_small_memory_pool.h" />
@@ -67,7 +71,6 @@
     <ClInclude Include="code\f_memory_pool\z_generic_system_memory_pool.h" />
     <ClInclude Include="code\f_memory_pool\z_specialized_info_log_memory_pool.h" />
     <ClInclude Include="code\f_memory_pool\z_specialized_smart_pointer_control_block_memory_pool.h" />
-    <ClInclude Include="code\f_memory_pool\z_specialized_log_string_memory_pool.h" />
     <ClInclude Include="code\f_memory_pool\z_specialized_trace_log_memory_pool.h" />
     <ClInclude Include="code\f_memory_pool\z_system_memory_pool.h" />
     <ClInclude Include="code\f_memory_pool\t_specialized_memory_pool.h" />

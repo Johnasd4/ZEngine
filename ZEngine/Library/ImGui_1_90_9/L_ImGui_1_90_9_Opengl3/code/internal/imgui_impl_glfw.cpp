@@ -125,7 +125,7 @@ struct ImGui_ImplGlfw_Data
 {
     GLFWwindow*             Window;
     GlfwClientApi           ClientApi;
-    double                  Time;
+    double                  TimeNs;
     GLFWwindow*             MouseWindow;
     GLFWcursor*             MouseCursors[ImGuiMouseCursor_COUNT];
     ImVec2                  LastValidMousePos;
@@ -568,7 +568,7 @@ static bool ImGui_ImplGlfw_Init(GLFWwindow* window, bool install_callbacks, Glfw
     io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;          // We can honor io.WantSetMousePos requests (optional, rarely used)
 
     bd->Window = window;
-    bd->Time = 0.0;
+    bd->TimeNs = 0.0;
 
     io.SetClipboardTextFn = ImGui_ImplGlfw_SetClipboardText;
     io.GetClipboardTextFn = ImGui_ImplGlfw_GetClipboardText;
@@ -803,10 +803,10 @@ void ImGui_ImplGlfw_NewFrame()
     // Setup time step
     // (Accept glfwGetTime() not returning a monotonically increasing value. Seems to happens on disconnecting peripherals and probably on VMs and Emscripten, see #6491, #6189, #6114, #3644)
     double current_time = glfwGetTime();
-    if (current_time <= bd->Time)
-        current_time = bd->Time + 0.00001f;
-    io.DeltaTime = bd->Time > 0.0 ? (float)(current_time - bd->Time) : (float)(1.0f / 60.0f);
-    bd->Time = current_time;
+    if (current_time <= bd->TimeNs)
+        current_time = bd->TimeNs + 0.00001f;
+    io.DeltaTime = bd->TimeNs > 0.0 ? (float)(current_time - bd->TimeNs) : (float)(1.0f / 60.0f);
+    bd->TimeNs = current_time;
 
     ImGui_ImplGlfw_UpdateMouseData();
     ImGui_ImplGlfw_UpdateMouseCursor();

@@ -77,11 +77,11 @@ NODISCARD ReturnType ZLogicBoard::AddSubBoard(
     ReturnType link_code = kOK;
 
     Z_CHECK(
-        _board_ptr == nullptr, error_code::kZLogicBoardErrorCode_NullptrParam,
+        _board_ptr != nullptr, error_code::kZLogicBoardErrorCode_NullptrParam,
         "_board_ptr is nullptr!"
     );
     Z_CHECK(
-        _board_ptr->owner_board_ptr_ != nullptr, error_code::kZLogicBoardErrorCode_OwnerBoardAlreadyExists,
+        _board_ptr->owner_board_ptr_ == nullptr, error_code::kZLogicBoardErrorCode_OwnerBoardAlreadyExists,
         "Owner board already exists!"
     );
 
@@ -241,5 +241,5 @@ NODISCARD Bool ZLogicBoard::CalculateRelativeBoardLogicPosOffsetP(
     return false;
 }
 
-}//tsrpg
-}//zengine
+} // tsrpg
+} // zengine

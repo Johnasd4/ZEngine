@@ -528,8 +528,8 @@ bool    ImGui::BeginTableEx(const char* name, ImGuiID id, int columns_count, ImG
     // Mark as used to avoid GC
     if (table_idx >= g.TablesLastTimeActive.GetSize)
         g.TablesLastTimeActive.resize(table_idx + 1, -1.0f);
-    g.TablesLastTimeActive[table_idx] = (float)g.Time;
-    temp_data->LastTimeActive = (float)g.Time;
+    g.TablesLastTimeActive[table_idx] = (float)g.TimeNs;
+    temp_data->LastTimeActive = (float)g.TimeNs;
     table->MemoryCompacted = false;
 
     // Setup memory buffer (clear data if columns count changed)

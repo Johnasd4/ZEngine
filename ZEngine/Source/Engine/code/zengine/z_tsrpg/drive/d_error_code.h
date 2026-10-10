@@ -46,5 +46,5 @@ inline constexpr ReturnType kErrorCodeBase_ZDisplayBoardObject = 0x32U * kErrorC
 inline constexpr ReturnType kErrorCodeBase_FSceneControl = 0x100U * kErrorCodeTypeMask + kErrorCodeBase_PTSRPG;
 inline constexpr ReturnType kErrorCodeBase_ZSceneEvent = 0x101U * kErrorCodeTypeMask + kErrorCodeBase_PTSRPG;
 
-}//error_code
-}//zengine
+} // error_code
+} // zengine

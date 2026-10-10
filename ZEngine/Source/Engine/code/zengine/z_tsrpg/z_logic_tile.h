@@ -27,7 +27,7 @@
 
 namespace zengine {
 namespace error_code {
-enum ZLogicTileErrorCodeEnum : ReturnType {
+enum ZLogicTileErrorCodeEnum : ReturnType::ValueType {
     kZLogicTileErrorCode_LinkError = kErrorCodeBase_ZLogicTile,
     kZLogicTileErrorCode_SystemOrLibraryError,
     kZLogicTileErrorCode_NullptrParam,
@@ -35,8 +35,8 @@ enum ZLogicTileErrorCodeEnum : ReturnType {
     kZLogicTileErrorCode_TextureNotExist,
     kZLogicTileErrorCode_TexturePosZOutOfRange
 };
-}//error_code
-}//zengine
+} // error_code
+} // zengine
 
 namespace zengine {
 namespace tsrpg {
@@ -65,14 +65,14 @@ private:
     Void MoveP(ZLogicTileTexture&& _texture) noexcept;
 };
 
-}//tsrpg
-}//zengine
+} // tsrpg
+} // zengine
 
 namespace zengine {
 namespace tsrpg {
 class ZDisplayTile;
-}//tsrpg
-}//zengine
+} // tsrpg
+} // zengine
 
 
 namespace zengine {
@@ -191,5 +191,5 @@ public:
     ZLogicTile* lower_logic_tile_ptr_;
 };
 
-}//tsrpg
-}//zengine
+} // tsrpg
+} // zengine

@@ -33,12 +33,12 @@
 #pragma comment(lib,"Z_TSRPG_x64_Debug.lib")
 #else
 #pragma comment(lib,"Z_TSRPG_x64_Release.lib")
-#endif//_DEBUG
+#endif //_DEBUG
 #else
 #ifdef _DEBUG
 #pragma comment(lib,"Z_TSRPG_Win32_Debug.lib")
 #else
 #pragma comment(lib,"Z_TSRPG_Win32_Release.lib")
-#endif//_DEBUG
-#endif//_WIN64
-#endif//TSRPG_DLLFILE
+#endif //_DEBUG
+#endif //_WIN64
+#endif //TSRPG_DLLFILE

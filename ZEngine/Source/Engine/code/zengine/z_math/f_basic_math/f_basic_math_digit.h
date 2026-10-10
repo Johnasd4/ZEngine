@@ -1,17 +1,25 @@
 /*
     Copyright (c) YuLin Zhu
 
-    This code file is licensed under the Creative Commons
-    Attribution-NonCommercial 4.0 International License.
+    ** ZEngine Proprietary License **
 
-    You may obtain a copy of the License at
-    https://creativecommons.org/licenses/by-nc/4.0/
+    This software is provided "as-is", without any express or implied warranty.
+    In no event will the authors be held liable for any damages arising from the
+    use of this software.
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+    Usage Rights:
+    1. Non-Commercial Use: You may use, modify, and distribute this software
+       for non-commercial purposes (e.g., education, personal projects, open-source
+       projects that do not generate revenue) free of charge.
+
+    2. Commercial Use: Commercial use of this software is STRICTLY PROHIBITED
+       without a valid commercial license agreement with the author.
+       "Commercial use" includes, but is not limited to:
+       - Incorporating this software into a product that is sold.
+       - Using this software in a paid service.
+       - Using this software for internal business operations in a for-profit entity.
+
+    To obtain a Commercial License, please contact the author.
 
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
@@ -23,96 +31,106 @@
 namespace zengine {
 namespace math {
 
-/*
-    Returns the mantissa of the Float number.
-*/
-template<typename NumberType>
-requires std::is_floating_point_v<NumberType>
-NODISCARD FORCEINLINE constexpr const Int32 FloatMantissa(const NumberType _number) {
-    if constexpr (std::is_same_v<NumberType, Float64>) {
-        Size64Union temp_number(_number);
-        return 
-            static_cast<Int32>(
-                (temp_number.u_int_64_ & internal::kFloat64MantissaMask) >> internal::kFloat64ExponentSize)  -
-            internal::kFloat64MantissaOffset;
+/**
+ * @brief Returns the sign of the number, treating zero as positive (2-state sign).
+ * @param _number The input number to evaluate.
+ * @return Returns 1 if the number is greater than or equal to 0, returns -1 if the number is less than 0.
+ */
+template<typename _NumberType>
+requires kIsNumber<_NumberType>
+NODISCARD FORCEINLINE constexpr _NumberType Sgn2(_NumberType _number) {
+    if constexpr (kIsUnsignedInt<_NumberType>) {
+        return static_cast<_NumberType>(1);
     }
-    else if constexpr (std::is_same_v<NumberType, Float32>) {
-        Size32Union temp_number(_number);
-        return 
-            static_cast<Int32>(
-                (temp_number.u_int_32_ & internal::kFloat32MantissaMask) >> internal::kFloat32ExponentSize) -
-            internal::kFloat32MantissaOffset;
+    else {
+        return static_cast<_NumberType>(
+            (_number >= static_cast<_NumberType>(0)) - (_number < static_cast<_NumberType>(0))
+        );
     }
 }
 
-/*
-    Returns the exponent of the Float number, the value's range is [1,2) U {0}.
-*/
-template<typename NumberType>
-requires std::is_floating_point_v<NumberType>
-NODISCARD FORCEINLINE constexpr const NumberType FloatExponent(const NumberType _number) {
-    if constexpr (std::is_same_v<NumberType, Float64>) {
-        Size64Union temp_number(_number);
-        if (temp_number.int_64_ != 0) {
-            temp_number.u_int_64_ = (temp_number.u_int_64_ & internal::kFloat64ExponentWithoutSymbolMask) |
-                internal::kFloat64MantissaZeroValue;
+/**
+ * @brief Returns the sign of the number (3-state sign).
+ * @param _number The input number to evaluate.
+ * @return Returns 1 if the number is positive, 0 if the number is zero, and -1 if the number is negative.
+ */
+template<typename _NumberType>
+requires kIsNumber<_NumberType>
+NODISCARD FORCEINLINE constexpr _NumberType Sgn3(_NumberType _number) {
+    if constexpr (kIsUnsignedInt<_NumberType>) {
+        return _number == static_cast<_NumberType>(0) ? static_cast<_NumberType>(0) : static_cast<_NumberType>(1);
+    }
+    else {
+        return static_cast<_NumberType>(
+            (_number > static_cast<_NumberType>(0)) - (_number < static_cast<_NumberType>(0))
+        );
+    }
+}
+
+/**
+ * @brief Calculates the absolute value of the provided number.
+ * @param _number The input number.
+ * @return The absolute value of the number.
+ */
+template<typename _NumberType>
+requires kIsNumber<_NumberType>
+NODISCARD FORCEINLINE constexpr _NumberType Abs(_NumberType _number) {
+    if constexpr (IsCompileTimeConstant()) {
+        if constexpr (kIsUnsignedInt<_NumberType>) {
+            return _number;
         }
-        return temp_number.float_64_;
-    }
-    else if constexpr (std::is_same_v<NumberType, Float32>) {
-        Size32Union temp_number(_number);
-        if (temp_number.int_32_ != 0) {
-            temp_number.u_int_32_ = (temp_number.u_int_32_ & internal::kFloat32ExponentWithoutSymbolMask) |
-                internal::kFloat32MantissaZeroValue;
+        else {
+            return _number < static_cast<_NumberType>(0) ? -_number : _number;
         }
-        return temp_number.float_32_;
+    }
+    else {
+        return std::abs(_number);
     }
 }
 
 /*
-    Returns  1 when number >= 0.
-    Returns -1 when number < 0.
+    Extracts the significand (mantissa) (f) from a floating-point number,
+    normalized to the range [1, 2).
+
+    This is achieved by preserving the mantissa bits of the original number
+    but overwriting the exponent bits to represent the value 1.0 (2^0).
+
+    @param _number The input floating-point number.
+    @return The significand in range [1, 2).
 */
-template<typename NumberType>
-requires std::is_arithmetic_v<NumberType>
-NODISCARD FORCEINLINE constexpr NumberType Sgn2(const NumberType _number) {
-    if constexpr (std::is_unsigned_v<NumberType>) {
-        return static_cast<NumberType>(1);
-    }
-    else {
-        return static_cast<NumberType>((_number >= static_cast<NumberType>(0)) - (_number < static_cast<NumberType>(0)));
-    }
+template<typename _NumberType>
+requires kIsFloat<_NumberType>
+NODISCARD constexpr _NumberType FloatSignificand(_NumberType _number) noexcept {
+    using Traits = internal::FloatTraits<_NumberType>;
+    using UIntType = typename Traits::UIntType;
+
+    const UIntType bits = std::bit_cast<UIntType>(_number);
+    constexpr UIntType kExponentOne = std::bit_cast<UIntType>(static_cast<_NumberType>(1));
+    const UIntType new_bits = (bits & Traits::kMantissaMask) | kExponentOne;
+
+    return std::bit_cast<_NumberType>(new_bits);
 }
 
 /*
-    Returns  1 when number > 0.
-    Returns  0 when number = 0.
-    Returns -1 when number < 0.
+    Extracts the unbiased binary exponent (k) from a floating-point number.
+    Formula: number = significand * 2^k
+
+    @param _number The input floating-point number.
+    @return The integer exponent value.
 */
-template<typename NumberType>
-requires std::is_arithmetic_v<NumberType>
-NODISCARD FORCEINLINE constexpr NumberType Sgn3(const NumberType _number) {
-    if constexpr (std::is_unsigned_v<NumberType>) {
-        return _number == static_cast<NumberType>(0) ? static_cast<NumberType>(0) : static_cast<NumberType>(1);
-    }
-    else {
-        return static_cast<NumberType>((_number > static_cast<NumberType>(0)) - (_number < static_cast<NumberType>(0)));
-    }
+template<typename _NumberType>
+requires kIsFloat<_NumberType>
+NODISCARD constexpr Int32 FloatExponent(_NumberType _number) noexcept {
+    using Traits = internal::FloatTraits<_NumberType>;
+    using UIntType = typename Traits::UIntType;
+
+    constexpr Int32 kMantissaBits = std::numeric_limits<_NumberType>::digits - 1;
+    constexpr Int32 kExponentBias = std::numeric_limits<_NumberType>::max_exponent - 1;
+
+    const UIntType bits = std::bit_cast<UIntType>(_number);
+
+    return static_cast<Int32>((bits & Traits::kExpMask) >> kMantissaBits) - kExponentBias;
 }
 
-/*
-    Returns the absolute value of the number
-*/
-template<typename NumberType>
-requires std::is_arithmetic_v<NumberType>
-NODISCARD FORCEINLINE constexpr NumberType Abs(const NumberType _number) {
-    if constexpr (std::is_unsigned_v<NumberType>) {
-        return _number;
-    }
-    else {
-        return _number < static_cast<NumberType>(0) ? -_number : _number;
-    }
-}
-
-}//math
-}//zengine
+} // math
+} // zengine

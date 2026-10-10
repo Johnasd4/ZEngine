@@ -44,11 +44,12 @@ namespace internal {
  * conversion, and object management.
  *
  * @tparam _CharType The character type of the string (e.g., char, wchar_t).
- * @tparam _IfAllocFromThreadLocalMemoryPool Flag indicating if memory should be allocated from the thread-local pool.
  */
-template<typename _CharType, Bool _IsGlobal>
-class CORE_DLLAPI TString : public ZObject<_IsGlobal> {
+template<typename _CharType>
+class CORE_DLLAPI TString : public ZObject {
 public:
+    /** @brief Alias for the base object type. */
+    using SuperType_ = ZObject;
     /** @brief Alias for the underlying standard string type with custom allocator. */
     using STDString_ = std::basic_string<_CharType, std::char_traits<_CharType>, TAllocator<_CharType>>;
     /** @brief Iterator type. */
@@ -66,7 +67,7 @@ public:
      * @brief Constant representing the end of the string or an invalid position.
      * Maps to std::string::npos.
      */
-    static constexpr SizeType kEnd = std::string::npos;
+    static inline constexpr SizeType kEnd = std::string::npos;
 
     /**
      * @brief Default constructor.
@@ -76,7 +77,7 @@ public:
         : SuperType_()
         , str_() 
     {}
-    
+
     /**
      * @brief Copy constructor.
      * Creates a new string as a copy of the given string.
@@ -87,7 +88,7 @@ public:
         : SuperType_(_str)
         , str_(_str.str_) 
     {}
-    
+
     /**
      * @brief Move constructor.
      * Moves the contents from the given string to the new string.
@@ -95,10 +96,10 @@ public:
      * @param _str The source string to move.
      */
     FORCEINLINE constexpr TString(TString&& _str) noexcept 
-        : SuperType_(std::forward<TString>(_str))
+        : SuperType_(std::move(_str))
         , str_(std::move(_str.str_)) 
     {}
-    
+
     /** 
      * @brief Substring constructor.
      * Creates a string from a substring of another string.
@@ -111,7 +112,7 @@ public:
         : SuperType_()
         , str_(_str.str_, _pos, _len) 
     {}
-    
+
     /**
      * @brief Constructor from a C-style string.
      * 
@@ -121,7 +122,7 @@ public:
         : SuperType_()
         , str_(_str) 
     {}
-    
+
     /**
      * @brief Constructor from a C-style string with a specific size.
      * 
@@ -132,7 +133,7 @@ public:
         : SuperType_()
         , str_(_str, _size) 
     {}
-    
+
     /**
      * @brief Fill constructor.
      * Creates a string with `_size` copies of character `_val`.
@@ -144,7 +145,7 @@ public:
         : SuperType_()
         , str_(_size, _val) 
     {}
-    
+
     /**
      * @brief Range constructor.
      * Creates a string from the range `[_first, _last)`.
@@ -158,7 +159,7 @@ public:
         : SuperType_()
         , str_(_first, _last) 
     {}
-    
+
     /**
      * @brief Initializer list constructor.
      * 
@@ -168,7 +169,7 @@ public:
         : SuperType_()
         , str_(_init_list) 
     {}
-    
+
     /**
      * @brief Constructor from the underlying std::basic_string type (Copy).
      * 
@@ -178,7 +179,7 @@ public:
         : SuperType_()
         , str_(_std_str) 
     {}
-    
+
     /**
      * @brief Constructor from the underlying std::basic_string type (Move).
      * 
@@ -186,13 +187,13 @@ public:
      */
     FORCEINLINE constexpr TString(STDString_&& _std_str) noexcept 
         : SuperType_()
-        , str_(std::forward<STDString_>(_std_str)) 
+        , str_(std::move(_std_str)) 
     {}
 
     /**
      * @brief Destructor.
      */
-    FORCEINLINE constexpr ~TString() noexcept {}
+    FORCEINLINE constexpr ~TString() noexcept = default;
 
     /**
      * @brief Copy assignment operator.
@@ -205,7 +206,7 @@ public:
         str_ = _str.str_;
         return *this;
     }
-    
+
     /**
      * @brief Move assignment operator.
      * 
@@ -213,11 +214,11 @@ public:
      * @return TString& Reference to this string.
      */
     FORCEINLINE constexpr TString& operator=(TString&& _str) noexcept {
-        SuperType_::operator=(std::forward<TString>(_str));
+        SuperType_::operator=(std::move(_str));
         str_ = std::move(_str.str_);
         return *this;
     }
-    
+
     /**
      * @brief Assigns a C-style string to this string.
      * 
@@ -228,7 +229,7 @@ public:
         str_ = _str;
         return *this;
     }
-    
+
     /**
      * @brief Assigns a single character to this string.
      * 
@@ -239,7 +240,7 @@ public:
         str_ = _char;
         return *this;
     }
-    
+
     /**
      * @brief Assigns an initializer list to this string.
      * 
@@ -250,7 +251,7 @@ public:
         str_ = _init_list;
         return *this;
     }
-    
+
     /**
      * @brief Assigns a standard string to this string (Copy).
      * 
@@ -261,7 +262,7 @@ public:
         str_ = _std_str;
         return *this;
     }
-    
+
     /**
      * @brief Assigns a standard string to this string (Move).
      * 
@@ -283,7 +284,7 @@ public:
         str_.assign(_str.str_);
         return *this;
     }
-    
+
     /**
      * @brief Replaces the contents by moving another string.
      * 
@@ -294,7 +295,7 @@ public:
         str_.assign(std::move(_str.str_));
         return *this;
     }
-    
+
     /**
      * @brief Replaces the contents with a substring of another string.
      * 
@@ -307,7 +308,7 @@ public:
         str_.assign(_str.str_, _pos, _len);
         return *this;
     }
-    
+
     /**
      * @brief Replaces the contents with a C-style string.
      * 
@@ -318,7 +319,7 @@ public:
         str_.assign(_str);
         return *this;
     }
-    
+
     /**
      * @brief Replaces the contents with the first `_size` characters of a C-style string.
      * 
@@ -330,7 +331,7 @@ public:
         str_.assign(_str, _size);
         return *this;
     }
-    
+
     /**
      * @brief Replaces the contents with `_size` copies of a character.
      * 
@@ -342,7 +343,7 @@ public:
         str_.assign(_size, _val);
         return *this;
     }
-    
+
     /**
      * @brief Replaces the contents with characters from a range.
      * 
@@ -356,7 +357,7 @@ public:
         str_.assign(_first, _last);
         return *this;
     }
-    
+
     /**
      * @brief Replaces the contents with an initializer list.
      * 
@@ -368,10 +369,44 @@ public:
         return *this;
     }
 
-    /* Comparison Operators */
+    /**
+     * @brief Checks if the string is empty.
+     *
+     * @return Bool True if the string is empty, false otherwise.
+     */
+    NODISCARD FORCEINLINE constexpr Bool IsEmpty() const noexcept { return str_.empty(); }
+
+    /**
+     * @brief Returns a pointer to the underlying character array.
+     *
+     * @return _CharType* Pointer to the data.
+     */
+    NODISCARD FORCEINLINE constexpr _CharType* GetDataPtr() noexcept { return str_.data(); }
+
+    /**
+     * @brief Returns a pointer to the underlying character array (const).
+     *
+     * @return const _CharType* Const pointer to the data.
+     */
+    NODISCARD FORCEINLINE constexpr const _CharType* GetDataPtr() const noexcept { return str_.data(); }
+
+    /**
+     * @brief Returns the number of characters in the string.
+     *
+     * @return SizeType The size of the string.
+     */
+    NODISCARD FORCEINLINE constexpr SizeType GetSize() const noexcept { return static_cast<SizeType>(str_.size()); }
+
+    /**
+     * @brief Returns the current capacity of the string.
+     *
+     * @return SizeType The number of characters that can be held without reallocation.
+     */
+    NODISCARD FORCEINLINE constexpr SizeType GetCapacity() const noexcept { return str_.capacity(); }
 
     /**
      * @brief Checks if two strings are equal.
+     * 
      * @param _left_str The left operand.
      * @param _right_str The right operand.
      * @return Bool True if equal, false otherwise.
@@ -384,6 +419,7 @@ public:
 
     /**
      * @brief Checks if a string and a C-style string are equal.
+     * 
      * @param _left_str The left operand (TString).
      * @param _right_str The right operand (C-string).
      * @return Bool True if equal, false otherwise.
@@ -396,6 +432,7 @@ public:
 
     /**
      * @brief Checks if a C-style string and a string are equal.
+     * 
      * @param _left_str The left operand (C-string).
      * @param _right_str The right operand (TString).
      * @return Bool True if equal, false otherwise.
@@ -405,9 +442,10 @@ public:
     ) noexcept {
         return _left_str == _right_str.str_;
     }
-    
+
     /**
      * @brief Checks if two strings are not equal.
+     * 
      * @param _left_str The left operand.
      * @param _right_str The right operand.
      * @return Bool True if not equal, false otherwise.
@@ -420,6 +458,7 @@ public:
 
     /**
      * @brief Checks if a string and a C-style string are not equal.
+     * 
      * @param _left_str The left operand (TString).
      * @param _right_str The right operand (C-string).
      * @return Bool True if not equal, false otherwise.
@@ -432,6 +471,7 @@ public:
 
     /**
      * @brief Checks if a C-style string and a string are not equal.
+     * 
      * @param _left_str The left operand (C-string).
      * @param _right_str The right operand (TString).
      * @return Bool True if not equal, false otherwise.
@@ -441,9 +481,10 @@ public:
     ) noexcept {
         return _left_str != _right_str.str_;
     }
-    
+
     /**
      * @brief Checks if the left string is greater than the right string.
+     * 
      * @param _left_str The left operand.
      * @param _right_str The right operand.
      * @return Bool True if left > right, false otherwise.
@@ -456,6 +497,7 @@ public:
 
     /**
      * @brief Checks if the string is greater than the C-style string.
+     * 
      * @param _left_str The left operand (TString).
      * @param _right_str The right operand (C-string).
      * @return Bool True if left > right, false otherwise.
@@ -468,6 +510,7 @@ public:
 
     /**
      * @brief Checks if the C-style string is greater than the string.
+     * 
      * @param _left_str The left operand (C-string).
      * @param _right_str The right operand (TString).
      * @return Bool True if left > right, false otherwise.
@@ -477,9 +520,10 @@ public:
     ) noexcept {
         return _left_str > _right_str.str_;
     }
-    
+
     /**
      * @brief Checks if the left string is greater than or equal to the right string.
+     * 
      * @param _left_str The left operand.
      * @param _right_str The right operand.
      * @return Bool True if left >= right, false otherwise.
@@ -492,6 +536,7 @@ public:
 
     /**
      * @brief Checks if the string is greater than or equal to the C-style string.
+     * 
      * @param _left_str The left operand (TString).
      * @param _right_str The right operand (C-string).
      * @return Bool True if left >= right, false otherwise.
@@ -504,6 +549,7 @@ public:
 
     /**
      * @brief Checks if the C-style string is greater than or equal to the string.
+     * 
      * @param _left_str The left operand (C-string).
      * @param _right_str The right operand (TString).
      * @return Bool True if left >= right, false otherwise.
@@ -513,9 +559,10 @@ public:
     ) noexcept {
         return _left_str >= _right_str.str_;
     }
-    
+
     /**
      * @brief Checks if the left string is less than the right string.
+     * 
      * @param _left_str The left operand.
      * @param _right_str The right operand.
      * @return Bool True if left < right, false otherwise.
@@ -528,6 +575,7 @@ public:
 
     /**
      * @brief Checks if the string is less than the C-style string.
+     * 
      * @param _left_str The left operand (TString).
      * @param _right_str The right operand (C-string).
      * @return Bool True if left < right, false otherwise.
@@ -540,6 +588,7 @@ public:
 
     /**
      * @brief Checks if the C-style string is less than the string.
+     * 
      * @param _left_str The left operand (C-string).
      * @param _right_str The right operand (TString).
      * @return Bool True if left < right, false otherwise.
@@ -549,9 +598,10 @@ public:
     ) noexcept {
         return _left_str < _right_str.str_;
     }
-    
+
     /**
      * @brief Checks if the left string is less than or equal to the right string.
+     * 
      * @param _left_str The left operand.
      * @param _right_str The right operand.
      * @return Bool True if left <= right, false otherwise.
@@ -564,6 +614,7 @@ public:
 
     /**
      * @brief Checks if the string is less than or equal to the C-style string.
+     * 
      * @param _left_str The left operand (TString).
      * @param _right_str The right operand (C-string).
      * @return Bool True if left <= right, false otherwise.
@@ -576,6 +627,7 @@ public:
 
     /**
      * @brief Checks if the C-style string is less than or equal to the string.
+     * 
      * @param _left_str The left operand (C-string).
      * @param _right_str The right operand (TString).
      * @return Bool True if left <= right, false otherwise.
@@ -588,6 +640,7 @@ public:
 
     /**
      * @brief Appends another string to this string.
+     * 
      * @param _str The string to append.
      * @return TString& Reference to this string.
      */
@@ -598,6 +651,7 @@ public:
 
     /**
      * @brief Appends a C-style string to this string.
+     * 
      * @param _str The C-style string to append.
      * @return TString& Reference to this string.
      */
@@ -608,6 +662,7 @@ public:
 
     /**
      * @brief Appends a character to this string.
+     * 
      * @param _char The character to append.
      * @return TString& Reference to this string.
      */
@@ -618,6 +673,7 @@ public:
 
     /**
      * @brief Appends an initializer list to this string.
+     * 
      * @param _init_list The initializer list to append.
      * @return TString& Reference to this string.
      */
@@ -630,6 +686,7 @@ public:
 
     /**
      * @brief Concatenates two strings.
+     * 
      * @param _left_str The left string.
      * @param _right_str The right string.
      * @return TString A new TString containing the result.
@@ -646,6 +703,7 @@ public:
 
     /**
      * @brief Concatenates an rvalue string and a const string.
+     * 
      * @param _left_str The left string (rvalue).
      * @param _right_str The right string.
      * @return TString A new TString containing the result.
@@ -659,6 +717,7 @@ public:
 
     /**
      * @brief Concatenates a const string and an rvalue string.
+     * 
      * @param _left_str The left string.
      * @param _right_str The right string (rvalue).
      * @return TString A new TString containing the result.
@@ -672,6 +731,7 @@ public:
 
     /**
      * @brief Concatenates two rvalue strings.
+     * 
      * @param _left_str The left string (rvalue).
      * @param _right_str The right string (rvalue).
      * @return TString A new TString containing the result.
@@ -685,6 +745,7 @@ public:
 
     /**
      * @brief Concatenates a string and a C-style string.
+     * 
      * @param _left_str The left string.
      * @param _right_str The right C-style string.
      * @return TString A new TString containing the result.
@@ -702,6 +763,7 @@ public:
 
     /**
      * @brief Concatenates an rvalue string and a C-style string.
+     * 
      * @param _left_str The left string (rvalue).
      * @param _right_str The right C-style string.
      * @return TString A new TString containing the result.
@@ -716,6 +778,7 @@ public:
 
     /**
      * @brief Concatenates a C-style string and a string.
+     * 
      * @param _left_str The left C-style string.
      * @param _right_str The right string.
      * @return TString A new TString containing the result.
@@ -733,6 +796,7 @@ public:
 
     /**
      * @brief Concatenates a C-style string and an rvalue string.
+     * 
      * @param _left_str The left C-style string.
      * @param _right_str The right string (rvalue).
      * @return TString A new TString containing the result.
@@ -747,6 +811,7 @@ public:
 
     /**
      * @brief Concatenates a string and a character.
+     * 
      * @param _left_str The left string.
      * @param _right_str The right character.
      * @return TString A new TString containing the result.
@@ -763,6 +828,7 @@ public:
 
     /**
      * @brief Concatenates an rvalue string and a character.
+     * 
      * @param _left_str The left string (rvalue).
      * @param _right_str The right character.
      * @return TString A new TString containing the result.
@@ -776,6 +842,7 @@ public:
 
     /**
      * @brief Concatenates a character and a string.
+     * 
      * @param _left_str The left character.
      * @param _right_str The right string.
      * @return TString A new TString containing the result.
@@ -792,6 +859,7 @@ public:
 
     /**
      * @brief Concatenates a character and an rvalue string.
+     * 
      * @param _left_str The left character.
      * @param _right_str The right string (rvalue).
      * @return TString A new TString containing the result.
@@ -811,7 +879,7 @@ public:
      * @return _CharType& Reference to the character.
      */
     NODISCARD FORCEINLINE constexpr _CharType& operator[](const SizeType _index) noexcept { return str_[_index]; }
-    
+
     /**
      * @brief Accesses the character at the specified index (const).
      * Does not perform bounds checking.
@@ -830,7 +898,7 @@ public:
      * @return _CharType& Reference to the character.
      */
     NODISCARD FORCEINLINE constexpr _CharType& At(SizeType _index) { return str_.at(_index); }
-    
+
     /**
      * @brief Accesses the character at the specified index with bounds checking (const).
      * 
@@ -845,49 +913,35 @@ public:
      * @return _CharType& Reference to the first character.
      */
     NODISCARD FORCEINLINE constexpr _CharType& Front() noexcept { return str_.front(); }
-    
+
     /**
      * @brief Returns a reference to the first character (const).
      * 
      * @return const _CharType& Const reference to the first character.
      */
     NODISCARD FORCEINLINE constexpr const _CharType& Front() const noexcept { return str_.front(); }
-    
+
     /**
      * @brief Returns a reference to the last character.
      * 
      * @return _CharType& Reference to the last character.
      */
     NODISCARD FORCEINLINE constexpr _CharType& Back() noexcept { return str_.back(); }
-    
+
     /**
      * @brief Returns a reference to the last character (const).
      * 
      * @return const _CharType& Const reference to the last character.
      */
     NODISCARD FORCEINLINE constexpr const _CharType& Back() const noexcept { return str_.back(); }
-    
-    /**
-     * @brief Returns a pointer to the underlying character array.
-     * 
-     * @return _CharType* Pointer to the data.
-     */
-    NODISCARD FORCEINLINE constexpr _CharType* GetDataPtr() noexcept { return str_.data(); }
-    
-    /**
-     * @brief Returns a pointer to the underlying character array (const).
-     * 
-     * @return const _CharType* Const pointer to the data.
-     */
-    NODISCARD FORCEINLINE constexpr const _CharType* GetDataPtr() const noexcept { return str_.data(); }
-    
+
     /**
      * @brief Returns a reference to the underlying standard string object.
      * 
      * @return STDString_& Reference to the std::basic_string.
      */
     NODISCARD FORCEINLINE constexpr STDString_& STDString() noexcept { return str_; }
-    
+
     /**
      * @brief Returns a reference to the underlying standard string object (const).
      * 
@@ -896,103 +950,82 @@ public:
     NODISCARD FORCEINLINE constexpr const STDString_& STDString() const noexcept { return str_; }
 
     /**
-     * @brief Returns the number of characters in the string.
-     * 
-     * @return SizeType The size of the string.
-     */
-    NODISCARD FORCEINLINE constexpr SizeType GetSize() const noexcept { return static_cast<SizeType>(str_.size()); }
-    
-    /**
-     * @brief Returns the current capacity of the string.
-     * 
-     * @return SizeType The number of characters that can be held without reallocation.
-     */
-    NODISCARD FORCEINLINE constexpr SizeType GetCapacity() const noexcept { return str_.capacity(); }
-    
-    /**
-     * @brief Checks if the string is empty.
-     * 
-     * @return Bool True if the string is empty, false otherwise.
-     */
-    NODISCARD FORCEINLINE constexpr Bool IsEmpty() const noexcept { return str_.empty(); }
-
-    /**
      * @brief Returns an iterator to the beginning of the string.
      * 
      * @return Iterator_ Iterator to the first character.
      */
     NODISCARD FORCEINLINE constexpr Iterator_ Begin() noexcept { return str_.begin(); }
-    
+
     /**
      * @brief Returns an iterator to the beginning of the string (const).
      * 
      * @return ConstIterator_ Const iterator to the first character.
      */
     NODISCARD FORCEINLINE constexpr ConstIterator_ Begin() const noexcept { return str_.begin(); }
-    
+
     /**
      * @brief Returns a const iterator to the beginning of the string.
      * 
      * @return ConstIterator_ Const iterator to the first character.
      */
     NODISCARD FORCEINLINE constexpr ConstIterator_ ConstBegin() const noexcept { return str_.cbegin(); }
-    
+
     /**
      * @brief Returns a reverse iterator to the beginning of the reversed string.
      * 
      * @return ReverseIterator_ Reverse iterator to the last character.
      */
     NODISCARD FORCEINLINE constexpr ReverseIterator_ ReverseBegin() noexcept { return str_.rbegin(); }
-    
+
     /**
      * @brief Returns a reverse iterator to the beginning of the reversed string (const).
      * 
      * @return ConstReverseIterator_ Const reverse iterator to the last character.
      */
     NODISCARD FORCEINLINE constexpr ConstReverseIterator_ ReverseBegin() const noexcept { return str_.rbegin(); }
-    
+
     /**
      * @brief Returns a const reverse iterator to the beginning of the reversed string.
      * 
      * @return ConstReverseIterator_ Const reverse iterator to the last character.
      */
     NODISCARD FORCEINLINE constexpr ConstReverseIterator_ ConstReverseBegin() const noexcept { return str_.crbegin(); }
-    
+
     /**
      * @brief Returns an iterator to the end of the string.
      * 
      * @return Iterator_ Iterator to the element following the last character.
      */
     NODISCARD FORCEINLINE constexpr Iterator_ End() noexcept { return str_.end(); }
-    
+
     /**
      * @brief Returns an iterator to the end of the string (const).
      * 
      * @return ConstIterator_ Const iterator to the element following the last character.
      */
     NODISCARD FORCEINLINE constexpr ConstIterator_ End() const noexcept { return str_.end(); }
-    
+
     /**
      * @brief Returns a const iterator to the end of the string.
      * 
      * @return ConstIterator_ Const iterator to the element following the last character.
      */
     NODISCARD FORCEINLINE constexpr ConstIterator_ ConstEnd() const noexcept { return str_.cend(); }
-    
+
     /**
      * @brief Returns a reverse iterator to the end of the reversed string.
      * 
      * @return ReverseIterator_ Reverse iterator to the element preceding the first character.
      */
     NODISCARD FORCEINLINE constexpr ReverseIterator_ ReverseEnd() noexcept { return str_.rend(); }
-    
+
     /**
      * @brief Returns a reverse iterator to the end of the reversed string (const).
      * 
      * @return ConstReverseIterator_ Const reverse iterator to the element preceding the first character.
      */
     NODISCARD FORCEINLINE constexpr ConstReverseIterator_ ReverseEnd() const noexcept { return str_.rend(); }
-    
+
     /**
      * @brief Returns a const reverse iterator to the end of the reversed string.
      * 
@@ -1008,7 +1041,7 @@ public:
     FORCEINLINE constexpr Void PushBack(const _CharType _char) noexcept {
         str_.push_back(_char);
     }
-    
+
     /**
      * @brief Removes the last character from the string.
      */
@@ -1026,7 +1059,7 @@ public:
         str_.append(_str.str_); 
         return *this;
     }
-    
+
     /**
      * @brief Appends a substring of another string to the end.
      * 
@@ -1039,7 +1072,7 @@ public:
         str_.append(_str.str_, _pos, _len);
         return *this;
     }
-    
+
     /**
      * @brief Appends a C-style string to the end.
      * 
@@ -1050,7 +1083,7 @@ public:
         str_.append(_str); 
         return *this;
     }
-    
+
     /**
      * @brief Appends the first `_str_len` characters of a C-style string to the end.
      * 
@@ -1062,7 +1095,7 @@ public:
         str_.append(_str, _str_len);
         return *this;
     }
-    
+
     /**
      * @brief Appends `_size` copies of a character to the end.
      * 
@@ -1074,7 +1107,7 @@ public:
         str_.append(_size, _char); 
         return *this;
     }
-    
+
     /**
      * @brief Appends characters from an initializer list to the end.
      * 
@@ -1097,7 +1130,7 @@ public:
         str_.insert(_pos, _str.str_); 
         return *this;
     }
-    
+
     /**
      * @brief Inserts a substring of another string at the specified position.
      * 
@@ -1113,7 +1146,7 @@ public:
         str_.insert(_pos, _str.str_, _str_pos, _len);
         return *this;
     }
-    
+
     /**
      * @brief Inserts a C-style string at the specified position.
      * 
@@ -1125,7 +1158,7 @@ public:
         str_.insert(_pos, _str);
         return *this;
     }
-    
+
     /**
      * @brief Inserts the first `_str_len` characters of a C-style string at the specified position.
      * 
@@ -1138,7 +1171,7 @@ public:
         str_.insert(_pos, _str, _str_len);
         return *this;
     }
-    
+
     /**
      * @brief Inserts `_size` copies of a character at the specified position.
      * 
@@ -1151,7 +1184,7 @@ public:
         str_.insert(_pos, _size, _char); 
         return *this;
     }
-    
+
     /**
      * @brief Inserts an initializer list at the specified position.
      * 
@@ -1163,7 +1196,7 @@ public:
         str_.insert(_pos, _init_list); 
         return *this;
     }
-    
+
     /**
      * @brief Inserts `_size` copies of a character at the iterator position.
      * 
@@ -1176,7 +1209,7 @@ public:
         str_.insert(_pos, _size, _char);
         return *this;
     }
-    
+
     /**
      * @brief Inserts an initializer list at the iterator position.
      * 
@@ -1188,7 +1221,7 @@ public:
         str_.insert(_pos, _init_list);
         return *this;
     }
-    
+
     /**
      * @brief Inserts a range of characters at the iterator position.
      * 
@@ -1218,7 +1251,7 @@ public:
         str_.replace(_pos, _len, _str.str_);
         return *this;
     }
-    
+
     /**
      * @brief Replaces a portion of the string with a substring of another string.
      * 
@@ -1235,7 +1268,7 @@ public:
         str_.replace(_pos, _len, _str.str_, _str_pos, _str_len);
         return *this;
     }
-    
+
     /**
      * @brief Replaces a portion of the string with a C-style string.
      * 
@@ -1250,7 +1283,7 @@ public:
         str_.replace(_pos, _len, _str);
         return *this;
     }
-    
+
     /**
      * @brief Replaces a portion of the string with the first `_str_len` characters of a C-style string.
      * 
@@ -1266,7 +1299,7 @@ public:
         str_.replace(_pos, _len, _str, _str_len);
         return *this;
     }
-    
+
     /**
      * @brief Replaces a portion of the string with `_size` copies of a character.
      * 
@@ -1282,7 +1315,7 @@ public:
         str_.replace(_pos, _len, _size, _char);
         return *this;
     }
-    
+
     /**
      * @brief Replaces the range `[_first, _last)` with another string.
      * 
@@ -1297,7 +1330,7 @@ public:
         str_.replace(_first, _last, _str.str_);
         return *this;
     }
-    
+
     /**
      * @brief Replaces the range `[_first, _last)` with the first `_str_len` characters of a C-style string.
      * 
@@ -1313,7 +1346,7 @@ public:
         str_.replace(_first, _last, _str, _str_len);
         return *this;
     }
-    
+
     /**
      * @brief Replaces the range `[_first, _last)` with a C-style string.
      * 
@@ -1328,7 +1361,7 @@ public:
         str_.replace(_first, _last, _str);
         return *this;
     }
-    
+
     /**
      * @brief Replaces the range `[_first, _last)` with `_size` copies of a character.
      * 
@@ -1344,7 +1377,7 @@ public:
         str_.replace(_first, _last, _size, _char);
         return *this;
     }
-    
+
     /**
      * @brief Replaces the range `[_first, _last)` with the range `[_str_first, _str_last)`.
      * 
@@ -1373,7 +1406,7 @@ public:
     FORCEINLINE constexpr SizeType Find(const TString& _str, const SizeType _start_pos = 0) noexcept {
         return str_.find(_str.str_, _start_pos);
     }
-    
+
     /**
      * @brief Finds the first occurrence of a C-style string.
      * 
@@ -1384,7 +1417,7 @@ public:
     FORCEINLINE constexpr SizeType Find(const _CharType* _str, const SizeType _start_pos = 0) noexcept {
         return str_.find(_str, _start_pos);
     }
-    
+
     /**
      * @brief Finds the first occurrence of the first `_str_len` characters of a C-style string.
      * 
@@ -1398,7 +1431,7 @@ public:
     ) noexcept {
         return str_.find(_str_start, _start_pos, _str_len);
     }
-    
+
     /**
      * @brief Finds the first occurrence of a character.
      * 
@@ -1409,7 +1442,7 @@ public:
     FORCEINLINE constexpr SizeType Find(const _CharType _char, const SizeType _start_pos = 0) noexcept {
         return str_.find(_char, _start_pos);
     }
-    
+
     /**
      * @brief Finds the last occurrence of a string.
      * 
@@ -1420,7 +1453,7 @@ public:
     FORCEINLINE constexpr SizeType ReverseFind(const TString& _str, const SizeType _start_pos = kEnd) noexcept {
         return str_.rfind(_str.str_, _start_pos);
     }
-    
+
     /**
      * @brief Finds the last occurrence of a C-style string.
      * 
@@ -1431,7 +1464,7 @@ public:
     FORCEINLINE constexpr SizeType ReverseFind(const _CharType* _str, const SizeType _start_pos = kEnd) noexcept {
         return str_.rfind(_str, _start_pos);
     }
-    
+
     /**
      * @brief Finds the last occurrence of the first `_str_len` characters of a C-style string.
      * 
@@ -1445,7 +1478,7 @@ public:
     ) noexcept {
         return str_.rfind(_str_start, _start_pos, _str_len);
     }
-    
+
     /**
      * @brief Finds the last occurrence of a character.
      * 
@@ -1456,7 +1489,7 @@ public:
     FORCEINLINE constexpr SizeType ReverseFind(const _CharType _char, const SizeType _start_pos = kEnd) noexcept {
         return str_.rfind(_char, _start_pos);
     }
-    
+
     /**
      * @brief Finds the first occurrence of any character from the given string.
      * 
@@ -1467,7 +1500,7 @@ public:
     FORCEINLINE constexpr SizeType FindFirstOf(const TString& _str, const SizeType _start_pos = 0) noexcept {
         return str_.find_first_of(_str.str_, _start_pos);
     }
-    
+
     /**
      * @brief Finds the first occurrence of any character from the given C-style string.
      * 
@@ -1478,7 +1511,7 @@ public:
     FORCEINLINE constexpr SizeType FindFirstOf(const _CharType* _str, const SizeType _start_pos = 0) noexcept {
         return str_.find_first_of(_str, _start_pos);
     }
-    
+
     /**
      * @brief Finds the first occurrence of any character from the first `_str_len` characters of a C-style string.
      * 
@@ -1492,7 +1525,7 @@ public:
     ) noexcept {
         return str_.find_first_of(_str_start, _start_pos, _str_len);
     }
-    
+
     /**
      * @brief Finds the first occurrence of a specific character.
      * 
@@ -1503,7 +1536,7 @@ public:
     FORCEINLINE constexpr SizeType FindFirstOf(const _CharType _char, const SizeType _start_pos = 0) noexcept {
         return str_.find_first_of(_char, _start_pos);
     }
-    
+
     /**
      * @brief Finds the last occurrence of any character from the given string.
      * 
@@ -1514,7 +1547,7 @@ public:
     FORCEINLINE constexpr SizeType FindLastOf(const TString& _str, const SizeType _start_pos = kEnd) noexcept {
         return str_.find_last_of(_str.str_, _start_pos);
     }
-    
+
     /**
      * @brief Finds the last occurrence of any character from the given C-style string.
      * 
@@ -1525,7 +1558,7 @@ public:
     FORCEINLINE constexpr SizeType FindLastOf(const _CharType* _str, const SizeType _start_pos = kEnd) noexcept {
         return str_.find_last_of(_str, _start_pos);
     }
-    
+
     /**
      * @brief Finds the last occurrence of any character from the first `_str_len` characters of a C-style string.
      * 
@@ -1539,7 +1572,7 @@ public:
     ) noexcept {
         return str_.find_last_of(_str_start, _start_pos, _str_len);
     }
-    
+
     /**
      * @brief Finds the last occurrence of a specific character.
      * 
@@ -1550,7 +1583,7 @@ public:
     FORCEINLINE constexpr SizeType FindLastOf(const _CharType _char, const SizeType _start_pos = kEnd) noexcept {
         return str_.find_last_of(_char, _start_pos);
     }
-    
+
     /**
      * @brief Finds the first character not present in the given string.
      * 
@@ -1561,7 +1594,7 @@ public:
     FORCEINLINE constexpr SizeType FindFirstNotOf(const TString& _str, const SizeType _start_pos = 0) noexcept {
         return str_.find_first_not_of(_str.str_, _start_pos);
     }
-    
+
     /**
      * @brief Finds the first character not present in the given C-style string.
      * 
@@ -1572,7 +1605,7 @@ public:
     FORCEINLINE constexpr SizeType FindFirstNotOf(const _CharType* _str, const SizeType _start_pos = 0) noexcept {
         return str_.find_first_not_of(_str, _start_pos);
     }
-    
+
     /**
      * @brief Finds the first character not present in the first `_str_len` characters of a C-style string.
      * 
@@ -1586,7 +1619,7 @@ public:
     ) noexcept {
         return str_.find_first_not_of(_str_start, _start_pos, _str_len);
     }
-    
+
     /**
      * @brief Finds the first character that is not the specified character.
      * 
@@ -1597,7 +1630,7 @@ public:
     FORCEINLINE constexpr SizeType FindFirstNotOf(const _CharType _char, const SizeType _start_pos = 0) noexcept {
         return str_.find_first_not_of(_char, _start_pos);
     }
-    
+
     /**
      * @brief Finds the last character not present in the given string.
      * 
@@ -1608,7 +1641,7 @@ public:
     FORCEINLINE constexpr SizeType FindLastNotOf(const TString& _str, const SizeType _start_pos = kEnd) noexcept {
         return str_.find_last_not_of(_str.str_, _start_pos);
     }
-    
+
     /**
      * @brief Finds the last character not present in the given C-style string.
      * 
@@ -1619,7 +1652,7 @@ public:
     FORCEINLINE constexpr SizeType FindLastNotOf(const _CharType* _str, const SizeType _start_pos = kEnd) noexcept {
         return str_.find_last_not_of(_str, _start_pos);
     }
-    
+
     /**
      * @brief Finds the last character not present in the first `_str_len` characters of a C-style string.
      * 
@@ -1633,7 +1666,7 @@ public:
     ) noexcept {
         return str_.find_last_not_of(_str_start, _start_pos, _str_len);
     }
-    
+
     /**
      * @brief Finds the last character that is not the specified character.
      * 
@@ -1665,7 +1698,7 @@ public:
      * @return Int32 0 if equal, < 0 if this < _str, > 0 if this > _str.
      */
     FORCEINLINE constexpr Int32 Compare(const TString& _str) noexcept { return str_.compare(_str.str_); }
-    
+
     /**
      * @brief Compares a substring of this string with another string.
      * 
@@ -1677,7 +1710,7 @@ public:
     FORCEINLINE constexpr Int32 Compare(SizeType _pos, SizeType _len, const TString& _str) noexcept {
         return str_.compare(_pos, _len, _str.str_);
     }
-    
+
     /**
      * @brief Compares a substring of this string with a substring of another string.
      * 
@@ -1693,7 +1726,7 @@ public:
     ) noexcept {
         return str_.compare(_pos, _len, _str.str_, _str_pos, _str_len);
     }
-    
+
     /**
      * @brief Compares this string with a C-style string.
      * 
@@ -1703,7 +1736,7 @@ public:
     FORCEINLINE constexpr Int32 Compare(const _CharType* _str) noexcept {
         return str_.compare(_str);
     }
-    
+
     /**
      * @brief Compares a substring of this string with a C-style string.
      * 
@@ -1715,7 +1748,7 @@ public:
     FORCEINLINE constexpr Int32 Compare(SizeType _pos, SizeType _len, const _CharType* _str) noexcept {
         return str_.compare(_pos, _len, _str);
     }
-    
+
     /**
      * @brief Compares a substring of this string with a C-style string of a specified length.
      * 
@@ -1740,7 +1773,7 @@ public:
     FORCEINLINE constexpr Bool StartWith(const TString& _str) noexcept { 
         return str_.starts_with(_str.str_); 
     }
-    
+
     /**
      * @brief Checks if the string starts with the given prefix (C-style).
      * 
@@ -1750,7 +1783,7 @@ public:
     FORCEINLINE constexpr Bool StartWith(const _CharType* _str) noexcept {
         return str_.starts_with(_str);
     }
-    
+
     /**
      * @brief Checks if the string starts with the given character.
      * 
@@ -1760,7 +1793,7 @@ public:
     FORCEINLINE constexpr Bool StartWith(const _CharType _char) noexcept {
         return str_.starts_with(_char);
     }
-    
+
     /**
      * @brief Checks if the string ends with the given suffix.
      * 
@@ -1770,7 +1803,7 @@ public:
     FORCEINLINE constexpr Bool EndWith(const TString& _str) noexcept {
         return str_.ends_with(_str.str_);
     }
-    
+
     /**
      * @brief Checks if the string ends with the given suffix (C-style).
      * 
@@ -1780,7 +1813,7 @@ public:
     FORCEINLINE constexpr Bool EndWith(const _CharType* _str) noexcept {
         return str_.ends_with(_str);
     }
-    
+
     /**
      * @brief Checks if the string ends with the given character.
      * 
@@ -1798,7 +1831,7 @@ public:
      * @return Iterator_ Iterator to the character following the erased one.
      */
     FORCEINLINE constexpr Iterator_ Erase(ConstIterator_ _pos) noexcept { return str_.erase(_pos); }
-    
+
     /**
      * @brief Erases the characters in the range `[_first, _last)`.
      * 
@@ -1809,7 +1842,7 @@ public:
     FORCEINLINE constexpr Iterator_ Erase(ConstIterator_ _first, ConstIterator_ _last) noexcept { 
         return str_.erase(_first, _last); 
     }
-    
+
     /**
      * @brief Clears the contents of the string, making it empty.
      */
@@ -1821,7 +1854,7 @@ public:
      * @param _size The new size.
      */
     FORCEINLINE constexpr Void Resize(const SizeType _size) noexcept { str_.resize(_size); }
-    
+
     /**
      * @brief Resizes the string to contain `_size` characters, filling new elements with `_char`.
      * 
@@ -1838,7 +1871,7 @@ public:
      * @param _capacity The desired capacity.
      */
     FORCEINLINE constexpr Void Reserve(const SizeType _capacity) noexcept { str_.reserve(_capacity); }
-    
+
     /**
      * @brief Requests the container to reduce its capacity to fit its size.
      */
@@ -1860,26 +1893,22 @@ public:
         return std::hash<STDString_>()(str_);
     }
 
-protected:
-    /** @brief Alias for the base object type. */
-    using SuperType_ = ZObject<_IsGlobal>;
-
 private:
     /** @brief The internal standard string object. */
     STDString_ str_;
 };
 
-}//internal
-}//zengine
+} // internal
+} // zengine
 
 namespace zengine {
 
-using ZString = internal::TString<Char, true>;
-using ZWString = internal::TString<WChar, true>;
-using ZStringLocal = internal::TString<Char, false>;
-using ZWStringLocal = internal::TString<WChar, false>;
+/** @brief Alias for a narrow character string. */
+using ZString = internal::TString<Char>;
+/** @brief Alas for a wide character string. */
+using ZWString = internal::TString<WChar>;
 
-}//zengine
+} // zengine
 
 namespace std {
 template<>
@@ -1894,16 +1923,4 @@ struct hash<zengine::ZWString> {
         return _str.Hash();
     }
 };
-template<>
-struct hash<zengine::ZStringLocal> {
-    zengine::SizeType operator()(const zengine::ZStringLocal& _str) const noexcept {
-        return _str.Hash();
-    }
-};
-template<>
-struct hash<zengine::ZWStringLocal> {
-    zengine::SizeType operator()(const zengine::ZWStringLocal& _str) const noexcept {
-        return _str.Hash();
-    }
-};
-}//std
+} // std

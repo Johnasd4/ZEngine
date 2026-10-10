@@ -42,20 +42,28 @@ namespace memory_pool {
  *
  * This pool specializes the TSpecializedMemoryPool for the specific size of zengine::internal::TControlBlockP.
  */
-class CACHE_LINE_ALIGN ZSpecializedSmartPointerControlBlockMemoryPool : public TSpecializedMemoryPool<
-    true, sizeof(zengine::internal::TControlBlockP),
+class CACHE_ALIGN ZSpecializedSmartPointerControlBlockMemoryPool : public TSpecializedMemoryPool<
+    true, sizeof(zengine::internal::TControlBlockP<DEFAULT_USE_GLOBAL_MEMORY_POOL>),
     1U, 1U,
     1U
 > {
-public:
-    /** @brief The name of the memory pool, useful for debugging and logging identification. */
-    static constexpr ZStringView kMemoryPoolName = "Smart Pointer Control Block Memory Pool";
+protected:
+    /** @brief Type alias for the base specialized memory pool class. */
+    using SuperType_ = TSpecializedMemoryPool<
+        true, sizeof(zengine::internal::TControlBlockP<DEFAULT_USE_GLOBAL_MEMORY_POOL>),
+        1U, 1U,
+        1U
+    >;
 
+    /** @brief The name of the memory pool, useful for debugging and logging identification. */
+    static inline constexpr ZStringView kMemoryPoolName = "Smart Pointer Control Block Memory Pool";
+
+public:
     /**
      * @brief Gets the singleton instance of the memory pool.
      * @return Reference to the singleton instance of ZSpecializedSmartPointerControlBlockMemoryPool.
      */
-    FORCEINLINE static ZSpecializedSmartPointerControlBlockMemoryPool& Instance() noexcept {
+    FORCEINLINE static ZSpecializedSmartPointerControlBlockMemoryPool& GetInstance() noexcept {
         static ZSpecializedSmartPointerControlBlockMemoryPool instance;
         return instance;
     }
@@ -66,20 +74,12 @@ public:
         : SuperType_(kMemoryPoolName)
 #else
         : SuperType_()
-#endif //USE_MEMORY_POOL_PERFORMANCE_TEST
+#endif // USE_MEMORY_POOL_PERFORMANCE_TEST
     {}
 
     /** @brief Destroys the memory pool and releases all allocated resources. */
-    FORCEINLINE ~ZSpecializedSmartPointerControlBlockMemoryPool() noexcept {}
-
-protected:
-    /** @brief Type alias for the base specialized memory pool class. */
-    using SuperType_ = TSpecializedMemoryPool<
-        true, sizeof(zengine::internal::TControlBlockP),
-        1U, 1U,
-        1U
-    >;
+    FORCEINLINE ~ZSpecializedSmartPointerControlBlockMemoryPool() noexcept = default;
 };
 
-}//memory_pool
-}//zengine
+} // memory_pool
+} // zengine

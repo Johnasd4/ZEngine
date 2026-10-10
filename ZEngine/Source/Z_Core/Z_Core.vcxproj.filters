@@ -35,16 +35,10 @@
     <ClCompile Include="code\f_system.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="code\z_config.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="code\m_log\z_log\z_error_log.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="code\m_log\z_log\z_info_log.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\z_json.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="code\m_log\z_log\z_log.cpp">
@@ -62,21 +56,14 @@
     <ClCompile Include="code\z_task.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="code\z_memory.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="code\z_serializer\z_deserializer.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="code\drive\d_pch.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="code\z_serializer\z_serializer.cpp" />
+    <ClCompile Include="code\z_serializer.cpp" />
     <ClCompile Include="code\z_file.cpp" />
     <ClCompile Include="code\f_memory_pool\z_generic_thread_local_small_memory_pool.cpp" />
     <ClCompile Include="code\f_memory_pool\z_generic_thread_local_medium_memory_pool.cpp" />
     <ClCompile Include="code\f_memory_pool.cpp" />
-    <ClCompile Include="code\f_memory_pool\z_system_memory_pool.cpp" />
     <ClCompile Include="code\f_memory_pool\z_generic_system_memory_pool.cpp" />
     <ClCompile Include="code\f_memory_pool\z_generic_large_memory_pool.cpp" />
     <ClCompile Include="code\f_memory_pool\z_generic_memory_pool.cpp" />
@@ -84,6 +71,14 @@
     <ClCompile Include="code\m_log\z_log\f_log_file.cpp" />
     <ClCompile Include="code\f_memory_pool\z_generic_global_small_memory_pool.cpp" />
     <ClCompile Include="code\f_memory_pool\z_generic_global_medium_memory_pool.cpp" />
+    <ClCompile Include="code\f_memory_pool\z_generic_memory_pool_performance_test.cpp" />
+    <ClCompile Include="code\z_thread_pool.cpp" />
+    <ClCompile Include="code\z_mutex.cpp" />
+    <ClCompile Include="code\z_semaphore.cpp" />
+    <ClCompile Include="code\z_condition_variable.cpp" />
+    <ClCompile Include="code\z_timer.cpp" />
+    <ClCompile Include="code\z_thread.cpp" />
+    <ClCompile Include="code\z_tick_manager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\m_log\z_log_manager.h">
@@ -119,9 +114,6 @@
     <ClInclude Include="code\f_memory_pool\z_generic_large_memory_pool.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\f_memory_pool\z_specialized_log_string_memory_pool.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="code\f_memory_pool\z_specialized_smart_pointer_control_block_memory_pool.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -144,6 +136,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\f_memory_pool\z_generic_global_medium_memory_pool.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\f_memory_pool\z_generic_memory_pool_performance_test.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -41,7 +41,7 @@ namespace log {
 Void ZTraceLog::FileOutputLog(const ZLog* _log_ptr, ZStringView _output_str) noexcept {
     static constexpr ZStringView kLogHeadEnd =
         "--------------------------------------------------------------------------------\n";
-    thread_local ZFile& file = TraceLogFile();
+    static ZFile& file = TraceLogFile();
     ReturnType link_code = kOK;
 
     if (file.IsOpen()) {
@@ -73,21 +73,10 @@ Void ZTraceLog::ConsoleOutputLog(const ZLog* _log_ptr, ZStringView _output_str) 
     );
 }
 
-ZTraceLog::ZTraceLog(
-    TimeType _log_time, 
-    ZStringView _proj_name,
-    ZStringView _file_dir,
-    ZStringView _func_name,
-    Int32 _trace_line
-) noexcept 
-    : SuperType_(LogTypeEnum::kTrace, _log_time)
-    , proj_name_(_proj_name)
-    , file_dir_(_file_dir)
-    , func_name_(_func_name) 
-    , trace_line_(_trace_line)
-{}
-
-ZTraceLog::~ZTraceLog() noexcept {}
+NODISCARD ZLog::OutputFunctionArray_& ZTraceLog::GetOutputFunctionArrayInstance() noexcept {
+    static OutputFunctionArray_ output_func_array_ptr;
+    return output_func_array_ptr;
+}
 
 NODISCARD Void* ZTraceLog::operator new(SizeType _size) noexcept {
     return memory_pool::ApplyTraceLogMemory();
@@ -97,35 +86,41 @@ NODISCARD Void ZTraceLog::operator delete(Void* _memory_ptr) noexcept {
     memory_pool::ReleaseTraceLogMemory(_memory_ptr);
 }
 
-NODISCARD ZLog::OutputFunctionArray_& ZTraceLog::OutputFunctionArrayInstance() noexcept {
-    static OutputFunctionArray_ output_func_array_ptr;
-    return output_func_array_ptr;
-}
+ZTraceLog::ZTraceLog(
+    TimeType _log_time, 
+    ZStringView _proj_name,
+    ZStringView _file_path,
+    ZStringView _func_name,
+    Int32 _trace_line
+) noexcept 
+    : SuperType_(LogTypeEnum::kTrace, _log_time)
+    , trace_log_head_(_proj_name, _file_path, _func_name, _trace_line)
+{}
 
 NODISCARD ZLog::OutputFunctionArray_& ZTraceLog::OutputFunctionArrayP() noexcept {
-    return OutputFunctionArrayInstance();
+    return GetOutputFunctionArrayInstance();
 }
 
 Void ZTraceLog::GenerateOutputStringP(OutputString_* _output_str_ptr) noexcept {
-    static ZSystemTime& system_time = ZSystemTime::Instance();
+    static ZSystemTime& system_time = ZSystemTime::GetInstance();
     system_time.UpdateTimeFast(this->LogTime());
     _output_str_ptr->size_ = _output_str_ptr->output_str_.AssignNoEnd(
-        "Time: {:04d}/{:02d}/{:02d}-{:02d}:{:02d}:{:02d}-{:03d}.{:03d}.{:03d}\n"
+        "TimeNs: {:04d}/{:02d}/{:02d}-{:02d}:{:02d}:{:02d}-{:03d}.{:03d}.{:03d}\n"
         "Project: {}\n"
         "File: {}\n"
         "Function: {}\n"
         "Line: {}\n"
         "Message: {}",
-        system_time.Year(), system_time.Month(), system_time.Day(),
-        system_time.Hour(), system_time.Min(), system_time.Sec(),
-        system_time.Ms(), system_time.Us(), system_time.Ns(),
-        proj_name_,
-        file_dir_,
-        func_name_,
-        trace_line_,
-        ZStringView(LogStringPtr()->log_str_ptr_->GetDataPtr(), LogStringPtr()->size_)
+        system_time.GetYear(), system_time.GetMonth(), system_time.GetDay(),
+        system_time.GetHour(), system_time.GetMin(), system_time.GetSec(),
+        system_time.GetMs(), system_time.GetUs(), system_time.GetNs(),
+        trace_log_head_.proj_name_,
+        trace_log_head_.file_path_,
+        trace_log_head_.func_name_,
+        trace_log_head_.trace_line_,
+        ZStringView(log_string_.string_.GetDataPtr(), log_string_.size_)
     );
 }
 
-}//log
-}//zengine
+} // log
+} // zengine

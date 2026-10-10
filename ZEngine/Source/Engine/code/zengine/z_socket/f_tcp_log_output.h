@@ -46,8 +46,8 @@ enum FTCPLogOutputErrorCodeEnum : ReturnType {
     kFTCPLogOutputErrorCode_ReplyIDNotExist,
 };
 
-}//zengine
-}//error_code
+} // zengine
+} // error_code
 
 namespace zengine {
 namespace socket {
@@ -151,5 +151,5 @@ SOCKET_DLLAPI ReturnType StartLogOutputClient(
 */
 SOCKET_DLLAPI ReturnType StopLogOutputClient() noexcept;
 
-}//socket
-}//zengine
+} // socket
+} // zengine

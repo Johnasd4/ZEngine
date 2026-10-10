@@ -35,17 +35,17 @@ namespace memory_pool {
 NODISCARD ZGenericMemoryPool::MemoryPageHead_* ZGenericMemoryPool::Alloc64KBAlignmentMemoryAtomPageP(
     UInt32 _page_num
 ) noexcept {
-    //apply memory
-    Void* raw_mem_ptr = ZSystemMemoryPool::Instance().Alloc64KBAlignmentMemoryAtomPageP(_page_num);
-    if (raw_mem_ptr == nullptr) {
+    // apply memory
+    Void* raw_memory_ptr = ZSystemMemoryPool::GetInstance().Alloc64KBAlignmentMemoryAtomPageP(_page_num);
+    if (raw_memory_ptr == nullptr) {
         return nullptr;
     }
 
-    //initialize memory page head
-    MemoryPageHead_* mem_page_head_ptr = static_cast<MemoryPageHead_*>(raw_mem_ptr);
+    // initialize memory page head
+    MemoryPageHead_* mem_page_head_ptr = static_cast<MemoryPageHead_*>(raw_memory_ptr);
     mem_page_head_ptr->next_page_ptr_ = head_memory_page_ptr_;
 
-    //insert to linked list head
+    // insert to linked list head
     head_memory_page_ptr_ = mem_page_head_ptr;
 
     return mem_page_head_ptr;
@@ -54,21 +54,21 @@ NODISCARD ZGenericMemoryPool::MemoryPageHead_* ZGenericMemoryPool::Alloc64KBAlig
 NODISCARD ZGenericMemoryPool::MemoryPageHead_* ZGenericMemoryPool::Alloc2MBAlignmentMemoryAtomPageP(
     UInt32 _page_num
 ) noexcept {
-    //apply memory
-    Void* raw_mem_ptr = ZSystemMemoryPool::Instance().Alloc2MBAlignmentMemoryAtomPageP(_page_num);
-    if (raw_mem_ptr == nullptr) {
+    // apply memory
+    Void* raw_memory_ptr = ZSystemMemoryPool::GetInstance().Alloc2MBAlignmentMemoryAtomPageP(_page_num);
+    if (raw_memory_ptr == nullptr) {
         return nullptr;
     }
 
-    //initialize memory page head
-    MemoryPageHead_* mem_page_head_ptr = static_cast<MemoryPageHead_*>(raw_mem_ptr);
+    // initialize memory page head
+    MemoryPageHead_* mem_page_head_ptr = static_cast<MemoryPageHead_*>(raw_memory_ptr);
     mem_page_head_ptr->next_page_ptr_ = head_memory_page_ptr_;
 
-    //insert to linked list head
+    // insert to linked list head
     head_memory_page_ptr_ = mem_page_head_ptr;
 
     return mem_page_head_ptr;
 }
 
-}//memory_pool
-}//zengine
+} // memory_pool
+} // zengine

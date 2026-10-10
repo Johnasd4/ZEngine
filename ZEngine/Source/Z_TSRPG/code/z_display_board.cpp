@@ -112,7 +112,7 @@ NODISCARD ReturnType ZDisplayBoard::Initialize(
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
     Z_CHECK(
-        _logic_board_viewport_ptr == nullptr, error_code::kZDisplayBoardErrorCode_NullptrParam,
+        _logic_board_viewport_ptr != nullptr, error_code::kZDisplayBoardErrorCode_NullptrParam,
         "_logic_board_viewport_ptr is nullptr!"
     );
     link_code = SuperType_::InitializeP(_logic_board_viewport_ptr->view_size_);
@@ -129,5 +129,5 @@ NODISCARD ReturnType ZDisplayBoard::Initialize(
     return ret_val;
 }
 
-}//tsrpg
-}//zengine
+} // tsrpg
+} // zengine

@@ -6778,7 +6778,7 @@ ImGuiTypingSelectRequest* ImGui::GetTypingSelectRequest(ImGuiTypingSelectFlags f
     {
         bool clear_buffer = false;
         clear_buffer |= (g.NavFocusScopeId != data->FocusScope);
-        clear_buffer |= (data->LastRequestTime + TYPING_SELECT_RESET_TIMER < g.Time);
+        clear_buffer |= (data->LastRequestTime + TYPING_SELECT_RESET_TIMER < g.TimeNs);
         clear_buffer |= g.NavAnyRequest;
         clear_buffer |= g.ActiveId != 0 && g.NavActivateId == 0; // Allow temporary SPACE activation to not interfere
         clear_buffer |= IsKeyPressed(ImGuiKey_Escape) || IsKeyPressed(ImGuiKey_Enter);
@@ -6830,7 +6830,7 @@ ImGuiTypingSelectRequest* ImGui::GetTypingSelectRequest(ImGuiTypingSelectFlags f
     {
         data->FocusScope = g.NavFocusScopeId;
         data->LastRequestFrame = g.FrameCount;
-        data->LastRequestTime = (float)g.Time;
+        data->LastRequestTime = (float)g.TimeNs;
     }
     out_request->Flags = flags;
     out_request->SearchBufferLen = buffer_len;
@@ -7913,7 +7913,7 @@ static int IMGUI_CDECL TabItemComparerByBeginOrder(const void* lhs, const void* 
 static ImGuiTabBar* GetTabBarFromTabBarRef(const ImGuiPtrOrIndex& ref)
 {
     ImGuiContext& g = *GImGui;
-    return ref.Ptr ? (ImGuiTabBar*)ref.Ptr : g.TabBars.GetByIndex(ref.Index);
+    return ref.GetPtr ? (ImGuiTabBar*)ref.GetPtr : g.TabBars.GetByIndex(ref.Index);
 }
 
 static ImGuiPtrOrIndex GetTabBarRefFromTabBar(ImGuiTabBar* tab_bar)

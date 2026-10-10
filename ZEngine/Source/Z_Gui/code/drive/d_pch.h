@@ -30,4 +30,5 @@
 #include "z_core/m_log.h"
 #include "z_core/t_array.h"
 #include "z_core/z_object.h"
+#include "z_core/z_system_time.h"
 #include "z_core/z_thread.h"

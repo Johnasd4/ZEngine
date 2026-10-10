@@ -34,7 +34,7 @@ namespace zengine {
 namespace error_code {
 
 /** @brief Enumeration of error codes specific to the logging module. */
-enum MLogErrorCodeEnum : ReturnType {
+enum MLogErrorCodeEnum : ReturnType::ValueType {
     /** @brief Base error code for logging link errors. */
     kMLogErrorCode_LinkError = kErrorCodeBase_MLog,
     /** @brief Error indicating that the log queue has overflowed. */
@@ -53,14 +53,14 @@ enum MLogErrorCodeEnum : ReturnType {
     kMLogErrorCode_LogPortFull
 };
 
-}//error_code
-}//zengine
+} // error_code
+} // zengine
 
 namespace zengine {
 namespace log {
 
 /** @brief Enumeration representing the different levels or types of logs. */
-enum class LogTypeEnum : SizeType {
+enum class LogTypeEnum : UInt32 {
     /** @brief Minimum value for log type iteration. */
     kMin = 0,
     /** @brief Log type representing an error condition. */
@@ -74,7 +74,7 @@ enum class LogTypeEnum : SizeType {
 };
 
 /** @brief Enumeration representing specific categories for info-level logs. */
-enum class InfoLogTypeEnum : SizeType {
+enum class InfoLogTypeEnum : UInt32 {
     /** @brief Minimum value for info log type iteration. */
     kMin = 0,
     /** @brief Represents a standard message log. */
@@ -114,10 +114,10 @@ inline constexpr UInt32 kInfoLogPortID = kLogMaxPortNum - 3U;
 /** @brief The root directory path where log files are stored. */
 inline constexpr ZStringView kLogFileRootPathDir = "Log";
 
-/** @brief The maximum size of a single log message string (4096 - 8 bytes for memory block header). */
-inline constexpr UInt32 kLogStringMaxSize = 4096U;
+/** @brief The maximum size of a single log. */
+inline constexpr UInt32 kLogMaxSize = 4096U;
 /** @brief The size to extend the log string pool when more memory is needed. */
-inline constexpr UInt32 kLogStringPoolExtendSize = 512U * kKB;
+inline constexpr UInt32 kLogPoolExtendSize = 512U * kKB;
 
 /** @brief The maximum size of the final formatted output log string. */
 inline constexpr UInt32 kOutputStringMaxSize = 8192U;
@@ -128,5 +128,5 @@ inline constexpr UInt32 kFileOutputBufferSize = 65520U;
 /** @brief The maximum number of log files to retain before rotation or overwriting. */
 inline constexpr UInt32 kLogFileMaxNum = 10;
 
-}//log
-}//zengine
+} // log
+} // zengine

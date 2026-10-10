@@ -1,17 +1,25 @@
 /*
     Copyright (c) YuLin Zhu
 
-    This code file is licensed under the Creative Commons
-    Attribution-NonCommercial 4.0 International License.
+    ** ZEngine Proprietary License **
 
-    You may obtain a copy of the License at
-    https://creativecommons.org/licenses/by-nc/4.0/
+    This software is provided "as-is", without any express or implied warranty.
+    In no event will the authors be held liable for any damages arising from the
+    use of this software.
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+    Usage Rights:
+    1. Non-Commercial Use: You may use, modify, and distribute this software
+       for non-commercial purposes (e.g., education, personal projects, open-source
+       projects that do not generate revenue) free of charge.
+
+    2. Commercial Use: Commercial use of this software is STRICTLY PROHIBITED
+       without a valid commercial license agreement with the author.
+       "Commercial use" includes, but is not limited to:
+       - Incorporating this software into a product that is sold.
+       - Using this software in a paid service.
+       - Using this software for internal business operations in a for-profit entity.
+
+    To obtain a Commercial License, please contact the author.
 
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
@@ -22,111 +30,166 @@
 
 #include "../z_core/t_array.h"
 #include "../z_core/t_atom.h"
-#include "../z_core/t_smart_pointer.h"
+#include "../z_core/t_optional.h"
 #include "../z_core/z_object.h"
 #include "../z_core/z_string_view.h"
 
-namespace zengine {
-namespace socket {
-namespace internal {
-
-struct ZIOContextData;
-
-}//internal
-}//socket
-}//zengine
+#include "internal/l_asio.h"
+#include "z_tcp_endpoint.h"
+#include "z_udp_endpoint.h"
 
 namespace zengine {
-namespace socket {
-class ZTCPEndpoint;
-class ZUDPEndpoint;
-}//socket
-}//zengine
+namespace error_code {
+
+enum ZIOContextErrorCodeEnum : ReturnType::ValueType {
+    kZIOContextErrorCode_LinkError = kErrorCodeBase_ZIOContext,
+    kZIOContextErrorCode_SystemOrLibraryError,
+    kZIOContextErrorCode_NullptrParam,
+    kZIOContextErrorCode_ParamOutOfRange,
+    kZIOContextErrorCode_OperationNotAllowed,
+};
+
+} // error_code
+} // zengine
 
 namespace zengine {
 namespace socket {
 
-/*
-    IO context.
-*/
-class SOCKET_DLLAPI ZIOContext : public ZObject {
+/**
+ * @brief A wrapper class for asio::io_context to manage asynchronous I/O operations and thread pooling.
+ *
+ * Implementation Principle:
+ * This class encapsulates the standard asio::io_context to integrate it into the ZEngine architecture.
+ * It maintains an atomic counter (running_thread_count_) to track the number of threads currently
+ * executing the event loop (Run()). This allows for safe shutdown (Stop()) and restart (Restart())
+ * mechanisms. The resolution functions utilize asio's resolvers to translate hostnames and ports
+ * into compatible endpoints for TCP and UDP sockets. The class inherits from ZObject for memory management.
+ */
+class SOCKET_DLLAPI CACHE_ALIGN ZIOContext : public ZObject {
 public:
-    /*
-        Used for functional operation, do not use in any main operation.
-    */
-    NODISCARD static ZIOContext& Instance() noexcept;
+    /** @brief Type alias for the base class ZObject. */
+    using SuperType_ = ZObject;
 
+public:
+    /**
+     * @brief Default constructor.
+     *
+     * Initializes the underlying IO context and sets the running thread count to zero.
+     */
     ZIOContext() noexcept;
-    ~ZIOContext() noexcept;
 
-    /*
-        Resolve the given address.
+    /** @brief Deleted copy constructor. */
+    ZIOContext(const ZIOContext&) = delete;
+
+    /** @brief Deleted move constructor. */
+    ZIOContext(ZIOContext&&) = delete;
+
+    /**
+     * @brief Default destructor.
+     */
+    ~ZIOContext() noexcept = default;
+
+    /** @brief Deleted copy assignment operator. */
+    ZIOContext& operator=(const ZIOContext&) = delete;
+
+    /** @brief Deleted move assignment operator. */
+    ZIOContext& operator=(ZIOContext&&) = delete;
+
+    /**
+    * @brief Checks if any threads are currently running the IO context.
+    * @return True if the running thread count is greater than zero, false otherwise.
     */
-    NODISCARD ReturnType ResolveTCPAddress(
-        ZStringView _address_str,
-        ZStringView _port_str,
-        TArray<ZTCPEndpoint>* _endpoint_array_ptr
+    NODISCARD FORCEINLINE Bool IsRunning() noexcept { return running_thread_count_ != 0; }
+
+    /**
+     * @brief Gets the number of threads currently running the IO context.
+     * @return The count of active threads executing Run().
+     */
+    NODISCARD FORCEINLINE SizeType GetRunningThreadCount() noexcept { return running_thread_count_; }
+
+    /**
+     * @brief Synchronously resolves a TCP hostname and port to a list of endpoints.
+     * @param _host_str The hostname or IP address string.
+     * @param _port_str The port number or service name string.
+     * @return An optional containing an array of ZTCPEndpoint on success, or an empty optional on failure.
+     */
+    NODISCARD TOptional<TArray<ZTCPEndpoint>> ResolveTCP(
+        ZStringView _host_str,
+        ZStringView _port_str
     ) noexcept;
 
-    /*
-        Resolve the given address.
-    */
-    NODISCARD ReturnType ResolveUDPAddress(
-        ZStringView _address_str,
-        ZStringView _port_str,
-        TArray<ZUDPEndpoint>* _endpoint_array_ptr
+    /**
+     * @brief Synchronously resolves a UDP hostname and port to a list of endpoints.
+     * @param _host_str The hostname or IP address string.
+     * @param _port_str The port number or service name string.
+     * @return An optional containing an array of ZUDPEndpoint on success, or an empty optional on failure.
+     */
+    NODISCARD TOptional<TArray<ZUDPEndpoint>> ResolveUDP(
+        ZStringView _host_str,
+        ZStringView _port_str
     ) noexcept;
 
-    /*
-        Stop all sockets.
-    */
+    /**
+     * @brief Asynchronously resolves a TCP hostname and port.
+     * @param _host_str The hostname or IP address string.
+     * @param _port_str The port number or service name string.
+     * @param _handle_func The callback function to be invoked with the resolution result (endpoints or error).
+     */
+    Void AsyncResolveTCP(
+        ZStringView _host_str,
+        ZStringView _port_str,
+        TFunction<Void(TOptional<TArray<ZTCPEndpoint>>&&)> _handle_func
+    ) noexcept;
+
+    /**
+     * @brief Asynchronously resolves a UDP hostname and port.
+     * @param _host_str The hostname or IP address string.
+     * @param _port_str The port number or service name string.
+     * @param _handle_func The callback function to be invoked with the resolution result (endpoints or error).
+     */
+    Void AsyncResolveUDP(
+        ZStringView _host_str,
+        ZStringView _port_str,
+        TFunction<Void(TOptional<TArray<ZUDPEndpoint>>&&)> _handle_func
+    ) noexcept;
+
+    /**
+     * @brief Stops the IO context and cancels all pending operations.
+     */
     Void Stop() noexcept;
 
-    /*
-        Deal with async operation until all operation finished.
-        Suspend the current thread, returns until finish.
-    */
+    /**
+     * @brief Restarts the IO context to allow it to be run again after being stopped.
+     * @return The result of the restart operation.
+     */
+    NODISCARD ReturnType Restart() noexcept;
+
+    /**
+     * @brief Runs the IO context's event loop on the current thread.
+     *
+     * This function blocks until all work has finished or the context is stopped.
+     * It increments the running thread count upon entry and decrements it upon exit.
+     */
     Void Run() noexcept;
 
-    /*
-        Deal with async operation until all operation finished.
-        Starts a new thread and returns immediately.
-    */
-    Void AsyncRun() noexcept;
-
-    /*
-        If iocontext running.
-    */
-    NODISCARD FORCEINLINE Bool IsRunning() noexcept { return running_thread_count_ != 0ULL; }
-
-    /*
-        Running thread count.
-    */
-    NODISCARD FORCEINLINE Bool RunningThreadCount() noexcept { return running_thread_count_.Value(); }
-
-    /*
-        Suspend until async operation thread finish.
-    */
+    /**
+     * @brief Blocks the current thread until all other threads running the IO context have finished.
+     */
     Void Join() noexcept;
 
-protected:
-    using SuperType_ = ZObject;
+private:
+    friend class ZIOContextWorkGuard;
     friend class ZTCPSocket;
     friend class ZUDPSocket;
     friend class ZTCPSingleSessionServer;
     friend class ZTCPMultipleSessionServer;
-    friend class ZIOContextWorkGuard;
 
 private:
-    ZIOContext(const ZIOContext&) = delete;
-    ZIOContext(ZIOContext&&) = delete;
-    ZIOContext& operator=(const ZIOContext&) = delete;
-    ZIOContext& operator=(ZIOContext&&) = delete;
-
-private:
-    TUniquePointer<internal::ZIOContextData> data_ptr_;
-    TAtom<SizeType> running_thread_count_;
+    /** @brief The underlying ASIO io_context object handling the event loop. */
+    asio::io_context io_context_;
+    /** @brief Atomic counter tracking the number of threads currently running the IO context. */
+    TAtom<Int32> running_thread_count_;
 };
 
-}//socket
-}//zengine
+} // socket
+} // zengine

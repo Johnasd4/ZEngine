@@ -31,6 +31,32 @@
 #include "f_memory_pool.h"
 
 namespace zengine {
+namespace internal {
+
+/**
+ * @brief Destroys an object and releases its memory back to the thread-local memory pool.
+ *
+ * This function first calls the destructor of the object pointed to by `_object_ptr`,
+ * and then releases the memory back to the thread-local memory pool managed by the engine.
+ *
+ * @tparam _ObjectType The type of the object to be destroyed and released.
+ * @param _object_ptr Pointer to the object to be destroyed and released.
+ */
+template<typename _ObjectType>
+FORCEINLINE Void DestroyAndReleaseObjectP(_ObjectType* _object_ptr) noexcept {
+    if (_object_ptr != nullptr) {
+        _object_ptr->~_ObjectType();
+        memory_pool::ReleaseThreadLocalMemory(static_cast<Void*>(_object_ptr));
+    }
+}
+
+} // internal
+} // zengine
+
+namespace zengine {
+
+#define NEW_LOCAL new(::zengine::memory_pool::ApplyThreadLocalMemory)
+#define DELETE_LOCAL(_ptr) ::zengine::internal::DestroyAndReleaseObjectP(_ptr)
 
 /**
  * @brief The base class for objects that require custom memory management via memory pools.
@@ -40,10 +66,7 @@ namespace zengine {
  *
  * @warning Adding any member variables to this class will cause fatal errors due to size mismatches in derived classes
  * or strict memory layout requirements!
- *
- * @tparam _IsGlobal If true, memory is allocated from the global memory pool. If false, it uses the thread-local pool.
  */
-template<Bool _IsGlobal = DEFAULT_USE_GLOBAL_MEMORY_POOL>
 class ZObject {
 public:
     /**
@@ -52,12 +75,17 @@ public:
      * @return Void* Pointer to the allocated memory.
      */
     NODISCARD FORCEINLINE static Void* operator new(SizeType _size) noexcept {
-        if constexpr (_IsGlobal) {
-            return memory_pool::ApplyGlobalMemory(static_cast<SizeType>(_size));
-        }
-        else {
-            return memory_pool::ApplyThreadLocalMemory(static_cast<SizeType>(_size));
-        }
+        return memory_pool::ApplyGlobalMemory(static_cast<SizeType>(_size));
+    }
+
+    /**
+     * @brief Overloads the new operator to allocate memory using a custom allocation function.
+     * @param _size The size of the memory to allocate.
+     * @param _alloc_func The custom allocation function that takes the size and returns a pointer to the allocated memory.
+     * @return Void* Pointer to the allocated memory returned by the custom allocation function.
+     */
+    NODISCARD FORCEINLINE static Void* operator new(SizeType _size, Void* (*_alloc_func)(SizeType)) {
+        return _alloc_func(_size);
     }
 
     /**
@@ -70,17 +98,18 @@ public:
         return _memory_ptr;
     }
 
+    /** @brief Deleted array new and delete operators to prevent heap allocation of arrays of ZObject. */
+    static Void* operator new[](SizeType) = delete;
+
+    /** @brief Deleted array delete operator. */
+    static Void* operator new[](SizeType, Void*) = delete;
+
     /**
      * @brief Overloads the delete operator to release memory back to the memory pool.
      * @param _memory_ptr The pointer to the memory to release.
      */
     NODISCARD FORCEINLINE static Void operator delete(Void* _memory_ptr) noexcept {
-        if constexpr (_IsGlobal) {
-            memory_pool::ReleaseGlobalMemory(_memory_ptr);
-        }
-        else {
-            memory_pool::ReleaseThreadLocalMemory(_memory_ptr);
-        }
+        memory_pool::ReleaseGlobalMemory(_memory_ptr);
     }
 
     /**
@@ -89,6 +118,9 @@ public:
      * @param _memory_ptr The pointer passed to placement new.
      */
     NODISCARD FORCEINLINE static Void operator delete(Void* _delete_memory, Void* _memory_ptr) noexcept {}
+
+    /** @brief Deleted array delete operator. */
+    static Void operator delete[](Void*) = delete;
 
     /**
      * @brief Copy assignment operator.
@@ -124,21 +156,16 @@ public:
 
 protected:
     /** @brief Default constructor. */
-    FORCEINLINE constexpr ZObject() noexcept {}
+    FORCEINLINE constexpr ZObject() noexcept = default;
 
     /** @brief Copy constructor. */
-    FORCEINLINE constexpr ZObject(const ZObject& _obj) noexcept {}
+    FORCEINLINE constexpr ZObject(const ZObject&) noexcept = default;
 
     /** @brief Move constructor. */
-    FORCEINLINE constexpr ZObject(ZObject&& _obj) noexcept {}
+    FORCEINLINE constexpr ZObject(ZObject&&) noexcept = default;
 
     /** @brief Destructor. */
-    FORCEINLINE constexpr ~ZObject() noexcept {}
-
-private:
-    static Void* operator new[](SizeType) = delete;
-    static Void* operator new[](SizeType, Void*) = delete;
-    static Void operator delete[](Void*) = delete;
+    FORCEINLINE constexpr ~ZObject() noexcept = default;
 };
 
-}//zengine
+} // zengine

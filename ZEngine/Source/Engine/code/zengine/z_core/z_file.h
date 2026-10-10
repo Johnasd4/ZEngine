@@ -30,6 +30,7 @@
 
 #include "internal/l_fmt.h"
 
+#include "t_optional.h"
 #include "t_smart_pointer.h"
 #include "z_buffer.h"
 #include "z_memory.h"
@@ -40,7 +41,7 @@ namespace zengine {
 namespace error_code {
 
 /** @brief Enumeration of file-related error codes. */
-enum ZFileErrorCodeEnum : ReturnType {
+enum ZFileErrorCodeEnum : ReturnType::ValueType {
     /** @brief Base error code for file operations. */
     kZFileErrorCode_LinkError = kErrorCodeBase_ZFile,
     /** @brief System level error occurred. */
@@ -62,8 +63,8 @@ enum ZFileErrorCodeEnum : ReturnType {
     /** @brief Failed to retrieve the file size. */
     kZFileErrorCode_GetSizeFailed
 };
-}//error_code
-}//zengine
+} // error_code
+} // zengine
 
 namespace zengine {
 namespace internal {
@@ -71,16 +72,19 @@ namespace internal {
 /** @brief Forward declaration of internal file data structure. */
 struct ZFileData;
 
-}//internal
-}//zengine
+} // internal
+} // zengine
 
 namespace zengine {
 
 /** @brief File class for handling file I/O operations. */
-class CORE_DLLAPI ZFile : public ZObject<> {
+class CORE_DLLAPI ZFile : public ZObject {
 public:
+    /** @brief Type alias for the base class. */
+    using SuperType_ = ZObject;
+
     /** @brief Constant representing a failed seek operation. */
-    static constexpr Int64 kFailed = -1LL;
+    static inline constexpr Int64 kFailed = -1LL;
 
     /** @brief Enumeration of file open flags. */
     enum OpenFlag_ {
@@ -95,7 +99,9 @@ public:
         /** @brief Open in append mode. */
         kAppend = fmt::file::APPEND,
         /** @brief Truncate the content of the file. */
-        kTruncate = fmt::file::TRUNC
+        kTruncate = fmt::file::TRUNC,
+        /** @brief Open file in binary mode. */
+        kBinaryMode = 0x8000
     };
 
     /** @brief Enumeration of seek types. */
@@ -111,11 +117,17 @@ public:
     /** @brief Default constructor. */
     ZFile() noexcept;
 
+    /** @brief Deleted copy constructor. */
+    ZFile(const ZFile&) = delete;
+
     /** @brief Move constructor. */
     ZFile(ZFile&& _file) noexcept;
 
     /** @brief Destructor. */
     ~ZFile() noexcept;
+
+    /** @brief Deleted copy assignment operator. */
+    ZFile& operator=(const ZFile&) = delete;
 
     /** @brief Move assignment operator. */
     ZFile& operator=(ZFile&& _file) noexcept;
@@ -126,6 +138,14 @@ public:
      */
     NODISCARD FORCEINLINE Bool IsOpen() noexcept { return file_.descriptor() != -1; }
 
+
+    /**
+     * @brief Sets the size of the output buffer.
+     * @param _buffer_size The new size of the buffer in bytes.
+     * @return kOK if successful, otherwise an error code.
+     */
+    NODISCARD ReturnType SetOutputBufferSize(SizeType _buffer_size) noexcept;
+
     /**
      * @brief Computes the total size of the file.
      * @return The size of the file in bytes.
@@ -134,43 +154,32 @@ public:
 
     /** 
      * @brief Opens a file with the specified path and flags.
-     * @param _file_dir The path to the file.
+     * @param _file_path The path to the file.
      * @param _open_flag The flags to use when opening the file (see OpenFlag_).
      * @return kOK if successful, otherwise an error code.
      */
-    NODISCARD ReturnType Open(const Char* _file_dir, Int32 _open_flag) noexcept;
+    NODISCARD ReturnType Open(const Char* _file_path, Int32 _open_flag) noexcept;
 
     /** 
      * @brief Opens a file safely, ensuring path validity and access rights.
-     * @param _file_dir The path to the file.
+     * @param _file_path The path to the file.
      * @param _open_flag The flags to use when opening the file (see OpenFlag_).
      * @return kOK if successful, otherwise an error code.
      */
-    NODISCARD ReturnType OpenSafe(const Char* _file_dir, Int32 _open_flag) noexcept;
+    NODISCARD ReturnType OpenSafe(const Char* _file_path, Int32 _open_flag) noexcept;
 
     /** @brief Closes the currently open file. */
     Void Close() noexcept;
 
     /** 
-     * @brief Sets the size of the output buffer.
-     * @param _buffer_size The new size of the buffer in bytes.
-     * @return kOK if successful, otherwise an error code.
-     */
-    NODISCARD ReturnType SetOutputBufferSize(
-        SizeType _buffer_size
-    ) noexcept;
-
-    /** 
      * @brief Reads data from the file into a buffer.
      * @param _buffer The buffer to read data into.
      * @param _read_size The number of bytes to read.
-     * @param _actual_read_size_ptr Pointer to store the actual number of bytes read (optional).
-     * @return kOK if successful, otherwise an error code.
+     * @return Actual read size if OK, otherwise an error code.
      */
-    NODISCARD ReturnType Read(
+    NODISCARD TOptional<SizeType> Read(
         ZBuffer _buffer, 
-        SizeType _read_size, 
-        SizeType* _actual_read_size_ptr = nullptr
+        SizeType _read_size
     ) noexcept;
 
     /** 
@@ -220,17 +229,7 @@ public:
      */
     NODISCARD Int64 Tell() noexcept;
 
-protected:
-    /** @brief Type alias for the base class. */
-    using SuperType_ = ZObject;
-
 private:
-    /** @brief Deleted copy constructor to prevent copying. */
-    ZFile(const ZFile&) = delete;
-
-    /** @brief Deleted copy assignment operator to prevent copying. */
-    ZFile& operator=(const ZFile&) = delete;
-
     /** 
      * @brief Internal method to flush the buffer.
      * @return kOK if successful, otherwise an error code.
@@ -258,6 +257,7 @@ private:
      */
     Void WriteBufferP(ZStringView _format, fmt::format_args _args, SizeType _data_size) noexcept;
 
+private:
     /** @brief The underlying file object. */
     fmt::file file_;
     /** @brief Current size of data in the output buffer. */
@@ -266,4 +266,4 @@ private:
     ZMemory output_buffer_;
 };
 
-}//zengine
+} // zengine

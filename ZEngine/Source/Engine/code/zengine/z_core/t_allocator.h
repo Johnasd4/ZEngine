@@ -34,12 +34,13 @@
 namespace zengine {
 
 /**
- * @brief The allocator for stl containers.
- * @tparam _ObjectType The type of object to be allocated.
- * @tparam _IfAllocFromThreadLocalMemoryPool Flag indicating if memory should be allocated from the thread-local pool.
+ * @brief A standard allocator implementation for the engine.
+ * @tparam _ObjectType The type of object to be managed by the allocator.
+ * @tparam _IsGlobal Indicates whether to use the global memory pool (true) or thread-local memory pool (false).
  */
-template<typename _ObjectType, Bool _IfAllocFromThreadLocalMemoryPool = false>
+template<typename _ObjectType, Bool _IsGlobal = DEFAULT_USE_GLOBAL_MEMORY_POOL>
 class TAllocator {
+    NO_NEW_DELETE
 public:
     /** @brief Type alias for the object type managed by this allocator. */
     using value_type = _ObjectType;
@@ -51,14 +52,14 @@ public:
     template <typename _OtherObjectType>
     struct rebind {
         /** @brief The rebound allocator type. */
-        using other = TAllocator<_OtherObjectType, _IfAllocFromThreadLocalMemoryPool>;
+        using other = TAllocator<_OtherObjectType, _IsGlobal>;
     };
 
     /**
-     * @brief Gets the static instance of the allocator.
-     * @return A reference to the allocator instance.
+     * @brief Gets the singleton instance of the allocator.
+     * @return A reference to the static allocator instance.
      */
-    NODISCARD static TAllocator& Instance() noexcept {
+    NODISCARD static TAllocator& GetInstance() noexcept {
         static TAllocator allocator;
         return allocator;
     }
@@ -72,55 +73,39 @@ public:
      * @param _alocator The source allocator to copy from.
      */
     template<typename _OtherObjectType>
-    FORCEINLINE TAllocator(const TAllocator<_OtherObjectType>& _alocator) noexcept {}
+    FORCEINLINE TAllocator(const TAllocator<_OtherObjectType, _IsGlobal>& _alocator) noexcept {}
 
     /** @brief Destructor. */
-    FORCEINLINE ~TAllocator() {}
+    FORCEINLINE ~TAllocator() = default;
 
     /**
      * @brief Allocates memory for a specified number of objects.
-     * @param _capacity The number of objects to allocate memory for.
-     * @return A pointer to the allocated memory block.
+     * @param _capacity The number of objects to allocate.
+     * @return A pointer to the allocated memory.
      */
     NODISCARD FORCEINLINE _ObjectType* allocate(SizeType _capacity) noexcept {
-        if constexpr (_IfAllocFromThreadLocalMemoryPool) {
-            return reinterpret_cast<_ObjectType*>(memory_pool::ApplyThreadLocalMemory(
-                (SizeType)(_capacity * sizeof(_ObjectType))
-            ));
-        }
-        else {
-            return reinterpret_cast<_ObjectType*>(memory_pool::ApplyGlobalMemory(
-                (SizeType)(_capacity * sizeof(_ObjectType))
-            ));
-        }
-
+        return reinterpret_cast<_ObjectType*>(memory_pool::ApplyMemory<_IsGlobal>(
+            static_cast<SizeType>(_capacity * sizeof(_ObjectType))
+        ));
     }
 
     /**
-     * @brief Deallocates memory previously allocated.
-     * @param _object_ptr Pointer to the memory block to deallocate.
-     * @param _capacity The number of objects originally allocated (unused in logic but required by interface).
+     * @brief Deallocates the memory for the specified object pointer.
+     * @param _object_ptr A pointer to the memory to deallocate.
+     * @param _capacity The number of objects originally allocated (unused).
      */
     FORCEINLINE Void deallocate(_ObjectType* _object_ptr, SizeType _capacity) noexcept {
-        if constexpr (_IfAllocFromThreadLocalMemoryPool) {
-            memory_pool::ReleaseThreadLocalMemory(reinterpret_cast<Void*>(_object_ptr));
-        }
-        else {
-            memory_pool::ReleaseGlobalMemory(reinterpret_cast<Void*>(_object_ptr));
-        }
+        memory_pool::ReleaseMemory<_IsGlobal>(_object_ptr);
     }
-
-private:
-    static Void* operator new(SizeType) = delete;
-    static Void operator delete(Void*) = delete;
 };
 
 /**
- * @brief The allocator for smart pointers.
+ * @brief An allocator specialized for smart pointer control blocks.
  * @tparam _ObjectType The type of object managed by the smart pointer.
  */
 template<typename _ObjectType>
 class TSmartPointerAllocator {
+    NO_NEW_DELETE
 public:
     /** @brief Type alias for the object type managed by this allocator. */
     using value_type = _ObjectType;
@@ -137,11 +122,11 @@ public:
     FORCEINLINE TSmartPointerAllocator(const TSmartPointerAllocator<_OtherObjectType>& _alocator) noexcept {}
 
     /** @brief Destructor. */
-    FORCEINLINE ~TSmartPointerAllocator() {}
+    FORCEINLINE ~TSmartPointerAllocator() = default;
 
     /**
      * @brief Allocates memory for the smart pointer control block.
-     * @param _capacity The number of objects to allocate (ignored as control blocks are fixed size per request).
+     * @param _capacity The number of objects to allocate (ignored for control blocks).
      * @return A pointer to the allocated control block memory.
      */
     NODISCARD FORCEINLINE _ObjectType* allocate(SizeType _capacity) noexcept {
@@ -149,17 +134,13 @@ public:
     }
 
     /**
-     * @brief Deallocates memory for the smart pointer control block.
-     * @param _object_ptr Pointer to the control block memory to deallocate.
+     * @brief Deallocates the memory for the smart pointer control block.
+     * @param _object_ptr A pointer to the control block memory to deallocate.
      * @param _capacity The number of objects (ignored).
      */
     FORCEINLINE Void deallocate(_ObjectType* _object_ptr, SizeType _capacity) noexcept {
         memory_pool::ReleaseSmartPointerControlBlockMemory(reinterpret_cast<Void*>(_object_ptr));
     }
-
-private:
-    static Void* operator new(SizeType) = delete;
-    static Void operator delete(Void*) = delete;
 };
 
-}//zengine
+} // zengine

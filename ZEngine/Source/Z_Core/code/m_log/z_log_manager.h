@@ -30,7 +30,7 @@
 
 #include "m_log/z_log/z_log.h"
 #include "t_atom.h"
-#include "t_fixed_queue.h"
+#include "t_fixed_deque.h"
 #include "t_queue.h"
 #include "t_smart_pointer.h"
 #include "z_thread.h"
@@ -44,56 +44,7 @@ namespace log {
  * This singleton class manages the logging thread, processes log queues, and handles registration
  * of output functions.
  */
-class ZLogManager : public ZObject<> {
-public:
-    /**
-     * @brief Enumeration for internal request types handled by the log manager.
-     */
-    enum class RequestTypeEnum_ {
-        /** @brief Request to register a log output function. */
-        kLogOutputRegisterRequest,
-        /** @brief Request to unregister a log output function. */
-        kLogOutputUnregisterRequest
-    };
-
-private:
-    /**
-     * @brief Data structure for log output registration requests.
-     */
-    struct LogOutputRegisterRequestDataStruct_ {
-        /** @brief The output function pointer. */
-        ZLog::OutputFunction_ _output_func;
-        /** @brief Pointer to the array holding output functions. */
-        ZLog::OutputFunctionArray_* output_func_array_ptr_;
-    };
-    /**
-     * @brief Data structure for log output unregistration requests.
-     */
-    struct LogOutputUnregisterRequestDataStruct_ {
-        /** @brief The output function pointer. */
-        ZLog::OutputFunction_ _output_func;
-        /** @brief Pointer to the array holding output functions. */
-        ZLog::OutputFunctionArray_* output_func_array_ptr_;
-    };
-    /**
-     * @brief Union holding data for different log requests.
-     */
-    union LogRequestDataUnion_ {
-        /** @brief Data for registration requests. */
-        LogOutputRegisterRequestDataStruct_ register_data_;
-        /** @brief Data for unregistration requests. */
-        LogOutputUnregisterRequestDataStruct_ unregister_data_;
-    };
-    /**
-     * @brief Represents a generic request to the log manager.
-     */
-    struct Request_ {
-        /** @brief The type of request. */
-        RequestTypeEnum_ request_type_;
-        /** @brief The data associated with the request. */
-        LogRequestDataUnion_ request_data_;
-    };
-
+class CACHE_ALIGN ZLogManager : public ZObject {
 public:
     /** @brief The maximum size of the fixed log queue. */
     static inline constexpr SizeType kLogQueueSize = 4096;
@@ -103,12 +54,21 @@ public:
     /** @brief Maximum log port ID. */
     static inline constexpr SizeType kLogPortIDMax = kLogMaxPortNum - 1;
 
+    /**
+     * @brief Represents the state of the log manager.
+     */
+    enum class StateEnum_ {
+        kIdle,
+        kRunning,
+        kFinished
+    };
+
 public:
     /**
      * @brief Retrieves the singleton instance of the ZLogManager.
      * @return ZLogManager& Reference to the singleton instance.
      */
-    NODISCARD static ZLogManager& Instance() noexcept;
+    NODISCARD static ZLogManager& GetInstance() noexcept;
 
     /**
      * @brief Submits a log entry to be processed.
@@ -139,35 +99,33 @@ public:
     ) noexcept;
 
     /**
+     * @brief Starts the background logging thread.
+     */
+    Void StartThread() noexcept;
+
+    /**
      * @brief Flushes pending logs and stops the logging thread.
      * @param _max_wait_time_ms Maximum time to wait for the flush operation in milliseconds.
      */
     Void FinishFlush() noexcept;
 
     /**
-     * @brief Checks if the logging thread has finished execution.
+     * @brief Checks if the logging thread is running.
      * 
      * This function returns the current state of the background logging thread.
      * It is typically used after calling FinishFlush() to verify shutdown completion.
      * 
-     * @return Bool True if the logging thread has finished, False otherwise.
+     * @return Bool True if the logging thread is running, False otherwise.
      */
-    FORCEINLINE Bool IsFinished() noexcept { return log_thread_finished_.Value(); }
+    FORCEINLINE Bool IsRunning() noexcept { 
+        return log_thread_state_.Load(ZMemoryOrderEnum::kRelaxed) == StateEnum_::kRunning; 
+    }
 
 protected:
     /** @brief Base class alias. */
     using SuperType_ = ZObject;
 
 private:
-    /** @brief Deleted copy constructor. */
-    ZLogManager(const ZLogManager&) = delete;
-    /** @brief Deleted move constructor. */
-    ZLogManager(ZLogManager&&) = delete;
-    /** @brief Deleted copy assignment operator. */
-    ZLogManager& operator=(const ZLogManager&) = delete;
-    /** @brief Deleted move assignment operator. */
-    ZLogManager& operator=(ZLogManager&&) = delete;
-
     /**
      * @brief Static worker thread function that processes logs.
      * @param _log_manager_ptr Pointer to the log manager instance.
@@ -179,22 +137,81 @@ private:
      */
     ZLogManager() noexcept;
 
+    /** @brief Deleted copy constructor. */
+    ZLogManager(const ZLogManager&) = delete;
+
+    /** @brief Deleted move constructor. */
+    ZLogManager(ZLogManager&&) = delete;
+
     /**
      * @brief Destructor.
      */
-    ~ZLogManager() noexcept;
+    ~ZLogManager() noexcept = default;
 
-    /** @brief Atomic flag indicating if the log thread has finished. */
-    TAtom<Bool> log_thread_finished_;
+    /** @brief Deleted copy assignment operator. */
+    ZLogManager& operator=(const ZLogManager&) = delete;
+
+    /** @brief Deleted move assignment operator. */
+    ZLogManager& operator=(ZLogManager&&) = delete;
+
+private:
+    /**
+     * @brief Enumeration for internal request types handled by the log manager.
+     */
+    enum class RequestIDEnum_ {
+        /** @brief Request to register a log output function. */
+        kLogOutputRegisterRequest,
+        /** @brief Request to unregister a log output function. */
+        kLogOutputUnregisterRequest
+    };
+
+    /**
+     * @brief Data structure for log output registration requests.
+     */
+    struct RequestDataLogOutputRegister_ {
+        /** @brief The output function pointer. */
+        ZLog::OutputFunction_ _output_func;
+        /** @brief Pointer to the array holding output functions. */
+        ZLog::OutputFunctionArray_* output_func_array_ptr_;
+    };
+    /**
+     * @brief Data structure for log output unregistration requests.
+     */
+    struct RequestDataLogOutputUnregister_ {
+        /** @brief The output function pointer. */
+        ZLog::OutputFunction_ _output_func;
+        /** @brief Pointer to the array holding output functions. */
+        ZLog::OutputFunctionArray_* output_func_array_ptr_;
+    };
+    /**
+     * @brief Union holding data for different log requests.
+     */
+    union RequestDataUnion_ {
+        /** @brief Data for registration requests. */
+        RequestDataLogOutputRegister_ register_;
+        /** @brief Data for unregistration requests. */
+        RequestDataLogOutputUnregister_ unregister_;
+    };
+    /**
+     * @brief Represents a generic request to the log manager.
+     */
+    struct Request_ {
+        /** @brief The id of request. */
+        RequestIDEnum_ id_;
+        /** @brief The data associated with the request. */
+        RequestDataUnion_ data_;
+    };
+
+private:
+    /** @brief Fixed-size queue storing pending log objects. */
+    TQueueSafe<TUniquePointer<ZLog>, TFixedDeque<TUniquePointer<ZLog>, kLogQueueSize>> log_queue_;
+    /** @brief Atomic flag indicating if the log thread is running. */
+    CACHE_ALIGN TAtom<StateEnum_> log_thread_state_;
     /** @brief Thread-safe queue for administrative requests (register/unregister). */
     TQueueSafe<TUniquePointer<Request_>> request_queue_;
     /** @brief The background thread instance processing logs. */
     ZThread log_thread_;
-    /** @brief Mutex protecting the log queue. */
-    ZMutex log_queue_mutex_;
-    /** @brief Fixed-size queue storing pending log objects. */
-    TFixedQueue<TUniquePointer<ZLog>, kLogQueueSize> log_queue_;
 };
 
-}//log
-}//zengine
+} // log
+} // zengine

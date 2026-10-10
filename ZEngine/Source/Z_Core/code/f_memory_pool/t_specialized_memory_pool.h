@@ -27,7 +27,9 @@
 #pragma once
 
 #include "t_lock_guard.h"
+#include "z_file.h"
 #include "z_mutex.h"
+#include "z_string_view.h"
 
 #include "z_system_memory_pool.h"
 
@@ -35,38 +37,39 @@ namespace zengine {
 namespace memory_pool {
 
 /** @brief A structure representing a node in the memory page linked list, aligned to 16 bytes. */
-struct ALIGN(16) ZMemoryPageNode {
+struct MEMORY_POOL_HEAD_DATA_ALIGN ZMemoryPageNode {
     /** @brief Pointer to the underlying memory data. */
     Void* memory_data_ptr_;
     /** @brief Pointer to the next memory page node in the list. */
     ZMemoryPageNode* next_node_ptr_;
 };
 
-}//memory_pool
-}//zengine
+} // memory_pool
+} // zengine
 
 namespace zengine {
 namespace memory_pool {
 namespace internal {
 
 /** @brief A specialized, thread-safe memory pool for managing ZMemoryPageNode objects. */
-class CACHE_LINE_ALIGN ZSpecializedMemoryPoolMemoryPageNodeMemoryPool {
+class CACHE_ALIGN ZSpecializedMemoryPoolMemoryPageNodeMemoryPool {
+    NO_NEW_DELETE
 public:
     /** @brief Structure representing the head of a memory page. */
-    struct ALIGN(16) MemoryPageHead_ {
+    struct MEMORY_POOL_HEAD_DATA_ALIGN MemoryPageHead_ {
         /** @brief Pointer to the next memory page. */
         MemoryPageHead_* next_memory_page_ptr_;
     };
 
 private:
     /** @brief The size of the memory page based on alignment requirements. */
-    static constexpr UInt32 kMemoryPageSize = kMemoryAtomPageSize;
+    static inline constexpr UInt32 kMemoryPageSize = kMemoryAtomPageSize;
     /** @brief The number of memory atom pages to apply for. */
-    static constexpr UInt32 kApplyMemoryAtomPageNum = kMemoryPageSize / kMemoryAtomPageSize;
+    static inline constexpr UInt32 kApplyMemoryAtomPageNum = kMemoryPageSize / kMemoryAtomPageSize;
     /** @brief The size of a single memory block (size of ZMemoryPageNode). */
-    static constexpr UInt32 kMemoryBlockSize = sizeof(ZMemoryPageNode);
+    static inline constexpr UInt32 kMemoryBlockSize = sizeof(ZMemoryPageNode);
     /** @brief Offset for the starting pointer of the memory page to ensure correct alignment. */
-    static constexpr UInt32 kMemoryPageStartPointerOffset = 
+    static inline constexpr UInt32 kMemoryPageStartPointerOffset =
         sizeof(MemoryPageHead_) + ((kMemoryPageSize - sizeof(MemoryPageHead_)) % sizeof(kMemoryBlockSize));
 
 private:
@@ -78,7 +81,7 @@ private:
 
 public:
     /** @brief Retrieves the singleton instance of the memory pool. */
-    FORCEINLINE static ZSpecializedMemoryPoolMemoryPageNodeMemoryPool& Instance() noexcept {
+    FORCEINLINE static ZSpecializedMemoryPoolMemoryPageNodeMemoryPool& GetInstance() noexcept {
         static ZSpecializedMemoryPoolMemoryPageNodeMemoryPool instance;
         return instance;
     }
@@ -86,8 +89,20 @@ public:
     /** @brief Constructs the specialized memory pool. */
     ZSpecializedMemoryPoolMemoryPageNodeMemoryPool() noexcept;
 
+    /** @brief Deleted copy constructor. */
+    ZSpecializedMemoryPoolMemoryPageNodeMemoryPool(const ZSpecializedMemoryPoolMemoryPageNodeMemoryPool&) = delete;
+    
+    /** @brief Deleted move constructor. */
+    ZSpecializedMemoryPoolMemoryPageNodeMemoryPool(ZSpecializedMemoryPoolMemoryPageNodeMemoryPool&&) = delete;   
+
     /** @brief Destroys the specialized memory pool. */
     ~ZSpecializedMemoryPoolMemoryPageNodeMemoryPool() noexcept;
+
+    /** @brief Deleted copy assignment operator. */
+    ZSpecializedMemoryPoolMemoryPageNodeMemoryPool& operator=(const ZSpecializedMemoryPoolMemoryPageNodeMemoryPool&) = delete;
+
+    /** @brief Deleted move assignment operator. */
+    ZSpecializedMemoryPoolMemoryPageNodeMemoryPool& operator=(ZSpecializedMemoryPoolMemoryPageNodeMemoryPool&&) = delete;
 
     /**
      * @brief Allocates a memory page node from the pool.
@@ -124,14 +139,10 @@ public:
     }
 
 private:
-    ZSpecializedMemoryPoolMemoryPageNodeMemoryPool(const ZSpecializedMemoryPoolMemoryPageNodeMemoryPool&) = delete;
-    ZSpecializedMemoryPoolMemoryPageNodeMemoryPool(ZSpecializedMemoryPoolMemoryPageNodeMemoryPool&&) = delete;
-    ZSpecializedMemoryPoolMemoryPageNodeMemoryPool& operator=(const ZSpecializedMemoryPoolMemoryPageNodeMemoryPool&) = delete;
-    ZSpecializedMemoryPoolMemoryPageNodeMemoryPool& operator=(ZSpecializedMemoryPoolMemoryPageNodeMemoryPool&&) = delete;
-
     /** @brief Internal function to prepare a new memory page when the current page is exhausted. */
     NOINLINE Void ExtendMemoryBlockP() noexcept;
 
+private:
     /** @brief Mutex for thread safety. */
     ZMutex mutex_;
     /** @brief Pointer to the head of the free memory block linked list. */
@@ -153,12 +164,14 @@ template<>
 class TSpecializedMemoryPoolThreadSafe<true> {
 public:
     /** @brief Constructs the thread-safe wrapper and initializes the mutex. */
-    FORCEINLINE TSpecializedMemoryPoolThreadSafe() noexcept : mutex_() {}
+    FORCEINLINE TSpecializedMemoryPoolThreadSafe() noexcept = default;
+
     /** @brief Destroys the thread-safe wrapper. */
-    FORCEINLINE ~TSpecializedMemoryPoolThreadSafe() noexcept {}
+    FORCEINLINE ~TSpecializedMemoryPoolThreadSafe() noexcept = default;
 
     /** @brief Locks the internal mutex. */
     FORCEINLINE Void Lock() noexcept { mutex_.Lock(); }
+
     /** @brief Unlocks the internal mutex. */
     FORCEINLINE Void Unlock() noexcept { mutex_.Unlock(); }
 
@@ -172,19 +185,21 @@ template<>
 class TSpecializedMemoryPoolThreadSafe<false> {
 public:
     /** @brief Constructs the non-thread-safe wrapper. */
-    FORCEINLINE TSpecializedMemoryPoolThreadSafe() noexcept {}
+    FORCEINLINE TSpecializedMemoryPoolThreadSafe() noexcept = default;
+
     /** @brief Destroys the non-thread-safe wrapper. */
-    FORCEINLINE ~TSpecializedMemoryPoolThreadSafe() noexcept {}
+    FORCEINLINE ~TSpecializedMemoryPoolThreadSafe() noexcept = default;
 
     /** @brief No-op lock function. */
     FORCEINLINE Void Lock() noexcept {}
+
     /** @brief No-op unlock function. */
     FORCEINLINE Void Unlock() noexcept {}
 };
 
-}//internal
-}//memory_pool
-}//zengine
+} // internal
+} // memory_pool
+} // zengine
 
 namespace zengine {
 namespace memory_pool {
@@ -202,13 +217,13 @@ template<
     Bool _IfThreadSafe, UInt32 _MemoryBlockSize, 
     UInt32 _MemoryAtomPageMinNum, UInt32 _MemoryAtomPageMaxNum, UInt32 _MemoryAtomPageExtendFactor
 >
-class CACHE_LINE_ALIGN TSpecializedMemoryPool : public internal::TSpecializedMemoryPoolThreadSafe<_IfThreadSafe> {
+class CACHE_ALIGN TSpecializedMemoryPool : public internal::TSpecializedMemoryPoolThreadSafe<_IfThreadSafe> {
 private:
-    static_assert(
+    STATIC_ASSERT(
         _MemoryAtomPageMinNum <= _MemoryAtomPageMaxNum,
         "TSpecializedMemoryPool: _MemoryAtomPageMinNum must be bigger than _MemoryAtomPageMaxNum!"
     );
-    static_assert(
+    STATIC_ASSERT(
         _MemoryAtomPageMinNum * kMemoryAtomPageSize >= _MemoryBlockSize,
         "TSpecializedMemoryPool: _MemoryAtomPageMinNum is too small to hold a memory block!"
     );
@@ -225,7 +240,7 @@ public:
     TSpecializedMemoryPool(ZStringView _memory_pool_name) noexcept
 #else
     TSpecializedMemoryPool() noexcept
-#endif //USE_MEMORY_POOL_PERFORMANCE_TEST
+#endif // USE_MEMORY_POOL_PERFORMANCE_TEST
         : head_memory_block_ptr_(nullptr)
         , unused_memory_block_ptr_(nullptr)
         , unused_memory_block_end_ptr_(nullptr)
@@ -237,20 +252,72 @@ public:
         , memory_block_peak_num_(0U)
         , memory_block_total_num_(0U)
         , memory_pool_name_(_memory_pool_name)
-#endif//USE_MEMORY_POOL_PERFORMANCE_TEST
+#endif // USE_MEMORY_POOL_PERFORMANCE_TEST
     {}
+
+    /** @brief Deleted copy constructor. */
+    TSpecializedMemoryPool(const TSpecializedMemoryPool&) = delete;
+
+    /** @brief Deleted move constructor. */
+    TSpecializedMemoryPool(TSpecializedMemoryPool&&) = delete;
 
     /** @brief Destroys the memory pool and releases all allocated resources to the system. */
     ~TSpecializedMemoryPool() noexcept {
         internal::ZSpecializedMemoryPoolMemoryPageNodeMemoryPool& memory_page_node_pool =
-            internal::ZSpecializedMemoryPoolMemoryPageNodeMemoryPool::Instance();
-        ZSystemMemoryPool& system_memory_pool = ZSystemMemoryPool::Instance();
+            internal::ZSpecializedMemoryPoolMemoryPageNodeMemoryPool::GetInstance();
+        ZSystemMemoryPool& system_memory_pool = ZSystemMemoryPool::GetInstance();
         while (head_memory_page_node_ptr_ != nullptr) {
             system_memory_pool.FreeMemoryP(head_memory_page_node_ptr_->memory_data_ptr_);
             memory_page_node_pool.ReleaseMemoryPageNode(head_memory_page_node_ptr_);
             head_memory_page_node_ptr_ = head_memory_page_node_ptr_->next_node_ptr_;
         }
+
+#if USE_MEMORY_POOL_PERFORMANCE_TEST
+        ZFile file;
+        ReturnType link_code = kOK;
+        const ZSystemTime& system_time = ZSystemTime::GetProcessStartTimeInstance();
+
+        TFixedString<kMaxFileDirLength> temp_str;
+        SizeType temp_str_size;
+
+        temp_str_size = temp_str.Assign(
+            "{}/Memory_Performance_Specialized.log",
+            log::ZLog::CreateAndGetLogPath()
+        );
+
+        link_code = file.Open(
+            temp_str.GetDataPtr(),
+            ZFile::kWriteOnly | ZFile::kCreate | ZFile::kAppend
+        );
+        if (link_code != kOK) {
+            return;
+        }
+
+        temp_str_size = temp_str.Assign(
+            "\n***** {} *****\n"
+            "    size    |  total num  | applied times | used peak num | unreleased num\n"
+            "  {:>8}  |  {:>9}  |   {:>9}   |   {:>9}   |  {:>8}\n",
+            memory_pool_name_,
+            _MemoryBlockSize,
+            memory_block_total_num_,
+            memory_block_applied_num_,
+            memory_block_peak_num_,
+            memory_block_unreleased_num_
+        );
+        link_code = file.Write(ZBuffer(temp_str.GetDataPtr(), temp_str_size));
+        if (link_code != kOK) {
+            return;
+        }
+
+        file.Close();
+#endif // USE_MEMORY_POOL_PERFORMANCE_TEST      
     }
+
+    /** @brief Deleted copy assignment operator. */
+    TSpecializedMemoryPool& operator=(const TSpecializedMemoryPool&) = delete;
+
+    /** @brief Deleted move assignment operator. */
+    TSpecializedMemoryPool& operator=(TSpecializedMemoryPool&&) = delete;
 
     /**
      * @brief Allocates a memory block from the pool.
@@ -277,7 +344,7 @@ public:
         if (memory_block_unreleased_num_ > memory_block_peak_num_) {
             memory_block_peak_num_ = memory_block_unreleased_num_;
         }
-#endif//USE_MEMORY_POOL_PERFORMANCE_TEST
+#endif // USE_MEMORY_POOL_PERFORMANCE_TEST
         return memory_ptr;
     }
 
@@ -292,31 +359,26 @@ public:
         head_memory_block_ptr_ = memory_block_ptr;
 #if USE_MEMORY_POOL_PERFORMANCE_TEST
         memory_block_unreleased_num_ -= 1;
-#endif//USE_MEMORY_POOL_PERFORMANCE_TEST
+#endif // USE_MEMORY_POOL_PERFORMANCE_TEST
     }
 
 private:
-    TSpecializedMemoryPool(const TSpecializedMemoryPool&) = delete;
-    TSpecializedMemoryPool(TSpecializedMemoryPool&&) = delete;
-    TSpecializedMemoryPool& operator=(const TSpecializedMemoryPool&) = delete;
-    TSpecializedMemoryPool& operator=(TSpecializedMemoryPool&&) = delete;
-
     /** @brief Internal function to extend the memory pool when current resources are exhausted. */
     NOINLINE Void ExtendMemoryBlockP() noexcept {
-        //allocate new memory data from system
+        // allocate new memory data from system
         Void* memory_data_ptr =
-            ZSystemMemoryPool::Instance().Alloc64KBAlignmentMemoryAtomPageP(next_apply_memory_atom_page_num_);
+            ZSystemMemoryPool::GetInstance().Alloc64KBAlignmentMemoryAtomPageP(next_apply_memory_atom_page_num_);
         if (memory_data_ptr == nullptr) {
             ReturnType ret_val = error_code::kFMemoryPoolErrorCode_OutOfMemory;
             Z_LOG_ERROR(ret_val, 0, "Out of memory!");
             Exit(ret_val);
         }
 
-        //calculate applied memory size
+        // calculate applied memory size
         SizeType apply_memory_size = 
             static_cast<SizeType>(next_apply_memory_atom_page_num_) * static_cast<SizeType>(kMemoryAtomPageSize);
 
-        //update next apply memory page num
+        // update next apply memory page num
         if (next_apply_memory_atom_page_num_ < _MemoryAtomPageMaxNum) {
             next_apply_memory_atom_page_num_ *= _MemoryAtomPageExtendFactor;
             if (next_apply_memory_atom_page_num_ > _MemoryAtomPageMaxNum) {
@@ -324,26 +386,27 @@ private:
             }
         }
 
-        //apply memory page head node from specialized memory pool
+        // apply memory page head node from specialized memory pool
         ZMemoryPageNode* memory_page_node_ptr = 
-            internal::ZSpecializedMemoryPoolMemoryPageNodeMemoryPool::Instance().ApplyMemoryPageNode();
+            internal::ZSpecializedMemoryPoolMemoryPageNodeMemoryPool::GetInstance().ApplyMemoryPageNode();
         memory_page_node_ptr->memory_data_ptr_ = memory_data_ptr;
         memory_page_node_ptr->next_node_ptr_ = head_memory_page_node_ptr_;
         head_memory_page_node_ptr_ = memory_page_node_ptr;
 
-        //calculate memory block num
+        // calculate memory block num
         SizeType memory_block_num = apply_memory_size / static_cast<SizeType>(_MemoryBlockSize);
 
-        //initialize new memory page
+        // initialize new memory page
         unused_memory_block_ptr_ = static_cast<Byte*>(memory_data_ptr);
         unused_memory_block_end_ptr_ = 
             static_cast<Byte*>(memory_data_ptr) + memory_block_num * static_cast<SizeType>(_MemoryBlockSize);
 
 #if USE_MEMORY_POOL_PERFORMANCE_TEST
         memory_block_total_num_ += static_cast<UInt32>(memory_block_num);
-#endif //USE_MEMORY_POOL_PERFORMANCE_TEST
+#endif // USE_MEMORY_POOL_PERFORMANCE_TEST
     }
 
+private:
     /** @brief Pointer to the head of the free memory block linked list. */
     MemoryBlockHead_* head_memory_block_ptr_;
     /** @brief Pointer to the current available position within the active memory page. */
@@ -368,5 +431,5 @@ private:
 #endif // USE_MEMORY_POOL_PERFORMANCE_TEST
 };
 
-}//memory_pool
-}//zengine
+} // memory_pool
+} // zengine

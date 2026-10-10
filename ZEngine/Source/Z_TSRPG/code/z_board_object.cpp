@@ -56,7 +56,7 @@ NODISCARD ReturnType ZBoardObject::InitializeP(ZTile* _owner_tile_ptr) noexcept 
     ReturnType ret_val = kOK;
     SuperType_::InitializeP();
     Z_CHECK(
-        _owner_tile_ptr == nullptr, error_code::kZBoardObjectErrorCode_NullptrParam,
+        _owner_tile_ptr != nullptr, error_code::kZBoardObjectErrorCode_NullptrParam,
         "_tile_list_ptr is nullptr!"
     );
 
@@ -75,5 +75,5 @@ NODISCARD ReturnType ZBoardObject::InitializeP(ZTile* _owner_tile_ptr) noexcept 
     return ret_val;
 }
 
-}//tsrpg
-}//zengine
+} // tsrpg
+} // zengine

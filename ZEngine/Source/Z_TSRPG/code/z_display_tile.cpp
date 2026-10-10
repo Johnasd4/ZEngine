@@ -103,11 +103,11 @@ ReturnType ZDisplayTile::Initialize(
         return ret_val;
     }
     Z_CHECK(
-        link_code != kOK, error_code::kZDisplayTileErrorCode_LinkError,
+        link_code == kOK, error_code::kZDisplayTileErrorCode_LinkError,
         "_logic_tile_ptr is nullptr!"
     );
     Z_CHECK(
-        _logic_tile_ptr == nullptr, error_code::kZDisplayTileErrorCode_LogicTileNotExists,
+        _logic_tile_ptr != nullptr, error_code::kZDisplayTileErrorCode_LogicTileNotExists,
         "_logic_tile_ptr is nullptr!"
     );
     if (_logic_tile_ptr->display_tile_head_ptr_ != nullptr) {
@@ -123,5 +123,5 @@ ReturnType ZDisplayTile::Initialize(
     return ret_val;
 }
 
-}//tsrpg
-}//zengine
+} // tsrpg
+} // zengine

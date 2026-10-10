@@ -82,7 +82,7 @@
 //        ReturnType link_code = kOK;
 //
 //        Z_CHECK(
-//            log_server_thread_state_ != ThreadState_::kClosed,
+//            log_server_thread_state_ == ThreadState_::kClosed,
 //            error_code::kSocketErrorCode_StateError,
 //            "Server state error! state: %d expect state: %d",
 //            log_server_thread_state_.Value(), ThreadState_::kClosed
@@ -335,7 +335,7 @@
 //        ReturnType link_code = kOK;
 //
 //        Z_CHECK(
-//            log_client_thread_state_ != ThreadState_::kClosed,
+//            log_client_thread_state_ == ThreadState_::kClosed,
 //            error_code::kSocketErrorCode_StateError,
 //            "Client state error! state: %d expect state: %d",
 //            log_client_thread_state_.Value(), ThreadState_::kClosed
@@ -593,5 +593,5 @@
 //    return kOK;
 //}
 //
-//}//socket
-//}//zengine
+//} // socket
+//} // zengine

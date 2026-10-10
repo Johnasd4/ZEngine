@@ -56,8 +56,8 @@ template <typename Char> class basic_printf_context {
 namespace detail {
 
 // Return the result via the out param to workaround gcc bug 77539.
-template <bool IS_CONSTEXPR, typename T, typename Ptr = const T*>
-FMT_CONSTEXPR auto find(Ptr first, Ptr last, T value, Ptr& out) -> bool {
+template <bool IS_CONSTEXPR, typename T, typename GetPtr = const T*>
+FMT_CONSTEXPR auto find(GetPtr first, GetPtr last, T value, GetPtr& out) -> bool {
   for (out = first; out != last; ++out) {
     if (*out == value) return true;
   }

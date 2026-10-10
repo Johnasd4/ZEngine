@@ -30,7 +30,7 @@
 
 #ifndef CORE_DLLFILE
 #define FMT_HEADER_ONLY 
-#endif//CORE_DLLFILE
+#endif // CORE_DLLFILE
 
 #include "fmt/color.h"
 #include "fmt/core.h"
@@ -38,33 +38,51 @@
 #include "fmt/os.h"
 #include "fmt/xchar.h"
 
+#include "../z_string.h"
 #include "../z_string_view.h"
+#include "../z_static_string_view.h"
 
-//ZStringView
+// ReturnType
+template <>
+struct fmt::formatter<zengine::ReturnType> : fmt::formatter<zengine::ReturnType::ValueType> {
+    auto format(const zengine::ReturnType _value, format_context& _context) const {
+        return fmt::formatter<zengine::ReturnType::ValueType>::format(
+            static_cast<zengine::ReturnType::ValueType>(_value), 
+            _context
+        );
+    }
+};
+
+// ZStringView
 template <>
 struct fmt::formatter<zengine::ZStringView> : fmt::formatter<std::string_view> {
     auto format(const zengine::ZStringView& _string_view, format_context& _context) const {
-        return fmt::formatter<std::string_view>::format(_string_view.STDStringView(), _context);
+        return fmt::formatter<std::string_view>::format(_string_view.GetSTDStringView(), _context);
     }
 };
 
-//ZString
+// ZStaticStringView
+template <>
+struct fmt::formatter<zengine::ZStaticStringView> : fmt::formatter<std::string_view> {
+    auto format(const zengine::ZStaticStringView& _string_view, format_context& _context) const {
+        return fmt::formatter<std::string_view>::format(
+            std::string_view(_string_view.GetDataPtr(), _string_view.GetSize()), 
+            _context
+        );
+    }
+};
+
+// ZString
 template <>
 struct fmt::formatter<zengine::ZString> : fmt::formatter<std::string_view> {
     auto format(const zengine::ZString& _string, format_context& _context) const {
-        return fmt::formatter<std::string_view>::format(std::string_view(_string.GetDataPtr(), _string.GetSize()), _context);
+        return fmt::formatter<std::string_view>::format(
+            std::string_view(_string.GetDataPtr(), _string.GetSize()), _context
+        );
     }
 };
 
-//ZString
-template <>
-struct fmt::formatter<zengine::ZStringLocal> : fmt::formatter<std::string_view> {
-    auto format(const zengine::ZStringLocal& _string, format_context& _context) const {
-        return fmt::formatter<std::string_view>::format(std::string_view(_string.GetDataPtr(), _string.GetSize()), _context);
-    }
-};
-
-//Char*
+// Char*
 template <>
 struct fmt::formatter<const zengine::Char*> : fmt::formatter<std::string_view> {
     auto format(const zengine::Char* _string, format_context& _context) const {

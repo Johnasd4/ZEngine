@@ -37,10 +37,10 @@ namespace zengine {
 namespace memory_pool {
 
 /** @brief A global memory pool manager for large memory blocks (typically > 2MB) directly allocated from the system. */
-class CACHE_LINE_ALIGN ZGenericSystemMemoryPool {
+class CACHE_ALIGN ZGenericSystemMemoryPool {
 public:
     /** @brief Header structure pre-pended to every large memory block for tracking purposes. */
-    struct CACHE_LINE_ALIGN MemoryBlockHead_ {
+    struct CACHE_ALIGN MemoryBlockHead_ {
         /** @brief Padding to ensure cache line alignment. */
         Byte padding_[CACHE_LINE_SIZE - sizeof(ZGenericMemoryPool::MemoryPageHead_)];
         /** @brief Pointer back to the owning pool (useful for debugging or generic release). */
@@ -51,7 +51,7 @@ public:
 
 public:
     /** @brief Retrieves the global singleton instance of the system memory pool. */
-    FORCEINLINE static ZGenericSystemMemoryPool& Instance() noexcept {
+    FORCEINLINE static ZGenericSystemMemoryPool& GetInstance() noexcept {
         static ZGenericSystemMemoryPool instance;
         return instance;
     }
@@ -59,8 +59,20 @@ public:
     /** @brief Constructs the system memory pool. */
     ZGenericSystemMemoryPool() noexcept;
 
+    /** @brief Deleted copy constructor. */
+    ZGenericSystemMemoryPool(const ZGenericSystemMemoryPool&) = delete;
+
+    /** @brief Deleted move constructor. */
+    ZGenericSystemMemoryPool(ZGenericSystemMemoryPool&&) = delete;
+
     /** @brief Destroys the pool. Note: Does not automatically free leaked memory to avoid shutdown order issues. */
     ~ZGenericSystemMemoryPool() noexcept;
+
+    /** @brief Deleted copy assignment operator. */
+    ZGenericSystemMemoryPool& operator=(const ZGenericSystemMemoryPool&) = delete;
+
+    /** @brief Deleted move assignment operator. */
+    ZGenericSystemMemoryPool& operator=(ZGenericSystemMemoryPool&&) = delete;
 
     /**
      * @brief Calculates the actual memory block size for a requested size.
@@ -68,7 +80,7 @@ public:
      * @return The actual size of the memory block that will be allocated.
      */
     NODISCARD FORCEINLINE SizeType CalculateMemory(SizeType _memory_size) noexcept {
-        //apply memory from system (Size + Header)
+        // apply memory from system (Size + Header)
         UInt32 apply_page_num = static_cast<UInt32>(
             ((_memory_size + sizeof(MemoryBlockHead_) + static_cast<SizeType>(kMemoryAtomPageMask))) /
             kMemoryAtomPageSize
@@ -78,17 +90,17 @@ public:
 
     /** @brief Allocates a large memory block directly from the system. */
     NODISCARD Void* ApplyMemory(SizeType _size) noexcept {
-        //apply memory from system (Size + Header)
+        // apply memory from system (Size + Header)
         UInt32 apply_page_num = static_cast<UInt32>(
             ((_size + sizeof(MemoryBlockHead_) + static_cast<SizeType>(kMemoryAtomPageMask))) /
             static_cast<SizeType>(kMemoryAtomPageSize)
         );
         SizeType apply_size = static_cast<SizeType>(apply_page_num) * static_cast<SizeType>(kMemoryAtomPageSize);
-        Void* raw_memory_ptr = ZSystemMemoryPool::Instance().Alloc2MBAlignmentMemoryAtomPageP(apply_page_num);
+        Void* raw_memory_ptr = ZSystemMemoryPool::GetInstance().Alloc2MBAlignmentMemoryAtomPageP(apply_page_num);
         if (raw_memory_ptr == nullptr) {
             return nullptr;
         }
-        //initialize memory page head
+        // initialize memory page head
         MemoryBlockHead_* memory_block_head_ptr = static_cast<MemoryBlockHead_*>(raw_memory_ptr);
         memory_block_head_ptr->memory_pool_ptr_ = this;
         memory_block_head_ptr->memory_block_size_ = apply_size;
@@ -107,7 +119,7 @@ public:
                 memory_block_peak_size_ = memory_block_unreleased_size_;
             }
         }
-#endif//USE_MEMORY_POOL_PERFORMANCE_TEST
+#endif // USE_MEMORY_POOL_PERFORMANCE_TEST
 
         // Return the pointer after the header
         return memory_block_head_ptr + 1ULL;
@@ -115,17 +127,17 @@ public:
 
     /** @brief Allocates a large memory block directly from the system. */
     NODISCARD Void* ApplyMemory(SizeType _size, SizeType* _memory_size_ptr) noexcept {
-        //apply memory from system (Size + Header)
+        // apply memory from system (Size + Header)
         UInt32 apply_page_num = static_cast<UInt32>(
             ((_size + sizeof(MemoryBlockHead_) + static_cast<SizeType>(kMemoryAtomPageMask))) /
             static_cast<SizeType>(kMemoryAtomPageSize)
         );
         SizeType apply_size = static_cast<SizeType>(apply_page_num) * static_cast<SizeType>(kMemoryAtomPageSize);
-        Void* raw_memory_ptr = ZSystemMemoryPool::Instance().Alloc2MBAlignmentMemoryAtomPageP(apply_page_num);
+        Void* raw_memory_ptr = ZSystemMemoryPool::GetInstance().Alloc2MBAlignmentMemoryAtomPageP(apply_page_num);
         if (raw_memory_ptr == nullptr) {
             return nullptr;
         }
-        //initialize memory page head
+        // initialize memory page head
         MemoryBlockHead_* memory_block_head_ptr = static_cast<MemoryBlockHead_*>(raw_memory_ptr);
         memory_block_head_ptr->memory_pool_ptr_ = this;
         memory_block_head_ptr->memory_block_size_ = apply_size;
@@ -145,7 +157,7 @@ public:
                 memory_block_peak_size_ = memory_block_unreleased_size_;
             }
         }
-#endif//USE_MEMORY_POOL_PERFORMANCE_TEST
+#endif // USE_MEMORY_POOL_PERFORMANCE_TEST
 
         // Return the pointer after the header
         return memory_block_head_ptr + 1ULL;
@@ -161,17 +173,12 @@ public:
             memory_block_unreleased_num_ -= 1U;
             memory_block_unreleased_size_ -= memory_block_head_ptr->memory_block_size_;
         }
-#endif//USE_MEMORY_POOL_PERFORMANCE_TEST
+#endif // USE_MEMORY_POOL_PERFORMANCE_TEST
 
-        ZSystemMemoryPool::Instance().FreeMemoryP(memory_block_head_ptr);
+        ZSystemMemoryPool::GetInstance().FreeMemoryP(memory_block_head_ptr);
     }
 
 private:
-    ZGenericSystemMemoryPool(const ZGenericSystemMemoryPool&) = delete;
-    ZGenericSystemMemoryPool(ZGenericSystemMemoryPool&&) = delete;
-    ZGenericSystemMemoryPool& operator=(const ZGenericSystemMemoryPool&) = delete;
-    ZGenericSystemMemoryPool& operator=(ZGenericSystemMemoryPool&&) = delete;
-
 #if USE_MEMORY_POOL_PERFORMANCE_TEST
     /** @brief Mutex to protect performance statistics. */
     ZMutex memory_performance_mutex_;
@@ -187,9 +194,9 @@ private:
     SizeType memory_block_applied_size_;
     /** @brief Peak size of concurrent memory allocated. */
     SizeType memory_block_peak_size_;
-#endif //USE_MEMORY_POOL_PERFORMANCE_TEST
+#endif // USE_MEMORY_POOL_PERFORMANCE_TEST
 };
 
-}//memory_pool
+} // memory_pool
 
-}//zengine
+} // zengine

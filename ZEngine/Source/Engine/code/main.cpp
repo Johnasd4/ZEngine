@@ -27,6 +27,10 @@
 #define PROJECT_NAME "Include"
 
 #include "zengine/z_core.h"
+#include "zengine/z_math.h"
+#include "zengine/z_lua.h"
+#include "zengine/z_gui.h"
+#include "zengine/z_socket.h"
 
 //#include "zengine/z_engine.h"
 //#include "test.h"
@@ -34,33 +38,82 @@
 using namespace zengine;
 using namespace zengine::file_system;
 using namespace zengine::console;
-//using namespace zengine::gui;
+using namespace zengine::lua;
+using namespace zengine::gui;
 //using namespace zengine::math;
 //using namespace zengine::tsrpg;
-//using namespace zengine::socket;
+using namespace zengine::socket;
 
 //Int32 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
-Int32 main() { 
+Int32 main() {
     zengine::Initialize();
 
-    //ZMemory(1000);
+    ReturnType link_code = kOK;
 
-    SleepMs(200);
-    //Z_LOG_MESSAGE("{}\n", sizeof(ZMutex));
-    //string::StringToWString("12345");
-    //test::GuiTest();
-    //test::LogOutputServerTest();
-    //test::SocketTest();
-    //ZString string("12314253252523451345345134513512341234124");
-    //string.Resize(100);
+    ZIOContext io_context;
+    ZIOContextWorkGuard work_guard(io_context);
+    ZThread thread([&io_context] () {
+        io_context.Run();
+    });
+    auto address = ZIP4Address::MakeAddress("0.0.0.0");
+    ZUDPSocket udp_socket(io_context);
+    ZUDPEndpoint endpoint(*address, 10000);
+    udp_socket.Open(endpoint.GetIPType());
+    udp_socket.BindEndpoint(endpoint);
 
-    auto info = GetFileInfoByPath("I:\\ZEngine\\ZEngine\\Binaries\\debugger\\Log\\20251223212340\\20251223212340_Info.log");
 
-    Z_PRINT(
-        "{}\n{}\n{}\n{}\n",
-        info.path_, info.name_, info.extension_, info.directory_
-    )
+    Z_LOG_MESSAGE("{}", math::Rand(1, 3));
+    Z_LOG_MESSAGE("Address port: {}, ip: {}", endpoint.GenerateIPString(), endpoint.GetPort());
 
-    Exit(kOK);
+    auto result = socket::GetUDPSocketPublicIP4AndPort(udp_socket);
+    work_guard.Reset();
+     if (result) {
+        Z_LOG_MESSAGE(
+            "GetUDPPublicIP4AndPort: port: {}, ip: {}", 
+            result->GenerateIPString(), result->GetPort()
+        );
+
+    }
+
+    zengine::socket::ZTCPSocket* socket_ptr = new zengine::socket::ZTCPSocket(io_context);
+    delete socket_ptr;
+
+    ZLuaState lua_state;
+    link_code = lua_state.Initialize();
+
+    lua_state.ExecuteScript(R"(
+        Z_LOG_ERROR(0, "Error...");
+        Z_LOG_TRACE("Trace...");
+        Z_LOG_MESSAGE("Message...");
+        Z_LOG_START("Start...");
+        Z_LOG_PROCESS("Process...");
+        Z_LOG_FINISH("Finish...");
+        Z_LOG_FAILURE("Failure...");
+        Z_LOG_SUCCESS("Success...");
+    )");
+    ZApplication app{ "test title", GuiSize(1000, 1000), GuiPos(0, 0) };
+    app.SetPosToScreenCenter();
+    ZWindow window{ "test window", GuiSize(500, 500), GuiPos(200, 200) };
+    window.SetFontScale(1.0f);
+    app.AddWindow(&window);
+    ZFrame frame{ "test frame" };
+    window.AddWidget(&frame);
+    ZButton button{ "test button" };
+    ZButton button2{ "test button2" };
+    //frame.SetEnabled(false);
+    frame.AddWidget(&button);
+    frame.AddWidget(&button2);
+    ZCheckBox checkbox{ "test checkbox" };
+    frame.AddWidget(&checkbox);
+    ZSeparator separator{};
+    frame.AddWidget(&separator);
+    //separator.SetPos(GuiPos(0, 300));
+    app.Execute();
+
+    Z_LOG_FINISH("Program exited with code 0x{:x}", 0);
+    ZThread::SleepMs(kExitTimeMs);
+    log::FinishFlush();
+    console::Flush();
+    return 0;
 }
 

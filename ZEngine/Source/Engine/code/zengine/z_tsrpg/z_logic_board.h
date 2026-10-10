@@ -27,7 +27,7 @@
 
 namespace zengine {
 namespace error_code {
-enum ZLogicBoardErrorCodeEnum : ReturnType {
+enum ZLogicBoardErrorCodeEnum : ReturnType::ValueType {
     kZLogicBoardErrorCode_LinkError = kErrorCodeBase_ZLogicBoard,
     kZLogicBoardErrorCode_SystemOrLibraryError,
     kZLogicBoardErrorCode_NullptrParam,
@@ -35,8 +35,8 @@ enum ZLogicBoardErrorCodeEnum : ReturnType {
     kZLogicBoardErrorCode_OwnerBoardAlreadyExists,
     kZLogicBoardErrorCode_TileTextureNotExist
 };
-}//error_code
-}//zengine
+} // error_code
+} // zengine
 
 namespace zengine {
 namespace tsrpg {
@@ -44,8 +44,8 @@ class ZLogicTile;
 class ZLogicTileTexture;
 class ZLogicBoard;
 class ZLogicBoardViewport;
-}//tsrpg
-}//zengine
+} // tsrpg
+} // zengine
 
 namespace zengine {
 namespace tsrpg {
@@ -164,5 +164,5 @@ public:
     ZLogicBoard* pre_sub_board_ptr_;
 };
 
-}//tsrpg
-}//zengine
+} // tsrpg
+} // zengine

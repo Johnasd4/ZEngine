@@ -40,7 +40,39 @@ namespace log {
  * This class specializes the ZLog base class to handle trace-level logging, capturing detailed
  * execution context such as project name, file path, function name, and line number.
  */
-class CORE_DLLAPI CACHE_LINE_ALIGN ZTraceLog : public ZLog {
+class CORE_DLLAPI CACHE_ALIGN ZTraceLog : public ZLog {
+public:
+    /** @brief Base class alias. */
+    using SuperType_ = ZLog;
+
+    /**
+     * @brief Trace log head information structure.
+     */
+    struct WORD_ALIGN TraceLogHead_ {
+        /** @brief The name of the project. */
+        ZStringView proj_name_;
+        /** @brief The file path. */
+        ZStringView file_path_;
+        /** @brief The function name. */
+        ZStringView func_name_;
+        /** @brief The line number of the trace. */
+        Int32 trace_line_;
+    };
+
+    /** @brief Maximum size for the log string within the trace log. */
+    static inline constexpr SizeType kLogStringMaxSize =
+        static_cast<SizeType>(kLogMaxSize) - sizeof(TraceLogHead_) - sizeof(ZLog);
+
+    /**
+     * @brief Structure to hold the raw log message string.
+     */
+    struct LogString_ {
+        /** @brief The current size of the log string. */
+        SizeType size_;
+        /** @brief Pointer to the fixed-size string buffer for the log message. */
+        TFixedString<kLogStringMaxSize - sizeof(SizeType)> string_;
+    };
+
 public:
     /**
      * @brief Outputs the log content to a file.
@@ -57,25 +89,10 @@ public:
     static Void ConsoleOutputLog(const ZLog* _log_ptr, ZStringView _output_str) noexcept;
 
     /**
-     * @brief Constructs a ZTraceLog object.
-     * @param _log_time The time the log occurred.
-     * @param _proj_name The name of the project where the trace is recorded.
-     * @param _file_dir The directory or file path of the trace.
-     * @param _func_name The name of the function being traced.
-     * @param _trace_line The line number of the trace.
+     * @brief Gets the static instance of the output function array.
+     * @return OutputFunctionArray_& Reference to the fixed array of output functions.
      */
-    ZTraceLog(
-        TimeType _log_time, 
-        ZStringView _proj_name,
-        ZStringView _file_dir,
-        ZStringView _func_name,
-        Int32 _trace_line
-    ) noexcept;
-
-    /**
-     * @brief Virtual destructor.
-     */
-    virtual ~ZTraceLog() noexcept;
+    NODISCARD static OutputFunctionArray_& GetOutputFunctionArrayInstance() noexcept;
 
     /**
      * @brief Custom memory allocation operator.
@@ -91,25 +108,45 @@ public:
     NODISCARD static Void operator delete(Void* _memory_ptr) noexcept;
 
     /**
-     * @brief Gets the static instance of the output function array.
-     * @return OutputFunctionArray_& Reference to the fixed array of output functions.
+     * @brief Constructs a ZTraceLog object.
+     * @param _log_time The time the log occurred.
+     * @param _proj_name The name of the project where the trace is recorded.
+     * @param _file_path The file path of the trace.
+     * @param _func_name The name of the function being traced.
+     * @param _trace_line The line number of the trace.
      */
-    NODISCARD static OutputFunctionArray_& OutputFunctionArrayInstance() noexcept;
+    ZTraceLog(
+        TimeType _log_time, 
+        ZStringView _proj_name,
+        ZStringView _file_path,
+        ZStringView _func_name,
+        Int32 _trace_line
+    ) noexcept;
 
-protected:
-    /** @brief Base class alias. */
-    using SuperType_ = ZLog;
-
-private:
     /** @brief Deleted copy constructor. */
     ZTraceLog(const ZTraceLog&) = delete;
+
     /** @brief Deleted move constructor. */
     ZTraceLog(ZTraceLog&&) = delete;
+
+    /**
+     * @brief Virtual destructor.
+     */
+    virtual ~ZTraceLog() noexcept = default;
+
     /** @brief Deleted copy assignment operator. */
     ZTraceLog& operator=(const ZTraceLog&) = delete;
+
     /** @brief Deleted move assignment operator. */
     ZTraceLog& operator=(ZTraceLog&&) = delete;
 
+    /**
+     * @brief Gets the trace log head information.
+     * @return const TraceLogHead_& Reference to the trace log head structure.
+     */
+    NODISCARD FORCEINLINE LogString_& LogString() noexcept { return log_string_; }
+
+private:
     /**
      * @brief Generates the formatted output string for the trace log.
      * @param _output_str_ptr Pointer to the output string structure to be filled.
@@ -123,15 +160,11 @@ private:
     NODISCARD virtual OutputFunctionArray_& OutputFunctionArrayP() noexcept;
 
 private:
-    /** @brief The name of the project. */
-    ZStringView proj_name_;
-    /** @brief The file directory or path. */
-    ZStringView file_dir_;
-    /** @brief The function name. */
-    ZStringView func_name_;
-    /** @brief The line number of the trace. */
-    Int32 trace_line_;
+    /** @brief The trace log head information. */
+    TraceLogHead_ trace_log_head_;
+    /** @brief The log message string. */
+    LogString_ log_string_;
 };
 
-}//log
-}//zengine
+} // log
+} // zengine

@@ -1,17 +1,25 @@
 /*
     Copyright (c) YuLin Zhu
 
-    This code file is licensed under the Creative Commons
-    Attribution-NonCommercial 4.0 International License.
+    ** ZEngine Proprietary License **
 
-    You may obtain a copy of the License at
-    https://creativecommons.org/licenses/by-nc/4.0/
+    This software is provided "as-is", without any express or implied warranty.
+    In no event will the authors be held liable for any damages arising from the
+    use of this software.
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+    Usage Rights:
+    1. Non-Commercial Use: You may use, modify, and distribute this software
+       for non-commercial purposes (e.g., education, personal projects, open-source
+       projects that do not generate revenue) free of charge.
+
+    2. Commercial Use: Commercial use of this software is STRICTLY PROHIBITED
+       without a valid commercial license agreement with the author.
+       "Commercial use" includes, but is not limited to:
+       - Incorporating this software into a product that is sold.
+       - Using this software in a paid service.
+       - Using this software for internal business operations in a for-profit entity.
+
+    To obtain a Commercial License, please contact the author.
 
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
@@ -20,141 +28,239 @@
 #include "drive/d_pch.h"
 
 #include "z_io_context.h"
-#include "z_tcp_endpoint.h"
-#include "z_udp_endpoint.h"
-
-#include "data/z_io_context_data.h"
 
 namespace zengine {
 namespace socket {
 
-NODISCARD ZIOContext& ZIOContext::Instance() noexcept {
-    static ZIOContext io_context;
-    return io_context;
-}
-
 ZIOContext::ZIOContext() noexcept
     : SuperType_()
-    , data_ptr_(MakeUnique<internal::ZIOContextData>())
-    , running_thread_count_(0ULL)
+    , io_context_()
+    , running_thread_count_(0)
 {}
 
-ZIOContext::~ZIOContext() noexcept {}
-
-NODISCARD ReturnType ZIOContext::ResolveTCPAddress(
-    ZStringView _address_str,
-    ZStringView _port_str,
-    TArray<ZTCPEndpoint>* _endpoint_array_ptr
+NODISCARD TOptional<TArray<ZTCPEndpoint>> ZIOContext::ResolveTCP(
+    ZStringView _host_str,
+    ZStringView _port_str
 ) noexcept {
     ReturnType ret_val = kOK;
-    ReturnType link_code = kOK;
-    boost::system::error_code error_code;
+    std::error_code error_code;
 
-    //resolve endpoints
-    boost::asio::ip::tcp::resolver resolver(data_ptr_->io_context_);
-    boost::asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(
-        boost::asio::string_view(_address_str.GetDataPtr(), _address_str.GetSize()),
-        boost::asio::string_view(_port_str.GetDataPtr(), _port_str.GetSize()),
+    // resolve endpoints
+    asio::ip::tcp::resolver resolver(io_context_);
+    asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(
+        asio::string_view(_host_str.GetDataPtr(), _host_str.GetSize()),
+        asio::string_view(_port_str.GetDataPtr(), _port_str.GetSize()),
         error_code
     );
 
     if (error_code) {
-        ret_val = error_code::kSocketErrorCode_AddressNotVaild;
-        ZString address_str(_address_str);
-        ZString port_str(_port_str);
+        ret_val = error_code::kZIOContextErrorCode_SystemOrLibraryError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
-            "System error! error info: %ls address: %ls port: %ls",
-            string::StringToWString(error_code.message().c_str()).GetDataPtr(),
-            string::StringToWString(address_str.GetDataPtr()).GetDataPtr(),
-            string::StringToWString(port_str.GetDataPtr()).GetDataPtr()
+            "System error! error info: {} address: {} port: {}",
+            error_code.message(),
+            _host_str,
+            _port_str
         );
         return ret_val;
     }
 
-    _endpoint_array_ptr->Resize(endpoints.size());
+    TArray<ZTCPEndpoint> endpoint_array;
+
+    endpoint_array.Resize(endpoints.size());
     SizeType array_index = 0ULL;
     for (
         auto endpoint_iterator = endpoints.begin(); 
         endpoint_iterator != endpoints.end(); 
         ++endpoint_iterator, ++array_index
     ) {
-        *(*_endpoint_array_ptr)[array_index].endpoint_data_.GetDataPtr<boost::asio::ip::tcp::endpoint>() = 
-            *endpoint_iterator;
+        endpoint_array[array_index].endpoint_ = endpoint_iterator->endpoint();
     }
-    return ret_val;
+    return endpoint_array;
 }
 
-NODISCARD ReturnType ZIOContext::ResolveUDPAddress(
-    ZStringView _address_str,
-    ZStringView _port_str,
-    TArray<ZUDPEndpoint>* _endpoint_array_ptr
+NODISCARD TOptional<TArray<ZUDPEndpoint>> ZIOContext::ResolveUDP(
+    ZStringView _host_str,
+    ZStringView _port_str
 ) noexcept {
     ReturnType ret_val = kOK;
-    ReturnType link_code = kOK;
-    boost::system::error_code error_code;
+    std::error_code error_code;
 
-    //resolve endpoints
-    boost::asio::ip::udp::resolver resolver(data_ptr_->io_context_);
-    boost::asio::ip::udp::resolver::results_type endpoints = resolver.resolve(
-        boost::asio::string_view(_address_str.GetDataPtr(), _address_str.GetSize()),
-        boost::asio::string_view(_port_str.GetDataPtr(), _port_str.GetSize()),
+    // resolve endpoints
+    asio::ip::udp::resolver resolver(io_context_);
+    asio::ip::udp::resolver::results_type endpoints = resolver.resolve(
+        asio::string_view(_host_str.GetDataPtr(), _host_str.GetSize()),
+        asio::string_view(_port_str.GetDataPtr(), _port_str.GetSize()),
         error_code
     );
 
     if (error_code) {
-        ret_val = error_code::kSocketErrorCode_AddressNotVaild;
-        ZString address_str(_address_str);
-        ZString port_str(_port_str);
+        ret_val = error_code::kZIOContextErrorCode_SystemOrLibraryError;
         Z_LOG_ERROR(
             ret_val, error_code.value(),
-            "System error! error info: %ls address(%d): %ls port(%d): %ls",
-            string::StringToWString(error_code.message().c_str()).GetDataPtr(),
-            _address_str.GetSize(), string::StringToWString(address_str.GetDataPtr()).GetDataPtr(),
-            _port_str.GetSize(), string::StringToWString(port_str.GetDataPtr()).GetDataPtr()
+            "System error! error info: {} address: {} port: {}",
+            error_code.message(),
+            _host_str,
+            _port_str
         );
         return ret_val;
     }
 
-    _endpoint_array_ptr->Resize(endpoints.size());
+    TArray<ZUDPEndpoint> endpoint_array;
+
+    endpoint_array.Resize(endpoints.size());
     SizeType array_index = 0ULL;
     for (
         auto endpoint_iterator = endpoints.begin();
         endpoint_iterator != endpoints.end();
         ++endpoint_iterator, ++array_index
         ) {
-        *(*_endpoint_array_ptr)[array_index].endpoint_data_.GetDataPtr<boost::asio::ip::udp::endpoint>() =
-            *endpoint_iterator;
+        endpoint_array[array_index].endpoint_ = endpoint_iterator->endpoint();
     }
-    return ret_val;
+    return endpoint_array;
 }
 
-Void ZIOContext::Stop() noexcept {
-    data_ptr_->io_context_.stop();
-}
+Void ZIOContext::AsyncResolveTCP(
+    ZStringView _host_str,
+    ZStringView _port_str,
+    TFunction<Void(TOptional<TArray<ZTCPEndpoint>>&&)> _handle_func
+) noexcept {
+    auto resolver = MakeShared<asio::ip::tcp::resolver>(io_context_);
 
-Void ZIOContext::Run() noexcept {
-    if (data_ptr_->io_context_.stopped()) {
-        data_ptr_->io_context_.restart();
-    }
-    ++running_thread_count_;
-    data_ptr_->io_context_.run();
-    --running_thread_count_;
-}
+    ZString host_str(_host_str.GetDataPtr(), _host_str.GetSize());
+    ZString port_str(_port_str.GetDataPtr(), _port_str.GetSize());
 
-Void ZIOContext::AsyncRun() noexcept {
-    data_ptr_->aysnc_thread_ = ZThread(
-        [this]() {
-            Run();
+    resolver->async_resolve(
+        asio::string_view(_host_str.GetDataPtr(), _host_str.GetSize()),
+        asio::string_view(_port_str.GetDataPtr(), _port_str.GetSize()),
+        [resolver, handle_func = std::move(_handle_func), host_str, port_str](
+            const std::error_code& _error_code,
+            asio::ip::tcp::resolver::results_type _endpoints
+        ) {
+            if (_error_code) {
+                ReturnType ret_val = error_code::kZIOContextErrorCode_SystemOrLibraryError;
+                Z_LOG_ERROR(
+                    ret_val, _error_code.value(),
+                    "System error! error info: {} address: {} port: {}",
+                    _error_code.message(),
+                    host_str,
+                    port_str
+                );
+
+                if (handle_func) {
+                    handle_func(ret_val);
+                }
+                return;
+            }
+
+            TOptional<TArray<ZTCPEndpoint>> endpoint_array;
+            endpoint_array->Resize(_endpoints.size());
+            SizeType array_index = 0ULL;
+            for (
+                auto endpoint_iterator = _endpoints.begin();
+                endpoint_iterator != _endpoints.end();
+                ++endpoint_iterator, ++array_index
+            ) {
+                (*endpoint_array)[array_index].endpoint_ = endpoint_iterator->endpoint();
+            }
+
+            if (handle_func) {
+                handle_func(std::move(endpoint_array));
+            }
         }
     );
 }
 
-Void ZIOContext::Join() noexcept {
-    if (data_ptr_->aysnc_thread_.IsJoinable()) {
-        data_ptr_->aysnc_thread_.Join();
+Void ZIOContext::AsyncResolveUDP(
+    ZStringView _host_str,
+    ZStringView _port_str,
+    TFunction<Void(TOptional<TArray<ZUDPEndpoint>>&&)> _handle_func
+) noexcept {
+    auto resolver = MakeShared<asio::ip::udp::resolver>(io_context_);
+
+    ZString host_str(_host_str.GetDataPtr(), _host_str.GetSize());
+    ZString port_str(_port_str.GetDataPtr(), _port_str.GetSize());
+
+    resolver->async_resolve(
+        asio::string_view(_host_str.GetDataPtr(), _host_str.GetSize()),
+        asio::string_view(_port_str.GetDataPtr(), _port_str.GetSize()),
+        [resolver, handle_func = std::move(_handle_func), host_str, port_str](
+            const std::error_code& _error_code,
+            asio::ip::udp::resolver::results_type _endpoints
+            ) {
+                if (_error_code) {
+                    ReturnType ret_val = error_code::kZIOContextErrorCode_SystemOrLibraryError;
+                    Z_LOG_ERROR(
+                        ret_val, _error_code.value(),
+                        "System error! error info: {} address: {} port: {}",
+                        _error_code.message(),
+                        host_str,
+                        port_str
+                    );
+
+                    if (handle_func) {
+                        handle_func(ret_val);
+                    }
+                    return;
+                }
+
+                TOptional<TArray<ZUDPEndpoint>> endpoint_array;
+                endpoint_array->Resize(_endpoints.size());
+                SizeType array_index = 0ULL;
+                for (
+                    auto endpoint_iterator = _endpoints.begin();
+                    endpoint_iterator != _endpoints.end();
+                    ++endpoint_iterator, ++array_index
+                    ) {
+                    (*endpoint_array)[array_index].endpoint_ = endpoint_iterator->endpoint();
+                }
+
+                if (handle_func) {
+                    handle_func(std::move(endpoint_array));
+                }
+        }
+    );
+}
+
+Void ZIOContext::Stop() noexcept {
+    io_context_.stop();
+}
+
+NODISCARD ReturnType ZIOContext::Restart() noexcept {
+    ReturnType ret_val = kOK;
+
+    if (running_thread_count_.Load() != 0) {
+        ret_val = error_code::kZIOContextErrorCode_OperationNotAllowed;
+        Z_LOG_ERROR(
+            ret_val, 0,
+            "Attempting to restart io_context while threads are still running!"
+        );
+        return ret_val;
+    }
+
+    if (io_context_.stopped()) {
+        io_context_.restart();
+    }
+
+    return ret_val;
+}
+
+Void ZIOContext::Run() noexcept {
+    ++running_thread_count_;
+    io_context_.run();
+    if (--running_thread_count_ == 0) {
+        running_thread_count_.NotifyAll();
     }
 }
 
-}//socket
-}//zengine
+Void ZIOContext::Join() noexcept {
+    Int32 current_count = running_thread_count_.Load();
+    while (current_count > 0) {
+        running_thread_count_.Wait(current_count);
+        current_count = running_thread_count_.Load();
+    }
+
+}
+
+} // socket
+} // zengine

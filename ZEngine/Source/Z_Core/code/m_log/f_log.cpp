@@ -1,17 +1,25 @@
 /*
     Copyright (c) YuLin Zhu
 
-    This code file is licensed under the Creative Commons
-    Attribution-NonCommercial 4.0 International License.
+    ** ZEngine Proprietary License **
 
-    You may obtain a copy of the License at
-    https://creativecommons.org/licenses/by-nc/4.0/
+    This software is provided "as-is", without any express or implied warranty.
+    In no event will the authors be held liable for any damages arising from the
+    use of this software.
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+    Usage Rights:
+    1. Non-Commercial Use: You may use, modify, and distribute this software
+       for non-commercial purposes (e.g., education, personal projects, open-source
+       projects that do not generate revenue) free of charge.
+
+    2. Commercial Use: Commercial use of this software is STRICTLY PROHIBITED
+       without a valid commercial license agreement with the author.
+       "Commercial use" includes, but is not limited to:
+       - Incorporating this software into a product that is sold.
+       - Using this software in a paid service.
+       - Using this software for internal business operations in a for-profit entity.
+
+    To obtain a Commercial License, please contact the author.
 
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
@@ -30,7 +38,7 @@ namespace internal {
 CORE_DLLAPI Void LogErrorP(
     TimeType _log_time,
     ZStringView _proj_name,
-    ZStringView _file_dir,
+    ZStringView _file_path,
     ZStringView _func_name,
     Int32 _err_line,
     ReturnType _err_code,
@@ -38,23 +46,23 @@ CORE_DLLAPI Void LogErrorP(
     ZStringView _format,
     fmt::format_args _args
 ) noexcept {
-    static ZLogManager& manager = ZLogManager::Instance();
-    if (manager.IsFinished()) {
+    static ZLogManager& manager = ZLogManager::GetInstance();
+    if (!manager.IsRunning()) {
         return;
     }
-    TUniquePointer<ZLog> log_ptr = MakeUnique<ZErrorLog>(
+    TUniquePointer<ZErrorLog> log_ptr = MakeUnique<ZErrorLog>(
         _log_time,
         _proj_name,
-        _file_dir,
+        _file_path,
         _func_name,
         _err_line,
         _err_code,
         _link_code
     );
-    ZLog::LogString_* log_string_ptr = log_ptr->LogStringPtr();
-    log_string_ptr->size_ = string::internal::GenerateStringNoEnd(
-        log_string_ptr->log_str_ptr_->GetDataPtr(),
-        log_string_ptr->log_str_ptr_->GetCapacity(),
+    ZErrorLog::LogString_& log_string = log_ptr->LogString();
+    log_string.size_ = string::internal::GenerateStringNoEnd(
+        log_string.string_.GetDataPtr(),
+        log_string.string_.GetCapacity(),
         _format,
         _args
     );
@@ -64,27 +72,27 @@ CORE_DLLAPI Void LogErrorP(
 CORE_DLLAPI Void LogTraceP(
     TimeType _log_time,
     ZStringView _proj_name,
-    ZStringView _file_dir,
+    ZStringView _file_path,
     ZStringView _func_name,
     Int32 _trace_line,
     ZStringView _format,
     fmt::format_args _args
 ) noexcept {
-    static ZLogManager& manager = ZLogManager::Instance();
-    if (manager.IsFinished()) {
+    static ZLogManager& manager = ZLogManager::GetInstance();
+    if (!manager.IsRunning()) {
         return;
     }
-    TUniquePointer<ZLog> log_ptr = MakeUnique<ZTraceLog>(
+    TUniquePointer<ZTraceLog> log_ptr = MakeUnique<ZTraceLog>(
         _log_time,
         _proj_name,
-        _file_dir,
+        _file_path,
         _func_name,
         _trace_line
     );
-    ZLog::LogString_* log_string_ptr = log_ptr->LogStringPtr();
-    log_string_ptr->size_ = string::internal::GenerateStringNoEnd(
-        log_string_ptr->log_str_ptr_->GetDataPtr(),
-        log_string_ptr->log_str_ptr_->GetCapacity(),
+    ZTraceLog::LogString_& log_string = log_ptr->LogString();
+    log_string.size_ = string::internal::GenerateStringNoEnd(
+        log_string.string_.GetDataPtr(),
+        log_string.string_.GetCapacity(),
         _format,
         _args
     );
@@ -97,18 +105,18 @@ CORE_DLLAPI Void LogInfoP(
     ZStringView _format,
     fmt::format_args _args
 ) noexcept {
-    static ZLogManager& manager = ZLogManager::Instance();
-    if (manager.IsFinished()) {
+    static ZLogManager& manager = ZLogManager::GetInstance();
+    if (!manager.IsRunning()) {
         return;
     }
-    TUniquePointer<ZLog> log_ptr = MakeUnique<ZInfoLog>(
+    TUniquePointer<ZInfoLog> log_ptr = MakeUnique<ZInfoLog>(
         _log_time,
         _info_type
     );
-    ZLog::LogString_* log_string_ptr = log_ptr->LogStringPtr();
-    log_string_ptr->size_ = string::internal::GenerateStringNoEnd(
-        log_string_ptr->log_str_ptr_->GetDataPtr(),
-        log_string_ptr->log_str_ptr_->GetCapacity(),
+    ZInfoLog::LogString_& log_string = log_ptr->LogString();
+    log_string.size_ = string::internal::GenerateStringNoEnd(
+        log_string.string_.GetDataPtr(),
+        log_string.string_.GetCapacity(),
         _format,
         _args
     );
@@ -119,7 +127,7 @@ CORE_DLLAPI Void RegisterLogOutputFunctionP(
     ZLog::OutputFunction_ _output_func,
     ZLog::OutputFunctionArray_* output_func_array_ptr_
 ) noexcept {
-    ZLogManager::Instance().RegisterLogOutputFunction(
+    ZLogManager::GetInstance().RegisterLogOutputFunction(
         _output_func,
         output_func_array_ptr_
     );
@@ -129,22 +137,22 @@ CORE_DLLAPI Void UnregisterLogOutputFunctionP(
     ZLog::OutputFunction_ _output_func,
     ZLog::OutputFunctionArray_* output_func_array_ptr_
 ) noexcept {
-    ZLogManager::Instance().UnregisterLogOutputFunction(
+    ZLogManager::GetInstance().UnregisterLogOutputFunction(
         _output_func,
         output_func_array_ptr_
     );
 }
 
-}//internal
-}//log
-}//zengine
+} // internal
+} // log
+} // zengine
 
 namespace zengine {
 namespace log {
 
 CORE_DLLAPI Void FinishFlush() noexcept {
-    ZLogManager::Instance().FinishFlush();
+    ZLogManager::GetInstance().FinishFlush();
 }
 
-}//log
-}//zengine
+} // log
+} // zengine

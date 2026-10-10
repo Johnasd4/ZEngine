@@ -35,4 +35,4 @@ namespace zengine {
 /** @brief This function is called at the very beginning of the program to perform initialization. */
 CORE_DLLAPI Void Initialize() noexcept;
 
-}//zengine
+} // zengine

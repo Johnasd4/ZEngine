@@ -31,10 +31,30 @@
 
 namespace zengine {
 
+/** @brief Maximum value for a 8-bit signed integer. */
+inline constexpr Int8 kInt8Max = 127;
+/** @brief Minimum value for a 8-bit signed integer. */
+inline constexpr Int8 kInt8Min = -128;
+/** @brief Maximum value for a 8-bit unsigned integer. */
+inline constexpr UInt8 kUInt8Max = 255U;
+/** @brief Minimum value for a 8-bit unsigned integer. */
+inline constexpr UInt8 kUInt8Min = 0U;
+/** @brief Maximum value for a 16-bit signed integer. */
+inline constexpr Int16 kInt16Max = 32767;
+/** @brief Minimum value for a 16-bit signed integer. */
+inline constexpr Int16 kInt16Min = -32768;
+/** @brief Maximum value for a 16-bit unsigned integer. */
+inline constexpr UInt16 kUInt16Max = 65535U;
+/** @brief Minimum value for a 16-bit unsigned integer. */
+inline constexpr UInt16 kUInt16Min = 0U;
 /** @brief Maximum value for a 32-bit signed integer. */
 inline constexpr Int32 kInt32Max = 2147483647;
 /** @brief Minimum value for a 32-bit signed integer. */
 inline constexpr Int32 kInt32Min = -2147483647; 
+/** @brief Maximum value for a 32-bit unsigned integer. */
+inline constexpr UInt32 kUInt32Max = 4294967295U;
+/** @brief Minimum value for a 32-bit unsigned integer. */
+inline constexpr UInt32 kUInt32Min = 0U;
 /** @brief Maximum value for a 64-bit signed integer. */
 inline constexpr Int64 kInt64Max = 9223372036854775807LL;
 /** @brief Minimum value for a 64-bit signed integer. */
@@ -66,4 +86,4 @@ inline constexpr SizeType kMB =  1048576;
 /** @brief Constant representing 1 Gigabyte (1024 Megabytes). */
 inline constexpr SizeType kGB = 1073741824;
 
-}//zengine
+} // zengine

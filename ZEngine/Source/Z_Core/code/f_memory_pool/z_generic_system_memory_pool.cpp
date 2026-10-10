@@ -29,6 +29,11 @@
 
 #include "z_generic_system_memory_pool.h"
 
+#include "m_log.h"
+#include "z_file.h"
+
+#include "z_generic_memory_pool_performance_test.h"
+
 namespace zengine {
 namespace memory_pool {
 
@@ -44,7 +49,19 @@ ZGenericSystemMemoryPool::ZGenericSystemMemoryPool() noexcept
 #endif
 {}
 
-ZGenericSystemMemoryPool::~ZGenericSystemMemoryPool() noexcept {}
+ZGenericSystemMemoryPool::~ZGenericSystemMemoryPool() noexcept {
+#if USE_MEMORY_POOL_PERFORMANCE_TEST
+    ZGenericMemoryPoolPerformanceTest& performance_test_instance = ZGenericMemoryPoolPerformanceTest::GetInstance();
+    performance_test_instance.system_memory_pool_performance_data_ = {
+        memory_block_unreleased_num_,
+        memory_block_applied_num_,
+        memory_block_peak_num_,
+        memory_block_unreleased_size_,
+        memory_block_applied_size_,
+        memory_block_peak_size_
+    };
+#endif // USE_MEMORY_POOL_PERFORMANCE_TEST       
+}
 
-}//memory_pool
-}//zengine
+} // memory_pool
+} // zengine

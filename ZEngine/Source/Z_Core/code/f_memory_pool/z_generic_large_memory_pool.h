@@ -38,21 +38,25 @@ namespace memory_pool {
 /**
  * @brief A thread-safe generic memory pool implementation optimized for large-sized memory blocks.
  */
-class CACHE_LINE_ALIGN ZGenericLargeMemoryPool : public ZGenericMemoryPool {
+class CACHE_ALIGN ZGenericLargeMemoryPool : public ZGenericMemoryPool {
+public:
+    /** @brief Alias for the base class type. */
+    using SuperType_ = ZGenericMemoryPool;
+
 private:
     /** @brief The size of a memory page (256KB). */
-    static constexpr UInt32 kMemoryPageSize = 256U * kKB;
+    static inline constexpr UInt32 kMemoryPageSize = 256U * kKB;
     /** @brief The number of atom pages per memory page. */
-    static constexpr UInt32 kMemoryAtomPagePerMemoryPageNum = kMemoryPageSize / kMemoryAtomPageSize;
+    static inline constexpr UInt32 kMemoryAtomPagePerMemoryPageNum = kMemoryPageSize / kMemoryAtomPageSize;
     /** @brief The minimum number of memory blocks to apply for. */
-    static constexpr UInt32 kApplyMemoryBlockMinNum = 2U;
+    static inline constexpr UInt32 kApplyMemoryBlockMinNum = 2U;
     /** @brief The maximum number of memory blocks to apply for. */
-    static constexpr UInt32 kApplyMemoryBlockMaxNum = 16U;
+    static inline constexpr UInt32 kApplyMemoryBlockMaxNum = 16U;
     /** @brief The extension factor for applying memory blocks. */
-    static constexpr UInt32 kApplyMemoryBlockExtendFactor = 2U;
+    static inline constexpr UInt32 kApplyMemoryBlockExtendFactor = 2U;
 
     /** @brief Extended memory page header structure containing validation data. */
-    struct CACHE_LINE_ALIGN MemoryPageHeadExtend_ {
+    struct CACHE_ALIGN MemoryPageHeadExtend_ {
         /** @brief Padding to ensure cache line alignment. */
         Byte padding_[CACHE_LINE_SIZE - sizeof(ZGenericMemoryPool::MemoryPageHead_)];
         /** @brief The base memory page header. */
@@ -61,7 +65,7 @@ private:
 
 public:
     /** @brief The size of the header structure prepended to each memory page. */
-    static constexpr UInt32 kMemoryBlockHeadSize = sizeof(MemoryPageHeadExtend_);
+    static inline constexpr UInt32 kMemoryBlockHeadSize = sizeof(MemoryPageHeadExtend_);
 
     /** @brief Internal structure representing the header of a free memory block in the linked list. */
     struct MemoryBlockHead_ {
@@ -85,16 +89,28 @@ public:
         , next_apply_memory_atom_page_max_num_(0U)
 #if USE_MEMORY_POOL_PERFORMANCE_TEST
         , memory_block_unreleased_num_(0U)
-        , momory_block_applyed_num_(0U)
-        , momory_block_peak_num_(0U)
+        , memory_block_applied_num_(0U)
+        , memory_block_peak_num_(0U)
         , memory_block_total_num_(0U)
-#endif //USE_MEMORY_POOL_PERFORMANCE_TEST
+#endif // USE_MEMORY_POOL_PERFORMANCE_TEST
     {}
+
+    /** @brief Deleted copy constructor. */
+    ZGenericLargeMemoryPool(const ZGenericLargeMemoryPool&) = delete;
+
+    /** @brief Deleted move constructor. */
+    ZGenericLargeMemoryPool(ZGenericLargeMemoryPool&&) = delete;
 
     /**
      * @brief Destroys the memory pool and releases resources.
      */
-    FORCEINLINE ~ZGenericLargeMemoryPool() noexcept {}
+    FORCEINLINE ~ZGenericLargeMemoryPool() noexcept = default;
+
+    /** @brief Deleted copy assignment operator. */
+    ZGenericLargeMemoryPool& operator=(const ZGenericLargeMemoryPool&) = delete;
+
+    /** @brief Deleted move assignment operator. */
+    ZGenericLargeMemoryPool& operator=(ZGenericLargeMemoryPool&&) = delete;
 
     /**
      * @brief Initializes the memory pool parameters based on the provided block size.
@@ -140,11 +156,11 @@ public:
         }
 #if USE_MEMORY_POOL_PERFORMANCE_TEST
         memory_block_unreleased_num_ += 1;
-        momory_block_applyed_num_ += 1;
-        if (memory_block_unreleased_num_ > momory_block_peak_num_) {
-            momory_block_peak_num_ = memory_block_unreleased_num_;
+        memory_block_applied_num_ += 1;
+        if (memory_block_unreleased_num_ > memory_block_peak_num_) {
+            memory_block_peak_num_ = memory_block_unreleased_num_;
         }
-#endif //USE_MEMORY_POOL_PERFORMANCE_TEST
+#endif // USE_MEMORY_POOL_PERFORMANCE_TEST
         return memory_ptr;
     }
 
@@ -159,23 +175,19 @@ public:
         head_memory_block_ptr_ = memory_block_ptr;
 #if USE_MEMORY_POOL_PERFORMANCE_TEST
         memory_block_unreleased_num_ -= 1;
-#endif //USE_MEMORY_POOL_PERFORMANCE_TEST
+#endif // USE_MEMORY_POOL_PERFORMANCE_TEST
     }
 
-protected:
-    using SuperType_ = ZGenericMemoryPool;
-
 private:
-    ZGenericLargeMemoryPool(const ZGenericLargeMemoryPool&) = delete;
-    ZGenericLargeMemoryPool(ZGenericLargeMemoryPool&&) = delete;
-    ZGenericLargeMemoryPool& operator=(const ZGenericLargeMemoryPool&) = delete;
-    ZGenericLargeMemoryPool& operator=(ZGenericLargeMemoryPool&&) = delete;
-
     /**
      * @brief Internal function to prepare a new memory page when the current page is exhausted.
      */
     NOINLINE Void ExtendMemoryBlockP() noexcept;
 
+private:
+    friend class ZGenericLargeMemoryPoolGroup;
+
+private:
     /** @brief Mutex to ensure thread safety during allocation and deallocation. */
     ZMutex mutex_;
     /** @brief Pointer to the head of the free memory block linked list. */
@@ -196,9 +208,9 @@ private:
     /** @brief The number of memory blocks currently allocated but not yet released. */
     UInt32 memory_block_unreleased_num_;
     /** @brief The total number of memory block allocation requests made. */
-    UInt32 momory_block_applyed_num_;
+    UInt32 memory_block_applied_num_;
     /** @brief The peak number of simultaneously allocated memory blocks. */
-    UInt32 momory_block_peak_num_;
+    UInt32 memory_block_peak_num_;
     /** @brief The total number of memory blocks managed by this pool. */
     UInt32 memory_block_total_num_;
 #endif // USE_MEMORY_POOL_PERFORMANCE_TEST
@@ -207,10 +219,11 @@ private:
 /**
  * @brief A singleton group managing multiple large memory pools for different block sizes.
  */
-class CACHE_LINE_ALIGN ZGenericLargeMemoryPoolGroup {
+class CACHE_ALIGN ZGenericLargeMemoryPoolGroup {
+    NO_NEW_DELETE
 private:
     /** @brief The increment size for the mapping table index. */
-    static constexpr UInt32 kTableSizePerIndex = std::invoke([]() {
+    static inline constexpr UInt32 kTableSizePerIndex = std::invoke([]() {
         UInt32 ans = kLargeMemoryPoolMemoryBlockWithHeadSizeArray[0];
         for(SizeType index = 0ULL; index < kLargeMemoryPoolNum; ++index) {
             UInt32 current_size = kLargeMemoryPoolMemoryBlockWithHeadSizeArray[index];
@@ -221,23 +234,23 @@ private:
         return ans;
     });
     /** @brief The total size of the mapping table. */
-    static constexpr UInt32 kTableSize = kLargeMemoryPoolMemoryBlockWithHeadSizeMax / kTableSizePerIndex;
+    static inline constexpr UInt32 kTableSize = kLargeMemoryPoolMemoryBlockWithHeadSizeMax / kTableSizePerIndex;
     /** @brief A lookup table mapping requested sizes to the appropriate pool index. */
-    static constexpr TFixedArray<UInt8, kTableSize> kSizeToPoolTable =
-        TFixedArray<UInt8, kTableSize>{[](TFixedArray<UInt8, kTableSize>* _array_ptr) {
-            SizeType table_index = 0ULL;
-            for (UInt8 pool_index = 0; pool_index < kLargeMemoryPoolNum; ++pool_index) {
-                SizeType next_pool_index =
-                    kLargeMemoryPoolMemoryBlockWithHeadSizeArray[pool_index] / kTableSizePerIndex;
-                for (; table_index < next_pool_index; ++table_index) {
-                    (*_array_ptr)[table_index] = pool_index;
-                }
+    static inline constexpr TFixedArray<UInt8, kTableSize> kSizeToPoolTable = std::invoke([]() {
+        TFixedArray<UInt8, kTableSize> array;
+        SizeType table_index = 0ULL;
+        for (UInt8 pool_index = 0; pool_index < kLargeMemoryPoolNum; ++pool_index) {
+            SizeType next_pool_index = kLargeMemoryPoolMemoryBlockWithHeadSizeArray[pool_index] / kTableSizePerIndex;
+            for (; table_index < next_pool_index; ++table_index) {
+                array[table_index] = pool_index;
             }
-        }};
+        }
+        return array;
+    });
 
 public:
     /** @brief The maximum usable memory block size supported by this pool group. */
-    static constexpr UInt32 kMemoryBlockSizeMax =
+    static inline constexpr UInt32 kMemoryBlockSizeMax =
         kLargeMemoryPoolMemoryBlockWithHeadSizeMax - ZGenericLargeMemoryPool::kMemoryBlockHeadSize;
 
 public:
@@ -245,9 +258,25 @@ public:
      * @brief Retrieves the instance of the memory pool group.
      * @return ZGenericLargeMemoryPoolGroup& A reference to the singleton instance.
      */
-    FORCEINLINE static ZGenericLargeMemoryPoolGroup& Instance() noexcept {
+    FORCEINLINE static ZGenericLargeMemoryPoolGroup& GetInstance() noexcept {
         static ZGenericLargeMemoryPoolGroup instance;
         return instance;
+    }
+
+    /**
+     * @brief Gets the address of the first memory pool in the group.
+     * @return PointerType The address of the first memory pool.
+     */
+    NODISCARD FORCEINLINE PointerType FirstPoolAddress() noexcept {
+        return reinterpret_cast<PointerType>(&pool_array_);
+    }
+
+    /**
+     * @brief Gets the address of the last memory pool in the group.
+     * @return PointerType The address of the last memory pool.
+     */
+    NODISCARD FORCEINLINE PointerType LastPoolAddress() noexcept {
+        return reinterpret_cast<PointerType>(&pool_array_[kLargeMemoryPoolNum - 1U]);
     }
 
     /**
@@ -299,9 +328,10 @@ private:
      */
     ~ZGenericLargeMemoryPoolGroup() noexcept;
 
+private:
     /** @brief The array of large memory pools, each managing a specific block size. */
     TFixedArray<ZGenericLargeMemoryPool, kLargeMemoryPoolNum> pool_array_;
 };
 
-}//memory_pool
-}//zengine
+} // memory_pool
+} // zengine

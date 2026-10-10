@@ -127,7 +127,7 @@ NODISCARD ReturnType ZLogicBoardViewport::Initialize(
     SuperType_::InitializeP();
 
     Z_CHECK(
-        _logic_board_ptr == nullptr, error_code::kZLogicBoardViewerErrorCode_NullptrParam,
+        _logic_board_ptr != nullptr, error_code::kZLogicBoardViewerErrorCode_NullptrParam,
         "_logic_board_ptr is nullptr!"
     );
 
@@ -231,5 +231,5 @@ NODISCARD ReturnType ZLogicBoardViewport::OnLogicBoardPosOffsetChanged(const Log
     return ret_val;
 }
 
-}//tsrpg
-}//zengine
+} // tsrpg
+} // zengine

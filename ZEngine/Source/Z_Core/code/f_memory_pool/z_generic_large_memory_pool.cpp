@@ -27,8 +27,12 @@
 #define CORE_DLLFILE
 #include "drive/d_pch.h"
 
-#include "m_log.h"
 #include "z_generic_large_memory_pool.h"
+
+#include "m_log.h"
+#include "z_file.h"
+
+#include "z_generic_memory_pool_performance_test.h"
 
 namespace zengine {
 namespace memory_pool {
@@ -43,14 +47,14 @@ NOINLINE Void ZGenericLargeMemoryPool::ExtendMemoryBlockP() noexcept {
         Exit(ret_val);
     }
 
-    //initialize new memory page
+    // initialize new memory page
     UInt32 apply_memory_size = next_apply_memory_atom_page_num_ * kMemoryAtomPageSize;
     unused_memory_block_ptr_ = page_head_ptr;
     unused_memory_block_end_ptr_ = unused_memory_block_ptr_ + apply_memory_size;
 
 #if USE_MEMORY_POOL_PERFORMANCE_TEST
     memory_block_total_num_ += apply_memory_size / memory_block_with_head_size_;
-#endif //USE_MEMORY_POOL_PERFORMANCE_TEST
+#endif // USE_MEMORY_POOL_PERFORMANCE_TEST
 
     if (next_apply_memory_atom_page_num_ < next_apply_memory_atom_page_max_num_) {
         next_apply_memory_atom_page_num_ = next_apply_memory_atom_page_num_ * kApplyMemoryBlockExtendFactor;
@@ -68,7 +72,21 @@ ZGenericLargeMemoryPoolGroup::ZGenericLargeMemoryPoolGroup() noexcept
     }
 }
 
-ZGenericLargeMemoryPoolGroup::~ZGenericLargeMemoryPoolGroup() noexcept {}
+ZGenericLargeMemoryPoolGroup::~ZGenericLargeMemoryPoolGroup() noexcept {
+#if USE_MEMORY_POOL_PERFORMANCE_TEST
+    ZGenericMemoryPoolPerformanceTest& performance_test_instance = ZGenericMemoryPoolPerformanceTest::GetInstance();
+    for (SizeType index = 0; index < kLargeMemoryPoolNum; ++index) {
+        ZGenericLargeMemoryPool& memory_pool = pool_array_[index];
+        performance_test_instance.global_large_memory_pool_performance_data_[index] = {
+            memory_pool.memory_block_size_,
+            memory_pool.memory_block_unreleased_num_,
+            memory_pool.memory_block_applied_num_,
+            memory_pool.memory_block_peak_num_,
+            memory_pool.memory_block_total_num_
+        };
+    }
+#endif // USE_MEMORY_POOL_PERFORMANCE_TEST      
+}
 
-}//memory_pool
-}//zengine
+} // memory_pool
+} // zengine

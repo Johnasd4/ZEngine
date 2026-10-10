@@ -55,7 +55,7 @@ NODISCARD ReturnType ZBoard::GetSurroundTile(
     Z_TSRPG_INITIALIZE_CHECK();
     ReturnType ret_val = kOK;
     Z_CHECK(
-        _tile_list_ptr == nullptr, error_code::kZBoardErrorCode_NullptrParam,
+        _tile_list_ptr != nullptr, error_code::kZBoardErrorCode_NullptrParam,
         "_tile_list_ptr is nullptr!"
     );
     if (IsType(kBoardType_HexBoard)) {
@@ -97,5 +97,5 @@ NODISCARD ReturnType ZBoard::InitializeP(const LogicVector2D& _board_size) noexc
     return ret_val;
 }
 
-}//tsrpg
-}//zengine
+} // tsrpg
+} // zengine

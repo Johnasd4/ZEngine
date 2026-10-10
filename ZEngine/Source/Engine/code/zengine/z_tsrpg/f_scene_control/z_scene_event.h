@@ -25,13 +25,13 @@
 
 namespace zengine {
 namespace error_code {
-enum ZSceneEventErrorCodeEnum : ReturnType {
+enum ZSceneEventErrorCodeEnum : ReturnType::ValueType {
     kZSceneEventErrorCode_LinkError = kErrorCodeBase_ZSceneEvent,
     kZSceneEventErrorCode_TileNotExist,
     kZSceneEventErrorCode_DisplayBoardNotExist
 };
-}//error_code
-}//zengine
+} // error_code
+} // zengine
 
 namespace zengine {
 namespace tsrpg {
@@ -80,5 +80,5 @@ private:
     Float32 execute_time_;
 };
 
-}//tsrpg
-}//zengine
+} // tsrpg
+} // zengine

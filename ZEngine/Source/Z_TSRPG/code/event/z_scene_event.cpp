@@ -104,5 +104,5 @@ Void ZSceneEvent::MoveP(ZSceneEvent&& _event) noexcept {
     _event.execute_time_ = 0.0f;
 }
 
-}//tsrpg
-}//zengine
+} // tsrpg
+} // zengine

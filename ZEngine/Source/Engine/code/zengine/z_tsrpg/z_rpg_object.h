@@ -24,15 +24,15 @@
 
 namespace zengine {
 namespace error_code {
-enum ZRPGObjectErrorCodeEnum : ReturnType {
+enum ZRPGObjectErrorCodeEnum : ReturnType::ValueType {
     kZRPGObjectErrorCode_LinkError = kErrorCodeBase_ZRPGObject,
     kZRPGObjectErrorCode_SystemOrLibraryError,
     kZRPGObjectErrorCode_NullptrParam,
     kZRPGObjectErrorCode_ParamOutOfRange,
     kZRPGObjectErrorCode_NotInitialized
 };
-}//error_code
-}//zengine
+} // error_code
+} // zengine
 
 namespace zengine {
 namespace tsrpg {
@@ -78,5 +78,5 @@ public:
     Bool initialized_;
 };
 
-}//tsrpg
-}//zengine
+} // tsrpg
+} // zengine

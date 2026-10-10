@@ -24,22 +24,22 @@
 
 namespace zengine {
 namespace error_code {
-enum ZBoardObjectErrorCodeEnum : ReturnType {
+enum ZBoardObjectErrorCodeEnum : ReturnType::ValueType {
     kZBoardObjectErrorCode_LinkError = kErrorCodeBase_ZBoardObject,
     kZBoardObjectErrorCode_SystemOrLibraryError,
     kZBoardObjectErrorCode_NullptrParam,
     kZBoardObjectErrorCode_ParamOutOfRange,
     kZBoardObjectErrorCode_OnwerTileNotInitialized
 };
-}//error_code
-}//zengine
+} // error_code
+} // zengine
 
 namespace zengine {
 namespace tsrpg {
 class ZTile;
 class ZBoardObject;
-}//tsrpg
-}//zengine
+} // tsrpg
+} // zengine
 
 namespace zengine {
 namespace tsrpg {
@@ -83,5 +83,5 @@ public:
     ZBoardObject* next_object_ptr_;
 };
 
-}//tsrpg
-}//zengine
+} // tsrpg
+} // zengine

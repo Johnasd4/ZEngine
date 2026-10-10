@@ -42,25 +42,50 @@ namespace log {
  * This class specializes the ZLog base class to handle informational logging events,
  * categorization via InfoLogTypeEnum, and formatting.
  */
-class CORE_DLLAPI CACHE_LINE_ALIGN ZInfoLog : public ZLog {
+class CORE_DLLAPI CACHE_ALIGN ZInfoLog : public ZLog {
 public:
+    /** @brief Base class alias. */
+    using SuperType_ = ZLog;
+
+    /** 
+     * @brief Info log head information structure. 
+     */
+    struct WORD_ALIGN InfoLogHead_ {
+        /** @brief The specific type of information log. */
+        InfoLogTypeEnum info_type_;
+    };
+
+    /** @brief Maximum size for the log string within the info log. */
+    static inline constexpr SizeType kLogStringMaxSize =
+        static_cast<SizeType>(kLogMaxSize) - sizeof(InfoLogHead_) - sizeof(ZLog);
+
+    /**
+     * @brief Structure to hold the raw log message string.
+     */
+    struct LogString_ {
+        /** @brief The current size of the log string. */
+        SizeType size_;
+        /** @brief Pointer to the fixed-size string buffer for the log message. */
+        TFixedString<kLogStringMaxSize - sizeof(SizeType)> string_;
+    };
+
     /**
      * @brief String representation of information log types.
      *
      * A fixed array mapping InfoLogTypeEnum values to their corresponding string representations
      * (e.g., "Message", "Start", "Success").
      */
-    static constexpr TFixedArray<ZStringView, static_cast<SizeType>(InfoLogTypeEnum::kMax)> kInfoLogType_String =
-        TFixedArray<ZStringView, static_cast<SizeType>(InfoLogTypeEnum::kMax)>(
-            [](TFixedArray<ZStringView, static_cast<SizeType>(InfoLogTypeEnum::kMax)>* _array_ptr) {
-                (*_array_ptr)[static_cast<SizeType>(InfoLogTypeEnum::kMessage)] = "Message";
-                (*_array_ptr)[static_cast<SizeType>(InfoLogTypeEnum::kStart)] = "Start  ";
-                (*_array_ptr)[static_cast<SizeType>(InfoLogTypeEnum::kProcess)] = "Process";
-                (*_array_ptr)[static_cast<SizeType>(InfoLogTypeEnum::kFinish)] = "Finish ";
-                (*_array_ptr)[static_cast<SizeType>(InfoLogTypeEnum::kSuccess)] = "Success";
-                (*_array_ptr)[static_cast<SizeType>(InfoLogTypeEnum::kFailure)] = "Failure";
-            });
+    static inline constexpr TFixedArray<ZStringView, static_cast<SizeType>(InfoLogTypeEnum::kMax)> kInfoLogType_String = 
+    {
+        "Message",
+        "Start  ",
+        "Process",
+        "Finish ",
+        "Success",
+        "Failure"
+    };
 
+public:
     /**
      * @brief Outputs the log content to a file.
      * @param _log_ptr Pointer to the log object.
@@ -76,19 +101,10 @@ public:
     static Void ConsoleOutputLog(const ZLog* _log_ptr, ZStringView _output_str) noexcept;
 
     /**
-     * @brief Constructs a ZInfoLog object.
-     * @param _log_time The time the log occurred.
-     * @param _info_type The specific type/category of the information log.
+     * @brief Gets the static instance of the output function array.
+     * @return OutputFunctionArray_& Reference to the fixed array of output functions.
      */
-    ZInfoLog(
-        TimeType _log_time, 
-        InfoLogTypeEnum _info_type
-    ) noexcept;
-
-    /**
-     * @brief Virtual destructor.
-     */
-    virtual ~ZInfoLog() noexcept;
+    NODISCARD static OutputFunctionArray_& GetOutputFunctionArrayInstance() noexcept;
 
     /**
      * @brief Custom memory allocation operator.
@@ -104,21 +120,45 @@ public:
     NODISCARD static Void operator delete(Void* _memory_ptr) noexcept;
 
     /**
+     * @brief Constructs a ZInfoLog object.
+     * @param _log_time The time the log occurred.
+     * @param _info_type The specific type/category of the information log.
+     */
+    ZInfoLog(
+        TimeType _log_time, 
+        InfoLogTypeEnum _info_type
+    ) noexcept;
+
+    /** @brief Deleted copy constructor. */
+    ZInfoLog(const ZInfoLog&) = delete;
+
+    /** @brief Deleted move constructor. */
+    ZInfoLog(ZInfoLog&&) = delete;
+
+    /**
+     * @brief Virtual destructor.
+     */
+    virtual ~ZInfoLog() noexcept = default;
+
+    /** @brief Deleted copy assignment operator. */
+    ZInfoLog& operator=(const ZInfoLog&) = delete;
+
+    /** @brief Deleted move assignment operator. */
+    ZInfoLog& operator=(ZInfoLog&&) = delete;
+
+    /**
+     * @brief Gets the info log head information.
+     * @return const InfoLogHead_& Reference to the info log head structure.
+     */
+    NODISCARD FORCEINLINE LogString_& LogString() noexcept { return log_string_; }
+
+    /**
      * @brief Gets the specific information type of this log.
      * @return const InfoLogTypeEnum The info type enumeration value.
      */
-    NODISCARD FORCEINLINE const InfoLogTypeEnum InfoType() const noexcept { return info_type_; }
-
-    /**
-     * @brief Gets the static instance of the output function array.
-     * @return OutputFunctionArray_& Reference to the fixed array of output functions.
-     */
-    NODISCARD static OutputFunctionArray_& OutputFunctionArrayInstance() noexcept;
+    NODISCARD FORCEINLINE const InfoLogTypeEnum InfoType() const noexcept { return info_log_head_.info_type_; }
 
 protected:
-    /** @brief Base class alias. */
-    using SuperType_ = ZLog;
-
     /**
      * @brief Generates the formatted output string for the info log.
      * @param _output_str_ptr Pointer to the output string structure to be filled.
@@ -132,9 +172,11 @@ protected:
     NODISCARD virtual OutputFunctionArray_& OutputFunctionArrayP() noexcept;
 
 private:
-    /** @brief The specific type of information log. */
-    InfoLogTypeEnum info_type_;
+    /** @brief The info log head information. */
+    InfoLogHead_ info_log_head_;
+    /** @brief The log message string. */
+    LogString_ log_string_;
 };
 
-}//log
-}//zengine
+} // log
+} // zengine

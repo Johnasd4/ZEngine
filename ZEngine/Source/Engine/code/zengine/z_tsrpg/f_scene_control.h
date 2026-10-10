@@ -26,7 +26,7 @@
 
 namespace zengine {
 namespace error_code {
-enum FSceneControlErrorCodeEnum : ReturnType {
+enum FSceneControlErrorCodeEnum : ReturnType::ValueType {
     kFSceneControlErrorCode_LinkError = kErrorCodeBase_FSceneControl,
     kFSceneControlErrorCode_SystemOrLibraryError,
     kFSceneControlErrorCode_NullptrParam,
@@ -34,8 +34,8 @@ enum FSceneControlErrorCodeEnum : ReturnType {
     kFSceneControlErrorCode_LuaObjectNotValid,
     kFSceneControlErrorCode_EventIdNotExist
 };
-}//error_code
-}//zengine
+} // error_code
+} // zengine
 
 namespace zengine {
 namespace tsrpg {
@@ -54,5 +54,5 @@ TSRPG_DLLAPI Void SetScenePause() noexcept;
 TSRPG_DLLAPI Void SetSceneSpeedMult() noexcept;
 TSRPG_DLLAPI Void FinishAllSceneEvent() noexcept;
 
-}//tsrpg
-}//zengine
+} // tsrpg
+} // zengine

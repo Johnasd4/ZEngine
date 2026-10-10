@@ -41,20 +41,27 @@ namespace memory_pool {
  *
  * This pool specializes the TSpecializedMemoryPool for the specific size of zengine::log::ZErrorLog.
  */
-class CACHE_LINE_ALIGN ZSpecializedErrorLogMemoryPool : public TSpecializedMemoryPool<
-    true, sizeof(zengine::log::ZErrorLog),
-    1U, 1U,
+class CACHE_ALIGN ZSpecializedErrorLogMemoryPool : public TSpecializedMemoryPool<
+    true, log::kLogMaxSize,
+    log::kLogPoolExtendSize / kMemoryAtomPageSize, log::kLogPoolExtendSize / kMemoryAtomPageSize,
     1U
 > {
 public:
-    /** @brief The name of the memory pool, used for identification and logging. */
-    static constexpr ZStringView kMemoryPoolName = "Error Log Memory Pool";
+    /** @brief Type alias for the base specialized memory pool class. */
+    using SuperType_ = TSpecializedMemoryPool<
+        true, log::kLogMaxSize,
+        log::kLogPoolExtendSize / kMemoryAtomPageSize, log::kLogPoolExtendSize / kMemoryAtomPageSize,
+        1U
+    >;
 
+    /** @brief The name of the memory pool, used for identification and logging. */
+    static inline constexpr ZStringView kMemoryPoolName = "Error Log Memory Pool";
+public:
     /**
      * @brief Gets the singleton instance of the memory pool.
      * @return Reference to the singleton instance of ZSpecializedErrorLogMemoryPool.
      */
-    FORCEINLINE static ZSpecializedErrorLogMemoryPool& Instance() noexcept {
+    FORCEINLINE static ZSpecializedErrorLogMemoryPool& GetInstance() noexcept {
         static ZSpecializedErrorLogMemoryPool instance;
         return instance;
     }
@@ -65,20 +72,12 @@ public:
         : SuperType_(kMemoryPoolName)
 #else
         : SuperType_()
-#endif //USE_MEMORY_POOL_PERFORMANCE_TEST
+#endif // USE_MEMORY_POOL_PERFORMANCE_TEST
     {}
 
     /** @brief Destroys the memory pool and releases resources. */
-    FORCEINLINE ~ZSpecializedErrorLogMemoryPool() noexcept {}
-
-protected:
-    /** @brief Type alias for the base specialized memory pool class. */
-    using SuperType_ = TSpecializedMemoryPool<
-        true, sizeof(zengine::log::ZErrorLog),
-        1U, 1U,
-        1U
-    >;
+    FORCEINLINE ~ZSpecializedErrorLogMemoryPool() noexcept = default;
 };
 
-}//memory_pool
-}//zengine
+} // memory_pool
+} // zengine

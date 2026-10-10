@@ -134,5 +134,5 @@ Void ZMoveTileSceneEvent::MoveP(ZMoveTileSceneEvent&& _event) noexcept {
     _event.move_params_array_.Clear();
 }
 
-}//tsrpg
-}//zengine
+} // tsrpg
+} // zengine

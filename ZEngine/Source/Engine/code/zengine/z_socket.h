@@ -1,17 +1,25 @@
 /*
     Copyright (c) YuLin Zhu
 
-    This code file is licensed under the Creative Commons
-    Attribution-NonCommercial 4.0 International License.
+    ** ZEngine Proprietary License **
 
-    You may obtain a copy of the License at
-    https://creativecommons.org/licenses/by-nc/4.0/
+    This software is provided "as-is", without any express or implied warranty.
+    In no event will the authors be held liable for any damages arising from the
+    use of this software.
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+    Usage Rights:
+    1. Non-Commercial Use: You may use, modify, and distribute this software
+       for non-commercial purposes (e.g., education, personal projects, open-source
+       projects that do not generate revenue) free of charge.
+
+    2. Commercial Use: Commercial use of this software is STRICTLY PROHIBITED
+       without a valid commercial license agreement with the author.
+       "Commercial use" includes, but is not limited to:
+       - Incorporating this software into a product that is sold.
+       - Using this software in a paid service.
+       - Using this software for internal business operations in a for-profit entity.
+
+    To obtain a Commercial License, please contact the author.
 
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
@@ -19,22 +27,16 @@
 #pragma once
 
 #include "z_socket/f_socket.h"
-#include "z_socket/f_tcp_log_output.h"
-#include "z_socket/z_socket_buffer_stream.h"
-#include "z_socket/z_http_request_generator.h"
-#include "z_socket/z_http_response_resolver.h"
+//#include "z_socket/f_tcp_log_output.h"
+#include "z_socket/z_buffer_stream.h"
 #include "z_socket/z_io_context.h"
 #include "z_socket/z_io_context_work_guard.h"
-#include "z_socket/z_tcp_client.h"
+#include "z_socket/z_ip_address.h"
+#include "z_socket/z_kcp_session.h"
 #include "z_socket/z_tcp_endpoint.h"
 #include "z_socket/z_tcp_server.h"
 #include "z_socket/z_tcp_socket.h"
-#include "z_socket/z_tls_context.h"
-#include "z_socket/z_tls_stream.h"
 #include "z_socket/z_udp_endpoint.h"
-#include "z_socket/z_udp_packet.h"
-#include "z_socket/z_udp_packet_factory.h"
+#include "z_socket/z_udp_message.h"
 #include "z_socket/z_udp_peer.h"
 #include "z_socket/z_udp_socket.h"
-#include "z_socket/z_udp_server.h"
-#include "z_socket/z_url_resolver.h"

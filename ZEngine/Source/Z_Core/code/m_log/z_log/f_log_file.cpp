@@ -33,24 +33,18 @@ namespace zengine {
 namespace log {
 
 NODISCARD ZFile& ErrorLogFile() noexcept {
-    thread_local ZFile file = std::invoke([]() ->ZFile {
+    static ZFile file = std::invoke([]() ->ZFile {
         ZFile file;
         ReturnType link_code = kOK;
-        TFixedString<kMaxFileDirLength> file_dir;
-        const ZSystemTime& system_time = ZSystemTime::StartTimeInstance();
-        file_dir.AssignNoEnd(
-            "{}/{:04}{:02}{:02}{:02}{:02}{:02}_Error.log",
-            ZLog::CreateAndGetLogPath(),
-            system_time.Year(),
-            system_time.Month(),
-            system_time.Day(),
-            system_time.Hour(),
-            system_time.Min(),
-            system_time.Sec()
+        TFixedString<kMaxFileDirLength> file_path;
+        const ZSystemTime& system_time = ZSystemTime::GetProcessStartTimeInstance();
+        file_path.AssignNoEnd(
+            "{}/Error.log",
+            ZLog::CreateAndGetLogPath()
         );
         link_code = file.Open(
-            file_dir.GetDataPtr(),
-            ZFile::kWriteOnly | ZFile::kCreate | ZFile::kTruncate
+            file_path.GetDataPtr(),
+            ZFile::kWriteOnly | ZFile::kCreate | ZFile::kAppend
         );
         if (link_code != kOK) {
             Z_LOG_ERROR(error_code::kMLogErrorCode_LinkError, link_code, "ZFile::Open() link error!");
@@ -65,24 +59,18 @@ NODISCARD ZFile& ErrorLogFile() noexcept {
 }
 
 NODISCARD ZFile& InfoLogFile() noexcept {
-    thread_local ZFile file = std::invoke([]() ->ZFile {
+    static ZFile file = std::invoke([]() ->ZFile {
         ZFile file;
         ReturnType link_code = kOK;
-        TFixedString<kMaxFileDirLength> file_dir;
-        const ZSystemTime& system_time = ZSystemTime::StartTimeInstance();
-        file_dir.AssignNoEnd(
-            "{}/{:04}{:02}{:02}{:02}{:02}{:02}_Info.log",
-            ZLog::CreateAndGetLogPath(),
-            system_time.Year(),
-            system_time.Month(),
-            system_time.Day(),
-            system_time.Hour(),
-            system_time.Min(),
-            system_time.Sec()
+        TFixedString<kMaxFileDirLength> file_path;
+        const ZSystemTime& system_time = ZSystemTime::GetProcessStartTimeInstance();
+        file_path.AssignNoEnd(
+            "{}/Info.log",
+            ZLog::CreateAndGetLogPath()
         );
         link_code = file.Open(
-            file_dir.GetDataPtr(),
-            ZFile::kWriteOnly | ZFile::kCreate | ZFile::kTruncate
+            file_path.GetDataPtr(),
+            ZFile::kWriteOnly | ZFile::kCreate | ZFile::kAppend
         );
         if (link_code != kOK) {
             Z_LOG_ERROR(error_code::kMLogErrorCode_LinkError, link_code, "ZFile::Open() link error!");
@@ -97,24 +85,18 @@ NODISCARD ZFile& InfoLogFile() noexcept {
 }
 
 NODISCARD ZFile& TraceLogFile() noexcept {
-    thread_local ZFile file = std::invoke([]() ->ZFile {
+    static ZFile file = std::invoke([]() ->ZFile {
         ZFile file;
         ReturnType link_code = kOK;
-        TFixedString<kMaxFileDirLength> file_dir;
-        const ZSystemTime& system_time = ZSystemTime::StartTimeInstance();
-        file_dir.AssignNoEnd(
-            "{}/{:04}{:02}{:02}{:02}{:02}{:02}_Trace.log",
-            ZLog::CreateAndGetLogPath(),
-            system_time.Year(),
-            system_time.Month(),
-            system_time.Day(),
-            system_time.Hour(),
-            system_time.Min(),
-            system_time.Sec()
+        TFixedString<kMaxFileDirLength> file_path;
+        const ZSystemTime& system_time = ZSystemTime::GetProcessStartTimeInstance();
+        file_path.AssignNoEnd(
+            "{}/Trace.log",
+            ZLog::CreateAndGetLogPath()
         );
         link_code = file.Open(
-            file_dir.GetDataPtr(),
-            ZFile::kWriteOnly | ZFile::kCreate | ZFile::kTruncate
+            file_path.GetDataPtr(),
+            ZFile::kWriteOnly | ZFile::kCreate | ZFile::kAppend
         );
         if (link_code != kOK) {
             Z_LOG_ERROR(error_code::kMLogErrorCode_LinkError, link_code, "ZFile::Open() link error!");
@@ -128,5 +110,5 @@ NODISCARD ZFile& TraceLogFile() noexcept {
     return file;
 }
 
-}//log
-}//zengine
+} // log
+} // zengine

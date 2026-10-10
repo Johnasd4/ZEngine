@@ -28,6 +28,9 @@
 
 #include "drive.h"
 
+/** @brief Alignment size for memory pool head data. */
+#define MEMORY_POOL_HEAD_DATA_ALIGN SIMD_ALIGN
+
 namespace zengine {
 namespace memory_pool {
 
@@ -113,5 +116,5 @@ inline constexpr UInt32 kLargeMemoryPoolMemoryBlockWithHeadSizeMin =
 inline constexpr UInt32 kLargeMemoryPoolMemoryBlockWithHeadSizeMax =
     kLargeMemoryPoolMemoryBlockWithHeadSizeArray[kLargeMemoryPoolNum - 1];
 
-}//memory_pool
-}//zengine
+} // memory_pool
+} // zengine

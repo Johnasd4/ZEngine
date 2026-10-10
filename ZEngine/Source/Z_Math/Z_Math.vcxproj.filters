@@ -15,10 +15,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="code\f_basic_math_random.cpp">
+    <ClCompile Include="code\drive\d_pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="code\drive\d_pch.cpp">
+    <ClCompile Include="code\drive\zzzzzzzzzz_dummy_file.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

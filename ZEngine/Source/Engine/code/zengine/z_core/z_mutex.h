@@ -28,58 +28,78 @@
 
 #include "drive.h"
 
-#include <atomic>
-
-#include "z_object.h"
+#include "t_atom.h"
 
 namespace zengine {
 
 /** @brief A simple mutex wrapper class providing non-recursive locking mechanisms. */
-class ZMutex {
+class CORE_DLLAPI ZMutex {
+    NO_NEW_DELETE
 public:
     /** @brief Default constructor. Initializes the mutex instance. */
     FORCEINLINE ZMutex() noexcept 
         : mutex_()
     {}
 
-    /** @brief Destructor. Cleans up the mutex instance. */
-    FORCEINLINE ~ZMutex() noexcept {}
+    /** @brief Deleted copy constructor. */
+    ZMutex(const ZMutex&) = delete;
+
+    /** @brief Deleted move constructor. */
+    ZMutex(ZMutex&&) = delete;
+
+    /** 
+     * @brief Destructor. Cleans up the mutex instance. 
+     */
+    FORCEINLINE ~ZMutex() noexcept = default;
+
+    /** @brief Deleted copy assignment operator. */
+    ZMutex& operator=(const ZMutex&) = delete;
+
+    /** @brief Deleted move assignment operator. */
+    ZMutex& operator=(ZMutex&&) = delete;
 
     /** @brief Locks the mutex, blocking the calling thread until the lock is obtained. */
-    FORCEINLINE Void Lock() noexcept { 
-        //try to acquire the lock
-        while (mutex_.exchange(1, std::memory_order_acquire) != 0) {
-            //wait until the mutex appears to be unlocked
-            while (mutex_.load(std::memory_order_relaxed) == 1) {
-                mutex_.wait(1, std::memory_order_relaxed);
-            }
-        }
-    }
+    Void Lock() noexcept;
 
     /**
      * @brief Tries to lock the mutex without blocking.
      * @return True if the lock was acquired, false otherwise.
      */
-    FORCEINLINE Bool TryLock() noexcept {  
-        return mutex_.exchange(1, std::memory_order_acquire) == 0;
+    NODISCARD FORCEINLINE Bool TryLock() noexcept {  
+        UInt32 expected = 0U;
+        // Only transition to 1 if current is 0.
+        return mutex_.CompareExchangeStrong(expected, 1U, ZMemoryOrderEnum::kAcquire, ZMemoryOrderEnum::kRelaxed);
     }
+
+    /**
+     * @brief Tries to lock the mutex for a specified duration.
+     * This is the base implementation for timed locking.
+     * @param _timeout_ms The maximum duration in milliseconds to wait for the lock.
+     * @return True if the lock was acquired, false if the timeout occurred.
+     */
+    NODISCARD FORCEINLINE Bool TryLockForMs(TimeType _timeout_ms) noexcept {
+        return TryLockUntilMs(ZSystemTime::GetTimeMs() + _timeout_ms);
+    }
+
+    /**
+     * @brief Tries to lock the mutex until the specified absolute time is reached.
+     * Delegates to TryLockFor.
+     * @param _abs_time_ms The absolute time in milliseconds (based on ZSystemTime) to wait until.
+     * @return True if the lock was acquired, false if the timeout occurred.
+     */
+    NODISCARD Bool TryLockUntilMs(TimeType _abs_time_ms) noexcept;
 
     /** @brief Releases the lock held by the mutex. */
     FORCEINLINE Void Unlock() noexcept { 
-        mutex_.store(0, std::memory_order_release);
-        mutex_.notify_one();
+        // Release the lock (set to 0) and check previous state.
+        if (mutex_.Exchange(0U, ZMemoryOrderEnum::kRelease) == 2U) {
+            mutex_.NotifyOne();
+        }
     }
 
 private:
-    static Void* operator new(SizeType) = delete;
-    static Void operator delete(Void*) = delete;
-    ZMutex(const ZMutex&) = delete;
-    ZMutex(ZMutex&&) = delete;
-    ZMutex& operator=(const ZMutex&) = delete;
-    ZMutex& operator=(ZMutex&&) = delete;
-
     /** @brief The underlying standard mutex used for locking. */
-    std::atomic<UInt32> mutex_;
+    TAtom<UInt32> mutex_;
 };
 
-}//zengine
+} // zengine

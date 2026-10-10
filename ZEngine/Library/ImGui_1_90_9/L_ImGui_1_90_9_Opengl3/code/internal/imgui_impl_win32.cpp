@@ -108,7 +108,7 @@ struct ImGui_ImplWin32_Data
     HWND                        MouseHwnd;
     int                         MouseTrackedArea;   // 0: not tracked, 1: client are, 2: non-client area
     int                         MouseButtonsDown;
-    INT64                       Time;
+    INT64                       TimeNs;
     INT64                       TicksPerSecond;
     ImGuiMouseCursor            LastMouseCursor;
     UINT32                      KeyboardCodePage;
@@ -165,7 +165,7 @@ static bool ImGui_ImplWin32_InitEx(void* hwnd, bool platform_has_own_dc)
 
     bd->hWnd = (HWND)hwnd;
     bd->TicksPerSecond = perf_frequency;
-    bd->Time = perf_counter;
+    bd->TimeNs = perf_counter;
     bd->LastMouseCursor = ImGuiMouseCursor_COUNT;
     ImGui_ImplWin32_UpdateKeyboardCodePage();
 
@@ -397,8 +397,8 @@ void    ImGui_ImplWin32_NewFrame()
     // Setup time step
     INT64 current_time = 0;
     ::QueryPerformanceCounter((LARGE_INTEGER*)&current_time);
-    io.DeltaTime = (float)(current_time - bd->Time) / bd->TicksPerSecond;
-    bd->Time = current_time;
+    io.DeltaTime = (float)(current_time - bd->TimeNs) / bd->TicksPerSecond;
+    bd->TimeNs = current_time;
 
     // Update OS mouse position
     ImGui_ImplWin32_UpdateMouseData();

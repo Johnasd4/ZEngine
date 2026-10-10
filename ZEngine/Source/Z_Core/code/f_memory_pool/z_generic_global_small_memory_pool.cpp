@@ -27,8 +27,12 @@
 #define CORE_DLLFILE
 #include "drive/d_pch.h"
 
-#include "m_log.h"
 #include "z_generic_global_small_memory_pool.h"
+
+#include "m_log.h"
+#include "z_file.h"
+
+#include "z_generic_memory_pool_performance_test.h"
 
 namespace zengine {
 namespace memory_pool {
@@ -38,17 +42,17 @@ NOINLINE Void ZGenericGlobalSmallMemoryPool::ExtendMemoryBlockP() noexcept {
     MemoryPageHeadExtend_* page_ptr;
     {
         TLockGuard lock_guard(memory_page_data.mutex_);
-        //memory page all used, need to alloc from system
+        // memory page all used, need to alloc from system
         if (memory_page_data.page_ptr_ == memory_page_data.page_end_ptr_) {
             ExtendMemoryPageP();
         }
 
-        //allocate new memory page
+        // allocate new memory page
         page_ptr = reinterpret_cast<MemoryPageHeadExtend_*>(memory_page_data.page_ptr_);
         memory_page_data.page_ptr_ += kMemoryPageSize;
     }
 
-    //initialize new memory page
+    // initialize new memory page
     page_ptr->page_head_.memory_pool_ptr_ = this;
     unused_memory_block_ptr_ = reinterpret_cast<Byte*>(page_ptr) + memory_page_start_ptr_offset_;
     unused_memory_block_end_ptr_ = reinterpret_cast<Byte*>(page_ptr) + kMemoryPageSize;
@@ -56,7 +60,7 @@ NOINLINE Void ZGenericGlobalSmallMemoryPool::ExtendMemoryBlockP() noexcept {
 #if USE_MEMORY_POOL_PERFORMANCE_TEST
     memory_block_total_num_ += 
         (kMemoryPageSize - static_cast<UInt32>(sizeof(MemoryPageHeadExtend_))) / memory_block_size_;
-#endif //USE_MEMORY_POOL_PERFORMANCE_TEST
+#endif // USE_MEMORY_POOL_PERFORMANCE_TEST
 }
 
 NOINLINE Void ZGenericGlobalSmallMemoryPool::ExtendMemoryPageP() noexcept {
@@ -91,7 +95,21 @@ ZGenericGlobalSmallMemoryPoolGroup::ZGenericGlobalSmallMemoryPoolGroup() noexcep
     }
 }
 
-ZGenericGlobalSmallMemoryPoolGroup::~ZGenericGlobalSmallMemoryPoolGroup() noexcept {}
+ZGenericGlobalSmallMemoryPoolGroup::~ZGenericGlobalSmallMemoryPoolGroup() noexcept {
+#if USE_MEMORY_POOL_PERFORMANCE_TEST
+    ZGenericMemoryPoolPerformanceTest& performance_test_instance = ZGenericMemoryPoolPerformanceTest::GetInstance();
+    for (SizeType index = 0; index < kSmallMemoryPoolNum; ++index) {
+        ZGenericGlobalSmallMemoryPool& memory_pool = pool_array_[index];
+        performance_test_instance.global_small_memory_pool_performance_data_[index] = {
+            memory_pool.memory_block_size_,
+            memory_pool.memory_block_unreleased_num_,
+            memory_pool.memory_block_applied_num_,
+            memory_pool.memory_block_peak_num_,
+            memory_pool.memory_block_total_num_
+        };
+    }
+#endif // USE_MEMORY_POOL_PERFORMANCE_TEST        
+}
 
-}//memory_pool
-}//zengine
+} // memory_pool
+} // zengine

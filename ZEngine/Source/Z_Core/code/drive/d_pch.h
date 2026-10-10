@@ -35,22 +35,26 @@
 #pragma comment(lib,"L_WhereAmI_x64_Debug.lib")
 #pragma comment(lib,"L_Simdutf_x64_Debug.lib")
 #pragma comment(lib,"L_Fmt_11_1_0_x64_Debug.lib")
+#pragma comment(lib,"libuv_x64_Debug.lib")
 #else
 #pragma comment(lib,"L_WhereAmI_x64_Release.lib")
 #pragma comment(lib,"L_Simdutf_x64_Release.lib")
 #pragma comment(lib,"L_Fmt_11_1_0_x64_Release.lib")
-#endif//_DEBUG
+#pragma comment(lib,"libuv_x64_Release.lib")
+#endif //_DEBUG
 #else
 #ifdef _DEBUG
 #pragma comment(lib,"L_WhereAmI_Win32_Debug.lib")
 #pragma comment(lib,"L_Simdutf_Win32_Debug.lib")
 #pragma comment(lib,"L_Fmt_11_1_0_Win32_Debug.lib")
+#pragma comment(lib,"libuv_Win32_Debug.lib")
 #else
 #pragma comment(lib,"L_WhereAmI_Win32_Release.lib")
 #pragma comment(lib,"L_Simdutf_Win32_Release.lib")
 #pragma comment(lib,"L_Fmt_11_1_0_Win32_Release.lib")
-#endif//_DEBUG
-#endif//_WIN64
+#pragma comment(lib,"libuv_Win32_Release.lib")
+#endif //_DEBUG
+#endif //_WIN64
 
 #ifdef _WIN32
 #pragma comment(lib,"onecore.lib")
@@ -60,23 +64,21 @@
 #pragma comment(lib,"Psapi.lib")
 #endif
 
-#pragma comment(lib,"libuv_x64_Release.lib")
-
 /* Standard Library */
 
 #include <iostream>
-
 #include <chrono>
 #include <ctime>
 #include <filesystem>
 #include <thread>
+#include <csignal>
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <shellapi.h>
 #include <memoryapi.h>
-#include <shobjidl.h> //filesystem
+#include <shobjidl.h> // filesystem
 #else
 #include <sys/mman.h> // Linux/macOS mmap
 #endif

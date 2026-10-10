@@ -38,7 +38,7 @@ namespace memory_pool {
 /**
  * @brief A thread-safe generic memory pool implementation optimized for medium-sized memory blocks (2KB to 64KB).
  */
-class CACHE_LINE_ALIGN ZGenericThreadLocalMediumMemoryPool {
+class CACHE_ALIGN ZGenericThreadLocalMediumMemoryPool {
 private:
     /** @brief Enumeration defining the memory block type strategies. */
     enum class MemoryBlockTypeEnum_ : UInt32 {
@@ -49,41 +49,42 @@ private:
     };
 
     /** @brief The size of the memory page for 1.5x strategy. */
-    static constexpr UInt32 kMemoryPageSize1_5 = kMediumMemoryPoolMemoryBlockWithHeadSizeMax_1_5;
+    static inline constexpr UInt32 kMemoryPageSize1_5 = kMediumMemoryPoolMemoryBlockWithHeadSizeMax_1_5;
     /** @brief The size of the memory page for 2x strategy. */
-    static constexpr UInt32 kMemoryPageSize2 = kMediumMemoryPoolMemoryBlockWithHeadSizeMax_2;
+    static inline constexpr UInt32 kMemoryPageSize2 = kMediumMemoryPoolMemoryBlockWithHeadSizeMax_2;
     /** @brief The number of atom pages per memory page for 1.5x strategy. */
-    static constexpr UInt32 kMemoryAtomPagePerMemoryPageNum1_5 = kMemoryPageSize1_5 / kMemoryAtomPageSize;
+    static inline constexpr UInt32 kMemoryAtomPagePerMemoryPageNum1_5 = kMemoryPageSize1_5 / kMemoryAtomPageSize;
     /** @brief The number of atom pages per memory page for 2x strategy. */
-    static constexpr UInt32 kMemoryAtomPagePerMemoryPageNum2 = kMemoryPageSize2 / kMemoryAtomPageSize;
+    static inline constexpr UInt32 kMemoryAtomPagePerMemoryPageNum2 = kMemoryPageSize2 / kMemoryAtomPageSize;
     /** @brief The minimum number of pages to apply for from the system. */
-    static constexpr UInt32 kApplySystemMemoryPageMinNum = 16U;
+    static inline constexpr UInt32 kApplySystemMemoryPageMinNum = 16U;
     /** @brief The maximum number of pages to apply for from the system. */
-    static constexpr UInt32 kApplySystemMemoryPageMaxNum = 64U;
+    static inline constexpr UInt32 kApplySystemMemoryPageMaxNum = 64U;
     /** @brief The minimum number of atom pages to apply for from the system for 1.5x strategy. */
-    static constexpr UInt32 kApplySystemMemoryAtomPageMinNum1_5 =
+    static inline constexpr UInt32 kApplySystemMemoryAtomPageMinNum1_5 =
         kApplySystemMemoryPageMinNum * kMemoryPageSize1_5 / kMemoryAtomPageSize;
     /** @brief The maximum number of atom pages to apply for from the system for 1.5x strategy. */
-    static constexpr UInt32 kApplySystemMemoryAtomPageMaxNum1_5 =
+    static inline constexpr UInt32 kApplySystemMemoryAtomPageMaxNum1_5 =
         kApplySystemMemoryPageMaxNum * kMemoryPageSize1_5 / kMemoryAtomPageSize;
     /** @brief The minimum number of atom pages to apply for from the system for 2x strategy. */
-    static constexpr UInt32 kApplySystemMemoryAtomPageMinNum2 =
+    static inline constexpr UInt32 kApplySystemMemoryAtomPageMinNum2 =
         kApplySystemMemoryPageMinNum * kMemoryPageSize2 / kMemoryAtomPageSize;
     /** @brief The maximum number of atom pages to apply for from the system for 2x strategy. */
-    static constexpr UInt32 kApplySystemMemoryAtomPageMaxNum2 =
+    static inline constexpr UInt32 kApplySystemMemoryAtomPageMaxNum2 =
         kApplySystemMemoryPageMaxNum * kMemoryPageSize2 / kMemoryAtomPageSize;
     /** @brief The extension factor for applying system memory pages. */
-    static constexpr UInt32 kApplySystemMemoryPageExtendFactor = 2U;
+    static inline constexpr UInt32 kApplySystemMemoryPageExtendFactor = 2U;
     /** @brief The minimum number of memory blocks to apply for. */
-    static constexpr UInt32 kApplyMemoryBlockMinNum = 2U;
+    static inline constexpr UInt32 kApplyMemoryBlockMinNum = 2U;
     /** @brief The maximum number of memory blocks to apply for. */
-    static constexpr UInt32 kApplyMemoryBlockMaxNum = 32U;
+    static inline constexpr UInt32 kApplyMemoryBlockMaxNum = 32U;
     /** @brief The extension factor for applying memory blocks. */
-    static constexpr UInt32 kApplyMemoryBlockExtendFactor = 4U;
+    static inline constexpr UInt32 kApplyMemoryBlockExtendFactor = 4U;
 
 public:
     /** @brief The size of the header structure prepended to each memory page. */
-    static constexpr UInt32 kMemoryBlockHeadSize = static_cast<UInt32>(sizeof(ZGenericMemoryPool::MemoryPageHead_));
+    static inline constexpr UInt32 kMemoryBlockHeadSize = 
+        static_cast<UInt32>(sizeof(ZGenericMemoryPool::MemoryPageHead_));
 
     /** @brief Internal structure representing the header of a free memory block in the linked list. */
     struct MemoryBlockHead_ {
@@ -92,7 +93,7 @@ public:
     };
 
     /** @brief Structure holding thread-local data regarding current memory page allocation. */
-    struct ALIGN(16) MemoryPageData_ {
+    struct CACHE_ALIGN MemoryPageData_ {
         /** @brief Pointer to the current active memory page. */
         Byte* page_ptr_;
         /** @brief Pointer to the end of the current active memory page. */
@@ -133,16 +134,26 @@ public:
         , next_apply_memory_atom_page_max_num_(0U)
 #if USE_MEMORY_POOL_PERFORMANCE_TEST
         , memory_block_unreleased_num_(0U)
-        , momory_block_applyed_num_(0U)
-        , momory_block_peak_num_(0U)
-        , memory_block_total_num_(0U)
-#endif //USE_MEMORY_POOL_PERFORMANCE_TEST
+        , memory_block_applied_num_(0U)
+#endif // USE_MEMORY_POOL_PERFORMANCE_TEST
     {}
+
+    /** @brief Deleted copy constructor. */
+    ZGenericThreadLocalMediumMemoryPool(const ZGenericThreadLocalMediumMemoryPool&) = delete;
+
+    /** @brief Deleted move constructor. */
+    ZGenericThreadLocalMediumMemoryPool(ZGenericThreadLocalMediumMemoryPool&&) = delete;
 
     /**
      * @brief Destroys the memory pool and releases resources.
      */
-    FORCEINLINE ~ZGenericThreadLocalMediumMemoryPool() noexcept {}
+    FORCEINLINE ~ZGenericThreadLocalMediumMemoryPool() noexcept = default;
+
+    /** @brief Deleted copy assignment operator. */
+    ZGenericThreadLocalMediumMemoryPool& operator=(const ZGenericThreadLocalMediumMemoryPool&) = delete;
+
+    /** @brief Deleted move assignment operator. */
+    ZGenericThreadLocalMediumMemoryPool& operator=(ZGenericThreadLocalMediumMemoryPool&&) = delete;
 
     /**
      * @brief Initializes the memory pool parameters based on the provided block size.
@@ -151,7 +162,7 @@ public:
     FORCEINLINE Void Initialize(UInt32 _memory_block_with_head_size) noexcept {
         memory_block_size_ = _memory_block_with_head_size - kMemoryBlockHeadSize;
         memory_block_with_head_size_ = _memory_block_with_head_size;
-        if(memory_block_size_ % (2 * kKB) != 0U) {
+        if((memory_block_size_ | (2 * kKB - 1)) != 0U) {
             block_type_ = MemoryBlockTypeEnum_::k1_5;
             next_apply_memory_atom_page_num_ =
                 (kApplyMemoryBlockMinNum * _memory_block_with_head_size + kMemoryPageSize1_5 - 1) /
@@ -199,11 +210,8 @@ public:
         }
 #if USE_MEMORY_POOL_PERFORMANCE_TEST
         memory_block_unreleased_num_ += 1;
-        momory_block_applyed_num_ += 1;
-        if (memory_block_unreleased_num_ > momory_block_peak_num_) {
-            momory_block_peak_num_ = memory_block_unreleased_num_;
-        }
-#endif //USE_MEMORY_POOL_PERFORMANCE_TEST
+        memory_block_applied_num_ += 1;
+#endif // USE_MEMORY_POOL_PERFORMANCE_TEST
         return memory_ptr;
     }
 
@@ -217,15 +225,10 @@ public:
         head_memory_block_ptr_ = memory_block_ptr;
 #if USE_MEMORY_POOL_PERFORMANCE_TEST
         memory_block_unreleased_num_ -= 1;
-#endif //USE_MEMORY_POOL_PERFORMANCE_TEST
+#endif // USE_MEMORY_POOL_PERFORMANCE_TEST
     }
 
 private:
-    ZGenericThreadLocalMediumMemoryPool(const ZGenericThreadLocalMediumMemoryPool&) = delete;
-    ZGenericThreadLocalMediumMemoryPool(ZGenericThreadLocalMediumMemoryPool&&) = delete;
-    ZGenericThreadLocalMediumMemoryPool& operator=(const ZGenericThreadLocalMediumMemoryPool&) = delete;
-    ZGenericThreadLocalMediumMemoryPool& operator=(ZGenericThreadLocalMediumMemoryPool&&) = delete;
-
     /**
      * @brief Retrieves the thread-local instance of the memory page data.
      * @return MemoryPageDataGroup_& Reference to the thread-local memory page data group.
@@ -246,6 +249,10 @@ private:
      */
     NOINLINE Void ExtendMemoryBlockP() noexcept;
 
+private:
+    friend class ZGenericThreadLocalMediumMemoryPoolGroup;
+
+private:
     /** @brief Pointer to the head of the free memory block linked list. */
     MemoryBlockHead_* head_memory_block_ptr_;
     /** @brief Pointer to the current available position within the active memory page. */
@@ -266,21 +273,18 @@ private:
     /** @brief The number of memory blocks currently allocated but not yet released. */
     UInt32 memory_block_unreleased_num_;
     /** @brief The total number of memory block allocation requests made. */
-    UInt32 momory_block_applyed_num_;
-    /** @brief The peak number of simultaneously allocated memory blocks. */
-    UInt32 momory_block_peak_num_;
-    /** @brief The total number of memory blocks managed by this pool. */
-    UInt32 memory_block_total_num_;
+    UInt32 memory_block_applied_num_;
 #endif // USE_MEMORY_POOL_PERFORMANCE_TEST
 };
 
 /**
  * @brief A singleton group managing multiple medium memory pools for different block sizes.
  */
-class CACHE_LINE_ALIGN ZGenericThreadLocalMediumMemoryPoolGroup {
+class CACHE_ALIGN ZGenericThreadLocalMediumMemoryPoolGroup {
+    NO_NEW_DELETE
 private:
     /** @brief The increment size for the mapping table index. */
-    static constexpr UInt32 kTableSizePerIndex = std::invoke([]() {
+    static inline constexpr UInt32 kTableSizePerIndex = std::invoke([]() {
         UInt32 ans = kMediumMemoryPoolMemoryBlockWithHeadSizeArray[0];
         for (SizeType index = 0ULL; index < kMediumMemoryPoolNum; ++index) {
             UInt32 current_size = kMediumMemoryPoolMemoryBlockWithHeadSizeArray[index];
@@ -291,23 +295,23 @@ private:
         return ans;
         });
     /** @brief The total size of the mapping table. */
-    static constexpr UInt32 kTableSize = kMediumMemoryPoolMemoryBlockWithHeadSizeMax / kTableSizePerIndex;
+    static inline constexpr UInt32 kTableSize = kMediumMemoryPoolMemoryBlockWithHeadSizeMax / kTableSizePerIndex;
     /** @brief A lookup table mapping requested sizes to the appropriate pool index. */
-    static constexpr TFixedArray<UInt8, kTableSize> kSizeToPoolTable =
-        TFixedArray<UInt8, kTableSize>{[](TFixedArray<UInt8, kTableSize>* _array_ptr) {
-            SizeType table_index = 0ULL;
-            for (UInt8 pool_index = 0; pool_index < kMediumMemoryPoolNum; ++pool_index) {
-                SizeType next_pool_index =
-                    kMediumMemoryPoolMemoryBlockWithHeadSizeArray[pool_index] / kTableSizePerIndex;
-                for (; table_index < next_pool_index; ++table_index) {
-                    (*_array_ptr)[table_index] = pool_index;
-                }
+    static inline constexpr TFixedArray<UInt8, kTableSize> kSizeToPoolTable = std::invoke([]() {
+        TFixedArray<UInt8, kTableSize> array;
+        SizeType table_index = 0ULL;
+        for (UInt8 pool_index = 0; pool_index < kMediumMemoryPoolNum; ++pool_index) {
+            SizeType next_pool_index = kMediumMemoryPoolMemoryBlockWithHeadSizeArray[pool_index] / kTableSizePerIndex;
+            for (; table_index < next_pool_index; ++table_index) {
+                array[table_index] = pool_index;
             }
-        }};
+        }
+        return array;
+    });
 
 public:
     /** @brief The maximum usable memory block size supported by this pool group. */
-    static constexpr UInt32 kMemoryBlockSizeMax =
+    static inline constexpr UInt32 kMemoryBlockSizeMax =
         kMediumMemoryPoolMemoryBlockWithHeadSizeMax - ZGenericThreadLocalMediumMemoryPool::kMemoryBlockHeadSize;
 
 public:
@@ -315,9 +319,25 @@ public:
      * @brief Retrieves the instance of the memory pool group.
      * @return ZGenericThreadLocalMediumMemoryPoolGroup& A reference to the singleton instance.
      */
-    FORCEINLINE static ZGenericThreadLocalMediumMemoryPoolGroup& Instance() noexcept {
+    FORCEINLINE static ZGenericThreadLocalMediumMemoryPoolGroup& GetInstance() noexcept {
         thread_local ZGenericThreadLocalMediumMemoryPoolGroup instance;
         return instance;
+    }
+
+    /**
+    * @brief Gets the address of the first memory pool in the group.
+    * @return PointerType The address of the first memory pool.
+    */
+    NODISCARD FORCEINLINE PointerType FirstPoolAddress() noexcept {
+        return reinterpret_cast<PointerType>(&pool_array_);
+    }
+
+    /**
+     * @brief Gets the address of the last memory pool in the group.
+     * @return PointerType The address of the last memory pool.
+     */
+    NODISCARD FORCEINLINE PointerType LastPoolAddress() noexcept {
+        return reinterpret_cast<PointerType>(&pool_array_[kMediumMemoryPoolNum - 1U]);
     }
 
     /**
@@ -369,10 +389,11 @@ private:
      */
     ~ZGenericThreadLocalMediumMemoryPoolGroup() noexcept;
 
+private:
     /** @brief The array of medium memory pools, each managing a specific block size. */
     TFixedArray<ZGenericThreadLocalMediumMemoryPool, kMediumMemoryPoolNum> pool_array_;
 };
 
-}//memory_pool
+} // memory_pool
 
-}//zengine
+} // zengine

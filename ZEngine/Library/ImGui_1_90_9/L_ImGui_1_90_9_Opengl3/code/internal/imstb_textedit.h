@@ -1396,7 +1396,7 @@ static int stb_textedit_paste(IMSTB_TEXTEDIT_STRING *str, STB_TexteditState *sta
 #pragma GCC diagnostic pop
 #endif
 
-#endif//IMSTB_TEXTEDIT_IMPLEMENTATION
+#endif //IMSTB_TEXTEDIT_IMPLEMENTATION
 
 /*
 ------------------------------------------------------------------------------

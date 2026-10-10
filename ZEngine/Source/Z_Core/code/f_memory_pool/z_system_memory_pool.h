@@ -65,12 +65,12 @@ NODISCARD FORCEINLINE Void* AllocP(UInt32 _size, UInt32 _alignment_param) {
         1               // parameter count
     );
 #else
-    Void* mem_ptr = nullptr;
+    Void* memory_ptr = nullptr;
     // posix_memalign expects alignment in bytes.
-    if (posix_memalign(&mem_ptr, alignment_bytes, _size) != 0) {
+    if (posix_memalign(&memory_ptr, alignment_bytes, _size) != 0) {
         return nullptr;
     }
-    return mem_ptr;
+    return memory_ptr;
 #endif
 }
 
@@ -86,16 +86,17 @@ FORCEINLINE Void FreeP(Void* _memory_ptr) {
 #endif
 }
 
-}//internal
-}//memory_pool
-}//zengine
+} // internal
+} // memory_pool
+} // zengine
 
 namespace zengine {
 namespace memory_pool {
 
 class ZSystemMemoryPool {
 public:
-    FORCEINLINE static ZSystemMemoryPool& Instance() noexcept {
+    /** @brief Gets the singleton instance of the memory pool. */
+    FORCEINLINE static ZSystemMemoryPool& GetInstance() noexcept {
         static ZSystemMemoryPool instance;
         return instance;
     }
@@ -115,7 +116,7 @@ public:
      * @return Void* A pointer to the allocated memory block, or nullptr if allocation fails.
      */
     NODISCARD FORCEINLINE Void* Alloc2MBAlignmentMemoryAtomPageP(UInt32 _page_num) {
-        //align size to the next multiple of the alignment
+        // align size to the next multiple of the alignment
         return internal::AllocP(_page_num * kMemoryAtomPageSize, kLargeMemoryPageAlignmentParam);
     }
 
@@ -128,9 +129,12 @@ public:
     }
 
 private:
-    ~ZSystemMemoryPool() noexcept;
-    ZSystemMemoryPool() noexcept;
+    /** @brief Default constructor. */
+    ZSystemMemoryPool() noexcept = default;
+
+    /** @brief Default destructor. */
+    ~ZSystemMemoryPool() noexcept = default;
 };
 
-}//memory_pool
-}//zengine
+} // memory_pool
+} // zengine

@@ -26,6 +26,8 @@
 */
 #pragma once
 
+#include <cassert>
+
 // Windows (MSVC, MinGW, Cygwin)
 #if defined(_WIN32) || defined(__CYGWIN__)
 #ifndef DLLEXPORT
@@ -115,21 +117,33 @@
 /** @brief Defines the cache line size for alignment purposes. */
 #define CACHE_LINE_SIZE 64
 /** @brief Macro to align data structures to cache line size. */
-#define CACHE_LINE_ALIGN ALIGN(CACHE_LINE_SIZE)
+#define CACHE_ALIGN ALIGN(CACHE_LINE_SIZE)
+/**
+ * @brief Aligns to the machine word boundary (CPU native register width).
+ * 4 bytes on 32-bit systems, 8 bytes on 64-bit systems.
+ * This ensures single-cycle read/write atomicity for pointers and size_t.
+ */
+#define WORD_ALIGN ALIGN(alignof(Void*))
 
-#ifndef PACK
-// MSVC
-#if defined(_MSC_VER)
-/** @brief Packs a structure to 1-byte alignment (MSVC).
-    Usage: PACKED(struct MyStruct { ... }); */
-#define PACK(_declaration) __pragma(pack(push, 1)) _declaration __pragma(pack(pop))
+/** @brief Aligns to 16 bytes for SIMD operations. */
+#define SIMD_ALIGN ALIGN(16)
 
-    // GCC / Clang
-#elif defined(__GNUC__) || defined(__clang__)
-/** @brief Packs a structure to 1-byte alignment (GCC/Clang). */
-#define PACK(_declaration) _declaration __attribute__((packed))
-
-#else
-#define PACK(_declaration) _declaration
+#ifndef STATIC_ASSERT
+/** @brief Compile-time assertion using C++11 static_assert. */
+#define STATIC_ASSERT(_condition, _message) static_assert(_condition, _message)
 #endif
+
+/** @brief Assertion macro for runtime checks. */
+#ifndef ASSERT
+#define ASSERT(cond, msg) assert((cond) && (msg))
+#endif
+
+/** @brief Macro to disable heap allocation for a class by deleting */
+#ifndef NO_NEW_DELETE
+#define NO_NEW_DELETE \
+public: \
+    static FORCEINLINE Void* operator new(SizeType _size, Void* _ptr) noexcept { return _ptr; } \
+private: \
+    static Void* operator new(SizeType) = delete; \
+    static Void operator delete(Void*) = delete;
 #endif

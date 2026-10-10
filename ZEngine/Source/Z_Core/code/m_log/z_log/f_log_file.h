@@ -54,5 +54,5 @@ NODISCARD ZFile& InfoLogFile() noexcept;
  */
 NODISCARD ZFile& TraceLogFile() noexcept;
 
-}//log
-}//zengine
+} // log
+} // zengine

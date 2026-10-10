@@ -35,31 +35,34 @@
 namespace zengine {
 namespace log {
 
-NODISCARD ZLogManager& ZLogManager::Instance() noexcept {
+NODISCARD ZLogManager& ZLogManager::GetInstance() noexcept {
     static ZLogManager log_manager;
     return log_manager;
 }
 
 Void ZLogManager::LogThread(ZLogManager* _log_manager_ptr) noexcept {
-    while (_log_manager_ptr->log_thread_finished_ == false) {
+    _log_manager_ptr->log_thread_state_ = StateEnum_::kRunning;
+    // tell the main thread that log thread is running
+    _log_manager_ptr->log_thread_state_.NotifyOne();   
+
+    while (_log_manager_ptr->log_thread_state_.Load() == StateEnum_::kRunning) {
         Bool if_log = false;
 
-        //log manager request handle
-        while (_log_manager_ptr->request_queue_.GetSize() > 0ULL) {
-            TUniquePointer<Request_> request_ptr = std::move(_log_manager_ptr->request_queue_.Front());
-            _log_manager_ptr->request_queue_.PopFront();
-            auto& request_data = request_ptr->request_data_.register_data_;
+        // log manager request handle
+        TUniquePointer<Request_> request_ptr;
+        while (_log_manager_ptr->request_queue_.TryPopFront(request_ptr)) {
+            auto& request_data = request_ptr->data_.register_;
             ZLog::OutputFunction_ request_func = request_data._output_func;
             ZLog::OutputFunctionArray_* request_func_array_ptr = request_data.output_func_array_ptr_;
             SizeType index;
             ZLog::OutputFunction_ index_func;
 
-            switch (request_ptr->request_type_) {
-            case RequestTypeEnum_::kLogOutputRegisterRequest:
+            switch (request_ptr->id_) {
+            case RequestIDEnum_::kLogOutputRegisterRequest:
                 for (index = 0; index < kOutputFunctionMaxNum; ++index) {
                     index_func = (*request_func_array_ptr)[index];
                     if (index_func) {
-                        //Check for same output.
+                        // Check for same output.
                         if (index_func == request_func) {
                             Z_LOG_ERROR(
                                 error_code::kMLogErrorCode_LogPortOutputFunctionAlreadyRegistered, 0, 
@@ -69,7 +72,7 @@ Void ZLogManager::LogThread(ZLogManager* _log_manager_ptr) noexcept {
                         }
                     }
                     else {
-                        //find empty output.
+                        // find empty output.
                         (*request_func_array_ptr)[index] = request_func;
                         break;
                     }
@@ -81,7 +84,7 @@ Void ZLogManager::LogThread(ZLogManager* _log_manager_ptr) noexcept {
                     );
                 }
                 break;
-            case RequestTypeEnum_::kLogOutputUnregisterRequest:
+            case RequestIDEnum_::kLogOutputUnregisterRequest:
                 for (index = 0; index < kOutputFunctionMaxNum; ++index) {
                     index_func = (*request_func_array_ptr)[index];
                     if (index_func == request_func) {
@@ -93,37 +96,30 @@ Void ZLogManager::LogThread(ZLogManager* _log_manager_ptr) noexcept {
             }
         }
 
-        //output log
-        while (_log_manager_ptr->log_queue_.GetSize() > 0ULL) {
+        // output log
+        TUniquePointer<ZLog> log_ptr;
+        while (_log_manager_ptr->log_queue_.TryPopFront(log_ptr)) {
             if_log = true;
-            TUniquePointer<ZLog> log = std::move(_log_manager_ptr->log_queue_.Front());
-            _log_manager_ptr->log_queue_.PopFront();
-            log->OutputLog();
+            log_ptr->OutputLog();
         }
 
-        //log str
+        // sleep if no log to output
         if (!if_log) {
-            SleepMs(100);
+            ZThread::SleepMs(100);
         }
     }
 
-    //output remaining log
-    while (_log_manager_ptr->log_queue_.GetSize() > 0ULL) {
-        _log_manager_ptr->log_queue_mutex_.Lock();
-        TUniquePointer<ZLog> log = std::move(_log_manager_ptr->log_queue_.Front());
-        _log_manager_ptr->log_queue_.PopFront();
-        _log_manager_ptr->log_queue_mutex_.Unlock();
-        log->OutputLog();
+    // output remaining log
+    TUniquePointer<ZLog> log_ptr;
+    while (_log_manager_ptr->log_queue_.TryPopFront(log_ptr)) {
+        log_ptr->OutputLog();
     }
 }
 
 Void ZLogManager::Log(
     TUniquePointer<ZLog>&& _log
 ) noexcept {
-    TLockGuard lock_guard{log_queue_mutex_};
-    if (!log_queue_.Full()) {
-        log_queue_.PushBack(std::forward<TUniquePointer<ZLog>>(_log));
-    }
+    log_queue_.PushBack(std::move(_log));
 }
 
 Void ZLogManager::RegisterLogOutputFunction(
@@ -131,8 +127,8 @@ Void ZLogManager::RegisterLogOutputFunction(
     ZLog::OutputFunctionArray_* _output_func_array_ptr
 ) noexcept {
     auto request_ptr = MakeUnique<Request_>();
-    request_ptr->request_type_ = RequestTypeEnum_::kLogOutputRegisterRequest;
-    auto& request_data = request_ptr->request_data_.register_data_;
+    request_ptr->id_ = RequestIDEnum_::kLogOutputRegisterRequest;
+    auto& request_data = request_ptr->data_.register_;
     request_data._output_func = _output_func;
     request_data.output_func_array_ptr_ = _output_func_array_ptr;
     request_queue_.EmplaceBack(std::move(request_ptr));
@@ -143,15 +139,21 @@ Void ZLogManager::UnregisterLogOutputFunction(
     ZLog::OutputFunctionArray_* _output_func_array_ptr
 ) noexcept {
     auto request_ptr = MakeUnique<Request_>();
-    request_ptr->request_type_ = RequestTypeEnum_::kLogOutputUnregisterRequest;
-    auto& request_data = request_ptr->request_data_.unregister_data_;
+    request_ptr->id_ = RequestIDEnum_::kLogOutputUnregisterRequest;
+    auto& request_data = request_ptr->data_.unregister_;
     request_data._output_func = _output_func;
     request_data.output_func_array_ptr_ = _output_func_array_ptr;
     request_queue_.EmplaceBack(std::move(request_ptr));
 }
 
+Void ZLogManager::StartThread() noexcept {
+    log_thread_ = ZThread(ZLogManager::LogThread, this);
+    // wait for log thread to start
+    log_thread_state_.Wait(StateEnum_::kIdle);
+}
+
 Void ZLogManager::FinishFlush() noexcept {
-    log_thread_finished_ = true;
+    log_thread_state_ = StateEnum_::kFinished;
     if (log_thread_.IsJoinable()) {
         log_thread_.Join();
     }
@@ -159,13 +161,10 @@ Void ZLogManager::FinishFlush() noexcept {
 
 ZLogManager::ZLogManager() noexcept 
     : log_queue_()
-    , log_queue_mutex_()
+    , log_thread_state_(StateEnum_::kIdle)
     , request_queue_()
-    , log_thread_finished_(false)
-    , log_thread_(ZLogManager::LogThread, this) 
+    , log_thread_() 
 {}
 
-ZLogManager::~ZLogManager() noexcept {}
-
-}//log
-}//zengine
+} // log
+} // zengine

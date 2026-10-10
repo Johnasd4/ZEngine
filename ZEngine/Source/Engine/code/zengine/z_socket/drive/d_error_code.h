@@ -1,17 +1,25 @@
 /*
     Copyright (c) YuLin Zhu
 
-    This code file is licensed under the Creative Commons
-    Attribution-NonCommercial 4.0 International License.
+    ** ZEngine Proprietary License **
 
-    You may obtain a copy of the License at
-    https://creativecommons.org/licenses/by-nc/4.0/
+    This software is provided "as-is", without any express or implied warranty.
+    In no event will the authors be held liable for any damages arising from the
+    use of this software.
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+    Usage Rights:
+    1. Non-Commercial Use: You may use, modify, and distribute this software
+       for non-commercial purposes (e.g., education, personal projects, open-source
+       projects that do not generate revenue) free of charge.
+
+    2. Commercial Use: Commercial use of this software is STRICTLY PROHIBITED
+       without a valid commercial license agreement with the author.
+       "Commercial use" includes, but is not limited to:
+       - Incorporating this software into a product that is sold.
+       - Using this software in a paid service.
+       - Using this software for internal business operations in a for-profit entity.
+
+    To obtain a Commercial License, please contact the author.
 
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
@@ -24,58 +32,32 @@
 namespace zengine {
 namespace error_code {
 
-inline constexpr ReturnType kErrorCodeBase_PSocket = 0x4U * kErrorCodeProjcetMask + kErrorCodeBase_SZEngine;
+inline constexpr ReturnType kErrorCodeBase_PSocket = 0x5U * kErrorCodeProjcetMask + kErrorCodeBase_SZEngine;
 
 inline constexpr ReturnType kErrorCodeBase_Socket = 0x0U * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
-inline constexpr ReturnType kErrorCodeBase_HTTP = 0x1U * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
-inline constexpr ReturnType kErrorCodeBase_URL = 0x2U * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
-inline constexpr ReturnType kErrorCodeBase_UDPMessage = 0x3U * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
+inline constexpr ReturnType kErrorCodeBase_FSocket = 0x1U * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
+inline constexpr ReturnType kErrorCodeBase_ZAddress = 0x2U * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
+inline constexpr ReturnType kErrorCodeBase_ZIOContext = 0x3U * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
+inline constexpr ReturnType kErrorCodeBase_ZUDPMessage = 0x4U * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
+inline constexpr ReturnType kErrorCodeBase_ZUDPPeer = 0x5U * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
+inline constexpr ReturnType kErrorCodeBase_ZKCPSession = 0x6U * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
 
-inline constexpr ReturnType kErrorCodeBase_ZSocket = 0x10U * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
-inline constexpr ReturnType kErrorCodeBase_ZHTTP = 0x11U * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
-inline constexpr ReturnType kErrorCodeBase_ZURL = 0x12U * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
-
-inline constexpr ReturnType kErrorCodeBase_FTCPLogOutput = 0x10U * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
-inline constexpr ReturnType kErrorCodeBase_FSocket = 0x11U * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
-
-enum SocketErrorCodeEnum : ReturnType {
+enum SocketErrorCodeEnum : ReturnType::ValueType {
     kSocketErrorCode_LinkError = kErrorCodeBase_Socket,
     kSocketErrorCode_SystemOrLibraryError,
     kSocketErrorCode_NullptrParam,
     kSocketErrorCode_ParamOutOfRange,
     kSocketErrorCode_StateError,
     kSocketErrorCode_OperationCanceled,
-    kSocketErrorCode_SocketNotOpen,
-    kSocketErrorCode_AddressNotVaild,
-    kSocketErrorCode_IPNotVaild,
-    kSocketErrorCode_PortNotVaild,
     kSocketErrorCode_Disconnected,
-    kSocketErrorCode_EndpointNotBind,
     kSocketErrorCode_UDPSocketNotConnected,
     kSocketErrorCode_ConnectFailed,
+    kSocketErrorCode_ConnectRefused,
+    kSocketErrorCode_SocketShutdown,
     kSocketErrorCode_ReadUntilSymbolNotFound,
-    kSocketErrorCode_TLSTypeNotValid,
-    kSocketErrorCode_TLSVerifyModeNotValid,
-    kSocketErrorCode_CertificateFileFormatNotValid,
-    kSocketErrorCode_ServerCertificateNotLoaded,
-    kSocketErrorCode_ServerPrivateKeyNotLoaded,
+    kSocketErrorCode_DestructedBeforeClose,
+    kSocketErrorCode_TryResend,
 };
 
-enum HTTPErrorCodeEnum : ReturnType {
-    kHTTPErrorCode_LinkError = kErrorCodeBase_HTTP,
-    kHTTPErrorCode_SystemOrLibraryError,
-    kHTTPErrorCode_NullptrParam,
-    kHTTPErrorCode_ParamOutOfRange,
-    kHTTPErrorCode_HTTP11ResponseResolverAlreadyUsed,
-};
-
-enum URLErrorCodeEnum : ReturnType {
-    kURLErrorCode_LinkError = kErrorCodeBase_URL,
-    kURLErrorCode_SystemOrLibraryError,
-    kURLErrorCode_NullptrParam,
-    kURLErrorCode_ParamOutOfRange,
-    kURLErrorCode_URLResolveFailed,
-};
-
-}//error_code
-}//zengine
+} // error_code
+} // zengine

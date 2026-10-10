@@ -1,17 +1,25 @@
 /*
     Copyright (c) YuLin Zhu
 
-    This code file is licensed under the Creative Commons
-    Attribution-NonCommercial 4.0 International License.
+    ** ZEngine Proprietary License **
 
-    You may obtain a copy of the License at
-    https://creativecommons.org/licenses/by-nc/4.0/
+    This software is provided "as-is", without any express or implied warranty.
+    In no event will the authors be held liable for any damages arising from the
+    use of this software.
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+    Usage Rights:
+    1. Non-Commercial Use: You may use, modify, and distribute this software
+       for non-commercial purposes (e.g., education, personal projects, open-source
+       projects that do not generate revenue) free of charge.
+
+    2. Commercial Use: Commercial use of this software is STRICTLY PROHIBITED
+       without a valid commercial license agreement with the author.
+       "Commercial use" includes, but is not limited to:
+       - Incorporating this software into a product that is sold.
+       - Using this software in a paid service.
+       - Using this software for internal business operations in a for-profit entity.
+
+    To obtain a Commercial License, please contact the author.
 
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
@@ -20,278 +28,203 @@
 #include "drive/d_pch.h"
 
 #include "z_timer.h"
-#include "m_log.h"
-#include "t_lock_guard.h"
-#include "z_mutex.h"
 
-namespace zengine {
-namespace internal {
-
-struct ZTimerData : public ZObject {
-public:
-    ZTimerData() noexcept
-        : SuperType_()
-        , delay_start_time_(0)
-        , interval_ms_(ZTimer::kDefaultInterval)
-        , repeat_times_(ZTimer::kTimerNeverEnd)
-        , state_(ZTimer::TimerStateEnum_::kClosed)
-        , temp_tick_func_()
-        , timer_thread_()
-        , timer_mutex_()
-        , sleep_mutex_()
-    {}
-
-    TimeType delay_start_time_;
-    TimeType interval_ms_;
-    Int32 repeat_times_;
-    ZTimer::TimerStateEnum_ state_;
-    TFunction<Void()> temp_tick_func_;
-    ZThread timer_thread_;
-    ZMutex timer_mutex_;
-    ZMutex sleep_mutex_;
-
-protected:
-    using SuperType_ = ZObject;
-};
-
-}//internal
-}//zengine
+#include "t_unique_lock.h"
 
 namespace zengine {
 
 ZTimer::ZTimer() noexcept 
     : SuperType_()
-    , timer_data_ptr_()
+    , timer_cv_()
+    , timer_mutex_()
+    , delay_start_time_ms_(kDefaultDelayStartTimeMs)
+    , interval_ms_(kDefaultIntervalMs)
+    , tick_times_(kDefaultTickTimes)
+    , state_(TimerStateEnum_::kNoTask)
+    , timer_thread_()
+    , tick_task_()
 {}
 
-ZTimer::ZTimer(ZTimer&& _timer) noexcept 
-    : SuperType_(std::forward<ZTimer>(_timer))
-{
-    timer_data_ptr_ = std::move(_timer.timer_data_ptr_);
-}
-
 ZTimer::~ZTimer() noexcept {
-    if (!timer_data_ptr_) {
-        return;
-    }
-    {
-        TLockGuard lock_guard(timer_data_ptr_->timer_mutex_);
-        timer_data_ptr_->state_ = TimerStateEnum_::kFinished;
-    }
-    if (timer_data_ptr_->timer_thread_.IsJoinable()) {
-        timer_data_ptr_->timer_thread_.Join();
+    Stop();
+    if (timer_thread_.IsJoinable()) {
+        timer_thread_.Join();
     }
 }
 
-ZTimer& ZTimer::operator=(ZTimer&& _timer) noexcept {
-    if (this == &_timer) {
-        return *this;
-    }
-    SuperType_::operator=(std::forward<ZTimer>(_timer));
-    if (timer_data_ptr_) {
-        //finish current timer
-        {
-            TLockGuard lock_guard(timer_data_ptr_->timer_mutex_);
-            if (timer_data_ptr_->state_ != TimerStateEnum_::kClosed) {
-                Stop();
-                WaitUntilFinished();
-            }
-        }
-    }
-    timer_data_ptr_ = std::move(_timer.timer_data_ptr_);
-    return *this;
+NODISCARD TimeType ZTimer::GetIntervalMs() noexcept {
+    TLockGuard lock_guard(timer_mutex_);
+    return interval_ms_;
 }
 
-NODISCARD TimeType ZTimer::IntervalMs() noexcept { 
-    if (!timer_data_ptr_) {
-        timer_data_ptr_ = MakeUnique<internal::ZTimerData>();
-    }
-    TLockGuard lock_guard(timer_data_ptr_->timer_mutex_);
-    return timer_data_ptr_->interval_ms_;
+Void ZTimer::SetDelayStartTimeMs(TimeType _delay_start_time_ms) noexcept {
+    TLockGuard lock_guard(timer_mutex_);
+    delay_start_time_ms_ = _delay_start_time_ms;
 }
 
 Void ZTimer::SetIntervalMs(TimeType _interval_ms) noexcept {
-    if (!timer_data_ptr_) {
-        timer_data_ptr_ = MakeUnique<internal::ZTimerData>();
-    }
-    TLockGuard lock_guard(timer_data_ptr_->timer_mutex_);
-    timer_data_ptr_->interval_ms_ = _interval_ms;
+    TLockGuard lock_guard(timer_mutex_);
+    interval_ms_ = _interval_ms;
 }
 
-Void ZTimer::SetTickFunc(const TFunction<Void()>& _tick_func) noexcept {
-    if (!timer_data_ptr_) {
-        timer_data_ptr_ = MakeUnique<internal::ZTimerData>();
-    }
-    TLockGuard lock_guard(timer_data_ptr_->timer_mutex_);
-    timer_data_ptr_->temp_tick_func_ = _tick_func;
-}
-Void ZTimer::SetTickFunc(TFunction<Void()>&& _tick_func) noexcept {
-    if (!timer_data_ptr_) {
-        timer_data_ptr_ = MakeUnique<internal::ZTimerData>();
-    }
-    TLockGuard lock_guard(timer_data_ptr_->timer_mutex_);
-    timer_data_ptr_->temp_tick_func_ = std::forward<TFunction<Void()>>(_tick_func);
+Void ZTimer::SetTickTimes(UInt32 _tick_times) noexcept {
+    TLockGuard lock_guard(timer_mutex_);
+    tick_times_ = _tick_times;
 }
 
-Void ZTimer::SetRepeatTimes(Int32 _repeat_times) noexcept {
-    if (!timer_data_ptr_) {
-        timer_data_ptr_ = MakeUnique<internal::ZTimerData>();
-    }
-    TLockGuard lock_guard(timer_data_ptr_->timer_mutex_);
-    timer_data_ptr_->repeat_times_ = _repeat_times < 0 ? -1 : _repeat_times;
-}
-
-Void ZTimer::SetDelayStartTime(Int32 _delay_start_time) noexcept {
-    if (!timer_data_ptr_) {
-        timer_data_ptr_ = MakeUnique<internal::ZTimerData>();
-    }
-    TLockGuard lock_guard(timer_data_ptr_->timer_mutex_);
-    timer_data_ptr_->delay_start_time_ = _delay_start_time;
-}
-
-NODISCARD Void ZTimer::WaitUntilFinished() noexcept {
-    if (!timer_data_ptr_) {
-        timer_data_ptr_ = MakeUnique<internal::ZTimerData>();
-    }
-    if (timer_data_ptr_->timer_thread_.IsJoinable()) {
-        timer_data_ptr_->timer_thread_.Join();
-    }
-}
-
-NODISCARD Bool ZTimer::ReadyToStart() noexcept {
-    if (!timer_data_ptr_) {
-        timer_data_ptr_ = MakeUnique<internal::ZTimerData>();
-    }
-    TLockGuard lock_guard(timer_data_ptr_->timer_mutex_);
-    return timer_data_ptr_->state_ == TimerStateEnum_::kClosed;
+NODISCARD ReturnType ZTimer::SetTickTask(ZRepeatTask&& _task) noexcept {
+    ReturnType ret_val = kOK;
+    TLockGuard lock_guard(timer_mutex_);
+    Z_CHECK(
+        state_ == TimerStateEnum_::kNoTask || state_ == TimerStateEnum_::kIdle,
+        error_code::kZTimerErrorCode_StateError,
+        "Timer state not valid! state: {} expect state: {} or {}",
+        static_cast<Int32>(state_),
+        static_cast<Int32>(TimerStateEnum_::kNoTask),
+        static_cast<Int32>(TimerStateEnum_::kIdle)
+    );
+    Z_CHECK(
+        _task.GetState() == ZTaskStateEnum::kTaskSet,
+        error_code::kZTimerErrorCode_StateError,
+        "Tick task state not valid! state: {} expect state: {}",
+        static_cast<Int32>(_task.GetState()), static_cast<Int32>(ZTaskStateEnum::kTaskSet)
+    );
+    tick_task_ = std::move(_task);
+    state_ = TimerStateEnum_::kIdle;
+    return ret_val;
 }
 
 NODISCARD ReturnType ZTimer::Start() noexcept {
-    if (!timer_data_ptr_) {
-        timer_data_ptr_ = MakeUnique<internal::ZTimerData>();
-    }
     ReturnType ret_val = kOK;
-    TLockGuard lock_guard(timer_data_ptr_->timer_mutex_);
+    TLockGuard lock_guard(timer_mutex_);
 
     Z_CHECK(
-        timer_data_ptr_->state_ != TimerStateEnum_::kClosed,
-        error_code::kZTimerErrorCode_TimerStateError,
-        "Client state error! state: %d expect state: %d",
-        static_cast<Int32>(timer_data_ptr_->state_), static_cast<Int32>(TimerStateEnum_::kClosed)
+        state_ == TimerStateEnum_::kIdle,
+        error_code::kZTimerErrorCode_StateError,
+        "Timer state error! state: {} expect state: {}",
+        static_cast<Int32>(state_), static_cast<Int32>(TimerStateEnum_::kIdle)
     );
 
-    timer_data_ptr_->state_ = TimerStateEnum_::kExecute;
-    timer_data_ptr_->sleep_mutex_.Lock();
-    timer_data_ptr_->timer_thread_ = ZThread(TimerThreadFuncP, *timer_data_ptr_);
+    state_ = TimerStateEnum_::kExecute;
+    timer_thread_ = ZThread(TimerThreadFuncP, this);
 
     return ret_val;
 }
 
 Void ZTimer::Stop() noexcept {
-    if (!timer_data_ptr_) {
-        timer_data_ptr_ = MakeUnique<internal::ZTimerData>();
-    }
-    TLockGuard lock_guard(timer_data_ptr_->timer_mutex_);
-    if (timer_data_ptr_->state_ != TimerStateEnum_::kClosed) {
-        timer_data_ptr_->sleep_mutex_.Unlock();
-        timer_data_ptr_->state_ = TimerStateEnum_::kFinished;
+    TLockGuard lock_guard(timer_mutex_);
+    if (state_ == TimerStateEnum_::kExecute || state_ == TimerStateEnum_::kPause) {
+        state_ = TimerStateEnum_::kFinished;
+        timer_cv_.NotifyOne();
     }
 }
 
 Void ZTimer::Pause() noexcept {
-    if (!timer_data_ptr_) {
-        timer_data_ptr_ = MakeUnique<internal::ZTimerData>();
-    }
-    TLockGuard lock_guard(timer_data_ptr_->timer_mutex_);
-    if (timer_data_ptr_->state_ == TimerStateEnum_::kExecute) {
-        timer_data_ptr_->state_ = TimerStateEnum_::kPause;
+    TLockGuard lock_guard(timer_mutex_);
+    if (state_ == TimerStateEnum_::kExecute) {
+        state_ = TimerStateEnum_::kPause;
     }
 }
 
 Void ZTimer::Continue() noexcept {
-    if (!timer_data_ptr_) {
-        timer_data_ptr_ = MakeUnique<internal::ZTimerData>();
-    }
-    TLockGuard lock_guard(timer_data_ptr_->timer_mutex_);
-    if (timer_data_ptr_->state_ == TimerStateEnum_::kPause) {
-        timer_data_ptr_->state_ = TimerStateEnum_::kExecute;
+    TLockGuard lock_guard(timer_mutex_);
+    if (state_ == TimerStateEnum_::kPause) {
+        state_ = TimerStateEnum_::kExecute;
+        timer_cv_.NotifyOne();
     }
 }
 
-Void ZTimer::TimerThreadFuncP(internal::ZTimerData& _timer_data) noexcept {
-    Bool finished = false;
-    Int32 repeat_times_count;
-    TimeType next_tick_time;
-    TFunction<Void()> tick_func;
-
-    //init
+Void ZTimer::Reset() noexcept {
     {
-        TLockGuard lock_guard(_timer_data.timer_mutex_);
-        repeat_times_count = _timer_data.repeat_times_ < 0 ? kTimerNeverEnd - 1 : 0;
-        next_tick_time = Time() + _timer_data.delay_start_time_;
-        tick_func = std::move(_timer_data.temp_tick_func_);
+        TLockGuard lock_guard(timer_mutex_);
+        if (state_ == TimerStateEnum_::kExecute || state_ == TimerStateEnum_::kPause) {
+            state_ = TimerStateEnum_::kFinished;
+            timer_cv_.NotifyOne();
+        }
+    }
+    if (timer_thread_.IsJoinable()) {
+        timer_thread_.Join();
+    }
+    {
+        TLockGuard lock_guard(timer_mutex_);
+        state_ = TimerStateEnum_::kIdle;
+    }
+}
+
+Void ZTimer::TimerThreadFuncP(ZTimer* _timer_ptr) noexcept {
+    ReturnType link_code = kOK;
+    Bool finished = false;
+    UInt32 repeat_times_count = 0U;
+    TimeType next_tick_time;
+
+    // init
+    {
+        TLockGuard lock_guard(_timer_ptr->timer_mutex_);
+        repeat_times_count = 0U;
+        next_tick_time = ZSystemTime::GetTimeMs() + _timer_ptr->delay_start_time_ms_;
     }
 
-    do {
-        //sleep
-        TimeType sleep_time = next_tick_time - Time();
-        if (sleep_time > 0) {
-            //end
-            if (_timer_data.sleep_mutex_.TryLockFor(static_cast<UInt32>(sleep_time))) {
-                _timer_data.sleep_mutex_.Unlock();
+    for (;;) {
+        // timer state update
+        {
+            TUniqueLock unique_lock(_timer_ptr->timer_mutex_);
+
+            // if finished 
+            if (_timer_ptr->state_ == TimerStateEnum_::kFinished) {
                 break;
             }
-        }
 
-        //timer state update
-        {
-            TLockGuard lock_guard(_timer_data.timer_mutex_);
-            //if finished all repeats
-            if (repeat_times_count == _timer_data.repeat_times_) {
-                _timer_data.state_ = TimerStateEnum_::kFinished;
+            // if finished all repeats
+            if (repeat_times_count >= _timer_ptr->tick_times_ && repeat_times_count != kTickForever) {
+                break;
             }
 
-            //if finished
-            if (_timer_data.state_ == TimerStateEnum_::kFinished) {
-                //reset the timer state for a new start
-                finished = true;
+            // sleep
+            TimeType current_time = ZSystemTime::GetTimeMs();
+            while (next_tick_time >= current_time) {
+                // end
+                if (_timer_ptr->timer_cv_.WaitForMs(unique_lock, next_tick_time - current_time)) {
+                    break;
+                }
+                current_time = ZSystemTime::GetTimeMs();
+            }
+
+            // if finished 
+            if (_timer_ptr->state_ == TimerStateEnum_::kFinished) {
+                break;
+            }
+
+            // if paused
+            if (_timer_ptr->state_ == TimerStateEnum_::kPause) {
+                current_time = ZSystemTime::GetTimeMs();
+                do {
+                    _timer_ptr->timer_cv_.Wait(unique_lock);
+                } while (_timer_ptr->state_ == TimerStateEnum_::kPause);
+                next_tick_time += ZSystemTime::GetTimeMs() - current_time;
                 continue;
             }
 
-            //if paused
-            if (_timer_data.state_ == TimerStateEnum_::kPause) {
-                continue;
-            }
-
-            //if tick func changed
-            if (_timer_data.temp_tick_func_) {
-                tick_func = std::move(_timer_data.temp_tick_func_);
-            }
-
-            //update next tick time
-            next_tick_time += _timer_data.interval_ms_;
+            // update next tick time
+            next_tick_time += _timer_ptr->interval_ms_;
         }
 
-        // < 0 means never end
-        if (repeat_times_count >= 0) {
-            ++repeat_times_count;
-        }
+        ++repeat_times_count;
 
-        //call tick func
-        if (tick_func) {
-            tick_func();
+        // call tick func
+        link_code = _timer_ptr->tick_task_.Run();
+        if (link_code != kOK) {
+            Z_LOG_ERROR(
+                error_code::kZTimerErrorCode_LinkError, 0,
+                "ZRepeatTask::Run() link error!"
+            );
         }
-
-    } while (!finished);
+    }
     
-    //unlock sleep mutex
-    _timer_data.sleep_mutex_.Unlock();
-
-    //reset state
+    // finished
     {
-        TLockGuard lock_guard(_timer_data.timer_mutex_);
-        _timer_data.state_ = TimerStateEnum_::kClosed;
+        TLockGuard lock_guard(_timer_ptr->timer_mutex_);
+        _timer_ptr->state_ = TimerStateEnum_::kFinished;
     }
 }
 
-}//zengine
+} // zengine

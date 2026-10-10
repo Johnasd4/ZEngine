@@ -42,17 +42,21 @@ namespace log {
  * This class provides the fundamental structure for logging, including message storage,
  * timestamping, and dispatching formatted logs to output handlers.
  */
-class CORE_DLLAPI ZLog : public ZObject<false> {
+class CORE_DLLAPI ZLog : public ZObject {
 public:
+    /** @brief Base class alias. */
+    using SuperType_ = ZObject;
+
     /**
-     * @brief Structure to hold the raw log message string.
+     * @brief Log head information structure.
      */
-    struct LogString_ {
-        /** @brief The current size of the log string. */
-        SizeType size_;
-        /** @brief Pointer to the fixed-size string buffer for the log message. */
-        TFixedString<kLogStringMaxSize>* log_str_ptr_;
-    }; 
+    struct WORD_ALIGN LogHead_ {
+        /** @brief The type/severity of the log. */
+        LogTypeEnum log_type_;
+        /** @brief The timestamp of the log. */
+        TimeType log_time_;
+    };
+
     /**
      * @brief Structure to hold the formatted output string.
      */
@@ -62,6 +66,7 @@ public:
         /** @brief Fixed-size string buffer for the formatted output. */
         TFixedString<kOutputStringMaxSize> output_str_;
     };
+
     /** @brief Function pointer type definition for log output handlers. */
     using OutputFunction_ = Void(*)(const ZLog*, ZStringView);
     /** @brief Array type definition for storing registered output functions. */
@@ -76,30 +81,36 @@ public:
      */
     NODISCARD static ZStringView CreateAndGetLogPath() noexcept;
 
+    /** @brief Deleted copy constructor. */
+    ZLog(const ZLog&) = delete;
+
+    /** @brief Deleted move constructor. */
+    ZLog(ZLog&&) = delete;
+
     /**
      * @brief Virtual destructor.
      *
      * Cleans up resources, specifically releasing the memory allocated for the log string.
      */
-    virtual ~ZLog() noexcept;
+    virtual ~ZLog() noexcept = default;
+
+    /** @brief Deleted copy assignment operator. */
+    ZLog& operator=(const ZLog&) = delete;
+
+    /** @brief Deleted move assignment operator. */
+    ZLog& operator=(ZLog&&) = delete;
 
     /**
      * @brief Gets the type of the log.
      * @return const LogTypeEnum The log type enumeration value.
      */
-    NODISCARD FORCEINLINE const LogTypeEnum LogType() const noexcept { return log_type_; }
+    NODISCARD FORCEINLINE const LogTypeEnum LogType() const noexcept { return log_head_.log_type_; }
 
     /**
      * @brief Gets the time when the log was created.
      * @return const TimeType& Reference to the time structure.
      */
-    NODISCARD FORCEINLINE const TimeType& LogTime() const noexcept { return log_time_; }
-
-    /**
-     * @brief Gets the pointer to the internal log string structure.
-     * @return LogString_* Pointer to the mutable log string structure.
-     */
-    NODISCARD FORCEINLINE LogString_* LogStringPtr() noexcept { return &log_str_; }
+    NODISCARD FORCEINLINE const TimeType& LogTime() const noexcept { return log_head_.log_time_; }
 
     /**
      * @brief Formats and outputs the log.
@@ -110,9 +121,6 @@ public:
     Void OutputLog() noexcept;
 
 protected:
-    /** @brief Base class alias. */
-    using SuperType_ = ZObject;
-
     /**
      * @brief Protected constructor.
      * @param _log_type The type/severity of the log.
@@ -124,15 +132,6 @@ protected:
     ) noexcept;
 
 private:
-    /** @brief Deleted copy constructor. */
-    ZLog(const ZLog&) = delete;
-    /** @brief Deleted move constructor. */
-    ZLog(ZLog&&) = delete;
-    /** @brief Deleted copy assignment operator. */
-    ZLog& operator=(const ZLog&) = delete;
-    /** @brief Deleted move assignment operator. */
-    ZLog& operator=(ZLog&&) = delete;
-
     /**
      * @brief Generates the formatted output string.
      *
@@ -150,13 +149,9 @@ private:
     NODISCARD virtual OutputFunctionArray_& OutputFunctionArrayP() noexcept = 0;
 
 private:
-    /** @brief The type/severity of the log. */
-    LogTypeEnum log_type_;
-    /** @brief The timestamp of the log. */
-    TimeType log_time_;
-    /** @brief The raw log message content. */
-    LogString_ log_str_;
+    /** @brief Log head structure containing type and timestamp. */
+    LogHead_ log_head_;
 };
 
-}//log
-}//zengine
+} // log
+} // zengine

@@ -40,7 +40,43 @@ namespace log {
  * This class specializes the ZLog base class to handle error-specific logging information,
  * including project name, file path, function name, line number, and error codes.
  */
-class CORE_DLLAPI CACHE_LINE_ALIGN ZErrorLog : public ZLog {
+class CORE_DLLAPI CACHE_ALIGN ZErrorLog : public ZLog {
+public:
+    /** @brief Base class alias. */
+    using SuperType_ = ZLog;
+
+    /**
+     * @brief Error log head information structure.
+     */
+    struct WORD_ALIGN ErrorLogHead_ {
+        /** @brief The name of the project. */
+        ZStringView proj_name_;
+        /** @brief The file path. */
+        ZStringView file_path_;
+        /** @brief The function name. */
+        ZStringView func_name_;
+        /** @brief The line number of the error. */
+        Int32 err_line_;
+        /** @brief The error code. */
+        ReturnType err_code_;
+        /** @brief The link code or secondary error code. */
+        ReturnType link_code_;
+    };
+
+    /** @brief Maximum size for the log string within the error log. */
+    static inline constexpr SizeType kLogStringMaxSize =
+        static_cast<SizeType>(kLogMaxSize) - sizeof(ErrorLogHead_) - sizeof(ZLog);
+
+    /**
+     * @brief Structure to hold the raw log message string.
+     */
+    struct LogString_ {
+        /** @brief The current size of the log string. */
+        SizeType size_;
+        /** @brief Pointer to the fixed-size string buffer for the log message. */
+        TFixedString<kLogStringMaxSize - sizeof(SizeType)> string_;
+    };
+
 public:
     /**
      * @brief Outputs the log content to a file.
@@ -57,29 +93,10 @@ public:
     static Void ConsoleOutputLog(const ZLog* _log_ptr, ZStringView _output_str) noexcept;
 
     /**
-     * @brief Constructs an ZErrorLog object.
-     * @param _log_time The time the log occurred.
-     * @param _proj_name The name of the project where the error occurred.
-     * @param _file_dir The directory or file path where the error occurred.
-     * @param _func_name The name of the function where the error occurred.
-     * @param _err_line The line number where the error occurred.
-     * @param _err_code The specific error code.
-     * @param _link_code The associated link or secondary error code.
+     * @brief Gets the static instance of the output function array.
+     * @return OutputFunctionArray_& Reference to the fixed array of output functions.
      */
-    ZErrorLog(
-        TimeType _log_time,
-        ZStringView _proj_name,
-        ZStringView _file_dir,
-        ZStringView _func_name,
-        Int32 _err_line,
-        ReturnType _err_code,
-        ReturnType _link_code
-    ) noexcept;
-
-    /**
-     * @brief Virtual destructor.
-     */
-    virtual ~ZErrorLog() noexcept;
+    NODISCARD static OutputFunctionArray_& GetOutputFunctionArrayInstance() noexcept;
 
     /**
      * @brief Custom memory allocation operator.
@@ -95,25 +112,49 @@ public:
     NODISCARD static Void operator delete(Void* _memory_ptr) noexcept;
 
     /**
-     * @brief Gets the static instance of the output function array.
-     * @return OutputFunctionArray_& Reference to the fixed array of output functions.
+     * @brief Constructs an ZErrorLog object.
+     * @param _log_time The time the log occurred.
+     * @param _proj_name The name of the project where the error occurred.
+     * @param _file_path The file path where the error occurred.
+     * @param _func_name The name of the function where the error occurred.
+     * @param _err_line The line number where the error occurred.
+     * @param _err_code The specific error code.
+     * @param _link_code The associated link or secondary error code.
      */
-    NODISCARD static OutputFunctionArray_& OutputFunctionArrayInstance() noexcept;
+    ZErrorLog(
+        TimeType _log_time,
+        ZStringView _proj_name,
+        ZStringView _file_path,
+        ZStringView _func_name,
+        Int32 _err_line,
+        ReturnType _err_code,
+        ReturnType _link_code
+    ) noexcept;
 
-protected:
-    /** @brief Base class alias. */
-    using SuperType_ = ZLog;
-
-private:
     /** @brief Deleted copy constructor. */
     ZErrorLog(const ZErrorLog&) = delete;
+
     /** @brief Deleted move constructor. */
     ZErrorLog(ZErrorLog&&) = delete;
+
+    /**
+     * @brief Virtual destructor.
+     */
+    virtual ~ZErrorLog() noexcept = default;
+
     /** @brief Deleted copy assignment operator. */
     ZErrorLog& operator=(const ZErrorLog&) = delete;
+
     /** @brief Deleted move assignment operator. */
     ZErrorLog& operator=(ZErrorLog&&) = delete;
 
+    /**
+     * @brief Gets the error log head information.
+     * @return const ErrorLogHead_& Reference to the error log head structure.
+     */
+    NODISCARD FORCEINLINE LogString_& LogString() noexcept { return log_string_; }
+
+private:
     /**
      * @brief Generates the formatted output string for the error log.
      * @param _output_str_ptr Pointer to the output string structure to be filled.
@@ -127,19 +168,11 @@ private:
     NODISCARD virtual OutputFunctionArray_& OutputFunctionArrayP() noexcept;
 
 private:
-    /** @brief The name of the project. */
-    ZStringView proj_name_;
-    /** @brief The file directory or path. */
-    ZStringView file_dir_;
-    /** @brief The function name. */
-    ZStringView func_name_;
-    /** @brief The line number of the error. */
-    Int32 err_line_;
-    /** @brief The error code. */
-    ReturnType err_code_;
-    /** @brief The link code or secondary error code. */
-    ReturnType link_code_;
+    /** @brief The error log head information. */
+    ErrorLogHead_ error_log_head_;
+    /** @brief The log message string. */
+    LogString_ log_string_;
 };
 
-}//log
-}//zengine
+} // log
+} // zengine

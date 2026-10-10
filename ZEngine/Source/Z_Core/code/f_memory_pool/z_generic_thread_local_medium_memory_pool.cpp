@@ -27,14 +27,18 @@
 #define CORE_DLLFILE
 #include "drive/d_pch.h"
 
-#include "m_log.h"
 #include "z_generic_thread_local_medium_memory_pool.h"
+
+#include "m_log.h"
+#include "t_lock_guard.h"
+
+#include "z_generic_memory_pool_performance_test.h"
 
 namespace zengine {
 namespace memory_pool {
 
 NOINLINE Void ZGenericThreadLocalMediumMemoryPool::ExtendMemoryBlockP() noexcept {
-    //get memory page data
+    // get memory page data
     MemoryPageData_* memory_page_data_ptr;
     if (block_type_ == MemoryBlockTypeEnum_::k1_5) {
         memory_page_data_ptr = &MemoryPageDataGroupInstanceP().memory_page_data_1_5_;
@@ -43,7 +47,7 @@ NOINLINE Void ZGenericThreadLocalMediumMemoryPool::ExtendMemoryBlockP() noexcept
         memory_page_data_ptr = &MemoryPageDataGroupInstanceP().memory_page_data_2_;
     }
 
-    //memory page all used, need to alloc from system
+    // memory page all used, need to alloc from system
     if (memory_page_data_ptr->memory_atom_page_num_ == 0U) {
         ExtendMemoryPageP(memory_page_data_ptr);
     }
@@ -63,23 +67,19 @@ NOINLINE Void ZGenericThreadLocalMediumMemoryPool::ExtendMemoryBlockP() noexcept
     }
     memory_page_data_ptr->memory_atom_page_num_ -= apply_page_num;
 
-    //initialize new memory page
+    // initialize new memory page
     UInt32 apply_memory_size = apply_page_num * kMemoryAtomPageSize;
     unused_memory_block_ptr_ = reinterpret_cast<Byte*>(memory_page_data_ptr->page_ptr_);
     unused_memory_block_end_ptr_ = unused_memory_block_ptr_ + apply_memory_size;
-
-#if USE_MEMORY_POOL_PERFORMANCE_TEST
-    memory_block_total_num_ += apply_memory_size / memory_block_with_head_size_;
-#endif //USE_MEMORY_POOL_PERFORMANCE_TEST
      
-    //move page pointer
+    // move page pointer
     memory_page_data_ptr->page_ptr_ += apply_memory_size;
 }
 
 NOINLINE Void ZGenericThreadLocalMediumMemoryPool::ExtendMemoryPageP(MemoryPageData_* _memory_page_data_ptr) noexcept {
     UInt32 apply_memory_atom_page_num = _memory_page_data_ptr->next_apply_memory_atom_page_num_;
     Byte* page_head_ptr = reinterpret_cast<Byte*>(
-        ZGenericMemoryPool::ThreadLocalInstance().Alloc64KBAlignmentMemoryAtomPageP(
+        ZGenericMemoryPool::GetThreadLocalInstance().Alloc64KBAlignmentMemoryAtomPageP(
             apply_memory_atom_page_num
         )
     );
@@ -115,7 +115,20 @@ ZGenericThreadLocalMediumMemoryPoolGroup::ZGenericThreadLocalMediumMemoryPoolGro
     }
 }
 
-ZGenericThreadLocalMediumMemoryPoolGroup::~ZGenericThreadLocalMediumMemoryPoolGroup() noexcept {}
+ZGenericThreadLocalMediumMemoryPoolGroup::~ZGenericThreadLocalMediumMemoryPoolGroup() noexcept {
+#if USE_MEMORY_POOL_PERFORMANCE_TEST
+    ZGenericMemoryPoolPerformanceTest& performance_test_instance = ZGenericMemoryPoolPerformanceTest::GetInstance();
+    for (SizeType index = 0; index < kMediumMemoryPoolNum; ++index) {
+        ZGenericThreadLocalMediumMemoryPool& memory_pool = pool_array_[index];
+        ZGenericMemoryPoolPerformanceTest::ThreadLocalMemoryPoolPerformanceData& performance_data =
+            performance_test_instance.thread_local_medium_memory_pool_performance_data_[index];
+        TLockGuard lock_guard(performance_data.mutex_);
+        performance_data.memory_block_size_ = memory_pool.memory_block_size_;
+        performance_data.memory_block_unreleased_num_ += memory_pool.memory_block_unreleased_num_;
+        performance_data.memory_block_applied_num_ += memory_pool.memory_block_applied_num_;
+    }
+#endif // USE_MEMORY_POOL_PERFORMANCE_TEST 
+}
 
-}//memory_pool
-}//zengine
+} // memory_pool
+} // zengine

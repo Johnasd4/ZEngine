@@ -61,5 +61,5 @@ NODISCARD ReturnType ZLogicBoardObject::Initialize(ZTile* _owner_tile_ptr) noexc
     return ret_val;
 }
 
-}//tsrpg
-}//zengine
+} // tsrpg
+} // zengine

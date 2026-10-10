@@ -27,8 +27,8 @@
 namespace zengine {
 namespace tsrpg {
 class ZSceneEvent;
-}//tsrpg
-}//zengine
+} // tsrpg
+} // zengine
 
 namespace zengine {
 namespace tsrpg {
@@ -42,7 +42,7 @@ private:
     static inline constexpr SizeType kDefaultSceneEventGroupListSize = 126ULL;
 
 public:
-    static ZSceneEventManager& Instance() noexcept;
+    static ZSceneEventManager& GetInstance() noexcept;
     
     NODISCARD FORCEINLINE Void SetSpeedMult(Bool _speed_mult) noexcept { speed_mult_ = _speed_mult; };
     NODISCARD FORCEINLINE Void SetPause(Bool _if_pause) noexcept { if_pause_ = _if_pause; };
@@ -82,5 +82,5 @@ private:
     Bool if_pause_;
 };
 
-}//tsrpg
-}//zengine
+} // tsrpg
+} // zengine

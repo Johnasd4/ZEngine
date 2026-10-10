@@ -41,26 +41,26 @@ namespace memory_pool {
  * This pool uses global synchronization but leverages thread-local storage for fetching pages
  * to reduce contention during page extension.
  */
-class CACHE_LINE_ALIGN ZGenericGlobalSmallMemoryPool {
+class CACHE_ALIGN ZGenericGlobalSmallMemoryPool {
 private:
     /** @brief The size of the memory page based on alignment requirements. */
-    static constexpr UInt32 kMemoryPageSize = kMemoryPageAlignmentSize;
+    static inline constexpr UInt32 kMemoryPageSize = kMemoryPageAlignmentSize;
     /** @brief The minimum size of system memory to apply for. */
-    static constexpr UInt32 kApplySystemMemoryMinSize = 1U * kMB;
+    static inline constexpr UInt32 kApplySystemMemoryMinSize = 1U * kMB;
     /** @brief The maximum size of system memory to apply for. */
-    static constexpr UInt32 kApplySystemMemoryMaxSize = 4U * kMB;
+    static inline constexpr UInt32 kApplySystemMemoryMaxSize = 4U * kMB;
     /** @brief The minimum number of pages to apply for from the system. */
-    static constexpr UInt32 kApplySystemMemoryPageMinNum = kApplySystemMemoryMinSize / kMemoryAtomPageSize;
+    static inline constexpr UInt32 kApplySystemMemoryPageMinNum = kApplySystemMemoryMinSize / kMemoryAtomPageSize;
     /** @brief The maximum number of pages to apply for from the system. */
-    static constexpr UInt32 kApplySystemMemoryPageMaxNum = kApplySystemMemoryMaxSize / kMemoryAtomPageSize;
+    static inline constexpr UInt32 kApplySystemMemoryPageMaxNum = kApplySystemMemoryMaxSize / kMemoryAtomPageSize;
     /** @brief The mutt factor of the num of pages to apply for from the system. */
-    static constexpr UInt32 kApplySystemMemoryPageMultFactor = 2U;
+    static inline constexpr UInt32 kApplySystemMemoryPageMultFactor = 2U;
 
 public:
     /**
      * @brief Extended memory page header structure containing validation data.
      */
-    struct ALIGN(16) MemoryPageHeadExtend_ {
+    struct MEMORY_POOL_HEAD_DATA_ALIGN MemoryPageHeadExtend_ {
         /** @brief The base memory page header. */
         ZGenericMemoryPool::MemoryPageHead_ page_head_;
     };
@@ -77,7 +77,7 @@ private:
     /**
      * @brief Structure holding thread-local data regarding current memory page allocation.
      */
-    struct CACHE_LINE_ALIGN MemoryPageData_ {
+    struct CACHE_ALIGN MemoryPageData_ {
         ZMutex mutex_;
         /** @brief Pointer to the current active memory page. */
         Byte* page_ptr_ = nullptr;
@@ -102,13 +102,25 @@ public:
         , memory_block_applied_num_(0U)
         , memory_block_peak_num_(0U)
         , memory_block_total_num_(0U)
-#endif//USE_MEMORY_POOL_PERFORMANCE_TEST
+#endif // USE_MEMORY_POOL_PERFORMANCE_TEST
     {}
+
+    /** @brief Deleted copy constructor. */
+    ZGenericGlobalSmallMemoryPool(const ZGenericGlobalSmallMemoryPool&) = delete;
+
+    /** @brief Deleted move constructor. */
+    ZGenericGlobalSmallMemoryPool(ZGenericGlobalSmallMemoryPool&&) = delete;
 
     /**
      * @brief Destroys the memory pool and releases resources.
      */
-    FORCEINLINE ~ZGenericGlobalSmallMemoryPool() noexcept {}
+    FORCEINLINE ~ZGenericGlobalSmallMemoryPool() noexcept = default;
+
+    /** @brief Deleted copy assignment operator. */
+    ZGenericGlobalSmallMemoryPool& operator=(const ZGenericGlobalSmallMemoryPool&) = delete;
+
+    /** @brief Deleted move assignment operator. */
+    ZGenericGlobalSmallMemoryPool& operator=(ZGenericGlobalSmallMemoryPool&&) = delete;
 
     /**
      * @brief Initializes the memory pool with a specific memory block size.
@@ -155,7 +167,7 @@ public:
         if (memory_block_unreleased_num_ > memory_block_peak_num_) {
             memory_block_peak_num_ = memory_block_unreleased_num_;
         }
-#endif//USE_MEMORY_POOL_PERFORMANCE_TEST
+#endif // USE_MEMORY_POOL_PERFORMANCE_TEST
         return memory_ptr;
     }
 
@@ -171,19 +183,10 @@ public:
 
 #if USE_MEMORY_POOL_PERFORMANCE_TEST
         memory_block_unreleased_num_ -= 1;
-#endif//USE_MEMORY_POOL_PERFORMANCE_TEST
+#endif // USE_MEMORY_POOL_PERFORMANCE_TEST
     }
 
-protected:
-    /** @brief Alias for the base class type. */
-    using SuperType = ZGenericMemoryPool;
-
 private:
-    ZGenericGlobalSmallMemoryPool(const ZGenericGlobalSmallMemoryPool&) = delete;
-    ZGenericGlobalSmallMemoryPool(ZGenericGlobalSmallMemoryPool&&) = delete;
-    ZGenericGlobalSmallMemoryPool& operator=(const ZGenericGlobalSmallMemoryPool&) = delete;
-    ZGenericGlobalSmallMemoryPool& operator=(ZGenericGlobalSmallMemoryPool&&) = delete;
-
     /**
      * @brief Retrieves the thread-local instance of the memory page data.
      * @return MemoryPageData_& Reference to the thread-local memory page data.
@@ -203,6 +206,10 @@ private:
      */
     NOINLINE Void ExtendMemoryBlockP() noexcept;
 
+private:
+    friend class ZGenericGlobalSmallMemoryPoolGroup;
+
+private:
     /** @brief Mutex for apply and release memory. */
     ZMutex mutex_;
     /** @brief Pointer to the head of the free memory block linked list. */
@@ -230,35 +237,54 @@ private:
 /**
  * @brief A singleton group managing multiple small memory pools for different block sizes.
  */
-class CACHE_LINE_ALIGN ZGenericGlobalSmallMemoryPoolGroup {
+class CACHE_ALIGN ZGenericGlobalSmallMemoryPoolGroup {
+    NO_NEW_DELETE
 private:
     /** @brief The increment size for the mapping table index. */
-    static constexpr UInt32 kTableSizePerIndex = kSmallMemoryPoolMemoryBlockSizeMin;
+    static inline constexpr UInt32 kTableSizePerIndex = kSmallMemoryPoolMemoryBlockSizeMin;
     /** @brief The total size of the mapping table. */
-    static constexpr UInt32 kTableSize = kSmallMemoryPoolMemoryBlockSizeMax / kTableSizePerIndex;
+    static inline constexpr UInt32 kTableSize = kSmallMemoryPoolMemoryBlockSizeMax / kTableSizePerIndex;
     /** @brief A lookup table mapping requested sizes to the appropriate pool index. */
-    static constexpr TFixedArray<UInt8, kTableSize> kSizeToPoolTable =
-        TFixedArray<UInt8, kTableSize>{[](TFixedArray<UInt8, kTableSize>* _array_ptr) {
-            SizeType table_index = 0ULL;
-            for (UInt8 pool_index = 0; pool_index < kSmallMemoryPoolNum; ++pool_index) {
-                SizeType next_pool_index = kSmallMemoryPoolMemoryBlockSizeArray[pool_index] / kTableSizePerIndex;
-                for (; table_index < next_pool_index; ++table_index) {
-                    (*_array_ptr)[table_index] = pool_index;
-                }
+    static inline constexpr TFixedArray<UInt8, kTableSize> kSizeToPoolTable = std::invoke([]() {
+        TFixedArray<UInt8, kTableSize> array;
+        SizeType table_index = 0ULL;
+        for (UInt8 pool_index = 0; pool_index < kSmallMemoryPoolNum; ++pool_index) {
+            SizeType next_pool_index = kSmallMemoryPoolMemoryBlockSizeArray[pool_index] / kTableSizePerIndex;
+            for (; table_index < next_pool_index; ++table_index) {
+                array[table_index] = pool_index;
             }
-        }};
+        }
+        return array;
+    });
+
 
 public:
     /** @brief The maximum size of a memory block that can be managed by this group. */
-    static constexpr UInt32 kMemoryBlockSizeMax = kSmallMemoryPoolMemoryBlockSizeMax;
+    static inline constexpr UInt32 kMemoryBlockSizeMax = kSmallMemoryPoolMemoryBlockSizeMax;
 
     /**
      * @brief Retrieves the singleton instance of the memory pool group.
      * @return ZGenericGlobalSmallMemoryPoolGroup& Reference to the singleton instance.
      */
-    FORCEINLINE static ZGenericGlobalSmallMemoryPoolGroup& Instance() noexcept {
+    FORCEINLINE static ZGenericGlobalSmallMemoryPoolGroup& GetInstance() noexcept {
         static ZGenericGlobalSmallMemoryPoolGroup instance;
         return instance;
+    }
+
+    /**
+     * @brief Gets the address of the first memory pool in the group.
+     * @return PointerType The address of the first memory pool.
+     */
+    NODISCARD FORCEINLINE PointerType FirstPoolAddress() noexcept {
+        return reinterpret_cast<PointerType>(&pool_array_);
+    }
+
+    /**
+     * @brief Gets the address of the last memory pool in the group.
+     * @return PointerType The address of the last memory pool.
+     */
+    NODISCARD FORCEINLINE PointerType LastPoolAddress() noexcept {
+        return reinterpret_cast<PointerType>(&pool_array_[kSmallMemoryPoolNum - 1U]);
     }
 
     /**
@@ -304,9 +330,10 @@ private:
      */
     ~ZGenericGlobalSmallMemoryPoolGroup() noexcept;
 
+private:
     /** @brief The array of small memory pools, each managing a specific block size. */
     TFixedArray<ZGenericGlobalSmallMemoryPool, kSmallMemoryPoolNum> pool_array_;
 };
 
-}//memory_pool
-}//zengine
+} // memory_pool
+} // zengine

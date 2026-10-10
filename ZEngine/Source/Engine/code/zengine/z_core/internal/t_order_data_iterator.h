@@ -37,13 +37,13 @@ namespace zengine {
 namespace internal {
 
 template<typename _ObjectType>
-class TOrdetDataIterator;
+class TOrderDataIterator;
 template<typename _ObjectType>
-class TOrdetDataConstIterator;
+class TOrderDataConstIterator;
 template<typename _ObjectType>
-class TOrdetDataReverseIterator;
+class TOrderDataReverseIterator;
 template<typename _ObjectType>
-class TOrdetDataConstReverseIterator;
+class TOrderDataConstReverseIterator;
 
 /**
  * @brief A contiguous, random-access iterator for ordered data.
@@ -54,7 +54,8 @@ class TOrdetDataConstReverseIterator;
  * @tparam _ObjectType The type of the elements being iterated.
  */
 template<typename _ObjectType>
-class TOrdetDataIterator {
+class TOrderDataIterator {
+    NO_NEW_DELETE
 public:
     /** tag indicating the iterator models a contiguous range in memory. */
     using iterator_concept  = std::contiguous_iterator_tag;
@@ -72,13 +73,13 @@ public:
     /**
      * @brief Default constructor. Initializes an invalid iterator.
      */
-    FORCEINLINE TOrdetDataIterator() = default;
+    FORCEINLINE TOrderDataIterator() = default;
     
     /**
      * @brief Constructor initializing the iterator with a pointer to an element.
      * @param _obj_ptr Pointer to the element.
      */
-    FORCEINLINE explicit TOrdetDataIterator(pointer _obj_ptr) noexcept 
+    FORCEINLINE explicit TOrderDataIterator(pointer _obj_ptr) noexcept 
         : obj_ptr_(_obj_ptr) 
     {}
 
@@ -100,13 +101,13 @@ public:
      * @brief Retrieves the raw pointer to the current element.
      * @return The underlying raw pointer.
      */
-    NODISCARD FORCEINLINE pointer Ptr() const noexcept { return obj_ptr_; }
+    NODISCARD FORCEINLINE pointer GetPtr() const noexcept { return obj_ptr_; }
 
     /**
      * @brief Pre-increment operator. Advances the iterator to the next element.
      * @return A reference to this iterator after incrementing.
      */
-    FORCEINLINE TOrdetDataIterator& operator++() noexcept {
+    FORCEINLINE TOrderDataIterator& operator++() noexcept {
         ++obj_ptr_;
         return *this;
     }
@@ -115,7 +116,7 @@ public:
      * @brief Post-increment operator. Advances the iterator but returns the previous state.
      * @return A copy of the iterator before incrementing.
      */
-    FORCEINLINE TOrdetDataIterator operator++(int) noexcept {
+    FORCEINLINE TOrderDataIterator operator++(int) noexcept {
         auto tmp = *this;
         ++obj_ptr_;
         return tmp;
@@ -125,7 +126,7 @@ public:
      * @brief Pre-decrement operator. Moves the iterator to the previous element.
      * @return A reference to this iterator after decrementing.
      */
-    FORCEINLINE TOrdetDataIterator& operator--() noexcept {
+    FORCEINLINE TOrderDataIterator& operator--() noexcept {
         --obj_ptr_;
         return *this;
     }
@@ -134,7 +135,7 @@ public:
      * @brief Post-decrement operator. Moves the iterator back but returns the previous state.
      * @return A copy of the iterator before decrementing.
      */
-    FORCEINLINE TOrdetDataIterator operator--(int) noexcept {
+    FORCEINLINE TOrderDataIterator operator--(int) noexcept {
         auto tmp = *this;
         --obj_ptr_;
         return tmp;
@@ -145,7 +146,7 @@ public:
      * @param _num The number of positions to advance.
      * @return A reference to this iterator.
      */
-    FORCEINLINE TOrdetDataIterator& operator+=(difference_type _num) noexcept {
+    FORCEINLINE TOrderDataIterator& operator+=(difference_type _num) noexcept {
         obj_ptr_ += _num;
         return *this;
     }
@@ -155,7 +156,7 @@ public:
      * @param _num The number of positions to move back.
      * @return A reference to this iterator.
      */
-    FORCEINLINE TOrdetDataIterator& operator-=(difference_type _num) noexcept {
+    FORCEINLINE TOrderDataIterator& operator-=(difference_type _num) noexcept {
         obj_ptr_ -= _num;
         return *this;
     }
@@ -165,8 +166,8 @@ public:
      * @param _num The offset to add.
      * @return A new iterator at the resulting position.
      */
-    NODISCARD FORCEINLINE TOrdetDataIterator operator+(difference_type _num) const noexcept {
-        return TOrdetDataIterator(obj_ptr_ + _num);
+    NODISCARD FORCEINLINE TOrderDataIterator operator+(difference_type _num) const noexcept {
+        return TOrderDataIterator(obj_ptr_ + _num);
     }
 
     /**
@@ -174,8 +175,8 @@ public:
      * @param _num The offset to subtract.
      * @return A new iterator at the resulting position.
      */
-    NODISCARD FORCEINLINE TOrdetDataIterator operator-(difference_type _num) const noexcept {
-        return TOrdetDataIterator(obj_ptr_ - _num);
+    NODISCARD FORCEINLINE TOrderDataIterator operator-(difference_type _num) const noexcept {
+        return TOrderDataIterator(obj_ptr_ - _num);
     }
 
     /**
@@ -184,11 +185,11 @@ public:
      * @param _it The iterator.
      * @return A new iterator advanced by the offset.
      */
-    NODISCARD FORCEINLINE friend TOrdetDataIterator operator+(
+    NODISCARD FORCEINLINE friend TOrderDataIterator operator+(
         difference_type _num, 
-        const TOrdetDataIterator& _it
+        const TOrderDataIterator& _it
     ) noexcept {
-        return TOrdetDataIterator(_it.obj_ptr_ + _num);
+        return TOrderDataIterator(_it.obj_ptr_ + _num);
     }
 
     /**
@@ -198,8 +199,8 @@ public:
      * @return The number of elements between the two iterators.
      */
     NODISCARD FORCEINLINE friend difference_type operator-(
-        const TOrdetDataIterator& lhs, 
-        const TOrdetDataIterator& rhs
+        const TOrderDataIterator& lhs, 
+        const TOrderDataIterator& rhs
     ) noexcept {
         return lhs.obj_ptr_ - rhs.obj_ptr_;
     }
@@ -209,18 +210,13 @@ public:
      * @param other The iterator to compare against.
      * @return The ordering relationship between the iterators.
      */
-    NODISCARD FORCEINLINE auto operator<=>(const TOrdetDataIterator&) const = default;
+    NODISCARD FORCEINLINE auto operator<=>(const TOrderDataIterator&) const = default;
 
 protected:
     /** Friend declaration allowing conversion to const iterator. */
-    friend class TOrdetDataConstIterator<_ObjectType>;
+    friend class TOrderDataConstIterator<_ObjectType>;
 
 private:
-    /** Deleted operator new to prevent heap allocation of the iterator itself. */
-    static Void* operator new(SizeType) = delete;
-    /** Deleted operator delete. */
-    static Void operator delete(Void*) = delete;
-
     /** @brief The internal raw pointer to the element. */
     pointer obj_ptr_ = nullptr;
 };
@@ -233,7 +229,8 @@ private:
  * @tparam _ObjectType The type of the elements being iterated.
  */
 template<typename _ObjectType>
-class TOrdetDataConstIterator {
+class TOrderDataConstIterator {
+    NO_NEW_DELETE
 public:
     /** tag indicating the iterator models a contiguous range in memory. */
     using iterator_concept  = std::contiguous_iterator_tag;
@@ -251,13 +248,13 @@ public:
     /**
      * @brief Default constructor. Initializes an invalid iterator.
      */
-    FORCEINLINE TOrdetDataConstIterator() = default;
+    FORCEINLINE TOrderDataConstIterator() = default;
     
     /**
      * @brief Constructor initializing the iterator with a const pointer.
      * @param _obj_ptr Pointer to the element.
      */
-    FORCEINLINE explicit TOrdetDataConstIterator(const _ObjectType* _obj_ptr) noexcept 
+    FORCEINLINE explicit TOrderDataConstIterator(const _ObjectType* _obj_ptr) noexcept 
         : obj_ptr_(_obj_ptr) 
     {}
     
@@ -265,7 +262,7 @@ public:
      * @brief Conversion constructor from a non-const iterator.
      * @param _it The non-const iterator to convert.
      */
-    FORCEINLINE TOrdetDataConstIterator(const TOrdetDataIterator<_ObjectType>& _it) noexcept
+    FORCEINLINE TOrderDataConstIterator(const TOrderDataIterator<_ObjectType>& _it) noexcept
         : obj_ptr_(_it.obj_ptr_) 
     {}
 
@@ -285,13 +282,13 @@ public:
      * @brief Retrieves the raw const pointer to the current element.
      * @return The underlying raw const pointer.
      */
-    NODISCARD FORCEINLINE pointer Ptr() const noexcept { return obj_ptr_; }
+    NODISCARD FORCEINLINE pointer GetPtr() const noexcept { return obj_ptr_; }
 
     /**
      * @brief Pre-increment operator. Advances the iterator to the next element.
      * @return A reference to this iterator after incrementing.
      */
-    FORCEINLINE TOrdetDataConstIterator& operator++() noexcept {
+    FORCEINLINE TOrderDataConstIterator& operator++() noexcept {
         ++obj_ptr_;
         return *this;
     }
@@ -300,7 +297,7 @@ public:
      * @brief Post-increment operator. Advances the iterator but returns the previous state.
      * @return A copy of the iterator before incrementing.
      */
-    FORCEINLINE TOrdetDataConstIterator operator++(int) noexcept {
+    FORCEINLINE TOrderDataConstIterator operator++(int) noexcept {
         auto tmp = *this;
         ++obj_ptr_;
         return tmp;
@@ -310,7 +307,7 @@ public:
      * @brief Pre-decrement operator. Moves the iterator to the previous element.
      * @return A reference to this iterator after decrementing.
      */
-    FORCEINLINE TOrdetDataConstIterator& operator--() noexcept {
+    FORCEINLINE TOrderDataConstIterator& operator--() noexcept {
         --obj_ptr_;
         return *this;
     }
@@ -319,7 +316,7 @@ public:
      * @brief Post-decrement operator. Moves the iterator back but returns the previous state.
      * @return A copy of the iterator before decrementing.
      */
-    FORCEINLINE TOrdetDataConstIterator operator--(int) noexcept {
+    FORCEINLINE TOrderDataConstIterator operator--(int) noexcept {
         auto tmp = *this;
         --obj_ptr_;
         return tmp;
@@ -330,7 +327,7 @@ public:
      * @param _num The number of positions to advance.
      * @return A reference to this iterator.
      */
-    FORCEINLINE TOrdetDataConstIterator& operator+=(difference_type _num) noexcept {
+    FORCEINLINE TOrderDataConstIterator& operator+=(difference_type _num) noexcept {
         obj_ptr_ += _num;
         return *this;
     }
@@ -340,7 +337,7 @@ public:
      * @param _num The number of positions to move back.
      * @return A reference to this iterator.
      */
-    FORCEINLINE TOrdetDataConstIterator& operator-=(difference_type _num) noexcept {
+    FORCEINLINE TOrderDataConstIterator& operator-=(difference_type _num) noexcept {
         obj_ptr_ -= _num;
         return *this;
     }
@@ -350,8 +347,8 @@ public:
      * @param _num The offset to add.
      * @return A new iterator at the resulting position.
      */
-    NODISCARD FORCEINLINE TOrdetDataConstIterator operator+(difference_type _num) const noexcept {
-        return TOrdetDataConstIterator(obj_ptr_ + _num);
+    NODISCARD FORCEINLINE TOrderDataConstIterator operator+(difference_type _num) const noexcept {
+        return TOrderDataConstIterator(obj_ptr_ + _num);
     }
 
     /**
@@ -359,8 +356,8 @@ public:
      * @param _num The offset to subtract.
      * @return A new iterator at the resulting position.
      */
-    NODISCARD FORCEINLINE TOrdetDataConstIterator operator-(difference_type _num) const noexcept {
-        return TOrdetDataConstIterator(obj_ptr_ - _num);
+    NODISCARD FORCEINLINE TOrderDataConstIterator operator-(difference_type _num) const noexcept {
+        return TOrderDataConstIterator(obj_ptr_ - _num);
     }
 
     /**
@@ -369,11 +366,11 @@ public:
      * @param _it The iterator.
      * @return A new iterator advanced by the offset.
      */
-    NODISCARD FORCEINLINE friend TOrdetDataConstIterator operator+(
+    NODISCARD FORCEINLINE friend TOrderDataConstIterator operator+(
         difference_type _num, 
-        const TOrdetDataConstIterator& _it
+        const TOrderDataConstIterator& _it
     ) noexcept {
-        return TOrdetDataConstIterator(_it.obj_ptr_ + _num);
+        return TOrderDataConstIterator(_it.obj_ptr_ + _num);
     }
 
     /**
@@ -383,8 +380,8 @@ public:
      * @return The number of elements between the two iterators.
      */
     NODISCARD FORCEINLINE friend difference_type operator-(
-        const TOrdetDataConstIterator& lhs, 
-        const TOrdetDataConstIterator& rhs
+        const TOrderDataConstIterator& lhs, 
+        const TOrderDataConstIterator& rhs
     ) noexcept {
         return lhs.obj_ptr_ - rhs.obj_ptr_;
     }
@@ -394,14 +391,9 @@ public:
      * @param other The iterator to compare against.
      * @return The ordering relationship between the iterators.
      */
-    NODISCARD FORCEINLINE auto operator<=>(const TOrdetDataConstIterator&) const = default;
+    NODISCARD FORCEINLINE auto operator<=>(const TOrderDataConstIterator&) const = default;
 
 private:
-    /** Deleted operator new to prevent heap allocation of the iterator itself. */
-    static Void* operator new(SizeType) = delete;
-    /** Deleted operator delete. */
-    static Void operator delete(Void*) = delete;
-
     /** @brief The internal raw const pointer to the element. */
     const _ObjectType* obj_ptr_ = nullptr;
 };
@@ -415,7 +407,8 @@ private:
  * @tparam _ObjectType The type of the elements being iterated.
  */
 template<typename _ObjectType>
-class TOrdetDataReverseIterator {
+class TOrderDataReverseIterator {
+    NO_NEW_DELETE
 public:
     /** tag indicating the iterator models a random access range. */
     using iterator_concept  = std::random_access_iterator_tag;
@@ -433,14 +426,14 @@ public:
     /**
      * @brief Default constructor. Initializes an invalid reverse iterator.
      */
-    FORCEINLINE TOrdetDataReverseIterator() = default;
+    FORCEINLINE TOrderDataReverseIterator() = default;
     
     /**
      * @brief Constructor initializing the reverse iterator with a pointer.
      * Note: The pointer should typically point to the element *after* the last valid element.
      * @param _obj_ptr Pointer to the current position (conceptually one past the element).
      */
-    FORCEINLINE explicit TOrdetDataReverseIterator(pointer _obj_ptr) noexcept 
+    FORCEINLINE explicit TOrderDataReverseIterator(pointer _obj_ptr) noexcept 
         : obj_ptr_(_obj_ptr) 
     {}
 
@@ -473,13 +466,13 @@ public:
      * @brief Retrieves the actual raw pointer to the element being accessed.
      * @return The pointer to the element logically pointed to by this iterator.
      */
-    NODISCARD FORCEINLINE pointer Ptr() const noexcept { return obj_ptr_ - 1; }
+    NODISCARD FORCEINLINE pointer GetPtr() const noexcept { return obj_ptr_ - 1; }
 
     /**
      * @brief Pre-increment operator. Moves the iterator logically forward (physically backward).
      * @return A reference to this iterator.
      */
-    FORCEINLINE TOrdetDataReverseIterator& operator++() noexcept {
+    FORCEINLINE TOrderDataReverseIterator& operator++() noexcept {
         --obj_ptr_; // Reverse: ++ means moving memory address backward
         return *this;
     }
@@ -488,7 +481,7 @@ public:
      * @brief Post-increment operator. Moves the iterator logically forward but returns previous state.
      * @return A copy of the iterator before incrementing.
      */
-    FORCEINLINE TOrdetDataReverseIterator operator++(int) noexcept {
+    FORCEINLINE TOrderDataReverseIterator operator++(int) noexcept {
         auto tmp = *this;
         --obj_ptr_;
         return tmp;
@@ -498,7 +491,7 @@ public:
      * @brief Pre-decrement operator. Moves the iterator logically backward (physically forward).
      * @return A reference to this iterator.
      */
-    FORCEINLINE TOrdetDataReverseIterator& operator--() noexcept {
+    FORCEINLINE TOrderDataReverseIterator& operator--() noexcept {
         ++obj_ptr_;
         return *this;
     }
@@ -507,7 +500,7 @@ public:
      * @brief Post-decrement operator. Moves the iterator logically backward but returns previous state.
      * @return A copy of the iterator before decrementing.
      */
-    FORCEINLINE TOrdetDataReverseIterator operator--(int) noexcept {
+    FORCEINLINE TOrderDataReverseIterator operator--(int) noexcept {
         auto tmp = *this;
         ++obj_ptr_;
         return tmp;
@@ -518,7 +511,7 @@ public:
      * @param _num The logical distance to advance.
      * @return A reference to this iterator.
      */
-    FORCEINLINE TOrdetDataReverseIterator& operator+=(difference_type _num) noexcept {
+    FORCEINLINE TOrderDataReverseIterator& operator+=(difference_type _num) noexcept {
         obj_ptr_ -= _num;
         return *this;
     }
@@ -528,7 +521,7 @@ public:
      * @param _num The logical distance to move back.
      * @return A reference to this iterator.
      */
-    FORCEINLINE TOrdetDataReverseIterator& operator-=(difference_type _num) noexcept {
+    FORCEINLINE TOrderDataReverseIterator& operator-=(difference_type _num) noexcept {
         obj_ptr_ += _num;
         return *this;
     }
@@ -538,8 +531,8 @@ public:
      * @param _num The logical offset.
      * @return A new reverse iterator.
      */
-    NODISCARD FORCEINLINE TOrdetDataReverseIterator operator+(difference_type _num) const noexcept {
-        return TOrdetDataReverseIterator(obj_ptr_ - _num);
+    NODISCARD FORCEINLINE TOrderDataReverseIterator operator+(difference_type _num) const noexcept {
+        return TOrderDataReverseIterator(obj_ptr_ - _num);
     }
 
     /**
@@ -547,8 +540,8 @@ public:
      * @param _num The logical offset.
      * @return A new reverse iterator.
      */
-    NODISCARD FORCEINLINE TOrdetDataReverseIterator operator-(difference_type _num) const noexcept {
-        return TOrdetDataReverseIterator(obj_ptr_ + _num);
+    NODISCARD FORCEINLINE TOrderDataReverseIterator operator-(difference_type _num) const noexcept {
+        return TOrderDataReverseIterator(obj_ptr_ + _num);
     }
 
     /**
@@ -557,11 +550,11 @@ public:
      * @param _it The iterator.
      * @return A new reverse iterator.
      */
-    NODISCARD FORCEINLINE friend TOrdetDataReverseIterator operator+(
+    NODISCARD FORCEINLINE friend TOrderDataReverseIterator operator+(
         difference_type _num, 
-        const TOrdetDataReverseIterator& _it
+        const TOrderDataReverseIterator& _it
     ) noexcept {
-        return TOrdetDataReverseIterator(_it.obj_ptr_ - _num);
+        return TOrderDataReverseIterator(_it.obj_ptr_ - _num);
     }
 
     /**
@@ -571,8 +564,8 @@ public:
      * @return The logical distance.
      */
     NODISCARD FORCEINLINE friend difference_type operator-(
-        const TOrdetDataReverseIterator& lhs, 
-        const TOrdetDataReverseIterator& rhs
+        const TOrderDataReverseIterator& lhs, 
+        const TOrderDataReverseIterator& rhs
     ) noexcept {
         return rhs.obj_ptr_ - lhs.obj_ptr_;
     }
@@ -583,7 +576,7 @@ public:
      * @param other The iterator to compare against.
      * @return The ordering relationship.
      */
-    NODISCARD FORCEINLINE std::strong_ordering operator<=>(const TOrdetDataReverseIterator& other) const noexcept {
+    NODISCARD FORCEINLINE std::strong_ordering operator<=>(const TOrderDataReverseIterator& other) const noexcept {
         return other.obj_ptr_ <=> obj_ptr_;
     }
 
@@ -592,20 +585,15 @@ public:
      * @param other The iterator to compare against.
      * @return True if both iterators point to the same location.
      */
-    NODISCARD FORCEINLINE bool operator==(const TOrdetDataReverseIterator& other) const noexcept {
+    NODISCARD FORCEINLINE bool operator==(const TOrderDataReverseIterator& other) const noexcept {
         return obj_ptr_ == other.obj_ptr_;
     }
 
 protected:
     /** Friend declaration allowing conversion to const reverse iterator. */
-    friend class TOrdetDataConstReverseIterator<_ObjectType>;
+    friend class TOrderDataConstReverseIterator<_ObjectType>;
 
 private:
-    /** Deleted operator new to prevent heap allocation. */
-    static Void* operator new(SizeType) = delete;
-    /** Deleted operator delete. */
-    static Void operator delete(Void*) = delete;
-
     /** @brief The internal pointer (conceptually "current + 1"). */
     pointer obj_ptr_ = nullptr;
 };
@@ -618,7 +606,8 @@ private:
  * @tparam _ObjectType The type of the elements being iterated.
  */
 template<typename _ObjectType>
-class TOrdetDataConstReverseIterator {
+class TOrderDataConstReverseIterator {
+    NO_NEW_DELETE
 public:
     /** tag indicating the iterator models a random access range. */
     using iterator_concept  = std::random_access_iterator_tag;
@@ -636,13 +625,13 @@ public:
     /**
      * @brief Default constructor. Initializes an invalid const reverse iterator.
      */
-    FORCEINLINE TOrdetDataConstReverseIterator() = default;
+    FORCEINLINE TOrderDataConstReverseIterator() = default;
     
     /**
      * @brief Constructor initializing the iterator with a const pointer.
      * @param _obj_ptr Pointer to the position.
      */
-    FORCEINLINE explicit TOrdetDataConstReverseIterator(const _ObjectType* _obj_ptr) noexcept 
+    FORCEINLINE explicit TOrderDataConstReverseIterator(const _ObjectType* _obj_ptr) noexcept 
         : obj_ptr_(_obj_ptr) 
     {}
     
@@ -650,7 +639,7 @@ public:
      * @brief Conversion constructor from a non-const reverse iterator.
      * @param _it The non-const reverse iterator.
      */
-    FORCEINLINE TOrdetDataConstReverseIterator(const TOrdetDataReverseIterator<_ObjectType>& _it) noexcept
+    FORCEINLINE TOrderDataConstReverseIterator(const TOrderDataReverseIterator<_ObjectType>& _it) noexcept
         : obj_ptr_(_it.obj_ptr_) 
     {}
 
@@ -682,13 +671,13 @@ public:
      * @brief Retrieves the actual raw const pointer to the element being accessed.
      * @return The const pointer to the element logically pointed to by this iterator.
      */
-    NODISCARD FORCEINLINE const _ObjectType* Ptr() const noexcept { return obj_ptr_ - 1; }
+    NODISCARD FORCEINLINE const _ObjectType* GetPtr() const noexcept { return obj_ptr_ - 1; }
 
     /**
      * @brief Pre-increment operator. Moves the iterator logically forward.
      * @return A reference to this iterator.
      */
-    FORCEINLINE TOrdetDataConstReverseIterator& operator++() noexcept {
+    FORCEINLINE TOrderDataConstReverseIterator& operator++() noexcept {
         --obj_ptr_;
         return *this;
     }
@@ -697,7 +686,7 @@ public:
      * @brief Post-increment operator. Moves the iterator logically forward but returns previous state.
      * @return A copy of the iterator before incrementing.
      */
-    FORCEINLINE TOrdetDataConstReverseIterator operator++(int) noexcept {
+    FORCEINLINE TOrderDataConstReverseIterator operator++(int) noexcept {
         auto tmp = *this;
         --obj_ptr_;
         return tmp;
@@ -707,7 +696,7 @@ public:
      * @brief Pre-decrement operator. Moves the iterator logically backward.
      * @return A reference to this iterator.
      */
-    FORCEINLINE TOrdetDataConstReverseIterator& operator--() noexcept {
+    FORCEINLINE TOrderDataConstReverseIterator& operator--() noexcept {
         ++obj_ptr_;
         return *this;
     }
@@ -716,7 +705,7 @@ public:
      * @brief Post-decrement operator. Moves the iterator logically backward but returns previous state.
      * @return A copy of the iterator before decrementing.
      */
-    FORCEINLINE TOrdetDataConstReverseIterator operator--(int) noexcept {
+    FORCEINLINE TOrderDataConstReverseIterator operator--(int) noexcept {
         auto tmp = *this;
         ++obj_ptr_;
         return tmp;
@@ -727,7 +716,7 @@ public:
      * @param _num The logical distance to advance.
      * @return A reference to this iterator.
      */
-    FORCEINLINE TOrdetDataConstReverseIterator& operator+=(difference_type _num) noexcept {
+    FORCEINLINE TOrderDataConstReverseIterator& operator+=(difference_type _num) noexcept {
         obj_ptr_ -= _num;
         return *this;
     }
@@ -737,7 +726,7 @@ public:
      * @param _num The logical distance to move back.
      * @return A reference to this iterator.
      */
-    FORCEINLINE TOrdetDataConstReverseIterator& operator-=(difference_type _num) noexcept {
+    FORCEINLINE TOrderDataConstReverseIterator& operator-=(difference_type _num) noexcept {
         obj_ptr_ += _num;
         return *this;
     }
@@ -747,8 +736,8 @@ public:
      * @param _num The logical offset.
      * @return A new const reverse iterator.
      */
-    NODISCARD FORCEINLINE TOrdetDataConstReverseIterator operator+(difference_type _num) const noexcept {
-        return TOrdetDataConstReverseIterator(obj_ptr_ - _num);
+    NODISCARD FORCEINLINE TOrderDataConstReverseIterator operator+(difference_type _num) const noexcept {
+        return TOrderDataConstReverseIterator(obj_ptr_ - _num);
     }
 
     /**
@@ -756,8 +745,8 @@ public:
      * @param _num The logical offset.
      * @return A new const reverse iterator.
      */
-    NODISCARD FORCEINLINE TOrdetDataConstReverseIterator operator-(difference_type _num) const noexcept {
-        return TOrdetDataConstReverseIterator(obj_ptr_ + _num);
+    NODISCARD FORCEINLINE TOrderDataConstReverseIterator operator-(difference_type _num) const noexcept {
+        return TOrderDataConstReverseIterator(obj_ptr_ + _num);
     }
 
     /**
@@ -766,11 +755,11 @@ public:
      * @param _it The iterator.
      * @return A new const reverse iterator.
      */
-    NODISCARD FORCEINLINE friend TOrdetDataConstReverseIterator operator+(
+    NODISCARD FORCEINLINE friend TOrderDataConstReverseIterator operator+(
         difference_type _num, 
-        const TOrdetDataConstReverseIterator& _it
+        const TOrderDataConstReverseIterator& _it
     ) noexcept {
-        return TOrdetDataConstReverseIterator(_it.obj_ptr_ - _num);
+        return TOrderDataConstReverseIterator(_it.obj_ptr_ - _num);
     }
 
     /**
@@ -780,8 +769,8 @@ public:
      * @return The logical distance.
      */
     NODISCARD FORCEINLINE friend difference_type operator-(
-        const TOrdetDataConstReverseIterator& lhs, 
-        const TOrdetDataConstReverseIterator& rhs
+        const TOrderDataConstReverseIterator& lhs, 
+        const TOrderDataConstReverseIterator& rhs
     ) noexcept {
         return rhs.obj_ptr_ - lhs.obj_ptr_;
     }
@@ -792,7 +781,7 @@ public:
      * @return The ordering relationship.
      */
     NODISCARD FORCEINLINE std::strong_ordering operator<=>(
-        const TOrdetDataConstReverseIterator& other
+        const TOrderDataConstReverseIterator& other
     ) const noexcept {
         return other.obj_ptr_ <=> obj_ptr_;
     }
@@ -802,19 +791,14 @@ public:
      * @param other The iterator to compare against.
      * @return True if both iterators point to the same location.
      */
-    NODISCARD FORCEINLINE bool operator==(const TOrdetDataConstReverseIterator& other) const noexcept {
+    NODISCARD FORCEINLINE bool operator==(const TOrderDataConstReverseIterator& other) const noexcept {
         return obj_ptr_ == other.obj_ptr_;
     }
 
 private:
-    /** Deleted operator new to prevent heap allocation. */
-    static Void* operator new(SizeType) = delete;
-    /** Deleted operator delete. */
-    static Void operator delete(Void*) = delete;
-
     /** @brief The internal const pointer. */
     const _ObjectType* obj_ptr_ = nullptr;
 };
 
-}//internal
-}//zengine
+} // internal
+} // zengine

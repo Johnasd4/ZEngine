@@ -1,17 +1,25 @@
 /*
     Copyright (c) YuLin Zhu
 
-    This code file is licensed under the Creative Commons
-    Attribution-NonCommercial 4.0 International License.
+    ** ZEngine Proprietary License **
 
-    You may obtain a copy of the License at
-    https://creativecommons.org/licenses/by-nc/4.0/
+    This software is provided "as-is", without any express or implied warranty.
+    In no event will the authors be held liable for any damages arising from the
+    use of this software.
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+    Usage Rights:
+    1. Non-Commercial Use: You may use, modify, and distribute this software
+       for non-commercial purposes (e.g., education, personal projects, open-source
+       projects that do not generate revenue) free of charge.
+
+    2. Commercial Use: Commercial use of this software is STRICTLY PROHIBITED
+       without a valid commercial license agreement with the author.
+       "Commercial use" includes, but is not limited to:
+       - Incorporating this software into a product that is sold.
+       - Using this software in a paid service.
+       - Using this software for internal business operations in a for-profit entity.
+
+    To obtain a Commercial License, please contact the author.
 
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
@@ -29,97 +37,58 @@ ZSeparator::ZSeparator() noexcept
     , colour_(kDefaultColour)
 {}
 
-ZSeparator::ZSeparator(ZSeparator&& _text) noexcept 
-    : SuperType_(std::forward<ZSeparator>(_text))
-{
-    MoveP(std::forward<ZSeparator>(_text));
-}
-
-ZSeparator::~ZSeparator() noexcept {}
-
-ZSeparator& ZSeparator::operator=(ZSeparator&& _text) noexcept {
-    if (this == &_text) {
-        return *this;
-    }
-    SuperType_::operator=(std::forward<ZSeparator>(_text));
-    MoveP(std::forward<ZSeparator>(_text));
-    return *this;
-}
-
-Void ZSeparator::Begin() noexcept {
-    SuperType_::Begin();
-}
-
-Void ZSeparator::Tick(Float32 _delta_sec) noexcept {
-    if (!Visiable()) {
-        return;
-    }
-
-    if (PosSet() && PosChanged()) {
-        GuiPos pos = Pos();
-        ImGui::SetCursorPos(ImVec2(pos.x_, pos.y_));
-    }
-
-    SuperType_::Tick(_delta_sec);
-
-    if (Enabled()) {
-        ImGui::PushStyleColor(
-            ImGuiCol_Separator,
-            ImVec4(
-                colour_.red_,
-                colour_.green_,
-                colour_.blue_,
-                colour_.alpha_
-            )
-        );
-    }
-    else {
-        ImGui::PushStyleColor(
-            ImGuiCol_Separator,
-            ImVec4(
-                colour_.red_ * kDisableColourFactor,
-                colour_.green_ * kDisableColourFactor,
-                colour_.blue_ * kDisableColourFactor,
-                colour_.alpha_
-            )
-        );
-    }
-
-    ImGui::SetWindowFontScale(FontScale());
-
-    ImGui::Separator();
-
-    ImVec2 temp_pos = ImGui::GetItemRectMin();
-    ImVec2 temp_size = ImGui::GetItemRectSize();
-
-    if (OwnerPtr() != nullptr) {
-        ZGuiObject::SetPos(GuiPos(temp_pos.x, temp_pos.y) - OwnerPtr()->AbsPos());
-    }
-    ZGuiObject::SetSize(GuiSize(temp_size.x, temp_size.y));
-
-    ImGui::PopStyleColor();
-}
-
-Void ZSeparator::Reset() noexcept {
-    SuperType_::Reset();
-}
-
-Void ZSeparator::SetColour(GuiColour _colour) noexcept {
-    colour_ = _colour;
-}
-
-NODISCARD ZSeparator::WidgetTypeEnum_ ZSeparator::WidgetType() const noexcept {
+NODISCARD ZSeparator::WidgetTypeEnum_ ZSeparator::GetWidgetType() const noexcept {
     return WidgetTypeEnum_::kSeparator;
 }
 
-NODISCARD GuiColour ZSeparator::Colour() const noexcept {
-    return colour_;
+Void ZSeparator::OnTick(Float32 _delta_sec) noexcept {
+    if (!visible_) {
+        return;
+    }
+
+    SuperType_::OnTick(_delta_sec);
+
+    if (pos_state_ == PosSizeStateEnum_::kSet) {
+        ImGui::SetCursorPos(ImVec2(pos_.x_, pos_.y_));
+    }
+
+    // push style colours
+    ImGui::PushStyleColor(
+        ImGuiCol_Separator,
+        ImVec4(
+            colour_.red_,
+            colour_.green_,
+            colour_.blue_,
+            colour_.alpha_
+        )
+    );
+
+    if (!enabled_) {
+        ImGui::BeginDisabled();
+    }
+
+    ImGui::Separator();
+
+    if (!enabled_) {
+        ImGui::EndDisabled();
+    }
+
+    ImGui::PopStyleColor();
+
+    // update size
+    if (size_state_ == PosSizeStateEnum_::kGet) {
+        ImVec2 frame_size = ImGui::GetItemRectSize();
+        size_ = GuiSize(frame_size.x, frame_size.y);
+        size_state_ = PosSizeStateEnum_::kNone;
+    }
+
+    // update pos
+    if (pos_state_ == PosSizeStateEnum_::kGet) {
+        ImVec2 frame_pos = ImGui::GetItemRectMin();
+        ZGuiObject::SetPos(GuiPos(frame_pos.x, frame_pos.y) - owner_ptr_->GetAbsPos());
+        pos_state_ = PosSizeStateEnum_::kNone;
+    }
 }
 
-Void ZSeparator::MoveP(ZSeparator&& _obj) noexcept {
-    colour_ = _obj.colour_;
-    _obj.colour_ = kDefaultColour;
-}
-
-}//gui
-}//zengine
+} // gui
+} // zengine

@@ -1,17 +1,25 @@
 /*
     Copyright (c) YuLin Zhu
 
-    This code file is licensed under the Creative Commons
-    Attribution-NonCommercial 4.0 International License.
+    ** ZEngine Proprietary License **
 
-    You may obtain a copy of the License at
-    https://creativecommons.org/licenses/by-nc/4.0/
+    This software is provided "as-is", without any express or implied warranty.
+    In no event will the authors be held liable for any damages arising from the
+    use of this software.
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+    Usage Rights:
+    1. Non-Commercial Use: You may use, modify, and distribute this software
+       for non-commercial purposes (e.g., education, personal projects, open-source
+       projects that do not generate revenue) free of charge.
+
+    2. Commercial Use: Commercial use of this software is STRICTLY PROHIBITED
+       without a valid commercial license agreement with the author.
+       "Commercial use" includes, but is not limited to:
+       - Incorporating this software into a product that is sold.
+       - Using this software in a paid service.
+       - Using this software for internal business operations in a for-profit entity.
+
+    To obtain a Commercial License, please contact the author.
 
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
@@ -22,18 +30,37 @@
 #include "drive/d_initialize.h"
 
 #include "m_log.h"
+#include "m_log/z_log_manager.h"
+
+#include "f_memory_pool/z_generic_memory_pool_performance_test.h"
+
+#pragma warning(disable : 4834)
+
+namespace zengine {
+namespace internal {
+
+static Void SystemAbortHandler(Int32 _signal) noexcept {
+    Exit(error_code::kErrorCode_SystemAbort);
+}
+
+} // internal
+} // zengine
 
 namespace zengine {
 
 CORE_DLLAPI Void Initialize() noexcept { 
-    setlocale(LC_ALL, "");
+    // register crash signal handler
+    std::signal(SIGABRT, internal::SystemAbortHandler);
+
+    // Initialize the ID of the main thread
+    ZThread::GetMainThreadID();
 
 #if USE_MEMORY_POOL_PERFORMANCE_TEST
-    //initialize memory pool log file
-    //ZFile& file = memory_pool::TMemoryPoolBase<MEMORY_POOL_THREAD_SAFE>::LogFile();
-#endif //USE_MEMORY_POOL_PERFORMANCE_TEST
+    // call instance to initialize, must be called before any memory pool used
+    memory_pool::ZGenericMemoryPoolPerformanceTest::GetInstance();
+#endif // USE_MEMORY_POOL_PERFORMANCE_TEST
 
-    //register log output function
+    // register log output function
 #if USE_FILE_LOG
     log::RegisterLogOutputFunction<log::ZErrorLog>(log::ZErrorLog::FileOutputLog);
     log::RegisterLogOutputFunction<log::ZInfoLog>(log::ZInfoLog::FileOutputLog);
@@ -44,6 +71,13 @@ CORE_DLLAPI Void Initialize() noexcept {
     log::RegisterLogOutputFunction<log::ZInfoLog>(log::ZInfoLog::ConsoleOutputLog);
     log::RegisterLogOutputFunction<log::ZTraceLog>(log::ZTraceLog::ConsoleOutputLog);
 #endif
+
+    // Must be called in the current thread, 
+    // sub threads calling this function will cause sync issues when exiting the program.
+    log::ZLog::CreateAndGetLogPath();
+
+    // start log thread
+    log::ZLogManager::GetInstance().StartThread();
 
     Z_LOG_ERROR(0, 0, "Error...");
     Z_LOG_TRACE("Trace...");
@@ -57,4 +91,6 @@ CORE_DLLAPI Void Initialize() noexcept {
     Z_LOG_SUCCESS("ZEngine initialize success!");
 }
 
-}//zengine
+} // zengine
+
+#pragma warning(default : 4834)

@@ -33,15 +33,31 @@ namespace zengine {
 
 /** @brief Concept to check if two types are the same, ignoring const/volatile and references. */
 template<typename _LeftObjectType, typename _RightObjectType>
-concept kSameType = std::is_same_v<std::decay_t<_LeftObjectType>, std::decay_t<_RightObjectType>>;
+concept kIsSameType = std::is_same_v<std::decay_t<_LeftObjectType>, std::decay_t<_RightObjectType>>;
 
-/** @brief Concept to check if two types are different, ignoring const/volatile and references. */
+/** @brief Concept to check if two types are convertible, ignoring const/volatile and references. */
 template<typename _LeftObjectType, typename _RightObjectType>
-concept kNotType = !std::is_same_v<std::decay_t<_LeftObjectType>, std::decay_t<_RightObjectType>>;
+concept kIsConvertibleType = std::is_convertible_v<std::decay_t<_LeftObjectType>, std::decay_t<_RightObjectType>>;
+
+/** @brief Concept to check if a type is a left value reference. */
+template<typename _ObjectType>
+concept kIsRightValue = std::is_rvalue_reference_v<_ObjectType>;
 
 /** @brief Concept to check if a type is a class or struct type. */
 template<typename _ObjectType>
-concept kIsClassType = std::is_class_v<_ObjectType>;
+concept kIsClass = std::is_class_v<_ObjectType>;
+
+/** @brief Concept to check if a type is trivially constructible. */
+template<typename _ObjectType>
+concept kIsTriviallyConstructible = std::is_trivially_constructible_v<_ObjectType>;
+
+/** @brief Concept to check if a type is trivially copyable. */
+template<typename _ObjectType>
+concept kIsTriviallyCopyable = std::is_trivially_copyable_v<_ObjectType>;
+
+/** @brief Concept to check if a type is trivially destructible. */
+template<typename _ObjectType>
+concept kIsTriviallyDestructible = std::is_trivially_destructible_v<_ObjectType>;
 
 /** @brief Concept to check if a type is a basic type (fundamental, pointer, or enum). */
 template<typename _ObjectType>
@@ -52,23 +68,23 @@ concept kIsBasicType =
 
 /** @brief Concept to check if a type is a character type (Char or WChar). */
 template<typename _CharType>
-concept kIsChar = kSameType<_CharType, Char> || kSameType<_CharType, WChar>;
+concept kIsChar = kIsSameType<_CharType, Char> || kIsSameType<_CharType, WChar>;
 
 /** @brief Concept to check if a type is a signed integer type (Int8, Int16, Int32, Int64). */
 template<typename _NumberType>
 concept kIsSignedInt = 
-    kSameType<_NumberType, Int8> 
-    || kSameType<_NumberType, Int16> 
-    || kSameType<_NumberType, Int32> 
-    || kSameType<_NumberType, Int64>;
+    kIsSameType<_NumberType, Int8> 
+    || kIsSameType<_NumberType, Int16> 
+    || kIsSameType<_NumberType, Int32> 
+    || kIsSameType<_NumberType, Int64>;
 
 /** @brief Concept to check if a type is an unsigned integer type (UInt8, UInt16, UInt32, UInt64). */
 template<typename _NumberType>
 concept kIsUnsignedInt = 
-    kSameType<_NumberType, UInt8> 
-    || kSameType<_NumberType, UInt16> 
-    || kSameType<_NumberType, UInt32> 
-    || kSameType<_NumberType, UInt64>;
+    kIsSameType<_NumberType, UInt8> 
+    || kIsSameType<_NumberType, UInt16> 
+    || kIsSameType<_NumberType, UInt32> 
+    || kIsSameType<_NumberType, UInt64>;
 
 /** @brief Concept to check if a type is any integer type (signed or unsigned). */
 template<typename _NumberType>
@@ -76,7 +92,7 @@ concept kIsInt = kIsSignedInt<_NumberType> || kIsUnsignedInt<_NumberType>;
 
 /** @brief Concept to check if a type is a floating-point type (Float32 or Float64). */
 template<typename _NumberType>
-concept kIsFloat = kSameType<_NumberType, Float32> || kSameType<_NumberType, Float64>;
+concept kIsFloat = kIsSameType<_NumberType, Float32> || kIsSameType<_NumberType, Float64>;
 
 /** @brief Concept to check if a type is a number (integer or floating-point). */
 template<typename _NumberType>
@@ -101,42 +117,25 @@ concept kIsComparable = requires(_ObjectType _obj_1, _ObjectType _obj_2) {
     _obj_1 <= _obj_2;
 };
 
+/** @brief Concept to check if a type is copy constructible. */
+template<typename _ObjectType>
+concept kIsCopyConstructible = std::is_copy_constructible_v<_ObjectType>;
+
 /** @brief Concept to check if a type is copy assignable. */
 template<typename _ObjectType>
-concept kIsCopyable = requires(_ObjectType _obj_1, _ObjectType _obj_2) {
-    _obj_1 = _obj_2;
-};
+concept kIsCopyAssignable = std::is_copy_assignable_v<_ObjectType>;
+
+/** @brief Concept to check if a type is move constructible. */
+template<typename _ObjectType>
+concept kIsMoveConstructible = std::is_move_constructible_v<_ObjectType>;
 
 /** @brief Concept to check if a type is move assignable. */
 template<typename _ObjectType>
-concept kIsMovable = requires(_ObjectType _obj_1, _ObjectType _obj_2) {
-    _obj_1 = std::move(_obj_2);
-};
+concept kIsMoveAssignable = std::is_move_assignable_v<_ObjectType>;
+
 
 /** @brief Type alias for std::decay_t, used to remove const, volatile, and references. */
 template<typename _ObjectType>
 using kDecayType = std::decay_t<_ObjectType>;
 
-namespace internal {
-
-/** @brief Helper structure to determine type with reference removed if applicable. */
-template<typename _ObjectType>
-struct RemoveBasicTypeReferenceStruct {
-    /** @brief The resulting type (default is original type). */
-    using Type_ = _ObjectType;
-};
-
-/** @brief Specialization of RemoveBasicTypeReferenceStruct for basic types. */
-template<typename _ObjectType> requires kIsBasicType<std::remove_reference_t<_ObjectType>>
-struct RemoveBasicTypeReferenceStruct<_ObjectType> {
-    /** @brief The resulting type with reference removed. */
-    using Type_ = std::remove_reference_t<_ObjectType>;
-};
-
-}//internal
-
-/** @brief Alias to remove references from a type only if it is a basic type. */
-template<typename _ObjectType>
-using kRemoveBasicTypeReferenceType = internal::RemoveBasicTypeReferenceStruct<_ObjectType>::Type_;
-
-}//zengine
+} // zengine

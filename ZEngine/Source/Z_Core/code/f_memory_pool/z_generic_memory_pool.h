@@ -28,6 +28,7 @@
 
 #include "z_mutex.h"
 
+#include "c_memory_pool.h"
 #include "z_system_memory_pool.h"
 
 namespace zengine {
@@ -43,7 +44,7 @@ namespace memory_pool {
 class ZGenericMemoryPool {
 public:
     /** @brief The header structure for a memory page managed by the pool. */
-    struct ALIGN(16) MemoryPageHead_ {
+    struct MEMORY_POOL_HEAD_DATA_ALIGN MemoryPageHead_ {
         /** @brief Pointer to the memory pool that owns this page. */
         Void* memory_pool_ptr_;
         /** @brief Pointer to the next memory page in the linked list. */
@@ -55,7 +56,7 @@ public:
      * @brief Gets the thread-local instance of the generic memory pool.
      * @return ZGenericMemoryPool& Reference to the thread-local memory pool instance.
      */
-    FORCEINLINE static ZGenericMemoryPool& ThreadLocalInstance() noexcept {
+    FORCEINLINE static ZGenericMemoryPool& GetThreadLocalInstance() noexcept {
         static ZGenericMemoryPool instance;
         return instance;
     }
@@ -69,6 +70,12 @@ public:
         : head_memory_page_ptr_(nullptr)
     {}
 
+    /** @brief Deleted copy constructor. */
+    ZGenericMemoryPool(const ZGenericMemoryPool&) = delete;
+
+    /** @brief Deleted move constructor. */
+    ZGenericMemoryPool(ZGenericMemoryPool&&) = delete;
+
     /**
      * @brief Destructor.
      *
@@ -79,11 +86,17 @@ public:
         MemoryPageHead_* current_page_ptr = head_memory_page_ptr_;
         while (current_page_ptr != nullptr) {
             MemoryPageHead_* next_page_ptr = current_page_ptr->next_page_ptr_;
-            ZSystemMemoryPool::Instance().FreeMemoryP(current_page_ptr);
+            ZSystemMemoryPool::GetInstance().FreeMemoryP(current_page_ptr);
             current_page_ptr = next_page_ptr;
         }
         head_memory_page_ptr_ = nullptr;
     }
+
+    /** @brief Deleted copy assignment operator. */
+    ZGenericMemoryPool& operator=(const ZGenericMemoryPool&) = delete;
+
+    /** @brief Deleted move assignment operator. */
+    ZGenericMemoryPool& operator=(ZGenericMemoryPool&&) = delete;
 
     /**
      * @brief Applies for a specific number of memory pages from the system with 64KB alignment.
@@ -106,14 +119,9 @@ public:
     NODISCARD MemoryPageHead_* Alloc2MBAlignmentMemoryAtomPageP(UInt32 _page_num) noexcept;
 
 private:
-    ZGenericMemoryPool(const ZGenericMemoryPool&) = delete;
-    ZGenericMemoryPool(ZGenericMemoryPool&&) = delete;
-    ZGenericMemoryPool& operator=(const ZGenericMemoryPool&) = delete;
-    ZGenericMemoryPool& operator=(ZGenericMemoryPool&&) = delete;
-
     /** @brief Pointer to the first memory page in the linked list. */
     MemoryPageHead_* head_memory_page_ptr_;
 };
 
-}//memory_pool
-}//zengine
+} // memory_pool
+} // zengine

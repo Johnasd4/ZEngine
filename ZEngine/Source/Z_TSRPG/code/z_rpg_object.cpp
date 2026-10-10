@@ -48,5 +48,5 @@ NODISCARD Void ZRPGObject::InitializeP() noexcept {
     initialized_ = true;
 }
 
-}//tsrpg
-}//zengine
+} // tsrpg
+} // zengine

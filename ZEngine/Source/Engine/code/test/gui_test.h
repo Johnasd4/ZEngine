@@ -36,7 +36,7 @@ Int32 GuiTest() {
 
     ReturnType link_code = kOK;
 
-    ZWindow window("Title", GuiSize(1000, 1000));
+    ZApplication window("Title", GuiSize(1000, 1000));
     window.SetScreenCenter();
 
     ZFrame frame1("Frame1");
@@ -55,4 +55,4 @@ Int32 GuiTest() {
     return 0;
 }
   
-}//test
+} // test

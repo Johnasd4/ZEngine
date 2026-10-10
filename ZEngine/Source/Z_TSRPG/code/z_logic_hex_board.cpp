@@ -55,5 +55,5 @@ NODISCARD ZLogicTile* ZLogicHexBoard::CreateLogicTileP() const noexcept {
     return logic_tile_ptr;
 }
 
-}//tsrpg
-}//zengine
+} // tsrpg
+} // zengine

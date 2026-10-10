@@ -38,16 +38,16 @@
 #endif
 
 /** 
- * @brief Checks if the specified condition is true. If it is, logs an error and returns the error code. 
+ * @brief Checks if the specified condition is false. If it is, logs an error and returns the error code. 
  * @note This macro is used to handle error conditions where the function should exit if the condition is met. 
  * @param _condition The boolean condition to check. 
  * @param _err_code The error code to return if the condition is true. 
  * @param ... Additional arguments for the error message format string. 
  */
 #define Z_CHECK(_condition, _err_code, ...)\
-    if(_condition) {\
+    if(!(_condition)) {\
         zengine::log::LogError(\
-            zengine::Time(),\
+            zengine::ZSystemTime::GetTimeNs(),\
             PROJECT_NAME,\
             __FILE__,\
             __func__,\
@@ -56,6 +56,7 @@
             0,\
             __VA_ARGS__ \
         );\
+        ASSERT(false, "");\
         return _err_code;\
     }
 
@@ -67,7 +68,7 @@
  */
 #define Z_LOG_ERROR(_err_code, _link_code, ...)\
     zengine::log::LogError(\
-        zengine::Time(),\
+        zengine::ZSystemTime::GetTimeNs(),\
         PROJECT_NAME,\
         __FILE__,\
         __func__,\
@@ -75,56 +76,56 @@
         _err_code,\
         _link_code,\
         __VA_ARGS__ \
-    );
+    );\
 
 /** 
  * @brief Logs a trace message with context information. 
  * @param ... The format string and arguments for the trace message. 
  */
 #define Z_LOG_TRACE(...)\
-    zengine::log::LogTrace(zengine::Time(), PROJECT_NAME, __FILE__, __func__, __LINE__, __VA_ARGS__);
+    zengine::log::LogTrace(zengine::ZSystemTime::GetTimeNs(), PROJECT_NAME, __FILE__, __func__, __LINE__, __VA_ARGS__);
 
 /** 
  * @brief Logs a general informational message. 
  * @param ... The format string and arguments for the message. 
  */
 #define Z_LOG_MESSAGE(...)\
-    zengine::log::LogInfo(zengine::Time(), zengine::log::InfoLogTypeEnum::kMessage, __VA_ARGS__);
+    zengine::log::LogInfo(zengine::ZSystemTime::GetTimeNs(), zengine::log::InfoLogTypeEnum::kMessage, __VA_ARGS__);
 
 /** 
  * @brief Logs a start event message. 
  * @param ... The format string and arguments for the message. 
  */
 #define Z_LOG_START(...)\
-    zengine::log::LogInfo(zengine::Time(), zengine::log::InfoLogTypeEnum::kStart, __VA_ARGS__);
+    zengine::log::LogInfo(zengine::ZSystemTime::GetTimeNs(), zengine::log::InfoLogTypeEnum::kStart, __VA_ARGS__);
 
 /** 
  * @brief Logs a process event message. 
  * @param ... The format string and arguments for the message. 
  */
 #define Z_LOG_PROCESS(...)\
-    zengine::log::LogInfo(zengine::Time(), zengine::log::InfoLogTypeEnum::kProcess, __VA_ARGS__);
+    zengine::log::LogInfo(zengine::ZSystemTime::GetTimeNs(), zengine::log::InfoLogTypeEnum::kProcess, __VA_ARGS__);
 
 /** 
  * @brief Logs a finish event message. 
  * @param ... The format string and arguments for the message. 
  */
 #define Z_LOG_FINISH(...)\
-    zengine::log::LogInfo(zengine::Time(), zengine::log::InfoLogTypeEnum::kFinish, __VA_ARGS__);
+    zengine::log::LogInfo(zengine::ZSystemTime::GetTimeNs(), zengine::log::InfoLogTypeEnum::kFinish, __VA_ARGS__);
 
 /** 
  * @brief Logs a success event message. 
  * @param ... The format string and arguments for the message. 
  */
 #define Z_LOG_SUCCESS(...)\
-    zengine::log::LogInfo(zengine::Time(), zengine::log::InfoLogTypeEnum::kSuccess, __VA_ARGS__);
+    zengine::log::LogInfo(zengine::ZSystemTime::GetTimeNs(), zengine::log::InfoLogTypeEnum::kSuccess, __VA_ARGS__);
 
 /** 
  * @brief Logs a failure event message. 
  * @param ... The format string and arguments for the message. 
  */
 #define Z_LOG_FAILURE(...)\
-    zengine::log::LogInfo(zengine::Time(), zengine::log::InfoLogTypeEnum::kFailure, __VA_ARGS__);
+    zengine::log::LogInfo(zengine::ZSystemTime::GetTimeNs(), zengine::log::InfoLogTypeEnum::kFailure, __VA_ARGS__);
 
 #if USE_DEBUG_LOG
 /** 

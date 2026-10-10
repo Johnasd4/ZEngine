@@ -45,5 +45,5 @@ enum BoardObjectTypeEnum : RPGObjectType {
     kBoardObjectType_DisplayBoardObject = 1 << 1
 };
 
-}//tsrpg
-}//zengine
+} // tsrpg
+} // zengine

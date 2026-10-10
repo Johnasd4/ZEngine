@@ -37,15 +37,15 @@ namespace zengine {
 ZFile::ZFile() noexcept 
     : SuperType_()
     , file_()
+    , output_buffer_data_size_(0ULL)
     , output_buffer_()
-    , output_buffer_data_size_()
 {}
 
 ZFile::ZFile(ZFile&& _file) noexcept 
-    : SuperType_(std::forward<ZFile>(_file))
+    : SuperType_(std::move(_file))
     , file_(std::move(_file.file_))
-    , output_buffer_(std::move(_file.output_buffer_))
     , output_buffer_data_size_(_file.output_buffer_data_size_)
+    , output_buffer_(std::move(_file.output_buffer_))
 {
     _file.output_buffer_data_size_ = 0ULL;
 }
@@ -58,9 +58,8 @@ ZFile& ZFile::operator=(ZFile&& _file) noexcept {
     if (this == &_file) {
         return *this;
     }
-    SuperType_::operator=(std::forward<ZFile>(_file));
+    SuperType_::operator=(std::move(_file));
 
-    ReturnType link_code = kOK;
     Close();
     file_ = std::move(_file.file_);
     output_buffer_ = std::move(_file.output_buffer_);
@@ -96,66 +95,63 @@ NODISCARD Int64 ZFile::ComputeSize() noexcept {
     }
 }
 
-NODISCARD ReturnType ZFile::Open(const Char* _file_dir, Int32 _open_flag) noexcept {
+NODISCARD ReturnType ZFile::Open(const Char* _file_path, Int32 _open_flag) noexcept {
     ReturnType ret_val = kOK;
 
     Z_CHECK(
-        _file_dir == nullptr,
+        _file_path != nullptr,
         error_code::kZFileErrorCode_NullptrParam,
-        "_file_dir is nullptr!"
+        "_file_path is nullptr!"
     );
     Z_CHECK(
-        IsOpen(), 
+        IsOpen() == false, 
         error_code::kZFileErrorCode_OtherFileOpened, 
         "Another file is opened!"
     );
 
     try {
-        file_ = fmt::file(_file_dir, _open_flag);
+        file_ = fmt::file(_file_path, _open_flag);
     }
     catch (const std::system_error& error) {
         ret_val = error_code::kZFileErrorCode_OpenFileFailed;
         Z_LOG_ERROR(
             ret_val, 0, 
-            "Open file failed, {}! error_code: {} file_dir: {}, _open_flag: 0x{:x}", 
-            error.what(), error.code().value(), _file_dir, _open_flag
+            "Open file failed, {}! error_code: {} file_path: {}, _open_flag: 0x{:x}", 
+            error.what(), error.code().value(), _file_path, _open_flag
         );     
     }
 
     return ret_val;
 }
 
-NODISCARD ReturnType ZFile::OpenSafe(const Char* _file_dir, Int32 _open_flag) noexcept {
+NODISCARD ReturnType ZFile::OpenSafe(const Char* _file_path, Int32 _open_flag) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
 
-    file_system::ZFileInfo file_info = file_system::GetFileInfoByPath(_file_dir);
-    if (link_code != kOK) {
-        Z_LOG_ERROR(
-            ret_val, link_code, 
-            "file_system::GetFileInfoByPath() link error!"
-        );
-        return error_code::kZFileErrorCode_LinkError;
-    }
+    file_system::ZFileInfo file_info = file_system::GetFileInfoByPath(_file_path);
 
-    if (!file_system::IsPathExist(file_info.directory_.GetDataPtr())) {
-        link_code = file_system::CreateDirectoryByPath(file_info.directory_.GetDataPtr());
+    ZString directory = file_info.GetDirectory();
+
+    if (!file_system::IsPathExist(directory.GetDataPtr())) {
+        link_code = file_system::CreateDirectoryByPath(directory.GetDataPtr());
         if (link_code != kOK) {
+            ret_val = error_code::kZFileErrorCode_LinkError;
             Z_LOG_ERROR(
                 ret_val, link_code,
                 "file_system::CreateDirectoryByPath() link error!"
             );
-            return error_code::kZFileErrorCode_LinkError;
+            return ret_val;
         }
     }
 
-    link_code = Open(_file_dir, _open_flag);
+    link_code = Open(_file_path, _open_flag);
     if (link_code != kOK) {
+        ret_val = error_code::kZFileErrorCode_LinkError;
         Z_LOG_ERROR(
             ret_val, link_code,
             "ZFile::Open() link error!"
         );
-        return error_code::kZFileErrorCode_LinkError;
+        return ret_val;
     }
 
     return ret_val;
@@ -172,7 +168,7 @@ Void ZFile::Close() noexcept {
                 "ZFile::FlushP() link error!"
             );
         }
-        //might throw error
+        // might throw error
         try {
             file_.close();
         } catch (...) {}
@@ -199,16 +195,15 @@ NODISCARD ReturnType ZFile::SetOutputBufferSize(
     return ret_val;
 }
 
-ReturnType ZFile::Read(
+NODISCARD TOptional<SizeType> ZFile::Read(
     ZBuffer _buffer, 
-    SizeType _read_size, 
-    SizeType* _actual_read_size_ptr
+    SizeType _read_size
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
 
     Z_CHECK(
-        IsOpen() == false,
+        IsOpen() == true,
         error_code::kZFileErrorCode_NoFileOpened,
         "No file opened!"
     );
@@ -231,22 +226,21 @@ ReturnType ZFile::Read(
         _read_size = _buffer.GetSize();
     }
 
+    SizeType actual_read_size;
     try {
-        SizeType actual_read_size = file_.read(_buffer.GetDataPtr<Void>(), _read_size);
-        if (_actual_read_size_ptr != nullptr) {
-            *_actual_read_size_ptr = actual_read_size;
-        }
+        actual_read_size = file_.read(_buffer.GetDataPtr<Void>(), _read_size);
     }
     catch (const std::system_error& error) {
         ret_val = error_code::kZFileErrorCode_ReadFailed;
         Z_LOG_ERROR(
             ret_val, 0,
-            "Flush failed, {}! error_code: {}",
+            "Read failed, {}! error_code: {}",
             error.what(), error.code().value()
         );
+        return ret_val;
     }
     
-    return ret_val;
+    return TOptional<SizeType>(actual_read_size);
 }
 
 NODISCARD ReturnType ZFile::Write(ZConstBuffer _buffer) noexcept {
@@ -254,7 +248,7 @@ NODISCARD ReturnType ZFile::Write(ZConstBuffer _buffer) noexcept {
     ReturnType link_code = kOK;
 
     Z_CHECK(
-        IsOpen() == false,
+        IsOpen() == true,
         error_code::kZFileErrorCode_NoFileOpened,
         "No file opened!"
     );
@@ -298,35 +292,51 @@ NODISCARD ReturnType ZFile::Write(ZStringView _format, fmt::format_args _args) n
     ReturnType link_code = kOK;
 
     Z_CHECK(
-        IsOpen() == false,
+        IsOpen() == true,
         error_code::kZFileErrorCode_NoFileOpened,
         "No file opened!"
     );
 
-    SizeType size;
-    auto result = fmt::vformat_to_n(&size, 0, _format.STDStringView(), _args);
-    size = result.size;
+    SizeType buffer_free_space = output_buffer_.GetSize() - output_buffer_data_size_;
 
-    if (size + output_buffer_data_size_ >= output_buffer_.GetSize()) {
-        link_code = FlushP();
-        if (link_code != kOK) {
-            ret_val = error_code::kZFileErrorCode_LinkError;
-            Z_LOG_ERROR(
-                ret_val, link_code,
-                "ZFile::FlushP() link error!"
-            );
-            return ret_val;
-        }
+    // try to format the string directly into the remaining buffer space
+    auto result = fmt::vformat_to_n(
+        output_buffer_.GetDataPtr<Char>() + output_buffer_data_size_,
+        buffer_free_space,
+        _format.GetSTDStringView(),
+        _args
+    );
+
+    // return if the formatted string fits in the remaining buffer space
+    if (result.size <= buffer_free_space) {
+        output_buffer_data_size_ += result.size;
+        return kOK;
     }
 
-    if (size >= output_buffer_.GetSize()) {
-        ZMemory buffer(size);
+    // if the formatted string does not fit, flush the buffer and write directly to the file
+    link_code = FlushP();
+    if (link_code != kOK) {
+        ret_val = error_code::kZFileErrorCode_LinkError;
+        Z_LOG_ERROR(
+            ret_val, link_code,
+            "ZFile::FlushP() link error!"
+        );
+        return ret_val;
+    }
+
+    // write the formatted string directly to the buffer if it is smaller than the buffer size.
+    if (result.size <= output_buffer_.GetSize()) {
+        WriteBufferP(_format, _args, result.size);
+    }
+    // write the formatted string directly to the file if it is larger than the buffer size.
+    else {
+        ZMemory buffer(result.size);
         fmt::vformat_to(
             buffer.GetDataPtr<Char>(),
-            _format.STDStringView(),
+            _format.GetSTDStringView(),
             _args
         );
-        link_code = WriteP(ZConstBuffer(buffer.GetDataPtr<Void>(), size));
+        link_code = WriteP(ZConstBuffer(buffer.GetDataPtr<Void>(), result.size));
         if (link_code != kOK) {
             ret_val = error_code::kZFileErrorCode_LinkError;
             Z_LOG_ERROR(
@@ -335,9 +345,6 @@ NODISCARD ReturnType ZFile::Write(ZStringView _format, fmt::format_args _args) n
             );
             return ret_val;
         }
-    }
-    else {
-        WriteBufferP(_format, _args, size);
     }
 
     return ret_val;
@@ -348,7 +355,7 @@ NODISCARD ReturnType ZFile::Flush() noexcept {
     ReturnType link_code = kOK;
 
     Z_CHECK(
-        IsOpen() == false,
+        IsOpen() == true,
         error_code::kZFileErrorCode_NoFileOpened,
         "No file opened!"
     );
@@ -372,7 +379,7 @@ NODISCARD Int64 ZFile::Seek(Int64 _offset, SeekType_ _seek_type) noexcept {
     if (link_code != kOK) {
         Z_LOG_ERROR(
             error_code::kZFileErrorCode_LinkError, link_code,
-            "ZFile::WriteP() link error!"
+            "ZFile::FlushP() link error!"
         );
         return kFailed;
     }
@@ -445,10 +452,10 @@ Void ZFile::WriteBufferP(ZConstBuffer _buffer) noexcept {
 Void ZFile::WriteBufferP(ZStringView _format, fmt::format_args _args, SizeType _data_size) noexcept {
     fmt::vformat_to(
         &output_buffer_[output_buffer_data_size_],
-        _format.STDStringView(),
+        _format.GetSTDStringView(),
         _args
     );
     output_buffer_data_size_ += _data_size;
 }
 
-}//zengine
+} // zengine
