@@ -79,6 +79,7 @@
 #include <shellapi.h>
 #include <memoryapi.h>
 #include <shobjidl.h> // filesystem
+#include <timeapi.h>
 #else
 #include <sys/mman.h> // Linux/macOS mmap
 #endif

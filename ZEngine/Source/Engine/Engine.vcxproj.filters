@@ -4469,10 +4469,7 @@
     <ClInclude Include="code\zengine\z_socket\z_udp_peer.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="code\zengine\z_core\t_quest_queue.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="code\zengine\z_core\t_fixed_queue_spsc.h">
+    <ClInclude Include="code\zengine\z_core\t_queue_spsc.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="code\zengine\z_socket\internal\l_kcp.h">
@@ -4485,6 +4482,30 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Library\MoodyCamel\ConcurrentQueue\concurrentqueue.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\zengine\z_core\internal\l_moodycamel.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\zengine\z_core\internal\moodycamel\atomicops.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\zengine\z_core\internal\moodycamel\concurrentqueue.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\zengine\z_core\internal\moodycamel\readerwriterqueue.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\zengine\z_core\t_queue_mpmc.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\zengine\z_socket\ZUDPPeerManager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\zengine\z_socket\z_udp_peer_manager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="code\zengine\z_core\z_recursive_mutex.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -166,18 +166,18 @@ public:
      * @tparam _MutexType The type of the mutex being locked.
      * @tparam PredicateFunction The type of the predicate function.
      * @param _lock A unique lock controlling the mutex.
-     * @param _func A callable object that returns a boolean indicating whether the condition is met.
      * @param _timeout_ms The maximum relative duration to wait, in milliseconds.
+     * @param _func A callable object that returns a boolean indicating whether the condition is met.
      * @return True if the predicate evaluated to true, false if timeout occurred before predicate became true.
      */
     template <typename _MutexType, typename PredicateFunction>
     NODISCARD FORCEINLINE Bool WaitForMs(
         TUniqueLock<_MutexType>& _lock,
-        PredicateFunction&& _func,
-        TimeType _timeout_ms
+        TimeType _timeout_ms,
+        PredicateFunction&& _func
     ) noexcept {
         return WaitUntilMs(
-            _lock, std::forward<PredicateFunction>(_func), ZSystemTime::GetSteadyTimeMs() + _timeout_ms);
+            _lock, ZSystemTime::GetSteadyTimeMs() + _timeout_ms, std::forward<PredicateFunction>(_func));
     }
 
     /**
@@ -185,7 +185,8 @@ public:
      *
      * @tparam _MutexType The type of the mutex being locked.
      * @param _lock A unique lock controlling the mutex.
-     * @param _abs_time_ms The absolute time point to wait until, in milliseconds.
+     * @param _abs_time_ms The absolute time point to wait until. 
+     * Call ZSystemTime::GetSteadyTimeMs() to get current time.
      * @return True if notified before the absolute time point was reached, false on timeout.
      */
     template<typename _MutexType>
@@ -223,15 +224,16 @@ public:
      * @tparam _MutexType The type of the mutex being locked.
      * @tparam PredicateFunction The type of the predicate function.
      * @param _lock A unique lock controlling the mutex.
+     * @param _abs_time_ms The absolute time point to wait until.
+     * Call ZSystemTime::GetSteadyTimeMs() to get current time.
      * @param _func A callable object that returns a boolean indicating whether the condition is met.
-     * @param _abs_time_ms The absolute time point to wait until, in milliseconds.
      * @return True if the predicate evaluated to true, false if timeout occurred before predicate became true.
      */
     template <typename _MutexType, typename PredicateFunction>
     NODISCARD Bool WaitUntilMs(
         TUniqueLock<_MutexType>& _lock,
-        PredicateFunction&& _func,
-        TimeType _abs_time_ms
+        TimeType _abs_time_ms,
+        PredicateFunction&& _func
     ) noexcept {
         // Quick check
         if (_func()) {

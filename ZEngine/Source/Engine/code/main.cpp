@@ -67,7 +67,7 @@ Int32 main() {
 
     auto result = socket::GetUDPSocketPublicIP4AndPort(udp_socket);
     work_guard.Reset();
-     if (result) {
+    if (result) {
         Z_LOG_MESSAGE(
             "GetUDPPublicIP4AndPort: port: {}, ip: {}", 
             result->GenerateIPString(), result->GetPort()

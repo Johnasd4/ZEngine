@@ -444,8 +444,8 @@ CORE_DLLAPI NODISCARD TOptional<TList<ZFileInfo>> GetFileInfoListByPathList(cons
 
     TList<ZFileInfo> file_info_list;
 
-    for (auto file_path = _file_list.Begin(); file_path != _file_list.End(); ++file_path) {
-        file_info_list.EmplaceBack(GetFileInfoByPath(*file_path));
+    for (auto& file_path : _file_list) {
+        file_info_list.EmplaceBack(GetFileInfoByPath(file_path));
     }
 
     return file_info_list;

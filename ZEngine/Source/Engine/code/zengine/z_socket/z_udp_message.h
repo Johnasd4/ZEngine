@@ -76,11 +76,11 @@ public:
     /** @brief The fixed byte size of the message header (size + type + id). */
     static inline constexpr SizeType kMessageHeadSize = 16ULL;
     /** @brief The offset for the message size field in the header. */
-    static inline constexpr SizeType KMessageSizeOffset = 0ULL;
+    static inline constexpr SizeType kMessageSizeOffset = 0ULL;
     /** @brief The offset for the message type field in the header. */
-    static inline constexpr SizeType KMessageTypeOffset = 8ULL;
+    static inline constexpr SizeType kMessageTypeOffset = 8ULL;
     /** @brief The offset for the message ID field in the header. */
-    static inline constexpr SizeType KMessageIdOffset = 12ULL;
+    static inline constexpr SizeType kMessageIdOffset = 12ULL;
     /** @brief The message type value used for keep-alive messages. */
     static inline constexpr UInt32 kKeepAliveMessageType = kUInt32Max;
 

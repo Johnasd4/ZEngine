@@ -36,6 +36,9 @@
 namespace zengine {
 
 CORE_DLLAPI NODISCARD Void Exit(ReturnType _ret_val) noexcept {
+#if defined(_WIN32)
+    timeEndPeriod(1);
+#endif
     Z_LOG_FINISH("Program exited with code 0x{:x}", _ret_val);
     ZThread::SleepMs(kExitTimeMs);
     log::FinishFlush();

@@ -42,22 +42,20 @@ ZUDPPeerP2P::ZUDPPeerP2P(
     , state_(StateEnum_::kClosed)
     , socket_(_io_context)
     , kcp_session_()
-    , keep_alive_interval_ms_(kDefaultKeepAliveIntervalMs)
-    , output_thread_()
-    , output_thread_cv_()
-    , output_thread_mutex_()
-    , input_thread_()
-    , input_thread_cv_()
-    , input_thread_mutex_()
-    , message_data_handle_thread_()
-    , message_data_handle_thread_cv_()
-    , message_data_handle_thread_mutex_()
-    , receive_packet_buffer_()
-    , receive_message_data_handle_func_(std::forward<TFunction<Void(ZUDPPeerP2P&, ZMemory&)>>(_receive_message_data_handle_func))
+	, work_mutex_()
+    , receive_packet_queue_(kReceivePacketQueueSize)
+    , receive_packet_buffer_(ZKCPSession::kMaxPacketSize)
+    , last_message_send_time_ms_(0U)
     , last_message_receive_time_ms_(0U)
-    , disconnect_time_ms_(kDefaultDisconnectTimeMs)
-    , output_message_queue_(kOutputMessageQueueSize)
-    , input_message_data_queue_(kInputMessageQueueSize)
+	, disconnect_time_ms_(kDefaultDisconnectTimeMs)
+    , keep_alive_interval_ms_(kDefaultKeepAliveIntervalMs)
+    , send_message_queue_(kSendMessageQueueSize)
+    , send_message_queue_consumer_token_(send_message_queue_.MakeConsumerToken())
+    , send_message_serialize_buffer_()
+	, if_send_message_serialize_buffer_empty_(true)
+    , receive_message_data_handle_func_(
+        std::forward<TFunction<Void(ZUDPPeerP2P&, ZMemory&)>>(_receive_message_data_handle_func)
+    )
 {}
 
 ZUDPPeerP2P::~ZUDPPeerP2P() noexcept {
@@ -203,7 +201,7 @@ NODISCARD ReturnType ZUDPPeerP2P::Connect(
     }
 
     // Start the hole punching process to establish a P2P connection with the target endpoint.
-    link_code = PuchHoleP(_endpoint, _conv_id, _max_connect_time_ms, _retry_interval_ms);
+    link_code = PunchHoleP(_endpoint, _conv_id, _max_connect_time_ms, _retry_interval_ms);
     if (link_code != kOK) {
         // Close the KCP session if the hole punching process fails to establish a connection.
         kcp_session_.Close();
@@ -216,7 +214,7 @@ NODISCARD ReturnType ZUDPPeerP2P::Connect(
             ret_val = error_code::kZUDPPeerErrorCode_P2PConnectTimeout;
             Z_LOG_ERROR(
                 ret_val, link_code,
-                "ZUDPSocket::PuchHoleP() link error!"
+                "ZUDPSocket::PunchHoleP() link error!"
             );
         }
         // If any other error occurs during the hole punching process, 
@@ -225,28 +223,31 @@ NODISCARD ReturnType ZUDPPeerP2P::Connect(
             ret_val = error_code::kSocketErrorCode_LinkError;
             Z_LOG_ERROR(
                 ret_val, link_code,
-                "ZUDPPeerP2P::PuchHoleP() link error!"
+                "ZUDPPeerP2P::PunchHoleP() link error!"
             );
         }
 
         return ret_val;
     }
 
-    // Update the last message receive time to the current time after a successful connection.
-    last_message_receive_time_ms_ = ZKCPSession::GetCurrentTimeMs();
-
-    // Start the command thread and receive thread to handle commands in the background.
-    output_thread_ = ZThread(OutputThreadFuncP, this);
-    input_thread_ = ZThread(InputThreadFuncP, this);
-    message_data_handle_thread_ = ZThread(MessageDataHandleThreadFuncP, this);
+    // Start receiving messages from the socket.
+    link_code = StartReceiveP();
+    if (link_code != kOK) {
+        ret_val = error_code::kSocketErrorCode_LinkError;
+        Z_LOG_ERROR(
+            ret_val, link_code,
+            "ZUDPSocket::StartReceiveP() link error!"
+        );
+        return ret_val;
+    }
 
     return ret_val;
 }
 
 NODISCARD ReturnType ZUDPPeerP2P::Reconnect(
     const ZUDPEndpoint& _endpoint,
-    TimeType _max_connect_time_ms = kDefaultConnectMaxTimeMs,
-    TimeType _retry_interval_ms = kDefaultConnectReTryIntervalMs
+    TimeType _max_connect_time_ms,
+    TimeType _retry_interval_ms
 ) noexcept {
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
@@ -273,7 +274,7 @@ NODISCARD ReturnType ZUDPPeerP2P::Reconnect(
     }
 
     // Start the hole punching process to establish a P2P connection with the target endpoint.
-    link_code = PuchHoleP(_endpoint, kcp_session_.GetConversationID(), _max_connect_time_ms, _retry_interval_ms);
+    link_code = PunchHoleP(_endpoint, kcp_session_.GetConversationID(), _max_connect_time_ms, _retry_interval_ms);
     if (link_code != kOK) {
         // If the hole punching process times out, transition back to the disconnected state.
         if (link_code == error_code::kZUDPPeerErrorCode_P2PConnectTimeout) {
@@ -282,7 +283,7 @@ NODISCARD ReturnType ZUDPPeerP2P::Reconnect(
             ret_val = error_code::kZUDPPeerErrorCode_P2PConnectTimeout;
             Z_LOG_ERROR(
                 ret_val, link_code,
-                "ZUDPSocket::PuchHoleP() link error!"
+                "ZUDPSocket::PunchHoleP() link error!"
             );
         }
         // If any other error occurs during the hole punching process, 
@@ -291,62 +292,46 @@ NODISCARD ReturnType ZUDPPeerP2P::Reconnect(
             ret_val = error_code::kSocketErrorCode_LinkError;
             Z_LOG_ERROR(
                 ret_val, link_code,
-                "ZUDPPeerP2P::PuchHoleP() link error!"
+                "ZUDPPeerP2P::PunchHoleP() link error!"
             );
         }
         return ret_val;
     }
 
-    // Update the last message receive time to the current time after a successful connection.
-    last_message_receive_time_ms_ = ZKCPSession::GetCurrentTimeMs();
-
-    // Notify the output thread, input thread, and message data handle thread to wake up and continue processing.
-    output_thread_cv_.NotifyOne();
-    input_thread_cv_.NotifyOne();
-    message_data_handle_thread_cv_.NotifyOne();
+    // Continue receiving messages from the socket.
+    link_code = StartReceiveP();
+    if (link_code != kOK) {
+        ret_val = error_code::kSocketErrorCode_LinkError;
+        Z_LOG_ERROR(
+            ret_val, link_code,
+            "ZUDPSocket::StartReceiveP() link error!"
+        );
+        return ret_val;
+    }
 
     return ret_val;
 }
 
 Void ZUDPPeerP2P::Close() noexcept {
+    TLockGuard lock_guard(work_mutex_);
+
     // Transition to the closed state only if the current state is connected.
     StateEnum_ old_state = state_.Exchange(StateEnum_::kClosed);
     if (old_state == StateEnum_::kClosed) {
         return;
     }
 
-    // Cancel any pending operations on the socket.
-    socket_.Shutdown();
-
-    // Stop the output thread and notify it to exit.
-    output_thread_cv_.NotifyOne();
-    if (output_thread_.IsJoinable()) {
-        output_thread_.Join();
-    }
-    
-    // Stop the input thread and notify it to exit.
-    if (input_thread_.IsJoinable()) {
-        input_thread_.Join();
-    }
-
-    // stop the message handle thread and notify it to exit.
-    message_data_handle_thread_cv_.NotifyOne();
-    if (message_data_handle_thread_.IsJoinable()) {
-        // If the current thread is not the message handle thread, join it to wait for its completion.
-        if (ZThread::GetCurrentThreadID() != message_data_handle_thread_.GetID()) {
-            message_data_handle_thread_.Join();
-        }
-    }
-
-    // Close the socket and KCP session to release resources.
+	// Close the underlying UDP socket and KCP session to release resources.
     socket_.Close();
-    {
-        TLockGuard<ZMutex> lock(kcp_session_mutex_);
-        kcp_session_.Close();
-    }
+    kcp_session_.Close();
+
+	// Clear the send message queue and receive packet queue to free up memory and reset the state.
+    send_message_queue_.Clear();
+    receive_packet_queue_.Clear();
+    if_send_message_serialize_buffer_empty_ = true;
 }
 
-NODISCARD ReturnType ZUDPPeerP2P::Send(TUniquePointer<ZUDPMessage> _msg_ptr) noexcept {
+NODISCARD ReturnType ZUDPPeerP2P::Send(TUniquePointer<ZUDPMessage>& _msg_ptr) noexcept {
     ReturnType ret_val = kOK;
     // If the peer is in the disconnected state, return a disconnected error code.
     // Reconnecting is required to send messages again.
@@ -362,19 +347,117 @@ NODISCARD ReturnType ZUDPPeerP2P::Send(TUniquePointer<ZUDPMessage> _msg_ptr) noe
         static_cast<Int32>(state_.Load()), static_cast<Int32>(StateEnum_::kConnected)
     );
 
-    output_message_queue_.PushBack(std::move(_msg_ptr));
-    output_thread_cv_.NotifyOne();
+    send_message_queue_.PushBack(std::move(_msg_ptr));
 
     return kOK;
 }
 
-Void ZUDPPeerP2P::OutputThreadFuncP(ZUDPPeerP2P* _peer_ptr) noexcept {
+NODISCARD ReturnType ZUDPPeerP2P::SendFast(SendToken_& _token, TUniquePointer<ZUDPMessage>& _msg_ptr) noexcept {
+    ReturnType ret_val = kOK;
+    // If the peer is in the disconnected state, return a disconnected error code.
+    // Reconnecting is required to send messages again.
+    if (state_ == StateEnum_::kDisconnected) {
+        ret_val = error_code::kSocketErrorCode_Disconnected;
+        return ret_val;
+    }
+
+    Z_CHECK(
+        state_ == StateEnum_::kConnected,
+        error_code::kSocketErrorCode_StateError,
+        "Peer state error! state: {} expect state: {}",
+        static_cast<Int32>(state_.Load()), static_cast<Int32>(StateEnum_::kConnected)
+    );
+
+    send_message_queue_.PushBack(_token, std::move(_msg_ptr));
+
+    return kOK;
+}
+
+NODISCARD ReturnType ZUDPPeerP2P::HandleReceivePacketsP() noexcept {
+	ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
+
+	ZMemory buffer;
+
+	// Process all received packets in the receive packet queue.
+    while (receive_packet_queue_.TryPopFront(buffer)) {
+        link_code = kcp_session_.ResolveReceivedPacket(ZConstBuffer(
+            buffer.GetDataPtr<Void>(),
+            buffer.GetSize()
+        ));
+        if (link_code != kOK) {
+            if (link_code == error_code::kZKCPSessionErrorCode_NotKCPPacket) {
+                continue;
+            }
+            else {
+                state_ = StateEnum_::kError;
+                ret_val = error_code::kZUDPPeerErrorCode_LinkError;
+                Z_LOG_ERROR(
+                    ret_val, link_code,
+                    "ZKCPSession::ResolveReceivedPacket() link error!"
+                );
+                return ret_val;
+            }
+        }
+    }
+
+	Int32 next_message_size = 0;
+
+	// Process all complete messages available in the KCP session.
+    while ((next_message_size = kcp_session_.GetNextMessageSize()) > 0) {
+
+		// Resize the message buffer to accommodate the next complete message.
+        buffer.Resize(static_cast<SizeType>(next_message_size));
+
+		// Retrieve the next complete message from the KCP session into the message buffer.
+        link_code = kcp_session_.GetNextMessage(
+            ZBuffer(buffer.GetDataPtr<Void>(), buffer.GetSize())
+        );
+        if (link_code != kOK) {
+            state_ = StateEnum_::kError;
+			ret_val = error_code::kZUDPPeerErrorCode_LinkError;
+            Z_LOG_ERROR(
+                ret_val, link_code,
+                "ZKCPSession::GetNextMessage() link error!"
+            );
+            return ret_val;
+        }
+
+		// Check if the received message is smaller than the minimum message header size.
+        if (buffer.GetSize() < ZUDPMessage::kMessageHeadSize) {
+            continue;
+        }
+
+		// Check if the received message is a keep-alive message. If so, skip processing it.
+        if (buffer.At<UInt32>(ZUDPMessage::kMessageTypeOffset) == ZUDPMessage::kKeepAliveMessageType) {
+            continue;
+        }
+
+		// Invoke the user-defined callback function to handle the received message data.
+        receive_message_data_handle_func_(*this, buffer);
+
+		// If kcp is closed during message processing, it means the peer has been closed, 
+        // so break out of the loop to stop further processing.
+		if (kcp_session_.IsClosed()) {
+            break;
+		}
+    }
+
+    return ret_val;
+}
+
+NODISCARD ReturnType ZUDPPeerP2P::SendMessagesP() noexcept {
+	ReturnType ret_val = kOK;
+    ReturnType link_code = kOK;
+
+    // If kcp is closed during message processing, it means the peer has been closed, 
+    // so break out of the loop to stop further processing.
+    if (kcp_session_.IsClosed()) {
+        return ret_val;
+    }
+
     TUniquePointer<ZUDPMessage> message_ptr;
-    ZMemory message_buffer;
-    Bool message_buffer_message_exist = false;
-    Bool message_get = false;
-    UInt32 last_message_time_ms = ZKCPSession::GetCurrentTimeMs();
+	Bool if_message_send = false;
 
     // Pre-serialize a keep-alive message to avoid repeated serialization during the output loop.
     static ZConstBuffer keep_alive_message_buffer = []() {
@@ -390,345 +473,143 @@ Void ZUDPPeerP2P::OutputThreadFuncP(ZUDPPeerP2P* _peer_ptr) noexcept {
         return ZConstBuffer(keep_alive_message_buffer.GetDataPtr<Void>(), keep_alive_message_buffer.GetSize());
     }();
 
-    while (true) {
-        message_get = false;
-
-        // Try to pop a message from the output message queue. 
-        // If a message is available, serialize it and send it through the KCP session.
-        if (message_buffer_message_exist == false && _peer_ptr->output_message_queue_.TryPopFront(message_ptr)) {
-            // Serialize the message to a buffer before sending it through KCP.
-            link_code = message_ptr->Serialize(message_buffer);
-            if (link_code != kOK) {
-                Z_LOG_ERROR(
-                    error_code::kZUDPPeerErrorCode_LinkError, link_code,
-                    "ZUDPMessage::Serialize() link error!"
-                );
+	// If the output message serialize buffer is not empty, send the serialized message buffer through the KCP session.
+    if (if_send_message_serialize_buffer_empty_ == false) {
+        // Send the serialized message buffer through the KCP session.
+        link_code = kcp_session_.Send(ZConstBuffer(
+            send_message_serialize_buffer_.GetDataPtr<Void>(), 
+            send_message_serialize_buffer_.GetSize()
+        ));
+        if (link_code != kOK) {
+            // If the send buffer is full, 
+            // log a debug message and set a flag to indicate that there are messages waiting to be sent.
+            if (link_code == error_code::kZKCPSessionErrorCode_WaitSend) {
+                Z_DEBUG_LOG_MESSAGE("ZKCPSession::Send() send buffer full!");
             }
-            // If the message was successfully serialized, 
-            // set flags to indicate that there is a message ready to be sent.
+            // If the send buffer is not full but another error occurs, 
+            // transition to the error state and log an error message.
             else {
-                message_buffer_message_exist = true;
-                message_get = true;
-                last_message_time_ms = ZKCPSession::GetCurrentTimeMs();
+                state_ = StateEnum_::kError;
+                ret_val = error_code::kSocketErrorCode_LinkError;
+                Z_LOG_ERROR(
+                    ret_val, link_code,
+                    "ZKCPSession::Send() link error!"
+                );
+                return ret_val;
             }
         }
         else {
-            // If no message was retrieved from the output queue, calculate the time since the last message was sent.
-            Int32 last_message_interval_ms = 
-                static_cast<Int32>(ZKCPSession::GetCurrentTimeMs() - last_message_time_ms);
-
-            // If the time since the last message exceeds the keep-alive interval, send a keep-alive message.
-            if (last_message_interval_ms >= _peer_ptr->keep_alive_interval_ms_) {
-                {
-                    TLockGuard<ZMutex> lock(_peer_ptr->kcp_session_mutex_);
-                    link_code = _peer_ptr->kcp_session_.Send(keep_alive_message_buffer);
-                    if (link_code == kOK) {
-                        _peer_ptr->kcp_session_.Flush();
-                        last_message_time_ms = ZKCPSession::GetCurrentTimeMs();
-                    }
-                }
-                if (link_code != kOK) {
-                    // If the send buffer is full, 
-                    // log a debug message and set a flag to indicate that there are messages waiting to be sent.
-                    if (link_code == error_code::kZKCPSessionErrorCode_WaitSend) {
-                        Z_DEBUG_LOG_MESSAGE("ZKCPSession::Send() send buffer full!");
-                    }
-                    // If the send buffer is not full but another error occurs, 
-                    // transition to the error state and log an error message.
-                    else {
-                        _peer_ptr->state_ = StateEnum_::kError;
-                        Z_LOG_ERROR(
-                            error_code::kZUDPPeerErrorCode_LinkError, link_code,
-                            "ZKCPSession::Send() link error!"
-                        );
-                        return;
-                    }
-                }
-            }
+            if_send_message_serialize_buffer_empty_ = true;
+            if_message_send = true;
         }
+    }
 
-        // If there is a serialized message in the buffer, send it through the KCP session.
-        if(message_buffer_message_exist) {
-            // Send the serialized message buffer through the KCP session for reliable delivery.
-            {
-                TLockGuard<ZMutex> lock(_peer_ptr->kcp_session_mutex_);
-                link_code = _peer_ptr->kcp_session_.Send(ZConstBuffer(
-                    message_buffer.GetDataPtr<Void>(),
-                    message_buffer.At<SizeType>(ZUDPMessage::KMessageSizeOffset)
-                ));
-                // If the message was successfully sent through KCP, 
-                // flush the KCP session to ensure that the message is transmitted promptly.
-                if (link_code == kOK) {
-                    _peer_ptr->kcp_session_.Flush();
-                    message_buffer_message_exist = false;
-                }
-            }
-
-            if (link_code != kOK) {
-                // If the send buffer is full, 
-                // log a debug message and set a flag to indicate that there are messages waiting to be sent.
-                if (link_code == error_code::kZKCPSessionErrorCode_WaitSend) {
-                    Z_DEBUG_LOG_MESSAGE("ZKCPSession::Send() send buffer full!");
-                    
-                }
-                // If the send buffer is not full but another error occurs, 
-                // transition to the error state and log an error message.
-                else {
-                    _peer_ptr->state_ = StateEnum_::kError;
-                    Z_LOG_ERROR(
-                        error_code::kZUDPPeerErrorCode_LinkError, link_code,
-                        "ZKCPSession::Send() link error!"
-                    );
-                    return;
-                }
-            }  
-        }
-
-        UInt32 update_interval_ms = _peer_ptr->kcp_session_.GetUpdateIntervalMs();
-        UInt32 next_update_time_ms;
-        Int32 wait_time_ms;
-        {
-            TLockGuard<ZMutex> lock(_peer_ptr->kcp_session_mutex_);
-            next_update_time_ms = _peer_ptr->kcp_session_.GetNextUpdateTimeMs();
-            // Calculate the time to wait until the next KCP session update is needed.
-            wait_time_ms = Min(
-                static_cast<Int32>(next_update_time_ms - ZKCPSession::GetCurrentTimeMs()),
-                static_cast<Int32>(update_interval_ms)
+	// Continuously pop messages from the output message queue and serialize them for sending through KCP.
+    while (
+        if_send_message_serialize_buffer_empty_ == true &&
+        send_message_queue_.TryPopFront(send_message_queue_consumer_token_, message_ptr)
+    ) {
+        // Serialize the message to a buffer before sending it through KCP.
+        link_code = message_ptr->Serialize(send_message_serialize_buffer_);
+        if (link_code != kOK) {
+            Z_LOG_ERROR(
+                error_code::kZUDPPeerErrorCode_LinkError, link_code,
+                "ZUDPMessage::Serialize() link error!"
             );
-            // Update the KCP session if the next update time has been reached or exceeded.
-            if (wait_time_ms <= 0) {
-                _peer_ptr->kcp_session_.Update();
-            }
+            continue;
         }
+     
+        
 
-        // If the kcp buffer is full, flush the KCP session to send out any pending packets.
-        if (wait_time_ms > 0) {
-            if (message_buffer_message_exist == true) {
-                {
-                    TLockGuard<ZMutex> lock(_peer_ptr->kcp_session_mutex_);
-                    _peer_ptr->kcp_session_.Flush();
-                }
-                {
-                    TUniqueLock<ZMutex> lock(_peer_ptr->output_thread_mutex_);
-                    _peer_ptr->output_thread_cv_.WaitForMs(
-                        lock,
-                        [_peer_ptr] {
-                            return
-                                _peer_ptr->state_ != StateEnum_::kConnected ||
-                                _peer_ptr->output_message_queue_.GetSize() != 0;
-                        },
-                        update_interval_ms
-                    );
-                }
+        // Send the serialized message buffer through the KCP session.
+        link_code = kcp_session_.Send(ZConstBuffer(
+            send_message_serialize_buffer_.GetDataPtr<Void>(),
+            send_message_serialize_buffer_.GetSize()
+        ));
+        if (link_code != kOK) {
+            // If the send buffer is full, 
+            // log a debug message and set a flag to indicate that there are messages waiting to be sent.
+            if (link_code == error_code::kZKCPSessionErrorCode_WaitSend) {
+                if_send_message_serialize_buffer_empty_ = false;
+                Z_DEBUG_LOG_MESSAGE("ZKCPSession::Send() send buffer full!");
+                break;
             }
+            // If the send buffer is not full but another error occurs, 
+            // transition to the error state and log an error message.
             else {
-                // If no message was retrieved from the output queue, wait for a signal or timeout before checking again.
-                if (message_get == false) {
-                    TUniqueLock<ZMutex> lock(_peer_ptr->output_thread_mutex_);
-                    _peer_ptr->output_thread_cv_.WaitForMs(
-                        lock,
-                        [_peer_ptr] {
-                            return
-                                _peer_ptr->state_ != StateEnum_::kConnected ||
-                                _peer_ptr->output_message_queue_.GetSize() != 0;
-                        },
-                        wait_time_ms
-                    );
-                }
-            }
-        }
-
-        // Check if the time since the last received message exceeds the disconnect threshold.
-        UInt32 last_msg_recv_time_diff_ms = ZKCPSession::GetCurrentTimeMs() - _peer_ptr->last_message_receive_time_ms_;
-        if (last_msg_recv_time_diff_ms > _peer_ptr->disconnect_time_ms_) {
-            _peer_ptr->state_ = StateEnum_::kDisconnected;
-            // Lock the output thread until close or reconnect.
-            {
-                TUniqueLock<ZMutex> lock(_peer_ptr->output_thread_mutex_);
-                _peer_ptr->output_thread_cv_.Wait(
-                    lock,
-                    [_peer_ptr] {
-                        return _peer_ptr->state_ != StateEnum_::kDisconnected;
-                    }
+                state_ = StateEnum_::kError;
+                ret_val = error_code::kSocketErrorCode_LinkError;
+                Z_LOG_ERROR(
+                    ret_val, link_code,
+                    "ZKCPSession::Send() link error!"
                 );
+                return ret_val;
             }
         }
-
-        // If the peer state is no longer connected, break out of the output thread loop to exit the thread.
-        if (_peer_ptr->state_ != StateEnum_::kConnected) {
-            break;
-        }
+        if_message_send = true;
     }
+
+	UInt32 current_time_ms = ZKCPSession::GetCurrentTimeMs();
+	if (if_message_send == true) {
+		// Update the last message send time to the current time after sending a message.
+		last_message_send_time_ms_ = current_time_ms;
+	}
+
+	// If the time since the last message exceeds the keep-alive interval, send a keep-alive message.
+    Int32 last_message_interval_ms =
+        static_cast<Int32>(current_time_ms - last_message_send_time_ms_);
+	if (
+        if_send_message_serialize_buffer_empty_ == true && 
+        last_message_interval_ms >= keep_alive_interval_ms_
+    ) {
+        link_code = kcp_session_.Send(keep_alive_message_buffer);
+		if (link_code != kOK) {
+			// If the send buffer is full, 
+			// log a debug message and set a flag to indicate that there are messages waiting to be sent.
+			if (link_code == error_code::kZKCPSessionErrorCode_WaitSend) {
+				Z_DEBUG_LOG_MESSAGE("ZKCPSession::Send() send buffer full!");
+			}
+			// If the send buffer is not full but another error occurs, 
+			// transition to the error state and log an error message.
+			else {
+				state_ = StateEnum_::kError;
+				ret_val = error_code::kSocketErrorCode_LinkError;
+				Z_LOG_ERROR(
+                    ret_val, link_code,
+					"ZKCPSession::Send() link error!"
+				);
+				return ret_val;
+			}
+		}
+        else {
+            last_message_send_time_ms_ = current_time_ms;
+            if_message_send = true;
+        }
+	}
+        
+	// Update the KCP session if a message was sent or if the output message serialize buffer is not empty.
+    if (if_message_send || if_send_message_serialize_buffer_empty_ == false) {
+        kcp_session_.Update();
+        kcp_session_.Flush();
+    }
+    else {
+		// Update the KCP session only if the next update time has been reached.
+        if (static_cast<Int32>(current_time_ms - kcp_session_.GetNextUpdateTimeMs()) >= 0) {
+            kcp_session_.Update();
+        }   
+    }
+
+    return ret_val;
 }
 
-Void ZUDPPeerP2P::InputThreadFuncP(ZUDPPeerP2P* _peer_ptr) noexcept {
-    ReturnType link_code = kOK;
-    SizeType packet_size;
+Void ZUDPPeerP2P::ConnectionTimeoutCheckP() noexcept {
+    UInt32 receive_message_interval_ms = ZKCPSession::GetCurrentTimeMs() - last_message_receive_time_ms_;
 
-    while (true) {
-        // Receive a packet from the socket into the packet buffer.
-        link_code = _peer_ptr->socket_.Receive(
-            ZBuffer(_peer_ptr->receive_packet_buffer_.GetDataPtr<Void>(), _peer_ptr->receive_packet_buffer_.GetSize()),
-            &packet_size
-        );
-        if (link_code != kOK) {
-            // If the socket was shutdown, exit the input thread gracefully.
-            if (link_code == error_code::kSocketErrorCode_SocketShutdown) {
-                return;
-            }
-            // If another error occurred during receive, transition to the error state and log an error message.
-            else {
-                _peer_ptr->state_ = StateEnum_::kError;
-                Z_LOG_ERROR(
-                    error_code::kSocketErrorCode_LinkError, link_code,
-                    "ZUDPSocket::Receive() link error!"
-                );
-                return;
-            }
-        }       
-
-        // Resolve the received packet using the KCP session.
-        {
-            TLockGuard<ZMutex> lock(_peer_ptr->kcp_session_mutex_);
-            link_code = _peer_ptr->kcp_session_.ResolveReceivedPacket(ZConstBuffer(
-                _peer_ptr->receive_packet_buffer_.GetDataPtr<Void>(),
-                packet_size
-            ));
+    if (receive_message_interval_ms >= disconnect_time_ms_) {
+        StateEnum_ expected = StateEnum_::kConnected;
+        if (state_.CompareExchangeStrong(expected, StateEnum_::kDisconnected)) {
+            socket_.Cancel();
         }
-        if (link_code != kOK) {
-            if (link_code == error_code::kZKCPSessionErrorCode_NotKCPPacket) {
-                continue;
-            }
-            else {
-                _peer_ptr->state_ = StateEnum_::kError;
-                Z_LOG_ERROR(
-                    error_code::kZUDPPeerErrorCode_LinkError, link_code,
-                    "ZKCPSession::ResolveReceivedPacket() link error!"
-                );
-                return;
-            }
-        }
-
-        // Update the last message receive time to the current time after successfully receiving a packet.
-        _peer_ptr->last_message_receive_time_ms_ = ZKCPSession::GetCurrentTimeMs();
-
-        // Deal with the received messages from the KCP session.
-        while (true) {
-            // Check if there is a complete message available in the KCP session to be read.
-            Int32 next_message_size;
-            {
-                TLockGuard<ZMutex> lock(_peer_ptr->kcp_session_mutex_);
-                next_message_size = _peer_ptr->kcp_session_.GetNextMessageSize();
-            }
-          
-            // If the next message size is negative, it indicates that there are no complete messages available, 
-            // so break out of the loop.
-            if (next_message_size < 0) {
-                break;
-            }
-
-            // If the next message size is less than the size of the message header, 
-            // skip the message and continue to the next iteration.
-            if(next_message_size < ZUDPMessage::kMessageHeadSize) {
-                {
-                    TLockGuard<ZMutex> lock(_peer_ptr->kcp_session_mutex_);
-                    _peer_ptr->kcp_session_.SkipNextMessage();
-                }        
-                continue;
-            }
-
-            // Create a memory buffer to hold the next complete message from the KCP session.
-            ZMemory message_buffer(static_cast<SizeType>(next_message_size));
-
-            // Retrieve the next complete message from the KCP session into the message buffer.
-            {
-                TLockGuard<ZMutex> lock(_peer_ptr->kcp_session_mutex_);
-                link_code = _peer_ptr->kcp_session_.GetNextMessage(
-                    ZBuffer(message_buffer.GetDataPtr<Void>(), message_buffer.GetSize())
-                );
-            }
-
-            if (link_code != kOK) {
-                _peer_ptr->state_ = StateEnum_::kError;
-                Z_LOG_ERROR(
-                    error_code::kZUDPPeerErrorCode_LinkError, link_code,
-                    "ZKCPSession::GetNextMessage() link error!"
-                );
-                return;
-            }
-
-            // Check if the received message is a keep-alive message. 
-            // If it is, skip processing and continue to the next iteration.
-            if (message_buffer.At<UInt32>(ZUDPMessage::KMessageTypeOffset) == ZUDPMessage::kKeepAliveMessageType) {
-                continue;
-            }
-
-            // Push the received message buffer into the input message data queue for further processing.
-            _peer_ptr->input_message_data_queue_.PushBack(std::move(message_buffer));
-            // Notify the message handle thread that a new message is available for processing.
-            _peer_ptr->message_data_handle_thread_cv_.NotifyOne();
-        }
-
-        if (_peer_ptr->state_ != StateEnum_::kConnected) {
-            // Lock the output thread until close or reconnect.
-            if (_peer_ptr->state_ == StateEnum_::kDisconnected) {
-                TUniqueLock<ZMutex> lock(_peer_ptr->input_thread_mutex_);
-                _peer_ptr->input_thread_cv_.Wait(
-                    lock,
-                    [_peer_ptr] {
-                        return _peer_ptr->state_ != StateEnum_::kDisconnected;
-                    }
-                );
-            }
-            // If the peer state is no longer connected and not disconnected, 
-            // break out of the input thread loop to exit the thread.
-            else {
-                break;
-            }
-        }
-    }
-}
-
-Void ZUDPPeerP2P::MessageDataHandleThreadFuncP(ZUDPPeerP2P* _peer_ptr) noexcept {
-    ReturnType link_code = kOK;
-    ZMemory message_buffer;
-
-    while (_peer_ptr->state_ == StateEnum_::kConnected) {
-        // Wait for next message or end.
-        {
-            TUniqueLock<ZMutex> lock(_peer_ptr->message_data_handle_thread_mutex_);
-            _peer_ptr->message_data_handle_thread_cv_.Wait(lock, [_peer_ptr] {
-                return 
-                    _peer_ptr->state_ != StateEnum_::kConnected ||
-                    _peer_ptr->input_message_data_queue_.GetSize() != 0;
-                });
-        }
-
-        // Process all available messages in the input message data queue.
-        while (_peer_ptr->input_message_data_queue_.TryPopFront(message_buffer)) {
-            // Call the user-defined message data handle function to process the received message buffer.
-            _peer_ptr->receive_message_data_handle_func_(*_peer_ptr, message_buffer);
-        }
-
-        // If the peer state is no longer connected, break out of the output thread loop to exit the thread.
-        if (_peer_ptr->state_ != StateEnum_::kConnected) {
-            // Lock the output thread until close or reconnect.
-            if (_peer_ptr->state_ == StateEnum_::kDisconnected) {
-                TUniqueLock<ZMutex> lock(_peer_ptr->message_data_handle_thread_mutex_);
-                _peer_ptr->message_data_handle_thread_cv_.Wait(
-                    lock,
-                    [_peer_ptr] {
-                        return _peer_ptr->state_ != StateEnum_::kDisconnected;
-                    }
-                );
-            }
-            // If the peer state is no longer connected and not disconnected, 
-            // break out of the input thread loop to exit the thread.
-            else {
-                break;
-            }
-        }
-
     }
 }
 
@@ -739,7 +620,7 @@ Int32 ZUDPPeerP2P::KCPOutputCallbackP(const Char* _buf, Int32 _size, ikcpcb* _kc
     return 0;
 }
 
-NODISCARD ReturnType ZUDPPeerP2P::PuchHoleP(
+NODISCARD ReturnType ZUDPPeerP2P::PunchHoleP(
     const ZUDPEndpoint& _endpoint,
     UInt32 _conv_id,
     TimeType _max_connect_time_ms,
@@ -748,126 +629,121 @@ NODISCARD ReturnType ZUDPPeerP2P::PuchHoleP(
     ReturnType ret_val = kOK;
     ReturnType link_code = kOK;
 
-    // "P2P!" in ASCII
     constexpr UInt32 kHandshakeMagicNumber = 0x50325021;
+
 #pragma pack(push, 1)
-    struct P2PHandshakeContext {
+    struct HandshakePacket {
         UInt32 magic_number_ = kHandshakeMagicNumber;
         UInt32 conv_id_;
-        Bool if_received_packet_ = false;
-        Byte dummy_[7];
+        UInt32 if_received_packet_;
     };
 #pragma pack(pop)
 
-    struct HandshakeHandlerFunction {
-        void operator()(ReturnType _error_code, ZUDPSocket* _socket_ptr, ZConstBuffer _data_buffer) {
-            ReturnType link_code = kOK;
+    struct HandshakeContext {
+        TAtom<UInt32> if_received_packet_ = 0;
+        TFixedMemory<ZKCPSession::kMaxPacketSize> receive_memory_;
+    };
 
+    struct HandshakeHandleFunc {
+        Void operator()(ReturnType _error_code, ZUDPSocket* _socket_ptr, ZConstBuffer _data_buffer) {
+
+            // If an error occurs during the asynchronous receive operation, handle the error accordingly.
             if (_error_code != kOK) {
-                if (_error_code == error_code::kSocketErrorCode_OperationCanceled) {}
-                else {
-                    peer_ptr_->state_ = StateEnum_::kError;
-                    peer_ptr_->state_.NotifyOne();
-                    Z_LOG_ERROR(
-                        error_code::kSocketErrorCode_LinkError, _error_code,
-                        "ZUDPSocket::AsyncReceive() link error!"
-                    );
+                if (_error_code == error_code::kSocketErrorCode_OperationCanceled) {
+                    return;
                 }
+                peer_ptr_->state_ = StateEnum_::kError;
+                peer_ptr_->state_.NotifyOne();
+                Z_LOG_ERROR(
+                    error_code::kSocketErrorCode_LinkError, _error_code,
+                    "ZUDPSocket::AsyncReceive() link error!"
+                );
                 return;
             }
 
             // If the received packet is a handshake packet, check the magic number to validate it.
             if (
-                _data_buffer.GetSize() == sizeof(P2PHandshakeContext) &&
-                _data_buffer.GetDataPtr<P2PHandshakeContext>()->magic_number_ == kHandshakeMagicNumber
+                _data_buffer.GetSize() == sizeof(HandshakePacket) &&
+                _data_buffer.GetDataPtr<HandshakePacket>()->magic_number_ == kHandshakeMagicNumber
             ) {
-                // If the conversation ID in the handshake packet does not match the expected conversation ID, 
-                // transition to the error state.
-                if (_data_buffer.GetDataPtr<P2PHandshakeContext>()->conv_id_ != conv_id_) {
+                const auto* packet_ptr = _data_buffer.GetDataPtr<HandshakePacket>();
+
+                // If the conversation ID in the handshake packet does not match the expected conversation ID,
+                if (packet_ptr->conv_id_ != conv_id_) {
                     peer_ptr_->state_ = StateEnum_::kError;
                     peer_ptr_->state_.NotifyOne();
                     Z_LOG_ERROR(
                         error_code::kZUDPPeerErrorCode_P2PConvIDDifferent, 0,
                         "P2P handshake error! conv_id: {} expect conv_id: {}",
-                        _data_buffer.GetDataPtr<P2PHandshakeContext>()->conv_id_,
-                        conv_id_
+                        packet_ptr->conv_id_, conv_id_
                     );
                     return;
                 }
-                // If target peer has already received a handshake packet, transition to the connected state.
-                else if (_data_buffer.GetDataPtr<P2PHandshakeContext>()->if_received_packet_ == true) {
+
+                // If the peer has confirmed receipt of our probe,
+                // complete the handshake and transition to the Connected state
+                if (packet_ptr->if_received_packet_ != 0) {
+                    peer_ptr_->last_message_send_time_ms_ = ZKCPSession::GetCurrentTimeMs();
+                    peer_ptr_->last_message_receive_time_ms_ = peer_ptr_->last_message_send_time_ms_;
                     peer_ptr_->state_ = StateEnum_::kConnected;
                     peer_ptr_->state_.NotifyOne();
                     return;
                 }
-                // If target peer has not received a handshake packet, set the flag and continue listening.
-                else {
-                    if (context_ptr_->if_received_packet_ == false) {
-                        context_ptr_->if_received_packet_ = true;
-                    }
-                    link_code = peer_ptr_->socket_.AsyncReceive(
-                        ZBuffer(
-                            peer_ptr_->receive_packet_buffer_.GetDataPtr<Void>(),
-                            peer_ptr_->receive_packet_buffer_.GetSize()
-                        ),
-                        *this
-                    );
-                    if (link_code != kOK) {
-                        peer_ptr_->state_ = StateEnum_::kError;
-                        peer_ptr_->state_.NotifyOne();
-                        Z_LOG_ERROR(
-                            error_code::kSocketErrorCode_LinkError, link_code,
-                            "ZUDPSocket::AsyncReceive() link error!"
-                        );
-                        return;
-                    }
-                }
+
+                // Set the flag to true and continue receiving packets.
+                context_ptr_->if_received_packet_ = 1;
+                ContinueReceive();
+                return;
             }
-            // Resolve the received packet using the KCP session. 
-            // If the packet is valid and processed, then the handshake is considered successful.
-            else if (
-                context_ptr_->if_received_packet_ == true &&
-                peer_ptr_->kcp_session_.ResolveReceivedPacket(_data_buffer)
-                ) {
+
+            // If the peer has already received a handshake packet and the received packet is a valid KCP packet,
+            if (
+                context_ptr_->if_received_packet_ != 0 &&
+                peer_ptr_->kcp_session_.ResolveReceivedPacket(_data_buffer) == kOK
+            ) {
+                peer_ptr_->last_message_send_time_ms_ = ZKCPSession::GetCurrentTimeMs();
+                peer_ptr_->last_message_receive_time_ms_ = peer_ptr_->last_message_send_time_ms_;
                 peer_ptr_->state_ = StateEnum_::kConnected;
                 peer_ptr_->state_.NotifyOne();
                 return;
             }
-            // Unknown packet received, continue listening for valid packets.
-            else {
-                link_code = peer_ptr_->socket_.AsyncReceive(
-                    ZBuffer(
-                        peer_ptr_->receive_packet_buffer_.GetDataPtr<Void>(),
-                        peer_ptr_->receive_packet_buffer_.GetSize()
-                    ),
-                    *this
-                );
-                if (link_code != kOK) {
-                    peer_ptr_->state_ = StateEnum_::kError;
-                    peer_ptr_->state_.NotifyOne();
-                    Z_LOG_ERROR(
-                        error_code::kSocketErrorCode_LinkError, link_code,
-                        "ZUDPSocket::AsyncReceive() link error!"
-                    );
-                    return;
-                }
 
+            // If an unknown packet is received, ignore it and continue listening
+            ContinueReceive();
+        }
+
+        Void ContinueReceive() {
+            ZBuffer receive_buffer(
+                context_ptr_->receive_memory_.GetDataPtr<Void>(),
+                context_ptr_->receive_memory_.GetSize()
+            );
+            ReturnType link_code = peer_ptr_->socket_.AsyncReceive(receive_buffer, *this);
+            if (link_code != kOK) {
+                peer_ptr_->state_ = StateEnum_::kError;
+                peer_ptr_->state_.NotifyOne();
+                Z_LOG_ERROR(
+                    error_code::kSocketErrorCode_LinkError, link_code,
+                    "ZUDPSocket::AsyncReceive() link error!"
+                );
             }
         }
 
         ZUDPPeerP2P* peer_ptr_;
-        TSharedPointer<P2PHandshakeContext> context_ptr_;
         UInt32 conv_id_;
+        TSharedPointer<HandshakeContext> context_ptr_;
     };
-    auto context_ptr = MakeShared<P2PHandshakeContext>();
-    context_ptr->conv_id_ = _conv_id;
-    HandshakeHandlerFunction handler_func{ this, context_ptr, _conv_id };
+
+    // Initialize the handshake context and handler to manage the handshake process.
+    auto context_ptr = MakeShared<HandshakeContext>();
+    HandshakeHandleFunc handle_func{ this, _conv_id, context_ptr };
+
 
     // Start an asynchronous receive operation to listen for incoming packets from the connected peer.
-    link_code = socket_.AsyncReceive(
-        ZBuffer(receive_packet_buffer_.GetDataPtr<Void>(), receive_packet_buffer_.GetSize()),
-        handler_func
+    ZBuffer receive_buffer(
+        context_ptr->receive_memory_.GetDataPtr<Void>(),
+        context_ptr->receive_memory_.GetSize()
     );
+    link_code = socket_.AsyncReceive(receive_buffer, handle_func);
     if (link_code != kOK) {
         state_ = StateEnum_::kError;
         ret_val = error_code::kSocketErrorCode_LinkError;
@@ -878,10 +754,17 @@ NODISCARD ReturnType ZUDPPeerP2P::PuchHoleP(
         return ret_val;
     }
 
+    // Prepare the handshake packet to send.
+    HandshakePacket handshake_packet;
+    handshake_packet.conv_id_ = _conv_id;
+
     // Retry sending the connect command until the maximum connection time is reached.
     TimeType timeout_time_ms = ZSystemTime::GetSteadyTimeMs() + _max_connect_time_ms;
     do {
-        link_code = socket_.Send(ZConstBuffer(context_ptr.GetPtr(), sizeof(P2PHandshakeContext)));
+        // Update if_received_packet_.
+        handshake_packet.if_received_packet_ = context_ptr->if_received_packet_;
+        // Send the handshake context to the connected peer to initiate the hole punching process.
+        link_code = socket_.Send(ZConstBuffer(&handshake_packet, sizeof(HandshakePacket)));
         if (link_code != kOK) {
             socket_.Cancel();
             state_ = StateEnum_::kError;
@@ -925,6 +808,100 @@ NODISCARD ReturnType ZUDPPeerP2P::PuchHoleP(
     last_message_receive_time_ms_ = ZKCPSession::GetCurrentTimeMs();
 
     return ret_val;
+}
+
+NODISCARD ReturnType ZUDPPeerP2P::StartReceiveP() noexcept {
+    ReturnType ret_val = kOK;
+    ReturnType link_code = kOK;
+
+    // Resize the receive packet buffer to the maximum packet size defined by the KCP session.
+    receive_packet_buffer_.Resize(ZKCPSession::kMaxPacketSize);
+
+    // Start an asynchronous receive operation to listen for incoming packets from the connected peer.
+    ZBuffer receive_buffer(
+        receive_packet_buffer_.GetDataPtr<Void>(),
+        receive_packet_buffer_.GetSize()
+    );
+    link_code = socket_.AsyncReceive(
+        receive_buffer, 
+        [this](ReturnType _error_code, ZUDPSocket* _socket_ptr, ZConstBuffer _data_buffer) {
+            OnReceivePacketP(_error_code, _socket_ptr, _data_buffer);
+        }     
+    );
+    if (link_code != kOK) {
+        state_ = StateEnum_::kError;
+        ret_val = error_code::kSocketErrorCode_LinkError;
+        Z_LOG_ERROR(
+            ret_val, link_code,
+            "ZUDPSocket::AsyncReceive() link error!"
+        );
+        return ret_val;
+    }
+
+    return ret_val;
+}
+
+Void ZUDPPeerP2P::OnReceivePacketP(
+    ReturnType _error_code,
+    ZUDPSocket* _socket_ptr,
+    ZConstBuffer _data_buffer
+) noexcept {
+    ReturnType link_code = kOK;
+
+    // If an error occurs during the asynchronous receive operation, handle the error accordingly.
+    if (_error_code != kOK) {
+        if (_error_code == error_code::kSocketErrorCode_OperationCanceled) {
+            return;
+        }
+        state_ = StateEnum_::kError;
+        state_.NotifyOne();
+        Z_LOG_ERROR(
+            error_code::kSocketErrorCode_LinkError, _error_code,
+            "ZUDPSocket::AsyncReceive() link error!"
+        );
+        return;
+    }
+
+	// If the received data buffer size is greater than the minimum KCP packet size, process the received packet.
+    if (_data_buffer.GetSize() >= ZKCPSession::kPacketMinSize) {
+        // Update the last message receive time to the current time after successfully receiving a packet.
+        last_message_receive_time_ms_ = ZKCPSession::GetCurrentTimeMs();
+
+        // Resize the receive packet buffer to the size of the received data buffer for further processing.
+        receive_packet_buffer_.Resize(_data_buffer.GetSize());
+
+        // Push the received packet buffer into the receive packet pointer queue for further processing.
+        receive_packet_queue_.PushBack(std::move(receive_packet_buffer_));
+
+        // Reset the receive packet buffer to prepare for the next asynchronous receive operation.
+        receive_packet_buffer_.Resize(ZKCPSession::kMaxPacketSize);
+    }
+	// Other cases, such as receiving a packet smaller than the minimum KCP packet size, are ignored.
+    else {}
+
+	// Start another asynchronous receive operation to continue listening for incoming packets from the connected peer.
+    ZBuffer receive_buffer(
+        receive_packet_buffer_.GetDataPtr<Void>(),
+        receive_packet_buffer_.GetSize()
+    );
+    link_code = socket_.AsyncReceive(
+        receive_buffer,
+        [this](ReturnType _error_code, ZUDPSocket* _socket_ptr, ZConstBuffer _data_buffer) {
+            OnReceivePacketP(_error_code, _socket_ptr, _data_buffer);
+        }
+    );
+    if (link_code != kOK) {
+        if (link_code == error_code::kSocketErrorCode_StateError && state_ == StateEnum_::kDisconnected) {}
+        else {
+            state_ = StateEnum_::kError;
+            state_.NotifyOne();
+            Z_LOG_ERROR(
+                error_code::kSocketErrorCode_LinkError, link_code,
+                "ZUDPSocket::AsyncReceive() link error!"
+            );
+            return;
+        }
+    }
 }
 
 } // socket

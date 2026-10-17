@@ -758,16 +758,15 @@ Void ZTCPMultipleSessionServer::Close() noexcept {
     socket_list_mutex_.Lock();
     TArray<ZTCPSocket*> socket_array;
     socket_array.Reserve(socket_list_.GetSize());
-    for (auto socket_iter = socket_list_.Begin(); socket_iter != socket_list_.End(); ++socket_iter) {
-        socket_array.PushBack(socket_iter.GetPtr());
+    for (auto& socket_iter : socket_list_) {
+        socket_array.PushBack(&socket_iter);
     }
     socket_list_mutex_.Unlock();
 
 
     //close socket
-    for (auto socket_ptr_iter = socket_array.Begin(); socket_ptr_iter != socket_array.End(); ++socket_ptr_iter) {
-        ZTCPSocket* socket_ptr = *socket_ptr_iter;
-        socket_ptr->Close();
+    for (auto& socket_ptr_iter : socket_array) {
+        socket_ptr_iter->Close();
     }
 
     socket_list_mutex_.Lock();
@@ -885,18 +884,17 @@ NODISCARD ReturnType ZTCPMultipleSessionServer::AsyncBroadcast(
     socket_list_mutex_.Lock();
     TArray<ZTCPSocket*> socket_array;
     socket_array.Reserve(socket_list_.GetSize());
-    for (auto socket_iter = socket_list_.Begin(); socket_iter != socket_list_.End(); ++socket_iter) {
-        socket_array.PushBack(socket_iter.GetPtr());
+    for (auto& socket_iter : socket_list_) {
+        socket_array.PushBack(&socket_iter);
     }
     socket_list_mutex_.Unlock();
 
     //broadcast
-    for (auto socket_ptr_iter = socket_array.Begin(); socket_ptr_iter != socket_array.End(); ++socket_ptr_iter) {
-        ZTCPSocket* socket_ptr = *socket_ptr_iter;
-        link_code = socket_ptr->AsyncWrite(_buffer, _handle_func);
+    for (auto& socket_ptr_iter : socket_array) {
+        link_code = socket_ptr_iter->AsyncWrite(_buffer, _handle_func);
         if (link_code != kOK) {
             //disconnect
-            if (socket_ptr->state_ == ZTCPSocket::StateEnum_::kClosed) {
+            if (socket_ptr_iter->state_ == ZTCPSocket::StateEnum_::kClosed) {
                 Z_DEBUG_LOG_FINISH("Client disconnected!");
             }
             else {

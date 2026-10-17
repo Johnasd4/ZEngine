@@ -29,6 +29,7 @@
 #include "drive.h"
 
 #include "internal/l_asio.h"
+#include "internal/l_kcp.h"
 
 #include <new>
 

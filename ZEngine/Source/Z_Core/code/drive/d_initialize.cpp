@@ -52,6 +52,11 @@ CORE_DLLAPI Void Initialize() noexcept {
     // register crash signal handler
     std::signal(SIGABRT, internal::SystemAbortHandler);
 
+#if defined(_WIN32)
+    // Set the timer resolution to 1ms for the current process
+    timeBeginPeriod(1);
+#endif
+
     // Initialize the ID of the main thread
     ZThread::GetMainThreadID();
 

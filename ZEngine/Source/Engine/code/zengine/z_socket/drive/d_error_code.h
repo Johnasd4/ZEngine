@@ -40,7 +40,8 @@ inline constexpr ReturnType kErrorCodeBase_ZAddress = 0x2U * kErrorCodeTypeMask 
 inline constexpr ReturnType kErrorCodeBase_ZIOContext = 0x3U * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
 inline constexpr ReturnType kErrorCodeBase_ZUDPMessage = 0x4U * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
 inline constexpr ReturnType kErrorCodeBase_ZUDPPeer = 0x5U * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
-inline constexpr ReturnType kErrorCodeBase_ZKCPSession = 0x6U * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
+inline constexpr ReturnType kErrorCodeBase_ZUDPPeerManager = 0x6U * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
+inline constexpr ReturnType kErrorCodeBase_ZKCPSession = 0x7U * kErrorCodeTypeMask + kErrorCodeBase_PSocket;
 
 enum SocketErrorCodeEnum : ReturnType::ValueType {
     kSocketErrorCode_LinkError = kErrorCodeBase_Socket,

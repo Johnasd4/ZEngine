@@ -78,9 +78,9 @@ ZThreadPool::~ZThreadPool() noexcept {
     work_thread_cv_.NotifyAll();
 
     TLockGuard lock_guard(thread_list_mutex_);
-    for (auto iter = thread_list_.Begin(); iter != thread_list_.End(); ++iter) {
-        if (iter->IsJoinable()) {
-            iter->Join();
+    for (auto& iter : thread_list_) {
+        if (iter.IsJoinable()) {
+            iter.Join();
         }
     }
 }

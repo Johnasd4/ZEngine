@@ -163,7 +163,7 @@ namespace gui {
 
 ZApplication::ZApplication(const Char* _name, GuiSize _size, GuiPos _pos, ScreenModeEnum_ _screen_mode) noexcept
     : SuperType_()
-    , window_ptr_set_()
+    , window_ptr_array_()
     , task_queue_()
     , application_handle_(nullptr) 
     , imgui_context_ptr_(nullptr)
@@ -371,20 +371,15 @@ Void ZApplication::AddWindow(ZWindow* _window_ptr) noexcept {
         "ZWindow::AddWindow: _window_ptr is nullptr!"
     );
 
-    window_ptr_set_.PushBack(_window_ptr);
+    window_ptr_array_.PushBack(_window_ptr);
 }
 
 Void ZApplication::RemoveWindow(ZWindow* _window_ptr) noexcept {
-    for (auto iter = window_ptr_set_.Begin(); iter != window_ptr_set_.End(); ++iter) {
-        if (*iter == _window_ptr) {
-            window_ptr_set_.Erase(iter);
-            break;
-        }
-    }
+    window_ptr_array_.EraseFirst(_window_ptr);
 }
 
 Void ZApplication::RemoveAllWindow() noexcept {
-    window_ptr_set_.Clear();
+    window_ptr_array_.Clear();
 }
 
 Void ZApplication::AddTask(ZTask&& _task) noexcept {
@@ -492,9 +487,8 @@ NODISCARD ReturnType ZApplication::LoadSettings(const Char* _file_dir) noexcept 
 
 Void ZApplication::OnTick(Float32 _delta_sec) noexcept {
     // tick windows
-    for (auto iter = window_ptr_set_.Begin(); iter != window_ptr_set_.End(); ++iter) {
-        ZWindow* window_ptr = *iter;
-        window_ptr->OnTick(_delta_sec);
+    for (auto& iter : window_ptr_array_) {
+        iter->OnTick(_delta_sec);
     }
 }
 
@@ -628,7 +622,7 @@ Void ZApplication::DestroyP() noexcept {
     application_handle_ = nullptr;
     imgui_context_ptr_ = nullptr;
     imgui_io_ptr_ = nullptr;
-    window_ptr_set_.Clear();
+    window_ptr_array_.Clear();
     state_ = StateEnum_::kTerminated;
 
     glfwTerminate();

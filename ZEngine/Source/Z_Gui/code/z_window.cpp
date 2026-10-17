@@ -90,19 +90,14 @@ Void ZWindow::AddWidget(ZWidgetObject* _widget_ptr) noexcept {
 }
 
 Void ZWindow::RemoveWidget(ZWidgetObject* _widget_ptr) noexcept {
-    for (auto iter = widget_ptr_array_.Begin(); iter != widget_ptr_array_.End(); ++iter) {
-        if ((*iter) == _widget_ptr) {
-            widget_ptr_array_.Erase(iter);
-            break;
-        }
-    }
+    widget_ptr_array_.EraseFirst(_widget_ptr);
 
     _widget_ptr->OnRemove();
 }
 
 Void ZWindow::RemoveAllWidget() noexcept {
-    for (auto iter = widget_ptr_array_.Begin(); iter != widget_ptr_array_.End(); ++iter) {
-        (*iter)->OnRemove();
+    for (auto& iter : widget_ptr_array_) {
+        iter->OnRemove();
     }
 
     widget_ptr_array_.Clear();
@@ -149,8 +144,8 @@ Void ZWindow::OnTick(Float32 _delta_sec) noexcept {
         ImGui::SetWindowFontScale(GetFontScale());
 
         // tick widgets
-            for (auto iter = widget_ptr_array_.Begin(); iter != widget_ptr_array_.End(); ++iter) {
-                (*iter)->OnTick(_delta_sec);
+            for (auto& iter : widget_ptr_array_) {
+                iter->OnTick(_delta_sec);
             }
 
         // tick widgets not added

@@ -114,10 +114,10 @@ public:
 
     /** @brief Maximum allowable KCP packet size in bytes. */
     static inline constexpr SizeType kMaxPacketSize = 1400;
+    /** @brief Minimum KCP packet size in bytes (corresponding to the standard 24-byte protocol header). */
+    static inline constexpr SizeType kPacketMinSize = 24;
     /** @brief Default threshold of pending send packets permitted before triggering backpressure. */
     static inline constexpr Int32 kDefaultMaxPendingPacketNum = 1024;
-    /** @brief Minimum allowable KCP packet size in bytes (corresponding to the standard 24-byte protocol header). */
-    static inline constexpr SizeType kKCPPacketMinSize = 24;
 
 public:
     /**
@@ -197,6 +197,15 @@ public:
     }
 
     /**
+     * @brief Checks if the KCP session is closed.
+     * @return Bool Returns true if the session is closed, false otherwise.
+     */
+    FORCEINLINE NODISCARD Bool IsClosed() noexcept {
+		return kcp_context_ptr_ == nullptr;
+    }
+
+
+    /**
      * @brief Initializes and opens a new KCP session context with a conversation ID and output callback.
      * @param _conv_id Unique conversation identifier shared by both communicating endpoints.
      * @param _user_ptr Opaque user context pointer passed into low-level callbacks.
@@ -212,7 +221,7 @@ public:
      * @brief Closes the session and safely releases the internal KCP protocol control block.
      */
     Void Close() noexcept;
-    
+
     /**
      * @brief Resets the dead link state of the KCP session.
      */

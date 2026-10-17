@@ -79,6 +79,7 @@
     <ClCompile Include="code\z_timer.cpp" />
     <ClCompile Include="code\z_thread.cpp" />
     <ClCompile Include="code\z_tick_manager.cpp" />
+    <ClCompile Include="code\z_recursive_mutex.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\m_log\z_log_manager.h">

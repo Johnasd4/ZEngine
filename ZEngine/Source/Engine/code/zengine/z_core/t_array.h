@@ -429,7 +429,61 @@ public:
         return array_.erase(_first, _last); 
     }
 
-    /** @brief Clears the contents. */
+    /**
+     * @brief Removes the first occurrence of the specified value from the array.
+     * @param _val The value to remove.
+     * @return True if the value was found and removed, false otherwise.
+     */
+    FORCEINLINE Bool EraseFirst(const _ObjectType& _val) noexcept {
+        for (auto& iter: array_) {
+            if (iter == _val) {
+                array_.erase(iter);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+	 * @brief Removes the element at the specified position without preserving order.
+     * @param _pos Iterator to the element to remove.
+     * @return True if the element was found and removed, false otherwise.
+     */
+    template <typename _InputIterator>
+    FORCEINLINE Bool EraseUnordered(_InputIterator _pos) noexcept {
+        if (array_.empty() || _pos < array_.begin() || _pos >= array_.end()) {
+            return false;
+        }
+
+        auto last_iter = array_.end() - 1;
+        if (_pos != last_iter) {
+            *_pos = std::move(*last_iter);
+        }
+
+        array_.pop_back();
+
+        return true;
+    }
+
+    /**
+	 * @brief Removes the first occurrence of the specified value from the array without preserving order.
+     * @param _val The value to remove.
+     * @return True if the value was found and removed, false otherwise.
+     */
+    FORCEINLINE Bool EraseFirstUnordered(const _ObjectType& _val) noexcept {
+        for (SizeType index = 0; index < array_.size(); ++index) {
+            if (array_[index] == _val) {
+				array_[index] = std::move(array_.back());
+                array_.pop_back();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** 
+     * @brief Clears the contents. 
+     */
     FORCEINLINE Void Clear() noexcept { array_.clear(); }
 
     /**
@@ -478,7 +532,7 @@ public:
      * @brief Exchanges the contents of the container with those of other.
      * @param _array The array to swap with.
      */
-    FORCEINLINE Void Swap(TArray& _array) noexcept { array_.swap(_array); }
+    FORCEINLINE Void Swap(TArray& _array) noexcept { array_.swap(_array.array_); }
 
 public:
     /** @brief Alias for the Begin() function, used for stl compatibility. */

@@ -37,17 +37,32 @@
 namespace zengine {
 namespace internal {
 
+/**
+ * @brief Custom traits for the moodycamel concurrent queue to use ZEngine's memory pool.
+ *
+ * This struct overrides the default memory allocation and deallocation methods
+ * of the moodycamel concurrent queue to utilize ZEngine's memory pool for better
+ * performance and memory management.
+ */
 struct ZEngineQueueTraits : public moodycamel::ConcurrentQueueDefaultTraits {
-    // 自定义分配内存 (对接你引擎的底层分配器)
     static inline Void* malloc(SizeType _size) {
         return memory_pool::ApplyMemory(_size);
     }
-    // 自定义释放内存
+
     static inline Void free(Void* _ptr) {
         return memory_pool::ReleaseMemory(_ptr);
     }
 };
 
+struct ZEngineQueueTraits : public moodycamel::ConcurrentQueueDefaultTraits {
+    static inline Void* malloc(SizeType _size) {
+        return memory_pool::ApplyMemory(_size);
+    }
+
+    static inline Void free(Void* _ptr) {
+        return memory_pool::ReleaseMemory(_ptr);
+    }
+};
 
 } // internal
 } // zengine

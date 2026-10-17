@@ -24,21 +24,40 @@
     Author: YuLin Zhu
     Contact: 1152325286@qq.com
 */
-#define SOCKET_DLLFILE
+#define CORE_DLLFILE
 #include "drive/d_pch.h"
 
-#include "z_udp_packet_factory.h"
+#include "z_recursive_mutex.h"
+
+#pragma warning(disable: 4834)
 
 namespace zengine {
-namespace socket {
 
-ZUDPPacketFactory::ZUDPPacketFactory() noexcept
-    : SuperType_()
-    , packet_id_generator_()
-{
-    command_packet_pool_.ExtendPool(kCommandPacketPoolDefaultSize);
-    message_packet_pool_.ExtendPool(kMessagePacketPoolDefaultSize);
+NODISCARD Bool ZRecursiveMutex::TryLockUntilMs(TimeType _abs_time_ms) noexcept {
+    const ZThread::ThreadIDType_ current_thread_id = ZThread::GetCurrentThreadID();
+
+    // Fast Path (Re-entrant)
+    if (owner_thread_id_.Load(ZMemoryOrderEnum::kRelaxed) == current_thread_id) {
+        ++count_;
+        return true;
+    }
+
+    // Attempt timed wait on underlying mutex
+    if (mutex_.TryLockUntilMs(_abs_time_ms)) {
+        owner_thread_id_.Store(current_thread_id, ZMemoryOrderEnum::kRelaxed);
+        count_ = 1U;
+        return true;
+    }
+
+    return false;
 }
 
-} // socket
+Void ZRecursiveMutex::LockSlowPathP(const ZThread::ThreadIDType_ _current_thread_id) noexcept {
+    mutex_.Lock();
+    owner_thread_id_.Store(_current_thread_id, ZMemoryOrderEnum::kRelaxed);
+    count_ = 1U;
+}
+
 } // zengine
+
+#pragma warning(default: 4834)

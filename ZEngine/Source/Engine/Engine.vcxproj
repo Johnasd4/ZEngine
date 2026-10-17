@@ -30,6 +30,10 @@
     <ClInclude Include="code\test\log_ouput_server_test.h" />
     <ClInclude Include="code\test\socket_test.h" />
     <ClInclude Include="code\zengine\z_core.h" />
+    <ClInclude Include="code\zengine\z_core\internal\l_moodycamel.h" />
+    <ClInclude Include="code\zengine\z_core\internal\moodycamel\atomicops.h" />
+    <ClInclude Include="code\zengine\z_core\internal\moodycamel\concurrentqueue.h" />
+    <ClInclude Include="code\zengine\z_core\internal\moodycamel\readerwriterqueue.h" />
     <ClInclude Include="code\zengine\z_core\t_optional.h" />
     <ClInclude Include="code\zengine\z_core\t_pool_list.h" />
     <ClInclude Include="code\zengine\z_core\f_console.h" />
@@ -110,8 +114,9 @@
     <ClInclude Include="code\zengine\z_core\m_log\z_log\z_trace_log.h" />
     <ClInclude Include="code\zengine\z_core\m_log.h" />
     <ClInclude Include="code\zengine\z_core\t_pool.h" />
-    <ClInclude Include="code\zengine\z_core\t_quest_queue.h" />
-    <ClInclude Include="code\zengine\z_core\t_fixed_queue_spsc.h" />
+    <ClInclude Include="code\zengine\z_core\t_queue_mpmc.h" />
+    <ClInclude Include="code\zengine\z_core\t_queue_spsc.h" />
+    <ClInclude Include="code\zengine\z_core\z_recursive_mutex.h" />
     <ClInclude Include="code\zengine\z_core\z_tick_manager.h" />
     <ClInclude Include="code\zengine\z_core\z_serializer.h" />
     <ClInclude Include="code\zengine\z_core\z_static_string_view.h" />
@@ -1469,6 +1474,7 @@
     <ClInclude Include="code\zengine\z_socket\internal\kcp\ikcp.h" />
     <ClInclude Include="code\zengine\z_socket\internal\l_asio.h" />
     <ClInclude Include="code\zengine\z_socket\internal\l_kcp.h" />
+    <ClInclude Include="code\zengine\z_socket\ZUDPPeerManager.h" />
     <ClInclude Include="code\zengine\z_socket\z_io_context.h" />
     <ClInclude Include="code\zengine\z_socket\z_io_context_work_guard.h" />
     <ClInclude Include="code\zengine\z_socket\z_ip_address.h" />
@@ -1484,6 +1490,7 @@
     <ClInclude Include="code\zengine\z_socket\z_udp_packet\z_udp_packet_message_package.h" />
     <ClInclude Include="code\zengine\z_core\z_string_view.h" />
     <ClInclude Include="code\zengine\z_socket\z_udp_peer.h" />
+    <ClInclude Include="code\zengine\z_socket\z_udp_peer_manager.h" />
     <ClInclude Include="code\zengine\z_socket\z_udp_socket.h" />
     <ClInclude Include="code\zengine\z_tsrpg.h" />
     <ClInclude Include="code\zengine\z_tsrpg\drive.h" />

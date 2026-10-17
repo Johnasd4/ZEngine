@@ -413,7 +413,7 @@ private:
 
 private:
     /** @brief Array of pointers to managed ZWindow objects. */
-    TArray<ZWindow*> window_ptr_set_;
+    TArray<ZWindow*> window_ptr_array_;
     /** @brief Thread-safe queue for storing tasks to be executed on the main thread. */
     TQueueSafe<ZTask> task_queue_;
     /** @brief Pointer to the GLFW window handle. */

@@ -173,9 +173,9 @@ NODISCARD ReturnType ZUDPMessage::Serialize(ZMemory& _output_memory) noexcept {
     UInt64 serialized_size = serialize_manager.GetSerializedMessageSize();
 
     // After serialization, update the message header fields in the message data buffer.
-    _output_memory.At<UInt64>(KMessageSizeOffset) = serialized_size;
-    _output_memory.At<UInt32>(KMessageTypeOffset) = message_type_;
-    _output_memory.At<UInt32>(KMessageIdOffset) = message_id_;
+    _output_memory.At<UInt64>(kMessageSizeOffset) = serialized_size;
+    _output_memory.At<UInt32>(kMessageTypeOffset) = message_type_;
+    _output_memory.At<UInt32>(kMessageIdOffset) = message_id_;
 
     // Resize the output memory to the actual serialized size of the message, which includes the header and body.
     _output_memory.Resize(serialized_size);
@@ -196,8 +196,8 @@ NODISCARD ReturnType ZUDPMessage::Deserialize(ZConstBuffer _input_buffer) noexce
     );
 
     // Read the message header fields from the message data buffer.
-    message_type_ = _input_buffer.At<UInt32>(KMessageTypeOffset);
-    message_id_ = _input_buffer.At<UInt32>(KMessageIdOffset);
+    message_type_ = _input_buffer.At<UInt32>(kMessageTypeOffset);
+    message_id_ = _input_buffer.At<UInt32>(kMessageIdOffset);
 
     // Set the input buffer for the deserializer. Buffer starts after the fixed header size.
     ZDeserializer& deserializer = deserialize_manager.SetInputBufferAndGetDeserializer(

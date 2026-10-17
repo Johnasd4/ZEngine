@@ -59,9 +59,6 @@
     <ClCompile Include="code\internal\z_socket_delete_manager.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="code\z_udp_packet_factory.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="code\f_socket\get_udp_public_address_and_port.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -72,6 +69,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="code\z_kcp_session.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="code\z_udp_peer_manager\z_udp_peer_manager_p2p.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

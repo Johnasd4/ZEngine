@@ -43,8 +43,8 @@
     <ClCompile Include="code\z_tcp_server.cpp" />
     <ClCompile Include="code\z_tcp_socket.cpp" />
     <ClCompile Include="code\z_udp_message.cpp" />
-    <ClCompile Include="code\z_udp_packet_factory.cpp" />
     <ClCompile Include="code\z_udp_peer\z_udp_peer_p2p.cpp" />
+    <ClCompile Include="code\z_udp_peer_manager\z_udp_peer_manager_p2p.cpp" />
     <ClCompile Include="code\z_udp_socket.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
